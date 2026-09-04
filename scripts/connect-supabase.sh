@@ -17,6 +17,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# This build's Node lives under ~/.grounup-tools and is not on a normal PATH,
+# so find it rather than failing with "command not found: npx" and leaving
+# somebody to work out why.
+source "./scripts/node-path.sh"
+
 RAW="${1:-}"
 
 # Accept whatever the person has to hand rather than one exact form: the
