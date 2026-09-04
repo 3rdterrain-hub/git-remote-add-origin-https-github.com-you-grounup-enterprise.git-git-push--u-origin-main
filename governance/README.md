@@ -43,7 +43,7 @@ was written to protect:
 | File | What it is |
 |---|---|
 | `categories.json` | The five categories and their 17 enforceable invariants, each with the reason it exists and what enforces it. |
-| `registry.json` | Every table, engine and agent, classified. 136 tables, 28 engines, 1 agent. Also records each library's scope model and known limitations. |
+| `registry.json` | Every table, engine and agent, classified. 137 tables, 28 engines, 1 agent. Also records each library's scope model and known limitations. |
 | `requirements/ges-requirements.csv` | 9,475 requirements ingested from the GES v1.0 phase packages, normalized across the twelve different column schemas they use. |
 | `requirements/phase-coverage.csv` | What of each GES phase actually exists in this repository. |
 | `requirements/summary.json` | Counts, and what was deliberately excluded. |

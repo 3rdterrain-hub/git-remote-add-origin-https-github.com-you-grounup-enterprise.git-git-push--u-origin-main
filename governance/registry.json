@@ -84,6 +84,7 @@
     "network_ratings": "ENTITY",
     "network_vendors": "ENTITY",
     "notification_preferences": "ENTITY",
+    "notification_receipts": "ENTITY",
     "notifications": "ENTITY",
     "opportunities": "ENTITY",
     "pay_application_lines": "ENTITY",

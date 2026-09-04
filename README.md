@@ -17,7 +17,7 @@ splits the work along the line where each side is actually good.
 |---|---|---|
 | **Estimating engine** | `packages/engine` | Every authoritative number, including surface volumes. Pure TypeScript, zero dependencies, 525 tests. |
 | **Document rendering** | `packages/pdf` | Proposals, pay applications and reports as real PDFs. Dependency-free and deterministic, so the same document always renders to the same bytes. |
-| **Database** | `supabase/migrations` | 53 migrations, 136 tables, 12 reporting views: multi-tenant schema, RLS forced on every table, audit ledger, governance triggers. |
+| **Database** | `supabase/migrations` | 54 migrations, 137 tables, 12 reporting views: multi-tenant schema, RLS forced on every table, audit ledger, governance triggers. |
 | **Seed library** | `supabase/seed` | 4,671 catalog records generated from the governed GrounUp v2.0 package. |
 | **Edge Functions** | `supabase/functions` | Stripe checkout, portal, webhooks, entitlements, the governed AI document analyst, and the public API gateway. |
 | **Observability** | `supabase/functions/_shared/observability` | Structured logging with request correlation, metrics, and health/readiness — everything redacted on the way out by field name and by value shape. |
@@ -126,7 +126,7 @@ a trigger or an RLS policy.
 ## Security posture
 
 - **Tenant isolation** is enforced by PostgreSQL row level security, `FORCE`d on
-  every one of the 136 tables, with `app.assert_security_gates()` run at the end
+  every one of the 137 tables, with `app.assert_security_gates()` run at the end
   of every migration that adds a table — the gate is itself covered by a test
   that proves it fails when a table is left open.
 - **The anonymous role** holds no table privilege except the public plan catalog,

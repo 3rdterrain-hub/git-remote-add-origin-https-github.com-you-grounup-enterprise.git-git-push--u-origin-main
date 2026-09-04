@@ -1,0 +1,274 @@
+{
+  "phase": "P02",
+  "title": "Core Platform Foundations",
+  "method": "P02 is 60 requirements across ten domains, and — unusually — every one carries its own distinct acceptance criterion rather than sharing a phase-wide set. Each is therefore judged individually against that criterion, which is the most exacting method in this register: several requirements whose capability partly exists still fail because the criterion names something specific the platform does not do.",
+  "judged_before_and_after": "Judged after building migration 0054 and 10 tests. 17 of 60 are met. The pattern across the ten domains is consistent: the layers this platform actually owns — tenancy, authorization, secrets, identifiers, time — hold well, and the layers a platform of this kind usually buys or builds separately — events, jobs, scheduling, mobile, offline, workflow, feature flags — are absent rather than partial.",
+  "findings": [
+    {
+      "id": "P02-F1",
+      "title": "A policy comment claimed a narrower permission than the policy granted",
+      "detail": "`notifications_update` reads 'A user may only mark their own notifications read or dismissed.' Row level security restricts *rows*, not columns. The policy admitted a member's own notifications and every company-wide one — a company-wide notice has `user_id is null` and the predicate allows it — so any member could rewrite the `title`, `body`, `severity` or `action_path` of a critical safety notice naming an employee whose certification had lapsed, or quietly downgrade it from critical to info.",
+      "why_it_matters": "It is the gap between what a control is written to do and what it does, expressed in a comment that reads as a specification. Nobody had noticed because nothing writes read state: no inbox exists to mark anything read, so the permission that was too wide had never been exercised. It is exactly the defect that appears on the day the feature is built.",
+      "status": "resolved",
+      "resolution": "A notification is a record of an event and its content is now fixed. The update policy is withdrawn, so a member's update matches no rows at all, and a trigger refuses a privileged edit with a message pointing at the receipts table — both layers asserted by test, because the outer one is silent by design."
+    },
+    {
+      "id": "P02-F2",
+      "title": "Read state was stored on a row shared by everybody",
+      "detail": "`read_at` and `dismissed_at` were columns on `notifications`, and a company-wide notification is a single row seen by every member of the company. The first person to mark one read would have marked it read for everyone.",
+      "why_it_matters": "A safety notice disappearing from fourteen people's attention because one of them opened it is the failure mode, and it would have been introduced silently by whoever built the inbox.",
+      "status": "resolved",
+      "resolution": "`notification_receipts` holds read and dismissal per person per notice, unique on the pair, tenant-parented to the notification and readable only by its own user — nobody else's business even inside the same company. The three columns are dropped, `emailed_at` among them: it recorded a delivery the platform cannot make, and a timestamp for an action nothing performs is the defect this build has spent its time removing."
+    },
+    {
+      "id": "P02-F3",
+      "title": "Two-thirds of this phase is a platform layer that was never built",
+      "detail": "Events, background jobs, scheduling, caching, feature flags, workflow, rules, timers, webhooks, mobile, offline, sync, alerting, backup, disaster recovery and rate limiting — sixteen of the sixty requirements name capabilities with no implementation of any kind, and several more have one piece of a named set.",
+      "why_it_matters": "Recorded plainly because the shape invites a misreading in both directions. The parts this platform owns are unusually strong: tenancy enforced structurally with two migration-time gates, one centralized authorization decision, secrets checked against the emitted bundle, identifiers stable everywhere, time correct through daylight saving by construction. And a platform foundations phase judged on what it has rather than what it lacks would be a phase judged on the easy third.",
+      "status": "open",
+      "why_not_resolved": "None of it is a loose end. An event bus, a job runner and a scheduler are infrastructure decisions that follow a deployment, and this platform has never been deployed — P20 recorded that and it remains the gate everything operational waits behind."
+    }
+  ],
+  "requirements": {
+    "000001": {
+      "status": "not_met",
+      "gap": "Authentication is Supabase Auth's and nothing about it is tenant-configurable. There is no provider registry, no per-company policy, no passwordless or SSO configuration. The multi-factor toggle that once appeared in settings was removed in this build because it was a control that switched nothing."
+    },
+    "000002": {
+      "status": "not_met",
+      "gap": "Sessions are Supabase Auth's, so issue, refresh and expiry happen outside this schema and no revoked session could reach a governed table — row level security evaluates the JWT on every statement. What the requirement asks for is configurable risk and inactivity policy, and none exists here: no session record, no inactivity window, no revocation surface."
+    },
+    "000003": {
+      "status": "met",
+      "evidence": "API keys are the platform's non-human identity and they are governed properly: stored only as a hash, scoped to named permissions, tied to one company, revocable with the actor recorded, and every request logged with the key, path, status and duration — successes and failures alike, because an audit log that records only successes cannot answer what a key tried to do. Since migration 0050 a write through the gateway is attributed in the audit ledger to the key that made it, which it previously was not. Rotation is manual: a key is revoked and another issued, with no scheduled lifecycle."
+    },
+    "000004": {
+      "status": "met",
+      "evidence": "One centralized decision. `app.has_permission` is the single authority in the database, called by every generated policy rather than by hand-written predicates, and `authorize` in the API gateway is a pure function returning an explicit allow or a typed denial with its status and code — 65 tests cover it. Every denial is logged with its correlation id, and since 0050 the correlation reaches the audit ledger too. What the requirement's wording asks for and does not get is the *matched policy* in the decision: the answer says allowed or denied and not which rule decided it."
+    },
+    "000005": {
+      "status": "not_met",
+      "gap": "No device trust. No device registration, no posture, no risk score and no policy that could require one."
+    },
+    "000006": {
+      "status": "met",
+      "evidence": "No governed statement can execute without tenant context, and it is structural rather than conventional: every table carries company_id with forced row level security predicating on it, two migration-time gates refuse to apply if a table is left open or the anonymous role can reach anything beyond the public plan catalog, and `app.enforce_tenant_parent` refuses a child row attached to another company's parent through 34 triggers. Where a caller necessarily runs as the service role — the API gateway, holding a key rather than a user — the tenant filter is applied by a wrapper rather than left to each handler, and `app.evaluate_metric` takes a company in its signature so it cannot be called without naming one."
+    },
+    "000007": {
+      "status": "met",
+      "evidence": "Blocked and testable, thoroughly: 51 row level security tests plus per-module isolation tests across estimating, operations, finance, fleet, documents, survey and the network layer, all against real PostgreSQL with two provisioned companies. This build found and closed two cross-tenant holes of its own — `document_versions` and `document_sheets` were missing tenant parentage — and P16 closed a third one level in, where a surface comparison could difference one project's ground against another's design. Logged is the weak word: an attempt is refused and the refusal is not recorded, because a policy that filters a row leaves no trace."
+    },
+    "000008": {
+      "status": "not_met",
+      "gap": "No regional placement. No region on any entity, no residency constraint, no storage class. One database in one region — P03 recorded the same."
+    },
+    "000009": {
+      "status": "not_met",
+      "gap": "`app.provision_company` is a single governed transaction that creates the company, its owner membership, its roles, its entitlement and its trial, and refuses to leave a company without an active owner — so it is atomic and its rollback is the transaction. It produces no validation report, and there is no post-provisioning check that the tenant is correctly formed."
+    },
+    "000010": {
+      "status": "met",
+      "evidence": "Every identifier is a uuid generated at insert and never derived from anything about the row, stable across every version and export: the estimate exchange format carries them, the library snapshot pins them, and a job cost row references the record that produced it by id. Business codes exist alongside — a project number, a cost code — and none is a primary key. P03 verified the same property from the data-architecture side."
+    },
+    "000011": {
+      "status": "not_met",
+      "gap": "There is no metadata framework. `governance/registry.json` classifies every table and is a file in the repository rather than a queryable, permissioned, versioned service; metric definitions are the one governed metadata that behaves the way this requirement asks, and they describe measures rather than the platform."
+    },
+    "000012": {
+      "status": "not_met",
+      "gap": "No tagging of any kind. No tag, no label, no taxonomy, no synonyms — P03 and P04 recorded the same."
+    },
+    "000013": {
+      "status": "not_met",
+      "gap": "Documents carry versions, sheets, extracted text, supersession that cannot form a cycle and a current version kept in step by trigger — and of the five things this requirement names, only owner is recorded. There is no checksum on a document version (machine control files have one and, since P17, must), no classification, no retention and no per-file access policy beyond table-level permissions."
+    },
+    "000014": {
+      "status": "met",
+      "evidence": "`app.search_document_text` searches the extracted text of document versions, and the tenancy is not bolted on: it runs under the caller's rights against tables whose policies filter by company, so an unauthorized record cannot appear in a result or a snippet because it cannot be selected in the first place. There is no separate search index to fall out of step with the records — the property P03 records as met for the search model."
+    },
+    "000015": {
+      "status": "not_met",
+      "gap": "This build strengthened the notification layer twice and it still fails this requirement. Producers are real and fire on the transition rather than on every touch — a recordable incident, a lapsed credential, a machine down, a service due, a superseded design still on a machine. Since migration 0054 a notice is a fixed record and read state is per person rather than shared. Of the four things named here, deduplication is the only one met: there is no delivery status because there is no delivery, no retry because there is no send, and the audit is the general row audit rather than a delivery record. `emailed_at` was dropped in that migration precisely because it recorded a delivery the platform cannot make."
+    },
+    "000016": {
+      "status": "not_met",
+      "gap": "No scheduler. Nothing runs on a schedule anywhere in the platform — P29 recorded that this is why a lapsed credential cannot be swept for and P20 that there is no scheduled run of anything."
+    },
+    "000017": {
+      "status": "not_met",
+      "gap": "No background job service. No queue, no priority, no retry, no idempotency key, no progress, no cancellation, no dead letter. Every operation is synchronous within a request or a trigger."
+    },
+    "000018": {
+      "status": "met",
+      "evidence": "There is no distributed cache, so cache failure cannot corrupt source-of-truth data — the requirement's own acceptance criterion is satisfied by construction, and P03's materialization test proves the related property that no reporting figure is a stale copy. Recorded as met because the criterion is about a failure mode that cannot occur, and stated plainly rather than dressed up: this is the absence of a component, not a caching strategy."
+    },
+    "000019": {
+      "status": "not_met",
+      "gap": "No configuration service. Per-company configuration is governed data — pricing profiles, authority limits, calendars, credential requirements, financial periods, metric definitions — and there is no effective-configuration resolver above it, no precedence across layers and no subscription to changes. P01 recorded the same."
+    },
+    "000020": {
+      "status": "not_met",
+      "gap": "No feature flags. Entitlements gate capability by plan, which is licensing rather than release control: no flag, no rollout percentage, no kill switch, and no way to change behavior without a deployment."
+    },
+    "000021": {
+      "status": "not_met",
+      "gap": "No workflow engine. Approvals are per-object rules in the schema rather than a definition anybody can author, and there is no workflow state to survive a restart or to inspect. P01, P07 and P23 each recorded this."
+    },
+    "000022": {
+      "status": "not_met",
+      "gap": "No rules engine. The platform's rules are triggers and constraints — reproducible and attributable to a migration, which is a version of a kind — and there is no rule a tenant can author, no explanation of a result, and no rule version on an outcome."
+    },
+    "000023": {
+      "status": "met",
+      "evidence": "State machines are the platform's normal way of holding a lifecycle and invalid transitions are blocked rather than discouraged: a proposal cannot leave draft from an unapproved estimate or with detail that does not tie, a machine assignment requires a published file, an estimate version cannot be approved without its library snapshot, a claim's deadlines are derived rather than typed, a work order cannot complete without a resolution, a period cannot be reopened without a reason. Valid transitions emit events where the transition matters — a machine going down, a credential lapsing, a design superseded while machines still hold it — through notification producers that fire on the transition only."
+    },
+    "000024": {
+      "status": "not_met",
+      "gap": "No timer or SLA engine. Deadlines are derived and stored where they are commercial — a claim's notice and claim dates from the contract clause — and nothing watches a clock: nothing fires when a deadline passes, nothing escalates, and there is no scheduler to run it from. The engine's working-day calendar arithmetic is correct across daylight-saving transitions because it operates on integer epoch days rather than on timestamps, which is the one half of this requirement that holds."
+    },
+    "000025": {
+      "status": "not_met",
+      "gap": "The gateway enforces four of the six: authentication by hashed scoped key, authorization through a pure decision function, versioning in the path with an OpenAPI specification generated from the route table so drift fails the build, and correlation on every request and every log line. There is no throttling and no request size limit — P20 recorded the absence of rate limiting, and requirement 47 records it again from the security side."
+    },
+    "000026": {
+      "status": "not_met",
+      "gap": "The API is versioned in its path and there is no compatibility policy behind it: no deprecation window, no sunset notice, no consumer registry to notify and no supported-version set. P23 recorded the same."
+    },
+    "000027": {
+      "status": "not_met",
+      "gap": "No webhooks. No signature, no replay protection, no event id, no delivery attempt — there is nothing to sign because there are no events."
+    },
+    "000028": {
+      "status": "not_met",
+      "gap": "No event bus. No event, no schema, no producer, no causation, no idempotency key. Six phases have now recorded this absence from their own side, which is what makes it the platform's largest structural gap after the frontend."
+    },
+    "000029": {
+      "status": "met",
+      "evidence": "The connector framework injects its I/O so a connector is testable without the network, records every run with its source, window and outcome, and is disableable per connector row. The NOAA weather adapter uses it. What is missing is a registry and a retry policy, which P20 recorded — observability and independent disabling, the two things this criterion names, both hold."
+    },
+    "000030": {
+      "status": "not_met",
+      "gap": "No import engine, so nothing can silently accept an invalid row — but the criterion asks for validation of imports and there are none to validate. The estimate exchange format parses and rejects before it applies, which is the one path that behaves correctly and covers one object."
+    },
+    "000031": {
+      "status": "not_met",
+      "gap": "No export engine. The estimate exchange format is the single documented export and it records none of what this requirement names: no requester, no criteria, no checksum, no retention, no expiration. P29 recorded the Export button that carries no handler."
+    },
+    "000032": {
+      "status": "not_met",
+      "gap": "No mobile shell. No native application, no camera, no location, no push, no local storage. The web application is responsive and works in a phone browser, which is not what this requirement asks for."
+    },
+    "000033": {
+      "status": "not_met",
+      "gap": "No offline packs of any kind."
+    },
+    "000034": {
+      "status": "not_met",
+      "gap": "No offline queue. Nothing preserves an original user, device, timestamp or correlation across a disconnection because nothing works while disconnected."
+    },
+    "000035": {
+      "status": "not_met",
+      "gap": "No synchronization engine. The one reconciliation the platform performs — daily report hours against approved timecards, added in P09 — reports a difference and does not merge anything."
+    },
+    "000036": {
+      "status": "not_met",
+      "gap": "No attachment synchronization and no duplicate or corruption detection on upload. Machine control files carry a required checksum since P17 and document versions carry none."
+    },
+    "000037": {
+      "status": "met",
+      "evidence": "Redaction is the default rather than an option: every log line passes through a redactor that removes values by field name and by value shape, so a token that arrives in an unexpected field is caught by its shape. 49 redaction and observability tests cover it, and since this build the boundary is enforced against the emitted bundle as well — `bundle:check` refuses a build carrying a server secret by name or by shape, having been fixed when it was found to miss a realistic service-role token through a base64 alignment error."
+    },
+    "000038": {
+      "status": "met",
+      "evidence": "Health and readiness are separated with per-check deadlines, and a hanging dependency fails its check against the deadline rather than hanging the probe. Metrics carry bounded low-cardinality labels so a metric cannot explode into a per-tenant series. Degraded state is represented. Nothing is deployed, so nothing scrapes any of it — which is a deployment gap rather than a gap in this capability."
+    },
+    "000039": {
+      "status": "not_met",
+      "gap": "Correlation is carried through every log line in a request and, since migration 0050, into the audit ledger — so a database change and the request that caused it can be joined for the first time. That is correlation across a boundary. It is not distributed tracing: there is no span, no parent, no trace context propagated to the model provider or to Stripe, and no collector."
+    },
+    "000040": {
+      "status": "not_met",
+      "gap": "No alerting framework. Notifications are in-application notices to users rather than operational alerts, and none carries a runbook, an impact statement or supporting evidence. P20 recorded the absence of any operational alerting."
+    },
+    "000041": {
+      "status": "not_met",
+      "gap": "Transport security is the hosting platform's and is not this platform's to enforce or configure: Supabase serves over TLS, and nothing here rejects an insecure transport, states a policy or exempts a development environment. Recorded as not met rather than borrowed."
+    },
+    "000042": {
+      "status": "not_met",
+      "gap": "Encryption at rest is the hosting platform's, and none of what this criterion asks for exists here: no key use, rotation, access or failure is auditable from this platform, and P03 recorded that no field-level encryption or metadata describing where it would be required exists either."
+    },
+    "000043": {
+      "status": "met",
+      "evidence": "The platform's central security property and, since this build, enforced rather than trusted. Secrets live only in Edge Function environment variables; the client bundle is scanned after every build for a server secret by name and by shape — Stripe live, test and restricted keys, the webhook signing secret, the AI provider key and a service-role JWT in all three of its base64 alignments, computed rather than written down after a hand-written pattern was found to miss a realistic token. Logs are redacted by field name and value shape. No secret is in source control, and `supabase/config.toml` carries none."
+    },
+    "000044": {
+      "status": "not_met",
+      "gap": "No malware or content scanning. The platform accepts uploaded PDFs and drawings, inspects them structurally to split and classify sheets, and performs no safety disposition — which for a system whose main input is customer-supplied documents is the honest shape of the gap."
+    },
+    "000045": {
+      "status": "not_met",
+      "gap": "No backup and no restore, so no restore test and no stated objective. P20, P23 and P29 recorded the same."
+    },
+    "000046": {
+      "status": "not_met",
+      "gap": "No disaster recovery and no exercise to produce evidence from."
+    },
+    "000047": {
+      "status": "not_met",
+      "gap": "No rate limiting and no abuse control anywhere — not on the API, not on authentication, not on AI requests beyond the plan allowance, which is a billing limit rather than an abuse control."
+    },
+    "000048": {
+      "status": "met",
+      "evidence": "Correct through daylight-saving transitions by construction rather than by testing against a transition: every timestamp column in the schema is `timestamptz`, asserted by a schema invariant test with zero exceptions, so every moment is stored in UTC with its offset resolved. Business dates that are days rather than moments are `date` — a work date, a cost date, an effective date — and the scheduling engine does its arithmetic on integer epoch days through `Date.UTC`, so a working-day calculation cannot be moved by an hour that does or does not exist. 29 calendar tests and 50 critical-path tests cover it."
+    },
+    "000049": {
+      "status": "not_met",
+      "gap": "Quantities store value and unit — `app.unit_code` on every quantity in the library, estimates, job costs, purchase orders and proposals — and precision is declared and now held by test at two places for a total and four for a rate. Conversion provenance is the missing third: the engine converts between bank, loose and compacted volume and between mass and volume explicitly and tests the arithmetic, and a stored quantity does not record which conversion produced it."
+    },
+    "000050": {
+      "status": "not_met",
+      "gap": "Money carries no currency outside the billing layer, so the criterion — that no arithmetic combines different currencies without an explicit conversion — is satisfied only because there is one implicit currency and nothing to combine. P03 records this at full size: the column is the small part and deciding what multi-currency means commercially is the rest."
+    },
+    "000051": {
+      "status": "not_met",
+      "gap": "No locale selection and no localization. One locale, US English enforced by a spelling test, and formatting hard-coded to en-US in the web application."
+    },
+    "000052": {
+      "status": "not_met",
+      "gap": "There is no model gateway. The analyst calls the provider directly with a model compiled into the function; since P06 the catalog describes that model rather than sitting empty, and nothing routes, limits, falls back or enforces a policy between the agent and the provider. Redaction and tenant context hold, through the general logging boundary and the usage allowance rather than through a gateway."
+    },
+    "000053": {
+      "status": "met",
+      "evidence": "Unregistered or disabled agents cannot execute in the only sense the platform offers: `ai_findings.agent_id` references `ai_agents`, so a finding cannot be written for an agent that is not registered, and since P06 only the agent with an implementation ships enabled — fourteen others were shipping enabled and did not exist. The authority cap is a check constraint rather than a policy, so an agent that writes on its own is unconfigurable. What is absent is a runtime that consults the registry before executing, which is recorded at requirement 52."
+    },
+    "000054": {
+      "status": "not_met",
+      "gap": "There is no tool execution service because the agent has no tools: it is handed a document, reads it and returns findings. P27 recorded this as *nothing to verify* rather than *something ungoverned* — the risk the requirement exists to catch is absent along with the capability — and it is still not the capability this requirement asks for."
+    },
+    "000055": {
+      "status": "not_met",
+      "gap": "Since P06 the prompt registry holds the exact text the analyst runs, proven identical by test, and production execution still identifies its prompt by a constant compiled into the function rather than by reading the registry. The registry's own control — a prompt cannot be activated without an evaluation pass rate — is why: no evaluation exists, so no prompt can legitimately be activated, and reading an unactivatable prompt from a table would be worse than reading a reviewed constant from code."
+    },
+    "000056": {
+      "status": "met",
+      "evidence": "A factual finding cannot exist without a citation or a sheet reference — enforced by constraint in the database and rejected by the validator before it reaches the database — and the citation resolves to a document *version*, not a document, so it remains answerable after the drawing is reissued. Document versions are immutable and supersession cannot form a cycle, so the source a finding points at is the source it read."
+    },
+    "000057": {
+      "status": "not_met",
+      "gap": "No evaluation framework and therefore no release gate to fail. The gate exists in the schema — `ai_prompts_activation` refuses to activate a prompt without a pass rate, proven by test in P06 — and there is nothing to feed it. P27 left this open for a reason that still holds: a real evaluation needs drawings and expert labels, and manufacturing a golden set from the model's own output would measure nothing but agreement with itself."
+    },
+    "000058": {
+      "status": "met",
+      "evidence": "Every analyst run writes a `usage_events` row with metric `ai.request`, `app.current_usage` aggregates it over the paid period, and since migration 0039 `app.ai_request_allowed` checks it before a request runs — the gap P30 recorded as unenforceable and P27 found that verdict wrong about. Cost is estimated per call from token counts, and `reporting_usage_allowance` shows usage against allowance before somebody hits the wall. Usage reconciles to the gateway records because they are the same rows: the analyst writes the usage event, and the API request log is written by the gateway for every request it serves."
+    },
+    "000059": {
+      "status": "met",
+      "evidence": "Since migration 0050 an audit event correlates to its request, its actor, its object and its tenant — the correlation id, the caller's address and agent, and an actor email resolved from the profile or, for a service-role caller such as the API gateway, the key it states for itself, which had previously been recorded as an anonymous insert. Object and tenant were always there. Service is the one this does not carry, and with a single application service there is nothing to distinguish."
+    },
+    "000060": {
+      "status": "not_met",
+      "gap": "Core tenant data is not exportable. The estimate exchange format covers estimates and nothing else — no customers, projects, costs, documents or safety records — so exports are neither complete nor traceable in the sense this requirement asks. P03 and P29 recorded the same."
+    }
+  }
+}

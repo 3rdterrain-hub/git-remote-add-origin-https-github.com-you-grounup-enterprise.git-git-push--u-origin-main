@@ -49,6 +49,7 @@ const p23 = JSON.parse(readFileSync(join(G, 'traceability/verification/P23-verdi
 const p04 = JSON.parse(readFileSync(join(G, 'traceability/verification/P04-verdicts.json'), 'utf8'));
 const p06 = JSON.parse(readFileSync(join(G, 'traceability/verification/P06-verdicts.json'), 'utf8'));
 const p13 = JSON.parse(readFileSync(join(G, 'traceability/verification/P13-verdicts.json'), 'utf8'));
+const p02 = JSON.parse(readFileSync(join(G, 'traceability/verification/P02-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -413,3 +414,4 @@ function buildRequirementLedger(phase, spec, label, keyLength = 6) {
 buildRequirementLedger('P03', p03, 'concern');
 buildRequirementLedger('P01', p01, 'control');
 buildRequirementLedger('P04', p04, 'capability', 3);
+buildRequirementLedger('P02', p02, 'capability');

@@ -110,6 +110,7 @@ TBL-metric_definitions,table,metric_definitions,supabase/migrations (table metri
 TBL-network_ratings,table,network_ratings,supabase/migrations (table network_ratings),ENTITY
 TBL-network_vendors,table,network_vendors,supabase/migrations (table network_vendors),ENTITY
 TBL-notification_preferences,table,notification_preferences,supabase/migrations (table notification_preferences),ENTITY
+TBL-notification_receipts,table,notification_receipts,supabase/migrations (table notification_receipts),ENTITY
 TBL-notifications,table,notifications,supabase/migrations (table notifications),ENTITY
 TBL-opportunities,table,opportunities,supabase/migrations (table opportunities),ENTITY
 TBL-pay_application_lines,table,pay_application_lines,supabase/migrations (table pay_application_lines),ENTITY
@@ -237,6 +238,7 @@ TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-go
 TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.test.ts,ENGINE
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
+TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
