@@ -1,0 +1,423 @@
+{
+  "phase": "P04",
+  "title": "Master Library Registry",
+  "method": "P04 is 97 requirements, each naming one capability of the Master Library Registry, and the register supplies no acceptance criteria for any of them. Each is therefore judged individually against the library layer as built — its tables, constraints, triggers, engine modules, migrations and tests. A requirement is met only where the capability actually operates over the master library — cost codes, materials, equipment, equipment and labor rates, production rates, tasks, assemblies, crews, condition modifiers, markup components and pricing profiles, not where the schema anticipates it.",
+  "judged_before_and_after": "Judged after building migration 0051 and 8 tests. 36 of 97 are met. The library layer is among the strongest parts of the platform — three-tier scope, approval before activation, full version history, and snapshot pinning that makes an issued price reproducible — and the sixty-one that fail are mostly capabilities that were never built rather than controls that do not work.",
+  "findings": [
+    {
+      "id": "P04-F1",
+      "title": "The calibration loop is modeled three times over and was never closed",
+      "detail": "`production_actuals` records installed quantity against crew hours with the conditions of the day, generates an achieved rate per hour, and points at the very `production_rates` row that estimated it. `production_rates` carries `sample_size`, `confidence_score`, `derived_from_project_id` and a `source_type` that can say a rate came from company actuals. Library rows carry an `origin` whose values include `calibration`. The notification catalog carries a `calibration` category. **`production_actuals` was referenced by no statement anywhere outside its own definition, no row had ever been written with `origin = 'calibration'`, and the notification category had no producer.**",
+      "why_it_matters": "Learning what work actually takes is the thing an estimating platform is for. Three separate places in the schema anticipate the capability, which is what makes this the purest instance of the pattern this build has found in every phase — and it sits on the loop that makes the library get better rather than merely stay consistent.",
+      "status": "resolved",
+      "resolution": "Migration 0051 adds `reporting_production_variance`: what the field achieved against what the library said, per rate, weighted by hours rather than averaged across days — because a half-day of bad access and a week of clean production are not two equally weighted opinions — with the observation count and hours published beside the variance so a reader can tell a signal from an anecdote, and the direction named rather than left to be worked out. 8 tests.",
+      "note": "It measures and deliberately does not correct. A library rate is an approved record and changes through the approval workflow; rewriting one automatically from field data would be exactly the automation overreach the governance rules exist to prevent, performed with the estimator's own numbers. A test asserts the library rate, sample size and source type are untouched."
+    },
+    {
+      "id": "P04-F2",
+      "title": "Deprecation and replacement exist for one library out of twelve",
+      "detail": "`production_rates` carries `superseded_by_id`. No other library table does. `app.record_status` offers `archived` with no workflow behind it: nothing warns that an estimate is pricing from a retired rate, nothing maps a retired row to what replaced it, and nothing rolls a row back to a prior version even though `library_row_versions` stores every version's full payload.",
+      "why_it_matters": "A library that can only grow accumulates rows nobody trusts, and an estimator has no way to tell a current rate from an abandoned one. The version history that would make rollback trivial is already there and unused.",
+      "status": "open",
+      "why_not_resolved": "Retirement is not a column; it is a decision about what happens to the estimates already pricing from the row. Blocking them breaks working bids, ignoring them defeats the purpose, and warning them needs a surface that does not exist while 22 of 23 screens read fixtures. Migration 0028 shows the right shape — apply the rule generatively across every library table so none can be added without it — and the rule has to be settled before it is applied."
+    },
+    {
+      "id": "P04-F3",
+      "title": "Accessibility is founded on and measured by nothing",
+      "detail": "The application is built on shadcn/ui over Radix primitives, which carry keyboard navigation, focus management and screen-reader semantics by construction. Nothing measures any of it: there is no accessibility audit, no automated check anywhere in the gate, no contrast test and no stated conformance target.",
+      "why_it_matters": "It is a real foundation and an unverified claim, and the difference is the whole subject of this register. A component library gives correct behavior in the components; it says nothing about the pages built from them.",
+      "status": "open",
+      "why_not_resolved": "An automated axe pass in the web suite would be a genuine start and would measure the fixtures currently rendered rather than the product — 22 of 23 screens read demonstration data, so the pages under test are not the pages a user will meet. Recorded rather than half-measured, and this verdict claims no accessibility it has not tested."
+    }
+  ],
+  "requirements": {
+    "001": {
+      "status": "not_met",
+      "gap": "Every library table is registered and classified — governance/registry.json names all 136 tables with their category and scope model, and a test fails the build if one is unclassified. Ownership is the missing half: no library, table or row records an accountable owner. P01, P03 and P23 each found the same absence independently."
+    },
+    "002": {
+      "status": "met",
+      "evidence": "Every library row has an immutable uuid primary key, and a business code unique within its scope alongside it — a cost code, a rate code, an assembly code — so an external reference has something stable to quote without the code becoming the identity."
+    },
+    "003": {
+      "status": "met",
+      "evidence": "Every library table carries company_id with forced row level security predicating on it, an index leading on it since migration 0049, and structural tenant parentage on every child. A company cannot read another company's overrides; a test proves it."
+    },
+    "004": {
+      "status": "met",
+      "evidence": "Three-tier scope is the platform's central library mechanism: a row owned by nobody is platform seed, one owned by an enterprise group is shared across its companies, one owned by a company is that company's. Resolution prefers the most specific, and 36 library governance tests hold the precedence."
+    },
+    "005": {
+      "status": "met",
+      "evidence": "A company overrides a platform row by creating its own with the same key, and the resolver prefers it. The override is a separate row rather than an edit, so the platform row it replaced is still readable and the override is attributable."
+    },
+    "006": {
+      "status": "not_met",
+      "gap": "There is no white-label scoping. enterprise_groups give a middle tier for library sharing, which is not the same thing: there is no brand, no reseller, no per-brand catalog and no presentation scoped to one. P23 recorded the same absence, and the pricing page was corrected in this build for advertising a white-label capability."
+    },
+    "007": {
+      "status": "met",
+      "evidence": "Library reads and writes are permission-gated like everything else, and the write path is narrower than the read path by design: an estimator prices from the library and cannot change it. A seeded sales role reads estimates and cannot change pricing, proven by test."
+    },
+    "008": {
+      "status": "met",
+      "evidence": "A company-owned library row cannot reach `active` status without an approver — enforced by a check constraint applied generatively to every library table in migration 0028, so a library added later inherits it rather than needing to remember it. This build hit that constraint repeatedly while writing tests, which is what an enforced rule feels like."
+    },
+    "009": {
+      "status": "met",
+      "evidence": "`library_row_versions` records every insert, update and delete of every library row as a full payload with a version number and the actor. There is deliberately no `valid_to`: a version ends when the next begins, so the close-out is a window function rather than a write, which keeps the table genuinely append-only rather than append-only by convention."
+    },
+    "010": {
+      "status": "met",
+      "evidence": "Rates carry `effective_date` and `expires_on` with a constraint that the second follows the first, and version validity is derived from the version sequence. Financial periods are non-overlapping by exclusion constraint. Work calendars carry dated exceptions."
+    },
+    "011": {
+      "status": "met",
+      "evidence": "The strongest control in the library layer. An estimate version cannot reach approved, issued or awarded without a `library_snapshot` capturing the exact rows that priced it, and the snapshot must belong to that version — pointing at another version's snapshot is refused. `app.snapshot_drift` reports where the pinned rows and the current library have since diverged. An issued price the platform cannot reproduce is not a record of anything, and the schema says so."
+    },
+    "012": {
+      "status": "met",
+      "evidence": "The seed itself is a governed bulk import: 4,905 lines of SQL carrying 4,671 catalog records, generated by a script from the GrounUp v2.0 package, versioned in the repository, applied by the same migration runner as everything else, and covered by tests asserting the counts and the scope of every library it loads."
+    },
+    "013": {
+      "status": "not_met",
+      "gap": "No schema mapping. There is no mapping definition, no field correspondence and no transform between an external catalog's shape and this one — the seed generator hard-codes the one source it knows. Importing a company's existing cost catalog would be a code change."
+    },
+    "014": {
+      "status": "met",
+      "evidence": "Uniqueness is enforced where a duplicate is a data error: a cost code, rate code, material code, equipment code and assembly code are each unique within their scope, and a platform row and a company override of the same key are distinguishable rather than duplicates. Fuzzy detection of near-duplicates does not exist and is recorded at P03 rather than claimed here."
+    },
+    "015": {
+      "status": "met",
+      "evidence": "`production_rates.source_type` records where a rate came from across six values from seed benchmark to company actual to estimator judgment, and `derived_from_project_id` records which job produced it. Library rows carry an `origin` distinguishing human, AI, import and calibration. The seed records its package version."
+    },
+    "016": {
+      "status": "met",
+      "evidence": "`production_rates.confidence_score` is bounded 0 to 1 with a `sample_size` beside it, and the estimating engine carries confidence through to an estimate's confidence band — five levels including one that refuses to price. Confidence is a first-class concept here rather than a label."
+    },
+    "017": {
+      "status": "met",
+      "evidence": "The library is a graph and the edges are enforced: an assembly references components which reference materials, equipment, labor rates and nested assemblies, with a cycle check refusing an assembly that contains itself. A crew references its members; a production rate references its task and crew; a markup references its components."
+    },
+    "018": {
+      "status": "not_met",
+      "gap": "No impact analysis. Nothing answers what breaks if a rate changes: there is no dependency query, no affected-estimate list, no preview of a change's consequences. The snapshot drift report is the nearest thing and it runs the other way — it says which pinned estimates have diverged from the library, after the fact rather than before the change."
+    },
+    "019": {
+      "status": "met",
+      "evidence": "Units are a closed enum, `app.unit_code`, used on every quantity in the library and carried through to estimates, job costs and purchase orders. Volume state is separately typed — bank, loose and compacted cubic yards are different things and the engine converts explicitly rather than treating a cubic yard as a cubic yard."
+    },
+    "020": {
+      "status": "met",
+      "evidence": "Regional precedence is `condition_modifiers` and `pricing_profiles`, both three-tier and both applied by the engine in a defined order with the applied modifiers recorded on the estimate line. A region column on rates narrows applicability."
+    },
+    "021": {
+      "status": "not_met",
+      "gap": "No search indexing over the library. Document text is indexed and searchable; the library is not — there is no index, no ranking and no lookup beyond exact code and name matching in application queries."
+    },
+    "022": {
+      "status": "not_met",
+      "gap": "No semantic search anywhere in the platform. No embeddings, no vector index, no similarity."
+    },
+    "023": {
+      "status": "not_met",
+      "gap": "No synonyms. A material called 'aggregate base' and one called 'Class 2 AB' are unrelated rows, and nothing maps between the terms a company uses and the ones the seed shipped."
+    },
+    "024": {
+      "status": "not_met",
+      "gap": "No custom fields on any library row — the same absence P03, P07 and P08 each recorded. A company that tracks a property this schema does not have has nowhere to put it."
+    },
+    "025": {
+      "status": "met",
+      "evidence": "Every library table carries the full-row audit trigger writing prior and new state into an append-only ledger, and since migration 0050 each event records the caller's address, agent and correlation id — and for a service-role caller, the key it states for itself. A governance test asserts every table in the schema is either audited or frozen."
+    },
+    "026": {
+      "status": "met",
+      "evidence": "`library_snapshots.digest` is a content hash over the captured entries, and the migration is careful about what it claims: the comment states it is a drift check rather than a tamper control, because the immutability triggers are what make tampering impossible. Machine control files carry a SHA-256 constrained to its exact shape and, since migration 0048, required before a file may be published."
+    },
+    "027": {
+      "status": "not_met",
+      "gap": "No rollback. `library_row_versions` stores each version's full payload, so the material to restore a prior version exists — and nothing restores one. There is no revert, no undo and no function that writes a version back."
+    },
+    "028": {
+      "status": "not_met",
+      "gap": "Deprecation exists for one library and not as a concept. `production_rates` carries `superseded_by_id`; no other library table does, and `app.record_status` offers archived without any workflow for retiring a row in use. Nothing warns that an estimate is pricing from a retired rate."
+    },
+    "029": {
+      "status": "not_met",
+      "gap": "Replacement mapping is the same single case: a superseded production rate names its replacement and nothing else does. There is no general mapping from a retired row to what took its place, and nothing rewrites or flags references to it."
+    },
+    "030": {
+      "status": "not_met",
+      "gap": "The public API exposes nine endpoints and not one reads the library. A metric definition can be evaluated through it; a cost code, a rate, a material or an assembly cannot be read or written by any integration."
+    },
+    "031": {
+      "status": "not_met",
+      "gap": "No webhooks anywhere in the platform. No event, no subscription, no delivery, no retry — P07, P20, P23, P29 and P30 have each recorded this absence from their own side."
+    },
+    "032": {
+      "status": "not_met",
+      "gap": "No caching layer. Library reads go to the database every time. The tenant key indexes added in migration 0049 removed a sequential scan from every one of those reads on 53 tables, which is a real improvement and is not caching."
+    },
+    "033": {
+      "status": "not_met",
+      "gap": "No offline sync of anything, for the library or otherwise. No local store, no queue, no reconciliation on reconnect."
+    },
+    "034": {
+      "status": "not_met",
+      "gap": "No conflict resolution, because there is no concurrent editing model to have conflicts in: P03 recorded that the platform has no optimistic concurrency at all, so two people editing one library row silently overwrite each other and the loser is never told."
+    },
+    "035": {
+      "status": "met",
+      "evidence": "The estimate exchange format exports the library rows that priced an estimate along with the estimate itself, carrying identifiers, versions, units and provenance, with a round-trip test proving an export re-imported produces the same numbers. It is a documented machine-readable format and it is the only one — bulk library export as such is recorded at P03 as absent."
+    },
+    "036": {
+      "status": "not_met",
+      "gap": "No retention policy for the library or anything else. P01, P03, P15, P28 and P29 have each recorded this, and P29 established the mechanism: a company cannot be deleted at all."
+    },
+    "037": {
+      "status": "not_met",
+      "gap": "No localization. One locale, US English enforced by a spelling test, US survey feet by default, no translation of any library name or description."
+    },
+    "038": {
+      "status": "not_met",
+      "gap": "Library money carries scale and no currency. Precision is real and now enforced — a unit rate at four decimal places and a total at two, checked against the live catalog since P03 — and no library rate names the currency it is in. P03 records this as a platform-wide gap."
+    },
+    "039": {
+      "status": "not_met",
+      "gap": "No tax mapping. No jurisdiction, no rate table, no rule version, and nothing in the library that could reference one."
+    },
+    "040": {
+      "status": "not_met",
+      "gap": "No AI indexing of the library. The one governed agent reads drawings and specifications; nothing indexes, embeds or classifies a library row, and nothing recommends one."
+    },
+    "041": {
+      "status": "met",
+      "evidence": "`ai_prompts` is itself a governed three-tier library: versioned, activated by a named person, append-only in its message history, and referenced by every AI finding so a finding names the prompt version that produced it. RULE-008 is enforced structurally — an agent with write authority cannot be configured."
+    },
+    "042": {
+      "status": "not_met",
+      "gap": "No training datasets. Nothing collects, versions or governs a dataset, and the platform trains nothing."
+    },
+    "043": {
+      "status": "met",
+      "evidence": "The estimating engine is 28 modules of pure TypeScript with zero dependencies, no clock, no I/O and no randomness, under 529 tests — every formula it applies is tested against worked examples, including the ones this build corrected when hand arithmetic disagreed with the engine and the engine turned out to be right. Snapshot and portable-format round trips prove a formula's inputs and output survive export and re-import."
+    },
+    "044": {
+      "status": "not_met",
+      "gap": "The loop is measured since migration 0051 and not closed. `reporting_production_variance` reports what the field achieved against what the library said, per rate, weighted by hours rather than averaged across days, with the observation count and hours behind it so a reader can tell a signal from an anecdote — and before it, `production_actuals` was referenced by no statement anywhere outside its own definition. What is still absent is the calibration itself: nothing proposes a rate, nothing updates `sample_size` or `confidence_score`, no row has ever been written with `origin = 'calibration'`, and the `calibration` notification category still has no producer. Deliberately: a library rate is an approved record and changes through the approval workflow, so the proposal-and-approval path is the build that closes this and it does not exist yet."
+    },
+    "045": {
+      "status": "not_met",
+      "gap": "No vendor quote linkage. RFQs and quotes exist in procurement and no library rate references one, so a material cost cannot be traced to the quote that set it."
+    },
+    "046": {
+      "status": "not_met",
+      "gap": "No document linkage from a library row. Documents attach to a project and to nothing else — P07 and P03 recorded the same, and a specification governing a material has nowhere to attach."
+    },
+    "047": {
+      "status": "not_met",
+      "gap": "Safety requirements are governed per work type through `work_credential_requirements`, and nothing ties them to the library: a task or assembly does not name the credentials it requires, so the link between what is being priced and who may legally do it is made only at assignment time."
+    },
+    "048": {
+      "status": "not_met",
+      "gap": "No quality controls on the library: no inspection or test plan attached to a task, no tolerance, no acceptance criterion, and no data quality rule over the library rows themselves."
+    },
+    "049": {
+      "status": "not_met",
+      "gap": "No DOT item mapping. Bid items are reconciled against owner quantities in `bid_reconciliations`, which is a quantity check rather than a coded mapping to a DOT specification."
+    },
+    "050": {
+      "status": "not_met",
+      "gap": "No CSI mapping. Cost codes are a governed three-tier library a company defines and extends with no industry structure imposed, which is the right design and is not a CSI crosswalk."
+    },
+    "051": {
+      "status": "not_met",
+      "gap": "No municipal or agency mapping of any kind."
+    },
+    "052": {
+      "status": "met",
+      "evidence": "Assemblies are the service composition: an assembly expands into components across labor, equipment, material, nested assemblies and tasks, with a cycle check, and the expansion engine is tested against worked examples. This build added the expansion engine and its material cost derivation for P05."
+    },
+    "053": {
+      "status": "met",
+      "evidence": "Crews are governed compositions of labor and equipment with counts, priced by the engine as a unit, three-tier scoped and approval-gated like every other library."
+    },
+    "054": {
+      "status": "met",
+      "evidence": "Equipment rates carry ownership and operating cost per hour with fuel burn, and the engine prices operating hours, ownership hours, mobilization and fuel separately so an equipment cost can be reconciled against the rate that produced it. P12 verified the fleet side of the same link."
+    },
+    "055": {
+      "status": "met",
+      "evidence": "Crew productivity is what `production_rates` are: a rate per hour for a task by a crew, with a utilization factor and a shift length producing a generated daily rate, and — since migration 0051 — the achieved rate from the field published beside the library rate with the evidence behind it."
+    },
+    "056": {
+      "status": "met",
+      "evidence": "Fuel is modeled through the equipment rate's burn rate against operating hours, priced at a fuel price carried on the estimate version, with diesel exhaust fluid separately. The engine computes gallons and cost, and P12 connected the actual side so a fuel transaction posts to the job it was burned on."
+    },
+    "057": {
+      "status": "met",
+      "evidence": "Trucking cycles are a tested engine module: haul distance, speed, load and dump time and a cycle count producing truck hours and cost, with the cycle time derived rather than typed."
+    },
+    "058": {
+      "status": "met",
+      "evidence": "Disposal facilities are a governed library with a tipping fee and a unit, referenced by the disposal cost the engine computes from hauled quantity."
+    },
+    "059": {
+      "status": "not_met",
+      "gap": "Rentals are a purchase order type that now posts a commitment to the job since migration 0046, and there is no rental rate library: no rate by period, no minimum, no idle policy. P12 recorded that nothing manages a rental agreement at all."
+    },
+    "060": {
+      "status": "met",
+      "evidence": "Maintenance intervals are governed per asset and per schedule in hours, miles or days, with at least one interval required by constraint, and completing a preventive work order resets the schedule from what actually happened rather than from a calendar. P12 verified this."
+    },
+    "061": {
+      "status": "met",
+      "evidence": "Inventory items carry a unit cost, a reorder point and a transaction ledger, with quantities moving only through transactions rather than by direct edit."
+    },
+    "062": {
+      "status": "not_met",
+      "gap": "No time codes. Time entries carry straight, overtime and double time as three numeric columns with no governed code list behind them, and nothing derives the classification — P09 recorded that overtime is whatever somebody typed."
+    },
+    "063": {
+      "status": "not_met",
+      "gap": "No payroll codes. `time_entries.payroll_batch` and `exported_at` exist and nothing writes them, because there is no payroll export — the gap that fails P09's integration condition."
+    },
+    "064": {
+      "status": "not_met",
+      "gap": "No accounting mappings. There is no chart of accounts, no general ledger account on any library row, and no mapping from a cost type to an account. P10 recorded the absence of a chart of accounts."
+    },
+    "065": {
+      "status": "not_met",
+      "gap": "No dashboard definitions. Dashboards are hard-coded screens reading demonstration fixtures; nothing defines one as data."
+    },
+    "066": {
+      "status": "met",
+      "evidence": "Report definitions exist as `metric_definitions`: sixteen governed metrics with a key, description, unit, grain, target and the SQL expression each means, versioned append-only on every change to the calculation, permission-gated to `company.manage`, each naming the reporting view it comes from with a test that executes it there. P29 built the governance and found two definitions that could not be computed at all."
+    },
+    "067": {
+      "status": "not_met",
+      "gap": "No notification templates. Notification bodies are composed in the trigger functions that produce them — carefully, naming the machine or the person and the consequence — and none is a governed row a company can edit."
+    },
+    "068": {
+      "status": "not_met",
+      "gap": "No workflow definitions. Approvals are per-object rules in the schema rather than a definition a tenant can author; P01, P07 and P23 each recorded the absence of a workflow engine."
+    },
+    "069": {
+      "status": "not_met",
+      "gap": "Inspections carry a type and a `result_values` JSON object, and there is no form definition behind it — nothing declares what fields an inspection of a given type should collect, so the structure is whatever the writer supplied."
+    },
+    "070": {
+      "status": "not_met",
+      "gap": "No checklists. Toolbox talks record that a meeting happened; nothing defines a list of items to complete or verifies that they were."
+    },
+    "071": {
+      "status": "not_met",
+      "gap": "No template management. Proposals carry a `template_key` that selects among renderers compiled into the document engine; there is no template a company can create, edit or version."
+    },
+    "072": {
+      "status": "not_met",
+      "gap": "No brand terminology. Nothing overrides a label, a term or a name per tenant — the same absence as white-label scoping at requirement six."
+    },
+    "073": {
+      "status": "not_met",
+      "gap": "No custom domains. One application, one origin."
+    },
+    "074": {
+      "status": "not_met",
+      "gap": "No OEM or reseller hierarchy. `enterprise_groups` provide a library-sharing tier between platform and company, which is a scope model rather than a commercial hierarchy: there is no reseller, no margin, no sub-tenant billing."
+    },
+    "075": {
+      "status": "not_met",
+      "gap": "No marketplace packaging. Plans package platform capability and nothing packages a library: there is no catalog anybody can publish, license or subscribe to."
+    },
+    "076": {
+      "status": "not_met",
+      "gap": "No usage analytics for the library. AI requests are metered and plan limits are counted; nothing records which library rows are used, by whom or how often, so nothing can tell a live rate from a dead one."
+    },
+    "077": {
+      "status": "not_met",
+      "gap": "No data quality KPIs. P03 and P29 both recorded that there is no data quality framework at all — no completeness, validity, uniqueness, consistency or timeliness measure, and no score."
+    },
+    "078": {
+      "status": "not_met",
+      "gap": "No periodic review. Nothing schedules a library review, records that one happened, or ages a rate that nobody has looked at. `production_rates` carries an effective date and a confidence score and nothing revisits either."
+    },
+    "079": {
+      "status": "not_met",
+      "gap": "No emergency correction path. A correction goes through the same approval as any other change, which is defensible, and there is no break-glass, no expedited route and no post-hoc review of one — P01 recorded the absence of break-glass access platform-wide."
+    },
+    "080": {
+      "status": "not_met",
+      "gap": "No four-eyes approval. A library row needs an approver and never a second one, and nothing prevents the same person creating and approving it. P01 recorded this as the segregation-of-duties gap: there is authority and no separation."
+    },
+    "081": {
+      "status": "not_met",
+      "gap": "No publication scheduling. A library row becomes active when somebody approves it; nothing schedules a change to take effect at a future moment, though `effective_date` would carry it."
+    },
+    "082": {
+      "status": "not_met",
+      "gap": "No sandbox. There is one environment for a tenant's library and no promotion path, so a company testing a rate change tests it in production."
+    },
+    "083": {
+      "status": "not_met",
+      "gap": "No environment portability for the library. Migrations carry the schema between environments; nothing carries a tenant's library rows, and P03 recorded that core tenant data is not exportable."
+    },
+    "084": {
+      "status": "met",
+      "evidence": "Migrations are ordered, forward-only, and applied unmodified to real PostgreSQL by the test suite on every run — so a migration that would fail on a real database fails the build rather than a deployment. The library-governance migration applies its rules generatively across every library table, so a library added later inherits them rather than needing to be remembered."
+    },
+    "085": {
+      "status": "not_met",
+      "gap": "No declared compatibility window. The library schema changes by migration with no deprecation period, no versioned view over an old shape and no consumer to notify — there is no library API to be compatible with."
+    },
+    "086": {
+      "status": "not_met",
+      "gap": "No performance targets. No baseline, no budget, no measurement. P20, P23 and P29 each recorded the absence of any performance testing."
+    },
+    "087": {
+      "status": "not_met",
+      "gap": "No availability targets. No service level objective, no error budget, no measurement — and nothing is deployed to measure."
+    },
+    "088": {
+      "status": "not_met",
+      "gap": "No disaster recovery. No backup, no restore test, no recovery objective. P20 and P23 recorded the same."
+    },
+    "089": {
+      "status": "not_met",
+      "gap": "No field-level encryption or encryption metadata. Data is encrypted at rest by the hosting platform and nothing in this schema declares or controls it."
+    },
+    "090": {
+      "status": "not_met",
+      "gap": "No privacy controls over the library. The library holds no personal data, which is the honest reason this is not urgent and is not the same as the requirement being met; the platform-wide absence of classification, retention and erasure is recorded at P01 and P03."
+    },
+    "091": {
+      "status": "not_met",
+      "gap": "No accessibility governance. The application is built on shadcn/ui over Radix primitives, which carry keyboard and screen-reader behavior by construction — a real foundation. Nothing measures or enforces it: no audit, no automated check in the gate, no contrast test, no stated conformance target. P07 and P08 recorded the same, and this build does not claim accessibility it has not measured."
+    },
+    "092": {
+      "status": "not_met",
+      "gap": "No mobile usability governance. The application is responsive and works in a phone browser; there is no native application, no offline capability, no field-optimized entry and nothing that measures usability on a device."
+    },
+    "093": {
+      "status": "not_met",
+      "gap": "No no-code administration. Library rows are governed data a screen could manage and 22 of the 23 application screens read demonstration fixtures rather than governed records — the platform-wide gap P29 recorded. Stages, statuses and enumerations are check constraints in migrations, so changing one is a schema change."
+    },
+    "094": {
+      "status": "met",
+      "evidence": "36 library governance tests plus the estimating suite hold the library's rules: three-tier resolution, approval before activation, version capture, snapshot pinning and drift, scope validity, and the cycle checks. They run in the same single gate as everything else, against real PostgreSQL, with no credentials required."
+    },
+    "095": {
+      "status": "met",
+      "evidence": "Every library table is classified in the registry with its scope model and a test fails the build if one is unclassified; every requirement in this register carries a derived tracing status; and since P23 an artifact may declare what it implements, with a declaration naming a requirement the register does not have failing the build. This file and the migration behind requirement 44 carry such declarations."
+    },
+    "096": {
+      "status": "met",
+      "evidence": "An approval is a record rather than a state change: the approver and the moment are stored on the row, a company-owned library row cannot be active without them, and the audit ledger holds the prior and new state of the approval itself with the actor who made it."
+    },
+    "097": {
+      "status": "met",
+      "evidence": "The seed is generated from a versioned package by a script in the repository, its record counts are asserted by test, and the estimate snapshot digest hashes the captured library entries so a pinned set can be checked against what it claimed to be. The manifest is the generator and its tests rather than a signed artifact, which is the honest description of it."
+    }
+  }
+}

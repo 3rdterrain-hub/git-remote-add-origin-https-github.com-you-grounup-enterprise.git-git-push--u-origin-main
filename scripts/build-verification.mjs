@@ -46,6 +46,7 @@ const p17 = JSON.parse(readFileSync(join(G, 'traceability/verification/P17-verdi
 const p03 = JSON.parse(readFileSync(join(G, 'traceability/verification/P03-verdicts.json'), 'utf8'));
 const p01 = JSON.parse(readFileSync(join(G, 'traceability/verification/P01-verdicts.json'), 'utf8'));
 const p23 = JSON.parse(readFileSync(join(G, 'traceability/verification/P23-verdicts.json'), 'utf8'));
+const p04 = JSON.parse(readFileSync(join(G, 'traceability/verification/P04-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -365,11 +366,11 @@ buildAspectLedger('P07', p07);
  * factor. Each requirement carries its own verdict and the ledger is a straight
  * join.
  */
-function buildRequirementLedger(phase, spec, label) {
+function buildRequirementLedger(phase, spec, label, keyLength = 6) {
   const ledger = [];
   const problems = [];
   for (const r of allRequirements.filter((x) => x.phase === phase)) {
-    const key = r.requirement_id.slice(-6);
+    const key = r.requirement_id.slice(-keyLength);
     const verdict = spec.requirements[key];
     if (!verdict) { problems.push(`no verdict for ${r.requirement_id} (${r.name})`); continue; }
     const verified = verdict.status === 'met';
@@ -407,3 +408,4 @@ function buildRequirementLedger(phase, spec, label) {
 
 buildRequirementLedger('P03', p03, 'concern');
 buildRequirementLedger('P01', p01, 'control');
+buildRequirementLedger('P04', p04, 'capability', 3);
