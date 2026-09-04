@@ -242,13 +242,23 @@ describe('the documentation states what the tree contains', () => {
   });
 
   it('regenerates both documentation tables in an order that converges', () => {
-    // Both generators write docs/BUILD-SUMMARY.md, and this one's Documentation
-    // row counts that file's own lines — so the test-count table has to be
-    // written first or the pair needs a second pass to settle.
+    /*
+     * Both generators write docs/BUILD-SUMMARY.md, and the schema one's
+     * Documentation row counts that file's own lines — so it has to run *after*
+     * the test-count table to measure a settled file.
+     *
+     * It also has to run *before* it. A stale migration count turns the
+     * governance suite red, and `counts` refuses to record from a red run, so
+     * the two would deadlock against each other: the numbers cannot be fixed
+     * because the suite is failing, and the suite is failing because the
+     * numbers are wrong. `schema:counts` needs no test reports, so leading with
+     * it breaks the deadlock; ending with it keeps the pair converging in one
+     * pass.
+     */
     const docs = pkg.scripts.docs!;
     expect(docs).toContain('npm run counts');
-    expect(docs).toContain('npm run schema:counts');
-    expect(docs.indexOf('npm run counts')).toBeLessThan(docs.indexOf('npm run schema:counts'));
+    expect(docs.indexOf('npm run schema:counts')).toBeLessThan(docs.indexOf('npm run counts'));
+    expect(docs.lastIndexOf('npm run schema:counts')).toBeGreaterThan(docs.indexOf('npm run counts'));
   });
 
   it('agrees with the tree right now', () => {

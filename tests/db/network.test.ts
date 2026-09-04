@@ -124,11 +124,25 @@ describe('survey, claims, network and API', () => {
       ).rejects.toThrow(/mc_published/);
     });
 
-    it('publishes with the person who did it recorded', async () => {
+    it('requires a digest on a published design', async () => {
+      // Since migration 0048. Without it there is no way to show that the file
+      // on the machine is the file that was approved, which is the only reason
+      // to record a checksum at all.
+      await expect(
+        h.asUser(alice, () =>
+          h.sql(`insert into machine_control_files (company_id, project_id, name, file_format, storage_path, status, published_at, published_by)
+                 values ($1,$2,'No digest','ttm','mc/nodigest.ttm','published', now(), $3)`,
+            [ridgeline, project, alice])),
+      ).rejects.toThrow(/mc_published/);
+    });
+
+    it('publishes with the person who did it and the digest recorded', async () => {
       const rows = await h.asUser(alice, () =>
         h.sql<{ id: string }>(
-          `insert into machine_control_files (company_id, project_id, name, file_format, storage_path, status, published_at, published_by)
-           values ($1,$2,'Subgrade v1','ttm','mc/subgrade-v1.ttm','published', now(), $3) returning id`,
+          `insert into machine_control_files (company_id, project_id, name, file_format, storage_path,
+             status, published_at, published_by, checksum_sha256)
+           values ($1,$2,'Subgrade v1','ttm','mc/subgrade-v1.ttm','published', now(), $3,
+                   repeat('a',64)) returning id`,
           [ridgeline, project, alice]));
       file = rows[0]!.id;
       expect(file).toBeTruthy();

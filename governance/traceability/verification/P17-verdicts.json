@@ -1,0 +1,130 @@
+{
+  "phase": "P17",
+  "title": "Machine Control & Field Automation",
+  "method": "Every P17 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N using approved design/localization inputs, compatible device context, safety and quality gates, operator authority, synchronization behavior and mapped test evidence.' The six conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged after building migration 0048 and 18 tests. Five of the six conditions still fail, so P17 verifies at zero, and the zero is close to the truth of the phase: one domain of twenty-nine is built. What the phase did produce is five real defects on the one artifact that does exist — the file a machine is sent — every one of which ended with somebody building to a design nobody could account for.",
+  "findings": [
+    {
+      "id": "P17-F1",
+      "title": "A design could be published to machines with no digest",
+      "detail": "`machine_control_files.checksum_sha256` exists and its format is constrained to sixty-four hex characters. Nothing required it. The `mc_published` constraint asked for a publisher and a moment and not for the digest, so a file could be marked published with no way to verify it.",
+      "why_it_matters": "A checksum on a published design has exactly one purpose: showing that the file loaded onto the grader is the file that was approved. Recording the column and not requiring it is the same defect as the credential status in P09 and the over-invoice guard in P07 — a control present in the schema and absent in effect.",
+      "status": "resolved",
+      "resolution": "`mc_published` now requires the digest alongside the publisher and the moment. A draft may still exist without one, because a digest is what publication means rather than what a file means. Deliberately strict rather than grandfathering: a published row with no checksum fails this migration rather than being quietly accepted, because a digest cannot be invented after the fact and a file nobody can verify is what the constraint exists to prevent."
+    },
+    {
+      "id": "P17-F2",
+      "title": "The surface a design was cut from could be edited afterwards",
+      "detail": "Nothing froze a surface once a machine control file had been published from it. Its elevations, its grid and its georeference could all be changed, and the file on the machine would go on saying what it said.",
+      "why_it_matters": "The design the machine is running and the design the platform holds silently become different things, and the earthwork quantity computed from that surface stops describing the ground anybody actually cut. It is the same failure as an issued proposal whose line items stayed editable in P08, with a blade on the end of it.",
+      "status": "resolved",
+      "resolution": "A surface that a published file was generated from is frozen in its geometry — elevations, cell size, grid dimensions, georeference and stored file. A name or a note may still be corrected, because what is frozen is what the file was generated from rather than the row. The way forward is the one the rest of the platform uses: capture a new surface, publish a new file, supersede the old one."
+    },
+    {
+      "id": "P17-F3",
+      "title": "A draft or withdrawn design could be sent to a machine",
+      "detail": "`machine_assignments` ties an asset to a machine control file and enforces one current assignment per machine. It never looked at the file's status, so a machine could be sent a design that had not been published, or one that had been withdrawn.",
+      "why_it_matters": "'Approved design inputs' and 'operator authority' are two of this phase's six conditions, and this is the single point where both are decided. An operator has no way to know that the file in front of them was never approved.",
+      "status": "resolved",
+      "resolution": "An assignment is refused unless the file is published, and the message names the file, its status and the machine it was going to. 'A machine runs a published design or none.'"
+    },
+    {
+      "id": "P17-F4",
+      "title": "A superseded design could be sent to a machine",
+      "detail": "The same gap, one step worse: a file that had been published and then explicitly replaced could still be assigned.",
+      "why_it_matters": "A design that was never approved is a mistake. A design that was approved and then revised is a mistake somebody already caught and corrected, being reintroduced by the platform.",
+      "status": "resolved",
+      "resolution": "Covered by the same status check. Separately, superseding a file that machines are still assigned now raises a critical notification naming each machine — deliberately a notice rather than a refusal, because superseding is how a design revision reaches the field, and refusing it while a machine holds the old file would make the platform's answer to a corrected design be to hold onto the wrong one. A supersession with no machine on the old file says nothing, because a notice on every supersession is how people learn to ignore notices."
+    },
+    {
+      "id": "P17-F5",
+      "title": "A supersession chain could close a loop",
+      "detail": "A superseded by B superseded by A. Reproduced in two statements.",
+      "why_it_matters": "The document layer fixed exactly this in migration 0036 and the fix was never applied here, on the artifact where 'which one is current' is a person on a machine asking what to build. A cycle makes that question unanswerable.",
+      "status": "resolved",
+      "resolution": "The same bounded walk the document layer uses, refusing a supersession that would close a loop and naming the path it found. The bound is sixty-four files, and exceeding it is refused rather than followed."
+    },
+    {
+      "id": "P17-F6",
+      "title": "Twenty-eight of twenty-nine domains do not exist",
+      "detail": "The platform records a design file, versions it, publishes it, supersedes it and assigns it to a machine. It does not talk to a machine. There is no device, no firmware, no localization, no calibration, no GNSS correction source, no telemetry stream, no as-built capture, no operator interface, no exclusion zone, and no guidance of any kind for a dozer, grader, excavator, compactor, paver or loader.",
+      "why_it_matters": "Recorded plainly because the shape of this phase invites overstatement: the one artifact that does exist is well governed, and it would be easy to read that as a machine control module. It is a file registry with a chain of custody, which is a genuine and useful thing and is not machine control.",
+      "status": "open",
+      "why_not_resolved": "It is absence rather than defect, and it is the largest single absence in the register. Machine control is a hardware integration domain — vendor protocols, device provisioning, correction services, real-time telemetry — and none of it can be built from a repository without the machines. What was buildable here was the governance of the handoff, and that is what this phase built."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All six are required by the criterion. Five fail, so no P17 requirement verifies.",
+    "conditions": [
+      "approved design/localization inputs",
+      "compatible device context",
+      "safety and quality gates",
+      "operator authority",
+      "synchronization behavior",
+      "mapped test evidence"
+    ]
+  },
+  "platform_conditions": {
+    "approved design/localization inputs": {
+      "status": "not_met",
+      "gap": "The approved half now holds and the localization half does not exist. Since 0048 a machine is only ever sent a published file, that file carries a verifiable digest, the surface it was cut from is frozen, and its revision chain cannot close a loop — so the design a machine receives is one somebody published and nobody has since changed underneath it. Localization is absent entirely: there is no site calibration, no control point, no residual, no transformation between a machine's coordinate frame and the design's. A design is approved and the machine has no recorded basis for knowing where it is standing."
+    },
+    "compatible device context": {
+      "status": "not_met",
+      "gap": "A file records the vendor it was produced for and the format it is in, which is the whole of the device context. There is no device: no receiver, no controller, no firmware version, no capability profile, no compatibility rule between a file format and the machine it is sent to. A `ttm` for a Trimble box can be assigned to a Komatsu dozer and nothing objects."
+    },
+    "safety and quality gates": {
+      "status": "not_met",
+      "gap": "The quality gates that exist are on the design rather than on the machine, and this phase strengthened them: a published file is verifiable, its source surface is immutable, and a superseded design raises a critical notice naming the machines still on it. There is no safety gate of the kind this phase means — no exclusion zone, no avoidance zone, no depth limit, no slope limit, no proximity detection, no operator alert. Nothing in the platform can stop a machine doing anything."
+    },
+    "operator authority": {
+      "status": "met",
+      "evidence": "Everything about who may do what to a machine control file is governed and now enforced end to end. Publication records the actor and the moment and cannot happen without a digest. Assignment is gated on the projects permission, is refused for any file that is not published, and is limited to one current file per machine by a unique index rather than by convention. Supersession records its replacement, cannot loop, and announces the machines left behind. Row level security is forced on every table in the module and no company can see another's designs."
+    },
+    "synchronization behavior": {
+      "status": "not_met",
+      "gap": "An assignment records that a file was given to a machine, and carries an `acknowledged_at` that nothing ever sets — there is no channel by which a machine could acknowledge anything. There is no sync of any kind: no push, no pull, no queue, no offline behavior, no conflict resolution, no as-built coming back. The platform knows what it intended a machine to have and has no way to learn what the machine actually has."
+    },
+    "mapped test evidence": {
+      "status": "not_met",
+      "gap": "The controls built this phase have 18 tests behind them and the module they govern has 31 in total, run against the production migrations on real PostgreSQL. That is test evidence for the file registry and its chain of custody. It is not test evidence for the phase: twenty-eight of twenty-nine domains have no implementation, so there is nothing mapped to them, and counting the registry's coverage toward excavator guidance or firmware management would be the borrowed evidence this register exists to prevent."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Site Models & Job Files"
+    ],
+    "partial": {
+      "Machine Control Core": "A design file is versioned, typed, checksummed, published with an actor, superseded rather than replaced, and assigned to one machine at a time — the chain of custody from a surface to a blade, fully governed since 0048. What is absent is the machine end of it: no device, no session, no runtime state.",
+      "Design Change Management": "Supersession is enforced acyclic, a replacement must be named, and machines still holding a replaced design are announced at critical severity. There is no change request, no approval of a design revision, and no record that an operator saw the notice.",
+      "3D Models & Surfaces": "Surfaces are governed, georeferenced since 0047, frozen once published since 0048, and differenced by a tested engine. They are grids: there is no triangulated model, no breakline, no alignment, no corridor."
+    },
+    "not_built": {
+      "GPS/GNSS Positioning": "No receiver, no correction source, no base station, no fix quality, no position.",
+      "Localization & Calibration": "No site calibration, no control point, no residual, no transformation — the absence that fails the design/localization condition.",
+      "2D Guidance": "No guidance of any kind; nothing is sent to a machine but a file reference.",
+      "3D Guidance": "No guidance runtime, no blade position, no target elevation, no cut/fill to grade.",
+      "Automatic Grade Control": "No automatics, no valve, no control loop, no hydraulic interface.",
+      "Dozer Guidance": "Not built.",
+      "Excavator Guidance": "Not built.",
+      "Grader Guidance": "Not built.",
+      "Compactor Guidance": "No pass count, no coverage map, no intelligent compaction, no stiffness.",
+      "Paver/Milling Guidance": "No paving control, no thickness, no averaging beam.",
+      "Loader & Material Handling": "No payload, no weighing, no cycle count.",
+      "Trenching & Utilities": "No trench depth, no invert, no utility clearance.",
+      "Road & Highway Machine Control": "No alignment, no station, no superelevation, no corridor model.",
+      "Device & Firmware Management": "No device register, no firmware version, no update, no compatibility matrix.",
+      "Operator Interface": "No operator, no display, no in-cab experience, no login on a machine.",
+      "Field Automation": "No automation of any field process by a machine.",
+      "Field Data Sync": "`machine_assignments.acknowledged_at` exists and nothing sets it. There is no channel, no queue, no offline store, no conflict resolution.",
+      "Machine Telemetry Integration": "Assets carry a last telemetry timestamp and meter readings can be sourced from telematics. Nothing consumes a live feed: no position, no fault code, no engine state, no as-built points.",
+      "As-Built & Production Capture": "An as-built surface role exists and can be differenced against design. Nothing captures one from a machine.",
+      "Quality Assurance": "No pass count, no compaction verification, no tolerance check, no acceptance against specification.",
+      "Safety & Exclusion Controls": "No exclusion zone, no avoidance zone, no proximity alert, no depth or slope limit.",
+      "Remote Support & Diagnostics": "No remote session, no diagnostic, no support ticket from a machine.",
+      "Vendor/Platform Interoperability": "A file records its vendor and format and nothing translates between them. No vendor API, no round trip, no conformance test.",
+      "AI Machine Intelligence": "No machine AI. The one governed agent reads documents and is capped at draft authority.",
+      "Machine Control Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

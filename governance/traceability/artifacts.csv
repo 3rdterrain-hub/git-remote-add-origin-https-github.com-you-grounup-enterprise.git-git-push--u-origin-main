@@ -232,6 +232,7 @@ TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
 TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE
+TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.test.ts,ENGINE
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
