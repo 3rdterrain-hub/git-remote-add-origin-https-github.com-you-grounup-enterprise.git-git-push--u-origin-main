@@ -279,6 +279,7 @@ TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENG
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
+TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE

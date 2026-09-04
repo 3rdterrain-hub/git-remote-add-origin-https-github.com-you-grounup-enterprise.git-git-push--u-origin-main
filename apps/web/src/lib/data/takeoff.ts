@@ -11,9 +11,17 @@ import type { Point } from '@grounup/engine';
 
 export interface SheetRow {
   id: string;
+  /**
+   * The sheet's own company. A measurement belongs to the same one, and
+   * `enforce_tenant_parent` refuses the insert if it does not — so this is read
+   * from the sheet rather than assumed from whichever membership the caller
+   * happens to have first.
+   */
+  companyId: string;
   documentName: string;
   documentVersionId: string;
   storagePath: string;
+  storageBucket: string;
   pageNumber: number;
   sheetNumber: string | null;
   sheetTitle: string | null;
@@ -60,19 +68,43 @@ export interface MeasurementRow {
 const one = <T,>(v: unknown): T | null =>
   (Array.isArray(v) ? (v as T[])[0] : (v as T | null)) ?? null;
 
+/*
+ * The narrow slices of the Supabase client these writers actually use. Written
+ * structurally rather than importing SupabaseClient so a test can pass a stub,
+ * and loose enough that the real client satisfies them: supabase-js types
+ * `insert` against the table's own row shape, which a stricter signature here
+ * would reject.
+ */
+type InsertCapable = {
+  from: (t: string) => {
+    insert: (v: Record<string, unknown>) => {
+      select: (c: string) => {
+        single: () => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+      };
+    };
+  };
+};
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
 export const loadSheets: Query<SheetRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('document_sheets')
-    .select('id, page_number, sheet_number, sheet_title, discipline, drawing_scale, document_version_id, document_versions(storage_path, documents(name))')
+    .select('id, company_id, page_number, sheet_number, sheet_title, discipline, drawing_scale, document_version_id, document_versions(storage_path, storage_bucket, documents(name))')
     .order('page_number')
     .limit(500)) as Array<Record<string, unknown>>;
   return rows.map((s) => {
-    const ver = one<{ storage_path: string; documents: unknown }>(s.document_versions);
+    const ver = one<{ storage_path: string; storage_bucket: string; documents: unknown }>(
+      s.document_versions);
     return {
       id: String(s.id),
+      companyId: String(s.company_id),
       documentName: one<{ name: string }>(ver?.documents)?.name ?? 'Untitled document',
       documentVersionId: String(s.document_version_id),
       storagePath: ver?.storage_path ?? '',
+      storageBucket: ver?.storage_bucket ?? 'project-documents',
       pageNumber: Number(s.page_number),
       sheetNumber: (s.sheet_number as string | null) ?? null,
       sheetTitle: (s.sheet_title as string | null) ?? null,
@@ -132,7 +164,7 @@ export const loadMeasurements: Query<MeasurementRow[]> = async (client) => {
 
 /** Save a calibration. The database generates the measurement method from it. */
 export async function saveCalibration(
-  client: { from: (t: string) => { insert: (v: unknown) => { select: (c: string) => { single: () => PromiseLike<{ data: unknown; error: { message: string } | null }> } } } },
+  client: InsertCapable,
   input: {
     companyId: string; sheetId: string; from: Point; to: Point;
     knownDistanceFeet: number; basis: CalibrationRow['basis']; reference: string | null;
@@ -149,4 +181,110 @@ export async function saveCalibration(
   }).select('id').single();
   if (error) throw new Error(error.message);
   return String((data as { id: string }).id);
+}
+
+/**
+ * A URL the viewer can fetch for a sheet's document.
+ *
+ * Signed rather than public: plan sets are a customer's competitive position
+ * before they are drawings, and the storage bucket is private for that reason.
+ * The signature is short-lived because a leaked URL should stop working.
+ */
+export async function sheetUrl(
+  client: {
+    storage: { from: (b: string) => { createSignedUrl: (p: string, s: number) =>
+      PromiseLike<{ data: { signedUrl: string } | null; error: { message: string } | null }> } };
+  },
+  bucket: string,
+  storagePath: string,
+): Promise<string> {
+  const { data, error } = await client.storage.from(bucket).createSignedUrl(storagePath, 3600);
+  if (error) throw new Error(error.message);
+  if (!data?.signedUrl) throw new Error('That sheet has no file behind it.');
+  return data.signedUrl;
+}
+
+/** Estimate lines a measurement can be applied to. */
+export interface LineOption {
+  id: string;
+  description: string;
+  estimateNumber: string;
+  versionNumber: number;
+  unit: string;
+  measuredQuantity: number;
+}
+
+export const loadOpenEstimateLines: Query<LineOption[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('estimate_line_items')
+    .select('id, description, unit, measured_quantity, estimate_versions!inner(version_number, status, estimates(number))')
+    // Only a draft can take a quantity: an issued version is frozen by RULE-009
+    // and offering it would produce a refusal the estimator cannot act on.
+    .eq('estimate_versions.status', 'draft')
+    .order('sort_order')
+    .limit(300)) as Array<Record<string, unknown>>;
+  return rows.map((l) => {
+    const ver = one<{ version_number: number; estimates: unknown }>(l.estimate_versions);
+    return {
+      id: String(l.id),
+      description: String(l.description),
+      estimateNumber: one<{ number: string }>(ver?.estimates)?.number ?? '—',
+      versionNumber: Number(ver?.version_number ?? 0),
+      unit: String(l.unit),
+      measuredQuantity: Number(l.measured_quantity ?? 0),
+    };
+  });
+};
+
+/**
+ * Save a measurement and put its quantity on an estimate line.
+ *
+ * Two steps that must not half-happen: a measurement with no line is a wasted
+ * trace, and a line carrying a takeoff quantity with no measurement behind it
+ * looks sourced and is not. The second step is a database function so the line
+ * update and the measurement update land together — and so `measurement_method`
+ * comes from the calibration rather than from here.
+ */
+export async function applyMeasurement(
+  client: InsertCapable & RpcCapable,
+  input: {
+    companyId: string; sheetId: string; calibrationId: string | null;
+    name: string; trade: string | null;
+    kind: MeasurementRow['kind']; unit: string;
+    geometry: Point[]; deductions: Point[][]; isClosed: boolean;
+    pitchRise: number | null; pitchRun: number | null;
+    depthFeet: number | null; widthFeet: number | null;
+    countPer: number; multiplier: number;
+    lineItemId: string; quantity: number; engineVersion: string;
+  },
+): Promise<string> {
+  const { data, error } = await client.from('takeoff_measurements').insert({
+    company_id: input.companyId,
+    document_sheet_id: input.sheetId,
+    calibration_id: input.calibrationId,
+    name: input.name,
+    trade: input.trade,
+    kind: input.kind,
+    unit: input.unit,
+    geometry: input.geometry,
+    deductions: input.deductions,
+    is_closed: input.isClosed,
+    pitch_rise: input.pitchRise,
+    pitch_run: input.pitchRun,
+    depth_feet: input.depthFeet,
+    width_feet: input.widthFeet,
+    count_per: input.countPer,
+    multiplier: input.multiplier,
+  }).select('id').single();
+  if (error) throw new Error(error.message);
+  const measurementId = String((data as { id: string }).id);
+
+  const { error: applyError } = await client.rpc('apply_takeoff_to_line', {
+    p_measurement: measurementId,
+    p_line_item: input.lineItemId,
+    p_quantity: input.quantity,
+    p_engine_version: input.engineVersion,
+  });
+  if (applyError) throw new Error(applyError.message);
+  return measurementId;
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors } from 'lucide-react';
 import type { Point } from '@grounup/engine';
 import { PageHeader } from '@/components/layout/page';
@@ -12,6 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MeasurementOverlay, MINIMUM_POINTS, type Tool } from '@/components/takeoff/overlay';
 import { SheetCanvas } from '@/components/takeoff/sheet-canvas';
 import { MeasurePanel, tryResolveScale, type ScaleState } from '@/components/takeoff/measure-panel';
+import { ApplyPanel } from '@/components/takeoff/apply-panel';
+import { useQuery } from '@/lib/data/query';
+import {
+  loadSheets, loadOpenEstimateLines, sheetUrl, applyMeasurement, saveCalibration,
+} from '@/lib/data/takeoff';
+import { DemonstrationNotice, ErrorState } from '@/components/data-state';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { measure, ENGINE_VERSION } from '@grounup/engine';
 import { cn } from '@/lib/utils';
 
 /**
@@ -44,6 +52,20 @@ const UNITS_FOR: Record<string, string[]> = {
 };
 
 export function TakeoffPage() {
+  const sheetsQ = useQuery(loadSheets, []);
+  const linesQ = useQuery(loadOpenEstimateLines, []);
+  const demonstration = sheetsQ.status === 'demonstration';
+
+  const sheets = sheetsQ.status === 'ready' ? sheetsQ.data : [];
+  const lines = linesQ.status === 'ready' ? linesQ.data : [];
+
+  const [sheetId, setSheetId] = useState('');
+  const [source, setSource] = useState('');
+  const [sourceError, setSourceError] = useState<string | null>(null);
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applied, setApplied] = useState<{ name: string; quantity: number; unit: string } | null>(null);
+
   const [tool, setTool] = useState<Tool>('calibrate');
   const [points, setPoints] = useState<Point[]>([]);
   const [deductions, setDeductions] = useState<Point[][]>([]);
@@ -61,6 +83,20 @@ export function TakeoffPage() {
   const [pitchRise, setPitchRise] = useState('');
   const [countPer, setCountPer] = useState('1');
   const [multiplier, setMultiplier] = useState('1');
+
+  const sheet = sheets.find((x) => x.id === sheetId) ?? null;
+
+  // A signed URL, because a plan set is a customer's competitive position
+  // before it is a drawing and the bucket is private for that reason.
+  useEffect(() => {
+    if (!sheet || !supabase) { setSource(''); return; }
+    let canceled = false;
+    setSourceError(null);
+    void sheetUrl(supabase, 'project-documents', sheet.storagePath)
+      .then((u) => { if (!canceled) setSource(u); })
+      .catch((e: Error) => { if (!canceled) { setSource(''); setSourceError(e.message); } });
+    return () => { canceled = true; };
+  }, [sheet]);
 
   const resolved = useMemo(() => tryResolveScale(scaleState), [scaleState]);
   const scale = resolved && 'scale' in resolved ? resolved.scale : null;
@@ -89,6 +125,70 @@ export function TakeoffPage() {
     setTool('linear');
   }
 
+  /**
+   * What the engine says this shape comes to.
+   *
+   * Computed here for the apply step rather than read off the panel, so the
+   * figure written to the line and the figure shown beside it come from one
+   * call rather than two that could drift.
+   */
+  const measured = useMemo(() => {
+    if (!scale && tool !== 'count') return null;
+    if (tool === 'none' || tool === 'calibrate' || tool === 'deduct') return null;
+    try {
+      return measure({
+        kind: tool, points, unit: unit as Parameters<typeof measure>[0]['unit'],
+        scale: scale ?? {
+          unitsPerPoint: 1, unit: 'LF', basis: 'stated_scale',
+          measurementMethod: 'approximate_scale', derivation: 'not scaled', warnings: [],
+        },
+        ...(deductions.length ? { deductions } : {}),
+        ...(num(widthFeet) === undefined ? {} : { widthFeet: num(widthFeet) }),
+        ...(num(depthFeet) === undefined ? {} : { depthFeet: num(depthFeet) }),
+        ...(num(pitchRise) === undefined ? {} : { pitch: { rise: num(pitchRise)!, run: 12 } }),
+        ...(num(countPer) === undefined ? {} : { countPer: num(countPer) }),
+        ...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) }),
+      });
+    } catch { return null; }
+  }, [tool, points, unit, scale, deductions, widthFeet, depthFeet, pitchRise, countPer, multiplier]);
+
+  async function apply(input: { name: string; trade: string; lineItemId: string }) {
+    if (!supabase || !measured || !sheet) return;
+    setApplying(true);
+    setApplyError(null);
+    try {
+      let calibrationId: string | null = null;
+      if (scaleState && tool !== 'count') {
+        calibrationId = await saveCalibration(supabase, {
+          companyId: sheet.companyId, sheetId,
+          from: scaleState.from, to: scaleState.to,
+          knownDistanceFeet: scaleState.knownDistanceFeet,
+          basis: scaleState.basis,
+          reference: scaleState.reference.trim() || null,
+        });
+      }
+      await applyMeasurement(supabase, {
+        companyId: sheet.companyId, sheetId, calibrationId,
+        name: input.name, trade: input.trade || null,
+        kind: tool as 'count' | 'linear' | 'area' | 'volume',
+        unit, geometry: points, deductions, isClosed: tool === 'area' || tool === 'volume',
+        pitchRise: num(pitchRise) ?? null, pitchRun: num(pitchRise) === undefined ? null : 12,
+        depthFeet: num(depthFeet) ?? null, widthFeet: num(widthFeet) ?? null,
+        countPer: num(countPer) ?? 1, multiplier: num(multiplier) ?? 1,
+        lineItemId: input.lineItemId, quantity: measured.quantity,
+        engineVersion: ENGINE_VERSION,
+      });
+      setApplied({ name: input.name, quantity: measured.quantity, unit });
+      setPoints([]);
+      setDeductions([]);
+      linesQ.refetch();
+    } catch (err) {
+      setApplyError(err instanceof Error ? err.message : 'The measurement could not be applied.');
+    } finally {
+      setApplying(false);
+    }
+  }
+
   function bankDeduction() {
     if (points.length < 3) return;
     setDeductions([...deductions, points]);
@@ -110,6 +210,40 @@ export function TakeoffPage() {
           </div>
         }
       />
+
+      {demonstration ? <DemonstrationNotice /> : null}
+      {sheetsQ.status === 'error'
+        ? <ErrorState message={sheetsQ.message} onRetry={sheetsQ.refetch} /> : null}
+
+      {isSupabaseConfigured ? (
+        <div className="flex flex-wrap items-end gap-3 rounded-[--radius-card] border border-charcoal-200 bg-white p-4">
+          <div className="min-w-64 flex-1 space-y-1.5">
+            <Label htmlFor="sheet">Sheet</Label>
+            <Select value={sheetId} onValueChange={(v) => { setSheetId(v); setPoints([]); }}>
+              <SelectTrigger id="sheet">
+                <SelectValue placeholder={sheets.length ? 'Choose a sheet' : 'No sheets uploaded yet'} />
+              </SelectTrigger>
+              <SelectContent>
+                {sheets.map((sh) => (
+                  <SelectItem key={sh.id} value={sh.id}>
+                    {sh.sheetNumber ?? `p.${sh.pageNumber}`} — {sh.sheetTitle ?? sh.documentName}
+                    {sh.statedScale ? ` (${sh.statedScale})` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {sheet?.statedScale ? (
+            <p className="pb-2 text-xs text-charcoal-500">
+              Title block states {sheet.statedScale}. Calibrate against a printed dimension
+              rather than trusting it.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      {sourceError ? (
+        <Alert tone="danger" title="That sheet could not be opened">{sourceError}</Alert>
+      ) : null}
 
       {!scale ? (
         <Alert tone="info" icon={<Ruler className="size-4" />} title="Set the scale before measuring">
@@ -143,8 +277,8 @@ export function TakeoffPage() {
           </CardHeader>
           <CardContent className="overflow-auto bg-charcoal-100 p-4">
             <div className="relative mx-auto" style={{ width: displayWidth }}>
-              <SheetCanvas source="" pageNumber={1} displayWidth={displayWidth}
-                onSize={setSheetSize} />
+              <SheetCanvas source={source} pageNumber={sheet?.pageNumber ?? 1}
+                displayWidth={displayWidth} onSize={setSheetSize} />
               <MeasurementOverlay
                 tool={tool}
                 width={sheetSize.width} height={sheetSize.height}
@@ -275,6 +409,14 @@ export function TakeoffPage() {
                 ) : null}
               </CardContent>
             </Card>
+          ) : null}
+
+          {isSupabaseConfigured && measured && sheetId ? (
+            <ApplyPanel
+              quantity={measured.quantity} unit={unit}
+              measurementMethod={measured.measurementMethod}
+              lines={lines} linesLoading={linesQ.status === 'loading'}
+              busy={applying} onApply={apply} applied={applied} error={applyError} />
           ) : null}
 
           <MeasurePanel

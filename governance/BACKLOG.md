@@ -152,9 +152,20 @@ What was missing is now built, for every trade rather than for earthwork:
       click accurately cannot change a quantity, and a panel showing the live
       number with its derivation and the standing of the scale it was taken at.
       16 tests.
-- [ ] Applying a measurement to an estimate line through `applied_line_item_id`
-- [ ] Choosing a sheet from an uploaded plan set (the viewer takes a source; the
-      screen does not yet let you pick one)
+- [x] Applying a measurement to an estimate line — migration 0063.
+      `measurement_method` is read from the calibration and never accepted from
+      the caller, because that value decides the line confidence and the
+      approval gate. 9 more database tests, 10 panel tests.
+- [x] Choosing a sheet from an uploaded plan set, opened through a short-lived
+      signed URL because a plan set is a customer's competitive position before
+      it is a drawing.
+
+Known limit, stated rather than hidden: **choosing a line from the dropdown is
+not covered by an automated test.** Radix opens its listbox into a portal that
+jsdom gives no pointer geometry to, so the interaction cannot be driven in this
+environment. The panel's contract is tested with the line preselected — which
+is also how it behaves when an estimator arrives from an estimate line — and
+the dropdown itself was checked by hand.
 
 The governance decision worth recording: a measurement row stores **geometry and
 no quantity**. The number follows from the shape and the scale by arithmetic the

@@ -285,6 +285,147 @@ describe('takeoff', () => {
     });
   });
 
+  // --------------------------------------------------- reaching a line
+  describe('applying a measurement to an estimate line', () => {
+    let calibration = '';
+    let statedCalibration = '';
+    let line = '';
+    let linear = '';
+    let counted = '';
+
+    beforeAll(async () => {
+      calibration = (await calibrate())[0]!.id;
+      statedCalibration = (await calibrate({ basis: 'stated_scale', reference: null }))[0]!.id;
+      await h.asUser(owner, async () => {
+        const est = (await h.sql<{ id: string }>(
+          `insert into estimates (company_id, number, name) values ($1,'EST-T2','Apply')
+           returning id`, [company]))[0]!.id;
+        const ver = (await h.sql<{ id: string }>(
+          `insert into estimate_versions (company_id, estimate_id, version_number)
+           values ($1,$2,1) returning id`, [company, est]))[0]!.id;
+        line = (await h.sql<{ id: string }>(
+          `insert into estimate_line_items (company_id, estimate_version_id, description,
+             measured_quantity, unit, measurement_method, source_references)
+           values ($1,$2,'Storm main',0,'LF','estimator_allowance',array['C-301 note'])
+           returning id`, [company, ver]))[0]!.id;
+        linear = (await h.sql<{ id: string }>(
+          `insert into takeoff_measurements
+             (company_id, document_sheet_id, calibration_id, name, kind, unit, geometry)
+           values ($1,$2,$3,'Storm main run','linear','LF',
+                   '[{"x":0,"y":0},{"x":500,"y":0}]'::jsonb) returning id`,
+          [company, sheet, calibration]))[0]!.id;
+        counted = (await h.sql<{ id: string }>(
+          `insert into takeoff_measurements
+             (company_id, document_sheet_id, name, kind, unit, geometry)
+           values ($1,$2,'Catch basins','count','EA','[{"x":1,"y":1},{"x":2,"y":2}]'::jsonb)
+           returning id`, [company, sheet]))[0]!.id;
+      });
+    });
+
+    it('writes the quantity, the unit and where it came from', async () => {
+      await h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,100,'1.0.0')`, [linear, line]));
+      const [l] = await h.asUser(owner, () => h.sql<{
+        measured_quantity: string; unit: string; source_references: string[];
+      }>(`select measured_quantity, unit, source_references
+            from estimate_line_items where id = $1`, [line]));
+      expect(Number(l!.measured_quantity)).toBe(100);
+      expect(l!.unit).toBe('LF');
+      expect(l!.source_references.join(' ')).toMatch(/Takeoff Storm main run on C-301/);
+    });
+
+    it('keeps the references the line already had', async () => {
+      // A line may be supported by more than one thing, and replacing the list
+      // would throw away the rest of the argument.
+      const [l] = await h.asUser(owner, () => h.sql<{ source_references: string[] }>(
+        `select source_references from estimate_line_items where id = $1`, [line]));
+      expect(l!.source_references).toContain('C-301 note');
+    });
+
+    it('takes how it was measured from the calibration, not from the caller', async () => {
+      /*
+       * The governance chain in one assertion. This value decides the line
+       * confidence score and the approval gate, and if an application could
+       * supply it the generated column that computes it honestly would be
+       * decoration.
+       */
+      const [l] = await h.asUser(owner, () => h.sql<{ measurement_method: string }>(
+        `select measurement_method from estimate_line_items where id = $1`, [line]));
+      expect(l!.measurement_method).toBe('verified_scale');
+    });
+
+    it('carries an unverified scale through as unverified', async () => {
+      const weak = (await h.asUser(owner, () => h.sql<{ id: string }>(
+        `insert into takeoff_measurements
+           (company_id, document_sheet_id, calibration_id, name, kind, unit, geometry)
+         values ($1,$2,$3,'Scaled run','linear','LF','[{"x":0,"y":0},{"x":100,"y":0}]'::jsonb)
+         returning id`, [company, sheet, statedCalibration])))[0]!.id;
+      await h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,20,'1.0.0')`, [weak, line]));
+      const [l] = await h.asUser(owner, () => h.sql<{ measurement_method: string }>(
+        `select measurement_method from estimate_line_items where id = $1`, [line]));
+      expect(l!.measurement_method).toBe('approximate_scale');
+    });
+
+    it('calls a count derived rather than scaled', async () => {
+      // Counting does not depend on the calibration being right, so it should
+      // not inherit the calibration's uncertainty.
+      await h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,2,'1.0.0')`, [counted, line]));
+      const [l] = await h.asUser(owner, () => h.sql<{ measurement_method: string }>(
+        `select measurement_method from estimate_line_items where id = $1`, [line]));
+      expect(l!.measurement_method).toBe('derived');
+    });
+
+    it('records what was applied on the measurement too', async () => {
+      const [m] = await h.asUser(owner, () => h.sql<{
+        applied_quantity: string; applied_at: string; applied_engine_version: string;
+      }>(`select applied_quantity, applied_at, applied_engine_version
+            from takeoff_measurements where id = $1`, [linear]));
+      expect(Number(m!.applied_quantity)).toBe(100);
+      expect(m!.applied_at).not.toBeNull();
+      expect(m!.applied_engine_version).toBe('1.0.0');
+    });
+
+    it('refuses an application that does not say what measured it', async () => {
+      await expect(h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,100,'')`, [linear, line])))
+        .rejects.toThrow(/which engine measured it/);
+    });
+
+    it('refuses a negative quantity', async () => {
+      await expect(h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,-5,'1.0.0')`, [linear, line])))
+        .rejects.toThrow(/zero or more/);
+    });
+
+    it('refuses to apply a measurement to another company estimate line', async () => {
+      const outsider = '33333333-3333-4333-8333-333333333333';
+      await h.sql(`insert into auth.users (id, email) values ($1,'x@r.test')`, [outsider]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,'x@r.test') on conflict (id) do nothing`, [outsider]);
+      const other = (await h.asUser(outsider, () => h.sql<{ id: string }>(
+        `select app.provision_company('Third','third','business') as id`)))[0]!.id;
+      const otherLine = (await h.asUser(outsider, async () => {
+        const est = (await h.sql<{ id: string }>(
+          `insert into estimates (company_id, number, name) values ($1,'E-X','X') returning id`,
+          [other]))[0]!.id;
+        const ver = (await h.sql<{ id: string }>(
+          `insert into estimate_versions (company_id, estimate_id, version_number)
+           values ($1,$2,1) returning id`, [other, est]))[0]!.id;
+        return h.sql<{ id: string }>(
+          `insert into estimate_line_items (company_id, estimate_version_id, description,
+             measured_quantity, unit) values ($1,$2,'Theirs',0,'LF') returning id`,
+          [other, ver]);
+      }))[0]!.id;
+
+      // Row level security hides the line entirely, which is the stronger
+      // refusal: the caller is not told it exists.
+      await expect(h.asUser(owner, () => h.sql(
+        `select app.apply_takeoff_to_line($1,$2,100,'1.0.0')`, [linear, otherLine])))
+        .rejects.toThrow(/not found/);
+    });
+  });
+
   // ------------------------------------------------------------- tenancy
   it('shows one company nothing of another company takeoff', async () => {
     const stranger = '22222222-2222-4222-8222-222222222222';
