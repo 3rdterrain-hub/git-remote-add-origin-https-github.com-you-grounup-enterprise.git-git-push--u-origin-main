@@ -242,6 +242,7 @@ TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
 TST-db-safety-controls,test,db/safety-controls.test.ts,tests/db/safety-controls.test.ts,ENGINE
 TST-db-safety,test,db/safety.test.ts,tests/db/safety.test.ts,ENGINE
 TST-db-scheduling,test,db/scheduling.test.ts,tests/db/scheduling.test.ts,ENGINE
+TST-db-schema-invariants,test,db/schema-invariants.test.ts,tests/db/schema-invariants.test.ts,ENGINE
 TST-db-seed,test,db/seed.test.ts,tests/db/seed.test.ts,ENGINE
 TST-db-semantic,test,db/semantic.test.ts,tests/db/semantic.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE

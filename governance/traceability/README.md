@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,828 verified of 7,358
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,869 verified of 7,433
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -48,6 +48,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P07 Project Operations | 160 | 18 (11%) |
 | P16 Survey, GIS & Geospatial | 360 | 0 |
 | P17 Machine Control & Field Automation | 380 | 0 |
+| P03 Data Architecture | 75 | 41 (55%) |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -121,6 +122,18 @@ chain **could close a loop** — the defect the document layer fixed in 0036,
 never applied to the artifact where "which one is current" is a person on a
 machine asking what to build.
 
+P03 verifies at 41 of 75 — the highest of any phase, and it should be: the
+schema is the part of this platform built most carefully, and P03 is the phase
+that asks about the schema. It still found that **the column every query filters
+on was unindexed on 53 of 136 tables.** Row level security predicates on
+`company_id` on every read by every user, so on those tables the cost of reading
+one company's data grew with the number of companies on the platform — the one
+property a multi-tenant system must not have. Not a correctness defect, which is
+why nothing caught it. Migration 0049 creates the indexes from the rule rather
+than one at a time, and a schema-invariant suite now holds four properties the
+schema had and nothing checked: no money in a floating-point column, every
+timestamp with its time zone, nothing materialized, and the tenant key indexed.
+
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
 absent: detection and response, secret lifecycle, and security monitoring. It
@@ -164,7 +177,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 275 cataloged artifacts, 144 answer for at least one requirement.
+Of 276 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -188,10 +201,10 @@ This distinction is the whole integrity of the matrix, and it is enforced.
   artifact is covered by a named test suite which runs in `npm run verify`.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
-  confirmed a specific test asserts it. **1,828 requirements are verified** of
-  7,358 judged, across P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded
-  in its own `verification/*-ledger.csv`. P09, P16, P17, P20, P27, P28 and P29 were
-  judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  confirmed a specific test asserts it. **1,869 requirements are verified** of
+  7,433 judged, across P03, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each
+  recorded in its own `verification/*-ledger.csv`. P09, P16, P17, P20, P27, P28 and
+  P29 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

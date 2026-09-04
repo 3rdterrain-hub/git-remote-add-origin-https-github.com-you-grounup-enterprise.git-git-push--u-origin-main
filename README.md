@@ -17,7 +17,7 @@ splits the work along the line where each side is actually good.
 |---|---|---|
 | **Estimating engine** | `packages/engine` | Every authoritative number, including surface volumes. Pure TypeScript, zero dependencies, 525 tests. |
 | **Document rendering** | `packages/pdf` | Proposals, pay applications and reports as real PDFs. Dependency-free and deterministic, so the same document always renders to the same bytes. |
-| **Database** | `supabase/migrations` | 48 migrations, 136 tables, 11 reporting views: multi-tenant schema, RLS forced on every table, audit ledger, governance triggers. |
+| **Database** | `supabase/migrations` | 49 migrations, 136 tables, 11 reporting views: multi-tenant schema, RLS forced on every table, audit ledger, governance triggers. |
 | **Seed library** | `supabase/seed` | 4,671 catalog records generated from the governed GrounUp v2.0 package. |
 | **Edge Functions** | `supabase/functions` | Stripe checkout, portal, webhooks, entitlements, the governed AI document analyst, and the public API gateway. |
 | **Observability** | `supabase/functions/_shared/observability` | Structured logging with request correlation, metrics, and health/readiness — everything redacted on the way out by field name and by value shape. |

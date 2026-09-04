@@ -84,81 +84,81 @@ CPF-000057,P02,AI Platform,traced_tested,none,derived,TR-030,AI-001 TBL-ai_agent
 CPF-000058,P02,AI Platform,traced_tested,none,derived,TR-023 TR-030 TR-037,TBL-assets TBL-meter_readings TBL-fuel_transactions TBL-maintenance_schedules TBL-work_orders UI-fleet AI-001 TBL-ai_agents TBL-ai_findings TBL-ai_prompts TBL-ai_models TBL-subscriptions TBL-entitlements TBL-plans TBL-plan_prices ENG-015 UI-billing,TST-db-fleet TST-fn-plan-analysis TST-web-plans TST-fn-subscription-state,"The platform shall meter AI requests, tokens, tools, latency, errors, and cost by tenant and capability."
 CPF-000059,P02,Platform Services,traced_tested,none,derived,TR-033,TBL-audit_events,TST-db-rls TST-db-operations,Material platform events shall be preserved in an immutable audit trail.
 CPF-000060,P02,Platform Services,untraced,none,,,,,Authorized tenants shall export core data and attachments in documented formats.
-EDM-000001,P03,Data Architecture,untraced,none,,,,,The platform shall maintain one governed canonical enterprise data model shared by all modules.
-EDM-000002,P03,Data Architecture,traced_tested,none,derived,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,Every tenant-owned record shall include a verified tenant identifier.
-EDM-000003,P03,Data Architecture,untraced,none,,,,,Every governed entity shall use immutable globally unique identifiers.
-EDM-000004,P03,Data Architecture,untraced,none,,,,,Versioned entities shall preserve historical versions and effective dates.
-EDM-000005,P03,Data Architecture,untraced,none,,,,,Business records shall use governed lifecycle states rather than uncontrolled physical deletion.
-EDM-000006,P03,Data Architecture,traced_tested,none,derived,TR-033,TBL-audit_events,TST-db-rls TST-db-operations,Every mutable record shall capture creation and last-change actor and timestamp.
-EDM-000007,P03,Data Architecture,untraced,none,,,,,Mutable records shall support version checks to prevent lost updates.
-EDM-000008,P03,Data Architecture,traced_tested,none,derived,TR-041,TBL-services TBL-tasks TBL-assemblies TBL-materials TBL-cost_codes UI-libraries,TST-db-seed TST-db-rls,Codes and enumerations shall be represented through governed reference sets.
-EDM-000009,P03,Data Architecture,untraced,none,,,,,Tenant custom fields shall use typed governed definitions and values.
-EDM-000010,P03,Data Architecture,untraced,none,,,,,Each entity and field shall have an accountable data owner.
-EDM-000011,P03,Data Architecture,untraced,none,,,,,Each governed field shall declare its authoritative source.
-EDM-000012,P03,Data Architecture,traced_tested,none,derived,TR-039,RPT-reporting_project_financials RPT-reporting_labor_productivity RPT-reporting_safety_summary RPT-reporting_bid_performance TBL-metric_definitions UI-reports,TST-db-semantic,"Required, optional, unknown, not applicable, and withheld values shall be distinguishable where material."
-EDM-000013,P03,Data Architecture,traced_tested,none,derived,TR-011,ENG-001,TST-engine-numeric,"Numeric values shall store declared precision, scale, and unit or currency context."
-EDM-000014,P03,Data Architecture,untraced,none,,,,,Timestamps shall use UTC with source timezone where business meaning requires it.
-EDM-000015,P03,Data Architecture,untraced,none,,,,,"Rates, assignments, relationships, and classifications shall support effective-date ranges."
-EDM-000016,P03,Data Architecture,untraced,none,,,,,External or business keys shall not replace immutable internal identifiers.
-EDM-000017,P03,Data Architecture,untraced,none,,,,,References shall enforce compatible tenant and lifecycle constraints.
-EDM-000018,P03,Data Architecture,traced_tested,none,derived,TR-003,ENG-005 TBL-crews TBL-crew_members TBL-labor_rates TBL-employees TBL-time_entries,TST-engine-resources,Every entity shall inherit or define data security classification.
-EDM-000019,P03,Data Architecture,untraced,none,,,,,Records shall map to retention and legal-hold policies.
-EDM-000020,P03,Data Architecture,untraced,none,,,,,"Imported, calculated, converted, and AI-generated values shall preserve lineage."
-EDM-000021,P03,Data Architecture,traced_tested,none,derived,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,Imported records shall preserve source system and external identifier.
-EDM-000022,P03,Data Architecture,untraced,none,,,,,"Party, vendor, customer, project, and resource master data shall support duplicate detection."
-EDM-000023,P03,Data Architecture,untraced,none,,,,,"Master-record merges shall preserve aliases, lineage, audit, and reversal evidence."
-EDM-000024,P03,Data Architecture,untraced,none,,,,,Parties and business objects shall support typed effective-dated relationships.
-EDM-000025,P03,Data Architecture,untraced,none,,,,,"Legal entities, business units, branches, teams, and projects shall support hierarchical relationships."
-EDM-000026,P03,Data Architecture,traced_tested,none,derived,TR-012,TBL-projects TBL-project_tasks TBL-project_costs UI-projects UI-project-detail,TST-db-operations,"Projects shall support programs, parent projects, phases, areas, and work packages."
-EDM-000027,P03,Data Architecture,traced_tested,none,derived,TR-012,TBL-projects TBL-project_tasks TBL-project_costs UI-projects UI-project-detail,TST-db-operations,Work records shall support WBS and cost-code structures without hardcoding one industry.
-EDM-000028,P03,Data Architecture,traced_tested,none,derived,TR-001 TR-033,ENG-003 ENG-009 TBL-estimates TBL-estimate_versions TBL-estimate_line_items UI-estimate-workspace UI-estimates TBL-audit_events,TST-engine-quantity TST-engine-estimate TST-db-rls TST-db-operations,Released estimate versions shall be immutable.
-EDM-000029,P03,Data Architecture,traced_tested,none,derived,TR-001,ENG-003 ENG-009 TBL-estimates TBL-estimate_versions TBL-estimate_line_items UI-estimate-workspace UI-estimates,TST-engine-quantity TST-engine-estimate,"Estimate lines shall retain quantity, production, resource, rate, markup, and source provenance."
-EDM-000030,P03,Data Architecture,untraced,none,,,,,"Resource assignments and rates shall support labor, crew, equipment, material, and service resource types."
-EDM-000031,P03,Data Architecture,untraced,none,,,,,"Rates shall include location, source, currency, unit, and effective periods."
-EDM-000032,P03,Data Architecture,untraced,none,,,,,"Budget, commitment, actual, forecast, invoice, and payment records shall remain distinct."
-EDM-000033,P03,Data Architecture,untraced,none,,,,,Cost transactions shall balance required dimensions and preserve source documents.
-EDM-000034,P03,Data Architecture,untraced,none,,,,,Money values shall always include currency.
-EDM-000035,P03,Data Architecture,untraced,none,,,,,Quantities shall always include unit and dimension.
-EDM-000036,P03,Data Architecture,untraced,none,,,,,Tax calculations shall reference explicit jurisdiction and rule versions.
-EDM-000037,P03,Data Architecture,traced_tested,none,derived,TR-026 TR-032,TBL-documents TBL-document_versions TBL-document_sheets TBL-document_extractions ENG-013 UI-plans TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-fn-ingestion TST-web-plans TST-db-rls TST-fn-api-gateway,Documents shall have a stable logical identity independent of content versions.
-EDM-000038,P03,Data Architecture,traced_tested,none,derived,TR-026 TR-033,TBL-documents TBL-document_versions TBL-document_sheets TBL-document_extractions ENG-013 UI-plans TBL-audit_events,TST-fn-ingestion TST-web-plans TST-db-rls TST-db-operations,Accepted document versions shall be immutable and checksummed.
-EDM-000039,P03,Data Architecture,traced_tested,none,derived,TR-004,ENG-005 TBL-equipment TBL-equipment_rates TBL-assets,TST-engine-resources TST-db-fleet,Documents shall link to any supported business object without duplicating content.
-EDM-000040,P03,Data Architecture,traced_tested,none,derived,TR-033,TBL-audit_events,TST-db-rls TST-db-operations,"Electronic signatures shall preserve signer, method, timestamp, hash, and document version."
-EDM-000041,P03,Data Architecture,untraced,none,,,,,Geometry shall declare its coordinate reference system.
-EDM-000042,P03,Data Architecture,untraced,none,,,,,Business entities shall reference geometry without forcing all geometry into transactional tables.
-EDM-000043,P03,Data Architecture,untraced,none,,,,,Linear projects shall support station ranges and offsets.
-EDM-000044,P03,Data Architecture,untraced,none,,,,,"Projects, sites, taxes, permits, and compliance records shall reference jurisdiction."
-EDM-000045,P03,Data Architecture,traced_tested,none,derived,TR-024,TBL-safety_incidents TBL-safety_observations TBL-toolbox_talks UI-safety RPT-reporting_safety_summary,TST-db-safety TST-db-semantic,"Incidents, inspections, observations, and corrective actions shall link to project, location, people, and evidence."
-EDM-000046,P03,Data Architecture,untraced,none,,,,,"Qualifications shall preserve issuer, type, dates, status, and evidence."
-EDM-000047,P03,Data Architecture,traced_tested,none,derived,TR-030,AI-001 TBL-ai_agents TBL-ai_findings TBL-ai_prompts TBL-ai_models,TST-fn-plan-analysis TST-web-plans,"AI-created or modified values shall identify agent, model, prompt, evidence, and execution."
-EDM-000048,P03,Data Architecture,traced_tested,none,derived,TR-030,AI-001 TBL-ai_agents TBL-ai_findings TBL-ai_prompts TBL-ai_models,TST-fn-plan-analysis TST-web-plans,AI recommendations shall remain separate from committed business records until authorized writeback.
-EDM-000049,P03,Data Architecture,untraced,none,,,,,Feedback shall link to the exact system or AI output version being evaluated.
-EDM-000050,P03,Data Architecture,untraced,none,,,,,Domain events shall use a standard tenant-aware versioned envelope.
-EDM-000051,P03,Data Architecture,untraced,none,,,,,Material record changes shall emit change metadata or domain events.
-EDM-000052,P03,Data Architecture,traced_tested,none,derived,TR-035,ENG-014 TBL-api_keys TBL-api_requests UI-api-access,TST-fn-api-gateway,API schemas shall map directly to canonical entities or declared view models.
-EDM-000053,P03,Data Architecture,traced_tested,none,derived,TR-039,RPT-reporting_project_financials RPT-reporting_labor_productivity RPT-reporting_safety_summary RPT-reporting_bid_performance TBL-metric_definitions UI-reports,TST-db-semantic,Operational entities shall support governed reporting views without duplicating source truth.
-EDM-000054,P03,Data Architecture,traced_tested,none,derived,TR-042,TBL-knowledge_articles,TST-db-operations,Search documents shall remain derivative and traceable to canonical records.
-EDM-000055,P03,Data Architecture,untraced,none,,,,,Imports shall validate in staging before committed writes.
-EDM-000056,P03,Data Architecture,untraced,none,,,,,"Exports shall include identifiers, versions, units, currencies, and lineage needed for interpretation."
-EDM-000057,P03,Data Architecture,untraced,none,,,,,Breaking schema changes shall require versioned migration and compatibility plans.
-EDM-000058,P03,Data Architecture,untraced,none,,,,,Published event and API contracts shall follow declared compatibility windows.
-EDM-000059,P03,Data Architecture,traced_tested,none,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,"Critical fields shall have completeness, validity, uniqueness, consistency, and timeliness measures."
-EDM-000060,P03,Data Architecture,traced_tested,none,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,Failed quality rules shall create reviewable exceptions rather than silent correction.
-EDM-000061,P03,Data Architecture,untraced,none,,,,,Sensitive fields shall support masking and tokenization policies.
-EDM-000062,P03,Data Architecture,traced_tested,none,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,Highly sensitive data shall support field-level encryption metadata where required.
-EDM-000063,P03,Data Architecture,untraced,none,,,,,Entity storage classes shall support region and residency constraints.
-EDM-000064,P03,Data Architecture,untraced,none,,,,,Archived records shall retain resolvable identifiers and access controls.
-EDM-000065,P03,Data Architecture,untraced,none,,,,,Legal hold shall suspend deletion and archival expiration.
-EDM-000066,P03,Data Architecture,untraced,none,,,,,Deletion or archival shall not orphan governed references.
-EDM-000067,P03,Data Architecture,untraced,none,,,,,Materialized reporting views shall identify refresh time and source versions.
-EDM-000068,P03,Data Architecture,untraced,none,,,,,Calculated values shall preserve formula or rule version and input lineage.
-EDM-000069,P03,Data Architecture,traced_tested,none,derived,TR-007,ENG-008 TBL-estimate_assumptions,TST-engine-confidence,Estimated or inferred values shall support confidence and review status.
-EDM-000070,P03,Data Architecture,untraced,none,,,,,"Entities shall support governed tags, notes, attachments, and custom fields."
-EDM-000071,P03,Data Architecture,untraced,none,,,,,"Names, addresses, dates, numbers, units, and currencies shall support locale-aware presentation."
-EDM-000072,P03,Data Architecture,untraced,none,,,,,Core tenant data shall be exportable in documented machine-readable formats.
-EDM-000073,P03,Data Architecture,traced_tested,none,derived,TR-041,TBL-services TBL-tasks TBL-assemblies TBL-materials TBL-cost_codes UI-libraries,TST-db-seed TST-db-rls,Required reference sets shall be supplied as versioned seed data.
-EDM-000074,P03,Data Architecture,untraced,none,,,,,Non-production test data shall be synthetic or de-identified.
-EDM-000075,P03,Data Architecture,untraced,none,,,,,"Migrations shall reconcile counts, totals, rejected records, and lineage."
+EDM-000001,P03,Data Architecture,untraced,verified,,,,,The platform shall maintain one governed canonical enterprise data model shared by all modules.
+EDM-000002,P03,Data Architecture,traced_tested,verified,derived,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,Every tenant-owned record shall include a verified tenant identifier.
+EDM-000003,P03,Data Architecture,untraced,verified,,,,,Every governed entity shall use immutable globally unique identifiers.
+EDM-000004,P03,Data Architecture,untraced,verified,,,,,Versioned entities shall preserve historical versions and effective dates.
+EDM-000005,P03,Data Architecture,untraced,verified,,,,,Business records shall use governed lifecycle states rather than uncontrolled physical deletion.
+EDM-000006,P03,Data Architecture,traced_tested,verified,derived,TR-033,TBL-audit_events,TST-db-rls TST-db-operations,Every mutable record shall capture creation and last-change actor and timestamp.
+EDM-000007,P03,Data Architecture,untraced,not_verified,,,,,Mutable records shall support version checks to prevent lost updates.
+EDM-000008,P03,Data Architecture,traced_tested,verified,derived,TR-041,TBL-services TBL-tasks TBL-assemblies TBL-materials TBL-cost_codes UI-libraries,TST-db-seed TST-db-rls,Codes and enumerations shall be represented through governed reference sets.
+EDM-000009,P03,Data Architecture,untraced,not_verified,,,,,Tenant custom fields shall use typed governed definitions and values.
+EDM-000010,P03,Data Architecture,untraced,not_verified,,,,,Each entity and field shall have an accountable data owner.
+EDM-000011,P03,Data Architecture,untraced,verified,,,,,Each governed field shall declare its authoritative source.
+EDM-000012,P03,Data Architecture,traced_tested,not_verified,derived,TR-039,RPT-reporting_project_financials RPT-reporting_labor_productivity RPT-reporting_safety_summary RPT-reporting_bid_performance TBL-metric_definitions UI-reports,TST-db-semantic,"Required, optional, unknown, not applicable, and withheld values shall be distinguishable where material."
+EDM-000013,P03,Data Architecture,traced_tested,verified,derived,TR-011,ENG-001,TST-engine-numeric,"Numeric values shall store declared precision, scale, and unit or currency context."
+EDM-000014,P03,Data Architecture,untraced,verified,,,,,Timestamps shall use UTC with source timezone where business meaning requires it.
+EDM-000015,P03,Data Architecture,untraced,verified,,,,,"Rates, assignments, relationships, and classifications shall support effective-date ranges."
+EDM-000016,P03,Data Architecture,untraced,verified,,,,,External or business keys shall not replace immutable internal identifiers.
+EDM-000017,P03,Data Architecture,untraced,verified,,,,,References shall enforce compatible tenant and lifecycle constraints.
+EDM-000018,P03,Data Architecture,traced_tested,not_verified,derived,TR-003,ENG-005 TBL-crews TBL-crew_members TBL-labor_rates TBL-employees TBL-time_entries,TST-engine-resources,Every entity shall inherit or define data security classification.
+EDM-000019,P03,Data Architecture,untraced,not_verified,,,,,Records shall map to retention and legal-hold policies.
+EDM-000020,P03,Data Architecture,untraced,verified,,,,,"Imported, calculated, converted, and AI-generated values shall preserve lineage."
+EDM-000021,P03,Data Architecture,traced_tested,not_verified,derived,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,Imported records shall preserve source system and external identifier.
+EDM-000022,P03,Data Architecture,untraced,verified,,,,,"Party, vendor, customer, project, and resource master data shall support duplicate detection."
+EDM-000023,P03,Data Architecture,untraced,not_verified,,,,,"Master-record merges shall preserve aliases, lineage, audit, and reversal evidence."
+EDM-000024,P03,Data Architecture,untraced,not_verified,,,,,Parties and business objects shall support typed effective-dated relationships.
+EDM-000025,P03,Data Architecture,untraced,not_verified,,,,,"Legal entities, business units, branches, teams, and projects shall support hierarchical relationships."
+EDM-000026,P03,Data Architecture,traced_tested,not_verified,derived,TR-012,TBL-projects TBL-project_tasks TBL-project_costs UI-projects UI-project-detail,TST-db-operations,"Projects shall support programs, parent projects, phases, areas, and work packages."
+EDM-000027,P03,Data Architecture,traced_tested,verified,derived,TR-012,TBL-projects TBL-project_tasks TBL-project_costs UI-projects UI-project-detail,TST-db-operations,Work records shall support WBS and cost-code structures without hardcoding one industry.
+EDM-000028,P03,Data Architecture,traced_tested,verified,derived,TR-001 TR-033,ENG-003 ENG-009 TBL-estimates TBL-estimate_versions TBL-estimate_line_items UI-estimate-workspace UI-estimates TBL-audit_events,TST-engine-quantity TST-engine-estimate TST-db-rls TST-db-operations,Released estimate versions shall be immutable.
+EDM-000029,P03,Data Architecture,traced_tested,verified,derived,TR-001,ENG-003 ENG-009 TBL-estimates TBL-estimate_versions TBL-estimate_line_items UI-estimate-workspace UI-estimates,TST-engine-quantity TST-engine-estimate,"Estimate lines shall retain quantity, production, resource, rate, markup, and source provenance."
+EDM-000030,P03,Data Architecture,untraced,verified,,,,,"Resource assignments and rates shall support labor, crew, equipment, material, and service resource types."
+EDM-000031,P03,Data Architecture,untraced,not_verified,,,,,"Rates shall include location, source, currency, unit, and effective periods."
+EDM-000032,P03,Data Architecture,untraced,verified,,,,,"Budget, commitment, actual, forecast, invoice, and payment records shall remain distinct."
+EDM-000033,P03,Data Architecture,untraced,verified,,,,,Cost transactions shall balance required dimensions and preserve source documents.
+EDM-000034,P03,Data Architecture,untraced,not_verified,,,,,Money values shall always include currency.
+EDM-000035,P03,Data Architecture,untraced,verified,,,,,Quantities shall always include unit and dimension.
+EDM-000036,P03,Data Architecture,untraced,not_verified,,,,,Tax calculations shall reference explicit jurisdiction and rule versions.
+EDM-000037,P03,Data Architecture,traced_tested,verified,derived,TR-026 TR-032,TBL-documents TBL-document_versions TBL-document_sheets TBL-document_extractions ENG-013 UI-plans TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-fn-ingestion TST-web-plans TST-db-rls TST-fn-api-gateway,Documents shall have a stable logical identity independent of content versions.
+EDM-000038,P03,Data Architecture,traced_tested,verified,derived,TR-026 TR-033,TBL-documents TBL-document_versions TBL-document_sheets TBL-document_extractions ENG-013 UI-plans TBL-audit_events,TST-fn-ingestion TST-web-plans TST-db-rls TST-db-operations,Accepted document versions shall be immutable and checksummed.
+EDM-000039,P03,Data Architecture,traced_tested,not_verified,derived,TR-004,ENG-005 TBL-equipment TBL-equipment_rates TBL-assets,TST-engine-resources TST-db-fleet,Documents shall link to any supported business object without duplicating content.
+EDM-000040,P03,Data Architecture,traced_tested,not_verified,derived,TR-033,TBL-audit_events,TST-db-rls TST-db-operations,"Electronic signatures shall preserve signer, method, timestamp, hash, and document version."
+EDM-000041,P03,Data Architecture,untraced,verified,,,,,Geometry shall declare its coordinate reference system.
+EDM-000042,P03,Data Architecture,untraced,verified,,,,,Business entities shall reference geometry without forcing all geometry into transactional tables.
+EDM-000043,P03,Data Architecture,untraced,not_verified,,,,,Linear projects shall support station ranges and offsets.
+EDM-000044,P03,Data Architecture,untraced,not_verified,,,,,"Projects, sites, taxes, permits, and compliance records shall reference jurisdiction."
+EDM-000045,P03,Data Architecture,traced_tested,verified,derived,TR-024,TBL-safety_incidents TBL-safety_observations TBL-toolbox_talks UI-safety RPT-reporting_safety_summary,TST-db-safety TST-db-semantic,"Incidents, inspections, observations, and corrective actions shall link to project, location, people, and evidence."
+EDM-000046,P03,Data Architecture,untraced,verified,,,,,"Qualifications shall preserve issuer, type, dates, status, and evidence."
+EDM-000047,P03,Data Architecture,traced_tested,verified,derived,TR-030,AI-001 TBL-ai_agents TBL-ai_findings TBL-ai_prompts TBL-ai_models,TST-fn-plan-analysis TST-web-plans,"AI-created or modified values shall identify agent, model, prompt, evidence, and execution."
+EDM-000048,P03,Data Architecture,traced_tested,verified,derived,TR-030,AI-001 TBL-ai_agents TBL-ai_findings TBL-ai_prompts TBL-ai_models,TST-fn-plan-analysis TST-web-plans,AI recommendations shall remain separate from committed business records until authorized writeback.
+EDM-000049,P03,Data Architecture,untraced,not_verified,,,,,Feedback shall link to the exact system or AI output version being evaluated.
+EDM-000050,P03,Data Architecture,untraced,not_verified,,,,,Domain events shall use a standard tenant-aware versioned envelope.
+EDM-000051,P03,Data Architecture,untraced,not_verified,,,,,Material record changes shall emit change metadata or domain events.
+EDM-000052,P03,Data Architecture,traced_tested,verified,derived,TR-035,ENG-014 TBL-api_keys TBL-api_requests UI-api-access,TST-fn-api-gateway,API schemas shall map directly to canonical entities or declared view models.
+EDM-000053,P03,Data Architecture,traced_tested,verified,derived,TR-039,RPT-reporting_project_financials RPT-reporting_labor_productivity RPT-reporting_safety_summary RPT-reporting_bid_performance TBL-metric_definitions UI-reports,TST-db-semantic,Operational entities shall support governed reporting views without duplicating source truth.
+EDM-000054,P03,Data Architecture,traced_tested,verified,derived,TR-042,TBL-knowledge_articles,TST-db-operations,Search documents shall remain derivative and traceable to canonical records.
+EDM-000055,P03,Data Architecture,untraced,not_verified,,,,,Imports shall validate in staging before committed writes.
+EDM-000056,P03,Data Architecture,untraced,verified,,,,,"Exports shall include identifiers, versions, units, currencies, and lineage needed for interpretation."
+EDM-000057,P03,Data Architecture,untraced,verified,,,,,Breaking schema changes shall require versioned migration and compatibility plans.
+EDM-000058,P03,Data Architecture,untraced,not_verified,,,,,Published event and API contracts shall follow declared compatibility windows.
+EDM-000059,P03,Data Architecture,traced_tested,not_verified,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,"Critical fields shall have completeness, validity, uniqueness, consistency, and timeliness measures."
+EDM-000060,P03,Data Architecture,traced_tested,not_verified,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,Failed quality rules shall create reviewable exceptions rather than silent correction.
+EDM-000061,P03,Data Architecture,untraced,not_verified,,,,,Sensitive fields shall support masking and tokenization policies.
+EDM-000062,P03,Data Architecture,traced_tested,not_verified,derived,TR-025,TBL-inspections TBL-deficiencies,TST-db-safety,Highly sensitive data shall support field-level encryption metadata where required.
+EDM-000063,P03,Data Architecture,untraced,not_verified,,,,,Entity storage classes shall support region and residency constraints.
+EDM-000064,P03,Data Architecture,untraced,not_verified,,,,,Archived records shall retain resolvable identifiers and access controls.
+EDM-000065,P03,Data Architecture,untraced,not_verified,,,,,Legal hold shall suspend deletion and archival expiration.
+EDM-000066,P03,Data Architecture,untraced,verified,,,,,Deletion or archival shall not orphan governed references.
+EDM-000067,P03,Data Architecture,untraced,verified,,,,,Materialized reporting views shall identify refresh time and source versions.
+EDM-000068,P03,Data Architecture,untraced,verified,,,,,Calculated values shall preserve formula or rule version and input lineage.
+EDM-000069,P03,Data Architecture,traced_tested,verified,derived,TR-007,ENG-008 TBL-estimate_assumptions,TST-engine-confidence,Estimated or inferred values shall support confidence and review status.
+EDM-000070,P03,Data Architecture,untraced,not_verified,,,,,"Entities shall support governed tags, notes, attachments, and custom fields."
+EDM-000071,P03,Data Architecture,untraced,not_verified,,,,,"Names, addresses, dates, numbers, units, and currencies shall support locale-aware presentation."
+EDM-000072,P03,Data Architecture,untraced,not_verified,,,,,Core tenant data shall be exportable in documented machine-readable formats.
+EDM-000073,P03,Data Architecture,traced_tested,verified,derived,TR-041,TBL-services TBL-tasks TBL-assemblies TBL-materials TBL-cost_codes UI-libraries,TST-db-seed TST-db-rls,Required reference sets shall be supplied as versioned seed data.
+EDM-000074,P03,Data Architecture,untraced,verified,,,,,Non-production test data shall be synthetic or de-identified.
+EDM-000075,P03,Data Architecture,untraced,not_verified,,,,,"Migrations shall reconcile counts, totals, rejected records, and lineage."
 GES-P04-REQ-001,P04,Registry and ownership,untraced,none,,,,,The platform shall provide governed registry and ownership capabilities for the Master Library Registry.
 GES-P04-REQ-002,P04,Canonical identifiers,untraced,none,,,,,The platform shall provide governed canonical identifiers capabilities for the Master Library Registry.
 GES-P04-REQ-003,P04,Tenant isolation,traced_tested,none,derived,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,The platform shall provide governed tenant isolation capabilities for the Master Library Registry.

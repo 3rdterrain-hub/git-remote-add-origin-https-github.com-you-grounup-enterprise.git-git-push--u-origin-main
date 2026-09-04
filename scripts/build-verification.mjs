@@ -43,6 +43,7 @@ const p08 = JSON.parse(readFileSync(join(G, 'traceability/verification/P08-verdi
 const p07 = JSON.parse(readFileSync(join(G, 'traceability/verification/P07-verdicts.json'), 'utf8'));
 const p16 = JSON.parse(readFileSync(join(G, 'traceability/verification/P16-verdicts.json'), 'utf8'));
 const p17 = JSON.parse(readFileSync(join(G, 'traceability/verification/P17-verdicts.json'), 'utf8'));
+const p03 = JSON.parse(readFileSync(join(G, 'traceability/verification/P03-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -354,3 +355,49 @@ function buildAspectLedger(phase, spec) {
 buildAspectLedger('P10', p10);
 buildAspectLedger('P08', p08);
 buildAspectLedger('P07', p07);
+
+/*
+ * P03 is 75 distinct data-architecture concerns in one domain — one canonical
+ * model, one tenant key, one null semantics — so there is nothing to factor.
+ * Each requirement carries its own verdict, and the ledger is a straight join.
+ */
+{
+  const phase = 'P03';
+  const ledger = [];
+  const problems = [];
+  for (const r of allRequirements.filter((x) => x.phase === phase)) {
+    const key = r.requirement_id.slice(-6);
+    const verdict = p03.requirements[key];
+    if (!verdict) { problems.push(`no verdict for ${r.requirement_id} (${r.name})`); continue; }
+    const verified = verdict.status === 'met';
+    ledger.push({
+      requirement_id: r.requirement_id,
+      concern: r.name,
+      verification: verified ? 'verified' : 'not_verified',
+      evidence: verified ? verdict.evidence : '',
+      gap: verified ? '' : verdict.gap,
+    });
+  }
+
+  if (problems.length) {
+    console.error(`The ${phase} verdicts do not cover every requirement:`);
+    for (const p of problems) console.error(`  ${p}`);
+    process.exit(1);
+  }
+
+  const cols = ['requirement_id', 'concern', 'verification', 'gap', 'evidence'];
+  const body = [cols.join(','),
+    ...ledger.map((r) => cols.map((c) => esc(r[c])).join(','))].join('\n') + '\n';
+  const out = join(G, `traceability/verification/${phase}-ledger.csv`);
+  if (process.argv.includes('--check')) {
+    let cur = '';
+    try { cur = readFileSync(out, 'utf8'); } catch { /* not generated yet */ }
+    if (cur !== body) { console.error(`${phase} verification ledger is out of date. Run: npm run verification`); process.exit(1); }
+    console.log(`${phase} verification ledger matches the verdicts (${ledger.length} requirements).`);
+  } else {
+    writeFileSync(out, body);
+  }
+
+  const v = ledger.filter((x) => x.verification === 'verified').length;
+  console.log(`\n${phase}: ${ledger.length} requirements, ${v} verified, ${ledger.length - v} not verified`);
+}
