@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Calculator, FileStack, HardHat, Users, Library,
   BarChart3, Settings, CreditCard, Menu, X, Bell, Search, ChevronDown, Bot,
   FileSignature, ArrowRight, CalendarDays, Truck, Users2, ShoppingCart, Banknote, ShieldAlert,
-  Mountain, Gavel, Network, KeyRound,
+  Mountain, Gavel, Network, KeyRound, Ruler,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { loadMemberships } from '@/lib/data/session';
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/app/estimates', label: 'Estimating', icon: Calculator },
+  { to: '/app/takeoff', label: 'Takeoff', icon: Ruler },
   { to: '/app/proposals', label: 'Proposals', icon: FileSignature },
   { to: '/app/plans', label: 'Plans & Specs', icon: FileStack },
   { to: '/app/projects', label: 'Projects', icon: HardHat },

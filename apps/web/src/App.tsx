@@ -15,6 +15,7 @@ const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ de
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
 const EstimatesPage = lazy(() => import('@/pages/app/estimates').then((m) => ({ default: m.EstimatesPage })));
+const TakeoffPage = lazy(() => import('@/pages/app/takeoff').then((m) => ({ default: m.TakeoffPage })));
 const EstimateWorkspacePage = lazy(() => import('@/pages/app/estimate-workspace').then((m) => ({ default: m.EstimateWorkspacePage })));
 const PlansPage = lazy(() => import('@/pages/app/plans').then((m) => ({ default: m.PlansPage })));
 const ProjectsPage = lazy(() => import('@/pages/app/projects').then((m) => ({ default: m.ProjectsPage })));
@@ -71,6 +72,7 @@ export function App() {
             <Route index element={<DashboardPage />} />
             <Route path="estimates" element={<EstimatesPage />} />
             <Route path="estimates/:estimateId" element={<EstimateWorkspacePage />} />
+            <Route path="takeoff" element={<TakeoffPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:projectId" element={<ProjectDetailPage />} />

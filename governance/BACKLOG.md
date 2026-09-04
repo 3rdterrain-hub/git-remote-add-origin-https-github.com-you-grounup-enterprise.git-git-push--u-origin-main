@@ -128,7 +128,7 @@ Not customizable, and each is a separate piece of work:
   * **Dashboards** — fixed tiles, no arrangement or choice of metric, even
     though `metric_definitions` is already a per-company governed catalog.
 
-### 9. On-screen takeoff
+### 9. On-screen takeoff — **built**
 Half of takeoff is built and it is the harder half. Earthwork is complete:
 `surfaces` holds elevation grids, `compareSurfaces()` computes cut and fill cell
 by cell with the coverage it actually achieved, cross-sections and stockpiles
@@ -138,21 +138,102 @@ whether its number came from an explicit dimension, a verified scale or an
 approximate one, and that choice moves the confidence score, the approval gate
 and whether the estimate may be issued at all.
 
-What is missing is the thing most estimators mean by the word: a drawing viewer
-you measure on. No sheet viewer, no scale calibration against a known dimension,
-no polyline for linear feet, no polygon for area, no counts on symbols, and no
-table to hold any of it. A sitework contractor can take off earthwork from
-survey data today and cannot take off a storm line by clicking along it.
+What was missing is now built, for every trade rather than for earthwork:
 
-Needs: a sheet viewer over the `document_sheets` already extracted, a
-calibration that records what it was calibrated against (because
-`measurement_method` already distinguishes verified from approximate scale, and
-that distinction has to stay honest), measurement shapes stored with their sheet
-and their scale so a number can be re-checked, and the same
-`applied_line_item_id` path earthwork already uses so a measurement lands on an
-estimate line rather than being retyped.
+- [x] `packages/engine/src/takeoff.ts` — scale calibration, traced lengths,
+      enclosed areas with deductions, roof pitch correction, depth to volume,
+      counts. 38 tests.
+- [x] Migration 0061 — `takeoff_calibrations` and `takeoff_measurements`, with
+      `measurement_method` a **generated** column so a calibration cannot claim
+      to be verified without naming the dimension it was verified against.
+      22 tests.
+- [x] The viewer: a PDF sheet rendered at its natural size, an overlay that
+      records clicks in sheet space rather than screen pixels so zooming to
+      click accurately cannot change a quantity, and a panel showing the live
+      number with its derivation and the standing of the scale it was taken at.
+      16 tests.
+- [ ] Applying a measurement to an estimate line through `applied_line_item_id`
+- [ ] Choosing a sheet from an uploaded plan set (the viewer takes a source; the
+      screen does not yet let you pick one)
 
-### 10. Follow-up automation
+The governance decision worth recording: a measurement row stores **geometry and
+no quantity**. The number follows from the shape and the scale by arithmetic the
+engine owns, so a stored copy could disagree with the shape it came from. That
+also means there is no engine output here to forge, which is why the guard
+migration 0058 needed for estimates is unnecessary rather than absent.
+
+### 10. Every trade in the service library
+The library is heavy civil and only heavy civil. Counting what is actually
+seeded: Earthwork 52, Utilities 44, Demolition 36, Asphalt 30, Concrete 28,
+plus generic task rollups. There is no electrical, mechanical, plumbing,
+roofing, masonry, structural steel, carpentry, drywall, painting, finishes,
+fire protection or landscaping — so an estimator outside sitework opens the
+library and finds nothing to build a bid from.
+
+The structure is right and already carries what a full library needs: services
+with categories, assemblies bundling labor, equipment and material per unit of
+work, production rates with source type and confidence, and per-company
+overrides on all of it. What is missing is content, and content at this scale
+is the work: every service needs its related tasks, a unit that suits it, and a
+production rate that is defensible rather than invented — a seeded rate nobody
+can source is the same defect as a typed price.
+
+Needs a decision on organization too. The current categories are informal
+names; CSI MasterFormat divisions are what the rest of the industry indexes on,
+and the estimate line already carries `bid_item_number` and `discipline` that
+would map to it.
+
+### 11. Survey and design surface import
+The civil equivalent of model-based takeoff, and much smaller than BIM.
+
+`surfaces`, `surface_comparisons` and `machine_control_files` already do the
+hard part: grids compared cell by cell, cut and fill with the coverage actually
+achieved, a machine control file published with a digest. What is missing is
+the front door — a contractor receives a design surface as LandXML or a DWG and
+has no way to get it in.
+
+LandXML first: it is text, it is an open standard, and it is what an engineer
+sends. It carries the TIN directly, so the import is a parse and a resample onto
+the grid `surfaces` already stores.
+
+This is deliberately ahead of BIM in the queue. A sitework contractor receives
+civil surfaces routinely and an IFC model almost never.
+
+### 12. Drones
+Aerial survey and progress. Photogrammetry from a flight produces a point cloud
+and then a surface, which is exactly what `surfaces` already holds and
+`compareSurfaces()` already compares — so drone-flown existing ground would
+flow into the earthwork takeoff that is already built, and a flight every few
+weeks turns `progressAgainstDesign()` into real progress measurement rather
+than a reported percentage.
+
+That is the valuable half and it reuses what exists. The rest is new: flight
+records, pilot and aircraft currency (which belongs with `credentials`, where
+an expired remote pilot certificate should refuse an assignment the same way
+every other credential does), imagery against a project and date, and the
+processing step that turns photographs into a grid.
+
+### 13. BIM
+Model-based quantities from IFC. **Recommended last, and only if customers ask
+for it by name.**
+
+The reasoning against doing it sooner: IFC and Revit models describe vertical
+construction — architecture, structure, MEP — and the library GrounUp prices is
+heavy civil. A sitework contractor rarely receives a model, and when they do it
+is the building rather than the site. Reading models for scopes the platform
+cannot price is effort with no output.
+
+The cost is also badly shaped. IFC parsing is a large specification, and the
+part that never finishes is not the parsing but the mapping from model elements
+onto services that can be priced — which is per-trade and open-ended.
+
+If it is built, the shape is clear and the existing architecture takes it
+without strain: a model element carries its own dimensions, so a quantity from
+one is `explicit_dimension` — the strongest reliability the measurement scale
+allows — and it reaches an estimate through the same `applied_line_item_id`
+path surfaces and on-screen measurements already use.
+
+### 14. Follow-up automation
 Nothing in the platform acts on a schedule. Every notification is produced by a
 database trigger reacting to a change — a machine going down, a service coming
 due, a credential expiring — which means the platform can tell you something
@@ -171,7 +252,7 @@ which already has categories, severity, receipts and immutability.
 The hard part is not the timer. It is making a follow-up stop: acting on the
 thing has to cancel the chase, or the platform becomes noise inside a week.
 
-### 11. HRM and payroll
+### 15. HRM and payroll
 Today this is labor, not HR: `employees`, `crews`, `credentials`,
 `time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
 leave, no benefits, no performance reviews, no onboarding, no org chart, and no
@@ -181,13 +262,13 @@ Payroll is the load-bearing piece and the one with real consequences: it has to
 reconcile to approved time entries, post to job cost through the path migration
 0044 already built, and never pay from unapproved hours.
 
-### 12. Asset lifecycle accounting
+### 16. Asset lifecycle accounting
 `assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
 nothing does anything with them. No depreciation schedule, no book value, no
 salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
 as a gap in the P12 verdict and still open.
 
-### 13. General ledger
+### 17. General ledger
 No chart of accounts, no journal entries, no trial balance, no bank
 reconciliation, no profit and loss, no balance sheet. What exists is
 construction job cost and billing that was designed to feed an accounting

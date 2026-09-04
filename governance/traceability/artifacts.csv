@@ -27,6 +27,7 @@ ENG-025,engine,Metrics Engine,supabase/functions/_shared/observability/metrics.t
 ENG-026,engine,Health Engine,supabase/functions/_shared/observability/health.ts,ENGINE
 ENG-027,engine,Work Calendar Engine,packages/engine/src/calendar.ts,ENGINE
 ENG-028,engine,Critical Path Engine,packages/engine/src/schedule.ts,ENGINE
+ENG-029,engine,Takeoff Measurement,packages/engine/src/takeoff.ts,ENGINE
 AI-001,ai_agent,Plan Analyst,supabase/functions/ai-analyze-document,AI_AGENT
 TBL-ai_agents,table,ai_agents,supabase/migrations (table ai_agents),AI_AGENT
 TBL-ai_conversations,table,ai_conversations,supabase/migrations (table ai_conversations),AI_AGENT
@@ -152,6 +153,8 @@ TBL-subscriptions,table,subscriptions,supabase/migrations (table subscriptions),
 TBL-surface_comparisons,table,surface_comparisons,supabase/migrations (table surface_comparisons),ENTITY
 TBL-surfaces,table,surfaces,supabase/migrations (table surfaces),ENTITY
 TBL-surveys,table,surveys,supabase/migrations (table surveys),ENTITY
+TBL-takeoff_calibrations,table,takeoff_calibrations,supabase/migrations (table takeoff_calibrations),ENTITY
+TBL-takeoff_measurements,table,takeoff_measurements,supabase/migrations (table takeoff_measurements),ENTITY
 TBL-task_dependencies,table,task_dependencies,supabase/migrations (table task_dependencies),LIBRARY
 TBL-tasks,table,tasks,supabase/migrations (table tasks),LIBRARY
 TBL-time_entries,table,time_entries,supabase/migrations (table time_entries),ENTITY
@@ -196,6 +199,7 @@ UI-safety,ui,safety,apps/web/src/pages/app/safety.tsx,ENTITY
 UI-schedule,ui,schedule,apps/web/src/pages/app/schedule.tsx,ENTITY
 UI-settings,ui,settings,apps/web/src/pages/app/settings.tsx,ENTITY
 UI-survey,ui,survey,apps/web/src/pages/app/survey.tsx,ENTITY
+UI-takeoff,ui,takeoff,apps/web/src/pages/app/takeoff.tsx,ENTITY
 UI-workforce,ui,workforce,apps/web/src/pages/app/workforce.tsx,ENTITY
 RPT-reporting_project_financials,report,reporting_project_financials,supabase/migrations/0025_semantic_layer.sql,ENGINE
 RPT-reporting_labor_productivity,report,reporting_labor_productivity,supabase/migrations/0025_semantic_layer.sql,ENGINE
@@ -218,6 +222,7 @@ TST-engine-scenarios,test,engine/scenarios.test.ts,packages/engine/tests/scenari
 TST-engine-schedule,test,engine/schedule.test.ts,packages/engine/tests/schedule.test.ts,ENGINE
 TST-engine-snapshot,test,engine/snapshot.test.ts,packages/engine/tests/snapshot.test.ts,ENGINE
 TST-engine-surfaces,test,engine/surfaces.test.ts,packages/engine/tests/surfaces.test.ts,ENGINE
+TST-engine-takeoff,test,engine/takeoff.test.ts,packages/engine/tests/takeoff.test.ts,ENGINE
 TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.test.ts,ENGINE
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
@@ -258,10 +263,12 @@ TST-db-signup,test,db/signup.test.ts,tests/db/signup.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
+TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
 TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE
+TST-fn-estimate-pricing,test,fn/estimate-pricing.test.ts,tests/functions/estimate-pricing.test.ts,ENGINE
 TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENGINE
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
@@ -272,6 +279,7 @@ TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENG
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
+TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
@@ -281,6 +289,7 @@ TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
+TST-web-estimate-pricing,test,web/estimate-pricing.test.tsx,apps/web/src/pages/app/estimate-pricing.test.tsx,ENGINE
 TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
 TST-web-finance,test,web/finance.test.tsx,apps/web/src/pages/app/finance.test.tsx,ENGINE
 TST-web-fleet,test,web/fleet.test.tsx,apps/web/src/pages/app/fleet.test.tsx,ENGINE

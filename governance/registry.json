@@ -126,6 +126,8 @@
     "surface_comparisons": "ENTITY",
     "surfaces": "ENTITY",
     "surveys": "ENTITY",
+    "takeoff_calibrations": "ENTITY",
+    "takeoff_measurements": "ENTITY",
     "task_dependencies": "LIBRARY",
     "tasks": "LIBRARY",
     "time_entries": "ENTITY",
@@ -308,6 +310,12 @@
       "name": "Critical Path Engine",
       "path": "packages/engine/src/schedule.ts",
       "purpose": "Forward and backward pass over four dependency types with lag, producing early and late dates, total and free float, the critical path, and variance against an approved baseline. Refuses cycles by name."
+    },
+    {
+      "id": "ENG-029",
+      "name": "Takeoff Measurement",
+      "path": "packages/engine/src/takeoff.ts",
+      "purpose": "Quantities measured off a drawing: scale calibration that records what it was checked against, traced lengths, enclosed areas with deductions, pitch correction, depth to volume, and counts. A scale calibrated against a printed dimension resolves to verified_scale and one taken from the title block to approximate_scale, which the confidence engine scores differently and the approval gate routes on."
     }
   ],
   "ai_agents": [

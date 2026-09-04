@@ -119,4 +119,25 @@ describe('the API surface the client actually calls', () => {
       expect(r!.anon, `public.${fn} is callable anonymously`).toBe(false);
     }
   });
+
+  it('exposes the engine writer to the service role and to nobody else', async () => {
+    /*
+     * The one exception to the rule above, and the reason it is stated
+     * separately. Every other wrapper is reachable by a signed-in user;
+     * `record_engine_result` must not be, because pricing is a boundary rather
+     * than a permission — there is no role senior enough to write a price by
+     * hand, and if `authenticated` could execute this the whole of migration
+     * 0058 would be a speed bump.
+     */
+    const [r] = await h.sql<{ auth: boolean; anon: boolean; svc: boolean }>(
+      `select has_function_privilege('authenticated', p.oid, 'execute') as auth,
+              has_function_privilege('anon', p.oid, 'execute') as anon,
+              has_function_privilege('service_role', p.oid, 'execute') as svc
+         from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+        where n.nspname = 'public' and p.proname = 'record_engine_result' limit 1`);
+    expect(r, 'public.record_engine_result is missing').toBeDefined();
+    expect(r!.svc).toBe(true);
+    expect(r!.auth).toBe(false);
+    expect(r!.anon).toBe(false);
+  });
 });

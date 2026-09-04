@@ -4,16 +4,16 @@
 
 | Area | Files | Lines |
 |---|---:|---:|
-| Estimating engine (source + tests) | 38 | ~11,200 |
+| Estimating engine (source + tests) | 40 | ~12,000 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (60 files, 137 tables, 17 views) | 60 | ~13,400 |
-| Edge Functions + shared modules | 48 | ~6,900 |
-| Database & function tests | 47 | ~11,800 |
+| Database migrations (62 files, 139 tables, 18 views) | 62 | ~13,800 |
+| Edge Functions + shared modules | 51 | ~7,900 |
+| Database & function tests | 49 | ~12,400 |
 | Governance & traceability tests | 6 | ~2,700 |
-| Web application (31 routes, 23 app screens) | 95 | ~16,500 |
-| Documentation | 14 | ~4,600 |
+| Web application (32 routes, 24 app screens) | 103 | ~17,900 |
+| Documentation | 14 | ~4,700 |
 | Seed & tooling | 8 | ~1,900 |
-| **Total hand-written** | **324** | **~70,800** |
+| **Total hand-written** | **341** | **~75,100** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 1,983 tests, production build —
+drift checks, 2,042 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
 Engine        529 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database      737 tests   against real PostgreSQL 18 (PGlite)
+Database      796 tests   against real PostgreSQL 18 (PGlite)
 Functions     229 tests   billing, plan versioning, AI governance, API, observability
 Governance    253 tests   the five-category rule, traceability, verification, spelling, pipeline
 Web           178 tests   jsdom + Testing Library
             ───────────
-            1,983 tests
+            2,042 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the
