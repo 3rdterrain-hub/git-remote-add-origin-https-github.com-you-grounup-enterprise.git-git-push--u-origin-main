@@ -45,17 +45,33 @@ become a customer.
 
 ## Queued
 
-### 3. Super admin console
-Log in and see every company using the platform, turn features on and off per
-company, see subscription standing, inspect a failed webhook.
+### 3. Super admin console — **built**
+At `/admin`, outside the customer application.
 
-Nothing of this exists. The subscription machinery is complete and entirely
-tenant-facing; row level security is built so no company can see another, which
-is right for customers and means the operator of GrounUp has no way to see their
-own. Needs a platform-admin boundary that is genuinely separate from tenant
-roles — not a role inside a company — plus an audited override path, because an
-operator changing a customer's entitlement is exactly the action that must never
-be untraceable.
+- [x] Migration 0064 — `platform_admins` (not a role: a role lives inside a
+      company and this is the opposite), `entitlement_overrides`, the two admin
+      views, and audited grant and revoke functions. 24 tests.
+- [x] The console: tenant list with plan and subscription standing, feature
+      overrides with the reason required, and Stripe webhook health. 11 tests.
+
+Three decisions worth keeping:
+
+**An operator cannot read customer business data.** Not estimates, projects,
+costs or documents — only counts of them. The ten-minute version of this
+feature adds `or app.is_platform_admin()` to every policy and hands whoever
+holds the flag every bid every customer has priced. Seven tests assert an
+operator reading those tables gets nothing.
+
+**A feature grant composes rather than edits.** `entitlements` is unique on
+`company_id` and the Stripe webhook upserts the whole row, so a grant written
+there would work and be silently reverted by the next invoice. Overrides sit in
+their own table; a revoke beats a grant beats the plan.
+
+**Every operator action is audited into the customer's own ledger**, so the
+customer can read what was done to them.
+
+Still open: suspending a company, and a second operator approving a change to a
+paying customer's entitlement.
 
 ### 4. Leads
 A public lead capture form, and leads funnelling through the system to an

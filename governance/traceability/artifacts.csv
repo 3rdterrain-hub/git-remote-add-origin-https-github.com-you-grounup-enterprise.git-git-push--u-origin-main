@@ -77,6 +77,7 @@ TBL-document_versions,table,document_versions,supabase/migrations (table documen
 TBL-documents,table,documents,supabase/migrations (table documents),ENTITY
 TBL-employees,table,employees,supabase/migrations (table employees),ENTITY
 TBL-enterprise_groups,table,enterprise_groups,supabase/migrations (table enterprise_groups),ENTITY
+TBL-entitlement_overrides,table,entitlement_overrides,supabase/migrations (table entitlement_overrides),ENTITY
 TBL-entitlements,table,entitlements,supabase/migrations (table entitlements),ENTITY
 TBL-equipment,table,equipment,supabase/migrations (table equipment),LIBRARY
 TBL-equipment_rates,table,equipment_rates,supabase/migrations (table equipment_rates),LIBRARY
@@ -119,6 +120,7 @@ TBL-pay_applications,table,pay_applications,supabase/migrations (table pay_appli
 TBL-plan_prices,table,plan_prices,supabase/migrations (table plan_prices),LIBRARY
 TBL-plan_versions,table,plan_versions,supabase/migrations (table plan_versions),ENTITY
 TBL-plans,table,plans,supabase/migrations (table plans),LIBRARY
+TBL-platform_admins,table,platform_admins,supabase/migrations (table platform_admins),ENTITY
 TBL-pricing_profiles,table,pricing_profiles,supabase/migrations (table pricing_profiles),LIBRARY
 TBL-production_actuals,table,production_actuals,supabase/migrations (table production_actuals),ENTITY
 TBL-production_calibrations,table,production_calibrations,supabase/migrations (table production_calibrations),ENTITY
@@ -250,6 +252,7 @@ TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/no
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
+TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
 TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
@@ -288,6 +291,7 @@ TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.chec
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
+TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
 TST-web-estimate-pricing,test,web/estimate-pricing.test.tsx,apps/web/src/pages/app/estimate-pricing.test.tsx,ENGINE

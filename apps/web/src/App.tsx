@@ -11,6 +11,7 @@ import { LandingPage } from '@/pages/landing';
  */
 const AppShell = lazy(() => import('@/components/layout/app-shell').then((m) => ({ default: m.AppShell })));
 const AuthPage = lazy(() => import('@/pages/auth').then((m) => ({ default: m.AuthPage })));
+const AdminPage = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminPage })));
 const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })));
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
@@ -66,6 +67,12 @@ export function App() {
             * empty list for somebody who has none.
             */}
           <Route path="/welcome" element={<OnboardingPage />} />
+          {/*
+            * The operator console, outside /app on purpose: everything under
+            * that route assumes a company and reads that company's records,
+            * and this reads across all of them.
+            */}
+          <Route path="/admin" element={<AdminPage />} />
 
           {/* Authenticated application */}
           <Route path="/app" element={<AppShell />}>

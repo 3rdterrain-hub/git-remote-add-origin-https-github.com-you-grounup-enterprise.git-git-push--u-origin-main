@@ -168,13 +168,22 @@ describe('ENTITY — stores business records', () => {
           select 1 from pg_attribute a
           where a.attrelid = c.oid and a.attname = 'company_id' and a.attnum > 0 and not a.attisdropped)`);
     const withoutCompany = rows.map((r) => r.table_name).filter((t) => registry.tables[t] === 'ENTITY');
-    // The platform-level entities that legitimately have no owning company.
-    // `plan_versions` joins them for the same reason `plans` is platform_only:
-    // published commercial terms are the platform's, and every tenant that
-    // bought under a version is pointing at the same row.
+    /*
+     * The platform-level entities that legitimately have no owning company.
+     *
+     * `plan_versions` joins them for the same reason `plans` is platform_only:
+     * published commercial terms are the platform's, and every tenant that
+     * bought under a version is pointing at the same row.
+     *
+     * `platform_admins` is the strongest case of all. A platform operator is
+     * the opposite of a company member — the whole point of the row is that it
+     * is not scoped to a tenant — and giving it a company_id would turn the
+     * flag into a role inside somebody's account, which is precisely the
+     * design this table exists to avoid.
+     */
     expect(withoutCompany.sort()).toEqual([
       'companies', 'enterprise_groups', 'network_ratings', 'network_vendors',
-      'plan_versions', 'user_profiles',
+      'plan_versions', 'platform_admins', 'user_profiles',
     ]);
   });
 });
