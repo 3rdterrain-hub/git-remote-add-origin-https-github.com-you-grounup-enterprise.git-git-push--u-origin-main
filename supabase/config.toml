@@ -27,6 +27,14 @@ shadow_port = 54320
 # the tests agree by construction rather than by intention.
 major_version = 17
 
+# The master library and the plan catalog, applied by `db push --include-seed`.
+# `0003_plan_prices.example.sql` is deliberately absent: it carries example
+# Stripe price identifiers, and seeding a real project with them would point
+# checkout at prices that do not exist in that Stripe account.
+[db.seed]
+enabled = true
+sql_paths = ["./seed/0001_global_library.sql", "./seed/0002_plan_catalog.sql"]
+
 [db.pooler]
 enabled = false
 
