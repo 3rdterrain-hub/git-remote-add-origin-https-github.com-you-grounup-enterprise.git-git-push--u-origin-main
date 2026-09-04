@@ -39,6 +39,7 @@ const p20 = JSON.parse(readFileSync(join(G, 'traceability/verification/P20-verdi
 const p27 = JSON.parse(readFileSync(join(G, 'traceability/verification/P27-verdicts.json'), 'utf8'));
 const p29 = JSON.parse(readFileSync(join(G, 'traceability/verification/P29-verdicts.json'), 'utf8'));
 const p09 = JSON.parse(readFileSync(join(G, 'traceability/verification/P09-verdicts.json'), 'utf8'));
+const p08 = JSON.parse(readFileSync(join(G, 'traceability/verification/P08-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -277,24 +278,26 @@ buildDomainLedger('P29', p29, 'P29');
 buildDomainLedger('P09', p09, 'P09');
 
 
-// ---------------------------------------------------------------------- P10
+// ------------------------------------------------------------- P10 and P08
 /*
- * P10 carries no acceptance criteria at all, so each requirement is judged
- * against its own statement. They factor exactly: 16 subjects by 15 aspects.
- * A requirement is verified only where the aspect holds AND the subject exists,
+ * Neither phase carries any acceptance criteria — the column is empty for every
+ * requirement — so each is judged against its own statement. Both factor
+ * exactly into subjects by aspects: P10 is 16 by 15, P08 is 20 by 9. A
+ * requirement is verified only where the aspect holds AND the subject exists,
  * with per-subject exceptions applied on top — an integration has no
- * posting-dated record for a period control to govern.
+ * posting-dated record for a period control to govern, and a subject with no
+ * records at all has nothing for a records aspect to be true of.
  */
-{
+function buildAspectLedger(phase, spec) {
   const ledger = [];
   const problems = [];
-  for (const r of allRequirements.filter((x) => x.phase === 'P10')) {
-    const aspect = p10.aspects.find((a) => r.requirement.includes(a.match));
-    const subject = p10.subjects[r.domain];
+  for (const r of allRequirements.filter((x) => x.phase === phase)) {
+    const aspect = spec.aspects.find((a) => r.requirement.includes(a.match));
+    const subject = spec.subjects[r.domain];
     if (!aspect) { problems.push(`no aspect matches ${r.requirement_id}`); continue; }
     if (!subject) { problems.push(`no subject verdict for "${r.domain}"`); continue; }
 
-    const exception = p10.subject_exceptions?.[r.domain]?.[aspect.id];
+    const exception = spec.subject_exceptions?.[r.domain]?.[aspect.id];
     const aspectStatus = exception ? exception.split(' ')[0] : aspect.status;
     const verified = aspectStatus === 'met' && subject.exists === 'yes';
 
@@ -314,7 +317,7 @@ buildDomainLedger('P09', p09, 'P09');
   }
 
   if (problems.length) {
-    console.error('The P10 verdicts do not cover every requirement:');
+    console.error(`The ${phase} verdicts do not cover every requirement:`);
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
@@ -323,22 +326,25 @@ buildDomainLedger('P09', p09, 'P09');
                 'subject_exists', 'aspect_status', 'gap', 'evidence'];
   const body = [cols.join(','),
     ...ledger.map((r) => cols.map((c) => esc(r[c])).join(','))].join('\n') + '\n';
-  const out = join(G, 'traceability/verification/P10-ledger.csv');
+  const out = join(G, `traceability/verification/${phase}-ledger.csv`);
   if (process.argv.includes('--check')) {
     let cur = '';
     try { cur = readFileSync(out, 'utf8'); } catch { /* not generated yet */ }
-    if (cur !== body) { console.error('P10 verification ledger is out of date. Run: npm run verification'); process.exit(1); }
-    console.log(`P10 verification ledger matches the verdicts (${ledger.length} requirements).`);
+    if (cur !== body) { console.error(`${phase} verification ledger is out of date. Run: npm run verification`); process.exit(1); }
+    console.log(`${phase} verification ledger matches the verdicts (${ledger.length} requirements).`);
   } else {
     writeFileSync(out, body);
   }
 
   const v = ledger.filter((r) => r.verification === 'verified').length;
-  const metAspects = p10.aspects.filter((a) => a.status === 'met').length;
-  const builtSubjects = Object.values(p10.subjects).filter((s) => s.exists === 'yes').length;
-  console.log(`\nP10: ${ledger.length} requirements, ${v} verified, ${ledger.length - v} not verified`);
-  console.log(`  aspects: ${metAspects} of ${p10.aspects.length} met`);
+  const metAspects = spec.aspects.filter((a) => a.status === 'met').length;
+  const builtSubjects = Object.values(spec.subjects).filter((x) => x.exists === 'yes').length;
+  console.log(`\n${phase}: ${ledger.length} requirements, ${v} verified, ${ledger.length - v} not verified`);
+  console.log(`  aspects: ${metAspects} of ${spec.aspects.length} met`);
   console.log(`  subjects: ${builtSubjects} built, ` +
-    `${Object.values(p10.subjects).filter((s) => s.exists === 'partial').length} partial, ` +
-    `${Object.values(p10.subjects).filter((s) => s.exists === 'no').length} not built`);
+    `${Object.values(spec.subjects).filter((x) => x.exists === 'partial').length} partial, ` +
+    `${Object.values(spec.subjects).filter((x) => x.exists === 'no').length} not built`);
 }
+
+buildAspectLedger('P10', p10);
+buildAspectLedger('P08', p08);

@@ -1,0 +1,238 @@
+{
+  "phase": "P08",
+  "title": "CRM, Sales & Customer Management",
+  "method": "P08 carries no acceptance criteria at all — the column is empty for all 180 requirements — so each is judged against its own statement, as P10 was. They factor exactly: 20 subjects by 9 aspects. A requirement is verified only where the aspect holds AND the subject exists, with per-subject exceptions applied on top.",
+  "judged_before_and_after": "Judged after building migration 0045 and 19 tests. Two of the nine aspects hold — governed records within tenant boundaries, and least privilege with export restriction — and three of the twenty subjects are built, so P08 verifies at 6 of 180: the two aspects across CRM Foundation, Estimate Integration and Security & Governance. The other seven aspects fail for every subject at once, which is why the number is small and why raising it means building configuration, automation, AI assistance, reporting with drill-through, versioned CRM APIs and a mobile experience rather than refining anything already here.",
+  "findings": [
+    {
+      "id": "P08-F1",
+      "title": "A proposal could be sent from an estimate nobody had approved",
+      "detail": "`proposals.estimate_version_id` is NOT NULL, and that was the whole of the connection. Reproduced against real PostgreSQL before the fix: a proposal was created directly in `issued` status citing a **draft** estimate version — one whose contingency, confidence band and markup had been through no review at all — and the platform accepted it.",
+      "why_it_matters": "P25 already refuses to let an estimate version reach `approved` or `issued` without the library snapshot that priced it, on the stated grounds that 'an issued price the platform cannot reproduce is not a record of anything'. That control was then trivially bypassable from the other side: the proposal is the document the customer actually receives, and it could be built on a working draft that the estimating governance had deliberately not yet blessed.",
+      "status": "resolved",
+      "resolution": "Migration 0045 refuses to move a proposal out of draft unless the version it cites is approved, issued or awarded, naming the status it found. Six tests, one per estimate status."
+    },
+    {
+      "id": "P08-F2",
+      "title": "The price on the proposal did not have to be the price the engine computed",
+      "detail": "`proposals.total_price` was a free numeric column defaulting to zero. Reproduced: a proposal issued at a total price of **zero** while the estimate version it cited carried a bid price of **$1,200,000**. Nothing objected, and the immutability control then froze the wrong number in place.",
+      "why_it_matters": "RULE-008 makes deterministic estimating output authoritative and forbids AI overwriting it. The same reasoning applies with more force to a person typing into the document a customer signs — the engine's whole purpose is to produce a defensible number, and the platform let the document disagree with it silently. This is the commercial twin of the labor defect found in P09: the figure that leaves the building, unchecked against the figure the platform computed.",
+      "status": "resolved",
+      "resolution": "The total is derived rather than typed. While a proposal is a draft its total is set to the cited version's `bid_price` — the engine's output after markup and bid rounding — on every write, so there is no way to state a different number. Once issued it is left exactly as it went out, because re-deriving it later would let a subsequent estimate revision quietly restate a price the customer already holds."
+    },
+    {
+      "id": "P08-F3",
+      "title": "The line detail did not have to add up to the total on the cover",
+      "detail": "A line item of $5 was accepted against a stated total of zero. `proposal_line_items.extended_price` and `proposals.total_price` were independent numbers with no relationship of any kind.",
+      "why_it_matters": "A proposal whose schedule of values contradicts its contract sum is the document a dispute is later argued from. Getting that wrong is not a presentation problem.",
+      "status": "resolved",
+      "resolution": "At the moment a proposal leaves draft, the sum of its base line items must equal its total within a cent, and the error names both figures. Alternates and options are excluded from the base — an alternate is a price the customer may or may not take, and counting it would make every proposal carrying one fail to tie. A proposal with no line detail at all still issues: no detail is a presentation choice, detail that contradicts the total is a defect, and only the second is refused."
+    },
+    {
+      "id": "P08-F4",
+      "title": "The immutability control froze the cover and left the content editable",
+      "detail": "`app.enforce_proposal_immutability()` refuses any change to an issued proposal and tells the caller its 'content is fixed; issue a new proposal instead'. The content is in `proposal_line_items`, a different table the trigger never touched. Reproduced: a new line item was inserted into an already-issued proposal, and existing lines could be edited or deleted outright.",
+      "why_it_matters": "It is worse than having no control, because the platform reported the document as frozen while every line of it could be rewritten. The same shape as the credential gate in P09 — a control that reports success while doing nothing — this time on the commercial record rather than the safety one.",
+      "status": "resolved",
+      "resolution": "`app.enforce_proposal_line_lock()` refuses insert, update and delete on the line items of any proposal past draft, naming the proposal, its status and the operation. Acceptance and decline still record on the header, because the answer from a customer is not a change to the document. Four tests, including one that confirms a draft's lines stay fully editable."
+    },
+    {
+      "id": "P08-F5",
+      "title": "Winning an opportunity produces nothing",
+      "detail": "`projects.opportunity_id` and `projects.source_estimate_version_id` both exist and nothing populates either. Marking an opportunity `won` creates no project, and accepting a proposal creates no project either — verified by execution, not inferred. The pipeline and the delivery side of the platform are joined by two columns nobody writes.",
+      "why_it_matters": "Contract handoff is one of this phase's twenty subjects and it is the seam where the sales record becomes the operational one. Without it the contract value on a project is typed in again by hand, having already been computed by the engine, presented in a proposal and accepted by a customer — three places it existed before somebody re-keyed it.",
+      "status": "open",
+      "why_not_resolved": "The handoff is a workflow with real decisions in it, not a missing trigger: which project number, whose ownership, what dates, which of several accepted proposals is the contract, and whether a project should appear before a contract is executed at all. Guessing those and firing a trigger on `stage = 'won'` would create projects nobody asked for, and the platform has no contract execution event to hang it on that is not already P19's. Recorded at full size, with the two unpopulated columns named, rather than half-built."
+    },
+    {
+      "id": "P08-F6",
+      "title": "A lost opportunity must say why; a won one need not say anything",
+      "detail": "`opportunities_lost_reason` requires a loss reason whenever the stage is `lost`. There is no counterpart on the winning side: `won_at` may be null on a won opportunity, no proposal need have been accepted, no estimate need exist, and no value need be recorded.",
+      "why_it_matters": "It is the small version of F5 and it distorts the one piece of sales reporting the platform does compute. `reporting_bid_performance` derives the bid hit rate from won and lost counts, so the losses are governed and the wins are not.",
+      "status": "open",
+      "why_not_resolved": "The honest fix is the handoff in F5 — a win means something because a contract exists, not because a date was filled in. Adding a `won_at is not null` constraint on its own would satisfy the asymmetry without making a win mean anything, which is the kind of control this build has spent its time removing rather than adding."
+    }
+  ],
+  "aspects": [
+    {
+      "id": "A1",
+      "match": "shall create, update, retrieve, archive, and restore",
+      "name": "governed records within tenant boundaries",
+      "status": "met",
+      "evidence": "Customers, contacts, leads, opportunities, proposals and proposal line items are all real tables carrying company_id with row level security enabled and forced, policies generated by audited helpers rather than written by hand, and app.enforce_tenant_parent refusing a child attached to a parent owned by another company. Archive and restore are modeled as status rather than deletion — customers and contacts carry app.record_status, opportunities carry abandoned, proposals carry withdrawn — so a record leaves circulation without leaving history. Since 0045 the create and update paths for a proposal derive its price from the estimate rather than accepting one."
+    },
+    {
+      "id": "A2",
+      "match": "shall configure",
+      "name": "configuration without code",
+      "status": "not_met",
+      "gap": "Every stage list in this phase is a check constraint in a migration: lead stages, opportunity stages, proposal statuses, customer types. Changing any of them is a schema change, not a configuration. There are no custom fields, no saved views, no automation triggers to configure and no approval thresholds on any CRM record — the commercial authority limits added in P19 govern contracts, change orders, claims and purchase orders, and no CRM object is among them. A proposal of any value is issued by anyone holding the permission."
+    },
+    {
+      "id": "A3",
+      "match": "change shall capture actor, timestamp, source, prior value, new value, reason, and correlation identifier",
+      "name": "audit with actor, prior and new value, reason and correlation",
+      "status": "not_met",
+      "gap": "Four of the seven are solid: every CRM table carries the full-row audit trigger writing actor, timestamp, prior value and new value into an append-only ledger no privilege level can edit, and a governance test asserts every table in the schema is either audited or frozen. Three are missing. **Reason** is captured nowhere — a loss reason is a field on the opportunity, not a reason attached to the change that set it. **Source** is not recorded on a CRM change: the ledger cannot distinguish a screen from the public API from an import. **Correlation identifier** exists in the observability layer, where the logger carries a request id through every line, and it is never written into the audit row — so a database change and the request that caused it cannot be joined."
+    },
+    {
+      "id": "A4",
+      "match": "shall exchange",
+      "name": "versioned API exchange with six services",
+      "status": "not_met",
+      "gap": "The public API is genuinely versioned, generated from the gateway's own route table with drift failing the build, and behind scoped keys — and it exposes nine endpoints, none of them CRM. No customer, contact, lead, opportunity or proposal can be read or written through it. Of the six services named, estimating is joined at the database level and now enforced by 0045, project operations is joined by two columns nobody populates (F5), and accounting, document control, communications and identity are not joined to CRM at all: no invoice from a won job, no proposal filed into document control, no email or call recorded anywhere, no directory."
+    },
+    {
+      "id": "A5",
+      "match": "shall execute tenant-configurable",
+      "name": "automation with idempotency, retry and exception queues",
+      "status": "not_met",
+      "gap": "There is no automation engine anywhere in the platform, for CRM or anything else: no rule, no trigger a tenant can define, no queue, no retry, no execution history. The database triggers that enforce the rules in this verdict are platform code, not tenant-configurable automations, and correctly so. The nearest thing is the connector framework with recorded runs, which is an integration adapter rather than a workflow engine."
+    },
+    {
+      "id": "A6",
+      "match": "Governed AI shall",
+      "name": "governed AI assistance with attribution and human approval",
+      "status": "not_met",
+      "gap": "The governance is real and the capability is absent. One agent exists, capped at draft authority by a check constraint that makes a writing agent unconfigurable, producing findings that cannot exist without a citation and are inert until a person accepts them. It reads drawings and specifications. Nothing summarizes a customer, scores a lead, drafts a proposal or recommends a next action — and the qualification_score column on leads, which such a capability would write, is filled in by hand or not at all."
+    },
+    {
+      "id": "A7",
+      "match": "Responsive web and native mobile",
+      "name": "responsive and mobile experience with offline behavior",
+      "status": "not_met",
+      "gap": "A CRM screen exists and is responsive, built on Tailwind and shadcn/ui with role-aware navigation. It reads demonstration fixtures rather than the governed records this phase is about — the platform-wide gap P29 recorded, where 22 of 23 screens read fixtures and only Billing queries live data. There is no native mobile application and no offline behavior of any kind: no local store, no queue, no conflict resolution. Accessibility is not measured, so it is not claimed."
+    },
+    {
+      "id": "A8",
+      "match": "shall provide operational, conversion, velocity, quality, and financial reporting",
+      "name": "conversion, velocity and quality reporting with drill-through",
+      "status": "not_met",
+      "gap": "`reporting_bid_performance` computes estimates submitted and the bid hit rate by month and division, and two governed metrics are defined over it — real conversion reporting, and the only one of the five kinds this aspect names that exists. There is no velocity reporting: stage timestamps are not kept, so time in stage cannot be computed for a lead or an opportunity at all. There is no quality reporting, no CRM financial reporting beyond the hit rate, and no drill-through from any figure to the records behind it, because nothing in the application reads these views."
+    },
+    {
+      "id": "A9",
+      "match": "shall enforce least privilege, field-level permissions, consent controls",
+      "name": "least privilege, field-level permissions, consent and export restriction",
+      "status": "met",
+      "evidence": "Least privilege holds and is tested: the seeded sales role reads estimates and cannot change pricing, permissions are explicit arrays checked by app.has_permission with wildcards honored only as a whole grant, and a membership's project_scope narrows a user to named projects. Field-level separation exists where the platform has a field worth separating — employee compensation is behind hr.read, and a foreman sees no employee rows without it. Export is restricted by the same permission model, every API request is logged with its key and status, and the anonymous role holds no privilege on any CRM table. Consent is the weak corner and is recorded rather than claimed: there is no marketing consent flag because there is no marketing automation to gate, so nothing collects consent it then ignores."
+    }
+  ],
+  "subjects": {
+    "CRM Foundation": {
+      "exists": "yes",
+      "note": "Customers, contacts, leads and opportunities are governed records with tenant isolation, status lifecycles, and constraints that mean something — a converted lead must name the customer it became, a lost opportunity must give a reason."
+    },
+    "Account & Contact 360": {
+      "exists": "partial",
+      "note": "A customer carries identity, type, address, payment terms, credit limit, tax exemption and a default pricing profile; contacts hang off it with a primary flag and a constraint that a contact belongs to exactly one of a customer or a vendor. There is no 360: no activity history, no interaction timeline, no related projects or invoices assembled in one place, no hierarchy of parent and subsidiary accounts."
+    },
+    "Opportunity & Pipeline": {
+      "exists": "partial",
+      "note": "Opportunities carry stage, value, probability, bid due date, expected award and start, site location with coordinates, delivery method, owner, and win or loss with a competitor named. What is missing is everything about movement: no stage history, no time in stage, no forecast category, no weighted pipeline computed anywhere in the database."
+    },
+    "Lead Capture & Attribution": {
+      "exists": "partial",
+      "note": "Leads carry a source, a stage, an assignee, a follow-up date and the customer they converted to. Attribution is a single free-text source column: no campaign, no channel, no touch history, no first or last touch model, and no way to attribute revenue back to anything."
+    },
+    "Qualification & Scoring": {
+      "exists": "partial",
+      "note": "A qualification score column exists, bounded 0 to 100, and a stage that can say qualified or unqualified. Nothing computes the score, no criteria are configurable, and no rule prevents an unqualified lead being converted."
+    },
+    "Estimate Integration": {
+      "exists": "yes",
+      "note": "The strongest link in the phase after 0045. An estimate names its opportunity and customer; a proposal must cite an estimate version, may not leave draft unless that version is approved, takes its price from the engine's bid price rather than a typed number, and must have line detail that ties to the total. The estimating library snapshot control reaches through to the proposal as a result."
+    },
+    "Proposal & E-Signature": {
+      "exists": "partial",
+      "note": "Proposals are real, versioned by issue, frozen through to their line items since 0045, and rendered as deterministic PDFs by a dependency-free engine. There is no electronic signature: acceptance is a typed name and a timestamp, with no signer identity, no audit trail of the signing, no counterparty authentication and no signed artifact retained."
+    },
+    "Contract Handoff": {
+      "exists": "no",
+      "note": "Nothing hands off. Winning an opportunity creates no project; accepting a proposal creates no project. `projects.opportunity_id` and `projects.source_estimate_version_id` exist and nothing writes them, so the contract value on a project is re-keyed by hand after being computed, presented and accepted elsewhere."
+    },
+    "Customer Portal": {
+      "exists": "no",
+      "note": "No portal, no external login, no shared document, no status a customer can see. `proposals.viewed_at` exists and nothing sets it, because there is no surface a customer could view a proposal on."
+    },
+    "Communication Center": {
+      "exists": "no",
+      "note": "No email, no call log, no meeting, no thread, no template, no send. `proposals.sent_to_email` records an address and nothing sends to it."
+    },
+    "Marketing Automation": {
+      "exists": "no",
+      "note": "No campaign, no segment, no nurture sequence, no send, no consent record — and no consent record is the correct state given nothing sends."
+    },
+    "Customer Success": {
+      "exists": "no",
+      "note": "No health score, no renewal, no success plan, no check-in, no churn signal."
+    },
+    "Site Visit & Discovery": {
+      "exists": "partial",
+      "note": "An opportunity carries the site address and its coordinates, and the survey module captures existing conditions with real engineering behind it. There is no site visit as a record: no scheduled visit, no discovery checklist, no field notes or photographs tied to an opportunity."
+    },
+    "Revenue Forecasting": {
+      "exists": "partial",
+      "note": "Every input exists — estimated value, probability, expected award date, stage — and nothing multiplies them. There is no forecast in the database, no period, no commit or best-case category, and no comparison of forecast to actual. The one weighted pipeline figure in the platform is computed on a screen from demonstration data."
+    },
+    "Warranty & Service": {
+      "exists": "no",
+      "note": "No warranty term, no coverage, no service request, no callback, no punch list after closeout. A work order can be typed as warranty in the fleet module, which is about machines rather than delivered work."
+    },
+    "Referral Management": {
+      "exists": "no",
+      "note": "No referral, no referrer, no reward, no tracking."
+    },
+    "Partner & Channel Management": {
+      "exists": "no",
+      "note": "No partner, no channel, no deal registration, no margin. Vendors and subcontractors exist in procurement and are a supply relationship, not a sales channel."
+    },
+    "Reputation & Reviews": {
+      "exists": "no",
+      "note": "No review, no rating, no survey, no reputation of any kind."
+    },
+    "AI Sales Intelligence": {
+      "exists": "no",
+      "note": "No sales AI. The one governed agent reads drawings and is capped at draft authority; nothing scores, summarizes or recommends on a customer or an opportunity."
+    },
+    "Security & Governance": {
+      "exists": "yes",
+      "note": "Row level security enabled and forced on every CRM table with two migration-time gates, permission-checked policies, an append-only audit ledger, a sales role that reads estimates and cannot change pricing, and since 0045 three commercial controls on the document that reaches the customer."
+    }
+  },
+  "subject_exceptions": {
+    "Security & Governance": {
+      "A9": "met — this subject is the aspect, and it holds."
+    },
+    "Contract Handoff": {
+      "A1": "not_met — there is no handoff record to create, retrieve or archive; the two columns that would carry one are never written."
+    },
+    "Customer Portal": {
+      "A1": "not_met — no portal record of any kind exists."
+    },
+    "Communication Center": {
+      "A1": "not_met — no communication is stored, so there is nothing to govern."
+    },
+    "Marketing Automation": {
+      "A1": "not_met — no campaign or send record exists."
+    },
+    "Customer Success": {
+      "A1": "not_met — no success record exists."
+    },
+    "Warranty & Service": {
+      "A1": "not_met — no warranty or service record exists."
+    },
+    "Referral Management": {
+      "A1": "not_met — no referral record exists."
+    },
+    "Partner & Channel Management": {
+      "A1": "not_met — no partner record exists."
+    },
+    "Reputation & Reviews": {
+      "A1": "not_met — no review record exists."
+    },
+    "AI Sales Intelligence": {
+      "A1": "not_met — no sales AI record exists."
+    }
+  }
+}

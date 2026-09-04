@@ -133,10 +133,18 @@ describe('operations governance', () => {
     });
 
     it('keeps line items on the right tenant', async () => {
+      // Against a *draft* proposal, deliberately. Since migration 0045 the line
+      // items of an issued proposal are locked, and that lock fires first — so
+      // running this against the issued one above would still see a refusal
+      // and would no longer be testing tenancy at all.
+      const [draft] = await h.asUser(alice, () => h.sql<{ id: string }>(
+        `insert into proposals (company_id, estimate_version_id, number, title, total_price)
+         select company_id, estimate_version_id, 'PROP-TENANT', 'Draft', 0
+         from proposals where id = $1 returning id`, [proposal]));
       await expect(
         h.asUser(alice, () =>
           h.sql(`insert into proposal_line_items (company_id, proposal_id, description, extended_price)
-                 values ($1,$2,'Cross-tenant line',100)`, [kesler, proposal])),
+                 values ($1,$2,'Cross-tenant line',100)`, [kesler, draft!.id])),
       ).rejects.toThrow(/row-level security|Tenant boundary/);
     });
   });

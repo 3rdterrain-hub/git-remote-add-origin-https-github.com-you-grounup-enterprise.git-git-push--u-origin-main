@@ -170,7 +170,7 @@ describe('the ledger refuses to flatter the platform', () => {
   });
 
   it('leaves every unjudged phase reporting none', () => {
-    const judged = new Set(['P05', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']);
+    const judged = new Set(['P05', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']);
     const other = matrix.filter((r) => !judged.has(r.phase!));
     expect(other.every((r) => r.verification === 'none')).toBe(true);
   });

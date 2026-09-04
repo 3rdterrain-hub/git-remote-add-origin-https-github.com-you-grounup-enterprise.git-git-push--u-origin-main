@@ -12,14 +12,14 @@
     "traced": 0,
     "untraced": 4649,
     "traced_percent": 50.9,
-    "verified": 1804,
-    "verification_attempted": 6278,
-    "not_verified": 4474
+    "verified": 1810,
+    "verification_attempted": 6458,
+    "not_verified": 4648
   },
   "artifacts": {
-    "total": 271,
+    "total": 272,
     "referenced": 144,
-    "unreferenced": 127
+    "unreferenced": 128
   },
   "rule_hits": {
     "TR-037": 495,
@@ -122,7 +122,7 @@
       "traced_tested": 106,
       "traced": 0,
       "untraced": 74,
-      "verified": 0
+      "verified": 6
     },
     "P09": {
       "total": 210,
