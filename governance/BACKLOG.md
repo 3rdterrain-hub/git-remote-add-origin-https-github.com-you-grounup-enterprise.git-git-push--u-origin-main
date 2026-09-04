@@ -86,7 +86,46 @@ Worth connecting to `daily_reports`, which already record weather by hand — a
 forecast beside the observed conditions on the same job is worth more than a
 widget.
 
-### 7. HRM and payroll
+### 7. Estimating presets, so a bid takes minutes
+Half of this is already in the schema and unreachable from the screen.
+`assemblies` and `assembly_components` are exactly a preset — a bundle of
+labor, equipment, material and production rate for one unit of work — and
+`pricing_profiles` with their markup components are a preset for the markup
+side. Neither is usable from the estimate workspace today.
+
+What is genuinely missing is the level above: an estimate template. A starter
+estimate for a job type — a residential subdivision, a parking lot, a sanitary
+extension — carrying its usual scope lines, indirects, assumptions and
+exclusions, so a new bid begins as a real estimate to edit down rather than an
+empty page.
+
+Needs: assembly insertion from the workspace, a template entity that produces a
+draft estimate version, and per-company presets for shift hours, fuel price and
+crew makeup so the estimator is not retyping the same six numbers on every bid.
+
+### 8. Everything customizable
+Partly true already, and unevenly. Per-company today: roles and their
+permissions, cost codes, every library (services, assemblies, labor, equipment,
+materials, trucking, disposal, production rates, condition modifiers, regional
+factors), pricing profiles and markup components, work calendars, notification
+preferences, approval tiers and signing limits.
+
+Not customizable, and each is a separate piece of work:
+
+  * **Custom fields** on any entity — no mechanism at all. The one with the
+    widest reach and the one that most needs doing carefully, because a custom
+    field has to survive row level security, the audit ledger, the public API
+    and the export without becoming an untyped bag.
+  * **Custom statuses and workflows** — every status is a database `check`
+    constraint. Deliberate, and it means a company cannot add a stage.
+  * **Branding** — no logo, colors or company identity on proposals, pay
+    applications or the application itself.
+  * **Terminology** — no way to rename a "project" to a "job".
+  * **Report and document layouts** — the PDF package composes fixed layouts.
+  * **Dashboards** — fixed tiles, no arrangement or choice of metric, even
+    though `metric_definitions` is already a per-company governed catalog.
+
+### 9. HRM and payroll
 Today this is labor, not HR: `employees`, `crews`, `credentials`,
 `time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
 leave, no benefits, no performance reviews, no onboarding, no org chart, and no
@@ -96,13 +135,13 @@ Payroll is the load-bearing piece and the one with real consequences: it has to
 reconcile to approved time entries, post to job cost through the path migration
 0044 already built, and never pay from unapproved hours.
 
-### 8. Asset lifecycle accounting
+### 10. Asset lifecycle accounting
 `assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
 nothing does anything with them. No depreciation schedule, no book value, no
 salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
 as a gap in the P12 verdict and still open.
 
-### 9. General ledger
+### 11. General ledger
 No chart of accounts, no journal entries, no trial balance, no bank
 reconciliation, no profit and loss, no balance sheet. What exists is
 construction job cost and billing that was designed to feed an accounting

@@ -77,3 +77,66 @@ export function usePermissions(): { can: (permission: string) => boolean; loadin
   // in the database — `estimates.*` does not mean `estimates.approve`.
   return { can: (p) => held.includes('*') || held.includes(p), loading: false };
 }
+
+// ---------------------------------------------------------------------------
+// Where the caller belongs
+// ---------------------------------------------------------------------------
+export interface Membership {
+  companyId: string;
+  name: string;
+  slug: string;
+  isOwner: boolean;
+  roleKey: string;
+  roleName: string;
+  planId: string | null;
+  entitlementActive: boolean;
+  entitlementValidUntil: string | null;
+  entitlementSource: string | null;
+}
+
+/**
+ * The companies the signed-in person belongs to.
+ *
+ * Read from the `my_companies` view rather than joined here, so the answer the
+ * onboarding screen gets and the answer the application shell gets are the same
+ * answer. An empty array is the fact that matters: it means this person has
+ * signed up and has no tenant, which before migration 0059 was every person who
+ * ever signed up.
+ */
+export const loadMemberships: Query<Membership[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_companies')
+    .select('company_id, name, slug, is_owner, role_key, role_name, plan_id, entitlement_active, entitlement_valid_until, entitlement_source')
+    .order('created_at', { ascending: true })) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    companyId: String(r.company_id),
+    name: String(r.name),
+    slug: String(r.slug),
+    isOwner: Boolean(r.is_owner),
+    roleKey: String(r.role_key),
+    roleName: String(r.role_name),
+    planId: (r.plan_id as string | null) ?? null,
+    entitlementActive: Boolean(r.entitlement_active),
+    entitlementValidUntil: (r.entitlement_valid_until as string | null) ?? null,
+    entitlementSource: (r.entitlement_source as string | null) ?? null,
+  }));
+};
+
+/**
+ * Create the caller's company.
+ *
+ * One round trip. The slug, the owner membership, the default pricing profile
+ * with its markup components and the bounded trial are all settled inside the
+ * one transaction, because a half-provisioned tenant is worse than none.
+ */
+export async function createCompany(
+  client: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> },
+  name: string,
+  planId = 'starter',
+): Promise<string> {
+  const { data, error } = await client.rpc('create_my_company', {
+    p_name: name, p_plan_id: planId,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
