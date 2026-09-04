@@ -242,4 +242,63 @@ describe('semantic layer', () => {
       expect(rows).toEqual([]);
     });
   });
+
+  /*
+   * Invariants every reporting view has to hold, checked against the live
+   * catalog rather than against a list somebody maintains — so a view added
+   * later is covered the day it is added.
+   */
+  describe('the reporting layer as a whole', () => {
+    const reportingViews = async () =>
+      (await h.sql<{ relname: string }>(
+        `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+         where n.nspname = 'public' and c.relkind = 'v' and c.relname like 'reporting_%'
+         order by c.relname`)).map((r) => r.relname);
+
+    it('exposes company_id on every reporting view', async () => {
+      // Tenancy is filtered on this column everywhere — by the views' own
+      // security_invoker policies, and explicitly by app.evaluate_metric,
+      // which the API gateway calls while running as the service role with
+      // row level security bypassed. A reporting view without it could not be
+      // scoped to a tenant at all.
+      const missing: string[] = [];
+      for (const view of await reportingViews()) {
+        const [col] = await h.sql(
+          `select 1 from information_schema.columns
+           where table_schema='public' and table_name=$1 and column_name='company_id'`, [view]);
+        if (!col) missing.push(view);
+      }
+      expect(missing).toEqual([]);
+    });
+
+    it('runs every reporting view as the caller, never as its definer', async () => {
+      // A view that is not security_invoker reads with its owner's rights and
+      // hands one company another company's rows.
+      const rows = await h.sql<{ relname: string }>(
+        `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+         where n.nspname='public' and c.relkind='v' and c.relname like 'reporting_%'
+           and not coalesce((select option_value = 'true' from
+             pg_options_to_table(c.reloptions) where option_name = 'security_invoker'), false)`);
+      expect(rows.map((r) => r.relname)).toEqual([]);
+    });
+
+    it('materializes nothing, so no figure can be stale', async () => {
+      // Freshness here is structural rather than monitored: every figure is
+      // computed from base tables when it is asked for, so there is nothing
+      // that could go stale and nothing to monitor. That is the strongest
+      // form of the guarantee and also the narrowest — it holds only while
+      // nobody reaches for a materialized view, which is what this asserts.
+      const rows = await h.sql<{ relname: string }>(
+        `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+         where n.nspname = 'public' and c.relkind = 'm'`);
+      expect(rows.map((r) => r.relname)).toEqual([]);
+    });
+
+    it('grants no reporting view to the anonymous role', async () => {
+      const rows = await h.sql<{ table_name: string }>(
+        `select table_name from information_schema.role_table_grants
+         where grantee = 'anon' and table_name like 'reporting_%'`);
+      expect(rows.map((r) => r.table_name)).toEqual([]);
+    });
+  });
 });

@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,804 verified of 5,548
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,804 verified of 6,068
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -42,12 +42,26 @@ Fifteen phases have been verified requirement by requirement — see
 | P15 Document & Information Management | 340 | 133 (39%) |
 | P11 Procurement & Supply Chain | 260 | 80 (31%) |
 | P12 Fleet & Equipment Management | 280 | 72 (26%) |
+| P29 Business Intelligence & Analytics | 520 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
 build-output secret scan, and **none of it has ever run**. A workflow file is
 not a pipeline. Counting committed YAML as deployment evidence would be the
-largest instance of the exact defect these fourteen phases were spent finding.
+largest instance of the exact defect these phases were spent finding.
+
+P29 verifies at zero for a different reason, and the zero is the least
+interesting thing in its verdict. Five defects were found and fixed inside it:
+a read permission gating a write to a column holding SQL text, a metric
+definition that could move under the numbers it had already produced, TRIR and
+DART defined against a view that could not produce them with DART's numerator
+adding restricted *days* into a rate that counts *cases*, a public API route
+published as "Evaluate a governed metric" that returned the SQL text of the
+definition, and a version history that contradicted its own delete policy. Two
+findings stay open and are stated at full size: the analytics the platform
+computes reach almost nobody — 22 of 23 screens read demonstration fixtures —
+and a company cannot be deleted at all, which is the concrete mechanism behind
+the retention gap P15 and P28 both recorded.
 
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
@@ -92,7 +106,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 268 cataloged artifacts, 144 answer for at least one requirement.
+Of 270 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -117,9 +131,9 @@ This distinction is the whole integrity of the matrix, and it is enforced.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
   confirmed a specific test asserts it. **1,804 requirements are verified** of
-  5,548 judged, across P05, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded in its own
-  `verification/*-ledger.csv`. P28 was judged and verified at zero. Every phase
-  that has not been judged reports `none`, and a test asserts it.
+  6,068 judged, across P05, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded in its own
+  `verification/*-ledger.csv`. P20, P27, P28 and P29 were judged and verified at
+  zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

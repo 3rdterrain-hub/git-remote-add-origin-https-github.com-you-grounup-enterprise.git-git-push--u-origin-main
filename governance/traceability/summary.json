@@ -13,13 +13,13 @@
     "untraced": 4649,
     "traced_percent": 50.9,
     "verified": 1804,
-    "verification_attempted": 5548,
-    "not_verified": 3744
+    "verification_attempted": 6068,
+    "not_verified": 4264
   },
   "artifacts": {
-    "total": 268,
+    "total": 270,
     "referenced": 144,
-    "unreferenced": 124
+    "unreferenced": 126
   },
   "rule_hits": {
     "TR-037": 495,

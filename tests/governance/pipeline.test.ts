@@ -12,7 +12,7 @@
  * deployed and these tests do not claim otherwise.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -157,6 +157,23 @@ describe('the documented test count comes from the runs', () => {
     expect(summary).not.toMatch(/^Db\s/m);
   });
 
+  it('holds the same total everywhere it is stated, not only in the table', () => {
+    // "1,740 tests" had already drifted into three verification verdicts and a
+    // README, and from the verdicts into every row of two generated ledgers —
+    // the exact propagation this generator exists to stop, escaping through the
+    // one document it did not cover.
+    const script = read('scripts/build-test-counts.mjs');
+    expect(script).toContain('P20-verdicts.json');
+    expect(script).toContain('P28-verdicts.json');
+    expect(script).toContain('A claim that stops matching is a claim that stops being checked');
+  });
+
+  it('rebuilds the ledgers after rewriting the verdicts they are built from', () => {
+    // `counts` edits verdict prose; the ledgers carry that prose in every row.
+    const docs = pkg.scripts.docs!;
+    expect(docs.indexOf('npm run counts')).toBeLessThan(docs.indexOf('npm run verification'));
+  });
+
   it('refuses to record counts from a failing run', () => {
     const script = read('scripts/build-test-counts.mjs');
     expect(script).toContain('counts are not recorded from a red run');
@@ -167,6 +184,77 @@ describe('the documented test count comes from the runs', () => {
     // Matched short of the line wrap: the sentence continues on the next
     // line, and a substring that crosses it never matches.
     expect(script).toContain('A proxy that is 7% low');
+  });
+});
+
+/**
+ * What the documentation claims about the build.
+ *
+ * The test-count table was generated after it drifted. Every other count in
+ * the documentation was still typed, and by the time anything checked, all of
+ * them had drifted too: the engine recorded as 25 files against a real 38, the
+ * migrations as 39 against 41 and as ~11,300 lines against a real 10,269 —
+ * overstated while files were being added — and README and BUILD-SUMMARY
+ * disagreeing with each other about the number of views, neither of them
+ * right.
+ *
+ * A number in prose that nothing computes is the defect this build has found
+ * throughout the product. It is worse in documentation, because a reader has
+ * no way to tell.
+ */
+describe('the documentation states what the tree contains', () => {
+  it('runs the schema check inside the gate, before the tests', () => {
+    // Before, not after: it is a file-tree comparison that costs nothing, and
+    // failing it early saves a fifteen-minute run.
+    const verify = pkg.scripts.verify;
+    expect(verify).toContain('npm run schema:check');
+    expect(verify.indexOf('npm run schema:check')).toBeLessThan(verify.indexOf('npm run test'));
+  });
+
+  it('exposes the generator and its check as scripts anybody can run', () => {
+    expect(pkg.scripts['schema:counts']).toBe('node scripts/build-schema-counts.mjs');
+    expect(pkg.scripts['schema:check']).toBe('node scripts/build-schema-counts.mjs --check');
+    expect(existsSync(join(ROOT, 'scripts/build-schema-counts.mjs'))).toBe(true);
+  });
+
+  it('fails when a claim is reworded rather than silently covering nothing', () => {
+    // The failure mode that makes a drift check worthless: the sentence it
+    // matched is rewritten, the pattern stops matching, and the check passes
+    // forever while covering nothing.
+    const script = read('scripts/build-schema-counts.mjs');
+    expect(script).toContain('A claim that stops matching is a claim that stops being checked');
+  });
+
+  it('refuses a table the registry has not classified', () => {
+    // The five-category rule is enforced against the live schema by the
+    // governance suite; this is the cheap version that runs in seconds and
+    // names the omission before a fifteen-minute suite does.
+    const script = read('scripts/build-schema-counts.mjs');
+    expect(script).toContain('Every table belongs to one of the five categories');
+  });
+
+  it('counts views by name, because a redefinition is not a new view', () => {
+    // `create or replace view` repeats a name whenever a later migration
+    // redefines one. Counting statements would have reported nine views as
+    // eleven.
+    const script = read('scripts/build-schema-counts.mjs');
+    expect(script).toMatch(/unique\(\/create or replace view/);
+  });
+
+  it('regenerates both documentation tables in an order that converges', () => {
+    // Both generators write docs/BUILD-SUMMARY.md, and this one's Documentation
+    // row counts that file's own lines — so the test-count table has to be
+    // written first or the pair needs a second pass to settle.
+    const docs = pkg.scripts.docs!;
+    expect(docs).toContain('npm run counts');
+    expect(docs).toContain('npm run schema:counts');
+    expect(docs.indexOf('npm run counts')).toBeLessThan(docs.indexOf('npm run schema:counts'));
+  });
+
+  it('agrees with the tree right now', () => {
+    const summary = read('docs/BUILD-SUMMARY.md');
+    const migrations = readdirSync(join(ROOT, 'supabase/migrations')).filter((f) => f.endsWith('.sql'));
+    expect(summary).toContain(`Database migrations (${migrations.length} files,`);
   });
 });
 

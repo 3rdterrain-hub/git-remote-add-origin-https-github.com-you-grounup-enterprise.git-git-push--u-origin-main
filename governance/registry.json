@@ -79,6 +79,7 @@
     "markup_components": "LIBRARY",
     "materials": "LIBRARY",
     "meter_readings": "ENTITY",
+    "metric_definition_versions": "ENTITY",
     "metric_definitions": "LIBRARY",
     "network_ratings": "ENTITY",
     "network_vendors": "ENTITY",

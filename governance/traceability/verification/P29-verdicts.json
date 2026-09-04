@@ -1,0 +1,193 @@
+{
+  "phase": "P29",
+  "title": "Business Intelligence & Analytics",
+  "method": "Every P29 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Capability N passes when source-to-target lineage, tenant/security scope, transformation version, reconciliation, data quality, metric definition, freshness, query/report behavior and mapped tests are verified.' Nine conditions, assessed platform-wide. A requirement is verified only where the whole condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged after building what this phase's own findings made buildable: migrations 0040, 0041 and 0042, a reporting-layer invariant suite, and 33 metric tests. Four of the nine conditions still fail, so P29 verifies at zero. The zero is not the interesting part of this file — the four findings are, and three of them were defects the platform was actively asserting.",
+
+  "findings": [
+    {
+      "id": "P29-F1",
+      "title": "A read permission gated a write to a column holding SQL text",
+      "detail": "`metric_definitions` accepted an insert, update or delete from anyone holding `reports.read` — a permission nearly every role carries — and its `expression` column is SQL text. Nothing executed that text at the time, so the exposure was latent rather than live.",
+      "why_it_matters": "'Safe because nothing reads it yet' is the same sentence as the secret boundary before it was enforced, and it holds exactly as long as nobody writes an evaluator. This phase then wrote one.",
+      "status": "resolved",
+      "resolution": "0040 narrowed insert, update and delete to `company.manage`. No `reports.write` was invented to hold a single table: `company.manage` already means 'may configure this company' and is held by owners and administrators only. A test confirms a `reports.read`-only role is refused and an administrator is accepted."
+    },
+    {
+      "id": "P29-F2",
+      "title": "A definition could move under the numbers it had already produced",
+      "detail": "A metric expression was editable in place, so the gross margin reported to a bank last quarter and the same metric today were indistinguishable.",
+      "why_it_matters": "The fifth appearance of this pattern in the build, after library rates, plan terms, claim deadlines and document revisions. A reported number whose definition cannot be recovered is not auditable.",
+      "status": "resolved",
+      "resolution": "0040 added `metric_definition_versions`, append-only, published by trigger only when the calculation changes — expression, unit, grain or source view. A rename or a retarget publishes nothing, because neither changes what a past number meant. The current version is derived as the highest, never flagged. Version 1 of TRIR still records the definition 0041 replaced, because a history that edits out its own mistakes answers no question worth asking."
+    },
+    {
+      "id": "P29-F3",
+      "title": "TRIR and DART were defined against a view that could not produce them, and DART's numerator added days to a case count",
+      "detail": "Both rates were defined as incidents times 200,000 divided by `total_hours`. Incidents live in `reporting_safety_summary`; hours live in `reporting_labor_productivity`. No view carried both, so neither rate could be computed from anything — while the safety view's own comment claimed the rates 'are defined in metric_definitions rather than hard-coded here', as though defining them were the same as producing them. Separately, DART read `sum(lost_time_cases) + sum(days_restricted)`: one term counting cases, the other counting days. A single restricted-duty case lasting sixty days contributed sixty to a rate that counts cases.",
+      "why_it_matters": "TRIR and DART are the two numbers a general contractor is prequalified on and an insurer rates. The first defect made them unproducible; the second would have made them wrong by a factor set by the length of an injury, in the direction that costs a contractor work.",
+      "status": "resolved",
+      "resolution": "0041 added `reporting_safety_rates`, joining recordables to approved hours at company, project and month. A full outer join rather than an inner one, because a month with hours and no incidents is a TRIR of zero and the best month a company can have — inner-joining it away would report a company's rate as though its safe months never happened. A month with an incident and no approved hours yields no rate rather than a division by zero, because that is a timekeeping gap. DART now counts recordable cases that cost days away or restricted duty, once each. Both definitions were repointed and republished as version 2. Seven tests hold the arithmetic against a deliberate 200,000-hour denominator, so a rate reads as its own case count and an error is visible by eye.",
+      "found_by": "The lineage test written for this phase, on its first run."
+    },
+    {
+      "id": "P29-F4",
+      "title": "The public API promised to evaluate a metric and returned the SQL text of its definition",
+      "detail": "`GET /metrics/{metricKey}` is published with the summary 'Evaluate a governed metric', generated straight into the OpenAPI specification third parties read. The handler returned the definition — key, name, description and expression — and no number. A consumer asking for gross margin received a sentence of SQL.",
+      "why_it_matters": "The same defect as the rest of this build — a claim nothing computes — and the only instance published to people outside the company, in a versioned contract they are entitled to rely on.",
+      "status": "resolved",
+      "resolution": "0042 added `app.evaluate_metric(key, company)` and `reporting_metric_values`, and the route now returns the value alongside the definition. Two boundaries are kept deliberately. Only definitions the platform authored are executed: a company may define its own metric and the platform still will not run its SQL, so where a company has overridden a metric the API answers 404 with the reason rather than returning the platform's number under the company's name. And a tenant must always be named: the gateway holds an API key rather than a user, so it necessarily runs as the service role with row level security bypassed, and the function signature makes it impossible to ask for a metric without saying whose. Building this was safe only because F1 had narrowed who may author an expression and F3's test had proved every platform expression executes.",
+      "note": "Not built in 0040, deliberately. Executing a stored expression while a `reports.read` holder could supply one would have turned an inert column into arbitrary SQL. The order was the point."
+    },
+    {
+      "id": "P29-F5",
+      "title": "A version history and a delete policy contradicted each other",
+      "detail": "0040 gave metric definitions an append-only version history whose rows cascade from the definition, and left the existing delete policy in place. Deleting a metric then failed with 'metric_definition_versions is append-only' — an error naming a table the caller never mentioned, for an operation a policy said they could perform.",
+      "why_it_matters": "A permission to do something impossible is the same defect as a control that enforces nothing, and this one surfaced as an error message that explained nothing to the person who hit it.",
+      "status": "resolved",
+      "resolution": "0042 refuses the deletion deliberately, at both layers: the delete policy is withdrawn, so no authenticated caller owns the row to remove, and a trigger refuses a privileged delete with a message naming the alternative. A metric somebody reported a number under is retired with `is_active = false`, not deleted — and an inactive company override falls back to the platform definition rather than leaving the metric unanswerable. Found by a test written for F4.",
+      "found_by": "A test written for this phase, on its first run."
+    },
+    {
+      "id": "P29-F6",
+      "title": "The analytics the platform computes reach almost nobody",
+      "detail": "Ten reporting views exist, nine of them governed analytics. One — `reporting_project_financials` — is served through the public API. The rest are read by nothing. The Reports and Analytics screen computes its figures from static fixtures in `apps/web/src/data`, references no reporting view, and its Export button carries no handler at all. This is not specific to that screen: 22 of the 23 application screens read demo fixtures, and only Billing queries live data.",
+      "why_it_matters": "It is the largest single gap in the platform and the reason four of this phase's nine conditions fail. A semantic layer nothing consumes cannot demonstrate query or report behavior, cannot be reconciled against anything, and cannot have its data quality observed. The dead Export button is the smaller version of the same thing — a control that switches nothing, which is the defect this build has now found in eleven places.",
+      "status": "open",
+      "why_not_resolved": "The permanent fix is to wire the application to the governed queries, and that is a phase of work rather than a loose end: 22 screens, each needing its live query, its loading and error states, its pagination and its tenancy proof. Making the Export button emit the fixtures it currently displays would be worse than leaving it inert, because a working control over demonstration data reads as a finished feature. Recorded here at full size rather than shaved down to something that could be closed today."
+    },
+    {
+      "id": "P29-F7",
+      "title": "A company cannot be deleted, and nothing says so",
+      "detail": "Attempting to delete a company is refused by the owner-retention guard, which fires on the cascade into `company_memberships` and cannot be satisfied — removing the memberships first raises the same error. Behind it sit eight append-only tables that cascade from `companies` into a DELETE they forbid; the guard means that layer is never even reached. Verified by execution, not inferred.",
+      "why_it_matters": "P29 asks for retention and archive, and P15 and P28 both already recorded that there is no deletion workflow, no retention schedule and no subject access path. This is the concrete mechanism behind those gaps: tenant data is not merely undeleted, it is undeletable, and no documentation says so.",
+      "status": "open",
+      "why_not_resolved": "The fix is a deliberate erasure design — what must survive a tenant's deletion for legal and audit reasons, what must go, and who may authorize it — and that is a policy decision with legal weight rather than a missing trigger. Guessing it and implementing the guess would be worse than naming it precisely, which is what this finding does."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All nine are required by the criterion. Four fail, so no P29 requirement verifies regardless of how much of its domain exists.",
+    "conditions": [
+      "source-to-target lineage",
+      "tenant/security scope",
+      "transformation version",
+      "reconciliation",
+      "data quality",
+      "metric definition",
+      "freshness",
+      "query/report behavior",
+      "mapped tests"
+    ]
+  },
+
+  "platform_conditions": {
+    "source-to-target lineage": {
+      "status": "met",
+      "evidence": "Every one of the sixteen governed metrics names the reporting view it is computed from, in a column constrained to `^reporting_[a-z_]+$`, and a test runs each expression against the view it names — so a definition that has drifted from the schema fails the build rather than being quietly wrong in a report. That test found F3 on its first run. The chain below the view is ordinary SQL against base tables, readable in the migration. This is lineage over the whole of what exists; there is no warehouse to trace through, because there is no warehouse."
+    },
+    "tenant/security scope": {
+      "status": "met",
+      "evidence": "Checked against the live catalog rather than a maintained list, so a view added later is covered the day it is added: every reporting view carries `company_id`, every one is `security_invoker` so it reads with the caller's rights rather than its owner's, and none is granted to the anonymous role. `app.evaluate_metric` requires a company in its signature, because the API gateway holds a key rather than a user and necessarily runs as the service role with row level security bypassed — the filter cannot be left to a caller to remember. Writing a metric definition requires `company.manage`, and no company can read another's definitions, versions or rates."
+    },
+    "transformation version": {
+      "status": "not_met",
+      "gap": "Metric definitions are versioned since 0040, and that is the half that was missing entirely. The other half is still absent: the reporting views are the actual transformations, and they carry no version. A number a caller receives cannot be tied to the view revision that produced it, only to the definition version, and a view redefined by a later migration leaves no trace in any result. There is no transformation registry, no deployment version stamped on an output, and no way to reproduce last quarter's figure against last quarter's SQL."
+    },
+    "reconciliation": {
+      "status": "not_met",
+      "gap": "Nothing reconciles a reported figure against the records it claims to summarize. There is no tie-out of `billed_to_date` against the accounts receivable ledger, no control total, no variance report between the semantic layer and the entity layer, and no exception when they disagree. The absence is partly structural — the views read base tables directly, so there is no copy to drift — but 'nothing can drift' is not the same claim as 'the report ties to the ledger', and only the second one is what this condition asks for."
+    },
+    "data quality": {
+      "status": "not_met",
+      "gap": "No data quality framework of any kind. The entity layer is heavily constrained — check constraints, exclusion constraints, tenant-parent guards, append-only ledgers — and none of that is data quality in the analytics sense: there is no completeness rule, no range or distribution check, no null profile, no quality score, no threshold and nothing that raises when a figure looks wrong. A month with an incident and no approved hours is the one case handled, and it is handled by returning no rate rather than by reporting a problem to anybody."
+    },
+    "metric definition": {
+      "status": "met",
+      "evidence": "Sixteen governed metric definitions across financial, workforce, safety and estimating domains, each with a name, a description, a unit, a grain, a target and the SQL expression it means. Writing one requires `company.manage`; a company may override a platform metric within the same three-tier scope the libraries use. Every change to a calculation publishes an append-only version, and the current one is derived rather than flagged. Each definition names its source view and is proven by test to execute against it, and one function evaluates them, so a screen and the public API cannot report different figures for the same metric. Two definitions were found wrong by that test and corrected."
+    },
+    "freshness": {
+      "status": "met",
+      "evidence": "Nothing in the analytics layer is materialized — asserted by a test over the live catalog, not by inspection — so every figure is computed from base tables at the moment it is asked for and no result can be stale. Freshness is a structural property here rather than a monitored one, which is the strongest form of it and also the narrowest: the guarantee is that there is nothing to go stale, and the test is what keeps that true if somebody later reaches for a materialized view."
+    },
+    "query/report behavior": {
+      "status": "not_met",
+      "gap": "The most serious gap in the phase, recorded in full as F6. One of nine governed analytics views is served anywhere; the Reports and Analytics screen computes from static fixtures, reads no reporting view and has an Export button with no handler; 22 of 23 application screens read demo data and only Billing queries live records. There is no ad-hoc query surface, no self-service report builder, no scheduling, no subscription and no export in any format. A semantic layer nothing consumes cannot demonstrate report behavior."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "33 tests on metric governance and 4 reporting-layer invariants, run against production migrations applied unmodified to real PostgreSQL. They cover the write permission at both layers, version publication and its deliberate silence on a rename, version immutability, retirement rather than deletion, source-view lineage for all sixteen metrics, evaluation of every one through the function the API calls, the override refusal, cross-tenant isolation of definitions, versions, rates and values, and the TRIR and DART arithmetic against a deliberate 200,000-hour denominator. Three of this phase's findings were produced by these tests rather than confirmed by them."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Metric Definitions",
+      "Tenant Analytics Isolation"
+    ],
+    "partial": {
+      "Semantic Model": "Ten views and sixteen governed metrics over a normalized schema, with lineage from metric to view enforced by test. There is no dimensional model: no conformed dimensions, no fact tables, no hierarchies and no drill path.",
+      "KPI Registry": "The metric catalog is a registry in everything but name — keyed, described, unit-typed, grain-typed, targeted, versioned and permissioned. What is missing is the KPI layer above it: no scorecard, no owner, no review cadence, no threshold alerting against the targets it already stores.",
+      "Measure Calculation": "One function evaluates every platform-defined measure, and the API and any screen read it rather than computing separately. Only platform definitions are executed, deliberately; there is no user-defined measure, no calculated column and no measure composition.",
+      "Data Lineage": "Metric-to-view lineage is recorded and enforced by test, which is the part that can go wrong silently. There is no column-level lineage, no lineage graph, no impact analysis and no catalog to browse it in.",
+      "Row/Column Security": "Row security is thorough and proven: forced row level security, security_invoker on every reporting view, company_id on every one, an explicit tenant argument where the service role is in play. Column security does not exist — no masking, no column-level grants, no classification driving either.",
+      "Financial Analytics": "`reporting_project_financials` computes cost, billing, retainage, margin and change order ratio per project, and nine metrics are defined over it. It is served through the public API and read by no screen.",
+      "Project Analytics": "The same view carries project-grain cost and billing. There is no project health score, no earned value, no trend and no portfolio roll-up.",
+      "Workforce Analytics": "`reporting_labor_productivity` computes approved hours and premium-hour ratio by week, project and cost code. There is no crew productivity against estimate, no absence analysis and no turnover.",
+      "Production Analytics": "Quantities and hours are reconcilable against estimated production rates through the same view and the engine's own output. Nothing computes the comparison.",
+      "Safety Analytics": "The strongest of the analytics domains after this phase: incidents by month, and TRIR and DART correctly computed against approved hours, with the definition errors found and fixed. There is no leading indicator, no observation rate, no trend and no benchmark.",
+      "Estimating Analytics": "`reporting_bid_performance` computes bid hit rate and estimates submitted by month and division. There is no bid-versus-actual analysis, no estimator performance and no cost-model calibration.",
+      "Schedule Analytics": "`reporting_schedule_variance` compares the current calculation against the current baseline, with float derivable only from an actual critical-path calculation. There is no trend, no schedule performance index and no look-ahead analytics.",
+      "Commercial Analytics": "Change order ratio is computed and claims carry derived deadlines. There is no exposure analysis, no claim outcome history and no contract performance view.",
+      "CRM Analytics": "Bid performance covers the win rate. There is no pipeline conversion, no source attribution, no customer lifetime value and no forecast.",
+      "Executive Dashboards": "A dashboard screen exists and reads demonstration fixtures. Nothing on it comes from the semantic layer.",
+      "Operational Dashboards": "Same: the screens are built, complete and fed by static data.",
+      "Exports/Subscriptions": "An Export button with no handler. Nothing exports in any format, and there is no subscription or delivery of any kind.",
+      "Analytics Audit": "Every metric definition change is audited and versioned, and every API request for a metric is logged with its key, status and duration. There is no analytics-specific audit: no record of who viewed which figure, no export log, no access review.",
+      "Analytics Observability": "The observability library produces structured logs and metrics with request correlation, and API requests to the metric route are recorded. Nothing is deployed, so nothing consumes them — the same absence P20 recorded.",
+      "Privacy in Analytics": "Tenant isolation is enforced and proven. There is no anonymization, no aggregation threshold, no differential access to person-level data, and the platform-wide absence of a retention schedule or erasure path recorded in F7 applies here in full.",
+      "Retention/Archive": "Analytics data is the operational data, so it is retained exactly as long as the records are — which, per F7, is forever, because a company cannot be deleted. There is no archive tier, no purge, no retention policy and nothing that says any of this out loud.",
+      "Freshness Monitoring": "Nothing is materialized and a test keeps it that way, so no figure can be stale. There is no monitor, because there is nothing yet that could go stale — and no watch on that assumption beyond the test.",
+      "Analytics Platform Architecture": "The architecture is deliberate and documented — a view layer over the normalized schema, governed metric definitions above it, one evaluation path, no copies. It is an architecture for a semantic layer, not for an analytics platform: no separate compute, no storage tier, no workload isolation.",
+      "Cost/Performance Optimization": "Indexes support the reporting views' group-by columns and the metric version lookup. There is no query budget, no performance baseline, no materialization strategy and no cost measurement."
+    },
+    "not_built": {
+      "Operational Data Replication": "No replica, no read-only analytics copy, no replication lag to monitor.",
+      "Data Warehouse": "No warehouse. Reporting reads the operational schema directly.",
+      "Lakehouse/Object Analytics": "No object storage analytics, no table format, no external tables.",
+      "Bronze/Silver/Gold Layers": "No layering. There is one layer, and it is the operational schema.",
+      "ETL/ELT": "No extract, transform or load of any kind. The views are the only transformation and they run at query time.",
+      "CDC": "No change data capture, no log reader, no stream of row changes.",
+      "Batch Ingestion": "No batch load, no staging area, no file-based ingestion into analytics.",
+      "Streaming Ingestion": "No stream, no event ingestion — the absence P20 and P30 both recorded from other sides.",
+      "Pipeline Orchestration": "No scheduler, no DAG, no dependency between transformations, no run history.",
+      "Schema Evolution": "Migrations are ordered and forward-only, which governs the operational schema. There is no analytics schema to evolve and no compatibility policy for one.",
+      "Data Contracts": "No contract between a producer and a consumer of analytics data, no schema registry, no breaking-change gate.",
+      "Canonical Dimensions": "No dimension tables, no conformed dimensions, no shared keys across marts.",
+      "Fact Tables": "No fact tables. Aggregation happens in views at query time.",
+      "Slowly Changing Dimensions": "No dimension history. The platform tracks history where it matters commercially — library rates, plan versions, document revisions, metric definitions — through append-only version tables rather than through a dimensional model.",
+      "Time Intelligence": "No period-over-period comparison, no year-to-date, no rolling window, no fiscal calendar in the semantic layer. Financial periods exist as an accounting control and nothing reports across them.",
+      "Regional Pricing Analytics": "Regional pricing exists in the estimating libraries as condition modifiers. Nothing analyzes it: no regional benchmark, no price trend, no market comparison.",
+      "Benchmarking": "No internal benchmark, no peer comparison, no industry reference.",
+      "Historical Trends": "No trend of anything. Every metric returns a current value.",
+      "Forecasting": "No forecast, no projection, no model of any kind.",
+      "Scenario Analytics": "No scenario, no what-if, no sensitivity analysis over analytics data. The estimating engine supports scenario comparison; nothing carries it into reporting.",
+      "Portfolio Analytics": "No portfolio roll-up, no cross-project aggregation above the company grain, no capital allocation view.",
+      "Self-Service Reporting": "No report builder, no saved report, no user-defined visualization.",
+      "Ad Hoc Analysis": "No query surface, no exploration, no pivot.",
+      "Report Scheduling": "No schedule, no recurrence, no delivery.",
+      "Data Quality": "No rule, no profile, no score, no threshold, no alert.",
+      "Reconciliation": "No control total, no tie-out, no variance between the semantic layer and the records beneath it.",
+      "Metadata Catalog": "No catalog, no glossary, no searchable description of what exists. The metric definitions carry descriptions and are the closest thing to one.",
+      "Master Data Alignment": "No master data management, no golden record, no cross-system entity resolution.",
+      "Fleet Analytics": "No reporting view for fleet at all. Utilization is computed on a screen from demonstration data; cost per hour, availability and replacement analysis do not exist.",
+      "Procurement Analytics": "No reporting view. No spend analysis, no vendor performance, no commitment versus actual.",
+      "Document/AI Analytics": "No reporting view. AI requests are metered for billing and nothing analyzes finding accuracy, acceptance rate or model performance.",
+      "AI-Ready Feature Data": "No feature store, no feature definition, no training dataset.",
+      "Vector/Embedding Metadata": "No embeddings, no vector index, no similarity search.",
+      "Model Feature Governance": "No model registry, no feature lineage, no drift monitoring — the same absence P20 recorded for AI/ML production governance.",
+      "Analytics Incident Response": "No incident model at all, analytics or otherwise — the operational face of what P20 and P28 both named."
+    }
+  }
+}

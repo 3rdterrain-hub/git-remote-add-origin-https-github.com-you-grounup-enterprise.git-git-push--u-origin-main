@@ -306,17 +306,38 @@ Deno.serve(async (req) => {
         break;
       }
       case '/metrics/{metricKey}': {
-        // The company's own override wins over the global definition, matching
-        // the three-tier library scope used everywhere else in the platform.
-        const { data, error } = await tenant
-          .fromWithGlobals('metric_definitions',
-            'key, name, description, domain, unit, grain, expression, higher_is_better, target_value, company_id')
+        /*
+         * This route is published as "Evaluate a governed metric" and returned
+         * the definition — including the expression as SQL text — with no
+         * number in it. A consumer asking for gross margin received a sentence
+         * of SQL, and the promise was in the OpenAPI specification third
+         * parties read.
+         *
+         * `reporting_metric_values` carries the definition and the value from
+         * one place, so this route and any screen report the same figure. The
+         * company filter is explicit because the gateway holds an API key
+         * rather than a user and necessarily runs as the service role — the
+         * same reason every other query here goes through `tenant`.
+         *
+         * A metric the company has overridden with its own definition is absent
+         * from the view rather than answered from the platform's: the platform
+         * does not execute SQL a tenant wrote, and returning the platform's
+         * number under a name the company redefined would be a wrong answer
+         * wearing a right label.
+         */
+        const { data, error } = await service
+          .from('reporting_metric_values')
+          .select('key, name, description, domain, unit, grain, source_view, ' +
+                  'higher_is_better, target_value, value')
+          .eq('company_id', key.companyId)
           .eq('key', match.params.metricKey)
-          .order('company_id', { ascending: false, nullsFirst: false })
-          .limit(1).maybeSingle();
+          .maybeSingle();
         if (error) throw error;
-        if (!data) { status = 404; body = { error: { code: 'not_found', message: 'No such metric.' } }; }
-        else body = { data };
+        if (!data) {
+          status = 404;
+          body = { error: { code: 'not_found', message:
+            'No such metric, or it is overridden by a company definition the platform does not evaluate.' } };
+        } else body = { data };
         break;
       }
       default:

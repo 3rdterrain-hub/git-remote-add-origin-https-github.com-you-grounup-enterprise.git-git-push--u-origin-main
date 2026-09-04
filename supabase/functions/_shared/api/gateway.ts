@@ -62,7 +62,8 @@ export const ROUTES: readonly RouteDef[] = [
     resource: 'equipment_meter_readings', summary: 'Record a meter reading from telematics.' },
   { method: 'POST', template: '/time-entries', scope: 'workforce:write', resource: 'time_entries',
     summary: 'Create a time entry.' },
-  { method: 'GET', template: '/metrics/{metricKey}', scope: 'metrics:read', resource: 'metric_definitions',
+  { method: 'GET', template: '/metrics/{metricKey}', scope: 'metrics:read',
+    resource: 'reporting_metric_values',
     summary: 'Evaluate a governed metric.' },
 ];
 

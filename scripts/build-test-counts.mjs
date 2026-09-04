@@ -79,6 +79,50 @@ const block = [
   '```',
 ].join('\n');
 
+/*
+ * The same total, stated in prose elsewhere.
+ *
+ * "1,740 tests" had already drifted into three verification verdicts and a
+ * README, and from the verdicts into every row of two generated ledgers — the
+ * exact propagation this generator was built to stop, escaping through the one
+ * document it did not cover. Each claim below must match: a pattern that finds
+ * nothing is a failure, because a reworded sentence is a sentence that stopped
+ * being checked.
+ */
+const perFile = new Map();
+for (const [name] of SUITES) {
+  const path = join(RESULTS, `${name}.json`);
+  for (const t of JSON.parse(readFileSync(path, 'utf8')).testResults ?? []) {
+    perFile.set(t.name.split('/').pop(), (t.assertionResults ?? []).length);
+  }
+}
+const governanceTests = counts.find(([n]) => n === 'governance')?.[1] ?? 0;
+const pipelineTests = perFile.get('pipeline.test.ts') ?? 0;
+
+const V = 'governance/traceability/verification';
+const PROSE = [
+  [`${V}/P20-verdicts.json`, /[\d,]+ tests across six suites/g, `${fmt(total)} tests across six suites`],
+  [`${V}/P20-verdicts.json`, /[\d,]+ tests run by a single command/g, `${fmt(total)} tests run by a single command`],
+  [`${V}/P20-verdicts.json`, /Six suites, [\d,]+ tests,/g, `Six suites, ${fmt(total)} tests,`],
+  [`${V}/P20-verdicts.json`, /[\d,]+ governance tests hold the rules/g, `${fmt(governanceTests)} governance tests hold the rules`],
+  [`${V}/P20-verdicts.json`, /[\d,]+ further tests hold the shape of the pipeline/g, `${fmt(pipelineTests)} further tests hold the shape of the pipeline`],
+  [`${V}/P28-verdicts.json`, /[\d,]+ tests in all/g, `${fmt(total)} tests in all`],
+  [`${V}/README.md`, /met — [\d,]+ tests, migrations run unmodified/g, `met — ${fmt(total)} tests, migrations run unmodified`],
+];
+
+const proseEdits = new Map();
+for (const [file, pattern, replacement] of PROSE) {
+  const path = join(ROOT, file);
+  const before = proseEdits.get(file) ?? readFileSync(path, 'utf8');
+  if (!pattern.test(before)) {
+    console.error(`${file} no longer contains the claim this check covers: ${pattern}`);
+    console.error('A claim that stops matching is a claim that stops being checked.');
+    process.exit(2);
+  }
+  pattern.lastIndex = 0;
+  proseEdits.set(file, before.replace(pattern, replacement));
+}
+
 const text = readFileSync(SUMMARY, 'utf8');
 const fence = /```\nEngine[\s\S]*?\n```/;
 if (!fence.test(text)) {
@@ -91,7 +135,17 @@ const withTotal = withBlock.replace(
   /drift checks, [\d,]+ tests, production build/,
   `drift checks, ${total.toLocaleString('en-US')} tests, production build`);
 
+const proseDrift = [...proseEdits]
+  .filter(([file, after]) => after !== readFileSync(join(ROOT, file), 'utf8'))
+  .map(([file]) => file);
+
 if (check) {
+  if (proseDrift.length) {
+    console.error('These state a test count the suites did not produce:');
+    for (const f of proseDrift) console.error(`  - ${f}`);
+    console.error(`\nThe runs total ${fmt(total)}. Run: npm run docs`);
+    process.exit(1);
+  }
   if (withTotal !== text) {
     console.error('docs/BUILD-SUMMARY.md does not state the counts the suites produced.');
     console.error(`The runs total ${total.toLocaleString('en-US')}. Run: npm run counts`);
@@ -99,6 +153,7 @@ if (check) {
   }
   console.log(`Build summary matches the runs (${total.toLocaleString('en-US')} tests).`);
 } else {
+  for (const [file, after] of proseEdits) writeFileSync(join(ROOT, file), after);
   writeFileSync(SUMMARY, withTotal);
   console.log(`Build summary updated from the runs: ${counts.map(([n, c]) => `${n} ${c}`).join(', ')}`);
   console.log(`Total ${total.toLocaleString('en-US')}.`);

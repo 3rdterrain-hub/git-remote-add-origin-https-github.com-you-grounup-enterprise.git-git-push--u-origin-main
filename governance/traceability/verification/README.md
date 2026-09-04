@@ -3,7 +3,7 @@
 Tracing says an artifact exists. **Verification says somebody read the
 requirement's acceptance criteria and confirmed a named test asserts it.**
 
-Fifteen phases have been verified: **P05 Estimating & Cost Intelligence**,
+Sixteen phases have been verified: **P05 Estimating & Cost Intelligence**,
 **P10 Financial Management**, **P11 Procurement & Supply Chain**,
 **P12 Fleet & Equipment Management**,
 **P20 Integration, Deployment & Production Readiness**,
@@ -12,8 +12,9 @@ Fifteen phases have been verified: **P05 Estimating & Cost Intelligence**,
 **P15 Document & Information Management**,
 **P18 Scheduling & Resource Management**, **P19 Contract, Change & Claims
 Management**, **P24 Core Platform Implementation**, **P25 Master Library & Rate
-Management**, **P26 Estimating Execution Engine**, **P28 Enterprise Security**
-and **P30 Commercialization & Billing**.
+Management**, **P26 Estimating Execution Engine**, **P28 Enterprise Security**,
+**P29 Business Intelligence & Analytics** and
+**P30 Commercialization & Billing**.
 
 ## P05 — 56 of 108 verified (52%)
 
@@ -254,7 +255,7 @@ Building observability moved 332 requirements at once.
 | tenant/security boundaries | met — RLS forced on 131 tables, gates asserted at every migration, default-deny grants as a second control, hashed and scoped API keys |
 | API/data behavior | met — nine versioned endpoints behind a pure authorization function, one error shape, OpenAPI generated from the route table with drift failing the build |
 | failure handling | met — the gateway never throws to a caller, a failed connector run is a row, engines refuse rather than produce NaN money |
-| mapped tests | met — 1,740 tests, migrations run unmodified against real PostgreSQL 18 |
+| mapped tests | met — 1,787 tests, migrations run unmodified against real PostgreSQL 18 |
 | **audit/observability evidence** | **met** — audit was already the strongest evidence in the platform; observability now exists beside it |
 
 ### What was built
@@ -1003,6 +1004,101 @@ this one is worse than a defect in the code — it was a defect in the checking.
 
 Storage remains unenforced, and there the original reasoning still holds:
 nothing measures stored bytes.
+
+## P29 — 0 of 520 verified
+
+The zero is the least interesting thing in this verdict. **Five defects were
+found and fixed inside this phase, three of them by tests written for it, on
+their first run.**
+
+### What the phase found
+
+**A read permission gated a write to a column holding SQL text.** Anyone
+holding `reports.read` — nearly every role — could insert, edit or delete a
+metric definition, and `expression` is SQL. Nothing executed it at the time, so
+the exposure was latent. "Safe because nothing reads it yet" is the same
+sentence as the secret boundary before it was enforced, and it holds exactly as
+long as nobody writes an evaluator. This phase then wrote one.
+
+**A definition could move under the numbers it had produced.** The fifth
+appearance of this pattern, after library rates, plan terms, claim deadlines and
+document revisions. Metric definitions are now versioned append-only, published
+only when the calculation changes — a rename publishes nothing, because a rename
+does not change what a past number meant.
+
+**TRIR and DART were defined against a view that could not produce them.** Both
+divide incidents by hours worked. Incidents lived in one view, hours in another,
+and no view carried both — while the safety view's own comment claimed the rates
+"are defined in metric_definitions rather than hard-coded here", as though
+defining them were the same as producing them. **And DART's numerator added
+restricted *days* into a rate that counts *cases*:** a single restricted-duty
+case lasting sixty days contributed sixty. These are the two numbers a general
+contractor is prequalified on and an insurer rates. The first defect made them
+unproducible; the second would have made them wrong in the direction that costs
+a contractor work.
+
+`reporting_safety_rates` now joins recordables to approved hours at one grain,
+with a full outer join rather than an inner one — a month with hours and no
+incidents is a TRIR of zero and the best month a company can have, and
+inner-joining it away would report a company's rate as though its safe months
+never happened.
+
+**The public API promised to evaluate a metric and returned the SQL text of its
+definition.** `GET /metrics/{metricKey}` is published as "Evaluate a governed
+metric", generated straight into the OpenAPI specification third parties read.
+A consumer asking for gross margin received a sentence of SQL. It now returns
+the value, through `app.evaluate_metric` — which executes only definitions the
+platform authored, refuses where a company has overridden the metric rather than
+answering under a name the company redefined, and requires a company in its
+signature because the gateway runs as the service role with row level security
+bypassed.
+
+That evaluator was deliberately **not** built first. Executing a stored
+expression while a `reports.read` holder could supply one would have turned an
+inert column into arbitrary SQL. Narrowing the permission, recording each
+metric's source view, and proving by test that every platform expression
+executes against it — in that order — is what made evaluation safe to build.
+
+**A version history contradicted its own delete policy.** Deleting a metric
+failed with "metric_definition_versions is append-only" — an error naming a
+table the caller never mentioned, for an operation a policy said they could
+perform. A metric somebody reported a number under is now retired, not deleted,
+and the policy that promised otherwise is withdrawn rather than left to fail at
+the bottom of a cascade.
+
+### Why it is zero anyway
+
+Four of nine conditions fail, and two of them are one finding.
+
+**Query and report behavior.** One of nine governed analytics views is served
+anywhere. The Reports and Analytics screen computes from static fixtures, reads
+no reporting view, and its Export button carries no handler at all. That is not
+specific to the screen: **22 of 23 application screens read demonstration
+fixtures, and only Billing queries live data.** A semantic layer nothing
+consumes cannot demonstrate report behavior, cannot be reconciled against
+anything, and cannot have its data quality observed — which is why
+**reconciliation** and **data quality** fail with it.
+
+Making the Export button emit the fixtures it currently displays would be worse
+than leaving it inert, because a working control over demonstration data reads
+as a finished feature. The permanent fix is 22 screens' worth of live queries,
+and it is recorded at full size rather than shaved down to something closable
+today.
+
+**Transformation version.** Metric definitions are versioned; the reporting
+views are the actual transformations and carry no version. A number cannot be
+tied to the view revision that produced it.
+
+### And one more, found by execution rather than by reading
+
+**A company cannot be deleted.** The owner-retention guard refuses the cascade
+into `company_memberships` and cannot be satisfied — removing the memberships
+first raises the same error. Behind it sit eight append-only tables that cascade
+from `companies` into a DELETE they forbid, so that layer is never even reached.
+Tenant data is not merely undeleted; it is undeletable, and nothing says so.
+That is the concrete mechanism behind the retention and erasure gaps P15 and P28
+both recorded, and the fix is an erasure policy with legal weight rather than a
+missing trigger — so it is named precisely instead of guessed at.
 
 ## The honest next step
 
