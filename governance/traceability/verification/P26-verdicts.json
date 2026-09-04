@@ -1,0 +1,119 @@
+{
+  "phase": "P26",
+  "title": "Estimating, Cost, Production, Crew/Equipment, Haul/Disposal, Markup & Execution Engine",
+  "method": "Every P26 requirement is capability N of a domain, and every one carries the same acceptance criterion: it 'passes when inputs, library snapshot/version, formulas/rules, units, output values, rounding, scenario behavior, overrides, audit lineage and mapped tests are reproducible'. Ten conditions, all required. A requirement is verified only when its domain exists AND all ten conditions hold, each with a named test. Nothing is inferred.",
+  "acceptance_conditions": {
+    "note": "All ten are required by the criterion. Two are assessed platform-wide because they are platform capabilities rather than per-domain ones, and both are absent.",
+    "conditions": [
+      "inputs",
+      "library snapshot/version",
+      "formulas/rules",
+      "units",
+      "output values",
+      "rounding",
+      "scenario behavior",
+      "overrides",
+      "audit lineage",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "inputs": {
+      "status": "met",
+      "evidence": "Every engine takes its inputs explicitly and performs no I/O; the registry ENGINE-02 invariant is asserted by tests/governance/registry.test.ts, which fails the build if an engine reads the clock, the network or the filesystem."
+    },
+    "formulas/rules": {
+      "status": "met",
+      "evidence": "The ten governing rules RULE-001..010 are each enforced by named tests across the engine suites; 353 engine tests, every expected value computed independently before being written."
+    },
+    "units": {
+      "status": "met",
+      "evidence": "Volume states convert through the bank pivot and never directly (units.test.ts); every quantity carries its unit through resolveQuantity and into the derivation."
+    },
+    "output values": {
+      "status": "met",
+      "evidence": "estimating-acceptance.test.ts asserts every engine producing an authoritative figure returns a derivation carrying arithmetic, and 353 engine tests fix the values."
+    },
+    "rounding": {
+      "status": "met",
+      "evidence": "A single money kernel with half-away-from-zero rounding, binary-error correction and a guard digit; numeric.test.ts, including the case where a float product lands a cent below the true value."
+    },
+    "audit lineage": {
+      "status": "met",
+      "evidence": "Append-only audit ledger recording prior and new state, not rewritable or deletable; tests/db/estimating-acceptance.test.ts auditability. Issued estimate versions are immutable (RULE-009)."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "1,046 tests across six layers run in npm run verify, including the production migrations against real PostgreSQL 18."
+    },
+    "overrides": {
+      "status": "met",
+      "evidence": "packages/engine/src/overrides.ts records a person overriding a computed value: the engine figure is retained beside the override, a reason of at least twelve characters is required, the requester cannot approve their own, and resolveValue hands back the provenance with the value so a caller cannot use an overridden number without being told it was overridden. supabase/migrations/0027_value_overrides.sql enforces the same in the database \u2014 self-approval refused by CHECK, one override per value, append-only by trigger, and a tenant guard that refuses an override crossing a company boundary or attached to a table that is not company-owned. packages/engine/tests/overrides.test.ts (22) and tests/db/overrides.test.ts (16)."
+    },
+    "library snapshot/version": {
+      "status": "met",
+      "evidence": "library_snapshots and library_snapshot_entries copy the library rows an estimate version was priced from, rather than referencing them. Both tables are append-only by trigger; an estimate version cannot reach 'issued', 'approved' or 'awarded' without a snapshot that belongs to it; a snapshot survives deletion of the row it captured; and app.snapshot_drift reports what has moved since. The engine half (snapshot.ts) captures with a stable content digest, refuses a row captured twice with different content, and refuses to read through to the live library when a row is missing. Proven by the test that prices an estimate, moves the wage and machine rate, and shows the snapshot reproduces the issued price to the cent while the live library does not. packages/engine/tests/snapshot.test.ts (25) and tests/db/snapshots.test.ts (19)."
+    },
+    "scenario behavior": {
+      "status": "met",
+      "evidence": "packages/engine/src/scenarios.ts prices an estimate under named low, base and high scenarios against a closed set of eleven drivers, each adjustment carrying a required rationale. The base scenario is asserted to reproduce the unadjusted estimate to the cent, so every other scenario is measured against a number that is right. analyzeSensitivity varies one driver at a time and ranks them by price impact, which is how an estimator finds the lever worth pulling. Production and calendar efficiency move inversely to cost, and a low case pricing above the high case is warned about by name. packages/engine/tests/scenarios.test.ts, 26 tests."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Assembly Expansion",
+      "Audit & Traceability",
+      "Bid Price",
+      "Contingency",
+      "Crew Composition",
+      "Duration Calculation",
+      "Equipment Cost",
+      "Equipment Rate Selection",
+      "Estimate Confidence",
+      "Estimate Export",
+      "Estimate Lifecycle",
+      "Estimate Review & Approval",
+      "Estimate Versions",
+      "Fuel Consumption",
+      "Haul Distance",
+      "Indirect Costs",
+      "Job Cost Baseline",
+      "Labor Burden",
+      "Labor Cost",
+      "Low/High Range",
+      "Markup",
+      "Material Cost",
+      "Material Waste",
+      "Overhead & Profit",
+      "Production Modifiers",
+      "Production Rate",
+      "Proposal Handoff",
+      "Quantity Input",
+      "Regional Pricing",
+      "Scenario Comparison",
+      "Snapshot Reproducibility",
+      "Tax & Bond",
+      "Truck Count",
+      "Truck Cycle Calculation",
+      "Unit Price",
+      "Vendor Quote Override",
+      "Work Hours & Shifts"
+    ],
+    "partial": {
+      "Service Selection": "The service library exists and is three-tier, but nothing selects a service for a scope; an estimator picks it.",
+      "Equipment Selection": "Equipment and its rates exist; nothing recommends which machine suits an operation.",
+      "Truck Selection": "Truck rates exist; nothing recommends a truck type for a haul.",
+      "Disposal Cost": "disposal_sites carries a tipping fee and the haul engine prices disposal as part of the cycle, but no engine derives disposal cost from volume, density and fee.",
+      "Subcontract Cost": "Subcontract is a visible cost bucket, but no engine derives it from a scope and a quote.",
+      "Mobilization": "Equipment carries a mobilization cost and the estimate has a cost_equipment_mob column, but no engine derives mobilization from distance, machine count and haul permits.",
+      "Demobilization": "Same as mobilization; demobilization is not separately derived."
+    },
+    "not_built": {
+      "Estimate Templates": "No template entity or instantiation path.",
+      "Quantity Takeoff Intake": "Documents are ingested and classified by sheet, but nothing measures; there is no takeoff to intake.",
+      "Crew Size Recommendation": "The bottleneck analysis names the controlling resource, but nothing recommends a crew size.",
+      "Service Catalog Writeback": "An estimator-created service cannot be approved back into the catalog.",
+      "AI Estimate Assist": "The one AI agent analyses documents. Nothing assists with an estimate."
+    }
+  }
+}

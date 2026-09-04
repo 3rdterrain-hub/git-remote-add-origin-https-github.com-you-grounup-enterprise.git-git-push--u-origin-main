@@ -1,0 +1,100 @@
+{
+  "phase": "P20",
+  "title": "Integration, Deployment & Production Readiness",
+  "method": "Every P20 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N through controlled integration/deployment/test/operations evidence, security and tenant boundaries, failure/recovery scenarios, traceability and mapped acceptance tests.' The five conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged after building everything this phase needs that can be built without credentials or a running environment: a continuous integration workflow, a dispatched deployment workflow, the Supabase project configuration, and a build-output check that enforces the secret boundary. Two of the five conditions still fail, and they fail for a reason no amount of further building here would change — see the finding below. P20 verifies at zero, and the zero is the useful part.",
+
+  "findings": [
+    {
+      "id": "P20-F1",
+      "title": "Configuration is not operation, and this verdict will not blur the two",
+      "detail": "This build added `.github/workflows/verify.yml`, `.github/workflows/deploy.yml`, `supabase/config.toml`, `scripts/check-bundle.mjs` and 19 tests that hold their shape. All five are real and all five are files. **No pipeline has run, no environment exists, and nothing has been deployed.** The workflows describe how deployment would happen; they are not evidence that it does.",
+      "why_it_matters": "The temptation here is exactly the defect this build has found nine times over in other phases — an artifact that describes a capability being counted as the capability. A workflow file that has never executed is a settings toggle that switches nothing, and marking this phase verified on the strength of committed YAML would be the largest instance of that error in the register, not the smallest.",
+      "status": "open",
+      "why_not_resolved": "It cannot be resolved from here. Running the pipeline requires pushing to a repository; deploying requires a Supabase access token, a project reference and a database password. Those are the owner's to hold and the owner's to use, and this build neither has them nor should. What was buildable without them has been built; what remains needs somebody with the credentials to press the button once."
+    },
+    {
+      "id": "P20-F2",
+      "title": "The secret boundary was true by construction and enforced by nothing",
+      "detail": "The Stripe secret key, the webhook signing secret, the Supabase service-role key and the AI provider key have always lived only in Edge Function secrets — the browser code simply never reached for them. Nothing checked. A single convenient import, or one `VITE_`-prefixed variable, would have published a credential into every bundle the platform serves, because Vite inlines every `VITE_` variable by design.",
+      "why_it_matters": "It is the platform's central security property and the one the owner stated first. A property that holds by construction holds exactly as long as nobody writes the wrong line.",
+      "status": "resolved",
+      "resolution": "`npm run bundle:check` scans what the build emitted, two independent ways. By name: a `VITE_` variable carrying a server secret's name is refused. By shape: the emitted files are searched for the literal forms — `sk_live_`, `sk_test_`, `rk_`, `whsec_`, `sk-ant-`, and a service-role JWT — so a key smuggled under an innocent variable name is still caught. It runs in both workflows after the build. The anon key is deliberately not checked: it is public by design and row level security is what makes that safe.",
+      "note": "The first version of the service-role check hard-coded one base64 encoding of `service_role` and silently missed a realistic JWT, because base64 encodes three bytes at a time and the alignment depends on what precedes the substring. Caught by planting a real token shape and watching the check pass when it should have failed. All three alignments are now computed rather than written down, and a test asserts they are computed."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion. Two of them cannot be satisfied by anything in a repository, which is the phase's honest result rather than a gap in this build.",
+    "conditions": [
+      "controlled integration/deployment/test/operations evidence",
+      "security and tenant boundaries",
+      "failure/recovery scenarios",
+      "traceability",
+      "mapped acceptance tests"
+    ]
+  },
+
+  "platform_conditions": {
+    "controlled integration/deployment/test/operations evidence": {
+      "status": "not_met",
+      "gap": "Test evidence is strong and integration evidence is real: 1,740 tests across six suites with the production migrations run unmodified against PostgreSQL, an OpenAPI specification generated from the gateway's own route table with drift failing the build, governed connectors with recorded runs, and a versioned public API behind scoped keys. Deployment evidence does not exist, because nothing has been deployed. Operations evidence does not exist, because nothing is running: the observability library produces structured logs, metrics and health checks and no deployment consumes them. A workflow that has never executed is not evidence that deployment is controlled — it is a description of how it would be."
+    },
+    "security and tenant boundaries": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on all 135 tables, with a migration-time gate that refuses to apply if one is left open and a second gate that fails if the anonymous role can read anything beyond the public plan catalog. Tenant parentage is enforced structurally on every parent-child pair, including the two in the document layer this build found missing. Secrets are held server-side only, and since this phase that is enforced against the build output rather than trusted: `bundle:check` refuses a bundle carrying a server secret by name or by shape. 229 governance tests hold the rules themselves."
+    },
+    "failure/recovery scenarios": {
+      "status": "not_met",
+      "gap": "Several individual failure paths are handled well and tested: a Stripe webhook replay collides on the event id and is skipped rather than applied twice, a bad signature returns 400 so Stripe stops retrying, entitlement survives a Stripe outage through a materialized grace window, health separates liveness from readiness and fails a hanging check against a deadline rather than waiting on it. None of that is a recovery scenario. No backup has been taken or restored, no failover has been exercised, no disaster recovery objective is stated, and rollback is a manual runbook section with forward-only migrations. Nothing has failed, because nothing has run."
+    },
+    "traceability": {
+      "status": "met",
+      "evidence": "This directory. Every requirement in the register carries a derived tracing status and, for the fifteen phases judged, a verification verdict citing named evidence or a stated gap. The distinction between the two is enforced by test: the generator may emit only `traced_tested` or `untraced`, a verdict appears only where a ledger judged it, and every number the READMEs state is recomputed from the generator's own summary so the prose cannot drift from it. Both ledgers fail the build when they drift from the verdicts behind them."
+    },
+    "mapped acceptance tests": {
+      "status": "met",
+      "evidence": "1,740 tests run by a single command that is also the whole release gate: typecheck, three drift checks, six suites and a production build. The database suite runs the production migrations unmodified against PostgreSQL 18 compiled to WebAssembly, so it needs no service and no credentials — which is what lets the same command run identically on a developer's machine and on a fork's pull request. 19 further tests hold the shape of the pipeline itself, so it cannot be quietly narrowed to a subset."
+    }
+  },
+
+  "domain_status": {
+    "built": [],
+    "partial": {
+      "CI/CD & Release Engineering": "A continuous integration workflow runs the whole gate on every branch and pull request and needs no secrets; a deployment workflow is dispatched by a person, runs behind a GitHub Environment, re-runs the full verification, lists pending migrations before applying them, and deploys each function. Neither has ever executed. There is no release versioning, no changelog generation, no artifact promotion between environments, and no automated rollback.",
+      "Environment Strategy": "The environments are named — staging and production — and the deploy workflow takes one as an input, with a secret matrix stating where each credential lives and which two are public by design. No environment has been created.",
+      "Configuration Management": "`supabase/config.toml` describes the project and the local stack, carries no secret, and states which two functions run without JWT verification and why. Application configuration is per-company in the database and versioned where it is commercial. There is no configuration promotion between environments and no drift detection.",
+      "Security Engineering": "Forced row level security with two migration-time gates, hashed and scoped API keys, an append-only audit ledger, redaction by field name and value shape, and now a build-output secret scan enforcing the client boundary. What P28 named remains absent: no detection and response, no secret rotation lifecycle, no security monitoring.",
+      "Observability": "A structured logger with correlation carried through every line, metrics with bounded low-cardinality labels, and health and readiness separated with per-check deadlines — all built, all tested, and consumed by nothing, because nothing is running.",
+      "Testing Governance": "One command is the gate for a developer and for the pipeline, and a test asserts the pipeline cannot narrow it to a subset. Coverage is measured for the engine and not enforced as a threshold; there is no flake tracking and no test quarantine.",
+      "Automated Test Platform": "Six suites, 1,740 tests, migrations run unmodified against real PostgreSQL, no credentials needed anywhere. There is no performance test, no load test, no browser end-to-end suite, and no scheduled run.",
+      "Requirements Traceability & Coverage": "The strongest domain in this phase: a generated matrix over all 9,475 requirements, thirteen phases verified requirement by requirement with named evidence, and the tracing/verification distinction enforced by test. What is missing is coverage of the remaining nineteen phases.",
+      "API Governance": "Nine versioned endpoints behind a pure authorization function with one error shape, an OpenAPI specification generated from the route table with drift failing the build, scoped keys stored only as a hash, and every request logged. There is no rate limiting, no deprecation policy, and no consumer registry.",
+      "External Connectors": "A governed connector framework with recorded runs and a weather connector using it. No connector registry, no retry policy per connector, no credential rotation."
+    },
+    "not_built": {
+      "Enterprise Integration Architecture": "No integration platform, no message broker, no canonical event model, no integration patterns beyond the direct API.",
+      "Event & Messaging Platform": "No event bus, no publish or subscribe, no outbound webhook — the absence P30 recorded from the commercial side.",
+      "Data Integration & Synchronization": "No ETL, no change data capture, no sync with an external system of record, no conflict resolution.",
+      "Identity & Access Integration": "No SAML, no OIDC, no SCIM provisioning, no directory sync — the absence the pricing page was corrected for advertising.",
+      "Infrastructure as Code": "No Terraform, no Pulumi, no declarative infrastructure of any kind. Buckets, policies and Stripe products are created by hand from the runbook.",
+      "Container & Runtime Platform": "No container image, no orchestration, no runtime platform. The application is a static bundle and a set of Edge Functions.",
+      "Database & Storage Readiness": "No backup schedule, no restore test, no point-in-time recovery objective, no storage lifecycle policy, no capacity plan.",
+      "Privacy & Data Protection": "No data classification, no retention schedule, no deletion workflow, no subject access request path, no legal hold — the same absence P28 and P15 both recorded.",
+      "Reliability Engineering": "No service level objective, no error budget, no dependency map, no chaos exercise.",
+      "Performance & Scalability": "No performance baseline, no load test, no scaling plan, no query budget.",
+      "Disaster Recovery & Business Continuity": "No recovery point or time objective, no failover, no tested restore, no continuity plan.",
+      "Data Migration & Cutover": "No migration tooling from an incumbent system, no cutover plan, no reconciliation, no parallel run.",
+      "Production Readiness Review": "No readiness checklist, no sign-off, no gate before a first deployment.",
+      "Release & Change Management": "No change request, no release calendar, no approval for a production change, no post-implementation review.",
+      "Incident & Problem Management": "No incident record, no severity model, no on-call rotation, no postmortem — the operational face of what P28 named.",
+      "Service Management & Support": "No ticket, no queue, no service catalog, no support tier.",
+      "Tenant Provisioning & SaaS Operations": "A company is provisioned in one governed call with its owner, role, entitlement and trial. There is no SaaS operations layer above it: no tenant health, no operator console, no bulk action, no tenant migration between regions.",
+      "Compliance & Audit Readiness": "An append-only audit ledger that no privilege level can edit is a genuine foundation, and nothing sits on it: no control framework, no evidence collection, no attestation, no external audit path.",
+      "AI/ML Production Governance": "One agent capped at draft authority with citations and human acceptance is genuinely governed. There is no model registry, no evaluation suite, no drift monitoring, no rollback of a model version.",
+      "Enterprise Go-Live & Hypercare": "No go-live plan, no cutover rehearsal, no hypercare period, no exit criteria.",
+      "Platform Digital Twin & Control Tower": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

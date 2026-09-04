@@ -1,0 +1,93 @@
+{
+  "phase": "P18",
+  "title": "Scheduling & Resource Management",
+  "method": "Every P18 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N using schedule calculation, resource/calendar context, baseline/update governance, permission boundaries, linked operational evidence and mapped test results.' The six conditions are assessed platform-wide, because a schedule engine, a calendar model and a baseline mechanism are platform properties rather than per-domain ones. A requirement is verified only where the condition set holds AND its domain is actually built. Domain status was judged against the schema, the engine and the tests, one domain at a time. No verdict is inferred from a mapping rule.",
+
+  "judged_before_and_after": "Judged first against the platform as it stood, where all six conditions failed and all 400 requirements were not verified. The three absences named there — no schedule calculation of any kind, no work calendar, no baseline — were then built. This file records the second judgment. The finding that prompted the build is kept below because it is the more useful half.",
+
+  "finding": {
+    "id": "P18-F1",
+    "title": "The platform stored float and criticality and computed neither",
+    "detail": "schedule_activities carried total_float_days and is_critical, schedule_dependencies carried four relationship types with lag, and nothing anywhere traversed the graph. A check constraint required that is_critical = (total_float_days <= 0), which enforced that two numbers a caller typed agreed with each other. The schedule screen displayed those typed numbers in the same style it displays derived ones, and the demo data's float values were written by hand.",
+    "why_it_matters": "This is the same defect class as a settings toggle that switches nothing: the interface asserts a property the code does not have. Worse here, because a float figure is acted on — an activity showing four days of float is one a superintendent will let slip four days. The hand-authored dates also ran a thirty-day activity straight through Memorial Day, which no amount of care in typing would have caught.",
+    "status": "resolved",
+    "resolution": "packages/engine/src/schedule.ts computes it: forward and backward pass over all four dependency types with lag and leads, total and free float, the critical path as a connected chain, four date constraints, and cycles refused by name. packages/engine/src/calendar.ts supplies working-day arithmetic on integer epoch days. schedule_activities.total_float_days now cannot be written without naming the schedule_calculations row that produced it, enforced by constraint. The schedule screen's dates and float are derived from the engine, asserted by apps/web/src/data/schedule.check.test.ts."
+  },
+
+  "acceptance_conditions": {
+    "note": "All six are required by the criterion. They are assessed platform-wide: a calendar, a critical path and a baseline are properties of the platform, and a domain cannot satisfy them on its own however complete the domain is.",
+    "conditions": [
+      "schedule calculation",
+      "resource/calendar context",
+      "baseline/update governance",
+      "permission boundaries",
+      "linked operational evidence",
+      "mapped test results"
+    ]
+  },
+
+  "platform_conditions": {
+    "schedule calculation": {
+      "status": "met",
+      "evidence": "packages/engine/src/schedule.ts (ENG-028) implements the critical path method: a forward pass and a backward pass over finish-to-start, start-to-start, finish-to-finish and start-to-finish links, each with whole-working-day lag that may be negative; total float from the two passes and free float measured per relationship in the dimension that relationship constrains; the critical path returned as the longest connected chain rather than a bag of zero-float activities; start-no-earlier, finish-no-later, must-start-on and must-finish-on constraints, where a constraint that contradicts the logic is honored and the contradiction reported rather than either being silently dropped; a required finish producing negative float, which is the number a scheduler on a late job is actually looking for; and cycles refused by name instead of recursed into. It is pure — no clock, no I/O, no mutation of its input — and a test asserts that shuffled input produces identical dates. 47 tests in packages/engine/tests/schedule.test.ts, every expected date worked out by hand against a 2026 calendar. In the database, schedule_calculations records each run append-only with its data date and engine version, and schedule_activities carries a constraint that float cannot exist without naming the calculation that produced it."
+    },
+    "resource/calendar context": {
+      "status": "met",
+      "evidence": "work_calendars and work_calendar_exceptions (LIBRARY, company-scoped) hold a working week, hours per day, holidays and exception working days; one row per date per calendar, so a date can never be both a holiday and a working day, and a working week can be neither empty nor repeated. packages/engine/src/calendar.ts (ENG-027) does the arithmetic on integer epoch days computed through Date.UTC, so no local timezone is ever consulted and the class of bug that renders a 4 May start as 3 May cannot occur; 29 tests. Adding working days refuses a non-working anchor rather than guessing what 'five working days after Sunday' means. On the resource side resource_assignments carries crew, employee, asset and subcontractor assignments with an allocation fraction and dates, and an exclusion constraint refuses booking one machine to two jobs over the same dates."
+    },
+    "baseline/update governance": {
+      "status": "met",
+      "evidence": "schedule_baselines and schedule_baseline_activities are append-only, both guarded by app.forbid_mutation(). The current baseline is derived as the most recent by taken_on rather than carried as a flag, because an append-only table cannot maintain one — the same lesson library row history taught. A baselined activity's id carries no foreign key on purpose, so deleting an activity shows as removed work rather than vanishing from the variance report; existence and tenancy are checked at insert by a trigger instead. compareToBaseline in the engine reports working-day variance per activity and separates scope change from slippage: an activity added since approval has not slipped, it did not exist. reporting_schedule_variance surfaces the same comparison in SQL with security_invoker. Every calculation records the data date it ran from, which is what makes an update an update rather than a replan."
+    },
+    "permission boundaries": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on work_calendars, work_calendar_exceptions, schedule_calculations, schedule_baselines and schedule_baseline_activities, all gated on projects.write, joining schedule_activities, schedule_dependencies and resource_assignments which were already gated the same way. app.enforce_tenant_parent refuses a child row attached to a parent owned by another company. The baseline activity guard refuses to record another company's activity even when the caller legitimately belongs to both companies, which no foreign key would catch. The anon role holds no privilege on any of it. 32 tests in tests/db/scheduling.test.ts, run against real PostgreSQL 18 with two provisioned companies."
+    },
+    "linked operational evidence": {
+      "status": "met",
+      "evidence": "schedule_activities.source_line_item_id points at the estimate line the activity was scheduled from, so a duration can be read against the production rate that produced it, and project_task_id ties it to the work-breakdown task carrying budgeted and actual cost and hours. production_actuals records measured field production against a task and a daily report, with the achieved rate generated from quantity and crew hours so it cannot disagree with its own inputs. project_costs carries actual cost to the same task. reporting_schedule_variance joins the calculated dates to the approved baseline."
+    },
+    "mapped test results": {
+      "status": "met",
+      "evidence": "121 tests specific to this phase: 47 for the critical path engine, 29 for calendar arithmetic, 32 against real PostgreSQL for calendars, calculation provenance, baseline immutability, the tenancy guard and the variance view, and 13 asserting that the schedule screen's dates and float are the engine's output rather than values written into the file. All run in npm run verify."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Enterprise Scheduling Core",
+      "CPM Scheduling",
+      "Resource Planning",
+      "Crew Planning",
+      "Equipment Planning",
+      "Milestones & Contract Dates",
+      "Baseline Management"
+    ],
+    "partial": {
+      "Work Breakdown Structure": "A WBS code is a text column on activities and tasks, and project tasks nest through parent_task_id. Schedule activities do not roll up: there are no summary activities, so a WBS level has no dates, duration or float of its own.",
+      "Calendars & Shifts": "Calendars are built, with holidays, exception working days and hours per day. A shift is a scalar; there is no second shift, no night differential, and no shift pattern an activity can be scheduled onto.",
+      "Resource Loading": "Assignments carry an allocation fraction and dates, so demand is recorded and a machine cannot be double-booked. Nothing aggregates demand into a period-by-period load, and no resource declares a capacity to be loaded against, so there is no over-allocation to see.",
+      "Truck & Haul Planning": "The trucking engine computes cycle times, truck counts and haul cost for estimating. Nothing schedules hauls against the calendar or assigns trucks to days, so a haul plan is a cost figure rather than a plan.",
+      "Material Planning": "Procurement carries quotes, purchase orders, deliveries with dates and inventory with reorder points. No delivery is tied to the schedule activity that needs it, so a late delivery does not appear as a schedule constraint.",
+      "Subcontractor Planning": "resource_assignments carries a subcontractor kind against a vendor, and procurement carries subcontract quotes and commitments. A subcontract is not tied to the activities it covers, and a subcontractor has no schedule of their own to coordinate.",
+      "Schedule Update Cycle": "Every calculation records its data date and calculations are append-only, so the sequence of updates is preserved and each is comparable to the baseline. There is no period object: nothing closes an update, locks the dates it reported, or refuses progress recorded against a closed period.",
+      "Progress Measurement": "Installed quantity is recorded against budget, daily reports carry measured production, and the achieved rate is a generated column that cannot disagree with its inputs. percent_complete is a separate stored column that can disagree with installed divided by budgeted; nothing derives one from the other, which is the same shape of defect this phase's finding was about.",
+      "Cost & Schedule Integration": "Activities carry the estimate line they were budgeted from and the task holding budgeted and actual cost and hours, so cost and schedule share a spine. There is no earned value: nothing computes budgeted cost of work performed, schedule variance in money, or a performance index.",
+      "Constraint Management": "Date constraints are built and honored, with a warning when one contradicts the logic. Field constraints are not: nothing models an open RFI, a missing permit or an undelivered material as a constraint with an owner and a need-by date, so the blockers a look-ahead meeting is actually about are invisible.",
+      "Weather & Calendar Impacts": "A NOAA connector rolls hourly observations into the site's calendar day, daily reports carry weather, and calendar efficiency de-rates production for weather in estimating. Nothing turns a weather day into a non-working day on the schedule calendar or into a time-extension entitlement.",
+      "Delay & Impact Analysis": "Contracts carry notice clauses and claims carry database-derived deadlines, and baselines now make variance measurable per activity and for the project finish. There is no time impact analysis: no fragnet inserted into the logic, no windows analysis, no separation of excusable from compensable delay."
+    },
+    "not_built": {
+      "Resource Leveling": "Nothing shifts activities within their float to smooth resource demand. Bid leveling exists in procurement and is a different thing entirely.",
+      "Look-Ahead Planning": "There is a Look-ahead button on the schedule screen and nothing behind it. No three or six week window, no constraint screening, no make-ready.",
+      "Last Planner & Commitments": "No weekly work plan, no commitments made by the people doing the work, no percent plan complete, no reasons for variance.",
+      "Pull Planning": "No pull session, no sticky-note plan captured as logic, no milestone worked backwards from.",
+      "Schedule Risk Analysis": "Scenario pricing exists for estimates. Nothing applies three-point durations or simulation to the schedule, so there is no probabilistic completion date.",
+      "Recovery & Acceleration": "A baseline can be taken with a recovery reason, which records that it happened. Nothing models crashing an activity, the cost of acceleration, or the trade-off between them.",
+      "Portfolio Capacity Planning": "Everything is per project. Nothing aggregates resource demand across projects or compares it with what the company can crew.",
+      "What-If & Scenario Planning": "The engine is pure and could be run twice, but nothing stores, names or compares two schedule scenarios, so a what-if leaves no record anyone can review.",
+      "AI Schedule Intelligence": "The one AI agent analyzes documents. Nothing assists with a schedule, and under RULE-008 anything that did would propose rather than apply.",
+      "Scheduling Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally, because nothing here implements it."
+    }
+  }
+}

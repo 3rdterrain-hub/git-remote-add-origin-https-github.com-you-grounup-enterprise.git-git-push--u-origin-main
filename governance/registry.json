@@ -1,0 +1,372 @@
+{
+  "version": "1.0.0",
+  "note": "Generated from the live schema and hand-classified. tests/governance/registry.test.ts fails if this drifts from the database.",
+  "tables": {
+    "ai_agents": "AI_AGENT",
+    "ai_conversations": "AI_AGENT",
+    "ai_findings": "AI_AGENT",
+    "ai_messages": "AI_AGENT",
+    "ai_models": "LIBRARY",
+    "ai_prompts": "LIBRARY",
+    "ap_invoices": "ENTITY",
+    "api_keys": "ENTITY",
+    "api_requests": "ENTITY",
+    "approval_requests": "WORKFLOW",
+    "assemblies": "LIBRARY",
+    "assembly_components": "LIBRARY",
+    "assets": "ENTITY",
+    "audit_events": "ENTITY",
+    "bid_reconciliations": "ENTITY",
+    "billing_invoices": "ENTITY",
+    "change_order_items": "ENTITY",
+    "change_orders": "WORKFLOW",
+    "claims": "WORKFLOW",
+    "commercial_authority_limits": "ENTITY",
+    "companies": "ENTITY",
+    "company_invitations": "ENTITY",
+    "company_memberships": "ENTITY",
+    "condition_modifiers": "LIBRARY",
+    "connector_runs": "WORKFLOW",
+    "connectors": "ENTITY",
+    "contacts": "ENTITY",
+    "contracts": "ENTITY",
+    "cost_codes": "LIBRARY",
+    "credentials": "ENTITY",
+    "crew_members": "LIBRARY",
+    "crews": "LIBRARY",
+    "crm_activities": "ENTITY",
+    "customers": "ENTITY",
+    "daily_report_equipment": "ENTITY",
+    "daily_report_labor": "ENTITY",
+    "daily_reports": "ENTITY",
+    "deficiencies": "ENTITY",
+    "deliveries": "ENTITY",
+    "disposal_sites": "LIBRARY",
+    "divisions": "ENTITY",
+    "document_conflicts": "ENTITY",
+    "document_extractions": "ENTITY",
+    "document_sheets": "ENTITY",
+    "document_versions": "ENTITY",
+    "documents": "ENTITY",
+    "employees": "ENTITY",
+    "enterprise_groups": "ENTITY",
+    "entitlements": "ENTITY",
+    "equipment": "LIBRARY",
+    "equipment_rates": "LIBRARY",
+    "estimate_assumptions": "ENTITY",
+    "estimate_exclusions": "ENTITY",
+    "estimate_indirects": "ENTITY",
+    "estimate_line_items": "ENTITY",
+    "estimate_line_modifiers": "ENTITY",
+    "estimate_line_resources": "ENTITY",
+    "estimate_versions": "ENTITY",
+    "estimates": "ENTITY",
+    "financial_periods": "ENTITY",
+    "fuel_transactions": "ENTITY",
+    "ingestion_jobs": "WORKFLOW",
+    "inspections": "ENTITY",
+    "inventory_items": "ENTITY",
+    "inventory_transactions": "ENTITY",
+    "knowledge_articles": "LIBRARY",
+    "labor_rates": "LIBRARY",
+    "leads": "ENTITY",
+    "library_row_versions": "ENTITY",
+    "library_snapshot_entries": "ENTITY",
+    "library_snapshots": "ENTITY",
+    "machine_assignments": "ENTITY",
+    "machine_control_files": "ENTITY",
+    "maintenance_schedules": "ENTITY",
+    "markup_components": "LIBRARY",
+    "materials": "LIBRARY",
+    "meter_readings": "ENTITY",
+    "metric_definitions": "LIBRARY",
+    "network_ratings": "ENTITY",
+    "network_vendors": "ENTITY",
+    "notification_preferences": "ENTITY",
+    "notifications": "ENTITY",
+    "opportunities": "ENTITY",
+    "pay_application_lines": "ENTITY",
+    "pay_applications": "ENTITY",
+    "plan_prices": "LIBRARY",
+    "plan_versions": "ENTITY",
+    "plans": "LIBRARY",
+    "pricing_profiles": "LIBRARY",
+    "production_actuals": "ENTITY",
+    "production_calibrations": "ENTITY",
+    "production_rates": "LIBRARY",
+    "project_costs": "ENTITY",
+    "project_tasks": "ENTITY",
+    "projects": "ENTITY",
+    "proposal_line_items": "ENTITY",
+    "proposals": "ENTITY",
+    "purchase_order_items": "ENTITY",
+    "purchase_orders": "ENTITY",
+    "regional_factors": "LIBRARY",
+    "resource_assignments": "ENTITY",
+    "rfis": "WORKFLOW",
+    "rfq_responses": "ENTITY",
+    "rfqs": "ENTITY",
+    "risks": "ENTITY",
+    "roles": "LIBRARY",
+    "safety_incidents": "ENTITY",
+    "safety_observations": "ENTITY",
+    "schedule_activities": "ENTITY",
+    "schedule_baseline_activities": "ENTITY",
+    "schedule_baselines": "ENTITY",
+    "schedule_calculations": "ENTITY",
+    "schedule_dependencies": "ENTITY",
+    "schedule_of_values": "ENTITY",
+    "services": "LIBRARY",
+    "stripe_events": "ENTITY",
+    "submittals": "WORKFLOW",
+    "subscription_items": "ENTITY",
+    "subscriptions": "ENTITY",
+    "surface_comparisons": "ENTITY",
+    "surfaces": "ENTITY",
+    "surveys": "ENTITY",
+    "task_dependencies": "LIBRARY",
+    "tasks": "LIBRARY",
+    "time_entries": "ENTITY",
+    "toolbox_talks": "ENTITY",
+    "trucking_rates": "LIBRARY",
+    "usage_events": "ENTITY",
+    "user_profiles": "ENTITY",
+    "value_overrides": "ENTITY",
+    "vendors": "ENTITY",
+    "work_calendar_exceptions": "LIBRARY",
+    "work_calendars": "LIBRARY",
+    "work_credential_requirements": "ENTITY",
+    "work_orders": "ENTITY"
+  },
+  "engines": [
+    {
+      "id": "ENG-001",
+      "name": "Numeric Kernel",
+      "path": "packages/engine/src/numeric.ts",
+      "purpose": "Rounding, safe division and the money/quantity scales every other engine is built on."
+    },
+    {
+      "id": "ENG-002",
+      "name": "Units & Volume Engine",
+      "path": "packages/engine/src/units.ts",
+      "purpose": "Bank, loose and compacted volume states, converted through the bank pivot and never directly."
+    },
+    {
+      "id": "ENG-003",
+      "name": "Quantity Engine",
+      "path": "packages/engine/src/quantity.ts",
+      "purpose": "Measured quantity to priced quantity: measurement method, adjustments, waste basis, bid reconciliation."
+    },
+    {
+      "id": "ENG-004",
+      "name": "Production Engine",
+      "path": "packages/engine/src/production.ts",
+      "purpose": "Theoretical, practical and recommended production; modifiers by target; the controlling resource; duration."
+    },
+    {
+      "id": "ENG-005",
+      "name": "Resource Engine",
+      "path": "packages/engine/src/resources.ts",
+      "purpose": "Crew composition, burdened labor, the equipment rate hierarchy, and cost per crew hour."
+    },
+    {
+      "id": "ENG-006",
+      "name": "Trucking Engine",
+      "path": "packages/engine/src/trucking.ts",
+      "purpose": "Haul cycle components, fleet sizing against loader production, and the cut/fill balance."
+    },
+    {
+      "id": "ENG-007",
+      "name": "Pricing Engine",
+      "path": "packages/engine/src/pricing.ts",
+      "purpose": "Ten cost buckets, parallel and stacked markup, regional factor, escalation, and markup transparency."
+    },
+    {
+      "id": "ENG-008",
+      "name": "Confidence Engine",
+      "path": "packages/engine/src/confidence.ts",
+      "purpose": "Source confidence, penalties and the do-not-price band."
+    },
+    {
+      "id": "ENG-009",
+      "name": "Estimate Engine",
+      "path": "packages/engine/src/estimate.ts",
+      "purpose": "Composes the others into a priced estimate with its full derivation."
+    },
+    {
+      "id": "ENG-010",
+      "name": "Surface Engine",
+      "path": "packages/engine/src/surfaces.ts",
+      "purpose": "Grid comparison, average end area, prismoidal, stockpiles and progress against design."
+    },
+    {
+      "id": "ENG-011",
+      "name": "Document Rendering Engine",
+      "path": "packages/pdf/src",
+      "purpose": "Proposals, pay applications and reports as deterministic PDF bytes, including the certificate arithmetic."
+    },
+    {
+      "id": "ENG-012",
+      "name": "Connector Runtime Engine",
+      "path": "supabase/functions/_shared/connectors/runner.ts",
+      "purpose": "Retry, failure classification, idempotency and run recording, identical for every adapter."
+    },
+    {
+      "id": "ENG-013",
+      "name": "Ingestion Engine",
+      "path": "supabase/functions/_shared/ingestion/pipeline.ts",
+      "purpose": "PDF split, text-layer detection, sheet classification, and the routing decision that keeps digital pages away from OCR."
+    },
+    {
+      "id": "ENG-014",
+      "name": "Access Control Engine",
+      "path": "supabase/functions/_shared/api/gateway.ts",
+      "purpose": "The authorization decision between an API key and another company's data."
+    },
+    {
+      "id": "ENG-015",
+      "name": "Subscription State Engine",
+      "path": "supabase/functions/_shared/subscription-state.ts",
+      "purpose": "Derives entitlement from verified Stripe state, never from a browser redirect."
+    },
+    {
+      "id": "ENG-016",
+      "name": "Theme Engine",
+      "path": "apps/web/src/lib/theme.ts",
+      "purpose": "Derives a white-label palette and measures it against WCAG contrast."
+    },
+    {
+      "id": "ENG-017",
+      "name": "Assembly Engine",
+      "path": "packages/engine/src/assemblies.ts",
+      "purpose": "Expands an assembly recipe into flat, quantified component lines, multiplying quantities down nested assemblies and refusing cycles by name."
+    },
+    {
+      "id": "ENG-018",
+      "name": "Material Cost Engine",
+      "path": "packages/engine/src/materials.ts",
+      "purpose": "Derives material cost through waste, order multiples, supplier minimums, freight basis and tax, and reports what is bought but never installed."
+    },
+    {
+      "id": "ENG-019",
+      "name": "Portable Estimate Engine",
+      "path": "packages/engine/src/portable.ts",
+      "purpose": "Exports and imports an estimate against a versioned schema, refusing a newer schema or a missing field rather than repairing it."
+    },
+    {
+      "id": "ENG-020",
+      "name": "Library Snapshot Engine",
+      "path": "packages/engine/src/snapshot.ts",
+      "purpose": "Captures the library rows an estimate was priced from with a stable content digest, resolves them back without reading through to the live library, and reports drift against it."
+    },
+    {
+      "id": "ENG-021",
+      "name": "Scenario Engine",
+      "path": "packages/engine/src/scenarios.ts",
+      "purpose": "Prices an estimate under named low, base and high scenarios against a closed set of drivers, and varies one driver at a time to report which one is actually worth managing."
+    },
+    {
+      "id": "ENG-022",
+      "name": "Override Engine",
+      "path": "packages/engine/src/overrides.ts",
+      "purpose": "Records a person overriding a computed value: the engine figure is retained beside it, a reason is required, and the requester cannot approve their own."
+    },
+    {
+      "id": "ENG-023",
+      "name": "Redaction Engine",
+      "path": "supabase/functions/_shared/observability/redaction.ts",
+      "purpose": "Removes credentials from anything about to be logged, by explicit field name and by value shape, so a token pasted into a free-text field is caught wherever it appears."
+    },
+    {
+      "id": "ENG-024",
+      "name": "Structured Logger",
+      "path": "supabase/functions/_shared/observability/logger.ts",
+      "purpose": "Structured log records carrying correlation and tenancy, with injected sink and clock, redacted on the way out and unable to fail the caller."
+    },
+    {
+      "id": "ENG-025",
+      "name": "Metrics Engine",
+      "path": "supabase/functions/_shared/observability/metrics.ts",
+      "purpose": "Counters, durations and gauges with bounded low-cardinality labels; refuses an identifier used as a dimension."
+    },
+    {
+      "id": "ENG-026",
+      "name": "Health Engine",
+      "path": "supabase/functions/_shared/observability/health.ts",
+      "purpose": "Separates liveness from readiness, races every check against a deadline so a hanging dependency is reported rather than waited on, and aggregates critical against non-critical failures."
+    },
+    {
+      "id": "ENG-027",
+      "name": "Work Calendar Engine",
+      "path": "packages/engine/src/calendar.ts",
+      "purpose": "Working-day arithmetic on integer epoch days: which days are worked, how many working days between two dates, and what a duration means as a span. No timezone is ever consulted."
+    },
+    {
+      "id": "ENG-028",
+      "name": "Critical Path Engine",
+      "path": "packages/engine/src/schedule.ts",
+      "purpose": "Forward and backward pass over four dependency types with lag, producing early and late dates, total and free float, the critical path, and variance against an approved baseline. Refuses cycles by name."
+    }
+  ],
+  "ai_agents": [
+    {
+      "id": "AI-001",
+      "name": "Plan Analyst",
+      "path": "supabase/functions/ai-analyze-document",
+      "purpose": "Reads drawings and specifications and proposes findings with citations. Draft authority only.",
+      "max_authority": "draft"
+    }
+  ],
+  "library_scope": {
+    "ai_models": "platform_only",
+    "ai_prompts": "global_or_company",
+    "assemblies": "three_tier",
+    "assembly_components": "child_of_library",
+    "condition_modifiers": "three_tier",
+    "cost_codes": "three_tier",
+    "crew_members": "child_of_library",
+    "crews": "three_tier",
+    "disposal_sites": "company_only",
+    "equipment": "three_tier",
+    "equipment_rates": "child_of_library",
+    "knowledge_articles": "company_only",
+    "labor_rates": "three_tier",
+    "markup_components": "child_of_library",
+    "materials": "three_tier",
+    "metric_definitions": "global_or_company",
+    "plan_prices": "platform_only",
+    "plans": "platform_only",
+    "pricing_profiles": "three_tier",
+    "production_rates": "three_tier",
+    "regional_factors": "three_tier",
+    "roles": "global_or_company",
+    "services": "three_tier",
+    "task_dependencies": "company_only",
+    "tasks": "three_tier",
+    "trucking_rates": "company_only",
+    "work_calendar_exceptions": "company_only",
+    "work_calendars": "company_only"
+  },
+  "library_parent": {
+    "assembly_components": "assemblies",
+    "crew_members": "crews",
+    "equipment_rates": "equipment",
+    "markup_components": "pricing_profiles"
+  },
+  "scope_definitions": {
+    "three_tier": "company_id nullable AND enterprise_group_id present. Platform seed, enterprise group, company override.",
+    "global_or_company": "company_id nullable, no enterprise_group_id. A platform row or a company override of it.",
+    "child_of_library": "Detail rows of a three-tier parent; scope is inherited, never restated.",
+    "company_only": "company_id NOT NULL. No platform seed exists or could sensibly exist.",
+    "platform_only": "No company_id at all. Identical for every tenant."
+  },
+  "known_limitations": [
+    {
+      "id": "LIM-001",
+      "subject": "task_dependencies",
+      "finding": "tasks is a three-tier library and can carry platform-seeded rows, but task_dependencies requires a company_id, so a dependency between two seeded tasks cannot be shipped with the platform.",
+      "impact": "Low today: the seed defines no task dependencies. It would block seeding a standard sequence for an industry pack.",
+      "disposition": "Recorded rather than silently reclassified. Fixing it means making company_id nullable on task_dependencies and extending the RLS policy, which is a schema change with its own migration."
+    }
+  ]
+}

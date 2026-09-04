@@ -1,0 +1,314 @@
+{
+  "generated_from": "governance/requirements/ges-requirements.csv + governance/traceability/mapping-rules.json",
+  "method": "Each rule is one engineering judgment: a pattern over the requirement's module and statement, the artifacts that implement it, and the test suites that prove it. Rules are applied mechanically, so a mapping is DERIVED, not hand-audited per requirement. That distinction is recorded on every row and must not be blurred — derived coverage says an implementing artifact exists, not that this exact requirement was read and confirmed.",
+  "status_definitions": {
+    "traced_tested": "An artifact exists that implements this topic, and that artifact is covered by a named test suite which runs in `npm run verify`. It does NOT mean this requirement was read and confirmed.",
+    "traced": "An artifact exists that implements this topic, but no test suite is claimed for it.",
+    "untraced": "Nothing in this repository claims to implement it. The honest default."
+  },
+  "totals": {
+    "requirements": 9475,
+    "traced_tested": 4826,
+    "traced": 0,
+    "untraced": 4649,
+    "traced_percent": 50.9,
+    "verified": 1804,
+    "verification_attempted": 5548,
+    "not_verified": 3744
+  },
+  "artifacts": {
+    "total": 268,
+    "referenced": 144,
+    "unreferenced": 124
+  },
+  "rule_hits": {
+    "TR-037": 495,
+    "TR-039": 467,
+    "TR-030": 356,
+    "TR-041": 336,
+    "TR-033": 234,
+    "TR-026": 227,
+    "TR-024": 225,
+    "TR-001": 203,
+    "TR-005": 198,
+    "TR-013": 197,
+    "TR-017": 191,
+    "TR-023": 186,
+    "TR-032": 179,
+    "TR-021": 166,
+    "TR-027": 163,
+    "TR-006": 155,
+    "TR-012": 143,
+    "TR-034": 130,
+    "TR-025": 127,
+    "TR-003": 121,
+    "TR-035": 116,
+    "TR-031": 115,
+    "TR-029": 98,
+    "TR-009": 97,
+    "TR-038": 85,
+    "TR-018": 84,
+    "TR-042": 83,
+    "TR-016": 82,
+    "TR-015": 67,
+    "TR-004": 63,
+    "TR-022": 58,
+    "TR-040": 47,
+    "TR-036": 45,
+    "TR-028": 43,
+    "TR-020": 38,
+    "TR-007": 36,
+    "TR-002": 33,
+    "TR-010": 27,
+    "TR-019": 24,
+    "TR-043": 18,
+    "TR-008": 12,
+    "TR-014": 10,
+    "TR-011": 2
+  },
+  "overbroad_rules": [],
+  "per_phase": {
+    "P01": {
+      "total": 25,
+      "traced_tested": 17,
+      "traced": 0,
+      "untraced": 8,
+      "verified": 0
+    },
+    "P02": {
+      "total": 60,
+      "traced_tested": 34,
+      "traced": 0,
+      "untraced": 26,
+      "verified": 0
+    },
+    "P03": {
+      "total": 75,
+      "traced_tested": 26,
+      "traced": 0,
+      "untraced": 49,
+      "verified": 0
+    },
+    "P04": {
+      "total": 97,
+      "traced_tested": 40,
+      "traced": 0,
+      "untraced": 57,
+      "verified": 0
+    },
+    "P05": {
+      "total": 108,
+      "traced_tested": 78,
+      "traced": 0,
+      "untraced": 30,
+      "verified": 56
+    },
+    "P06": {
+      "total": 120,
+      "traced_tested": 24,
+      "traced": 0,
+      "untraced": 96,
+      "verified": 0
+    },
+    "P07": {
+      "total": 160,
+      "traced_tested": 115,
+      "traced": 0,
+      "untraced": 45,
+      "verified": 0
+    },
+    "P08": {
+      "total": 180,
+      "traced_tested": 106,
+      "traced": 0,
+      "untraced": 74,
+      "verified": 0
+    },
+    "P09": {
+      "total": 210,
+      "traced_tested": 95,
+      "traced": 0,
+      "untraced": 115,
+      "verified": 0
+    },
+    "P10": {
+      "total": 240,
+      "traced_tested": 135,
+      "traced": 0,
+      "untraced": 105,
+      "verified": 16
+    },
+    "P11": {
+      "total": 260,
+      "traced_tested": 196,
+      "traced": 0,
+      "untraced": 64,
+      "verified": 80
+    },
+    "P12": {
+      "total": 280,
+      "traced_tested": 176,
+      "traced": 0,
+      "untraced": 104,
+      "verified": 72
+    },
+    "P13": {
+      "total": 300,
+      "traced_tested": 183,
+      "traced": 0,
+      "untraced": 117,
+      "verified": 0
+    },
+    "P14": {
+      "total": 320,
+      "traced_tested": 195,
+      "traced": 0,
+      "untraced": 125,
+      "verified": 54
+    },
+    "P15": {
+      "total": 340,
+      "traced_tested": 246,
+      "traced": 0,
+      "untraced": 94,
+      "verified": 133
+    },
+    "P16": {
+      "total": 360,
+      "traced_tested": 124,
+      "traced": 0,
+      "untraced": 236,
+      "verified": 0
+    },
+    "P17": {
+      "total": 380,
+      "traced_tested": 105,
+      "traced": 0,
+      "untraced": 275,
+      "verified": 0
+    },
+    "P18": {
+      "total": 400,
+      "traced_tested": 332,
+      "traced": 0,
+      "untraced": 68,
+      "verified": 98
+    },
+    "P19": {
+      "total": 420,
+      "traced_tested": 289,
+      "traced": 0,
+      "untraced": 131,
+      "verified": 135
+    },
+    "P20": {
+      "total": 450,
+      "traced_tested": 116,
+      "traced": 0,
+      "untraced": 334,
+      "verified": 0
+    },
+    "P23": {
+      "total": 300,
+      "traced_tested": 130,
+      "traced": 0,
+      "untraced": 170,
+      "verified": 0
+    },
+    "P24": {
+      "total": 360,
+      "traced_tested": 190,
+      "traced": 0,
+      "untraced": 170,
+      "verified": 332
+    },
+    "P25": {
+      "total": 400,
+      "traced_tested": 326,
+      "traced": 0,
+      "untraced": 74,
+      "verified": 315
+    },
+    "P26": {
+      "total": 450,
+      "traced_tested": 305,
+      "traced": 0,
+      "untraced": 145,
+      "verified": 339
+    },
+    "P27": {
+      "total": 480,
+      "traced_tested": 219,
+      "traced": 0,
+      "untraced": 261,
+      "verified": 0
+    },
+    "P28": {
+      "total": 500,
+      "traced_tested": 187,
+      "traced": 0,
+      "untraced": 313,
+      "verified": 0
+    },
+    "P29": {
+      "total": 520,
+      "traced_tested": 307,
+      "traced": 0,
+      "untraced": 213,
+      "verified": 0
+    },
+    "P30": {
+      "total": 540,
+      "traced_tested": 308,
+      "traced": 0,
+      "untraced": 232,
+      "verified": 174
+    },
+    "P31": {
+      "total": 560,
+      "traced_tested": 100,
+      "traced": 0,
+      "untraced": 460,
+      "verified": 0
+    },
+    "P32": {
+      "total": 580,
+      "traced_tested": 122,
+      "traced": 0,
+      "untraced": 458,
+      "verified": 0
+    }
+  },
+  "largest_unmapped_modules": {
+    "Observability": 53,
+    "Data Architecture": 49,
+    "Feature Flags": 29,
+    "Security Engineering": 25,
+    "Environment Strategy": 22,
+    "Configuration Management": 22,
+    "Infrastructure as Code": 22,
+    "Correspondence & Records": 19,
+    "Records Retention & Legal Hold": 19,
+    "External Collaboration": 19,
+    "BIM/CDE Coordination": 19,
+    "Permits to Work": 18,
+    "Training & Competency": 18,
+    "Environmental Management": 18,
+    "Compliance & Regulatory": 18,
+    "Emergency Management": 18,
+    "Corrective & Preventive Action": 18,
+    "Document Intelligence Digital Twin": 18,
+    "Executive Command Center": 17,
+    "Operational Intelligence": 17,
+    "Financial Intelligence": 17,
+    "Workforce Intelligence": 17,
+    "Portfolio & Program Intelligence": 17,
+    "HSEQ Digital Twin": 17,
+    "Construction Logistics": 16,
+    "Rental Management": 16,
+    "Procure-to-Pay Integration": 16,
+    "Supply Chain Digital Twin": 16,
+    "Data Platform & Lineage": 16,
+    "Enterprise Digital Twin": 16
+  }
+}

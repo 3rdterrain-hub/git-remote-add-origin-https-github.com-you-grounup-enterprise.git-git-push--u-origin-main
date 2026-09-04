@@ -1,0 +1,101 @@
+{
+  "phase": "P12",
+  "title": "Fleet & Equipment Management",
+  "method": "Every P12 requirement is capability N of a domain, and every one carries the same acceptance criterion in Given/When/Then form: given an authorized user or integration, when the transaction is submitted, then required fields and policies are validated, the state transition is recorded, financial and project links are preserved, exceptions are surfaced, and an immutable audit event is created. The five conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged first against the platform as it stood, where two of the five conditions failed: fleet cost never reached the job, and no fleet exception reached anybody. Migration 0038 and 15 tests closed both. This file records the second judgment.",
+
+  "findings": [
+    {
+      "id": "P12-F1",
+      "title": "Fleet cost never reached the job, though both sides of the posting were designed for it",
+      "detail": "A fuel transaction carries a project, an asset, gallons, a price per gallon and a generated total cost. `project_costs` carries a `cost_type` of `fuel`, a `source` of `fuel_card` or `telematics`, an `equipment_id`, a `quantity` with a unit, and a `reference` for where the row came from. Both sides were shaped for exactly this posting, and nothing wrote it.",
+      "why_it_matters": "Equipment is the second-largest cost category on a heavy civil job. The platform recorded fuel in one place and reported job cost from another, so a machine could burn four hundred dollars of diesel on a job and the job's cost would not know. It is the same shape as the other findings in this build — a capability the schema anticipates and nothing performs — with money on the end of it.",
+      "status": "resolved",
+      "resolution": "Migration 0038 posts a fuel transaction to the job it was burned on, carrying gallons as the quantity, the price as the unit cost, the machine in the description, the equipment reference for rate reconciliation, and the transaction's own source rather than calling everything manual. Kept in sync rather than posted once: a corrected gallon count corrects the job cost and a deleted transaction removes it. Fuel with no project posts nothing, because the platform does not guess which job to charge. The posting is a job cost like any other, so the financial period cutoff refuses one dated into a closed period — the fleet record cannot route around the accounting control."
+    },
+    {
+      "id": "P12-F2",
+      "title": "No fleet exception reached anybody",
+      "detail": "Nothing notified a person that a machine had gone down or that a service had come due. The notification table did not carry a fleet category at all — a machine going down would have had to arrive as a 'system' notice.",
+      "why_it_matters": "'Exceptions are surfaced' is one of this phase's five conditions and it failed for every domain. A down machine is the event most likely to move a schedule, and the platform knew about it and told nobody.",
+      "status": "resolved",
+      "resolution": "A fleet category added to the notification list, and two producers. A machine entering `down` notifies the company at critical severity, naming where it is and that any schedule activity relying on it needs a replacement or a new date, on the transition only. A service coming due notifies on the meter reading that crosses its interval — driven by the meter rather than a clock, because that is how heavy equipment is serviced, and announced once rather than on every reading afterwards."
+    },
+    {
+      "id": "P12-F3",
+      "title": "Maintenance cost is deliberately not posted to a job",
+      "detail": "Work orders carry labor, parts and outside cost with a generated total, and none of it posts to `project_costs`. This is recorded as a decision rather than a gap.",
+      "why_it_matters": "Maintenance is an ownership cost recovered through the equipment rate, not a direct charge to whichever job the machine happened to be on when it broke. Posting it would double-count against the rate the estimating engine already applies, and would put the cost of a worn undercarriage on the last project to use the machine. That distinction is the reason equipment rates exist, and a test asserts the platform does not make the mistake.",
+      "status": "resolved",
+      "resolution": "Stated in the migration, and asserted by a test that completes a work order with labor and parts cost and confirms no equipment cost row appears against any project."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion, and all five are platform properties: validation, state recording, financial linkage, exception surfacing and the audit event.",
+    "conditions": [
+      "required fields and policies are validated",
+      "the state transition is recorded",
+      "financial and project links are preserved",
+      "exceptions are surfaced",
+      "an immutable audit event is created"
+    ]
+  },
+
+  "platform_conditions": {
+    "required fields and policies are validated": {
+      "status": "met",
+      "evidence": "A meter reading cannot run the hour meter backwards — a mistyped reading would otherwise reset a machine's life and every maintenance interval with it — unless it is explicitly flagged as a meter replacement. A work order cannot be completed without a resolution. A maintenance schedule must carry at least one interval, in hours, miles or days. A disposed asset must record when it was disposed of. Fuel gallons must be positive and the total is generated from gallons and price so it cannot disagree with its own inputs. An asset cannot be booked to two jobs over the same dates, enforced by an exclusion constraint."
+    },
+    "the state transition is recorded": {
+      "status": "met",
+      "evidence": "Assets carry a constrained status across available, assigned, in maintenance, down, rented out and disposed; work orders across open, in progress, awaiting parts and complete. Every change to either is written to the append-only audit ledger with prior and new state and the actor who made it, and completing a preventive work order resets its schedule's last-performed meter and date so the next interval is computed from what actually happened."
+    },
+    "financial and project links are preserved": {
+      "status": "met",
+      "evidence": "Since 0038 fuel burned on a job posts to that job's cost with quantity, unit, unit cost, amount, the equipment reference and its own source, and stays in step with corrections and deletions. An asset links to the equipment library row whose ownership and operating rates the estimating engine prices with, so field cost and estimated cost are reconcilable against the same rate. Resource assignments tie a machine to a project over dates. Maintenance cost is deliberately excluded and the reason is recorded, because it belongs to the equipment rate rather than to a job."
+    },
+    "exceptions are surfaced": {
+      "status": "met",
+      "evidence": "A machine entering `down` notifies the company at critical severity with its location and the schedule consequence stated. A service coming due notifies on the meter reading that crosses its interval, once. Alongside these, the credential control added for P14 refuses an operator assignment where a mandatory qualification is missing, expired or revoked, naming the person and what is missing — an exception surfaced by refusal rather than by notice. Inventory carries reorder points that surface what is running out."
+    },
+    "an immutable audit event is created": {
+      "status": "met",
+      "evidence": "Every fleet table carries the full-row audit trigger writing prior and new state into a ledger that no privilege level can edit or delete, guarded by app.forbid_mutation(). A governance test asserts the general rule that every table in the schema is either audited or frozen, so a fleet table added later cannot arrive without one."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Fleet Registry",
+      "Preventive Maintenance",
+      "Corrective Maintenance",
+      "Fuel & Energy",
+      "Work Orders",
+      "Equipment Costing"
+    ],
+    "partial": {
+      "Asset Lifecycle": "An asset records acquisition cost, ownership, in-service date and a disposal that must carry its date. There is no lifecycle accounting: no depreciation schedule, no book value, no disposal proceeds or gain, and no transfer between divisions.",
+      "Inspections": "Work orders carry an inspection type and the safety module carries general inspections with deficiencies and verified closure. There is no equipment inspection: no daily walkaround checklist, no defect that takes a machine out of service, no operator sign-off.",
+      "Telematics & IoT": "Assets carry a last telemetry timestamp, meter readings carry a telematics source, and the connector framework is governed with runs recorded. No live feed is consumed: no fault code, no geofence, no idle detection, no position history.",
+      "Parts & Components": "Work orders carry parts cost, and inventory can hold parts with a transaction ledger and reorder points. There is no parts catalog per machine, no serialized component tracking, and no component life against its parent asset.",
+      "Safety & Risk": "Operator qualification is now enforced: an employee cannot be assigned to work whose mandatory credentials they do not hold. Equipment incidents are recordable through the safety module. There is no equipment-specific risk register, no lockout/tagout, and no defect reporting that takes a machine out of service.",
+      "Utilization & Dispatch": "Assignments cannot overlap for one machine, utilization is computed for the fleet screen, and a schedule activity can carry the resources it needs. There is no dispatch: no board, no request, no assignment against a daily plan.",
+      "Administration & Integration": "Row level security, permissions, the connector framework with recorded runs, and a versioned public API are all in place and govern fleet data like everything else. There is no fleet-specific administration: no equipment class configuration, no rate table maintenance screen, no telematics provider mapping."
+    },
+    "not_built": {
+      "Shop Operations": "No shop, no bay, no technician schedule, no labor booking against a work order, no shop capacity.",
+      "Field Service": "No field service call, no mobile mechanic, no dispatch to a breakdown, no service van inventory.",
+      "Rental & Leased Assets": "Assets record whether they are owned, leased or rented and can be marked rented out. Nothing manages a rental: no agreement, no rate, no on-rent and off-rent dates, no return condition, no idle-rental alert.",
+      "Compliance": "No registration or renewal tracking, no DOT inspection, no emissions record, no operator licensing tied to the machine class rather than to the person.",
+      "Warranty & Claims": "A work order can be typed as warranty and nothing else exists: no warranty term, no coverage check, no claim, no recovery.",
+      "Tires & Undercarriage": "No tire or undercarriage register, no wear measurement, no replacement forecast — a significant cost category on tracked equipment with no representation at all.",
+      "Attachments & Tools": "No attachment register, no tool crib, no assignment of an attachment to a machine or a person.",
+      "Documents & Media": "Documents are versioned and searchable platform-wide and nothing links one to an asset. A machine's manual, its purchase invoice and its inspection photographs have nowhere to live.",
+      "Mobile & Offline": "No offline capture, no device sync, no field-optimized entry for meter readings or inspections.",
+      "Fleet Intelligence": "No failure prediction, no cost-per-hour trend, no replacement analysis, no utilization benchmark.",
+      "Fleet Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

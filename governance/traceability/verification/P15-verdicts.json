@@ -1,0 +1,116 @@
+{
+  "phase": "P15",
+  "title": "Document & Information Management",
+  "method": "Every P15 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N through authorized workflow, revision/version behavior, search/retrieval, audit history, linked-record integrity and mapped test evidence.' The six conditions are assessed platform-wide, because versioning, search and referential integrity are platform properties rather than per-domain ones. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged first against the platform as it stood, where three of the six conditions failed: the current version was a stored integer nothing maintained, the extracted text of every sheet was indexed and unqueried, and document control had no tests of its own. Writing those tests then found a fourth problem the judgment had missed — a cross-tenant hole in the evidence layer. Migration 0036 and a 23-test suite closed all four. This file records the second judgment.",
+
+  "findings": [
+    {
+      "id": "P15-F1",
+      "title": "The current version was a number somebody typed",
+      "detail": "`documents.current_version` was a stored integer with no trigger behind it. Uploading version 3 did not advance it; setting it to 7 when two versions existed was accepted. Every screen showing a revision reads this column.",
+      "why_it_matters": "It is the fifth appearance in this build of one pattern — a value the platform presents as derived that a caller can simply type — after the security toggles, schedule float, plan terms and claim deadlines. On a document it is worse than most, because a drawing revision is what a crew builds from.",
+      "status": "resolved",
+      "resolution": "A trigger on `document_versions` keeps `current_version` equal to the highest version that exists, on insert, update and delete. A second trigger refuses a value written directly that no version row supports, naming the version the document is actually at. A document with no versions yet is at 1 by definition, because the row exists before its first file is attached."
+    },
+    {
+      "id": "P15-F2",
+      "title": "The text of every document was indexed and unsearchable",
+      "detail": "`document_sheets.extracted_text` carries a GIN trigram index and a column comment reading 'Extracted text, used for permission-filtered search across the plan set'. Nothing queried it. `app.search` covered document names, estimates, projects, customers and services — but not what any document says. A drawing whose title block reads C-210 and whose body specifies cathodic protection was findable by the first and not the second.",
+      "why_it_matters": "The column stated its own purpose and nothing fulfilled it. Practically, the entire value of running OCR over a plan set is being able to find the sheet that mentions a thing, and that was the one thing it could not do.",
+      "status": "resolved",
+      "resolution": "`app.search_document_text` searches sheet text and returns the document, version, page, sheet number, a windowed snippet showing why it matched, and a similarity rank. SECURITY INVOKER, so results are bounded by the caller's own row level security — which is what 'permission-filtered' always meant — and superseded documents are excluded for the same reason the name search excludes them: they are kept for the audit trail, not offered as current information."
+    },
+    {
+      "id": "P15-F3",
+      "title": "Supersession could close a loop",
+      "detail": "`documents.superseded_by_id` had a foreign key and a constraint requiring a superseded document to name its replacement, and nothing stopped a document superseding itself or two documents superseding each other. Any walk of the revision chain would never terminate.",
+      "why_it_matters": "The supersession chain is how anybody answers 'what replaced this drawing'. A loop makes that question unanswerable and hangs whatever asks it.",
+      "status": "resolved",
+      "resolution": "A check constraint refuses self-supersession. A trigger walks the chain from the proposed target and refuses one that arrives back at the document being superseded, naming the path it followed, with a depth cap so a corrupt chain fails fast rather than spinning."
+    },
+    {
+      "id": "P15-F4",
+      "title": "A version could be attached across a tenant boundary",
+      "detail": "`document_versions` and `document_sheets` had no tenant-parent guard. A user of company B could insert a version pointing at company A's document: row level security passed because the row carried B's own company_id, and the foreign key passed because the document existed. Company A could not see the row and would still have felt it — the current-version trigger counts every version a document has, so B's row would have moved A's document revision.",
+      "why_it_matters": "It is the structural gap `app.enforce_tenant_parent` exists to close, present on sixteen other parent-child pairs and absent on the evidence layer. It was found by the tests written for this migration, and the first half of this migration made it reachable.",
+      "status": "resolved",
+      "resolution": "`app.enforce_tenant_parent` attached to `document_versions` against `documents`, and to `document_sheets` against `document_versions`. A version or sheet whose company does not match its parent's is refused at write time."
+    },
+    {
+      "id": "P15-F5",
+      "title": "Document control had no tests",
+      "detail": "No test file covered documents, versions, sheets, versioning or supersession. The tables appeared in the row level security sweep and, since this build, in the claim-evidence tests, and nothing asserted the behavior of document control itself.",
+      "why_it_matters": "All four findings above were found by writing the suite that should already have existed — including the cross-tenant one, which no amount of reading the schema had surfaced.",
+      "status": "resolved",
+      "resolution": "tests/db/documents.test.ts, 23 tests: the current version advancing on upload and falling back on delete, refusal of a number no version supports and of anything but 1 on a document with none, self-supersession, two-document and longer loops, a chain that legitimately terminates, text search by body content with page and version, the snippet window, the empty query, superseded exclusion, cross-tenant invisibility through SECURITY INVOKER, the result cap, and the tenant-parent guard."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All six are required by the criterion. They are assessed platform-wide: versioning, search and referential integrity belong to the platform, and no single domain supplies them.",
+    "conditions": [
+      "authorized workflow",
+      "revision/version behavior",
+      "search/retrieval",
+      "audit history",
+      "linked-record integrity",
+      "mapped test evidence"
+    ]
+  },
+
+  "platform_conditions": {
+    "authorized workflow": {
+      "status": "met",
+      "evidence": "Documents, versions and sheets are written under documents.write and read under documents.read, with row level security enabled and forced. A version carries an explicit ingestion state — pending, scanning, extracting, indexed, failed, rejected — so a document that has not been processed is distinguishable from one that failed. Submittals carry ball-in-court across contractor, architect, engineer, owner and vendor with a status machine beside it, and RFIs carry a status that cannot reach answered without both an answer and an answered timestamp."
+    },
+    "revision/version behavior": {
+      "status": "met",
+      "evidence": "A document's current version is now counted from the versions that exist rather than stored and trusted, maintained on insert, update and delete, and a value written directly that no version supports is refused. Each version carries its own storage path, file name, byte size, SHA-256 checksum, page count and revision label. Supersession requires a named replacement, refuses a self-reference by constraint, and refuses a cycle by trigger with the offending path named. A superseded document stays readable for the audit trail and is excluded from takeoff and from both searches."
+    },
+    "search/retrieval": {
+      "status": "met",
+      "evidence": "`app.search` ranks across estimates, projects, customers, documents and services by trigram similarity, and `app.search_document_text` searches what sheets actually say, returning the document, version, page, sheet number, a snippet windowed around the match and a rank. Both are SECURITY INVOKER, so a caller retrieves only what their own row level security already permits. Superseded documents are excluded from both."
+    },
+    "audit history": {
+      "status": "met",
+      "evidence": "Documents, versions and sheets all carry the full-row audit trigger, writing prior and new state into an append-only ledger no privilege level can edit or delete. A governance test asserts the general rule that every table in the schema is either audited or frozen, so a table added to this layer later cannot arrive without one."
+    },
+    "linked-record integrity": {
+      "status": "met",
+      "evidence": "Versions belong to their document's company and sheets to their version's, enforced by `app.enforce_tenant_parent` — the gap this build found and closed. Extractions are guarded against their sheet the same way. A claim citing supporting documents has every citation checked to exist and belong to the same company, added earlier in this build. Supersession points at a real document and cannot loop."
+    },
+    "mapped test evidence": {
+      "status": "met",
+      "evidence": "23 tests in tests/db/documents.test.ts against real PostgreSQL 18, where there were none, covering version counting in both directions, the refusal paths, supersession self-reference and cycles at two depths, text search including the snippet window and the empty query, superseded exclusion, cross-tenant invisibility, the result cap and the tenant-parent guard. The AI extraction path is covered separately by 28 plan-analysis tests."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Document Control",
+      "Drawing Management",
+      "Submittals",
+      "RFIs",
+      "Version & Revision Control",
+      "Plan & Spec Intelligence",
+      "Document Search & Retrieval"
+    ],
+    "partial": {
+      "Specification Management": "Specifications are a document type and a submittal names the spec section it answers. There is no specification structure: no division or section hierarchy, no requirement extracted from a section, and nothing linking a spec paragraph to the submittal or the work that satisfies it.",
+      "OCR & Content Extraction": "The pipeline is modeled properly — a version moves through scanning, extracting and indexed, sheets carry per-page extracted text, and extractions carry what a model found with its prompt version and a currency flag. The governed AI analyst classifies sheets and extracts quantity candidates with citations. There is no OCR engine in the platform: extracted text arrives from the ingestion pipeline rather than being produced here, and a scanned drawing with no text layer yields nothing."
+    },
+    "not_built": {
+      "Transmittals & Distribution": "No transmittal, no distribution list, no record of who was sent which revision, and no acknowledgment — the platform sends nothing to anybody.",
+      "Correspondence & Records": "No letter, no email capture, no correspondence log. It is one of the largest untraced modules in the register and the absence is complete.",
+      "Markup & Review": "No annotation, no markup layer, no review round, no comment resolution. A drawing can be stored and read and not marked up.",
+      "Records Retention & Legal Hold": "Nothing expires, nothing is disposed of on a schedule, and there is no legal hold that would stop it — the same absence P28 recorded platform-wide.",
+      "External Collaboration": "No external party can reach a document. There is no share, no guest access, no expiring link, and no external reviewer.",
+      "Field Document Access": "No offline access, no device sync, no field-optimized viewer. Documents are readable in the application and nowhere else.",
+      "BIM/CDE Coordination": "No model, no IFC, no common data environment, no clash detection, no federated view.",
+      "Closeout & Turnover": "No closeout package, no as-built assembly, no O&M manual collection, no warranty document set, no owner turnover.",
+      "Document Intelligence Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "grounup-enterprise",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GrounUp Enterprise — AI-powered construction operating system",
+  "type": "module",
+  "workspaces": [
+    "packages/pdf",
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "npm run build -w @grounup/engine && npm run build -w @grounup/pdf && npm run build -w @grounup/web",
+    "dev": "npm run dev -w @grounup/web",
+    "test": "npm run test:engine && npm run test:pdf && npm run test:db && npm run test:functions && npm run test:governance && npm run test:web",
+    "test:engine": "npm run test -w @grounup/engine -- --reporter=default --reporter=json --outputFile=../../.test-results/engine.json",
+    "test:db": "vitest run --config tests/db/vitest.config.ts --reporter=default --reporter=json --outputFile=.test-results/db.json",
+    "test:web": "vitest run --root apps/web --reporter=default --reporter=json --outputFile=../../.test-results/web.json",
+    "typecheck": "npm run typecheck -w @grounup/engine && npm run typecheck -w @grounup/pdf && tsc -p apps/web/tsconfig.app.json --noEmit",
+    "seed:generate": "node tools/generate-seed.mjs",
+    "verify": "npm run typecheck && npm run openapi:check && npm run verification:check && npm run traceability:check && npm run test && npm run counts:check && npm run build && npm run bundle:check",
+    "test:functions": "vitest run --config tests/functions/vitest.config.ts --reporter=default --reporter=json --outputFile=.test-results/functions.json",
+    "openapi": "node scripts/generate-openapi.mjs",
+    "openapi:check": "node scripts/generate-openapi.mjs --check",
+    "test:pdf": "npm run test -w @grounup/pdf -- --reporter=default --reporter=json --outputFile=../../.test-results/pdf.json",
+    "test:governance": "vitest run --config tests/governance/vitest.config.ts --reporter=default --reporter=json --outputFile=.test-results/governance.json",
+    "traceability": "node scripts/build-traceability.mjs",
+    "traceability:check": "node scripts/build-traceability.mjs --check",
+    "verification": "node scripts/build-verification.mjs",
+    "verification:check": "node scripts/build-verification.mjs --check",
+    "bundle:check": "node scripts/check-bundle.mjs",
+    "counts": "node scripts/build-test-counts.mjs",
+    "counts:check": "node scripts/build-test-counts.mjs --check"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
+  }
+}

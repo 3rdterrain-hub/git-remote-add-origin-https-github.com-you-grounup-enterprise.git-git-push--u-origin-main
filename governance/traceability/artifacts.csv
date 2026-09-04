@@ -1,0 +1,269 @@
+artifact_id,kind,name,path,category
+ENG-001,engine,Numeric Kernel,packages/engine/src/numeric.ts,ENGINE
+ENG-002,engine,Units & Volume Engine,packages/engine/src/units.ts,ENGINE
+ENG-003,engine,Quantity Engine,packages/engine/src/quantity.ts,ENGINE
+ENG-004,engine,Production Engine,packages/engine/src/production.ts,ENGINE
+ENG-005,engine,Resource Engine,packages/engine/src/resources.ts,ENGINE
+ENG-006,engine,Trucking Engine,packages/engine/src/trucking.ts,ENGINE
+ENG-007,engine,Pricing Engine,packages/engine/src/pricing.ts,ENGINE
+ENG-008,engine,Confidence Engine,packages/engine/src/confidence.ts,ENGINE
+ENG-009,engine,Estimate Engine,packages/engine/src/estimate.ts,ENGINE
+ENG-010,engine,Surface Engine,packages/engine/src/surfaces.ts,ENGINE
+ENG-011,engine,Document Rendering Engine,packages/pdf/src,ENGINE
+ENG-012,engine,Connector Runtime Engine,supabase/functions/_shared/connectors/runner.ts,ENGINE
+ENG-013,engine,Ingestion Engine,supabase/functions/_shared/ingestion/pipeline.ts,ENGINE
+ENG-014,engine,Access Control Engine,supabase/functions/_shared/api/gateway.ts,ENGINE
+ENG-015,engine,Subscription State Engine,supabase/functions/_shared/subscription-state.ts,ENGINE
+ENG-016,engine,Theme Engine,apps/web/src/lib/theme.ts,ENGINE
+ENG-017,engine,Assembly Engine,packages/engine/src/assemblies.ts,ENGINE
+ENG-018,engine,Material Cost Engine,packages/engine/src/materials.ts,ENGINE
+ENG-019,engine,Portable Estimate Engine,packages/engine/src/portable.ts,ENGINE
+ENG-020,engine,Library Snapshot Engine,packages/engine/src/snapshot.ts,ENGINE
+ENG-021,engine,Scenario Engine,packages/engine/src/scenarios.ts,ENGINE
+ENG-022,engine,Override Engine,packages/engine/src/overrides.ts,ENGINE
+ENG-023,engine,Redaction Engine,supabase/functions/_shared/observability/redaction.ts,ENGINE
+ENG-024,engine,Structured Logger,supabase/functions/_shared/observability/logger.ts,ENGINE
+ENG-025,engine,Metrics Engine,supabase/functions/_shared/observability/metrics.ts,ENGINE
+ENG-026,engine,Health Engine,supabase/functions/_shared/observability/health.ts,ENGINE
+ENG-027,engine,Work Calendar Engine,packages/engine/src/calendar.ts,ENGINE
+ENG-028,engine,Critical Path Engine,packages/engine/src/schedule.ts,ENGINE
+AI-001,ai_agent,Plan Analyst,supabase/functions/ai-analyze-document,AI_AGENT
+TBL-ai_agents,table,ai_agents,supabase/migrations (table ai_agents),AI_AGENT
+TBL-ai_conversations,table,ai_conversations,supabase/migrations (table ai_conversations),AI_AGENT
+TBL-ai_findings,table,ai_findings,supabase/migrations (table ai_findings),AI_AGENT
+TBL-ai_messages,table,ai_messages,supabase/migrations (table ai_messages),AI_AGENT
+TBL-ai_models,table,ai_models,supabase/migrations (table ai_models),LIBRARY
+TBL-ai_prompts,table,ai_prompts,supabase/migrations (table ai_prompts),LIBRARY
+TBL-ap_invoices,table,ap_invoices,supabase/migrations (table ap_invoices),ENTITY
+TBL-api_keys,table,api_keys,supabase/migrations (table api_keys),ENTITY
+TBL-api_requests,table,api_requests,supabase/migrations (table api_requests),ENTITY
+TBL-approval_requests,table,approval_requests,supabase/migrations (table approval_requests),WORKFLOW
+TBL-assemblies,table,assemblies,supabase/migrations (table assemblies),LIBRARY
+TBL-assembly_components,table,assembly_components,supabase/migrations (table assembly_components),LIBRARY
+TBL-assets,table,assets,supabase/migrations (table assets),ENTITY
+TBL-audit_events,table,audit_events,supabase/migrations (table audit_events),ENTITY
+TBL-bid_reconciliations,table,bid_reconciliations,supabase/migrations (table bid_reconciliations),ENTITY
+TBL-billing_invoices,table,billing_invoices,supabase/migrations (table billing_invoices),ENTITY
+TBL-change_order_items,table,change_order_items,supabase/migrations (table change_order_items),ENTITY
+TBL-change_orders,table,change_orders,supabase/migrations (table change_orders),WORKFLOW
+TBL-claims,table,claims,supabase/migrations (table claims),WORKFLOW
+TBL-commercial_authority_limits,table,commercial_authority_limits,supabase/migrations (table commercial_authority_limits),ENTITY
+TBL-companies,table,companies,supabase/migrations (table companies),ENTITY
+TBL-company_invitations,table,company_invitations,supabase/migrations (table company_invitations),ENTITY
+TBL-company_memberships,table,company_memberships,supabase/migrations (table company_memberships),ENTITY
+TBL-condition_modifiers,table,condition_modifiers,supabase/migrations (table condition_modifiers),LIBRARY
+TBL-connector_runs,table,connector_runs,supabase/migrations (table connector_runs),WORKFLOW
+TBL-connectors,table,connectors,supabase/migrations (table connectors),ENTITY
+TBL-contacts,table,contacts,supabase/migrations (table contacts),ENTITY
+TBL-contracts,table,contracts,supabase/migrations (table contracts),ENTITY
+TBL-cost_codes,table,cost_codes,supabase/migrations (table cost_codes),LIBRARY
+TBL-credentials,table,credentials,supabase/migrations (table credentials),ENTITY
+TBL-crew_members,table,crew_members,supabase/migrations (table crew_members),LIBRARY
+TBL-crews,table,crews,supabase/migrations (table crews),LIBRARY
+TBL-crm_activities,table,crm_activities,supabase/migrations (table crm_activities),ENTITY
+TBL-customers,table,customers,supabase/migrations (table customers),ENTITY
+TBL-daily_report_equipment,table,daily_report_equipment,supabase/migrations (table daily_report_equipment),ENTITY
+TBL-daily_report_labor,table,daily_report_labor,supabase/migrations (table daily_report_labor),ENTITY
+TBL-daily_reports,table,daily_reports,supabase/migrations (table daily_reports),ENTITY
+TBL-deficiencies,table,deficiencies,supabase/migrations (table deficiencies),ENTITY
+TBL-deliveries,table,deliveries,supabase/migrations (table deliveries),ENTITY
+TBL-disposal_sites,table,disposal_sites,supabase/migrations (table disposal_sites),LIBRARY
+TBL-divisions,table,divisions,supabase/migrations (table divisions),ENTITY
+TBL-document_conflicts,table,document_conflicts,supabase/migrations (table document_conflicts),ENTITY
+TBL-document_extractions,table,document_extractions,supabase/migrations (table document_extractions),ENTITY
+TBL-document_sheets,table,document_sheets,supabase/migrations (table document_sheets),ENTITY
+TBL-document_versions,table,document_versions,supabase/migrations (table document_versions),ENTITY
+TBL-documents,table,documents,supabase/migrations (table documents),ENTITY
+TBL-employees,table,employees,supabase/migrations (table employees),ENTITY
+TBL-enterprise_groups,table,enterprise_groups,supabase/migrations (table enterprise_groups),ENTITY
+TBL-entitlements,table,entitlements,supabase/migrations (table entitlements),ENTITY
+TBL-equipment,table,equipment,supabase/migrations (table equipment),LIBRARY
+TBL-equipment_rates,table,equipment_rates,supabase/migrations (table equipment_rates),LIBRARY
+TBL-estimate_assumptions,table,estimate_assumptions,supabase/migrations (table estimate_assumptions),ENTITY
+TBL-estimate_exclusions,table,estimate_exclusions,supabase/migrations (table estimate_exclusions),ENTITY
+TBL-estimate_indirects,table,estimate_indirects,supabase/migrations (table estimate_indirects),ENTITY
+TBL-estimate_line_items,table,estimate_line_items,supabase/migrations (table estimate_line_items),ENTITY
+TBL-estimate_line_modifiers,table,estimate_line_modifiers,supabase/migrations (table estimate_line_modifiers),ENTITY
+TBL-estimate_line_resources,table,estimate_line_resources,supabase/migrations (table estimate_line_resources),ENTITY
+TBL-estimate_versions,table,estimate_versions,supabase/migrations (table estimate_versions),ENTITY
+TBL-estimates,table,estimates,supabase/migrations (table estimates),ENTITY
+TBL-financial_periods,table,financial_periods,supabase/migrations (table financial_periods),ENTITY
+TBL-fuel_transactions,table,fuel_transactions,supabase/migrations (table fuel_transactions),ENTITY
+TBL-ingestion_jobs,table,ingestion_jobs,supabase/migrations (table ingestion_jobs),WORKFLOW
+TBL-inspections,table,inspections,supabase/migrations (table inspections),ENTITY
+TBL-inventory_items,table,inventory_items,supabase/migrations (table inventory_items),ENTITY
+TBL-inventory_transactions,table,inventory_transactions,supabase/migrations (table inventory_transactions),ENTITY
+TBL-knowledge_articles,table,knowledge_articles,supabase/migrations (table knowledge_articles),LIBRARY
+TBL-labor_rates,table,labor_rates,supabase/migrations (table labor_rates),LIBRARY
+TBL-leads,table,leads,supabase/migrations (table leads),ENTITY
+TBL-library_row_versions,table,library_row_versions,supabase/migrations (table library_row_versions),ENTITY
+TBL-library_snapshot_entries,table,library_snapshot_entries,supabase/migrations (table library_snapshot_entries),ENTITY
+TBL-library_snapshots,table,library_snapshots,supabase/migrations (table library_snapshots),ENTITY
+TBL-machine_assignments,table,machine_assignments,supabase/migrations (table machine_assignments),ENTITY
+TBL-machine_control_files,table,machine_control_files,supabase/migrations (table machine_control_files),ENTITY
+TBL-maintenance_schedules,table,maintenance_schedules,supabase/migrations (table maintenance_schedules),ENTITY
+TBL-markup_components,table,markup_components,supabase/migrations (table markup_components),LIBRARY
+TBL-materials,table,materials,supabase/migrations (table materials),LIBRARY
+TBL-meter_readings,table,meter_readings,supabase/migrations (table meter_readings),ENTITY
+TBL-metric_definitions,table,metric_definitions,supabase/migrations (table metric_definitions),LIBRARY
+TBL-network_ratings,table,network_ratings,supabase/migrations (table network_ratings),ENTITY
+TBL-network_vendors,table,network_vendors,supabase/migrations (table network_vendors),ENTITY
+TBL-notification_preferences,table,notification_preferences,supabase/migrations (table notification_preferences),ENTITY
+TBL-notifications,table,notifications,supabase/migrations (table notifications),ENTITY
+TBL-opportunities,table,opportunities,supabase/migrations (table opportunities),ENTITY
+TBL-pay_application_lines,table,pay_application_lines,supabase/migrations (table pay_application_lines),ENTITY
+TBL-pay_applications,table,pay_applications,supabase/migrations (table pay_applications),ENTITY
+TBL-plan_prices,table,plan_prices,supabase/migrations (table plan_prices),LIBRARY
+TBL-plan_versions,table,plan_versions,supabase/migrations (table plan_versions),ENTITY
+TBL-plans,table,plans,supabase/migrations (table plans),LIBRARY
+TBL-pricing_profiles,table,pricing_profiles,supabase/migrations (table pricing_profiles),LIBRARY
+TBL-production_actuals,table,production_actuals,supabase/migrations (table production_actuals),ENTITY
+TBL-production_calibrations,table,production_calibrations,supabase/migrations (table production_calibrations),ENTITY
+TBL-production_rates,table,production_rates,supabase/migrations (table production_rates),LIBRARY
+TBL-project_costs,table,project_costs,supabase/migrations (table project_costs),ENTITY
+TBL-project_tasks,table,project_tasks,supabase/migrations (table project_tasks),ENTITY
+TBL-projects,table,projects,supabase/migrations (table projects),ENTITY
+TBL-proposal_line_items,table,proposal_line_items,supabase/migrations (table proposal_line_items),ENTITY
+TBL-proposals,table,proposals,supabase/migrations (table proposals),ENTITY
+TBL-purchase_order_items,table,purchase_order_items,supabase/migrations (table purchase_order_items),ENTITY
+TBL-purchase_orders,table,purchase_orders,supabase/migrations (table purchase_orders),ENTITY
+TBL-regional_factors,table,regional_factors,supabase/migrations (table regional_factors),LIBRARY
+TBL-resource_assignments,table,resource_assignments,supabase/migrations (table resource_assignments),ENTITY
+TBL-rfis,table,rfis,supabase/migrations (table rfis),WORKFLOW
+TBL-rfq_responses,table,rfq_responses,supabase/migrations (table rfq_responses),ENTITY
+TBL-rfqs,table,rfqs,supabase/migrations (table rfqs),ENTITY
+TBL-risks,table,risks,supabase/migrations (table risks),ENTITY
+TBL-roles,table,roles,supabase/migrations (table roles),LIBRARY
+TBL-safety_incidents,table,safety_incidents,supabase/migrations (table safety_incidents),ENTITY
+TBL-safety_observations,table,safety_observations,supabase/migrations (table safety_observations),ENTITY
+TBL-schedule_activities,table,schedule_activities,supabase/migrations (table schedule_activities),ENTITY
+TBL-schedule_baseline_activities,table,schedule_baseline_activities,supabase/migrations (table schedule_baseline_activities),ENTITY
+TBL-schedule_baselines,table,schedule_baselines,supabase/migrations (table schedule_baselines),ENTITY
+TBL-schedule_calculations,table,schedule_calculations,supabase/migrations (table schedule_calculations),ENTITY
+TBL-schedule_dependencies,table,schedule_dependencies,supabase/migrations (table schedule_dependencies),ENTITY
+TBL-schedule_of_values,table,schedule_of_values,supabase/migrations (table schedule_of_values),ENTITY
+TBL-services,table,services,supabase/migrations (table services),LIBRARY
+TBL-stripe_events,table,stripe_events,supabase/migrations (table stripe_events),ENTITY
+TBL-submittals,table,submittals,supabase/migrations (table submittals),WORKFLOW
+TBL-subscription_items,table,subscription_items,supabase/migrations (table subscription_items),ENTITY
+TBL-subscriptions,table,subscriptions,supabase/migrations (table subscriptions),ENTITY
+TBL-surface_comparisons,table,surface_comparisons,supabase/migrations (table surface_comparisons),ENTITY
+TBL-surfaces,table,surfaces,supabase/migrations (table surfaces),ENTITY
+TBL-surveys,table,surveys,supabase/migrations (table surveys),ENTITY
+TBL-task_dependencies,table,task_dependencies,supabase/migrations (table task_dependencies),LIBRARY
+TBL-tasks,table,tasks,supabase/migrations (table tasks),LIBRARY
+TBL-time_entries,table,time_entries,supabase/migrations (table time_entries),ENTITY
+TBL-toolbox_talks,table,toolbox_talks,supabase/migrations (table toolbox_talks),ENTITY
+TBL-trucking_rates,table,trucking_rates,supabase/migrations (table trucking_rates),LIBRARY
+TBL-usage_events,table,usage_events,supabase/migrations (table usage_events),ENTITY
+TBL-user_profiles,table,user_profiles,supabase/migrations (table user_profiles),ENTITY
+TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overrides),ENTITY
+TBL-vendors,table,vendors,supabase/migrations (table vendors),ENTITY
+TBL-work_calendar_exceptions,table,work_calendar_exceptions,supabase/migrations (table work_calendar_exceptions),LIBRARY
+TBL-work_calendars,table,work_calendars,supabase/migrations (table work_calendars),LIBRARY
+TBL-work_credential_requirements,table,work_credential_requirements,supabase/migrations (table work_credential_requirements),ENTITY
+TBL-work_orders,table,work_orders,supabase/migrations (table work_orders),ENTITY
+API-001,api,GET /v1/projects,supabase/functions/api,ENGINE
+API-002,api,GET /v1/projects/{projectId},supabase/functions/api,ENGINE
+API-003,api,GET /v1/projects/{projectId}/cost-summary,supabase/functions/api,ENGINE
+API-004,api,GET /v1/projects/{projectId}/change-orders,supabase/functions/api,ENGINE
+API-005,api,GET /v1/estimates/{estimateId},supabase/functions/api,ENGINE
+API-006,api,GET /v1/equipment/{equipmentId}/hours,supabase/functions/api,ENGINE
+API-007,api,POST /v1/equipment/{equipmentId}/hours,supabase/functions/api,ENGINE
+API-008,api,POST /v1/time-entries,supabase/functions/api,ENGINE
+API-009,api,GET /v1/metrics/{metricKey},supabase/functions/api,ENGINE
+UI-api-access,ui,api-access,apps/web/src/pages/app/api-access.tsx,ENTITY
+UI-billing,ui,billing,apps/web/src/pages/app/billing.tsx,ENTITY
+UI-claims,ui,claims,apps/web/src/pages/app/claims.tsx,ENTITY
+UI-crm,ui,crm,apps/web/src/pages/app/crm.tsx,ENTITY
+UI-dashboard,ui,dashboard,apps/web/src/pages/app/dashboard.tsx,ENTITY
+UI-estimate-workspace,ui,estimate-workspace,apps/web/src/pages/app/estimate-workspace.tsx,ENTITY
+UI-estimates,ui,estimates,apps/web/src/pages/app/estimates.tsx,ENTITY
+UI-finance,ui,finance,apps/web/src/pages/app/finance.tsx,ENTITY
+UI-fleet,ui,fleet,apps/web/src/pages/app/fleet.tsx,ENTITY
+UI-libraries,ui,libraries,apps/web/src/pages/app/libraries.tsx,ENTITY
+UI-network,ui,network,apps/web/src/pages/app/network.tsx,ENTITY
+UI-notifications,ui,notifications,apps/web/src/pages/app/notifications.tsx,ENTITY
+UI-plans,ui,plans,apps/web/src/pages/app/plans.tsx,ENTITY
+UI-procurement,ui,procurement,apps/web/src/pages/app/procurement.tsx,ENTITY
+UI-project-detail,ui,project-detail,apps/web/src/pages/app/project-detail.tsx,ENTITY
+UI-projects,ui,projects,apps/web/src/pages/app/projects.tsx,ENTITY
+UI-proposals,ui,proposals,apps/web/src/pages/app/proposals.tsx,ENTITY
+UI-reports,ui,reports,apps/web/src/pages/app/reports.tsx,ENTITY
+UI-safety,ui,safety,apps/web/src/pages/app/safety.tsx,ENTITY
+UI-schedule,ui,schedule,apps/web/src/pages/app/schedule.tsx,ENTITY
+UI-settings,ui,settings,apps/web/src/pages/app/settings.tsx,ENTITY
+UI-survey,ui,survey,apps/web/src/pages/app/survey.tsx,ENTITY
+UI-workforce,ui,workforce,apps/web/src/pages/app/workforce.tsx,ENTITY
+RPT-reporting_project_financials,report,reporting_project_financials,supabase/migrations/0025_semantic_layer.sql,ENGINE
+RPT-reporting_labor_productivity,report,reporting_labor_productivity,supabase/migrations/0025_semantic_layer.sql,ENGINE
+RPT-reporting_safety_summary,report,reporting_safety_summary,supabase/migrations/0025_semantic_layer.sql,ENGINE
+RPT-reporting_bid_performance,report,reporting_bid_performance,supabase/migrations/0025_semantic_layer.sql,ENGINE
+TST-engine-assemblies,test,engine/assemblies.test.ts,packages/engine/tests/assemblies.test.ts,ENGINE
+TST-engine-calendar,test,engine/calendar.test.ts,packages/engine/tests/calendar.test.ts,ENGINE
+TST-engine-confidence,test,engine/confidence.test.ts,packages/engine/tests/confidence.test.ts,ENGINE
+TST-engine-estimate,test,engine/estimate.test.ts,packages/engine/tests/estimate.test.ts,ENGINE
+TST-engine-estimating-acceptance,test,engine/estimating-acceptance.test.ts,packages/engine/tests/estimating-acceptance.test.ts,ENGINE
+TST-engine-materials,test,engine/materials.test.ts,packages/engine/tests/materials.test.ts,ENGINE
+TST-engine-numeric,test,engine/numeric.test.ts,packages/engine/tests/numeric.test.ts,ENGINE
+TST-engine-overrides,test,engine/overrides.test.ts,packages/engine/tests/overrides.test.ts,ENGINE
+TST-engine-portable,test,engine/portable.test.ts,packages/engine/tests/portable.test.ts,ENGINE
+TST-engine-pricing,test,engine/pricing.test.ts,packages/engine/tests/pricing.test.ts,ENGINE
+TST-engine-production,test,engine/production.test.ts,packages/engine/tests/production.test.ts,ENGINE
+TST-engine-quantity,test,engine/quantity.test.ts,packages/engine/tests/quantity.test.ts,ENGINE
+TST-engine-resources,test,engine/resources.test.ts,packages/engine/tests/resources.test.ts,ENGINE
+TST-engine-scenarios,test,engine/scenarios.test.ts,packages/engine/tests/scenarios.test.ts,ENGINE
+TST-engine-schedule,test,engine/schedule.test.ts,packages/engine/tests/schedule.test.ts,ENGINE
+TST-engine-snapshot,test,engine/snapshot.test.ts,packages/engine/tests/snapshot.test.ts,ENGINE
+TST-engine-surfaces,test,engine/surfaces.test.ts,packages/engine/tests/surfaces.test.ts,ENGINE
+TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.test.ts,ENGINE
+TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
+TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
+TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
+TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
+TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
+TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
+TST-db-estimating-acceptance,test,db/estimating-acceptance.test.ts,tests/db/estimating-acceptance.test.ts,ENGINE
+TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
+TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
+TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
+TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
+TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE
+TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
+TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
+TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
+TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
+TST-db-safety-controls,test,db/safety-controls.test.ts,tests/db/safety-controls.test.ts,ENGINE
+TST-db-safety,test,db/safety.test.ts,tests/db/safety.test.ts,ENGINE
+TST-db-scheduling,test,db/scheduling.test.ts,tests/db/scheduling.test.ts,ENGINE
+TST-db-seed,test,db/seed.test.ts,tests/db/seed.test.ts,ENGINE
+TST-db-semantic,test,db/semantic.test.ts,tests/db/semantic.test.ts,ENGINE
+TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
+TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
+TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
+TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
+TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
+TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENGINE
+TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
+TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
+TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
+TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
+TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
+TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
+TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
+TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
+TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
+TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE
+TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
+TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
+TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
+TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
+TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
+TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
+TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
+TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
+TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.tsx,ENGINE
+TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
+TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE
+TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
+TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE

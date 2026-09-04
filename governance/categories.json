@@ -1,0 +1,145 @@
+{
+  "$schema": "./categories.schema.json",
+  "version": "1.0.0",
+  "rule": "Everything in GrounUp must belong to exactly one of five categories. Nothing exists outside them.",
+  "enforcement": "tests/governance/registry.test.ts — the build fails if any artifact is unclassified, doubly classified, or violates its category's invariants.",
+  "categories": [
+    {
+      "id": "ENGINE",
+      "name": "Engine",
+      "definition": "Performs calculations or business logic.",
+      "invariants": [
+        {
+          "id": "ENGINE-01",
+          "rule": "An engine is deterministic: the same input always produces the same output.",
+          "why": "A number that changes between runs cannot be audited, defended in a claim, or reconciled against a prior version.",
+          "enforced_by": "Determinism tests in each engine suite; the PDF engine renders identical bytes for identical input."
+        },
+        {
+          "id": "ENGINE-02",
+          "rule": "An engine performs no I/O. No database, no network, no clock, no filesystem. Anything it needs is passed in.",
+          "why": "An engine that reads the world cannot be tested exhaustively, and cannot be reasoned about when it produces a surprising number.",
+          "enforced_by": "packages/engine has zero runtime dependencies; connector and ingestion engines take injected HttpFetch/OcrProvider; every clock is injected."
+        },
+        {
+          "id": "ENGINE-03",
+          "rule": "An engine shows its work. Every authoritative figure carries a derivation.",
+          "why": "Master AI specification section 23: never hide calculations. A number a customer cannot check is a number they cannot defend to an owner.",
+          "enforced_by": "Every engine result type carries a `derivation` or `basis` string, asserted by test."
+        },
+        {
+          "id": "ENGINE-04",
+          "rule": "An engine is authoritative over AI for any figure it can compute.",
+          "why": "RULE-008. Language models produce confident wrong arithmetic; deterministic code does not.",
+          "enforced_by": "The AI system prompt forbids computing cost, price, production or duration; validateFindings rejects findings that do."
+        }
+      ]
+    },
+    {
+      "id": "LIBRARY",
+      "name": "Library",
+      "definition": "Stores reusable knowledge.",
+      "invariants": [
+        {
+          "id": "LIBRARY-01",
+          "rule": "A library carries the three-tier scope: platform seed (company_id null, enterprise_group_id null), enterprise group, and company override.",
+          "why": "A company must be able to override a seeded rate without editing anyone else's, and without the platform losing the original.",
+          "enforced_by": "Registry test asserts every LIBRARY table has a nullable company_id and an enterprise_group_id."
+        },
+        {
+          "id": "LIBRARY-02",
+          "rule": "A library row carries its source and its confidence.",
+          "why": "RULE-010. A production rate from a company's own actuals and one from a seeded national average must not look alike to an estimator.",
+          "enforced_by": "production_rates constraints; the confidence engine; source_confidence tests."
+        },
+        {
+          "id": "LIBRARY-03",
+          "rule": "Overriding a platform row never mutates it.",
+          "why": "The platform seed is shared. A company that could edit it would silently change every other company's estimate.",
+          "enforced_by": "RLS policies; the metric_definitions override test in tests/db/semantic.test.ts."
+        }
+      ]
+    },
+    {
+      "id": "ENTITY",
+      "name": "Entity",
+      "definition": "Stores business records.",
+      "invariants": [
+        {
+          "id": "ENTITY-01",
+          "rule": "An entity is owned by exactly one company, and row level security is ENABLEd and FORCEd on it.",
+          "why": "One company must never read another's records. This is the platform's single most important property.",
+          "enforced_by": "app.assert_security_gates() at the end of every migration adding tables; 51 RLS tests."
+        },
+        {
+          "id": "ENTITY-02",
+          "rule": "A child row cannot be attached to a parent owned by a different company.",
+          "why": "RLS alone does not prevent it for a user who legitimately belongs to two companies.",
+          "enforced_by": "app.enforce_tenant_parent structural guard."
+        },
+        {
+          "id": "ENTITY-03",
+          "rule": "Anything consequential is append-only or version-immutable, never edited in place.",
+          "why": "An issued estimate, a certified pay application and an audit entry are records of what was said at a moment. Editing one destroys the record.",
+          "enforced_by": "app.forbid_mutation(); enforce_version_immutability; RULE-009 tests."
+        }
+      ]
+    },
+    {
+      "id": "WORKFLOW",
+      "name": "Workflow",
+      "definition": "Defines processes.",
+      "invariants": [
+        {
+          "id": "WORKFLOW-01",
+          "rule": "A workflow has an explicit state column with a constrained set of states.",
+          "why": "A process whose states are implied by other columns cannot be reported on, audited, or resumed.",
+          "enforced_by": "Registry test asserts every WORKFLOW table has a state/status column with a CHECK constraint or enum type."
+        },
+        {
+          "id": "WORKFLOW-02",
+          "rule": "A terminal state requires the evidence that justifies it.",
+          "why": "A closed incident with no root cause, or a settled claim with no resolution, is a checkbox rather than a record.",
+          "enforced_by": "Table CHECK constraints: safety_incidents root cause, deficiencies verification note, work_orders resolution, connector_runs error message."
+        },
+        {
+          "id": "WORKFLOW-03",
+          "rule": "Nobody approves their own request.",
+          "why": "Segregation of duties. An approval tier that the requester can satisfy is not a control.",
+          "enforced_by": "approval_requests self-approval refusal, tested."
+        }
+      ]
+    },
+    {
+      "id": "AI_AGENT",
+      "name": "AI Agent",
+      "definition": "Assists users and automates work within governance.",
+      "invariants": [
+        {
+          "id": "AI-01",
+          "rule": "An agent's maximum authority is 'draft'. It proposes; it never commits.",
+          "why": "RULE-008. AI must not alter approved estimates, libraries, contracts, schedules, billing, permissions or safety-critical data without the required approval workflow.",
+          "enforced_by": "ai_agents authority cap; toFindingRow always writes state 'proposed'; the ai_findings acceptance trigger."
+        },
+        {
+          "id": "AI-02",
+          "rule": "A factual claim must carry a citation to the source it came from.",
+          "why": "An uncited claim about a drawing cannot be checked, and an estimator has no way to know whether to trust it.",
+          "enforced_by": "validateFindings rejects factual findings without citations."
+        },
+        {
+          "id": "AI-03",
+          "rule": "An agent never performs arithmetic an engine can perform.",
+          "why": "The deterministic engine is authoritative. See ENGINE-04.",
+          "enforced_by": "SYSTEM_PROMPT prohibition plus finding-type validation."
+        },
+        {
+          "id": "AI-04",
+          "rule": "Acceptance of a finding records who accepted it and when.",
+          "why": "Once a human accepts an AI proposal, responsibility transfers. That transfer must be on the record.",
+          "enforced_by": "ai_findings acceptance trigger; the Plans screen records the reviewer."
+        }
+      ]
+    }
+  ]
+}

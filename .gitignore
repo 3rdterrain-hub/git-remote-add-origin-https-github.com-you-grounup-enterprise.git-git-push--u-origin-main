@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.vite/
+coverage/
+supabase/.temp/
+supabase/seed/0003_plan_prices.sql
+.test-results/

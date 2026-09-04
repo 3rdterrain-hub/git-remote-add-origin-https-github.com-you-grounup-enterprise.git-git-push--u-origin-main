@@ -1,0 +1,122 @@
+{
+  "phase": "P19",
+  "title": "Contract, Change & Claims Management",
+  "method": "Every P19 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N using controlled contract/change/claim records, authority and deadline rules, linked cost/schedule/document evidence, permissions and mapped test results.' The five conditions are assessed platform-wide, because record control, an authority model and a deadline rule are platform properties rather than per-domain ones. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged first against the platform as it stood, where three of the five conditions failed: no commercial record was protected once agreed, a claim deadline could be typed instead of derived, no authority model existed above per-record permissions, and the tables had no tests at all. That put all 420 requirements at not verified. Migrations 0032 and 0033 and a 39-test suite closed them. This file records the second judgment.",
+
+  "findings": [
+    {
+      "id": "P19-F1",
+      "title": "No commercial record was protected once it was agreed",
+      "detail": "RULE-009 makes an issued estimate immutable and the platform enforces it properly. Nothing protected the records that follow it. An executed contract's original value, completion dates, retainage, liquidated damages and — most consequentially — its notice and claim clauses were all editable after execution. An approved or executed change order's price and schedule impact were editable. A settled claim's award and the reasoning behind it were editable after resolution.",
+      "why_it_matters": "An issued estimate is an offer; a contract is an obligation. The platform protected the offer and left the obligation open. Editing a contract's notice clause is the sharpest case, because claim deadlines derive from it: changing it retroactively moves the deadline on claims already filed under it.",
+      "status": "resolved",
+      "resolution": "Migration 0032 freezes what the parties agreed while leaving administration free. An executed contract's value, dates and clauses cannot change — a real amendment is a change order, which is what change orders are for; the status may still move executed to active to closed and the stored document path may be corrected. An approved change order's impact is frozen, with the single legal transition approved to executed allowed through unchanged. A settled or denied claim's award, reasoning and resolution date are frozen."
+    },
+    {
+      "id": "P19-F2",
+      "title": "A claim deadline could be typed instead of derived",
+      "detail": "`app.derive_claim_deadlines` computed a deadline only when the column was null. Supplying `notice_due_on` on insert therefore bypassed the contract clause entirely, with no record that it had been bypassed. Nothing re-derived a deadline when the clause it came from changed, so a stored deadline could quietly disagree with the contract it claims to come from.",
+      "why_it_matters": "The schema's own comment says it: most construction claims are lost on the notice clause rather than on their merits. A deadline that disagrees with the contract is the most dangerous field in the table, and it was the one field a caller could set freely. It is also the fourth appearance of one pattern — a value the interface presents as derived that a caller can simply type — after the security toggles, schedule float and plan terms.",
+      "status": "resolved",
+      "resolution": "The deadline is now always computed from the clause, on insert and on update. A caller supplying a value that disagrees is refused, and the error names both the correct date and the mechanism for recording a different one: a value override, which already requires a reason and a separate approver. A deadline left untouched while the event date moves is re-derived rather than treated as an assertion, so an event date can still be corrected — a distinction the first implementation of this fix got wrong and a test caught."
+    },
+    {
+      "id": "P19-F3",
+      "title": "A claim's supporting evidence had no integrity of any kind",
+      "detail": "`supporting_daily_reports`, `supporting_rfis` and `supporting_documents` were plain `uuid[]` columns, never validated. A claim could cite a daily report that does not exist, one that was deleted, or one belonging to another company. The schema comment calls them 'the contemporaneous records a claim actually rests on'.",
+      "why_it_matters": "A construction claim is won or lost on contemporaneous records. Citing one that is not there is a claim resting on nothing, and citing another company's record would have been a cross-tenant read the moment anybody rendered it.",
+      "status": "resolved",
+      "resolution": "A trigger validates every cited id on insert and on update: each must exist and belong to the same company, checked per column with the missing ids named in the error. The array shape is kept — a short list of citations does not need a join table — but it now has the integrity a foreign key would have given it."
+    },
+    {
+      "id": "P19-F4",
+      "title": "Permission answered who may touch a record and nothing answered how much they may commit",
+      "detail": "The platform had approval tiers, used them for estimating, and applied none of them to the records that commit money. `projects.write` gated who could edit a change order; nothing gated its size. A user with write access could execute a $900,000 amendment, and the only trace would be their name in `decided_by`. The four approval gates that exist are estimating-specific — auto accept, estimator review, senior review, RFI required — and govern quantity confidence, not commercial authority.",
+      "why_it_matters": "Every construction company runs on signing limits. It is the half of authorization that was missing entirely, and the half that matters most on the records that create obligations.",
+      "status": "resolved",
+      "resolution": "Migration 0033 adds `commercial_authority_limits`: per-company thresholds by record type, because a signing limit is a company's own policy and a $50,000 change order is routine for one contractor and a board matter for another. `app.required_authority_tier` resolves the tier a value needs, using the absolute value so a large credit is treated as seriously as a large charge. A trigger refuses the commitment when the acting user's tier is below it, naming both tiers, and fires only on the crossing into a committing state — proposing is not committing, and a draft of any size is fine. A company with no limits configured is unrestricted, because the platform must not invent a signing policy nobody set."
+    },
+    {
+      "id": "P19-F5",
+      "title": "Contracts, change orders and claims had no tests",
+      "detail": "Not a thin suite — none at all. The traceability matrix counted all three as `traced_tested` because a mapping rule cited a suite that covers the tables around them.",
+      "why_it_matters": "It is the clearest single illustration of why derived tracing is an upper bound rather than a coverage figure. Every one of the four findings above was found by writing the tests that should already have existed.",
+      "status": "resolved",
+      "resolution": "tests/db/commercial.test.ts, 39 tests against real PostgreSQL: what a draft may still change and what an executed record may not, the legal approved-to-executed transition, deadline derivation and refusal with the override mechanism named, re-derivation when an event date is corrected, evidence that does not exist and evidence belonging to another company, settlement immutability, authority thresholds at both ends, and tenancy on all three tables."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion, and they are assessed platform-wide: record control, an authority model and a deadline rule are properties of the platform rather than of any one domain.",
+    "conditions": [
+      "controlled contract/change/claim records",
+      "authority and deadline rules",
+      "linked cost/schedule/document evidence",
+      "permissions",
+      "mapped test results"
+    ]
+  },
+
+  "platform_conditions": {
+    "controlled contract/change/claim records": {
+      "status": "met",
+      "evidence": "All three carry explicit, constrained state machines: a contract moves draft to executed to active to closed or terminated and cannot leave draft without an execution date; a change order cannot be approved or rejected without a decision timestamp; a claim cannot advance past potential without a notice date, and cannot be settled or denied without both a resolution and a resolution date. Since 0032 the state is matched by control: what the parties agreed is frozen once they agreed it, on all three records, while the fields that legitimately move afterwards stay free. Every one of the three is audited by the full-row trigger, so the history of what changed before it was agreed is in the ledger."
+    },
+    "authority and deadline rules": {
+      "status": "met",
+      "evidence": "Deadlines are derived from the contract's own clauses rather than stored as prose, always computed and never merely defaulted, with a supplied value that disagrees refused and pointed at the override mechanism. Authority is now two independent controls: permission decides who may touch the record, and `commercial_authority_limits` decides how much they may commit, resolved by `app.required_authority_tier` and enforced when a record crosses into a committing state. The trigger names the tier held and the tier needed, because a bare denial tells somebody nothing about who to ask."
+    },
+    "linked cost/schedule/document evidence": {
+      "status": "met",
+      "evidence": "A change order carries the estimate version that priced it, so an amendment is costed by the same deterministic engine as the base bid, along with its cost impact, price impact and schedule impact in days. A claim cites its contemporaneous records — daily reports, RFIs and documents — and since 0032 every citation must exist and belong to the same company, checked on write. A contract ties to its project and customer and carries the retainage and liquidated damages a pay application and a delay claim are computed against. Claims and contracts both hang off the project, so cost and schedule evidence resolve through it."
+    },
+    "permissions": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on contracts, claims, change orders, change order items and the authority limits. Contracts are written under `estimates.approve` and read under `finance.read`, so a role can draft a contract without seeing the portfolio's financial position; claims are written under `estimates.approve`; authority limits are managed under `company.manage`, so the people bound by a signing limit cannot raise their own. `app.enforce_tenant_parent` refuses a contract or claim attached to another company's project, which row level security alone does not prevent for a user who legitimately belongs to two."
+    },
+    "mapped test results": {
+      "status": "met",
+      "evidence": "39 tests in tests/db/commercial.test.ts, against real PostgreSQL 18, where there were none. They cover immutability on all three records and what remains editable, deadline derivation and its refusal path, re-derivation on a corrected event date, evidence integrity including the cross-tenant case, settlement immutability, authority at both ends of a threshold, an unrestricted company, and tenancy."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Commercial Management Core",
+      "Prime Contract Management",
+      "Contract Clause Registry",
+      "Notice Management",
+      "Potential Change Management",
+      "Change Order Management",
+      "Change Authorization",
+      "Claims Management",
+      "Contract Value Control"
+    ],
+    "partial": {
+      "Subcontract Management": "Vendors, subcontract purchase orders and subcontractor resource assignments exist, and a subcontract is priced by the same engine. There is no subcontract record with its own clauses, notice periods or retainage — a subcontract is modeled as a purchase commitment rather than as a contract with terms.",
+      "Purchase Contract Commercials": "Purchase orders carry committed cost, delivery and three-way match against invoices. They carry no commercial terms of their own: no price escalation clause, no delivery liquidated damages, no notice period.",
+      "Obligation Management": "The obligations that can be computed are: notice deadlines, claim deadlines, submittal lead times and RFI response dates. Nothing registers a contractual obligation as an obligation — no obligation list, no owner, no status, no reminder ahead of a date.",
+      "Change Pricing": "A change order carries the estimate version that priced it, so an amendment is costed by the same deterministic engine as the base bid, with cost and price impact separated. There is no change-specific pricing: no agreed markup schedule for changes, no unit price book carried from the contract, no cost-plus fee calculation.",
+      "T&M / Force Account": "Time entries, equipment hours and material usage are all recorded against a project and can be read for a period. Nothing assembles them into a force account ticket, gets it signed daily, or prices it against a contract's T&M rate schedule.",
+      "Delay & Disruption Records": "Daily reports carry weather and conditions, schedule baselines make variance measurable per activity and for the project finish, and a claim can cite the reports it rests on. There is no delay analysis: no fragnet, no windows analysis, no separation of excusable from compensable.",
+      "Differing Site Conditions": "A claim type exists for it, survey surfaces record what was actually found against design, and the two can be cited together. Nothing links a differing condition to the specific design document it departs from, or computes the cost delta automatically.",
+      "Scope & Design Change": "Documents are versioned with supersession and revision comparison across addenda, and a change order records its origin including design change and error or omission. Nothing ties a specific drawing revision to the change order it caused.",
+      "Payment & Billing Commercials": "Schedule of values, AIA pay applications with certified immutability, retainage held at the contract percentage and three-way matched invoices are all built. The commercial terms behind them are thin: no payment terms, no pay-when-paid clause, no interest on late payment.",
+      "Retainage & Holdbacks": "Retainage is carried on the contract as a percentage and applied by the pay application arithmetic. There is no reduction schedule at substantial completion, no separate holdback for punch list or warranty, and no retainage release workflow.",
+      "Commercial Forecasting": "Job cost, committed cost, approved change orders and the revised contract value are all computed and reported. There is no forecast: no cost to complete, no estimate at completion, no projected final contract value.",
+      "AI Commercial Intelligence": "The one governed agent reads documents with citations and draft-only authority, which is the mechanism such a capability would use. Nothing applies it to contracts, changes or claims — no clause extraction, no notice detection, no claim merit assessment."
+    },
+    "not_built": {
+      "Backcharges & Deductions": "No backcharge record, no deduction against a subcontractor, no notice of intent to backcharge.",
+      "Allowances & Contingencies": "An estimate carries contingency by confidence band. Nothing tracks a contract allowance, draws against it, or reconciles the unspent balance at closeout.",
+      "Escalation & Price Adjustment": "The estimating engine models escalation for a bid. No contract carries a price adjustment clause, an index, or a mechanism to apply one.",
+      "Insurance, Bonds & Commercial Compliance": "No insurance certificate, no bond, no expiry tracking, no compliance hold on payment.",
+      "Lien & Waiver Administration": "No lien waiver, conditional or unconditional, no waiver exchange at payment, no lien deadline tracking.",
+      "Dispute Management": "A claim can reach litigation status and stop there. There is no dispute record, no mediation or arbitration tracking, no counterparty position, no cost of dispute.",
+      "Contract Closeout": "No closeout checklist, no final completion certificate, no warranty period, no final retainage release, no as-built or O&M turnover.",
+      "Commercial Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

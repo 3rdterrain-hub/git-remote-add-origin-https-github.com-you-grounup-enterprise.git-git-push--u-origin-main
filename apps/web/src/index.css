@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * GrounUp Enterprise design tokens.
+ *
+ * The palette is fixed by the brand: deep charcoal for structure, construction
+ * yellow for action, a controlled green reserved for approved/complete states.
+ * Yellow is used only where it means "do this" or "look here", so it keeps its
+ * signal value on a screen full of numbers.
+ */
+@theme {
+  --color-charcoal-50: #f9fafb;
+  --color-charcoal-100: #f3f4f6;
+  --color-charcoal-200: #e5e7eb;
+  --color-charcoal-300: #d1d5db;
+  --color-charcoal-400: #9ca3af;
+  --color-charcoal-500: #6b7280;
+  --color-charcoal-600: #4b5563;
+  --color-charcoal-700: #374151;
+  --color-charcoal-800: #1f2937;
+  --color-charcoal-900: #111827;
+  --color-charcoal-950: #0a0f1a;
+
+  /*
+   * The gold scale is anchored on #F6C101 — the exact value sampled from the
+   * official logo (src/assets/brand/BRAND-REFERENCE.md). Every tint and shade
+   * is derived from it, so nothing on screen sits next to the mark in a
+   * subtly different yellow.
+   */
+  --color-yellow-50: #fffbec;
+  --color-yellow-100: #fef5d7;
+  --color-yellow-200: #fdecaf;
+  --color-yellow-300: #fce07d;
+  --color-yellow-400: #fad348;
+  --color-yellow-500: #f6c101;
+  --color-yellow-600: #d8aa01;
+  --color-yellow-700: #b18b01;
+
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+
+  --color-warn-50: #fffbeb;
+  --color-warn-100: #fef3c7;
+  --color-warn-600: #d97706;
+  --color-warn-700: #b45309;
+
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+
+  /* True black, as the logo uses. Distinct from charcoal-900 UI chrome. */
+  --color-brand-black: #000000;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+
+  --radius-card: 0.625rem;
+}
+
+@layer base {
+  * { border-color: var(--color-charcoal-200); }
+
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--color-charcoal-50);
+    color: var(--color-charcoal-900);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Numbers in tables and totals must line up column-wise to be scannable. */
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-yellow-500);
+    outline-offset: 2px;
+  }
+
+  ::selection { background-color: var(--color-yellow-200); color: var(--color-charcoal-900); }
+}
+
+@layer utilities {
+  .grid-blueprint {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}

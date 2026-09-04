@@ -1,0 +1,69 @@
+{
+  "phase": "P24",
+  "title": "Core Platform Implementation \u2014 Identity, Tenancy, Data, API, Audit & Workflow",
+  "method": "Every P24 requirement is capability N of a domain, and every one carries the same acceptance criterion: it 'passes when tenant/security boundaries, API/data behavior, audit/observability evidence, failure handling and mapped tests are verified'. Five conditions, all required. A requirement is verified only when its domain exists AND all five conditions hold. Nothing is inferred.",
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion. They are assessed platform-wide because a core platform's boundaries, contracts and evidence are platform properties rather than per-domain ones.",
+    "conditions": [
+      "tenant/security boundaries",
+      "API/data behavior",
+      "audit/observability evidence",
+      "failure handling",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "tenant/security boundaries": {
+      "status": "met",
+      "evidence": "Row level security is ENABLEd and FORCEd on all 131 tables, asserted by app.assert_security_gates() at the end of every migration that adds one and again by tests/governance/registry.test.ts. The anon role holds no table privilege beyond the public plan catalog, so a policy mistake alone cannot expose business data \u2014 two independent controls. app.enforce_tenant_parent refuses a child row attached to a parent owned by another company, which RLS alone does not prevent for a user who legitimately belongs to two. API keys are stored only as a SHA-256 hash, are scoped, and every response is filtered to the key's own company. 556 database tests and 65 gateway tests, including cross-tenant reads from two provisioned companies."
+    },
+    "API/data behavior": {
+      "status": "met",
+      "evidence": "Nine versioned endpoints behind a pure authorization function; one error shape for every denial; pagination clamped rather than rejected; an empty interior path segment refused rather than collapsed. The OpenAPI specification is generated from the gateway's own route table and npm run verify fails on drift, so the published contract cannot describe an endpoint that does not exist. On the data side, canonical record metadata is uniform, generated columns hold values that must never drift, and 28 migrations run unmodified against real PostgreSQL 18 in the test suite."
+    },
+    "failure handling": {
+      "status": "met",
+      "evidence": "Every entry point has an explicit, tested failure contract. The gateway never throws to a caller and returns typed denials with Retry-After where relevant. The connector runtime classifies retryable against terminal, retries with backoff, and records a failed run as a row rather than an exception. The ingestion pipeline keeps the pages that read cleanly when OCR fails. Engines refuse invalid input rather than producing NaN money or an infinite duration. The database refuses invalid states by named constraint. Infrastructure-level resilience \u2014 timeouts, circuit breakers, dead-letter queues \u2014 belongs to P31 and is separately unverified there."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "1,208 tests across six layers run in npm run verify, including the production migrations executed unmodified against real PostgreSQL 18, and a governance suite that fails the build when the five-category registry, the OpenAPI spec or the traceability matrix drifts from the code."
+    },
+    "audit/observability evidence": {
+      "status": "met",
+      "evidence": "Audit was already the strongest evidence in the platform: an append-only ledger recording prior and new state for every governed table, not rewritable or deletable, plus library row history and an API request log that records the failures as well as the successes. Observability now exists alongside it. supabase/functions/_shared/observability/ provides structured logging with a correlation id carried from the request through every line it produces, tenancy on every record, level thresholds, child loggers, and timing that records a duration whether the operation succeeded or failed. Metrics carry counters, durations and gauges with bounded low-cardinality labels \u2014 an identifier used as a label is refused, because it turns one metric into a million time series. Health and readiness are separated: a failing readiness check means take the node out of rotation, a failing liveness check means restart it, and a check that hangs is failed against a deadline rather than waited on. Everything is redacted on the way out by two independent defenses \u2014 an explicit field-name list and value-shape patterns that catch a credential wherever it appears, including inside a stack trace. Sinks and clocks are injected, so none of it performs I/O behind the caller's back and all of it is testable exactly. The API gateway emits correlation, structured logs and metrics on every path, and returns the correlation id to the caller. tests/functions/observability.test.ts, 49 tests."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "API Error Contract",
+      "API Request Lifecycle",
+      "Approval Policy",
+      "Audit Evidence",
+      "Authorization & Policy",
+      "Canonical Record Metadata",
+      "Configuration",
+      "Database Migration Foundation",
+      "Health & Readiness",
+      "Idempotency",
+      "Identity & Authentication",
+      "Notification Hooks",
+      "Object/File Metadata",
+      "Observability",
+      "Plans & Entitlements",
+      "Search Permission Boundary",
+      "Security Controls",
+      "Tenant Isolation",
+      "Tenant Provisioning",
+      "Test Harness",
+      "Traceability",
+      "White Label Configuration",
+      "Workflow State Machine"
+    ],
+    "partial": {},
+    "not_built": {
+      "Domain Events": "There is no event bus, no outbox and no domain event contract. Modules call each other directly or share tables, so nothing can subscribe to 'an estimate was issued' without polling.",
+      "Feature Flags": "No feature flag exists anywhere. Entitlements gate what a plan may use, which is a commercial control rather than a release one \u2014 a half-built capability cannot be shipped dark."
+    }
+  }
+}

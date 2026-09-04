@@ -1,0 +1,105 @@
+{
+  "phase": "P25",
+  "title": "Master Library, Service Catalog, Resource/Material/Equipment, Assembly & Rate Management",
+  "method": "Every P25 requirement is capability N of a domain, and every one carries the same acceptance criterion: it 'passes when identifiers, tenant scope, effective dates, source/provenance, approval state, version behavior, dependency integrity and mapped tests are verified'. Eight conditions, all required. A requirement is verified only when its domain exists AND all eight conditions hold across the libraries that domain governs. Nothing is inferred.",
+  "acceptance_conditions": {
+    "note": "All eight are required by the criterion. Five are properties of the library tables themselves and are assessed across the twelve three-tier libraries an estimate is priced from, because a guarantee that holds for eleven and not the twelfth is not a guarantee.",
+    "conditions": [
+      "identifiers",
+      "tenant scope",
+      "effective dates",
+      "source/provenance",
+      "approval state",
+      "version behavior",
+      "dependency integrity",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "identifiers": {
+      "status": "met",
+      "evidence": "Every three-tier library carries a stable business identifier unique within its scope: eleven use `code`, and regional_factors uses `region_code`. Uniqueness is enforced by constraint, and the five-category registry test asserts the set of twelve has not changed."
+    },
+    "tenant scope": {
+      "status": "met",
+      "evidence": "All twelve carry a nullable company_id and an enterprise_group_id, giving the platform seed, enterprise group and company override tiers. tests/db/estimating-acceptance.test.ts loops every one of the twelve and proves a company can read the platform seed and can neither edit nor delete it, that one company never sees another's rows, and that an anonymous caller reads nothing. 36 assertions across the twelve."
+    },
+    "dependency integrity": {
+      "status": "met",
+      "evidence": "Library relationships are foreign keys; app.enforce_tenant_parent refuses a child attached to a parent owned by another company; assembly_components cannot self-nest by constraint, and packages/engine/src/assemblies.ts refuses an indirect A > B > A cycle by name and caps nesting at eight levels. findAssemblyCycles checks a whole library without expanding anything."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "1,162 tests across six layers run in npm run verify, including the production migrations executed unmodified against real PostgreSQL 18."
+    },
+    "approval state": {
+      "status": "met",
+      "evidence": "approved_by and approved_at now exist on all 12 (was 1). A company-owned row that is `active` must name its approver, enforced by a per-table CHECK, and half an approval \u2014 an approver with no time, or a time with no approver \u2014 is refused. A platform catalog row needs no company approver, so the rule is scoped rather than applied flatly and worked around. app.provision_company now records the founding user as the approver of the default pricing profile it creates. tests/db/library-governance.test.ts, 36 tests, looping all twelve libraries."
+    },
+    "effective dates": {
+      "status": "met",
+      "evidence": "effective_date and expires_on now exist on all 12 (was 3 and 1). A per-table CHECK refuses an expiry on or before the effective date. The existing house names were extended rather than a second vocabulary invented for the same idea. tests/db/library-governance.test.ts, 36 tests, looping all twelve libraries."
+    },
+    "source/provenance": {
+      "status": "met",
+      "evidence": "source and origin now exist on all 12 (was 3). origin is a closed set \u2014 catalog, company, ai_discovered, imported \u2014 enforced per table, so provenance cannot be unaccounted. Every platform row is marked a catalog row. tests/db/library-governance.test.ts, 36 tests, looping all twelve libraries."
+    },
+    "version behavior": {
+      "status": "met",
+      "evidence": "library_row_versions records what every library row used to say and when, written only by an AFTER trigger on all twelve. app.library_row_as_of answers what a rate said at an instant, and returns null for a moment before the row existed or after it was deleted rather than the nearest surviving version. A delete is recorded as a version carrying the row as it last stood. There is no valid_to column: it is derived with a window function, so the table is genuinely append-only rather than append-only by convention. Platform-row history is readable by every tenant, which the audit ledger cannot do because its read policy requires a company. tests/db/library-governance.test.ts, 36 tests, looping all twelve libraries."
+    }
+  },
+  "exemplar": {
+    "table": "services",
+    "note": "services already carries code, version, status, source, origin, approved_by and approved_at. The governance shape this phase asks for is designed and implemented; it has not been carried to the other eleven three-tier libraries. That makes the remedy a defined migration rather than a design problem. Carried to the other eleven by migration 0028."
+  },
+  "domain_status": {
+    "built": [
+      "Approval & Publication",
+      "Assembly Components",
+      "Assembly Library",
+      "Audit & Provenance",
+      "Crew Library",
+      "Custom Tenant Overrides",
+      "Disposal Library",
+      "Equipment Library",
+      "Equipment Rate Library",
+      "Estimator Integration",
+      "Haul & Disposal Rates",
+      "Labor Rate Library",
+      "Labor Resource Library",
+      "Library Dependencies",
+      "Location Factors",
+      "Master Library Registry",
+      "Material Library",
+      "Production Rate Library",
+      "Regional Price Profiles",
+      "Service Catalog",
+      "Service Categories",
+      "Truck Library",
+      "Truck Rate Library",
+      "Units of Measure",
+      "Versioning & Effective Dates"
+    ],
+    "partial": {
+      "Material Price Library": "materials carries a unit cost, and the material engine derives cost through waste, order multiples, minimums, freight and tax. There is no separate price library holding several prices per material by vendor and date.",
+      "Vendor Price Sources": "A material can be priced from a vendor quote with an expiry, and a project quote wins the equipment rate hierarchy. There is no vendor price source table linking a vendor, a material and a dated price.",
+      "Search & Classification": "services carries category, subcategory, industry and a search_text column, and app.search is permission-filtered by construction. Classification is not consistent across the other libraries."
+    },
+    "not_built": {
+      "Subcontract Resource Library": "There is no subcontractor library. Vendors exist as business records, and subcontract enters an estimate as a cost bucket, but nothing catalogs subcontract resources for reuse.",
+      "Subcontract Rate Library": "No subcontract rates are cataloged.",
+      "AI Proposed Writeback": "The one AI agent proposes findings about documents. Nothing proposes a library change, so there is no writeback to govern.",
+      "Import & Bulk Edit": "No library import or bulk edit path exists. The seed is applied by migration, which is not the same thing."
+    }
+  },
+  "known_limitations": [
+    {
+      "id": "LIM-P25-001",
+      "subject": "seeded row provenance",
+      "finding": "Migration 0028 stamps source on rows present when it runs, but the seed is applied after the migrations, so a seeded row's source comes from the seed itself. Only `services` currently emits one.",
+      "impact": "Low. Every platform row is correctly marked origin='catalog'; the free-text source is absent on the other libraries.",
+      "disposition": "Closing it means extending tools/generate-seed.mjs to emit source per library and regenerating the 4,905-line seed. Recorded rather than done, because it is a generator change with no bearing on the governance capability itself."
+    }
+  ]
+}

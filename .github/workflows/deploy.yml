@@ -1,0 +1,125 @@
+# Deployment is deliberate, not automatic.
+#
+# This workflow never runs on a push. It is dispatched by a person who names
+# the environment, and it runs behind a GitHub Environment, so whatever
+# approval rules that environment carries apply before anything reaches a real
+# database.
+#
+# It re-runs the full verification first. A deployment that skips the gate to
+# save eight minutes is how a broken migration reaches production.
+#
+# ## Secrets this expects
+#
+# Set these as GitHub Environment secrets. Nothing here echoes a secret, writes
+# one to a log, or passes one to the browser build:
+#
+#   SUPABASE_ACCESS_TOKEN   a personal access token for the Supabase CLI
+#   SUPABASE_PROJECT_REF    the project reference, e.g. abcdefghijklmnop
+#   SUPABASE_DB_PASSWORD    the database password, for `db push`
+#   VITE_SUPABASE_URL       public, embedded in the browser bundle by design
+#   VITE_SUPABASE_ANON_KEY  public, protected by row level security
+#
+# The Stripe secret key, the Stripe webhook signing secret, the service-role
+# key and the AI provider key are NOT here and must not be. They are set once
+# against the Supabase project as Edge Function secrets, where the functions
+# read them and nothing else can. `npm run bundle:check` fails the build if any
+# of them ever reaches the browser.
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Which environment to deploy
+        required: true
+        type: choice
+        options: [staging, production]
+      migrate:
+        description: Apply pending database migrations
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # The same gate as every commit. No shortcut for a deployment.
+      - name: Verify
+        run: npm run verify
+
+      - name: Check the client bundle carries no server secret
+        run: npm run bundle:check
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link the project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+
+      # Shows what would change before anything changes, so the log records
+      # the diff a person can check against the migration they intended.
+      - name: Show pending migrations
+        if: ${{ inputs.migrate }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase migration list --linked
+
+      - name: Apply migrations
+        if: ${{ inputs.migrate }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push --linked
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          for fn in supabase/functions/*/; do
+            name="$(basename "$fn")"
+            [ "$name" = "_shared" ] && continue
+            echo "Deploying $name"
+            supabase functions deploy "$name" --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+          done
+
+      # Built here rather than reusing the verify artifact, because the browser
+      # bundle embeds the environment's own public URL and anon key.
+      - name: Build the web application for this environment
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Check the environment build carries no server secret
+        run: npm run bundle:check
+
+      - name: Publish the built application
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist-${{ inputs.environment }}
+          path: apps/web/dist
+          retention-days: 30

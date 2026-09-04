@@ -1,0 +1,80 @@
+{
+  "phase": "P11",
+  "title": "Procurement & Supply Chain",
+  "method": "Every P11 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Authorized users can complete the function, required controls are enforced, all changes are timestamped, and the resulting record is traceable to tenant, company, project, user and source.' The four conditions are assessed platform-wide, because authorization, control enforcement, timestamping and record provenance are platform properties. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "This is the first phase judged where the implementation was already close. Three of the four conditions held on the first reading, and procurement was the best-tested area the build has examined — 25 existing tests covering purchase orders, quote leveling, three-way match, deliveries and the inventory ledger. One control was missing, and migration 0037 closed it.",
+
+  "findings": [
+    {
+      "id": "P11-F1",
+      "title": "The commitment a contractor makes most often had no signing limit",
+      "detail": "Migration 0033 gave the platform per-company signing limits, enforced when a record crosses into a committing state, and covered change orders, contracts and claim settlements. It did not cover purchase orders. A purchase order carries `committed_amount` — the cost the company is on the hook for before any invoice arrives — and anyone holding `procurement.write` could issue one of any size.",
+      "why_it_matters": "Every other control in procurement governs what happens after the commitment: an invoice cannot exceed its purchase order, a payment cannot exceed its invoice, a three-way match refuses a mismatch. All of them are strong and all of them are downstream. Nothing governed the commitment itself, and a purchase order is the commitment a construction company makes most often.",
+      "status": "resolved",
+      "resolution": "Migration 0037 extends `commercial_authority_limits` to purchase orders and attaches the existing authority trigger on the crossing into issued and every state beyond it — a commitment does not stop being one because material arrived. A draft of any size remains free, because working a purchase order up is not committing to it. 7 tests, including a buyer at tier 1 who can raise a $900,000 draft and cannot issue it."
+    },
+    {
+      "id": "P11-F2",
+      "title": "Nothing precedes the purchase order",
+      "detail": "There is no purchase requisition: no request to buy, no approval of that request, and no conversion of an approved request into a purchase order. Buying begins at the purchase order or at the quote request that leads to one.",
+      "why_it_matters": "The requisition is where a field request becomes a commercial intent and where most companies apply their first approval. Without it the signing limit added above is the only gate, and it sits at the end of the process rather than at the start of it.",
+      "status": "open",
+      "why_not_resolved": "A requisition is a workflow with its own approval routing, not a constraint, and the platform has no configurable routing to build it on — the same absence P30 recorded for financial approvals. Building a fixed one-step requisition would satisfy the word and not the need. Recorded as the leading absence in this phase."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All four are required by the criterion, and all four are platform properties: who may act, what is enforced, what is stamped, and what a record can be traced back to.",
+    "conditions": [
+      "authorized users can complete the function",
+      "required controls are enforced",
+      "all changes are timestamped",
+      "record traceable to tenant, company, project, user and source"
+    ]
+  },
+
+  "platform_conditions": {
+    "authorized users can complete the function": {
+      "status": "met",
+      "evidence": "Procurement records are written under procurement.write and read under procurement.read; payables and pay applications under finance.write and finance.read, so a buyer raising a purchase order is not thereby able to certify a pay application. Row level security is enabled and forced on every table in the chain, and app.enforce_tenant_parent refuses a delivery, an item or a transaction attached to a parent owned by another company. Since 0037 authorization is two controls rather than one: permission decides who may act, and a signing limit decides how much they may commit."
+    },
+    "required controls are enforced": {
+      "status": "met",
+      "evidence": "This is the strongest control set the build has examined. An invoice cannot exceed the commitment it draws on, and a payment cannot exceed the invoice. A three-way match compares invoice, purchase order and delivery and refuses a mismatch outside a stated tolerance, with freight and rounding absorbed inside it. An award cannot be recorded without naming both the vendor and the reason — awarding to anyone other than the low bidder is defensible only if the reason was written at the time. A delivery that is not accepted must carry a discrepancy note. An inventory adjustment must carry a reason, because an unexplained adjustment is indistinguishable from shrinkage. Stock cannot be reserved beyond what is on hand. And a commitment above the acting user's authority is now refused outright."
+    },
+    "all changes are timestamped": {
+      "status": "met",
+      "evidence": "Every table carries created_at and updated_at maintained by trigger, plus the event timestamps the domain needs — issued_at on a purchase order, awarded_at on a quote request, delivered_at on a receipt, transacted_at on a stock movement. Above them the append-only audit ledger records prior and new state with its own timestamp for every insert, update and delete, and no privilege level can edit or delete it."
+    },
+    "record traceable to tenant, company, project, user and source": {
+      "status": "met",
+      "evidence": "Tenant and company: company_id on every row with row level security forced. Project: carried on purchase orders, inventory transactions and deliveries. User: created_by on quote requests and purchase orders, received_by on a delivery, recorded_by on a stock movement, and the audit ledger's actor on every change besides. Source: a purchase order names the quote request it came from, a delivery names its purchase order, an invoice names both, and a stock movement names the purchase order that brought it in — the chain runs quote to commitment to receipt to payable to payment without a break."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Purchase Orders",
+      "Inventory Control",
+      "Material Receiving",
+      "Catalog and Item Master",
+      "Procure-to-Pay Integration"
+    ],
+    "partial": {
+      "Procurement Planning": "Quote requests carry a due date and tie to a project, and inventory carries reorder points that surface what is running out. There is no plan: no buyout schedule, no long-lead item register, no procurement milestone tied to the schedule activity that needs the material.",
+      "Supplier Management": "Vendors carry codes, contacts and terms; the cross-company network carries an opt-in public profile and append-only ratings that a company cannot rewrite. There is no prequalification, no insurance or bonding check, no approved-vendor list gating who may be awarded, and no performance scorecard beyond the rating.",
+      "Strategic Sourcing": "The sourcing loop itself is complete and tested — request, responses, leveling that adds back excluded scope so quotes compare honestly, and an award that must state its reason. What is absent is everything around it: no category strategy, no spend analysis, no negotiation record, no framework agreement.",
+      "Subcontract Procurement": "A quote request and a purchase order can both be for subcontract work, and a subcontractor can be assigned as a resource. A subcontract is modeled as a purchase commitment rather than a contract with terms — the same finding P19 recorded — so there are no subcontract clauses, retainage or notice periods.",
+      "Warehouse Operations": "Inventory is held per location, unique on company, SKU and location, with on-hand, reserved and available kept honest by a transaction ledger. There are no warehouse operations: no bin, no pick, no pack, no cycle-count program, no transfer workflow between locations beyond a transaction type."
+    },
+    "not_built": {
+      "Purchase Requisitions": "No requisition, no request-to-buy, no approval of one, and no conversion into a purchase order. Buying begins at the quote request or the order itself.",
+      "Construction Logistics": "No delivery scheduling against site access, no laydown area, no crane or gate booking, no site logistics plan. One of the largest untraced modules in the register.",
+      "Rental Management": "Assets record whether they are owned, leased or rented, and nothing manages a rental: no agreement, no rate, no on-rent and off-rent dates, no return condition, no idle-rental alert.",
+      "Supply Chain Analytics": "No spend analysis, no vendor performance trend, no lead-time analysis, no savings measurement.",
+      "AI Procurement Intelligence": "The one governed agent reads documents. Nothing applies it to procurement, and under RULE-008 anything that did would propose rather than commit.",
+      "Supply Chain Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

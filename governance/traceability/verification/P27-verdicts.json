@@ -1,0 +1,138 @@
+{
+  "phase": "P27",
+  "title": "AI Platform & Agent Governance",
+  "method": "Every P27 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Capability N passes when source evidence, tool permissions, deterministic handoff behavior, human-review state, confidence/uncertainty handling, tenant isolation, evaluation results and mapped tests are verified.' The eight conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "The governance around this platform's one AI agent is the strongest single piece of it \u2014 stronger than several phases that verify well. It still reaches zero, because two of eight conditions cannot be satisfied by a platform with one tool-less agent and no evaluation. That is the honest shape of it and the verdict does not soften it.",
+  "findings": [
+    {
+      "id": "P27-F1",
+      "title": "The AI governance is genuinely strong, and this phase still verifies at zero",
+      "detail": "An agent's authority is capped by a check constraint that makes `autonomous` unconfigurable, so no amount of configuration can produce an agent that writes to an approved record. A factual finding cannot exist without a citation or a sheet reference, enforced by database constraint. The system prompt forbids the model computing what the engine owns, forbids resolving a conflict by picking a side, and forbids inventing dimensions \u2014 and `validateFindings` enforces every one of those in code, because a prompt is a request and a validator is a control. Findings carry a bounded confidence, move through a state machine, and record the business row created when a person accepts them.",
+      "why_it_matters": "Two of the owner's stated constraints are that AI must not alter approved records without the approval workflow, and that AI arithmetic must never be authoritative where the deterministic engine exists. Both hold, and both are enforced structurally rather than by convention. Recording that plainly matters as much as recording what is missing.",
+      "status": "resolved",
+      "resolution": "Nothing to resolve; verified and cited. 28 tests over the prompt's prohibitions, the output schema, citation enforcement, confidence bounds and the engine's unit set."
+    },
+    {
+      "id": "P27-F2",
+      "title": "Nothing measures whether the agent is any good",
+      "detail": "The contract is tested thoroughly and the output is validated strictly. No evaluation exists: no golden set of documents with expert-labeled expected findings, no precision or recall, no measured accuracy of any kind. The platform can prove the agent obeys its rules and cannot say whether its answers are right.",
+      "why_it_matters": "'Evaluation results' is one of this phase's eight conditions and it fails for every domain. A validator confirms a finding is well-formed and cited; it cannot confirm the citation supports the claim.",
+      "status": "open",
+      "why_not_resolved": "An evaluation needs real drawings and expert labels \u2014 somebody who knows the trade saying what a correct reading of a given sheet is. This build has neither, and manufacturing a golden set from the model's own output would measure nothing except agreement with itself. Building the harness without the labels would be the same error this build has spent fifteen phases naming: an artifact that describes a capability, counted as the capability."
+    },
+    {
+      "id": "P27-F3",
+      "title": "The AI credit allowance was metered and never checked, and an earlier verdict said otherwise",
+      "detail": "The P30 verdict recorded AI credits as unenforceable because 'nothing yet meters' them. That was wrong. Every run has always written a `usage_events` row with metric `ai.request`, and `app.current_usage` has always aggregated it over the paid period. Both halves existed and nothing joined them, so the allowance published on every plan version bounded nothing.",
+      "why_it_matters": "It is the same defect as the plan limits, one layer in \u2014 and this time the verification itself carried the error, which is worse than the code carrying it. A verdict that overstates an obstacle protects the gap it describes.",
+      "status": "resolved",
+      "resolution": "Migration 0039 adds `app.usage_allowance` and `app.ai_request_allowed`, the analyst refuses a request past the allowance with a 402 naming when it resets, and `reporting_usage_allowance` shows usage before somebody hits the wall. 9 tests. The P30 verdict has been corrected in place with the correction recorded rather than the original quietly rewritten, and a test asserts the correction is there. Storage remains unenforced, and for storage the original reasoning still holds: nothing measures stored bytes."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All eight are required by the criterion. Two of them fail for reasons a larger implementation would remove, and the verdict names which.",
+    "conditions": [
+      "source evidence",
+      "tool permissions",
+      "deterministic handoff behavior",
+      "human-review state",
+      "confidence/uncertainty handling",
+      "tenant isolation",
+      "evaluation results",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "source evidence": {
+      "status": "met",
+      "evidence": "A factual finding cannot exist without a citation or a sheet reference \u2014 `ai_findings_citations` enforces it in the database, and `validateFindings` rejects one before it ever reaches the database, including a citation whose reference is blank. The system prompt requires evidence for every factual claim, and a test asserts the prompt still says so. Extractions record the model and prompt version that produced them, so a finding can be traced to the exact configuration that made it."
+    },
+    "tool permissions": {
+      "status": "not_met",
+      "gap": "The agent has no tool surface at all: it is handed a document version, reads it, and returns findings. There is no tool call, no router and therefore nothing to permission. The condition fails because there is nothing to verify rather than because something is ungoverned \u2014 a distinction worth keeping, since the risk this condition exists to catch is absent along with the capability."
+    },
+    "deterministic handoff behavior": {
+      "status": "met",
+      "evidence": "This is the platform's central architectural promise and it holds three ways. The system prompt forbids the model computing what the engine owns. `validateFindings` enforces that in code, because a prompt is a request and a validator is a control. And `ai_agents_never_autonomous` makes an agent with write authority unconfigurable, so the handoff cannot be bypassed by configuration. Findings are inert until a person accepts them, and acceptance records which business row was created \u2014 document to finding to accepted-by to estimate line."
+    },
+    "human-review state": {
+      "status": "met",
+      "evidence": "Every finding moves through proposed, accepted, rejected, superseded or expired, with the acceptor and the applied entity recorded on acceptance. The estimating side carries its own approval gates by confidence band, and the platform-wide approval tiers gate consequential changes. Rejection is recorded as deliberately as acceptance, which is what makes the record usable for calibration later."
+    },
+    "confidence/uncertainty handling": {
+      "status": "met",
+      "evidence": "Every finding carries a confidence bounded to 0-100 by constraint and asserted by test, and a severity where one applies. The estimating engine carries its own confidence scoring, verification status and contingency banding, with the derivation shown at every score rather than a bare label. Measurement method is recorded on a quantity so a scaled reading is distinguishable from an explicit dimension."
+    },
+    "tenant isolation": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on the agent registry, conversations, messages, findings and extractions. Conversations and messages are append-only. The analyst reads the document through the caller's own client so row level security confirms access before anything is sent to a model, rather than reading with the service role and filtering afterwards."
+    },
+    "evaluation results": {
+      "status": "not_met",
+      "gap": "No evaluation exists. There is no golden set, no expert-labeled expected output, no precision or recall, no accuracy measured against anything. The 28 tests validate the contract \u2014 schema, citations, confidence bounds, the prompt's prohibitions \u2014 and a contract test cannot tell you whether a citation supports the claim it is attached to. See finding P27-F2 for why this was not built rather than approximated."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "28 tests over the governed system prompt and the output contract, plus 26 ingestion tests over the pipeline that feeds it, and the database governance covering the acceptance trigger and the authority cap. All run in npm run verify."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "AI Evidence & Citations",
+      "Human Approval Gates",
+      "Hallucination Guardrails",
+      "AI Audit Trail",
+      "Model/Prompt Versioning",
+      "Confidence Scoring",
+      "Plan Sheet Intelligence",
+      "Cost/Token Controls"
+    ],
+    "partial": {
+      "AI Copilot Core": "One governed agent exists with a registry entry, an authority cap, a system prompt held to by test, and a validator that enforces the contract the prompt only asks for. There is no copilot: no chat surface, no general assistant, no task the user starts in their own words.",
+      "Conversation Context": "`ai_conversations` and `ai_messages` model a transcript with roles, model, prompt version, tokens and latency, and the transcript is append-only. Nothing maintains context across turns, because there are no turns \u2014 the analyst is a single request.",
+      "Document Retrieval": "Documents, versions and sheets carry extracted text, and since P15 `app.search_document_text` retrieves by content with permission filtering. The agent does not use it: it is handed a document version and reads that, rather than retrieving what it needs.",
+      "Quantity Evidence Extraction": "The analyst extracts quantity candidates with citations, units restricted to the engine's own unit set, and a confidence on every one. They are proposals: a person accepts them, and acceptance records the business row created. What is missing is coverage \u2014 one document type, one pass, no measurement of how many real quantities it finds.",
+      "Conflict Detection": "The analyst reports conflicts between sheets and is forbidden by prompt and by validator from resolving one by picking a side. There is no cross-document conflict detection, no addendum-versus-base comparison beyond what a single run sees.",
+      "Missing Information Detection": "A finding type exists for it and the analyst emits them. Nothing checks a document set for completeness against a required list.",
+      "Provider Abstraction": "The model and prompt version are recorded on every message and every extraction, so a change is visible after the fact. The provider itself is not abstracted: one client, one vendor, one model constant.",
+      "AI Evaluation": "The contract is tested thoroughly \u2014 28 tests over the prompt's prohibitions, the output schema, citation enforcement, confidence bounds and unit restriction. None of that is evaluation: nothing measures whether the findings are correct.",
+      "Regression Testing": "The prompt's prohibitions and the validator's rules are pinned by test, so a change that loosens a guardrail fails the build. There is no regression suite over model outputs, because there are no recorded outputs to regress against."
+    },
+    "not_built": {
+      "Tool Routing": "The agent has no tools. There is nothing to route, and no router.",
+      "Construction Knowledge Retrieval": "No retrieval layer over construction knowledge \u2014 the absence the traceability rules already exclude globally.",
+      "Specification Intelligence": "Specifications are a document type. Nothing reads one as a specification: no section parsing, no requirement extraction, no submittal derivation.",
+      "Addenda Intelligence": "Addenda are a document type and revision comparison exists at the document level. Nothing reconciles an addendum against the base set it modifies.",
+      "RFI/Submittal Intelligence": "RFIs and submittals are well modeled and no agent reads or drafts one.",
+      "Service Mapping": "Nothing maps extracted scope to the service library.",
+      "Assembly Mapping": "Nothing maps extracted scope to an assembly.",
+      "Estimate Input Suggestions": "Nothing suggests an estimate input. The analyst stops at quantity candidates.",
+      "Production Assumption Review": "Nothing reviews a production assumption against the catalog or against measured actuals.",
+      "Crew Recommendation": "No crew is recommended \u2014 the mapping rules exclude this explicitly, because a crew engine is not an AI that recommends crews.",
+      "Equipment Recommendation": "Nothing recommends equipment.",
+      "Truck/Haul Recommendation": "The trucking engine computes a haul; nothing advises on one.",
+      "Material/Disposal Recommendation": "Nothing recommends a material or a disposal route.",
+      "Estimate Math Review": "Nothing reviews estimate arithmetic \u2014 and under RULE-008 anything that did would propose, never correct. The engine owns the arithmetic and its derivations are already inspectable.",
+      "Estimate Completeness Review": "Nothing checks an estimate for missing scope.",
+      "Pricing Source Review": "Nothing reviews where a price came from, though the snapshot makes it answerable.",
+      "Markup Review": "Nothing reviews a markup profile.",
+      "Scenario Review": "Scenario pricing exists in the engine; nothing reviews a scenario.",
+      "Risk Detection": "A `risks` table exists and nothing populates it from analysis.",
+      "Scope Gap Detection": "Nothing detects a scope gap across a document set.",
+      "Constructability Review": "Nothing reviews constructability.",
+      "Safety/Compliance Advisory": "Nothing advises on safety or compliance, and under RULE-008 anything that did would propose rather than act on safety-critical data.",
+      "Schedule Risk Advisory": "Nothing advises on schedule risk, though the critical path engine now makes float and the driving path computable.",
+      "Commercial Risk Advisory": "Nothing advises on commercial risk, though contract clauses and claim deadlines are now structured enough to reason over.",
+      "Agent Orchestration": "One agent. No orchestration, no plan, no multi-step task.",
+      "Agent Delegation": "No agent delegates to another, because there is one.",
+      "Agent Memory Boundaries": "No agent memory exists, so there is no boundary to enforce. Recorded as absent rather than as satisfied.",
+      "Tool Permissioning": "No tool surface exists. Nothing to permission \u2014 the condition fails because there is nothing to verify, not because something is ungoverned.",
+      "Latency Controls": "Duration is recorded on every run and nothing bounds it: no timeout budget, no degradation under load.",
+      "Fallback/Degradation": "A missing API key is reported as not configured, which is a refusal rather than a fallback. No secondary provider, no reduced mode, no queue for later.",
+      "Feedback & Calibration": "Acceptance and rejection of every finding is recorded, which is the raw material for calibration, and nothing consumes it. The production calibration path exists for rates and not for the agent.",
+      "Autonomous Background Tasks": "None, by design. `ai_agents_never_autonomous` makes an autonomous agent unconfigurable, and that constraint is the platform keeping a promise rather than a gap.",
+      "Digital Twin AI Context": "Not built and not planned; in the globally excluded class.",
+      "AI Incident Response": "No AI incident process \u2014 the AI face of the detection and response gap P28 named."
+    }
+  }
+}

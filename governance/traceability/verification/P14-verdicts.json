@@ -1,0 +1,92 @@
+{
+  "phase": "P14",
+  "title": "Safety, Health, Environment & Quality",
+  "method": "Every P14 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Demonstrate requirement N with authorized workflow, required evidence, blocking controls where applicable, audit trail, notifications and mapped test evidence.' The six conditions are assessed platform-wide, because a workflow model, a blocking mechanism and a notification channel are platform properties rather than per-domain ones. A requirement is verified only where the condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged first against the platform as it stood, where two of the six conditions failed outright — nothing blocked and nothing notified — which put all 320 requirements at not verified. Migration 0035 and a 22-test suite closed both. This file records the second judgment.",
+
+  "findings": [
+    {
+      "id": "P14-F1",
+      "title": "The safety system recorded everything and prevented nothing",
+      "detail": "`credentials.required_for` has carried the comment 'Work this credential is a prerequisite for, e.g. CDL for a truck driver' since the workforce migration, and nothing anywhere read it. `refresh_credential_status` kept the status honest against the calendar — valid, expiring, expired, revoked — and nothing consumed the result. An employee whose CDL expired last month could be assigned to drive, and the platform recorded the expiry and the assignment side by side without ever connecting them.",
+      "why_it_matters": "The schema is genuinely good at recording: an incident cannot be closed without a root cause and a corrective action, a recordable one cannot exist without an OSHA case number, a punch item cannot be closed without a named verifier and a note. All of that is after the fact. A safety system that cannot stop an uncredentialed person being assigned to the work is a filing cabinet, and the field this build needed was already in the schema waiting to be read.",
+      "status": "resolved",
+      "resolution": "Migration 0035 adds `work_credential_requirements`, stating the requirement from the work's side rather than the credential's — a rule written on the credential can only ever catch a lapse, never an absence. `app.credential_gaps` returns each unmet requirement with its reason (not held, expired with the date, revoked, not yet issued), and a trigger refuses an employee assignment where a mandatory one is unmet, naming the person and what is missing. Recommended requirements do not block, because a control that blocks on everything gets switched off. An assignment that declares no work, and a company that configured no requirement, are both left alone."
+    },
+    {
+      "id": "P14-F2",
+      "title": "The notifications table had no producer anywhere in the codebase",
+      "detail": "`notifications` exists with twelve categories including `safety`, severities from info to critical, deep links, read and dismissed timestamps, per-user or company-wide addressing, and a companion `notification_preferences` table. Across the entire platform nothing inserts into it. The only writers are tests.",
+      "why_it_matters": "One of this phase's six acceptance conditions is notifications, and it failed for every domain. More concretely: a recordable injury generated no notice to anybody, and a CDL lapsing generated no notice to anybody. It is the same shape as the other findings this build has produced — a capability that exists as schema and does nothing — and it is the one where the consequence is somebody not being told.",
+      "status": "resolved",
+      "resolution": "Two producers, both triggers. A recordable incident notifies the company — company-wide rather than targeted, because the OSHA log is a company obligation — with severity mapped from the incident's own so a fatality does not arrive looking like a paper cut, and only on becoming recordable so an edit does not re-notify. A credential entering expiring or expired notifies with the work it was required for named, on the status transition only, because a notice on every recomputation is how people learn to ignore notices."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All six are required by the criterion. They are assessed platform-wide: a workflow model, a blocking mechanism and a notification channel belong to the platform, and no single domain can supply them.",
+    "conditions": [
+      "authorized workflow",
+      "required evidence",
+      "blocking controls where applicable",
+      "audit trail",
+      "notifications",
+      "mapped test evidence"
+    ]
+  },
+
+  "platform_conditions": {
+    "authorized workflow": {
+      "status": "met",
+      "evidence": "Every safety and quality record carries an explicit, constrained state. An incident moves open to investigating to corrective action to closed; a deficiency moves open to in progress to ready for review to closed or void. Writes are gated separately: safety.write for incidents, observations and toolbox talks, quality.write for inspections and deficiencies, so a foreman recording a near miss is not thereby able to sign off a punch list. Row level security is enabled and forced on all of them, and app.enforce_tenant_parent refuses a record attached to another company's project."
+    },
+    "required evidence": {
+      "status": "met",
+      "evidence": "The evidence a record cannot exist without is enforced by constraint, not by convention. An incident closed with no root cause and no corrective action is refused — the constraint's own comment says it has been filed, not investigated. A recordable incident with no OSHA case number is refused, because a recordable with no case number is a compliance gap rather than a data-entry preference. A deficiency closed with no named verifier and no verification note is refused, because that is a checkbox and not an acceptance. Reported time cannot precede occurrence."
+    },
+    "blocking controls where applicable": {
+      "status": "met",
+      "evidence": "Since migration 0035 an employee cannot be assigned to work whose mandatory credentials they do not hold, have let expire, have had revoked, or have not yet been issued — refused at write time with the person and the missing credential named. `app.credential_gaps` exposes the same answer for a screen to show before somebody hits the wall. The control is deliberately narrow and says so: mandatory requirements block, recommended ones do not, an assignment declaring no work type is unchecked, and a company that has configured no requirement is not running a policy the platform will invent for it."
+    },
+    "audit trail": {
+      "status": "met",
+      "evidence": "Every safety and quality table carries the full-row audit trigger, writing prior and new state to an append-only ledger that no privilege level can edit or delete — including `work_credential_requirements`, so loosening a safety rule is itself recorded, which is exactly what an investigation asks about. A governance test asserts the general rule that every table in the schema is either audited or frozen."
+    },
+    "notifications": {
+      "status": "met",
+      "evidence": "The notifications table now has producers where this phase needs them. A recordable incident notifies the company with severity mapped from the incident, the case number in the body, and a deep link to the record. A credential entering expiring or expired notifies with the expiry date and the work it was required for. Both fire on the transition rather than on every touch. Delivery beyond in-app is not built — `emailed_at` exists and nothing sets it, because the platform sends no email at all."
+    },
+    "mapped test evidence": {
+      "status": "met",
+      "evidence": "39 tests against real PostgreSQL: 17 already covering incident recordability, investigation closure, observation and inspection governance and deficiency verification, and 22 added with this build covering credential gaps and their reasons, case-insensitive certificate matching, the block on missing, expired and revoked credentials, the deliberate non-block on recommended ones and on unconfigured companies, re-checking when an assignment is moved onto different work, both notification producers, and the transitions on which they deliberately stay silent."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Safety Management",
+      "Incident & Near-Miss Management",
+      "Quality Management"
+    ],
+    "partial": {
+      "Training & Competency": "Credentials carry type, issuer, identifier, issue and expiry dates, a status kept honest against the calendar, and now a requirement matrix that blocks assignment when a mandatory one is unmet. There is no training: no course, no delivery, no attendance beyond a toolbox talk, and no competency assessment separate from holding a certificate.",
+      "Environmental Management": "Environmental incidents are a first-class incident type, weather is captured on daily reports and rolled up from a governed connector, and inspections can record anything. There is no environmental management: no permit, no monitoring program, no discharge or dust record, no SWPPP inspection distinct from a general one.",
+      "Compliance & Regulatory": "OSHA recordability is modeled properly — the flag, the case number it requires, days away and days restricted, and the incident types that drive it. Nothing produces the 300 log, the 300A summary or any regulatory filing, and no other jurisdiction is modeled.",
+      "Equipment & Fleet Safety": "Assets carry meter readings that cannot run backwards, maintenance schedules driven by those meters, and work orders that cannot close without a resolution. Operator qualification can now be enforced through the credential requirement matrix by declaring a work type. There is no equipment inspection checklist, no lockout/tagout, and no defect report that takes a machine out of service.",
+      "Corrective & Preventive Action": "A corrective action is required to close an incident, and a deficiency requires a named verifier and a note. There is no CAPA register: no action with an owner and a due date separate from the record that raised it, no effectiveness verification afterwards, and no preventive action distinct from a corrective one.",
+      "Audit & Assurance": "Inspections with deficiencies and verified closure are a working assurance loop, and the platform's own audit ledger is strong. There is no HSEQ audit program: no audit plan, no schedule, no findings register separate from deficiencies, no non-conformance grading.",
+      "HSEQ Analytics": "A safety summary reporting view exists with security_invoker, over data that is complete enough to compute from. No rate is computed: no TRIR, no LTIR, no DART, no severity rate, and no leading indicator such as observations per hours worked."
+    },
+    "not_built": {
+      "JHA/JSA & Pre-Task Planning": "No job hazard analysis, no job safety analysis, no pre-task plan, no hazard library, and no link from a planned task to the hazards it carries.",
+      "Permits to Work": "No permit of any kind — no confined space, no hot work, no excavation, no energized work — and therefore no permit that must be open before the work it governs may start.",
+      "Industrial Hygiene": "No exposure monitoring, no sampling, no noise or silica or dust record, no health surveillance.",
+      "Emergency Management": "No emergency plan, no muster point, no drill record, no emergency contact roster, no incident command.",
+      "Subcontractor HSEQ": "Vendors and a cross-company network rating exist, and neither is a safety qualification. No subcontractor prequalification, no insurance or EMR check, no site orientation record, no sub-tier safety performance.",
+      "Public & Traffic Safety": "No traffic control plan, no public protection measure, no maintenance-of-traffic record, no complaint from the public.",
+      "AI HSEQ Intelligence": "The one governed agent reads documents. Nothing applies it to safety, and under RULE-008 anything that did would propose rather than act.",
+      "HSEQ Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

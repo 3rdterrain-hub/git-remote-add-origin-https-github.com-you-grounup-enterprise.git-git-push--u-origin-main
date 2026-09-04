@@ -1,0 +1,346 @@
+{
+  "phase": "P05",
+  "title": "Estimating & Cost Intelligence",
+  "method": "Every P05 requirement carries the same acceptance criterion: 'Demonstrate {module} {aspect} with tenant-specific configuration, role controls, version history, and traceable output.' Each of the 18 modules was judged against each of the 6 aspects, and a verdict is recorded only where a named test asserts the behavior. Where the platform does not do the thing, the verdict is not_verified and the gap is stated. No verdict is inferred from a mapping rule.",
+  "evidence_suites": {
+    "engine_acceptance": "packages/engine/tests/estimating-acceptance.test.ts \u2014 43 tests. Traceable output and input validation across every engine that produces an authoritative figure.",
+    "db_acceptance": "tests/db/estimating-acceptance.test.ts \u2014 83 tests. Tenant configuration, role controls, version history and auditability against real PostgreSQL.",
+    "engine_suites": "packages/engine/tests/*.test.ts \u2014 302 tests. Per-module arithmetic, hand-verified.",
+    "rls": "tests/db/rls.test.ts \u2014 tenant isolation and RULE-009 immutability.",
+    "registry": "tests/governance/registry.test.ts \u2014 the five-category classification and its invariants."
+  },
+  "aspects": {
+    "canonical model": "A defined entity or type with named fields exists for the module.",
+    "configurable rules": "Behavior is driven by configuration a company can set, not hard-coded.",
+    "auditability": "Changes are recorded with prior and new state in a ledger nobody can rewrite.",
+    "permissions": "Access is gated by row level security, forced, and isolated between companies.",
+    "import/export": "Data can be brought in and taken out through a tested path.",
+    "validation and testing": "Invalid input is refused, and the module is covered by tests that run."
+  },
+  "modules": {
+    "Estimate Core": {
+      "exists": true,
+      "verified": {
+        "canonical model": "estimates and estimate_versions with 50+ governed columns; calculateEstimateLine and calculateEstimate return typed results. db_acceptance 'records a version number against every estimate'; engine_suites estimate.test.ts golden reference line.",
+        "configurable rules": "shift_hours, calendar_efficiency, fuel_price_per_gallon, swell/shrink and bid_rounding_increment are per-version columns, and the pricing profile is passed in. engine_suites estimate.test.ts.",
+        "auditability": "db_acceptance 'writes an audit entry when an estimate changes' and 'records the prior and new state', asserting the name changed from one value to the other.",
+        "permissions": "db_acceptance role controls; rls estimate isolation.",
+        "validation and testing": "engine_acceptance refusal cases; 302 engine tests.",
+        "import/export": "exportEstimate/importEstimate with a versioned schema. portable.test.ts asserts the priced result and every derivation are identical after a round trip, that a newer schema is refused rather than partly read, and that a missing pricing profile is refused rather than defaulted. 20 tests."
+      },
+      "not_verified": {},
+      "conditions": {
+        "tenant-specific configuration": "Per-version shift hours, calendar efficiency, fuel price, swell/shrink and bid rounding are company configuration, not constants. engine_suites estimate.test.ts.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: calculateEstimateLine returns a derivation."
+      }
+    },
+    "Quantity Intelligence": {
+      "exists": true,
+      "verified": {
+        "canonical model": "resolveQuantity with measurement method, adjustments and waste basis; estimate_line_items persists it. engine_suites quantity.test.ts.",
+        "configurable rules": "Measurement method, adjustment list and waste percent are inputs, not constants. engine_suites quantity.test.ts.",
+        "auditability": "db_acceptance auditability, via estimate_line_items under the same ledger.",
+        "permissions": "db_acceptance role controls.",
+        "validation and testing": "engine_acceptance refuses a negative and a non-finite quantity."
+      },
+      "not_verified": {
+        "import/export": "No tested path imports or exports quantities."
+      },
+      "conditions": {
+        "tenant-specific configuration": "Measurement method, adjustments and waste basis are inputs. engine_suites quantity.test.ts.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: resolveQuantity, convertVolume and compareSurfaces return derivations."
+      }
+    },
+    "Production": {
+      "exists": true,
+      "verified": {
+        "canonical model": "ProductionRate with utilization, source type, confidence and approval status; production_rates is a three-tier library. engine_suites production.test.ts.",
+        "configurable rules": "Condition modifiers apply per declared target (RULE-006); production_rates carries company overrides. db_acceptance tenant configuration for production_rates.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for production_rates.",
+        "validation and testing": "engine_acceptance 'refuses a production rate of zero' and 'refuses a shift longer than a day' \u2014 both defects found and fixed during this verification."
+      },
+      "not_verified": {
+        "import/export": "No tested import of a production rate library."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers production_rates.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers production_rates.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: analyzeProduction, calculateDuration and resolveModifiers each return a derivation carrying arithmetic."
+      }
+    },
+    "Labor Cost": {
+      "exists": true,
+      "verified": {
+        "canonical model": "LaborClassification and Crew; labor_rates and crews are three-tier libraries with a generated burdened rate. engine_suites resources.test.ts.",
+        "configurable rules": "Wage, burden, overtime and doubletime multipliers are per-classification and company-overridable. db_acceptance tenant configuration for labor_rates and crews.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for labor_rates and crews.",
+        "validation and testing": "engine_acceptance refuses a negative wage."
+      },
+      "not_verified": {
+        "import/export": "No tested import of a rate sheet."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers labor_rates and crews.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers labor_rates and crews.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: loadedLaborRate and calculateCrewCost return derivations."
+      }
+    },
+    "Equipment Cost": {
+      "exists": true,
+      "verified": {
+        "canonical model": "EquipmentUnit with a resolved rate carrying its own warnings; equipment is a three-tier library. engine_suites resources.test.ts.",
+        "configurable rules": "RULE-003 rate hierarchy resolves project quote over company over regional over seed, with an as-of date. db_acceptance tenant configuration for equipment.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for equipment.",
+        "validation and testing": "engine_acceptance refuses no rate candidate, and refuses an asOf that is not a date \u2014 the latter a defect found during this verification."
+      },
+      "not_verified": {
+        "import/export": "No tested import of an equipment rate book."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers equipment.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers equipment.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: resolveEquipmentRate and calculateEquipmentCost return derivations naming the hierarchy decision."
+      }
+    },
+    "Material Cost": {
+      "exists": true,
+      "verified": {
+        "canonical model": "materials is a three-tier library, and MaterialInput/MaterialCostResult give the engine-side model including waste, order multiple, supplier minimum, freight basis and tax. materials.test.ts.",
+        "configurable rules": "Company override of the seeded material price. db_acceptance tenant configuration for materials.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for materials.",
+        "validation and testing": "materials.test.ts refuses a negative quantity, unit cost and waste percent, and refuses per-load freight with no load size. 26 tests."
+      },
+      "not_verified": {
+        "import/export": "No vendor quote import and no price book export."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers materials.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers materials.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: calculateMaterialCost derives net -> waste -> order multiple -> supplier minimum -> freight -> tax -> effective unit cost, each step in the derivation. materials.test.ts, 26 tests."
+      }
+    },
+    "Hauling & Disposal": {
+      "exists": true,
+      "verified": {
+        "canonical model": "HaulCycleInput with the five cycle components; trucking_rates and disposal_sites persist the library side. engine_suites trucking.test.ts.",
+        "configurable rules": "Cycle times, speeds, capacity and fleet size are all inputs; RULE-004 keeps a shortcut rate labeled preliminary.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "trucking_rates and disposal_sites are company_only with RLS forced. registry library scope test.",
+        "validation and testing": "engine_acceptance refuses a truck with no capacity and a shrink factor of 1."
+      },
+      "not_verified": {
+        "import/export": "No tested import or export of a haul or disposal rate."
+      },
+      "conditions": {
+        "tenant-specific configuration": "trucking_rates and disposal_sites are company-owned, and every cycle component is an input. registry library scope; engine_suites trucking.test.ts.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: analyzeHaulCycle and analyzeCutFill return derivations."
+      }
+    },
+    "Assemblies": {
+      "exists": true,
+      "verified": {
+        "canonical model": "assemblies and assembly_components, the child scoped to its parent, plus the Assembly/AssemblyComponent/ExpansionResult model the engine expands. registry library scope; assemblies.test.ts.",
+        "configurable rules": "Company override of a seeded assembly. db_acceptance tenant configuration for assemblies.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for assemblies.",
+        "validation and testing": "assemblies.test.ts refuses a negative assembly or component quantity, refuses an indirect A > B > A cycle by name, and refuses nesting deeper than 8 levels."
+      },
+      "not_verified": {
+        "import/export": "No tested assembly import or export."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers assemblies.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers assemblies.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: expandAssembly states, per component, the quantity per parent unit, the nesting multiplier and the resulting quantity. assemblies.test.ts, 21 tests."
+      }
+    },
+    "Markup & Margin": {
+      "exists": true,
+      "verified": {
+        "canonical model": "PricingProfile with ordered markup components; pricing_profiles and markup_components persist it. engine_suites pricing.test.ts.",
+        "configurable rules": "Parallel and stacked methods genuinely differ, and each component names its basis and sequence (RULE-007). db_acceptance tenant configuration for pricing_profiles.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for pricing_profiles.",
+        "validation and testing": "engine_suites pricing.test.ts, including the stacked-markup defect fixed earlier in the build."
+      },
+      "not_verified": {
+        "import/export": "No tested import or export of a pricing profile."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers pricing_profiles.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers pricing_profiles.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: calculatePrice names each component, its basis and its dollar effect."
+      }
+    },
+    "Regional Pricing": {
+      "exists": true,
+      "verified": {
+        "canonical model": "regional_factors is a three-tier library with per-bucket factors. db_acceptance.",
+        "configurable rules": "The profile carries region and regionalFactor, applied inside the markup basis. engine_suites pricing.test.ts.",
+        "auditability": "db_acceptance auditability.",
+        "permissions": "db_acceptance role controls for regional_factors.",
+        "validation and testing": "engine_suites pricing.test.ts covers the regional factor inside the markup basis."
+      },
+      "not_verified": {
+        "import/export": "No tested import of a regional factor set."
+      },
+      "conditions": {
+        "tenant-specific configuration": "db_acceptance tenant-specific configuration: the company can read the platform seed and can neither edit nor delete it. Covers regional_factors.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing. Covers regional_factors.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: the regional factor appears inside the calculatePrice derivation."
+      }
+    },
+    "Risk & Confidence": {
+      "exists": true,
+      "verified": {
+        "canonical model": "ConfidenceResult with score, band, verification status, contingency and every factor that moved the score. engine_suites confidence.test.ts.",
+        "configurable rules": "Measurement method, verification checks, data source and source count are all inputs; the band thresholds are declared constants.",
+        "auditability": "db_acceptance auditability, via estimate_versions carrying weighted_confidence and confidence_band.",
+        "permissions": "db_acceptance role controls.",
+        "validation and testing": "engine_suites confidence.test.ts."
+      },
+      "not_verified": {
+        "import/export": "No tested export of a confidence report."
+      },
+      "conditions": {
+        "tenant-specific configuration": "Measurement method, verification checks, data source and source count are inputs. engine_suites confidence.test.ts.",
+        "role controls": "db_acceptance role controls: RLS enabled and forced, one company never sees another's rows, anonymous reads nothing.",
+        "version history": "db_acceptance version history: an issued estimate version is immutable (RULE-009), issuing requires an issue date, and a revision is a new version alongside it.",
+        "traceable output": "engine_acceptance: scoreConfidence explanation carries the arithmetic at every score, and every factor that moved it is exposed."
+      }
+    },
+    "Takeoff": {
+      "exists": false,
+      "verified": {},
+      "not_verified": {
+        "canonical model": "There is no takeoff entity. Documents are ingested, split and classified by sheet, but nothing records a measurement, a calibration or an annotation.",
+        "configurable rules": "No takeoff to configure.",
+        "auditability": "No takeoff records to audit.",
+        "permissions": "No takeoff records to gate.",
+        "import/export": "PDF and CAD sources are not measured; no takeoff import or export exists.",
+        "validation and testing": "Nothing to validate."
+      },
+      "conditions": {}
+    },
+    "AI Estimating Advisor": {
+      "exists": false,
+      "verified": {
+        "permissions": "The one AI agent that exists is capped at draft authority and its findings require human acceptance. registry AI_AGENT invariants; tests/functions/plan-analysis.test.ts.",
+        "auditability": "Accepting a finding records the reviewer and the time. plan-analysis and the Plans screen tests."
+      },
+      "not_verified": {
+        "canonical model": "The plan analyst proposes findings about documents. There is no estimating advisor: nothing recommends a service, a crew, a production rate or a price.",
+        "configurable rules": "No advisor to configure.",
+        "import/export": "No advisor import or export.",
+        "validation and testing": "No estimating advisor to validate."
+      },
+      "conditions": {
+        "role controls": "The one agent is capped at draft authority and its findings require human acceptance. registry AI_AGENT invariants; plan-analysis.test.ts."
+      }
+    },
+    "Configuration Studio": {
+      "exists": false,
+      "verified": {},
+      "not_verified": {
+        "canonical model": "There is no no-code studio. Company settings are fixed columns and screens, not a builder.",
+        "configurable rules": "Configuration exists but is not user-authorable.",
+        "auditability": "No studio artefacts to audit.",
+        "permissions": "No studio to gate.",
+        "import/export": "No configuration package import or export.",
+        "validation and testing": "Nothing to validate."
+      },
+      "conditions": {}
+    },
+    "White Label & OEM": {
+      "exists": false,
+      "verified": {
+        "configurable rules": "Company primary and accent colors drive a derived palette checked against WCAG contrast, and semantic colors are never re-themed. apps/web/src/lib/theme.test.ts, 24 tests."
+      },
+      "not_verified": {
+        "canonical model": "Branding columns exist on companies, but there is no reseller, partner or OEM entity.",
+        "auditability": "No branding change history is recorded distinctly.",
+        "permissions": "No OEM tenancy to gate.",
+        "import/export": "No brand package import or export.",
+        "validation and testing": "Theming is tested; OEM is not built."
+      },
+      "conditions": {
+        "tenant-specific configuration": "Company primary and accent colors drive a derived palette. theme.test.ts.",
+        "traceable output": "The rendered proposal carries the company's own name, address, license and colors. pdf documents.test.ts."
+      }
+    },
+    "Field & Mobile": {
+      "exists": false,
+      "verified": {},
+      "not_verified": {
+        "canonical model": "There is no mobile client and no offline store.",
+        "configurable rules": "Nothing mobile to configure.",
+        "auditability": "No field estimating records exist.",
+        "permissions": "Nothing mobile to gate.",
+        "import/export": "No offline sync path.",
+        "validation and testing": "Nothing to validate."
+      },
+      "conditions": {}
+    },
+    "Integration": {
+      "exists": true,
+      "verified": {
+        "canonical model": "connectors and connector_runs, with one adapter contract; api_keys and api_requests for the public surface. tests/functions/connectors.test.ts, api-gateway.test.ts.",
+        "permissions": "Scoped, rate-limited, hashed API keys; every response filtered to the key's company. api-gateway.test.ts.",
+        "auditability": "Every API request is logged against its key, including the failures. api-gateway and the gateway function.",
+        "configurable rules": "Adapter config is validated before a connector may be enabled, and credentials are held as handles only. connectors.test.ts.",
+        "validation and testing": "connectors.test.ts and api-gateway.test.ts, 100 and 65 cases, needing no credentials."
+      },
+      "not_verified": {
+        "import/export": "The gateway exposes an estimate read, but no test asserts an estimate export, and there is no estimate import."
+      },
+      "conditions": {
+        "tenant-specific configuration": "Adapter config is validated before a connector may be enabled. connectors.test.ts.",
+        "role controls": "Scoped, rate-limited, hashed keys; every response filtered to the key's company. api-gateway.test.ts."
+      }
+    },
+    "Reporting": {
+      "exists": true,
+      "verified": {
+        "canonical model": "metric_definitions holds one governed definition per metric; four reporting views compute them. tests/db/semantic.test.ts.",
+        "configurable rules": "A company may override a global metric definition without disturbing it. semantic.test.ts.",
+        "permissions": "Every reporting view runs security_invoker, asserted both by a migration-time check and by test. semantic.test.ts.",
+        "auditability": "db_acceptance auditability; metric definition changes are audited like any other row.",
+        "validation and testing": "semantic.test.ts, 18 cases, including the arithmetic the view comments promise."
+      },
+      "not_verified": {
+        "import/export": "Reports render to PDF, which is an export, but no test asserts an estimate report export specifically, and there is no report definition import."
+      },
+      "conditions": {
+        "tenant-specific configuration": "A company overrides a global metric definition without disturbing it. semantic.test.ts.",
+        "role controls": "Every reporting view runs security_invoker, asserted at migration time and by test. semantic.test.ts.",
+        "traceable output": "The proposal and pay application render deterministically and reconcile to their own lines. pdf documents.test.ts."
+      }
+    }
+  },
+  "acceptance_conditions": {
+    "note": "Every P05 acceptance criterion demands all four. A requirement is verified only when its module has the aspect AND satisfies all four conditions, each with a named test.",
+    "conditions": [
+      "tenant-specific configuration",
+      "role controls",
+      "version history",
+      "traceable output"
+    ]
+  }
+}

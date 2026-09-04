@@ -1,0 +1,167 @@
+{
+  "phase": "P30",
+  "title": "Commercialization, Billing & White Label",
+  "method": "Every P30 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Capability N passes when plan/version, tenant scope, entitlement or billing effect, lifecycle transition, audit evidence, failure/retry behavior, security boundary, and mapped tests are verified.' The eight conditions are assessed platform-wide, because a plan catalog, an entitlement mechanism and a webhook boundary are platform properties rather than per-domain ones. A requirement is verified only where the condition set holds AND its domain is actually built. Domain status was judged against the schema, the Edge Functions, the pricing page and the tests, one domain at a time.",
+  "judged_before_and_after": "Judged first against the platform as it stood. The first condition \u2014 plan/version \u2014 failed outright: the catalog was a live table with no history, and entitlement was copied from whatever it said at the moment a webhook arrived. That failure alone put all 540 requirements at not verified. It was then built, along with the three findings below. This file records the second judgment.",
+  "findings": [
+    {
+      "id": "P30-F1",
+      "title": "Commercial terms were resolved against a table that had since moved",
+      "detail": "`plans` and `plan_prices` had no version, no effective dating and no history. `deriveState` set `entitlement.features = plan.features`, read live at webhook time. Editing a plan therefore re-termed every existing subscriber on their next Stripe event, and nothing in the platform could answer what a customer had actually been sold.",
+      "why_it_matters": "This is the same defect library snapshots fixed for estimates: a figure somebody agreed to, resolved against data that has since changed. A customer disputing a bill and a contractor defending an estimate are asking the identical question, and the platform could answer only one of them.",
+      "status": "resolved",
+      "resolution": "Migration 0030 adds `plan_versions`, published by trigger whenever a commercial term changes and silent on marketing copy, append-only, with the current version derived rather than flagged. `subscriptions.plan_version_id` and `entitlements.plan_version_id` pin what was sold, a trigger refuses an entitlement granting more than its version publishes, and `resolvePlanVersion` grandfathers a held version while a plan change takes today's terms. 24 database tests and 11 state-machine tests."
+    },
+    {
+      "id": "P30-F2",
+      "title": "The pricing page sold capabilities that do not exist",
+      "detail": "The Enterprise plan advertised 'SSO, advanced security and data residency options' in its headline, and the comparison table carried a row 'SSO and advanced security' marked included. There is no SAML, no OIDC, no federation and no region selection anywhere in the codebase \u2014 the settings screen lists single sign-on under 'Not yet available'. The seeded plan description said the same thing. Separately, the comparison table's booleans were hand-authored with no link to `plans.features`, so moving a feature between plans left the page selling the previous arrangement.",
+      "why_it_matters": "It is the settings-toggle defect on the page where somebody decides to pay. A toggle that switches nothing misleads a user who already bought; a plan that sells a capability the code does not have takes money for it.",
+      "status": "resolved",
+      "resolution": "The SSO and data residency claims are removed from the pricing page and from the seeded plan description. Every comparison row that corresponds to an entitlement now carries its feature key, and `apps/web/src/data/plans.check.test.ts` reads the seeded catalog and asserts each boolean matches what the plan actually grants, that no row names a feature the catalog does not define, and that the page does not sell SSO, MFA or data residency. 10 tests, confirmed to fail when a single boolean is flipped."
+    },
+    {
+      "id": "P30-F3",
+      "title": "Plan limits were recorded and enforced nowhere",
+      "detail": "`plans` carried max_seats, max_active_estimates, max_active_projects, storage_gb and ai_credits_per_month; `entitlements` copied all five; the pricing page sold them as '25 active estimates' and 'Up to 3 users'. Nothing anywhere refused the 26th estimate or the 4th user.",
+      "why_it_matters": "A limit that is stated and not enforced is a property the platform claims and does not have \u2014 and commercially it is the reason somebody upgrades. Every plan boundary was decorative.",
+      "status": "resolved",
+      "resolution": "Migration 0031 enforces the three limits a customer actually meets: active estimates, active projects and seats. `app.plan_limit` returns NULL for unlimited and for a company with no active entitlement, so a billing gap never becomes a data outage; archived and lost work stops counting, so a company is not pushed to delete its own history to keep working; an invited user consumes a seat. `reporting_plan_usage` shows usage against allowance. Storage and AI credits were left unenforced at the time, on the stated reasoning that both needed a measured quantity nothing yet metered. That reasoning was correct for storage and wrong for AI credits \u2014 see the correction below \u2014 and migration 0039 closed the AI half.",
+      "correction": "This finding originally recorded AI credits as unenforceable because nothing metered them. That was wrong. The document analyst has always written a `usage_events` row with metric `ai.request` on every run, and `app.current_usage` has always aggregated that metric over the paid period; both halves existed and nothing joined them. Found while verifying P27, and corrected here rather than left standing. Migration 0039 adds `app.usage_allowance` and `app.ai_request_allowed`, the analyst refuses a request past the allowance with a 402 naming when it resets, and `reporting_usage_allowance` shows usage before somebody hits the wall. 9 tests. Storage remains unenforced and the original reasoning still holds for it: nothing measures stored bytes."
+    },
+    {
+      "id": "P30-F4",
+      "title": "Tables added after migration 0011 arrived unaudited",
+      "detail": "Migration 0011 attached the audit and updated_at triggers by looping over the tables that existed at that moment. Nothing ran that loop for tables added afterwards, so everything from 0026 onward had neither \u2014 including work calendars, whose holidays move every date on a project schedule, and `work_calendars.updated_at`, which no trigger maintained. `stripe_events`, the idempotency ledger the whole billing story rests on, was neither audited nor immutable: the payload of a processed event could be edited afterwards with no trace. `api_requests` and `ai_messages`, both cited as evidence in security verification, were equally open.",
+      "why_it_matters": "A log that can be edited is not evidence, and it is quoted as evidence in three verification verdicts.",
+      "status": "resolved",
+      "resolution": "0030 attaches the standard triggers to the calendar tables, freezes `api_requests` and `ai_messages`, and freezes the record half of `stripe_events` while leaving processing state free to advance. `tests/governance/registry.test.ts` now asserts the general rule: every table is either audited or frozen, with an exemption list capped at three entries that each state a reason. The next table added without either fails the build."
+    },
+    {
+      "id": "P30-F5",
+      "title": "Feature entitlement is computed everywhere and consulted in one place",
+      "detail": "`app.has_entitlement` and `app.can_use` are correct, tested and granted to the right roles. Across the whole platform they are called from exactly one place: the AI document analyst Edge Function checks `ai_plan_review` before running. No screen, no table policy and no other function consults a feature key. A plan's `features` array is therefore an accurate description of what a customer bought and a near-complete non-control over what they can reach \u2014 a company on Starter can open the procurement, fleet and scheduling screens its plan does not include. The key `takeoff` is granted by three plans and gates nothing at all.",
+      "why_it_matters": "It is the same shape as the three findings above \u2014 a property the platform states and does not enforce \u2014 and it is the one that survives them. Limits are now enforced; feature gating is not.",
+      "status": "open",
+      "why_not_resolved": "Unlike the limits, this is not a bounded fix. It needs a decision this build should not make alone: what happens to work a company already created under a feature it no longer holds. Hiding it would make a downgrade look like data loss; the defensible answer is read-only, and that means a per-feature mapping from key to tables and a downgrade path through RLS rather than a screen-level check that the API would not honor anyway. Recorded as the leading absence rather than half-built, because a feature gate applied to some screens and not others is worse than none: it teaches a user the gate is not real."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All eight are required by the criterion. They are assessed platform-wide: a plan catalog, an entitlement mechanism and a webhook boundary are properties of the platform, and no single domain can satisfy them alone.",
+    "conditions": [
+      "plan/version",
+      "tenant scope",
+      "entitlement or billing effect",
+      "lifecycle transition",
+      "audit evidence",
+      "failure/retry behavior",
+      "security boundary",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "plan/version": {
+      "status": "met",
+      "evidence": "`plan_versions` holds commercial terms as published \u2014 name, tier, every limit, the feature set and the trial length \u2014 copied rather than referenced, append-only, and published by trigger whenever a term changes on `plans`. Editing a tagline or a sort order publishes nothing, because a version per typo makes the history unreadable and protects nobody. The current version is derived as the highest, not carried as a flag, because an append-only table cannot maintain one. `subscriptions.plan_version_id` and `entitlements.plan_version_id` pin what was sold; a trigger refuses an entitlement whose features exceed the version it names, except for a manual grant, which already has to name a granter and a reason. `resolvePlanVersion` keeps the version a customer holds while they stay on the plan and takes the current one when they change plan, and says so in a warning when a subscription predates versioning rather than passing the fallback off as a pin."
+    },
+    "tenant scope": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on every billing table. The anonymous role reaches only the live plan catalog \u2014 `plans` and `plan_prices`, filtered to active and public rows \u2014 and the privilege gate in 0012 fails the migration if it can read anything else; it refused `plan_versions` when the grant was first written wider, and the grant was narrowed rather than the gate. A unique partial index allows one live subscription per company, so entitlement resolution is never ambiguous, and `entitlements` is unique per company. `app.plan_limit` and every limit trigger key off `new.company_id`, so a limit is counted within one tenant and never across."
+    },
+    "entitlement or billing effect": {
+      "status": "met",
+      "evidence": "The billing effect is enforced: since 0031 a company is refused an active estimate, an active project or a seat past the allowance its plan version publishes, with an error naming the limit and the plan. `app.plan_limit` returns NULL for unlimited and for a company with no active entitlement, so a billing gap never becomes a data outage, and archived or closed work stops counting so nobody is pushed to delete their history to keep working. The entitlement mechanism is complete and correct \u2014 `app.has_entitlement` answers whether a company holds a feature under an active, unexpired entitlement, `app.can_use` requires entitlement AND permission so that paying for a feature does not grant a user the right to use it, and entitlement is materialized rather than a view specifically so it survives a Stripe outage with `valid_until` bounding the grace. Its application is narrow, and finding P30-F5 records exactly how narrow: one call site."
+    },
+    "lifecycle transition": {
+      "status": "met",
+      "evidence": "Every Stripe status is mapped, and `ENTITLING_STATUSES` states which of them entitle \u2014 including `past_due`, deliberately, so a card expiring mid-bid does not cut a contractor off during the dunning window. Trial start and end, cancel-at-period-end, canceled_at and ended_at are all carried. GrounUp mirrors Stripe's lifecycle rather than enforcing a transition graph of its own, which is the correct choice: a platform that refused a transition Stripe had already made would disagree with the system of record about what a customer is paying for. The transitions that are GrounUp's own \u2014 provisioning, trial grant, manual grant \u2014 each carry their own constraints."
+    },
+    "audit evidence": {
+      "status": "met",
+      "evidence": "Every billing table carries the full-row audit trigger, and the webhook additionally writes an explicit `audit_events` row on each entitlement change naming the Stripe event id as its reason, so the ledger says which event moved a customer's access. `plan_versions` is append-only and is its own record. What Stripe sent is now frozen: id, type, payload, livemode and received_at cannot be rewritten, while processing_state, attempts and processed_at stay free to advance. `api_requests` and `ai_messages` are append-only. A governance test asserts the general rule \u2014 every table is audited or frozen \u2014 so this cannot quietly regress on the next migration."
+    },
+    "failure/retry behavior": {
+      "status": "met",
+      "evidence": "A bad signature returns 400 rather than 500, because a bad signature will never become good and Stripe should stop retrying it. Every delivered event is inserted by its own id with on-conflict-do-nothing, so a replay collides on the primary key and is skipped rather than applied twice \u2014 the idempotency barrier is the database's, not the handler's. `processing_state`, `attempts` and `processing_error` record what happened to each event, and unprocessed events are indexed for recovery. Entitlement survives Stripe being unreachable entirely, because it is materialized with a grace window set past the paid period end rather than exactly at it."
+    },
+    "security boundary": {
+      "status": "met",
+      "evidence": "No card data is stored \u2014 the brand and last four digits only, for display, with a column comment saying so. The Stripe secret and webhook signing secret live in Edge Function environment secrets and never reach the browser bundle. The browser sends only a company, a plan and an interval; the price is resolved server-side from the governed catalog, so nothing the browser sends can influence what is charged. Permission checks run through the caller's own JWT client, which means a function cannot authorize something the database would refuse. A success redirect grants nothing: entitlement is written only from signature-verified webhook state. 41 state-machine tests, including a suite specifically on treating everything from the browser as untrusted."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "75 tests specific to this phase: 41 on the subscription state machine covering plan resolution, entitling statuses, the grace window, event routing, request validation and plan version resolution; 34 against real PostgreSQL covering version publication and immutability, entitlement agreeing with its version, the pinned terms surviving a catalog change, limit enforcement and its exemptions, the frozen Stripe record and the audit gaps; and 10 asserting the pricing page's claims against the seeded catalog. All run in npm run verify."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Plans & Packaging",
+      "Product Catalog",
+      "Subscription Lifecycle",
+      "Invoices",
+      "Usage Metering",
+      "Usage Aggregation",
+      "Quotas & Limits",
+      "Entitlements",
+      "Trials",
+      "Upgrades/Downgrades",
+      "Cancellation",
+      "Provisioning",
+      "Brand Themes",
+      "Document Branding",
+      "API Access Plans",
+      "Billing Audit",
+      "Commercial Security",
+      "Migration/Grandfathering",
+      "Plan Versioning",
+      "Self-Service Admin"
+    ],
+    "partial": {
+      "SaaS Control Plane": "The pieces a control plane governs exist \u2014 catalog, versions, entitlements, provisioning, usage. There is no operator surface above them: no screen or API through which somebody running the platform administers tenants, grants, or plan publication.",
+      "Tenant Lifecycle": "A company is provisioned with its owner, role, entitlement and trial in one governed call. Nothing suspends, offboards or deletes one: there is no end to the lifecycle, and no export before deletion.",
+      "Pricing Models": "Per-seat licensed and metered usage types are both modeled, with monthly and annual intervals and quantity carried from Stripe. There is no tiered, graduated or volume pricing, and no overage rate for exceeding an allowance.",
+      "Billing Accounts": "A Stripe customer id ties a company to its billing. There is no billing account of GrounUp's own: no billing contact distinct from the owner, no billing address, no purchase order number, no separate bill-to entity for a group.",
+      "Payments": "The default payment method's brand and last four digits are carried for display, and payment success or failure moves the subscription status. No payment is recorded as an event, so there is no payment history independent of Stripe.",
+      "Licensing": "Seats are counted and enforced against the plan allowance. There is no license model beyond a seat count: no named-user versus concurrent licensing, no role-priced seats, no license assignment separate from membership.",
+      "Renewals": "The paid period is carried and renewal moves it forward through the webhook. Nothing notices an upcoming renewal, notifies anybody, or handles a deliberate non-renewal beyond the cancel-at-period-end flag.",
+      "Dunning": "The dunning window is respected rather than run: a past-due account keeps working, deliberately, because cutting a contractor off mid-bid costs more than the few days it saves. There is no dunning process of GrounUp's own \u2014 no notice, no retry schedule, no escalation, no final cut-off.",
+      "Customer Onboarding": "Provisioning seeds a working company with a library and a trial. There is no onboarding: no guided setup, no data import, no first-run checklist, no measure of whether a customer reached value.",
+      "White Label": "A company's brand colors drive a derived palette checked for contrast, and documents carry its identity. The partner white-label plan exists in the catalog with no partner administration behind it, and there is no per-tenant application shell, domain or login page.",
+      "Integration Catalog": "Connectors exist and are governed \u2014 weather, and the ingestion pipeline \u2014 with an integrations settings surface. There is no catalog: nothing lists available integrations, records which a tenant has enabled, or gates them by plan.",
+      "Webhooks": "Inbound webhooks from Stripe are verified, deduplicated and recorded to a standard the rest of the platform is held to. There are no outbound webhooks: a customer cannot subscribe to events from GrounUp.",
+      "AI Usage Entitlements": "An AI credit allowance is published on the plan version, carried on the entitlement, metered on every run as a `usage_events` row, and since migration 0039 enforced: the document analyst refuses a request once the period's allowance is spent, with a message saying when it resets. What remains is that the allowance is counted in requests rather than tokens, so a large document and a small one cost the same credit, and there is no soft warning before the hard stop.",
+      "Storage Entitlements": "A storage allowance is published and carried. Nothing measures stored bytes, so there is nothing to enforce it against \u2014 the one half of the metering gap that is still real.",
+      "Seat Management": "Seats are limited and an invitation consumes one, refused past the allowance with a message naming the plan. There is no seat management: no reclaiming a seat from a departed user, no pending-invitation expiry, no view of who holds one.",
+      "Project/Company Limits": "Active projects are enforced against the plan allowance, and archived or closed work stops counting. The company limit \u2014 how many companies one subscription may carry \u2014 is published and not enforced.",
+      "Contracted Enterprise Plans": "A manual grant is the mechanism, and it is properly governed: it must name who granted it and why, and it is the one entitlement allowed to differ from its plan version. There is no contract record behind it \u2014 no term, no committed value, no renewal date, no signature.",
+      "Feature Deprecation": "Plan versioning makes removing a feature safe for existing customers, which is the hard half. There is no deprecation process: no sunset date, no notice, nothing that reports who is still on a version carrying a feature being withdrawn."
+    },
+    "not_built": {
+      "Credits & Adjustments": "No credit note, no manual adjustment, no goodwill credit. Nothing can reduce what a customer owes inside GrounUp.",
+      "Taxes & Jurisdiction": "No tax calculation, no jurisdiction, no exemption certificate, no VAT or GST registration number.",
+      "Feature Flags": "A plan's feature set is entitlement, not a flag. There is no per-tenant toggle, no gradual rollout, no kill switch for a shipped feature.",
+      "Promotions": "No promotional pricing, no campaign, no time-limited offer.",
+      "Coupons": "No coupon, no redemption, no eligibility rule.",
+      "Proration": "Stripe prorates a mid-cycle change and GrounUp neither records nor displays it, so a customer asking why an invoice is an odd amount cannot be answered from here.",
+      "Revenue Operations": "No revenue recognition, no deferred revenue, no ledger, no export to a finance system.",
+      "Customer Success": "No account health, no success plan, no touchpoint, no owner.",
+      "Support": "No ticket, no case, no queue, no support entitlement by plan.",
+      "Service Levels": "No service level is defined, measured or reported against.",
+      "Custom Domains": "No custom domain, no certificate handling, no per-domain routing.",
+      "Email Branding": "The platform sends no email at all, so there is none to brand.",
+      "Reseller/Partner": "A white-label partner plan row exists in the catalog. There is no partner: no reseller hierarchy, no margin, no partner-billed tenant.",
+      "Marketplace": "Not built and not planned. A marketplace is in the class of capability the traceability rules exclude globally.",
+      "Data Export Entitlements": "No export permission exists anywhere in the platform, so exports cannot be entitled, limited or metered by plan.",
+      "Regional Packaging": "A currency column on the price, and nothing else. No regional plan, no local pricing, no per-region availability.",
+      "Commercial Analytics": "No revenue reporting: no MRR, no ARR, no cohort, no plan mix.",
+      "Customer Health": "No usage-based health score, no risk signal, no engagement measure.",
+      "Churn/Retention": "Cancellation is recorded. Nothing analyzes it: no churn rate, no reason capture, no retention offer.",
+      "Expansion Revenue": "Upgrades happen and are not measured as expansion. No upsell signal, no seat growth reporting.",
+      "Privacy/Tax Data": "No tax identity is held, and no retention or deletion policy governs the commercial data that is \u2014 the same absence P28 recorded platform-wide.",
+      "Dispute Handling": "No chargeback handling, no dispute record, no evidence submission.",
+      "Refund Governance": "No refund can be issued, approved or recorded here.",
+      "Commercial Incident Response": "No billing incident process \u2014 the commercial face of the detection and response gap P28 named.",
+      "Customer Communications": "The notifications table carries a billing category and nothing writes to it. No invoice email, no renewal notice, no dunning message, no plan change confirmation."
+    }
+  }
+}
