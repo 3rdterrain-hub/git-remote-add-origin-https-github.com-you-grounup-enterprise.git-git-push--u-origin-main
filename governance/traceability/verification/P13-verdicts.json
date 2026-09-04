@@ -1,0 +1,86 @@
+{
+  "phase": "P13",
+  "title": "Business & Decision Intelligence",
+  "method": "Every P13 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Acceptance evidence demonstrates requirement N works for authorized roles, rejects unauthorized access, preserves lineage, and produces auditable results.' The four conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged after building migration 0053 and 2 tests. One of the four conditions fails, so P13 verifies at zero. The finding that produced it is a defect this build created rather than found: adding commitments to job cost made the platform's only forward-looking metric wrong.",
+  "findings": [
+    {
+      "id": "P13-F1",
+      "title": "The platform's only forward-looking number ignored money already promised",
+      "detail": "`cost_to_complete` was defined as `sum(approved_budget) - sum(actual_cost)`, described as 'Approved budget less actual cost. Negative means the budget is already spent and the remaining work has no funding behind it.' That was defensible when written: `committed_cost` was structurally zero because nothing had ever written a committed row, so a definition that ignored commitments ignored nothing. Since migration 0046 an issued purchase order posts its open commitment, and the omission became real money — a project with a $100,000 budget, $60,000 of actual cost and $50,000 committed reports $40,000 left to spend when it is $10,000 overcommitted.",
+      "why_it_matters": "A commitment is money the company can no longer choose not to spend. A forecast that excludes it tells a project manager there is room where there is a hole — and the error is always optimistic, growing with how well the job has been bought out, so it is largest exactly on the projects a manager is least worried about.",
+      "status": "resolved",
+      "resolution": "The definition now subtracts open commitments, and the change published version 2 through the metric versioning built in P29 — version 1 is kept, because a definition history that edits out its own mistakes answers no question worth asking. Two tests: the corrected figure against a project with a budget, an actual and a commitment, and the version history showing both definitions.",
+      "note": "Recorded as a defect **this build created**, not one it found. Adding the commitment posting in P07 was right; leaving the metric that reads the same column alone was not. Nothing caught it because a metric expression is prose the platform does not execute against its own semantics — it checks that an expression *runs* against its source view, which this one always did, and cannot check that it still *means* what its description says."
+    },
+    {
+      "id": "P13-F2",
+      "title": "Every input to a forecast exists and nothing forecasts",
+      "detail": "Opportunities carry an estimated value, a probability, an expected award date and a stage. Projects carry a budget, a contract value, actual cost, commitments and a schedule with a critical path and baseline variance. Production rates carry an achieved rate from the field since P04. Nothing multiplies, projects or extrapolates any of it: there is no weighted pipeline in the database, no cost forecast at completion, no schedule forecast, no scenario and no what-if.",
+      "why_it_matters": "'Forecasting & Scenario Planning' is a domain of sixteen requirements and decision intelligence is the phase's name. The platform can say what has happened with unusual precision and cannot say what is likely to happen next — and `cost_to_complete` is the single exception, which is why F1 mattered enough to fix rather than note.",
+      "status": "open",
+      "why_not_resolved": "A forecast is a claim about the future and this register's whole discipline is not making claims it cannot support. Earned value would be the right first one — a cost performance index and an estimate at completion are standard, well-defined and computable from what now exists — and it needs a budget spread over time or over quantity to compare progress against, which the platform does not hold: `approved_budget` is a single number with no curve behind it. Building the projection on a budget that cannot be phased would produce a confident number derived from a straight line nobody drew."
+    },
+    {
+      "id": "P13-F3",
+      "title": "Intelligence that reaches nobody is not intelligence",
+      "detail": "Thirteen reporting views now compute over the operational tables, sixteen governed metrics are evaluated through one function, and the analytics they produce reach one endpoint of the public API and no screen. 22 of the 23 application screens read demonstration fixtures.",
+      "why_it_matters": "This is P29's finding restated at the phase whose subject is decisions. A semantic layer nothing consumes cannot inform a decision, and every domain in this phase is named for a person who would be looking at something.",
+      "status": "open",
+      "why_not_resolved": "Unchanged from P29: the permanent fix is wiring the application to the governed queries, which is 22 screens of live queries, loading and error states, pagination and tenancy proof — a phase of work rather than a loose end. Recorded here rather than restated as new."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All four are required by the criterion. One fails, which is enough to stop every requirement.",
+    "conditions": [
+      "works for authorized roles",
+      "rejects unauthorized access",
+      "preserves lineage",
+      "produces auditable results"
+    ]
+  },
+  "platform_conditions": {
+    "works for authorized roles": {
+      "status": "met",
+      "evidence": "Every reporting view is `security_invoker`, so it reads with the caller's rights rather than its owner's, and carries `company_id` — both checked against the live catalog rather than a maintained list. Reads are gated on the reports and domain permissions, compensation is separated behind `hr.read`, and a membership's `project_scope` narrows a user to named projects. `app.evaluate_metric` requires a company in its signature because the API gateway runs as the service role, so the tenant filter cannot be left to a caller to remember."
+    },
+    "rejects unauthorized access": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on every table behind these views with two migration-time gates, no reporting view is granted to the anonymous role — asserted by test over the catalog — and no company can read another's figures. Writing a metric definition requires `company.manage` rather than the `reports.read` that once gated it, which P29 found and narrowed because the expression column is SQL text."
+    },
+    "preserves lineage": {
+      "status": "met",
+      "evidence": "Every metric names the reporting view it is computed from and a test executes each expression against that view, so a definition drifted from the schema fails the build — the check that found two metrics which could not be computed at all. Every view computes live over base tables with nothing materialized, asserted by test, so no figure is a stale copy. Every job cost row names its source record in a reference that is deleted with it, so a dollar in a report points at the timecard, invoice, purchase order or fuel transaction that produced it. Every metric definition change publishes an append-only version."
+    },
+    "produces auditable results": {
+      "status": "not_met",
+      "gap": "A result is reproducible — live views, derived expiry, pinned library snapshots, versioned definitions — and it is not audited. Nobody's reads are recorded anywhere: P01 established that the audit triggers fire on insert, update and delete and that PostgreSQL has no select trigger, so who looked at which figure is written nowhere. There is no export to audit either, because nothing exports. And this phase found the sharper version of the problem: a metric can be *reproducible* and *wrong*, because the platform checks that an expression runs against its source view and cannot check that it still means what its description says — which is exactly how `cost_to_complete` came to report room where there was a hole."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Semantic Metrics Layer"
+    ],
+    "partial": {
+      "Financial Intelligence": "Cost, commitment, billing, retainage, margin and change order impact per project, computed live, with every dollar traceable to the record that produced it — and complete for the first time only since labor, materials, subcontracts and commitments began posting in P07 and P09. Cost to complete is corrected here. There is no trend, no period comparison and no cash position.",
+      "Estimating Intelligence": "Bid hit rate and estimates submitted by month and division, and since P04 the achieved production rate from the field against the library rate, weighted by hours with its evidence beside it. There is no bid-versus-actual at the line level, no estimator performance and no win/loss analysis beyond the count.",
+      "Workforce Intelligence": "Approved hours and premium-hour ratio by week, project and cost code, and the daily-report-against-timecard reconciliation added in P09. No productivity against estimate, no absence, no turnover, no crew comparison.",
+      "Safety, Quality & Compliance Analytics": "The strongest analytics in the platform after P29: TRIR and DART computed correctly against approved hours, incidents by month, open investigations, and lapsed credentials with the work each one blocks. No leading indicators, no trend, no benchmark, and quality has no analytics at all because a failed inspection stops nothing.",
+      "Project Intelligence": "Cost, schedule variance against baseline, labor reconciliation and safety per project, each computed live. There is no project health score, no earned value and no forecast — F2.",
+      "Operational Intelligence": "Exceptions are real and improving: a machine down, a service due, a credential lapsed, a superseded design still on a machine, a labor variance between the report and the timecards. There is no operational dashboard, no cycle time and no throughput.",
+      "Data Platform & Lineage": "Lineage is genuinely enforced — metric to view proven by execution, cost to source record by reference, estimate to the library snapshot that priced it. There is no data platform beneath it: no warehouse, no pipeline, no catalog, no quality framework, as P29 recorded in detail.",
+      "Reporting & Distribution": "Thirteen views and sixteen governed metrics compute; one view is served through the public API. There is no distribution of any kind — no schedule, no subscription, no export, no delivery.",
+      "Procurement Intelligence": "Since P07 commitments and vendor invoices reach the job, so spend by vendor and by project is derivable from `project_costs`. Nothing derives it: no spend analysis view, no vendor performance, no savings measure.",
+      "Fleet Intelligence": "Fuel reaches the job and utilization is computed on a screen from demonstration data. There is no fleet reporting view at all — no cost per hour, no availability, no replacement analysis — which P29 recorded and P07 could not close because equipment time never reaches cost."
+    },
+    "not_built": {
+      "Executive Command Center": "No executive view. Everything one would read now exists in the reporting layer and no screen assembles it, and the dashboard that exists reads fixtures.",
+      "Forecasting & Scenario Planning": "No forecast and no scenario. The estimating engine compares scenarios and nothing carries that into reporting — F2.",
+      "Portfolio & Program Intelligence": "No portfolio. Projects are flat with no program or parent above them, so there is nothing to aggregate across and no capital view.",
+      "CRM & Market Intelligence": "Bid hit rate is the whole of it. No pipeline conversion, no source attribution, no customer value, no market or competitor analysis — and P08 recorded that opportunities keep no stage history, so velocity cannot be computed at all.",
+      "Self-Service Analytics": "No query surface, no report builder, no saved view, no pivot, no ad hoc anything.",
+      "AI Decision Intelligence": "No decision AI. The one governed agent reads drawings and is capped at draft authority; nothing recommends, ranks or explains a decision, and P06 recorded that fourteen of the fifteen cataloged agents do not exist.",
+      "Enterprise Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

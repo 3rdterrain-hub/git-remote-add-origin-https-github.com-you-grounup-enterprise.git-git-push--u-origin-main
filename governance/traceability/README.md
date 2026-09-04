@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,913 verified of 7,975
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,913 verified of 8,275
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -53,6 +53,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P23 Platform Engineering & Implementation Controls | 300 | 0 |
 | P04 Master Library Registry | 97 | 35 (36%) |
 | P06 AI Platform | 120 | 0 |
+| P13 Business & Decision Intelligence | 300 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -197,6 +198,20 @@ recorded rather than the original quietly rewritten, and P04 moves from 36
 verified to 35. A verdict that overstates is worse than a defect in the code,
 because it is a defect in the checking.
 
+P13 verifies at zero and found a defect **this build created**. `cost_to_complete`
+— the platform's one forward-looking number — was `approved_budget − actual_cost`.
+That ignored nothing while `committed_cost` was structurally zero, and became
+wrong the moment P07 started posting commitments: a project with $100,000
+budgeted, $60,000 spent and $50,000 committed reported $40,000 left when it was
+$10,000 overcommitted. **A commitment is money the company can no longer choose
+not to spend**, and the error is always optimistic — largest on the jobs a
+manager is least worried about. Corrected, with version 1 kept.
+
+It also names the sharper limit behind it: a metric can be **reproducible and
+wrong**. The lineage test proves an expression *runs* against its source view,
+which this one always did; nothing can check that it still *means* what its
+description says.
+
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
 absent: detection and response, secret lifecycle, and security monitoring. It
@@ -265,9 +280,9 @@ This distinction is the whole integrity of the matrix, and it is enforced.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
   confirmed a specific test asserts it. **1,913 requirements are verified** of
-  7,975 judged, across P01, P03, P04, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and
-  P30, each recorded in its own `verification/*-ledger.csv`. P06, P09, P16, P17, P20,
-  P23, P27, P28 and P29 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  8,275 judged, across P01, P03, P04, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and
+  P30, each recorded in its own `verification/*-ledger.csv`. P06, P09, P13, P16, P17,
+  P20, P23, P27, P28 and P29 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

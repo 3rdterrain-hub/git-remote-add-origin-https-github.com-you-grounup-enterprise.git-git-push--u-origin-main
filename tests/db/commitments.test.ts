@@ -230,3 +230,67 @@ describe('commitments and vendor cost reach the job', () => {
     });
   });
 });
+
+/**
+ * The forecast, after commitments became real.
+ *
+ * `cost_to_complete` was `approved_budget - actual_cost`. That ignored nothing
+ * while `committed_cost` was structurally zero, and became wrong the moment
+ * migration 0046 started posting commitments — always in the optimistic
+ * direction, and by more the better the job is bought out.
+ */
+describe('cost to complete counts money already promised', () => {
+  let h: Harness;
+  const owner = '11111111-1111-4111-8111-111111111111';
+  let company = '';
+  let project = '';
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test')`, [owner]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test')`, [owner]);
+    company = (await h.asUser(owner, () => h.sql<{ id: string }>(
+      `select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
+    project = (await h.asUser(owner, () => h.sql<{ id: string }>(
+      `insert into projects (company_id, number, name, status, contract_value, approved_budget)
+       values ($1,'PRJ-CTC','Vale','active',120000,100000) returning id`, [company])))[0]!.id;
+    const vendor = (await h.asUser(owner, () => h.sql<{ id: string }>(
+      `insert into vendors (company_id, code, name) values ($1,'V-CTC','Cascade') returning id`,
+      [company])))[0]!.id;
+
+    // $60,000 of actual cost through an approved vendor invoice, and $50,000
+    // committed on an issued purchase order that has not been invoiced.
+    const po = (await h.asUser(owner, () => h.sql<{ id: string }>(
+      `insert into purchase_orders (company_id, project_id, vendor_id, number, title,
+         committed_amount, status, issued_at)
+       values ($1,$2,$3,'PO-CTC','Aggregate',50000,'issued',now()) returning id`,
+      [company, project, vendor])))[0]!.id;
+    expect(po).toBeTruthy();
+    await h.asUser(owner, () => h.sql(
+      `insert into ap_invoices (company_id, vendor_id, project_id, invoice_number,
+         invoice_date, amount, approval_state, approved_by, approved_at)
+       values ($1,$2,$3,'INV-CTC','2026-06-01',60000,'approved',$4,now())`,
+      [company, vendor, project, owner]));
+  }, 180_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('reports the hole rather than the room', async () => {
+    // 100,000 budget − 60,000 spent − 50,000 promised = −10,000. The old
+    // definition reported 40,000.
+    const [row] = await h.asUser(owner, () => h.sql<{ value: string }>(
+      `select value from reporting_metric_values
+       where company_id = $1 and key = 'cost_to_complete'`, [company]));
+    expect(Number(row!.value)).toBe(-10000);
+  });
+
+  it('keeps the definition that reported the room', async () => {
+    const rows = await h.sql<{ version: number; expression: string }>(
+      `select v.version, v.expression from metric_definition_versions v
+       join metric_definitions m on m.id = v.metric_id
+       where m.company_id is null and m.key = 'cost_to_complete' order by v.version`);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]!.expression).not.toContain('committed_cost');
+    expect(rows[1]!.expression).toContain('committed_cost');
+  });
+});

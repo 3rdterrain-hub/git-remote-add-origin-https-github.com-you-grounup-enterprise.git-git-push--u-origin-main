@@ -48,6 +48,7 @@ const p01 = JSON.parse(readFileSync(join(G, 'traceability/verification/P01-verdi
 const p23 = JSON.parse(readFileSync(join(G, 'traceability/verification/P23-verdicts.json'), 'utf8'));
 const p04 = JSON.parse(readFileSync(join(G, 'traceability/verification/P04-verdicts.json'), 'utf8'));
 const p06 = JSON.parse(readFileSync(join(G, 'traceability/verification/P06-verdicts.json'), 'utf8'));
+const p13 = JSON.parse(readFileSync(join(G, 'traceability/verification/P13-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -288,6 +289,7 @@ buildDomainLedger('P16', p16, 'P16');
 buildDomainLedger('P17', p17, 'P17');
 buildDomainLedger('P23', p23, 'P23');
 buildDomainLedger('P06', p06, 'P06');
+buildDomainLedger('P13', p13, 'P13');
 
 
 // ------------------------------------------------------------- P10 and P08
