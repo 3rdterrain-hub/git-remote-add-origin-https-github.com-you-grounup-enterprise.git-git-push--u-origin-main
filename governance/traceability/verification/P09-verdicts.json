@@ -1,0 +1,107 @@
+{
+  "phase": "P09",
+  "title": "Workforce & Human Resources",
+  "method": "Every P09 requirement is capability N of a domain, and every one carries the same acceptance criterion in Given/When/Then form: given an authorized tenant user, when the function is executed, then data, permissions, validation, audit and integration outcomes match the approved configuration. Five conditions, assessed platform-wide. A requirement is verified only where the whole condition set holds AND its domain is actually built.",
+
+  "judged_before_and_after": "Judged after building what the phase's own probes made necessary: migrations 0043 and 0044, and 26 tests. Three defects were found, two of them serious enough that the platform was actively wrong rather than merely incomplete — a safety control that failed open, and a reported profit that was structurally too high. One of the five conditions still fails, so P09 verifies at zero.",
+
+  "findings": [
+    {
+      "id": "P09-F1",
+      "title": "The credential gate failed open, on exactly the case it existed to catch",
+      "detail": "P14 built a control that refuses to assign somebody to work whose mandatory credentials they do not hold, and its test file opens by saying an employee 'whose CDL expired last month could be assigned to drive, with the expiry and the assignment recorded side by side and never connected.' The control did not work. `credentials.status` was a stored column holding a state derived from a date — valid, expiring, expired — maintained by a trigger firing `before insert or update of expires_on, status`. **Nothing fires with the passage of time.** A license written while it was still valid kept saying 'valid' the day after it lapsed, and `app.credential_gaps()` read that column and nothing else.",
+      "why_it_matters": "A safety control that fails open is worse than no control, because it reports success. Reproduced before the fix was written: a CDL that expired two hundred days earlier produced no gap and the assignment was accepted. Anyone reviewing the platform would have seen a green check beside an unqualified operator.",
+      "status": "resolved",
+      "resolution": "Migration 0043 applies the rule the platform already follows for a library rate's `valid_to`, a schedule's current baseline, a plan's current version and a metric's current definition: what can be derived is derived. `app.credential_standing()` computes expired, expiring and valid from the date every time it is asked, and `credentials.status` is dropped outright so there is nowhere left for a stale answer to live. What no date can decide — revoked, or applied for and not yet issued — is what the stored `lifecycle` column now holds, and only that. Six tests cover it, including the assignment the old gate let through.",
+      "found_by": "Reading the gate's own query while surveying the phase, then reproducing it against real PostgreSQL before writing a line of the fix."
+    },
+    {
+      "id": "P09-F2",
+      "title": "Labor never reached the job, so every margin the platform reported was too high",
+      "detail": "`project_costs` has always carried a `cost_type` of `labor` and `labor_burden`, an `hours` column and a `source` of `timecard`. `reporting_project_financials` sums the two labor types into `labor_cost` and reasons at length about why burden belongs with wages — 'reporting it separately makes labor look cheaper than it is, which is how a crew that is losing money looks fine on a dashboard.' **Nothing ever wrote a labor row.** Before this migration the only insert into `project_costs` anywhere in the schema was the fuel posting added for P12.",
+      "why_it_matters": "Labor is the largest cost category on a construction job. `labor_cost` was always zero, `actual_cost` omitted every hour anybody worked, and `gross_profit_to_date` — contract value minus actual cost — was therefore systematically overstated, by more the more people a job had on it. `labor_cost_ratio`, a governed metric shipped in the semantic layer and verified as a definition in P29, could only ever return zero. The platform reported profit, and the number was wrong in the flattering direction.",
+      "status": "resolved",
+      "resolution": "Migration 0044 posts approved time to the job it was worked on: wages at the governed labor rate with overtime and double time at their configured multipliers, burden as its own row so the split stays visible while the report shows the honest total, and per diem unburdened as its own day because a reimbursement is not a wage. Kept in sync rather than posted once — a corrected hour count corrects the job cost, a withdrawn approval takes it back off, and time moved to another project leaves nothing behind. Approved time only, matching the rule the productivity view and the safety rates already follow. The posting is a project cost like any other, so the financial period cutoff refuses one dated into a closed period and a timesheet cannot route around the accounting control. 16 tests.",
+      "note": "`project_costs.employee_id` referenced `auth.users`, so a labor cost could only name somebody with a login — and the `employees` schema itself notes that field staff commonly have none. Nothing had ever written the column, so it was repointed at `employees` in the same migration."
+    },
+    {
+      "id": "P09-F3",
+      "title": "The same day's hours were recorded twice and compared nowhere",
+      "detail": "The foreman writes crew hours on the daily report; the timecards are entered separately. `time_entries.daily_report_id` exists to tie the two together and nothing ever compared the totals, so a daily report claiming forty hours and timecards claiming thirty-two could sit side by side indefinitely — with the job costed off one and the production rate read off the other.",
+      "why_it_matters": "This is the oldest labor control on a construction job, and it is a subtraction. Hours reported and never put on a timecard are work somebody is not being paid for; hours on a timecard with no report behind them are payroll nobody has accounted for.",
+      "status": "resolved",
+      "resolution": "`reporting_labor_reconciliation` compares daily report hours to approved timecard hours by project and day and names the direction of any difference rather than leaving a reader to work it out. It reports rather than refuses, deliberately: the two legitimately differ while a day is still being entered, and a control that blocks a foreman's report because payroll has not caught up is a control that gets worked around by not filing the report. 4 tests."
+    },
+    {
+      "id": "P09-F4",
+      "title": "Nothing computes overtime; it is whatever somebody typed",
+      "detail": "`time_entries` carries straight, overtime and double time as three independent numbers, constrained only to be non-negative and to total no more than twenty-four in a day. No rule derives them: not the federal weekly threshold, not a daily threshold, not a seventh-consecutive-day rule, and not a union agreement. A week of sixty straight hours with zero overtime is accepted, and now that labor posts to the job, it is costed at straight time.",
+      "why_it_matters": "It is a real exposure and it is the honest boundary of what 0044 fixed. The posting prices the hours it is given correctly at the governed multipliers; it cannot know that ten of them should have been classified as overtime.",
+      "status": "open",
+      "why_not_resolved": "The rule is jurisdictional and contractual, not universal: the federal weekly threshold, California's daily and seventh-day rules, and whatever a specific collective bargaining agreement says are four different answers, and the platform has no union agreement table to read the fourth from. Implementing one of them as though it were the rule would produce confidently wrong payroll — which is the defect class this phase spent its time removing, not one to add. The correct build is an overtime policy per company with the agreement behind it, and it belongs with the Union and Labor Agreements domain that does not exist yet."
+    }
+  ],
+
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion, and all five are platform properties: the data, the permissions over it, the validation on it, the audit of it, and whether it reaches the systems it is supposed to reach.",
+    "conditions": [
+      "data",
+      "permissions",
+      "validation",
+      "audit",
+      "integration outcomes"
+    ]
+  },
+
+  "platform_conditions": {
+    "data": {
+      "status": "met",
+      "evidence": "The employee master is real: identity, division, classification, employment type, union membership and local, hire and termination dates, wage and burden, emergency contact, and a status across applicant, onboarding, active, on leave and terminated. Credentials carry type, issuing body, identifier, issue and expiry dates and the work they are a prerequisite for. Time carries straight, overtime, double time, per diem, project, task, cost code, daily report, approval state and payroll export marks. Crews carry members; assignments carry a person, a project, a work type and dates. What is absent is absent structurally rather than thinly — there is no leave record, no requisition, no review, no course — and those domains are recorded as not built rather than counted as data."
+    },
+    "permissions": {
+      "status": "met",
+      "evidence": "Compensation is separated from the rest of the workforce record by permission, and a test proves a foreman who legitimately belongs to the company sees no employee rows at all without `hr.read`. Row level security is enabled and forced on every workforce table, tenant parentage is enforced structurally between employees and their credentials and time, and the reporting views added this phase are `security_invoker` with `company_id` on every row and nothing granted to the anonymous role."
+    },
+    "validation": {
+      "status": "met",
+      "evidence": "A termination must record its date, and cannot precede the hire. A credential cannot expire before it was issued. A day cannot exceed twenty-four hours across the three hour types. Approved time must name who approved it and when. An exported timecard is frozen and says so, naming the batch and the date and telling the caller to post an adjusting entry. A labor rate a job is costed at must be approved before it can be active — library governance applying to the number payroll runs on. And since 0043, an assignment is refused where a mandatory credential is missing, revoked, not yet issued or lapsed, with the lapse now derived from the date rather than from a column that remembered one."
+    },
+    "audit": {
+      "status": "met",
+      "evidence": "Every workforce table carries the full-row audit trigger writing prior and new state into an append-only ledger no privilege level can edit, and a governance test asserts the general rule that every table in the schema is either audited or frozen, so a workforce table added later cannot arrive without one. Approvals record the approver and the moment. Credential withdrawal and lapse-on-write raise a notification naming the person, the credential and the work it blocks."
+    },
+    "integration outcomes": {
+      "status": "not_met",
+      "gap": "Two of the three integrations this phase implies now work and the third does not exist. Labor reaches job cost since 0044, and the daily report reconciles against the timecard since the same migration. **Payroll is the gap.** `time_entries.exported_at` and `payroll_batch` exist and are enforced — an exported entry is frozen — and nothing ever sets them, because there is no payroll export: no file, no format, no provider, no run. There is likewise no certified payroll report, no prevailing wage determination, no union fringe calculation and no benefits or leave accrual to integrate. A workforce module whose hours never leave for payroll has not met this condition however well it records them, and the freeze that guards the export is a control waiting on a process that was never built."
+    }
+  },
+
+  "domain_status": {
+    "built": [
+      "Employee Master",
+      "Licenses and Certifications"
+    ],
+    "partial": {
+      "Time and Attendance": "Time is captured per employee, project, task and cost code, with a source, an approval state that gates every downstream figure, a per diem, and a freeze once exported. Since 0044 approved time posts to the job at the governed rate and reconciles against the daily report. What is missing is the classification rule: nothing derives overtime from hours worked, so the split between straight, overtime and double time is whatever somebody typed — recorded as F4 with the reason it was not guessed at.",
+      "Crew Management": "Crews and crew members exist as governed rows, and the estimating engine prices a crew as a composition of labor and equipment. Nothing in operations consumes them: no crew is assigned as a unit, no daily report labor line resolves to its crew's members, and no crew-level productivity is computed.",
+      "Workforce Scheduling": "Resource assignments tie a person to a project over dates, cannot overlap for one resource, and are now refused where a mandatory credential is missing or lapsed. There is no schedule board, no availability calendar, no shift pattern and no dispatch.",
+      "Safety and Health Integration": "The strongest link in the phase: an assignment is refused on a credential gap, incidents tie to employees, and TRIR and DART are computed from recordables against the same approved hours payroll would use. There is no medical surveillance, no return-to-work program and no fitness-for-duty record.",
+      "Compensation and Payroll Integration": "Compensation is held and permission-separated, the loaded rate resolves through one governed function so a screen and the job cost cannot price an hour differently, and an exported timecard is frozen against edits. There is no export, no provider, no pay run, no earnings code mapping and no general ledger posting — the gap that fails this phase's integration condition.",
+      "Skills and Competencies": "Credentials carry the work each one is a prerequisite for, and `work_credential_requirements` turns that into an enforceable rule per kind of work. There is no skills taxonomy, no proficiency level, no assessment and no gap analysis against a project's needs.",
+      "Workforce Planning": "Assignments and the schedule together show who is committed where, and the estimating engine produces the labor a job will need by classification. Nothing joins the two into demand against supply: no forecast, no capacity view, no hiring plan.",
+      "Employee and Manager Self-Service": "An employee record can link to a login, and approval carries an approver. There is no self-service surface: no timesheet a worker submits for themselves, no request, no profile a manager maintains."
+    },
+    "not_built": {
+      "Recruiting and ATS": "No requisition, no candidate, no pipeline, no offer. `employees.status` can say 'applicant' and nothing produces one.",
+      "Onboarding": "`employees.status` can say 'onboarding' and nothing drives it: no checklist, no task, no document packet, no completion gate before somebody is assigned to work.",
+      "Leave and Absence": "`employees.status` can say 'on_leave' and there is no leave record anywhere — no request, no balance, no accrual, no calendar. Three status values the schema offers and no workflow behind any of them.",
+      "Performance Management": "No review, no goal, no rating, no cycle.",
+      "Career and Succession": "No career path, no succession plan, no readiness assessment, no bench.",
+      "Training and LMS": "A credential can be typed 'training' and that is the whole of it: no course, no curriculum, no enrollment, no completion record, no expiry driving a retraining requirement.",
+      "Union and Labor Agreements": "Employees carry `is_union` and a local, and labor rates carry a union flag. There is no agreement: no fringe schedule, no wage determination, no work rule, no dues or remittance — and its absence is why the overtime rule in F4 was left unbuilt rather than guessed at.",
+      "Prevailing Wage and Certified Payroll": "No wage determination, no prevailing wage rate, no certified payroll report, no WH-347, no apprentice ratio. A domain with statutory weight on public work and no representation at all.",
+      "AI Workforce Intelligence": "No attrition model, no staffing recommendation, no skills inference. The one governed agent is capped at draft authority on documents and does not touch workforce data.",
+      "Workforce Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

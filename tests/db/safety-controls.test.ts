@@ -53,9 +53,11 @@ describe('safety controls', () => {
   afterAll(async () => { await h?.db.close(); });
 
   const credential = (employee: string, name: string, expires: string, type = 'license') =>
-    h.asUser(owner, () => h.sql<{ id: string; status: string }>(
+    h.asUser(owner, () => h.sql<{ id: string; standing: string }>(
       `insert into credentials (company_id, employee_id, credential_type, name, expires_on)
-       values ($1,$2,$3,$4,$5::date) returning id, status`, [company, employee, type, name, expires]));
+       values ($1,$2,$3,$4,$5::date)
+       returning id, app.credential_standing(lifecycle, expires_on) as standing`,
+      [company, employee, type, name, expires]));
 
   const assign = (employee: string, workType: string | null, from = '2026-06-01', to = '2026-06-30') =>
     h.asUser(owner, () => h.sql<{ id: string }>(
@@ -93,7 +95,7 @@ describe('safety controls', () => {
     it('does not treat an expiring credential as a gap', async () => {
       // It is still valid. Warning about it is the notification's job.
       const [c] = await credential(driver, 'Confined Space', '2026-09-20', 'training');
-      expect(['expiring', 'valid', 'expired']).toContain(c!.status);
+      expect(['expiring', 'valid', 'expired']).toContain(c!.standing);
       const rows = await h.asUser(owner, () => h.sql(
         `select 1 from app.credential_gaps($1,'cdl_driving') where credential_name='Confined Space'`,
         [driver]));
@@ -129,7 +131,7 @@ describe('safety controls', () => {
         `insert into employees (company_id, employee_number, first_name, last_name, hourly_rate)
          values ($1,'EMP-X','Marco','Silva',34) returning id`, [company])))[0]!.id;
       const [c] = await credential(lapsed, 'CDL Class A', '2025-01-01');
-      expect(c!.status).toBe('expired');
+      expect(c!.standing).toBe('expired');
       await expect(assign(lapsed, 'cdl_driving', '2026-08-01', '2026-08-31'))
         .rejects.toThrow(/CDL Class A \(expired 2025-01-01\)/);
     });
@@ -139,7 +141,7 @@ describe('safety controls', () => {
         `insert into employees (company_id, employee_number, first_name, last_name, hourly_rate)
          values ($1,'EMP-R','Dee','Harmon',34) returning id`, [company])))[0]!.id;
       await h.asUser(owner, () => h.sql(
-        `insert into credentials (company_id, employee_id, credential_type, name, expires_on, status)
+        `insert into credentials (company_id, employee_id, credential_type, name, expires_on, lifecycle)
          values ($1,$2,'license','CDL Class A','2030-01-01','revoked')`, [company, revoked]));
       await expect(assign(revoked, 'cdl_driving', '2026-09-01', '2026-09-30'))
         .rejects.toThrow(/CDL Class A \(revoked\)/);
@@ -251,7 +253,7 @@ describe('safety controls', () => {
       expect(row!.title).toContain('OSHA 30');
     });
 
-    it('does not notify again when nothing about the status changed', async () => {
+    it('does not notify again when nothing about the standing changed', async () => {
       const before = await h.asUser(owner, () => h.sql<{ n: string }>(
         `select count(*) as n from notifications where entity_table='public.credentials'`));
       await h.asUser(owner, () => h.sql(
@@ -259,6 +261,90 @@ describe('safety controls', () => {
       const after = await h.asUser(owner, () => h.sql<{ n: string }>(
         `select count(*) as n from notifications where entity_table='public.credentials'`));
       expect(after[0]!.n).toBe(before[0]!.n);
+    });
+  });
+
+  /*
+   * The gate reads the date, not a remembered state.
+   *
+   * This control was built in P14 and did not work. `credentials.status` stored
+   * 'valid' / 'expiring' / 'expired', maintained by a trigger that fired only
+   * when somebody wrote the row — so nothing fired with the passage of time. A
+   * license that expired two hundred days ago still read 'valid', and
+   * `credential_gaps` read that column and nothing else. Reproduced before the
+   * fix: no gap reported, assignment accepted. **The gate failed open on the
+   * exact case it exists to catch.**
+   */
+  describe('expiry is derived, so it cannot go stale', () => {
+    it('has no stored status column left to go stale', () => {
+      // The structural half of the fix. There is no longer anywhere to keep a
+      // date's consequence written down, so it cannot disagree with the date.
+      return h.sql<{ column_name: string }>(
+        `select column_name from information_schema.columns
+         where table_schema='public' and table_name='credentials'
+           and column_name in ('status','lifecycle') order by column_name`)
+        .then((rows) => expect(rows.map((r) => r.column_name)).toEqual(['lifecycle']));
+    });
+
+    it('reads the same row differently as the date moves past it', () => {
+      // One unchanged credential, three answers, decided entirely by the clock.
+      return h.sql<{ tomorrow: string; yesterday: string; far: string }>(
+        `select app.credential_standing('active', current_date + 1)   as tomorrow,
+                app.credential_standing('active', current_date - 1)   as yesterday,
+                app.credential_standing('active', current_date + 400) as far`)
+        .then(([r]) => {
+          expect(r!.tomorrow).toBe('expiring');
+          expect(r!.yesterday).toBe('expired');
+          expect(r!.far).toBe('valid');
+        });
+    });
+
+    it('keeps the administrative states, which no date can decide', async () => {
+      const [r] = await h.sql<{ revoked: string; pending: string; none: string }>(
+        `select app.credential_standing('revoked', current_date + 400) as revoked,
+                app.credential_standing('pending', current_date + 400) as pending,
+                app.credential_standing('active',  null)               as none`);
+      // A revoked credential is revoked however long it had left, and a
+      // credential with no expiry date does not expire.
+      expect(r!.revoked).toBe('revoked');
+      expect(r!.pending).toBe('pending');
+      expect(r!.none).toBe('valid');
+    });
+
+    it('blocks the assignment the old gate let through', async () => {
+      const stale = (await h.asUser(owner, () => h.sql<{ id: string }>(
+        `insert into employees (company_id, employee_number, first_name, last_name)
+         values ($1,'EMP-S','Ana','Vidal') returning id`, [company])))[0]!.id;
+      // Written as held and active, with a date two hundred days gone — the
+      // state the old design reached by doing nothing at all.
+      await h.asUser(owner, () => h.sql(
+        `insert into credentials (company_id, employee_id, credential_type, name, expires_on, lifecycle)
+         values ($1,$2,'license','CDL Class A', current_date - 200, 'active')`, [company, stale]));
+
+      const gaps = await h.asUser(owner, () => h.sql<{ reason: string }>(
+        `select reason from app.credential_gaps($1,'cdl_driving')
+         where credential_name='CDL Class A'`, [stale]));
+      expect(gaps[0]!.reason).toMatch(/^expired /);
+
+      await expect(assign(stale, 'cdl_driving', '2026-10-01', '2026-10-31'))
+        .rejects.toThrow(/Ana Vidal cannot be assigned to cdl_driving.*CDL Class A \(expired/);
+    });
+
+    it('publishes what has lapsed and the work it blocks', async () => {
+      const [row] = await h.asUser(owner, () => h.sql<{
+        standing: string; blocks_work_types: string[]; days_remaining: number }>(
+        `select standing, blocks_work_types, days_remaining
+         from reporting_credential_expiry
+         where employee_name = 'Ana Vidal' and credential_name = 'CDL Class A'`));
+      expect(row!.standing).toBe('expired');
+      expect(row!.blocks_work_types).toEqual(['cdl_driving']);
+      expect(Number(row!.days_remaining)).toBe(-200);
+    });
+
+    it('shows one company nothing of another\'s lapsed credentials', async () => {
+      const rows = await h.asAnon(() => h.sql(`select 1 from reporting_credential_expiry`))
+        .then(() => 'readable').catch(() => 'refused');
+      expect(rows).toBe('refused');
     });
   });
 

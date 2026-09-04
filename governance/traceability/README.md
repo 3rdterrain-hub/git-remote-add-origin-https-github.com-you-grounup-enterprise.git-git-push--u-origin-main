@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,804 verified of 6,068
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,804 verified of 6,278
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -43,6 +43,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P11 Procurement & Supply Chain | 260 | 80 (31%) |
 | P12 Fleet & Equipment Management | 280 | 72 (26%) |
 | P29 Business Intelligence & Analytics | 520 | 0 |
+| P09 Workforce & Human Resources | 210 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -62,6 +63,17 @@ findings stay open and are stated at full size: the analytics the platform
 computes reach almost nobody — 22 of 23 screens read demonstration fixtures —
 and a company cannot be deleted at all, which is the concrete mechanism behind
 the retention gap P15 and P28 both recorded.
+
+P09 verifies at zero and found the two worst defects in the build. **The
+credential gate failed open**: expiry was a stored column maintained by a
+trigger that only fired when somebody wrote the row, so a CDL that lapsed two
+hundred days earlier still read `valid` and the control that exists to refuse an
+unqualified operator accepted the assignment. **And labor never reached the
+job**: `project_costs` carried a `labor` cost type, an `hours` column and a
+`timecard` source, the financial view summed them, and nothing had ever written
+a labor row — so `actual_cost` omitted the largest cost category on a
+construction job and every reported margin was too high. Both are fixed, with
+26 tests behind them.
 
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
@@ -106,7 +118,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 270 cataloged artifacts, 144 answer for at least one requirement.
+Of 271 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -131,9 +143,9 @@ This distinction is the whole integrity of the matrix, and it is enforced.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
   confirmed a specific test asserts it. **1,804 requirements are verified** of
-  6,068 judged, across P05, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded in its own
-  `verification/*-ledger.csv`. P20, P27, P28 and P29 were judged and verified at
-  zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  6,278 judged, across P05, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded in its own
+  `verification/*-ledger.csv`. P09, P20, P27, P28 and P29 were judged and verified
+  at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

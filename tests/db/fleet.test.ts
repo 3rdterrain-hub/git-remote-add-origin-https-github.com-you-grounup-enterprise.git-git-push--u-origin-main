@@ -106,30 +106,41 @@ describe('fleet, workforce and scheduling', () => {
   });
 
   describe('credentials', () => {
-    it('marks an expired credential expired regardless of what was submitted', async () => {
+    it('reports an expired credential as expired, with nothing to submit instead', async () => {
+      // This used to be a stored column a trigger overwrote on write. It is now
+      // derived on read, so there is no value anybody could submit and no state
+      // that could go stale between writes — which is what let an expired
+      // license pass the assignment gate before migration 0043.
       const [c] = await h.asUser(owner, () =>
-        h.sql<{ status: string }>(
-          `insert into credentials (company_id, employee_id, credential_type, name, expires_on, status)
-           values ($1,$2,'medical','DOT Medical Card', current_date - 5, 'valid') returning status`,
-          [company, employee]));
-      expect(c!.status).toBe('expired');
-    });
-
-    it('flags a credential expiring within 30 days', async () => {
-      const [c] = await h.asUser(owner, () =>
-        h.sql<{ status: string }>(
+        h.sql<{ standing: string }>(
           `insert into credentials (company_id, employee_id, credential_type, name, expires_on)
-           values ($1,$2,'license','CDL Class A', current_date + 12) returning status`, [company, employee]));
-      expect(c!.status).toBe('expiring');
+           values ($1,$2,'medical','DOT Medical Card', current_date - 5)
+           returning app.credential_standing(lifecycle, expires_on) as standing`,
+          [company, employee]));
+      expect(c!.standing).toBe('expired');
     });
 
-    it('leaves a revoked credential revoked', async () => {
+    it('reports a credential expiring within 30 days as expiring', async () => {
       const [c] = await h.asUser(owner, () =>
-        h.sql<{ status: string }>(
-          `insert into credentials (company_id, employee_id, credential_type, name, expires_on, status)
-           values ($1,$2,'license','Revoked license', current_date + 400, 'revoked') returning status`,
+        h.sql<{ standing: string }>(
+          `insert into credentials (company_id, employee_id, credential_type, name, expires_on)
+           values ($1,$2,'license','CDL Class A', current_date + 12)
+           returning app.credential_standing(lifecycle, expires_on) as standing`,
           [company, employee]));
-      expect(c!.status).toBe('revoked');
+      expect(c!.standing).toBe('expiring');
+    });
+
+    it('leaves a revoked credential revoked however long it had left', async () => {
+      // Revocation is an administrative decision, so it is stored — it is the
+      // one part of a credential's standing no date can decide.
+      const [c] = await h.asUser(owner, () =>
+        h.sql<{ standing: string }>(
+          `insert into credentials (company_id, employee_id, credential_type, name,
+             expires_on, lifecycle)
+           values ($1,$2,'license','Revoked license', current_date + 400, 'revoked')
+           returning app.credential_standing(lifecycle, expires_on) as standing`,
+          [company, employee]));
+      expect(c!.standing).toBe('revoked');
     });
 
     it('hides employee compensation from a role without hr.read', async () => {
