@@ -272,6 +272,7 @@ TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summar
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
+TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
@@ -279,6 +280,7 @@ TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,E
 TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
 TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.tsx,ENGINE
 TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
+TST-web-projects,test,web/projects.test.tsx,apps/web/src/pages/app/projects.test.tsx,ENGINE
 TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE
 TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE

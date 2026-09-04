@@ -268,6 +268,60 @@ describe('the documentation states what the tree contains', () => {
   });
 });
 
+/**
+ * Nothing compiled sits beside the source it was compiled from.
+ *
+ * A mis-invoked `tsc` — one missing `--noEmit` — emits a `.js` next to every
+ * `.ts` and `.tsx` in the tree. Vite and Vitest resolve `./projects` to
+ * `projects.js` before `projects.tsx`, so from that moment every import silently
+ * reads the stale compiled copy: the application builds from it, the tests run
+ * against it, and both pass while the source is edited to no effect.
+ *
+ * That happened in this repository. It was caught only because a new test
+ * asserted text that the stale file could not have contained — the suite would
+ * otherwise have gone on passing against code nobody was editing.
+ */
+describe('no compiled output shadows a source file', () => {
+  const roots = ['apps/web/src', 'packages/engine/src', 'packages/pdf/src',
+                 'supabase/functions', 'tests'];
+
+  function walk(dir: string, out: string[] = []): string[] {
+    let entries;
+    try { entries = readdirSync(join(ROOT, dir), { withFileTypes: true }); }
+    catch { return out; }
+    for (const e of entries) {
+      const rel = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (['node_modules', 'dist', '.git'].includes(e.name)) continue;
+        walk(rel, out);
+      } else out.push(rel);
+    }
+    return out;
+  }
+
+  it('leaves no emitted javascript in any source tree', () => {
+    const emitted: string[] = [];
+    for (const root of roots) {
+      for (const file of walk(root)) {
+        if (!/\.jsx?$/.test(file) || /\.config\.js$/.test(file)) continue;
+        // A .js is only source where no .ts or .tsx of the same name exists.
+        const base = file.replace(/\.jsx?$/, '');
+        if (existsSync(join(ROOT, `${base}.ts`)) || existsSync(join(ROOT, `${base}.tsx`))) {
+          emitted.push(file);
+        } else {
+          emitted.push(`${file} (no TypeScript source — unexpected in a source tree)`);
+        }
+      }
+    }
+    expect(emitted).toEqual([]);
+  });
+
+  it('typechecks with --noEmit, which is what stops it recurring', () => {
+    // The one flag whose absence produced 95 shadow files in this repository.
+    expect(pkg.scripts.typecheck).toContain('--noEmit');
+  });
+});
+
 describe('the secret boundary is enforced, not just documented', () => {
   it('exposes the bundle check as a script anybody can run', () => {
     expect(pkg.scripts['bundle:check']).toBe('node scripts/check-bundle.mjs');
