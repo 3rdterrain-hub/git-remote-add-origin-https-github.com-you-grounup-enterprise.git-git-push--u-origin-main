@@ -261,6 +261,14 @@ describe('the documentation states what the tree contains', () => {
     expect(docs.lastIndexOf('npm run schema:counts')).toBeGreaterThan(docs.indexOf('npm run counts'));
   });
 
+  it('generates the artifact catalog size rather than restating it', () => {
+    // It drifted three times by hand before it was made generated — the same
+    // lesson every other count in this repository has already taught.
+    const script = read('scripts/build-traceability.mjs');
+    expect(script).toContain('cataloged artifacts');
+    expect(script).toContain('a sentence that stops matching is');
+  });
+
   it('agrees with the tree right now', () => {
     const summary = read('docs/BUILD-SUMMARY.md');
     const migrations = readdirSync(join(ROOT, 'supabase/migrations')).filter((f) => f.endsWith('.sql'));

@@ -373,6 +373,37 @@ const summary = {
 };
 writeJson(join(G, 'traceability/summary.json'), summary);
 
+/*
+ * The one number in the README this generator owns.
+ *
+ * It states how many cataloged artifacts answer for at least one requirement,
+ * and it moved every time a file was added — three times by hand before it was
+ * made generated, which is the same lesson every other count in this repository
+ * has already taught. The pattern must match: a sentence that stops matching is
+ * a sentence that stops being checked.
+ */
+{
+  const path = join(G, 'traceability/README.md');
+  const before = readFileSync(path, 'utf8');
+  const pattern = /Of [\d,]+ cataloged artifacts, [\d,]+ answer for at least one requirement\./;
+  if (!pattern.test(before)) {
+    console.error('governance/traceability/README.md no longer states the artifact catalog size.');
+    console.error('Restore the sentence or update scripts/build-traceability.mjs.');
+    process.exit(2);
+  }
+  const after = before.replace(pattern,
+    `Of ${artifacts.length} cataloged artifacts, ${summary.artifacts.referenced} answer for at least one requirement.`);
+  if (CHECK) {
+    if (after !== before) {
+      console.error('The README does not state the artifact catalog size the generator produced.');
+      console.error(`It is ${summary.artifacts.referenced} of ${artifacts.length}. Run: npm run traceability`);
+      process.exit(1);
+    }
+  } else if (after !== before) {
+    writeFileSync(path, after);
+  }
+}
+
 if (CHECK) {
   if (drift.length) {
     console.error('The traceability matrix is out of date with the code. Run: npm run traceability');

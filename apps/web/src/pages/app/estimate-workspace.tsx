@@ -20,6 +20,33 @@ import { cn } from '@/lib/utils';
 export function EstimateWorkspacePage() {
   const e = ESTIMATE;
 
+  // Discipline and machine rollups computed from the engine result, not
+  // tabulated by hand.
+  const byDiscipline = Object.entries(
+    e.lines.reduce<Record<string, { cost: number; hours: number; days: number; lines: number }>>(
+      (acc, l) => {
+        const key = l.discipline ?? 'Other';
+        const entry = (acc[key] ??= { cost: 0, hours: 0, days: 0, lines: 0 });
+        entry.cost += l.totalDirectCost;
+        entry.hours += l.laborHours;
+        entry.days += l.duration?.practicalDays ?? 0;
+        entry.lines += 1;
+        return acc;
+      }, {}),
+  ).sort((a, b) => b[1].cost - a[1].cost);
+  const maxDisciplineCost = Math.max(...byDiscipline.map(([, v]) => v.cost), 1);
+  const byMachine = Object.entries(
+    e.lines.flatMap((l) => l.equipment?.lines ?? []).reduce<
+      Record<string, { hours: number; cost: number; fuel: number }>
+    >((acc, eq) => {
+      const entry = (acc[eq.name] ??= { hours: 0, cost: 0, fuel: 0 });
+      entry.hours += eq.operatingHours;
+      entry.cost += eq.ownershipCost;
+      entry.fuel += eq.fuelGallons;
+      return acc;
+    }, {}),
+  ).sort((a, b) => b[1].hours - a[1].hours);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -74,6 +101,7 @@ export function EstimateWorkspacePage() {
         <TabsList>
           <TabsTrigger value="lines">Scope &amp; lines</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>
+          <TabsTrigger value="composition">Composition</TabsTrigger>
           <TabsTrigger value="earthwork">Earthwork &amp; haul</TabsTrigger>
           <TabsTrigger value="reconciliation">Bid reconciliation</TabsTrigger>
           <TabsTrigger value="governance">Assumptions &amp; RFIs</TabsTrigger>
@@ -454,6 +482,85 @@ export function EstimateWorkspacePage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        {/*
+          * Where this estimate's money is, by discipline and by machine.
+          *
+          * These two views used to sit on the company Reports page, computing
+          * from one demonstration estimate while eleven governed reporting
+          * views went unread. They describe an estimate rather than a company,
+          * so they belong here — and Reports now reads the semantic layer.
+          */}
+        <TabsContent value="composition" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost by discipline</CardTitle>
+                <CardDescription>{e.number} — where the money actually is.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {byDiscipline.map(([name, v]) => (
+                  <div key={name}>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-medium text-charcoal-900">{name}</span>
+                      <span className="tabular text-sm text-charcoal-700">
+                        {money(v.cost)}{' '}
+                        <span className="text-xs text-charcoal-400">
+                          {percent(v.cost / e.totalDirectCost, 1)}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2 overflow-hidden rounded-full bg-charcoal-100">
+                      <div className="h-full rounded-full bg-charcoal-800"
+                        style={{ width: `${(v.cost / maxDisciplineCost) * 100}%` }} />
+                    </div>
+                    <p className="mt-0.5 text-xs text-charcoal-500">
+                      {v.lines} lines · {integer(v.hours)} labor hr · {qty(v.days, 1)} crew-days
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Equipment utilization</CardTitle>
+                <CardDescription>
+                  Operating hours and fuel by machine, derived from production duration.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Machine</TableHead>
+                      <TableHead className="text-right">Hours</TableHead>
+                      <TableHead className="text-right">Ownership</TableHead>
+                      <TableHead className="text-right">Fuel</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {byMachine.map(([name, v]) => (
+                      <TableRow key={name}>
+                        <TableCell className="font-medium text-charcoal-900">{name}</TableCell>
+                        <TableCell className="tabular text-right">{qty(v.hours, 0)}</TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">{money(v.cost)}</TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">{qty(v.fuel, 0)} gal</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <TableFooter>
+                    <TableRow className="hover:bg-charcoal-50">
+                      <TableCell>Total</TableCell>
+                      <TableCell className="tabular text-right">{integer(e.totalEquipmentHours)}</TableCell>
+                      <TableCell className="tabular text-right">{money(e.directCost.equipmentOwnership)}</TableCell>
+                      <TableCell className="tabular text-right">{integer(e.totalFuelGallons)} gal</TableCell>
+                    </TableRow>
+                  </TableFooter>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

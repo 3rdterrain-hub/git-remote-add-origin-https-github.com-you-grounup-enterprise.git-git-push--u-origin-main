@@ -2,9 +2,7 @@
   "phase": "P29",
   "title": "Business Intelligence & Analytics",
   "method": "Every P29 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Capability N passes when source-to-target lineage, tenant/security scope, transformation version, reconciliation, data quality, metric definition, freshness, query/report behavior and mapped tests are verified.' Nine conditions, assessed platform-wide. A requirement is verified only where the whole condition set holds AND its domain is actually built.",
-
   "judged_before_and_after": "Judged after building what this phase's own findings made buildable: migrations 0040, 0041 and 0042, a reporting-layer invariant suite, and 33 metric tests. Four of the nine conditions still fail, so P29 verifies at zero. The zero is not the interesting part of this file — the four findings are, and three of them were defects the platform was actively asserting.",
-
   "findings": [
     {
       "id": "P29-F1",
@@ -53,9 +51,10 @@
       "id": "P29-F6",
       "title": "The analytics the platform computes reach almost nobody",
       "detail": "Ten reporting views exist, nine of them governed analytics. One — `reporting_project_financials` — is served through the public API. The rest are read by nothing. The Reports and Analytics screen computes its figures from static fixtures in `apps/web/src/data`, references no reporting view, and its Export button carries no handler at all. This is not specific to that screen: 22 of the 23 application screens read demo fixtures, and only Billing queries live data.",
-      "why_it_matters": "It is the largest single gap in the platform and the reason four of this phase's nine conditions fail. A semantic layer nothing consumes cannot demonstrate query or report behavior, cannot be reconciled against anything, and cannot have its data quality observed. The dead Export button is the smaller version of the same thing — a control that switches nothing, which is the defect this build has now found in eleven places.",
+      "why_it_matters": "It is the largest single gap in the platform and the reason four of this phase's nine conditions fail. A semantic layer nothing consumes cannot demonstrate query or report behavior, cannot be reconciled against anything, and cannot have its data quality observed. The dead Export button is the smaller version of the same thing — a control that switches nothing, which is the defect this build has now found in eleven places. Two of the twenty-three screens now read governed records; the remaining twenty-one are the rest of this finding.",
       "status": "open",
-      "why_not_resolved": "The permanent fix is to wire the application to the governed queries, and that is a phase of work rather than a loose end: 22 screens, each needing its live query, its loading and error states, its pagination and its tenancy proof. Making the Export button emit the fixtures it currently displays would be worse than leaving it inert, because a working control over demonstration data reads as a finished feature. Recorded here at full size rather than shaved down to something that could be closed today."
+      "why_not_resolved": "The permanent fix is to wire the application to the governed queries, and that is a phase of work rather than a loose end: 22 screens, each needing its live query, its loading and error states, its pagination and its tenancy proof. Making the Export button emit the fixtures it currently displays would be worse than leaving it inert, because a working control over demonstration data reads as a finished feature. Recorded here at full size rather than shaved down to something that could be closed today.",
+      "progress": "Partly closed since this phase was judged. The Reports screen now reads the semantic layer — sixteen governed metric definitions evaluated through app.evaluate_metric, the same call that answers the public API, so a figure on the page and a figure an integration reads are the same number computed once. **The Export button works**, and works on the terms this finding set: it builds the file from the rows the page rendered rather than from a second query, and it is disabled with the reason on it when there is no workspace behind the page — because a working control over demonstration data reads as a finished feature, which is why it was left inert rather than pointed at fixtures. Projects reads reporting_project_financials. What the screens cannot invent, they now say they cannot: a metric with no workspace behind it shows an explanation rather than a number, and a failed read shows an error rather than falling back to sample data — asserted by test, because that fallback is the one behavior that would have made this worse than leaving the fixtures alone."
     },
     {
       "id": "P29-F7",
@@ -66,7 +65,6 @@
       "why_not_resolved": "The fix is a deliberate erasure design — what must survive a tenant's deletion for legal and audit reasons, what must go, and who may authorize it — and that is a policy decision with legal weight rather than a missing trigger. Guessing it and implementing the guess would be worse than naming it precisely, which is what this finding does."
     }
   ],
-
   "acceptance_conditions": {
     "note": "All nine are required by the criterion. Four fail, so no P29 requirement verifies regardless of how much of its domain exists.",
     "conditions": [
@@ -81,7 +79,6 @@
       "mapped tests"
     ]
   },
-
   "platform_conditions": {
     "source-to-target lineage": {
       "status": "met",
@@ -120,7 +117,6 @@
       "evidence": "33 tests on metric governance and 4 reporting-layer invariants, run against production migrations applied unmodified to real PostgreSQL. They cover the write permission at both layers, version publication and its deliberate silence on a rename, version immutability, retirement rather than deletion, source-view lineage for all sixteen metrics, evaluation of every one through the function the API calls, the override refusal, cross-tenant isolation of definitions, versions, rates and values, and the TRIR and DART arithmetic against a deliberate 200,000-hour denominator. Three of this phase's findings were produced by these tests rather than confirmed by them."
     }
   },
-
   "domain_status": {
     "built": [
       "Metric Definitions",
