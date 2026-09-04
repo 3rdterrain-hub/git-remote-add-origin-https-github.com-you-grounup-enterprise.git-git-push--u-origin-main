@@ -17,18 +17,53 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-REF="${1:-}"
+RAW="${1:-}"
+
+# Accept whatever the person has to hand rather than one exact form: the
+# dashboard URL, the API URL, or the bare ref. Guessing wrong here costs
+# somebody ten minutes of hunting through settings pages that get rearranged.
+REF="$RAW"
+REF="${REF#https://}"
+REF="${REF#http://}"
+case "$REF" in
+  supabase.com/dashboard/project/*) REF="${REF#supabase.com/dashboard/project/}" ;;
+  app.supabase.com/project/*)       REF="${REF#app.supabase.com/project/}" ;;
+esac
+REF="${REF%%/*}"          # drop any trailing path
+REF="${REF%%.supabase.co}"
+REF="${REF%%.supabase.in}"
+REF="${REF%%\?*}"         # drop a query string
+
 if [[ -z "$REF" ]]; then
   cat <<'USAGE'
 Usage: ./scripts/connect-supabase.sh <project-ref>
 
-The project ref is the subdomain of your project URL:
-  https://abcdefghijklmnopqrst.supabase.co  ->  abcdefghijklmnopqrst
+The easiest place to find it is your browser's address bar with the project
+open. It is the last part of the dashboard URL:
 
-Find it under Project Settings -> General -> Reference ID.
+  https://supabase.com/dashboard/project/abcdefghijklmnopqrst
+                                         ^^^^^^^^^^^^^^^^^^^^
+
+You can paste any of these and this script will work out the rest:
+
+  abcdefghijklmnopqrst
+  https://abcdefghijklmnopqrst.supabase.co
+  https://supabase.com/dashboard/project/abcdefghijklmnopqrst
+
+If you have no project yet, make one at https://supabase.com/dashboard —
+any region, and remember the database password it asks you to set.
 USAGE
   exit 2
 fi
+
+if [[ ! "$REF" =~ ^[a-z0-9]{16,32}$ ]]; then
+  echo "\"$RAW\" does not look like a project ref." >&2
+  echo "A ref is 20 or so lowercase letters and digits, with no dots or slashes." >&2
+  echo "Run this with no arguments to see where to find yours." >&2
+  exit 2
+fi
+
+echo "Project ref: $REF"
 
 echo "==> 1/4  Linking to $REF"
 echo "         The CLI will ask for your database password. Nothing here stores it."
