@@ -16,12 +16,14 @@ import { USER } from '@/data/demo';
 import { date, dateTime, integer, titleCase, money, percent, qty, plural } from '@/lib/format';
 import { Alert, EmptyState, Progress, Separator } from '@/components/ui/misc';
 import { cn } from '@/lib/utils';
+import { usePermissions } from '@/lib/data/session';
 
 export function PlansPage() {
   const [findings, setFindings] = useState<AiFinding[]>(AI_FINDINGS);
   const [query, setQuery] = useState('');
 
-  const canAccept = USER.permissions.includes('ai.accept_findings');
+  const { can } = usePermissions();
+  const canAccept = can('ai.accept_findings');
   const pending = findings.filter((f) => f.state === 'proposed');
   const accepted = findings.filter((f) => f.state === 'accepted');
   const activeDocs = DOCUMENTS.filter((d) => !d.superseded);

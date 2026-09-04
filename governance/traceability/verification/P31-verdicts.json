@@ -79,7 +79,7 @@
     },
     "mapped tests": {
       "status": "met",
-      "evidence": "1,977 tests run by a single command that is also the whole release gate, with the production migrations applied unmodified to real PostgreSQL compiled to WebAssembly so the same command runs identically on a laptop and on a fork's pull request. 25 tests hold the shape of the pipeline itself so it cannot be quietly narrowed, and 4 added this phase hold the dependency pinning of the privileged boundary."
+      "evidence": "1,983 tests run by a single command that is also the whole release gate, with the production migrations applied unmodified to real PostgreSQL compiled to WebAssembly so the same command runs identically on a laptop and on a fork's pull request. 25 tests hold the shape of the pipeline itself so it cannot be quietly narrowed, and 4 added this phase hold the dependency pinning of the privileged boundary."
     }
   },
   "domain_status": {

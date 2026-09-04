@@ -255,7 +255,7 @@ Building observability moved 332 requirements at once.
 | tenant/security boundaries | met — RLS forced on 131 tables, gates asserted at every migration, default-deny grants as a second control, hashed and scoped API keys |
 | API/data behavior | met — nine versioned endpoints behind a pure authorization function, one error shape, OpenAPI generated from the route table with drift failing the build |
 | failure handling | met — the gateway never throws to a caller, a failed connector run is a row, engines refuse rather than produce NaN money |
-| mapped tests | met — 1,977 tests, migrations run unmodified against real PostgreSQL 18 |
+| mapped tests | met — 1,983 tests, migrations run unmodified against real PostgreSQL 18 |
 | **audit/observability evidence** | **met** — audit was already the strongest evidence in the platform; observability now exists beside it |
 
 ### What was built

@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, Progress, Separator } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { COMPANY, USER } from '@/data/demo';
+import { COMPANY } from '@/data/demo';
 import { PLANS } from '@/data/plans';
 import { callFunction, isSupabaseConfigured } from '@/lib/supabase';
 import { money, date, percent, integer } from '@/lib/format';
+import { usePermissions } from '@/lib/data/session';
 
 /** Usage against the plan's limits, as the entitlement endpoint reports it. */
 const USAGE = [
@@ -35,7 +36,8 @@ export function BillingPage() {
   const [error, setError] = useState<string | null>(null);
 
   const plan = PLANS.find((p) => p.id === COMPANY.plan)!;
-  const canManage = USER.permissions.includes('billing.manage');
+  const { can } = usePermissions();
+  const canManage = can('billing.manage');
 
   async function openPortal() {
     setError(null);

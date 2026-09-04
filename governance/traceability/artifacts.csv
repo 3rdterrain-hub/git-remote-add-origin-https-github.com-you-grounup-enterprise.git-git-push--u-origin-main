@@ -285,4 +285,5 @@ TST-web-reports,test,web/reports.test.tsx,apps/web/src/pages/app/reports.test.ts
 TST-web-safety,test,web/safety.test.tsx,apps/web/src/pages/app/safety.test.tsx,ENGINE
 TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE
 TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
+TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE

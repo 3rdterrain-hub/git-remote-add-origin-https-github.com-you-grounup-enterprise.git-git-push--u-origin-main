@@ -9,28 +9,73 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, Separator } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { EMPLOYEES, TIME_ENTRIES } from '@/data/fleet';
-import { USER } from '@/data/demo';
+import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
+import { useQuery } from '@/lib/data/query';
+import {
+  loadEmployees, loadTimeEntries, loadProductivity, loadReconciliation, approveTimeEntry,
+  demonstrationEmployees, demonstrationTimeEntries,
+  type TimeEntryRow, type ReconciliationRow,
+} from '@/lib/data/workforce';
 import { money, percent, qty, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { usePermissions } from '@/lib/data/session';
 
 export function WorkforcePage() {
-  const [entries, setEntries] = useState(TIME_ENTRIES);
-  const canApprove = USER.permissions.includes('projects.write');
+  const employeesQ = useQuery(loadEmployees, []);
+  const entriesQ = useQuery(loadTimeEntries, []);
+  const reconciliationQ = useQuery(loadReconciliation, []);
+  useQuery(loadProductivity, []);
 
-  const allCredentials = EMPLOYEES.flatMap((e) => e.credentials.map((c) => ({ ...c, employee: e.name, classification: e.classification })));
+  const demo = employeesQ.status === 'demonstration';
+  const [approving, setApproving] = useState<string | null>(null);
+  const [approvalError, setApprovalError] = useState<string | null>(null);
+  const [locallyApproved, setLocallyApproved] = useState<Set<string>>(new Set());
+
+  const EMPLOYEES = employeesQ.status === 'ready' ? employeesQ.data
+    : demo ? demonstrationEmployees() : [];
+  const loaded: TimeEntryRow[] = entriesQ.status === 'ready' ? entriesQ.data
+    : demo ? demonstrationTimeEntries() : [];
+  const entries = loaded.map((t) =>
+    locallyApproved.has(t.id) ? { ...t, approvalState: 'approved' } : t);
+  const reconciliation: ReconciliationRow[] =
+    reconciliationQ.status === 'ready' ? reconciliationQ.data : [];
+
+  const { can } = usePermissions();
+  const canApprove = can('projects.write');
+
+  const allCredentials = EMPLOYEES.flatMap((e) =>
+    e.credentials.map((c) => ({ ...c, status: c.standing, employee: e.name, classification: e.classification })));
   const expired = allCredentials.filter((c) => c.status === 'expired');
   const expiring = allCredentials.filter((c) => c.status === 'expiring');
 
   const pending = entries.filter((t) => t.approvalState === 'pending');
   const exported = entries.filter((t) => t.exported);
-  const weekHours = entries.reduce((a, t) => a + t.straight + t.overtime, 0);
-  const otHours = entries.reduce((a, t) => a + t.overtime, 0);
+  const weekHours = entries.reduce((a, t) => a + t.straight + t.overtime + t.doubletime, 0);
+  const otHours = entries.reduce((a, t) => a + t.overtime + t.doubletime, 0);
 
-  const approve = (id: string) =>
-    setEntries((prev) => prev.map((t) => (t.id === id ? { ...t, approvalState: 'approved' as const } : t)));
-  const approveAll = () =>
-    setEntries((prev) => prev.map((t) => (t.approvalState === 'pending' ? { ...t, approvalState: 'approved' as const } : t)));
+  /*
+   * Approving a timecard is not a display change. Since migration 0044 an
+   * approved entry posts wages, burden and per diem onto the job it was worked
+   * on — so this button moves money, and a failure has to be shown rather than
+   * swallowed. In demonstration mode the change is local, because there is
+   * nothing to write to.
+   */
+  const approve = async (id: string) => {
+    setApprovalError(null);
+    if (demo) { setLocallyApproved((prev) => new Set(prev).add(id)); return; }
+    setApproving(id);
+    try {
+      await approveTimeEntry(id);
+      entriesQ.refetch();
+    } catch (err) {
+      setApprovalError(err instanceof Error ? err.message : 'Could not approve that timecard.');
+    } finally {
+      setApproving(null);
+    }
+  };
+  const approveAll = async () => {
+    for (const t of pending) await approve(t.id);
+  };
 
   return (
     <div className="space-y-6">
@@ -39,6 +84,14 @@ export function WorkforcePage() {
         description="Employees, the credentials that let them do the work, and the time that becomes job cost. A timecard posts to the same cost code the estimate priced."
         actions={<Button><Plus className="size-4" /> Add employee</Button>}
       />
+
+      {demo ? <DemonstrationNotice what="this page" /> : null}
+      {employeesQ.status === 'loading' ? <LoadingState label="Loading the roster" /> : null}
+      {employeesQ.status === 'error'
+        ? <ErrorState message={employeesQ.message} onRetry={employeesQ.refetch} /> : null}
+      {approvalError ? <ErrorState message={approvalError} /> : null}
+
+      {reconciliation.length > 0 ? <ReconciliationCard rows={reconciliation} /> : null}
 
       {expired.length ? (
         <Alert tone="danger" icon={<ShieldAlert className="size-4" />}
@@ -114,7 +167,10 @@ export function WorkforcePage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {t.approvalState === 'pending' && canApprove ? (
-                        <Button size="sm" variant="outline" onClick={() => approve(t.id)}>Approve</Button>
+                        <Button size="sm" variant="outline" disabled={approving === t.id}
+                          onClick={() => { void approve(t.id); }}>
+                          {approving === t.id ? 'Approving…' : 'Approve'}
+                        </Button>
                       ) : null}
                     </TableCell>
                   </TableRow>
@@ -165,8 +221,9 @@ export function WorkforcePage() {
                 <TableBody>
                   {[...allCredentials]
                     .sort((a, b) => {
-                      const rank = { expired: 0, expiring: 1, valid: 2 } as const;
-                      return rank[a.status] - rank[b.status];
+                      // Anything the expiry view does not name is current.
+                      const rank: Record<string, number> = { expired: 0, revoked: 0, expiring: 1, valid: 2 };
+                      return (rank[a.status] ?? 2) - (rank[b.status] ?? 2);
                     })
                     .map((c, i) => (
                       <TableRow key={i} className={cn(c.status === 'expired' && 'bg-danger-50/50')}>
@@ -206,7 +263,7 @@ export function WorkforcePage() {
               </TableHeader>
               <TableBody>
                 {EMPLOYEES.map((e) => {
-                  const bad = e.credentials.filter((c) => c.status !== 'valid').length;
+                  const bad = e.credentials.filter((c) => c.standing !== 'valid').length;
                   return (
                     <TableRow key={e.id}>
                       <TableCell>
@@ -244,5 +301,57 @@ export function WorkforcePage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/**
+ * Where the daily report and the timecards disagree.
+ *
+ * The oldest labor control on a construction job, and it is a subtraction. The
+ * platform recorded the same hours in two places and compared them nowhere
+ * until P09 built this view; only the days that disagree are shown, because a
+ * list of days that agree is a list nobody reads.
+ */
+function ReconciliationCard({ rows }: { rows: ReconciliationRow[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Daily report against timecards</CardTitle>
+        <CardDescription>
+          Hours reported and never put on a timecard are work somebody is not being paid for. Hours
+          on a timecard with no report behind them are payroll nobody has accounted for. Only the
+          days that disagree are listed.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Project</TableHead>
+              <TableHead className="text-right">Reported</TableHead>
+              <TableHead className="text-right">Timecards</TableHead>
+              <TableHead className="text-right">Difference</TableHead>
+              <TableHead>Finding</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((r) => (
+              <TableRow key={`${r.project}-${r.workDate}`}>
+                <TableCell className="tabular">{date(r.workDate)}</TableCell>
+                <TableCell className="text-xs text-charcoal-600">{r.project ?? '—'}</TableCell>
+                <TableCell className="tabular text-right">{qty(r.dailyReportHours, 1)}</TableCell>
+                <TableCell className="tabular text-right">{qty(r.timecardHours, 1)}</TableCell>
+                <TableCell className={cn('tabular text-right font-medium',
+                  r.varianceHours > 0 ? 'text-warn-700' : 'text-info-700')}>
+                  {r.varianceHours > 0 ? '+' : ''}{qty(r.varianceHours, 1)}
+                </TableCell>
+                <TableCell className="text-xs text-charcoal-600">{r.finding}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
