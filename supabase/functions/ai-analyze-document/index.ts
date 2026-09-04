@@ -16,7 +16,7 @@
  * Deploy: supabase functions deploy ai-analyze-document
  * Secrets: ANTHROPIC_API_KEY
  */
-import Anthropic from 'npm:@anthropic-ai/sdk@0.71.0';
+import Anthropic from '@anthropic-ai/sdk';
 import { getCaller, requirePermission, isUuid, adminClient } from '../_shared/auth.ts';
 import { fail, json, preflight } from '../_shared/http.ts';
 import {

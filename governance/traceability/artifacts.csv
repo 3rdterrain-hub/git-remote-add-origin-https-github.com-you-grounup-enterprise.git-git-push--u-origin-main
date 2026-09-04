@@ -256,6 +256,7 @@ TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-inte
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
+TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE
 TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENGINE
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE

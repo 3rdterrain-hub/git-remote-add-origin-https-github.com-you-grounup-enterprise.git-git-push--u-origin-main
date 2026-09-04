@@ -10,7 +10,7 @@
  * says whether each dependency is reachable and nothing about how. A server
  * version or a connection string here is free reconnaissance.
  */
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import {
   checkHealth, healthHttpStatus, databaseCheck, livenessCheck,
 } from '../_shared/observability/health.ts';

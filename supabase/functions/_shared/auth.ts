@@ -10,7 +10,7 @@
  *   - the *admin* client uses the service role and bypasses RLS. It is used
  *     only to write billing state from verified Stripe webhooks.
  */
-import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 export interface Caller {
   userId: string;

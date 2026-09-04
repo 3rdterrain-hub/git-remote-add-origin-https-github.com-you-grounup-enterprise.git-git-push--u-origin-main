@@ -1,0 +1,180 @@
+{
+  "phase": "P31",
+  "title": "Infrastructure, Runtime & Operations",
+  "method": "Every P31 requirement is capability N of a domain across 88 domains, and every one carries the same acceptance criterion: 'Capability N passes when infrastructure/configuration version, environment scope, deployment behavior, rollback/recovery evidence, observability, security controls, ownership, capacity and mapped tests are verified.' Nine conditions, assessed platform-wide. A requirement is verified only where the whole condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged after pinning the Edge Function dependencies and adding 4 tests. P31 verifies at zero, and it is the most honest zero in the register: 71 of 88 domains have no implementation, because every one of them presupposes a deployment and nothing has been deployed. Six of the nine conditions cannot be satisfied from a repository at all.",
+  "findings": [
+    {
+      "id": "P31-F1",
+      "title": "The privileged boundary was built from floating dependencies",
+      "detail": "The Edge Functions hold the Stripe secret key, the webhook signing secret, the Supabase service-role key and the AI provider key — the one place in the platform where a dependency runs with those in reach. They resolved `jsr:@supabase/supabase-js@2` and `npm:stripe@17`: floating majors. `deno.json` set `\"lock\": false` and no `deno.lock` exists. And the source files imported those specifiers directly rather than through the import map, so the map was not even a single point of control — four files each naming their own floating version.",
+      "why_it_matters": "The same commit deployed twice could ship different dependency code into the boundary that holds every secret the platform has. It is the supply-chain version of the defect this build has found everywhere else: a control that exists — an import map — bypassed by the code it was meant to govern.",
+      "status": "resolved",
+      "resolution": "Every remote dependency now routes through the import map, enforced by a test that fails on any raw `jsr:`, `npm:` or `https:` specifier in function source. The Supabase client is pinned to `2.112.4` — the exact version the browser half of the platform already resolves from the lockfile, so both halves run one version of one library, checked rather than assumed. The Anthropic SDK was already exact and is now mapped. Both workflows install with `npm ci` from the committed lockfile, asserted by test.",
+      "note": "Stripe remains on a floating major and is named in the test's exception list with the reason, so it is a decision somebody made rather than one nobody noticed. Pinning it needs the exact 17.x version from the registry, which needs a network-connected `deno cache` — the same step that would produce the `deno.lock` covering transitive dependencies, recorded as F2."
+    },
+    {
+      "id": "P31-F2",
+      "title": "Transitive dependencies of the privileged boundary are unlocked",
+      "detail": "`deno.json` carries `\"lock\": false` and there is no `deno.lock`. Direct dependencies are pinned as of this phase; everything they depend on is not.",
+      "why_it_matters": "A pinned direct dependency with unpinned transitives is reproducible only until one of its dependencies publishes. For functions holding the platform's secrets, that is the half of the supply chain nobody chose.",
+      "status": "open",
+      "why_not_resolved": "Producing a lock file requires resolving the dependency graph against the registries, which requires network access this build does not have. Setting `\"lock\": true` without the file would have Deno generate one at deploy time and discard it, which is worse than the honest gap because it looks like a control. The fix is one command run by somebody with network — `deno cache` over the functions — and the resulting file committed."
+    },
+    {
+      "id": "P31-F3",
+      "title": "Seventy-one of eighty-eight domains presuppose a deployment that has never happened",
+      "detail": "Backup, restore, recovery objectives, disaster recovery, autoscaling, load balancing, ingress, DNS, TLS management, regions, availability zones, containers, orchestration, queues, caches, alerting, on-call, incidents, chaos, load testing, canary and blue-green releases, cost allocation, capacity planning — none exists, and none can be evidenced by a repository.",
+      "why_it_matters": "Stated at full size because a 560-requirement phase reporting zero invites the reading that something went wrong. Nothing went wrong: this is the phase that asks what happens after a deployment, and P20 recorded that no pipeline has run and no environment exists. Everything here waits behind that one fact.",
+      "status": "open",
+      "why_not_resolved": "It is the owner's to start. What was buildable from a repository has been built — a gate that runs everything, migrations proven against real PostgreSQL, health and readiness separated, secrets enforced against the emitted bundle, dependencies pinned — and the rest needs somebody with credentials to deploy once."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All nine are required by the criterion. Six cannot be satisfied by anything in a repository, which is this phase's honest result rather than a gap in this build.",
+    "conditions": [
+      "infrastructure/configuration version",
+      "environment scope",
+      "deployment behavior",
+      "rollback/recovery evidence",
+      "observability",
+      "security controls",
+      "ownership",
+      "capacity",
+      "mapped tests"
+    ]
+  },
+  "platform_conditions": {
+    "infrastructure/configuration version": {
+      "status": "not_met",
+      "gap": "Application configuration is versioned properly — migrations are ordered and forward-only, `supabase/config.toml` is in source control and carries no secret, and dependencies are pinned as of this phase. There is no infrastructure to version: no Terraform, no Pulumi, no declarative definition of anything the platform runs on, so there is no infrastructure version to compare a deployment against."
+    },
+    "environment scope": {
+      "status": "not_met",
+      "gap": "Two environments are named in a workflow input and neither exists. There is no environment-scoped configuration, no promotion path and no drift detection between environments there are none of."
+    },
+    "deployment behavior": {
+      "status": "not_met",
+      "gap": "A deployment workflow describes how a deployment would behave: dispatched by a person, behind a GitHub Environment, re-running the full gate, listing pending migrations before applying them. It is a description until it runs. P20 recorded this as the largest instance of the defect this build has spent its time finding — an artifact that describes a capability counted as the capability — and declined to count it. That still holds."
+    },
+    "rollback/recovery evidence": {
+      "status": "not_met",
+      "gap": "No backup has been taken, no restore attempted, no failover exercised, no recovery objective stated, and migrations are forward-only by design with a manual runbook section for rollback. Nothing has failed because nothing has run."
+    },
+    "observability": {
+      "status": "not_met",
+      "gap": "Structured logging with correlation, metrics with bounded labels, and health separated from readiness with per-check deadlines are all built and tested — and consumed by nothing, because nothing is running. An observability stack with no telemetry flowing through it is a library, not observability."
+    },
+    "security controls": {
+      "status": "met",
+      "evidence": "The one condition a repository can fully evidence, and this build strengthened it three times. Row level security is forced on all 137 tables with two migration-time gates and an index on the tenant key everywhere since P03. Secrets live only in Edge Function environment variables and the emitted client bundle is scanned after every build for them by name and by shape. The audit ledger records the caller's address, agent and correlation id since P01, and a write through the public API names the key that made it. And since this phase the privileged boundary is built from pinned, mapped dependencies rather than floating majors."
+    },
+    "ownership": {
+      "status": "not_met",
+      "gap": "Nothing has an owner — not a service, not a table, not a requirement. P01, P03, P04 and P23 each found this independently, which is what makes it structural rather than an oversight, and an owner field populated by the single author of this repository would record a formality rather than accountability."
+    },
+    "capacity": {
+      "status": "not_met",
+      "gap": "No capacity plan, no baseline, no headroom, no forecast, no load test. The one capacity-relevant improvement this build made — tenant-key indexes removing a sequential scan from every read on 53 tables — was found by reading the catalog rather than by measuring anything, which is the point: there is nothing to measure against."
+    },
+    "mapped tests": {
+      "status": "met",
+      "evidence": "1,936 tests run by a single command that is also the whole release gate, with the production migrations applied unmodified to real PostgreSQL compiled to WebAssembly so the same command runs identically on a laptop and on a fork's pull request. 25 tests hold the shape of the pipeline itself so it cannot be quietly narrowed, and 4 added this phase hold the dependency pinning of the privileged boundary."
+    }
+  },
+  "domain_status": {
+    "built": [],
+    "partial": {
+      "Build Reproducibility": "`npm ci` from a committed lockfile in both workflows, a dependency-free estimating engine, a document renderer that produces identical bytes for identical input, and — since this phase — every Edge Function dependency routed through one import map with the Supabase client pinned to the exact version the browser also runs. What is missing is `deno.lock`: direct dependencies are pinned and their transitives are not.",
+      "CI Pipelines": "One workflow runs the entire gate — typecheck, four drift checks, six suites, a production build and a bundle secret scan — on every branch and pull request, needing no secrets because the database suite runs PostgreSQL in WebAssembly. A test asserts the pipeline cannot be narrowed to a subset.",
+      "CD Pipelines": "A deployment workflow exists, is dispatched by a person behind a GitHub Environment, re-runs the full gate, lists pending migrations before applying them and deploys each function. Whether it has ever executed is the owner's to see.",
+      "Database Migrations": "The strongest operational thing in the repository: 54 ordered forward-only migrations applied unmodified to real PostgreSQL by the test suite on every run, so a migration that would fail on a real database fails the build instead of a deployment. There is no rollback path — forward-only is the stated design — and no reconciliation of what a data-moving migration actually moved.",
+      "Development Environment": "One command installs, one runs the whole gate, and the database suite needs no service and no credentials. There is no seeded local application environment, and 22 of 23 screens read fixtures rather than a local database.",
+      "Structured Logging": "A logger with correlation carried through every line and redaction by field name and value shape applied by default, with 49 tests. Nothing is deployed, so nothing collects it.",
+      "Metrics": "Counters and histograms with bounded low-cardinality labels, so a metric cannot explode into a per-tenant series. Nothing scrapes them.",
+      "Health Checks": "Startup, readiness, liveness and degraded state are distinguished, each check runs against a deadline so a hanging dependency fails rather than hangs the probe, and the endpoint is deliberately unauthenticated. Nothing probes it.",
+      "Secrets Injection": "Secrets live only in Edge Function environment variables, are never in source control, are redacted from logs by shape as well as by name, and since this build the emitted client bundle is scanned for them after every build — by name and by literal shape, with the service-role pattern computed across all three base64 alignments after a hand-written one was found to miss a realistic token.",
+      "Configuration Management": "`supabase/config.toml` describes the project and the local stack, carries no secret, and states which two functions run without JWT verification and why. Application configuration is per-company in the database and versioned where it is commercial. There is no configuration promotion between environments and no drift detection.",
+      "Environment Strategy": "Staging and production are named, the deploy workflow takes one as an input, and a secret matrix states where each credential lives and which two are public by design. No environment has been created.",
+      "Observability": "Logging, metrics and health are all built and tested and consumed by nothing, because nothing is running. The one observability gap this build closed is in the database rather than the runtime: an audit event now records the request that caused it.",
+      "Dependency Updates": "Direct dependencies are pinned and installed from a lockfile, and this phase pinned the Edge Function imports that were floating on a major. There is no update process: no schedule, no automated bump, no vulnerability scan.",
+      "Serverless/Worker Runtime": "Edge Functions are the runtime and they are real code with real tests. There is no worker, no queue consumer and no scheduled invocation — nothing runs except in response to a request.",
+      "Database Infrastructure": "137 tables with forced row level security, tenant-key indexes since P03, non-overlapping period constraints, exclusion constraints, generated columns and 54 migrations behind them. It is a schema rather than infrastructure: no replica, no pooling policy, no failover, no capacity plan.",
+      "Rate Limiting": "Plan limits are enforced by count triggers and an AI allowance is checked before a request runs, which is licensing rather than abuse control. There is no request rate limit anywhere — P02 and P20 recorded the same.",
+      "Timeouts": "Health checks carry per-check deadlines and the AI call carries a timeout. There is no general timeout policy, no budget propagated across calls and no deadline on a database statement."
+    },
+    "not_built": {
+      "AI Runtime Infrastructure": "One function calling a provider directly. No model gateway, no routing, no fallback, no inference infrastructure.",
+      "Alerting": "No operational alerting. In-application notifications are notices to users.",
+      "Analytics Infrastructure": "Thirteen live views over the operational tables. No warehouse, no pipeline, no separate compute — P29 recorded this in detail.",
+      "Application Runtime": "No runtime the platform operates: the bundle is served by a host and the functions by a provider.",
+      "Artifact Registry": "No registry, no versioned artifact, no promotion between environments.",
+      "Autoscaling": "None.",
+      "Backup": "No backup of any kind.",
+      "Blue/Green Deployments": "None.",
+      "Bulkheads": "None.",
+      "Business Continuity": "None.",
+      "Cache Infrastructure": "No cache — which P02 records as satisfying its own criterion, because a cache that does not exist cannot corrupt source data.",
+      "Caching Strategy": "None, deliberately: every reporting figure is computed live and a test asserts nothing is materialized.",
+      "Canary Releases": "None.",
+      "Capacity Planning": "No baseline, no forecast, no headroom measure.",
+      "Change Windows": "None.",
+      "Chaos Testing": "None.",
+      "Circuit Breakers": "None.",
+      "Cloud Cost Allocation": "No cloud spend to allocate. AI usage is metered per company, which is the one cost the platform attributes.",
+      "Cloud Provider Abstraction": "None, and none intended — the platform is written to Supabase and Stripe directly.",
+      "Connection Management": "No pooling policy, no connection budget, no limit the platform sets.",
+      "Container Runtime": "No container image and no orchestration. The application is a static bundle and a set of Edge Functions.",
+      "Cost Budgets": "None.",
+      "DNS": "No managed DNS, no custom domain.",
+      "Deployment Audit": "No deployment has occurred to audit. The database audit ledger covers data rather than deployments.",
+      "Deployment Strategies": "A single dispatched deploy. No strategy beyond it.",
+      "Disaster Recovery": "No plan, no exercise, no evidence.",
+      "Distributed Tracing": "Correlation is carried through a request's logs and, since P01, into the audit ledger. There is no span, no trace context propagated to a provider and no collector.",
+      "Environment Cleanup": "Nothing to clean up.",
+      "Feature Flags": "None. Entitlements gate capability by plan, which is licensing rather than release control.",
+      "FinOps": "None.",
+      "Incident Management": "No incident record, no severity model, no postmortem.",
+      "Infrastructure as Code": "No Terraform, no Pulumi, no declarative infrastructure of any kind. Buckets, policies and Stripe products are created by hand from the runbook.",
+      "Ingress & Edge": "No ingress the platform controls, no WAF, no edge rules.",
+      "Load Balancing": "None.",
+      "Load Testing": "None.",
+      "Maintenance Windows": "None.",
+      "Multi-Region Recovery": "None.",
+      "Network Topology": "No network the platform defines.",
+      "Object Storage": "Storage paths are recorded on documents, surfaces and machine control files; no bucket is provisioned, no lifecycle rule exists and nothing has been uploaded.",
+      "On-Call": "No rotation, no escalation, no schedule.",
+      "Operational Access": "No break-glass, no elevation, no session recording — P01 recorded the same.",
+      "Operational Ownership": "Nothing has an owner. Four phases have now found this independently.",
+      "Operational Runbooks": "A deployment runbook exists. There is no operational runbook for anything that runs.",
+      "Patch Management": "No patch process, no vulnerability scan, no schedule.",
+      "Performance Testing": "No baseline, no budget, no measurement. The one performance improvement this build made — tenant-key indexes on 53 tables — was found by reading the catalog rather than by measuring.",
+      "Platform Reliability": "No service level objective, no error budget, no reliability practice.",
+      "Point-in-Time Recovery": "None, and no objective stated.",
+      "Policy as Code": "No policy engine, no admission control, no infrastructure policy. The platform's own rules are enforced in the database, which is a different thing.",
+      "Preview Environments": "None.",
+      "Production Architecture": "There is no production architecture because there is no production. The intended shape is described in the deployment documentation and has never been instantiated.",
+      "Production Environment": "Nothing has been deployed. This is the gate every other operational domain in this phase waits behind.",
+      "Production Support": "No support model, no ticket, no queue, no tier.",
+      "Queue Infrastructure": "No queue, no broker, no consumer.",
+      "RTO/RPO": "No recovery point or time objective is stated anywhere.",
+      "Regions & Availability Zones": "Single region, no zone awareness, no residency model.",
+      "Release Approvals": "The deploy workflow sits behind a GitHub Environment, which is the mechanism; no approval has been configured or given.",
+      "Release Evidence": "Nothing is produced by a release because nothing has been released.",
+      "Release Notes": "None generated. Commit messages carry the reasoning in unusual detail and are not release notes.",
+      "Resilience": "Several individual failure paths are handled well — a webhook replay collides on the event id and is skipped, a bad signature returns 400 so Stripe stops retrying, entitlement survives a Stripe outage through a materialized grace window — and there is no resilience practice above them.",
+      "Resource Tagging": "No cloud resources to tag.",
+      "Restore": "No restore, and therefore no restore test.",
+      "Retries & Backoff": "No retry policy anywhere. The connector framework records runs and does not retry them.",
+      "Rollback": "Forward-only migrations and a manual runbook section. No automated rollback of code or schema.",
+      "SBOM & Provenance": "No software bill of materials and no build provenance. Dependencies are pinned and installed from a lockfile, which is the input to an SBOM rather than one.",
+      "SLOs & SLIs": "None defined.",
+      "Search Infrastructure": "Document text search runs in PostgreSQL against the records themselves, so there is no separate search infrastructure to operate — and no search infrastructure either.",
+      "Service Catalog": "No service catalog. `governance/registry.json` catalogs tables, engines and agents rather than running services.",
+      "Staging Environment": "Named in a workflow input and never created.",
+      "State Management": "No distributed state, no session store, no coordination service.",
+      "TLS Certificates": "Provided by the host; nothing here manages, rotates or monitors one.",
+      "Test Environment": "The test 'environment' is PostgreSQL compiled to WebAssembly inside the test process, which is a genuine strength and is not an environment anybody operates."
+    }
+  }
+}

@@ -110,6 +110,7 @@ const PROSE = [
   [`${V}/P28-verdicts.json`, /[\d,]+ tests in all/g, `${fmt(total)} tests in all`],
   [`${V}/README.md`, /met — [\d,]+ tests, migrations run unmodified/g, `met — ${fmt(total)} tests, migrations run unmodified`],
   [`${V}/P16-verdicts.json`, /[\d,]+ tests including prismoidal/g, `${fmt(engineTests)} tests including prismoidal`],
+  [`${V}/P31-verdicts.json`, /[\d,]+ tests run by a single command/g, `${fmt(total)} tests run by a single command`],
 ];
 
 const proseEdits = new Map();

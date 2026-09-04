@@ -5,7 +5,7 @@
  * server. Signature verification uses the async WebCrypto path because the
  * synchronous variant is not available in the Deno runtime.
  */
-import Stripe from 'npm:stripe@17';
+import Stripe from 'stripe';
 
 let cached: Stripe | null = null;
 

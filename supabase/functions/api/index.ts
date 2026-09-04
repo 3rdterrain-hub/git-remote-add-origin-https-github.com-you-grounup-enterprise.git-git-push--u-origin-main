@@ -17,7 +17,7 @@
  *     audit log that records only successes cannot answer the one question it
  *     will be asked: what did that key try to do.
  */
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import {
   authorize, isDenial, parsePagination, errorBody, responseHeaders,
   type KeyRecord, type Denial,
