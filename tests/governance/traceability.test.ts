@@ -108,15 +108,37 @@ describe('tracing is not verification, and the matrix must not blur them', () =>
     }
   });
 
-  it('reports verification only where a ledger judged it', () => {
-    // Twenty-nine phases have been judged requirement by requirement; nothing else
-    // has. A requirement carrying a verdict without a ledger behind it would
-    // be a claim nobody made.
-    const judged = matrix.filter((r) => r.verification !== 'none');
-    expect(new Set(judged.map((r) => r.phase))).toEqual(new Set(['P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P17', 'P18', 'P19', 'P20', 'P23', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30', 'P31']));
-    expect(judged).toHaveLength(25 + 60 + 560 + 75 + 97 + 108 + 120 + 300 + 300 + 160 + 180 + 210 + 240 + 360 + 380 + 260 + 280 + 320 + 340 + 400 + 420 + 450 + 360 + 400 + 450 + 480 + 500 + 520 + 540);
+  it('judges every phase the register contains, and only those', () => {
+    /*
+     * This began as a hard-coded list of judged phases that grew by one on each
+     * pass through the work. It is now the rule instead: every phase present in
+     * the requirements register carries a verdict, and nothing carries one
+     * without a ledger behind it.
+     *
+     * Both directions matter. A requirement reporting a verdict with no ledger
+     * would be a claim nobody made; a phase added to the corpus later and left
+     * unjudged would quietly shrink the denominator every number here is
+     * measured against.
+     */
+    const inRegister = new Set(matrix.map((r) => r.phase));
+    const judged = new Set(matrix.filter((r) => r.verification !== 'none').map((r) => r.phase));
+    expect([...inRegister].filter((p) => !judged.has(p)).sort()).toEqual([]);
+    expect([...judged].filter((p) => !inRegister.has(p)).sort()).toEqual([]);
+
+    // Every requirement in the register is judged, not merely every phase.
+    expect(matrix.filter((r) => r.verification === 'none')).toEqual([]);
     expect(summary.totals.verified).toBe(
       matrix.filter((r) => r.verification === 'verified').length);
+  });
+
+  it('has a ledger on disk for every phase that reports a verdict', () => {
+    // The verdict files are the judgment; the ledgers are what the generator
+    // produced from them. A phase reporting a verdict with no ledger beside it
+    // would mean the matrix and the evidence had come apart.
+    for (const phase of new Set(matrix.map((r) => r.phase))) {
+      expect(existsSync(join(G, `verification/${phase}-ledger.csv`)), `${phase} ledger`).toBe(true);
+      expect(existsSync(join(G, `verification/${phase}-verdicts.json`)), `${phase} verdicts`).toBe(true);
+    }
   });
 
   /*

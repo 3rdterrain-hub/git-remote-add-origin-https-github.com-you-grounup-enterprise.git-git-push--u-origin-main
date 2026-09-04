@@ -22,7 +22,7 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 1,936 tests, production build —
+drift checks, 1,937 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
@@ -30,10 +30,10 @@ Engine        529 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
 Database      730 tests   against real PostgreSQL 18 (PGlite)
 Functions     229 tests   billing, plan versioning, AI governance, API, observability
-Governance    249 tests   the five-category rule, traceability, verification, spelling, pipeline
+Governance    250 tests   the five-category rule, traceability, verification, spelling, pipeline
 Web           142 tests   jsdom + Testing Library
             ───────────
-            1,936 tests
+            1,937 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

@@ -169,10 +169,14 @@ describe('the ledger refuses to flatter the platform', () => {
     }
   });
 
-  it('leaves every unjudged phase reporting none', () => {
-    const judged = new Set(['P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P17', 'P18', 'P19', 'P20', 'P23', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30', 'P31']);
-    const other = matrix.filter((r) => !judged.has(r.phase!));
-    expect(other.every((r) => r.verification === 'none')).toBe(true);
+  it('leaves nothing reporting none, now that every phase is judged', () => {
+    /*
+     * This test used to name the phases that had been judged and assert every
+     * other one reported `none`. All thirty are judged, so the assertion is now
+     * the stronger one: nothing anywhere reports `none`, and a phase added to
+     * the register later fails this until somebody judges it.
+     */
+    expect(matrix.filter((r) => r.verification === 'none')).toEqual([]);
   });
 });
 

@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,930 verified of 8,895
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,930 verified of 9,475
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -56,6 +56,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P13 Business & Decision Intelligence | 300 | 0 |
 | P02 Core Platform Foundations | 60 | 17 (28%) |
 | P31 Infrastructure, Runtime & Operations | 560 | 0 |
+| P32 Go-Live, Acceptance & Closure | 580 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -282,9 +283,11 @@ This distinction is the whole integrity of the matrix, and it is enforced.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
   confirmed a specific test asserts it. **1,930 requirements are verified** of
-  8,895 judged, across P01, P02, P03, P04, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26
-  and P30, each recorded in its own `verification/*-ledger.csv`. P06, P09, P13, P16,
-  P17, P20, P23, P27, P28, P29 and P31 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  9,475 judged — which is every requirement in the register, across all thirty
+  phases, each recorded in its own `verification/*-ledger.csv`. Twelve phases
+  were judged and verified at zero: P06, P09, P13, P16, P17, P20, P23, P27, P28,
+  P29, P31 and P32. Nothing reports `none` any more, and a test asserts that a
+  phase added to the register later fails the build until somebody judges it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone
@@ -321,7 +324,7 @@ That took coverage to **50.9%**, and every step down was a correction.
 
 ## What keeps it honest
 
-`tests/governance/traceability.test.ts` — 25 tests, run by `npm run verify`:
+`tests/governance/traceability.test.ts` — 26 tests, run by `npm run verify`:
 
 - Every referenced artifact exists in the catalog, and every cited test file
   exists on disk.

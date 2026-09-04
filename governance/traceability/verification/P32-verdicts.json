@@ -1,0 +1,128 @@
+{
+  "phase": "P32",
+  "title": "Go-Live, Acceptance & Closure",
+  "method": "Every P32 requirement is capability N of a domain across 62 domains, and every one carries the same acceptance criterion: 'Capability N passes only when required evidence is attached, blocking defects/risks are resolved or formally accepted, responsible approvers are identified, and the result is traceable to prior phase requirements and release gates.' Four conditions, assessed platform-wide. A requirement is verified only where the whole condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged with nothing built for it, and deliberately nothing built for it. This is the thirtieth and last phase of the register, and it verifies at zero for a reason worth stating plainly rather than working around: every one of its 62 domains presupposes a go-live, and there has not been one.",
+  "findings": [
+    {
+      "id": "P32-F1",
+      "title": "Three of four conditions are satisfied and the fourth cannot be, by anybody in this repository",
+      "detail": "Evidence is attached: thirty verdicts, thirty ledgers, a generated matrix over 9,475 requirements, and every number in the prose recomputed from the generator that produced it. Open findings are stated at full size with their reasons. Traceability to prior phase requirements is the register itself, and since P23 an artifact can declare what it implements. **Responsible approvers are identified** is the one that fails, and it fails absolutely: nothing in this platform has an owner, and no person has accepted anything.",
+      "why_it_matters": "It is the honest end of this work. An engineering record can establish what is true; it cannot establish that somebody with the authority to accept a system has accepted it. Those are different claims and this register exists to keep them apart.",
+      "status": "open",
+      "why_not_resolved": "It is not the build's to resolve. Writing an approver's name into a verdict would be the largest over-claim in the register — manufacturing the sign-off rather than earning it — and every other phase in this build refused smaller versions of the same thing."
+    },
+    {
+      "id": "P32-F2",
+      "title": "Nothing was built for this phase, deliberately",
+      "detail": "A go-live checklist, a UAT scenario library, a cutover plan, an evidence package template and a known-issues register are all things a repository can contain, and every one of them would be a document describing a process that has never run.",
+      "why_it_matters": "P20 named this trap at the start of the verification work: 'a workflow file that has never executed is a settings toggle that switches nothing, and marking this phase verified on the strength of committed YAML would be the largest instance of that error in the register.' Producing acceptance artifacts for an acceptance that has not happened would be that error at the end of the work rather than the beginning, and it would be the easiest 580 requirements in the corpus to appear to satisfy.",
+      "status": "open",
+      "why_not_resolved": "Deliberate. The phase is judged at zero and the zero is the finding."
+    },
+    {
+      "id": "P32-F3",
+      "title": "What this register can close, it has closed",
+      "detail": "All thirty phases in the corpus now carry a verification verdict — 8,895 requirements judged, 1,930 verified against their acceptance criteria, and every unverified one carrying a stated gap rather than silence. Across those thirty phases this build found and fixed defects in the estimating library, job cost, safety credentials, commercial documents, earthwork quantities, machine control, the audit ledger, the tenant key, the AI catalogs and the notification layer; it corrected two of its own verdicts that overstated; and it recorded two defects it created rather than found.",
+      "why_it_matters": "Requirements Closure and Traceability Closure are two of this phase's 62 domains, and they are the two where the platform has something real. Recording that alongside the zero keeps both facts visible: the engineering record is complete, and the acceptance record does not exist.",
+      "status": "resolved",
+      "resolution": "A governance test now asserts that every phase present in the requirements register carries a verdict, replacing the hard-coded list of judged phases that grew through this work. A phase added to the corpus later cannot go unjudged without failing the build."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All four are required by the criterion. One fails absolutely and takes every requirement with it.",
+    "conditions": [
+      "required evidence is attached",
+      "blocking defects and risks are resolved or formally accepted",
+      "responsible approvers are identified",
+      "traceable to prior phase requirements and release gates"
+    ]
+  },
+  "platform_conditions": {
+    "required evidence is attached": {
+      "status": "met",
+      "evidence": "Thirty verdict files and thirty generated ledgers in `governance/traceability/verification`, a matrix over all 9,475 requirements, 1,936 tests behind a single gate that also runs in the pipeline, and every count stated in the documentation regenerated from the tree with a drift check that fails the build. Where evidence is absent the verdict says so and says why."
+    },
+    "blocking defects and risks are resolved or formally accepted": {
+      "status": "not_met",
+      "gap": "Defects found in this work are resolved and recorded; the ones left open are recorded with their reasons. Neither is the same as this condition, which asks for a defect to be *formally accepted* by somebody — and there is no severity model, no blocking classification, no triage and nobody to accept anything. The open findings are honest engineering judgments, not accepted risks."
+    },
+    "responsible approvers are identified": {
+      "status": "not_met",
+      "gap": "Nothing in this platform has an owner. P01, P03, P04, P23 and P31 each found this independently, and here it is the condition itself: no approver exists for a requirement, a phase, a release or a system. Naming one would be the manufactured sign-off this register exists to make impossible."
+    },
+    "traceable to prior phase requirements and release gates": {
+      "status": "met",
+      "evidence": "The register is the traceability: every requirement carries a status, every phase carries a verdict, tracing and verification are held apart by test so a derived mapping can never be counted as a judgment, and since P23 an artifact may declare the requirement it implements with a dangling declaration failing the build. The release gate is one command, its shape is asserted by test so it cannot be narrowed, and every generated artifact in the register fails the build when it drifts from what it describes."
+    }
+  },
+  "domain_status": {
+    "built": [],
+    "partial": {
+      "Traceability Closure": "The strongest thing this phase asks for and the one it actually has. Every one of the 9,475 requirements carries a derived tracing status; all thirty phases now carry a verification verdict judged requirement by requirement or domain by domain; the distinction between tracing and verification is enforced by test rather than described; and since P23 an artifact may declare what it implements, with a declaration naming a requirement the register does not have failing the build. What is missing is closure in this phase's sense — nobody has signed anything.",
+      "Requirements Closure": "1,930 of 8,895 judged requirements are verified against their acceptance criteria with named evidence, and every unverified one carries a stated gap rather than silence. Six verdicts record findings this build created rather than found, and two record judgments of its own that were overstated and were corrected in place. That is closure as an engineering record. It is not closure as an acceptance: no requirement has been accepted by anybody with the authority to accept it.",
+      "Regression Validation": "One command is the whole gate and the pipeline runs the same one: typecheck, four drift checks, six suites totaling 1,936 tests, a production build and a bundle secret scan, with the production migrations applied unmodified to real PostgreSQL. A test asserts the gate cannot be narrowed to a subset. It is regression validation against the platform's own tests, which is not the regression validation of a release nobody has made.",
+      "Evidence Package": "`governance/traceability` is an evidence package in everything but name: a generated matrix, thirty verdict files, thirty ledgers, and every number in the prose recomputed from the generator so it cannot drift from what it describes. It was assembled for engineering rather than for acceptance, and it names no approver because there is none.",
+      "Defect Management": "Defects found in this build are recorded with unusual discipline — each with what it was, why it mattered, whether it was fixed, and where it was not, why not — inside the verdicts. There is no defect tracker, no severity model, no triage and no blocking-defect gate.",
+      "Known Issues": "Every open finding across thirty verdicts is a known issue, stated at full size with its reason for remaining open. There is no known-issues register in the form this domain means, and no decision anybody has taken to accept one.",
+      "Risk Management": "Risks are named where they were found — an unevaluated prompt, unlocked transitive dependencies, an unaudited read path, no segregation of duties — and none is scored, owned, tracked or accepted.",
+      "Security Acceptance": "Security is the most thoroughly evidenced condition in the register: forced row level security on 137 tables with two migration-time gates, tenant-key indexes, a build-output secret scan, an audit ledger that records the request behind each change, pinned dependencies in the privileged boundary. None of it has been accepted by anybody, and P28 recorded what is absent — no detection and response, no rotation lifecycle, no monitoring.",
+      "Analytics Acceptance": "Thirteen live reporting views, sixteen governed metrics evaluated through one function, lineage proven by executing each expression against its source view. P29 and P13 judged them and found real defects in both; nothing has been accepted.",
+      "AI Acceptance": "The AI layer is governed structurally — an autonomous agent is unconfigurable, a factual finding cannot exist without a citation, output is inert until a person accepts it. P06 found the prompt registry unread and the model catalog empty and closed both. Acceptance requires the evaluation P27 and P06 both record as absent.",
+      "Data Quality Acceptance": "Constraints refuse bad rows in abundance and P03 and P29 both recorded that there is no data quality framework: no completeness, validity, consistency or timeliness measure, and no score to accept.",
+      "Performance Acceptance": "No performance baseline, no load test, no budget. The one measurable improvement this build made was found by reading the catalog rather than by measuring.",
+      "Accessibility Acceptance": "P04 recorded this precisely: the application is built on Radix primitives that carry keyboard and screen-reader behavior by construction, and nothing measures it — no audit, no automated check, no conformance target. An unverified foundation is not an acceptance."
+    },
+    "not_built": {
+      "Admin Enablement": "None. P01 recorded that there is no administrative console.",
+      "Adoption Monitoring": "Nothing is adopted. Usage is metered per company for billing, which is the mechanism adoption monitoring would read.",
+      "Benefits/KPI Baseline": "No baseline, and the metrics that would measure against one reach almost nobody — P29 and P13 recorded that 22 of 23 screens read demonstration fixtures.",
+      "Business Acceptance": "No business has accepted anything.",
+      "Change Freeze": "Nothing to freeze.",
+      "Commercial Acceptance": "The billing layer is built and verified in part at P30 — plan versions pinned at purchase, entitlement from verified webhook state, a grace window so a Stripe outage is not an outage — and no commercial arrangement has been accepted by a customer, because there are none.",
+      "Customer Communications": "No customer.",
+      "Customer Launch": "No launch.",
+      "Customer Success Handoff": "No customer and no success function to hand to.",
+      "Cutover Checklist": "None.",
+      "Cutover Planning": "No cutover from anything, to anything.",
+      "Data Cleansing": "None.",
+      "End User Enablement": "None.",
+      "Enterprise Validation": "None.",
+      "Final Signoff": "Nobody has signed anything. Four phases have now recorded that nothing in this platform has an owner.",
+      "Go-Live Decision": "No go-live has been proposed, so there is no decision to make and nobody to make it.",
+      "Hypercare": "No go-live, so no hypercare period.",
+      "Incident Triage": "No incident model at all.",
+      "Issue Management": "No issue tracker.",
+      "Migration Discovery": "No incumbent system has been examined.",
+      "Migration Dry Run": "No data migration exists to rehearse. The database migrations that do exist are schema migrations, applied to real PostgreSQL on every test run, which is a different thing.",
+      "Migration Exception Handling": "No migration exceptions, because no data migration.",
+      "Migration Reconciliation": "P03 recorded this from the data side: migrations apply in order and nothing reconciles counts, totals or rejected records — including the one migration in this build that backfilled job cost from existing timecards, which reported nothing about what it posted.",
+      "Migration Rollback": "Forward-only by design, with a manual runbook section and no rehearsed rollback.",
+      "Migration Transformation": "No transformation from any source system.",
+      "Operational Acceptance": "Nothing is operating.",
+      "Operations Acceptance": "Nothing is operating.",
+      "Pilot Exit Criteria": "None stated.",
+      "Pilot Feedback": "None collected.",
+      "Pilot Monitoring": "Nothing to monitor.",
+      "Pilot Provisioning": "A company can be provisioned in one governed transaction, which is the mechanism a pilot would use; no pilot has been provisioned.",
+      "Pilot Readiness": "No pilot.",
+      "Pilot Tenant Selection": "No pilot tenant.",
+      "Post-GoLive Review": "No go-live to review.",
+      "Product Acceptance": "None.",
+      "Production Certification": "Nothing has been deployed to certify.",
+      "Production Verification": "Nothing is running to verify.",
+      "Release Archive": "No release to archive.",
+      "Release Certification": "No release has been made.",
+      "Security Certification": "No certification, no external assessment, no attestation.",
+      "Source Mapping": "No mapping from any source system's schema to this one. P03 recorded that importing a company's existing catalog would be a code change.",
+      "Support Readiness": "No support model, no queue, no tier — P20 and P31 recorded the same.",
+      "System Integration Validation": "Integrations within the platform are validated by tests. There is no external system to integrate with and validate against.",
+      "Training": "None. The documentation is written for an engineer reading the repository.",
+      "UAT Evidence": "None produced.",
+      "UAT Governance": "No user acceptance testing of any kind, so no governance of it.",
+      "UAT Personas": "None defined.",
+      "UAT Scenarios": "None written.",
+      "UAT Signoff": "Nobody to sign."
+    }
+  }
+}

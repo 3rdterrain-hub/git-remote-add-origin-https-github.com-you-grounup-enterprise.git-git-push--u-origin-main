@@ -18,8 +18,8 @@
     "untraced": 4649,
     "traced_percent": 50.9,
     "verified": 1930,
-    "verification_attempted": 8895,
-    "not_verified": 6965
+    "verification_attempted": 9475,
+    "not_verified": 7545
   },
   "artifacts": {
     "total": 282,
