@@ -15,7 +15,9 @@ import { useQuery } from '@/lib/data/query';
 import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
+  loadMaterials, loadLaborRates, updateCost,
 } from '@/lib/data/library';
+import { CostCell } from '@/components/library/cost-cell';
 import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
@@ -43,6 +45,8 @@ export function LibrariesPage() {
   const truckingQ = useQuery(loadTruckingRates, []);
   const disposalQ = useQuery(loadDisposalSites, []);
   const vendorsQ = useQuery(loadVendors, []);
+  const materialsQ = useQuery(loadMaterials, []);
+  const laborQ = useQuery(loadLaborRates, []);
   const membershipsQ = useQuery(loadMemberships, []);
   const { can } = usePermissions();
   const canWrite = can('libraries.write');
@@ -58,6 +62,30 @@ export function LibrariesPage() {
   const disposal = disposalQ.status === 'ready' ? disposalQ.data : [];
   const vendors = vendorsQ.status === 'ready' ? vendorsQ.data : [];
   const subs = vendors.filter((v) => v.vendorType === 'subcontractor');
+  const materials = materialsQ.status === 'ready' ? materialsQ.data : [];
+  const laborRates = laborQ.status === 'ready' ? laborQ.data : [];
+
+  /**
+   * Change a cost in the company's library.
+   *
+   * The write is the same three lines whichever table it lands on; what differs
+   * is only which column holds the money. Row level security decides whether it
+   * is permitted, so a catalog row is refused by the database rather than by
+   * this function remembering to check.
+   */
+  async function saveCost(
+    table: Parameters<typeof updateCost>[1], id: string,
+    patch: Record<string, number>, refetch: () => void,
+  ) {
+    if (!supabase) return;
+    setBusy(true); setWriteError(null);
+    try {
+      await updateCost(supabase, table, id, patch);
+      refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That cost could not be saved.');
+    } finally { setBusy(false); }
+  }
 
   const shownServices = useMemo(
     () => services.filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
@@ -142,6 +170,7 @@ export function LibrariesPage() {
         <TabsList>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="materials">Materials</TabsTrigger>
           <TabsTrigger value="hauling">Hauling</TabsTrigger>
           <TabsTrigger value="subs">Subcontractors</TabsTrigger>
           <TabsTrigger value="labor">Labor</TabsTrigger>
@@ -297,6 +326,130 @@ export function LibrariesPage() {
           </Card>
         </TabsContent>
 
+        {/* ------------------------------------------------------ materials */}
+        <TabsContent value="materials" className="space-y-4">
+          {materialsQ.status === 'loading' ? <LoadingState label="Reading materials" /> : null}
+          {materialsQ.status === 'error'
+            ? <ErrorState message={materialsQ.message} onRetry={materialsQ.refetch} /> : null}
+          {writeError ? <Alert tone="danger">{writeError}</Alert> : null}
+
+          <Alert tone="neutral" icon={<Info className="size-4" />}
+            title="Set a cost once, and every estimate built after it uses it">
+            A change here applies to estimates priced from now on and to nothing already
+            issued — a library snapshot copies the rows that priced an estimate at the moment
+            it went out, so a bid sent in March still reproduces at March&apos;s costs. That is
+            what makes editing a rate safe rather than retroactive.
+          </Alert>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Materials</CardTitle>
+              <CardDescription>
+                Unit cost and the waste factor that grosses a measured quantity up to a
+                purchased one. A waste factor must state its basis; the database refuses one
+                that does not.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Material</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead className="text-right">Unit cost</TableHead>
+                    <TableHead className="text-right">Waste</TableHead>
+                    <TableHead>Scope</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {materials.filter((m) => match(`${m.code} ${m.name} ${m.category ?? ''}`))
+                    .slice(0, 300).map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{m.code}</TableCell>
+                      <TableCell>
+                        <p className="font-medium text-charcoal-900">{m.name}</p>
+                        {m.category ? (
+                          <p className="text-xs text-charcoal-500">{m.category}</p>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="text-charcoal-600">{m.unit}</TableCell>
+                      <TableCell className="text-right">
+                        <CostCell value={m.unitCost} editable={m.editable} busy={busy}
+                          label={`unit cost for ${m.name}`} suffix={` / ${m.unit}`}
+                          hint={m.quoteReference ?? undefined}
+                          onSave={(v) => saveCost('materials', m.id, { unit_cost: v },
+                            materialsQ.refetch)} />
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {percent(m.defaultWastePercent, 1)}
+                      </TableCell>
+                      <TableCell><ScopeBadge scope={m.scope} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!materials.length && materialsQ.status === 'ready' ? (
+                <EmptyState title={q ? 'Nothing matches that' : 'No materials yet'} />
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Labor rates</CardTitle>
+              <CardDescription>
+                Base wage and burden. The loaded rate the engine multiplies hours by is
+                generated by the database from those two, so it cannot be edited into
+                disagreeing with them.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Classification</TableHead>
+                    <TableHead className="text-right">Base wage</TableHead>
+                    <TableHead className="text-right">Burden</TableHead>
+                    <TableHead className="text-right">Loaded</TableHead>
+                    <TableHead>Scope</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {laborRates.filter((l) => match(`${l.code} ${l.classification}`)).map((l) => (
+                    <TableRow key={l.id}>
+                      <TableCell>
+                        <p className="font-medium text-charcoal-900">{l.classification}</p>
+                        <p className="text-xs text-charcoal-500">
+                          {l.laborGroup ?? l.code}{l.isUnion ? ' · union' : ''}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <CostCell value={l.baseWagePerHour} editable={l.editable} busy={busy}
+                          label={`base wage for ${l.classification}`} suffix=" / hr"
+                          hint={`from ${l.effectiveDate}`}
+                          onSave={(v) => saveCost('labor_rates', l.id,
+                            { base_wage_per_hour: v }, laborQ.refetch)} />
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {percent(l.burdenPercent, 1)}
+                      </TableCell>
+                      <TableCell className="tabular text-right font-medium text-charcoal-900">
+                        {money(l.burdenedCostPerHour)}
+                        <span className="text-charcoal-400"> / hr</span>
+                      </TableCell>
+                      <TableCell><ScopeBadge scope={l.scope} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!laborRates.length && laborQ.status === 'ready' ? (
+                <EmptyState title="No labor rates yet" />
+              ) : null}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* -------------------------------------------------------- hauling */}
         <TabsContent value="hauling" className="space-y-4">
           {truckingQ.status === 'loading' ? <LoadingState label="Reading haul rates" /> : null}
@@ -307,9 +460,11 @@ export function LibrariesPage() {
             <CardHeader>
               <CardTitle>Haul rates</CardTitle>
               <CardDescription>
-                Cycle time is computed from these, not guessed: capacity, load and dump
-                minutes, and loaded and empty speeds give the engine a real haul cycle
-                rather than a rate per ton somebody remembered.
+                Three ways a haul is bought, and they are not interchangeable. A cycle rate
+                gives a cost, a duration and a truck count. A trip rate pays for the truck
+                that arrives rather than the dirt in it, so a partial load is a whole trip.
+                A unit rate is a number with no schedule in it, which RULE-004 treats as
+                preliminary.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
@@ -318,8 +473,9 @@ export function LibrariesPage() {
                   <TableRow>
                     <TableHead>Code</TableHead>
                     <TableHead>Truck</TableHead>
+                    <TableHead>Priced by</TableHead>
                     <TableHead className="text-right">Capacity</TableHead>
-                    <TableHead className="text-right">Hourly</TableHead>
+                    <TableHead className="text-right">Rate</TableHead>
                     <TableHead className="text-right">Load / dump</TableHead>
                     <TableHead className="text-right">Loaded / empty</TableHead>
                     <TableHead>Vendor</TableHead>
@@ -333,10 +489,26 @@ export function LibrariesPage() {
                         <p className="font-medium text-charcoal-900">{t.name}</p>
                         <p className="text-xs text-charcoal-500">{titleCase(t.truckType)}</p>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant={t.pricingBasis === 'cycle' ? 'success'
+                          : t.pricingBasis === 'per_trip' ? 'default' : 'warn'}>
+                          {t.pricingBasis === 'cycle' ? 'Cycle'
+                            : t.pricingBasis === 'per_trip' ? 'Per trip' : 'Per unit'}
+                        </Badge>
+                        {t.pricingBasis === 'per_trip' && !t.chargesWholeTrips ? (
+                          <p className="text-[11px] text-charcoal-500">prorated</p>
+                        ) : null}
+                      </TableCell>
                       <TableCell className="tabular text-right">
                         {qty(t.capacity, 1)} {t.capacityUnit}
                       </TableCell>
-                      <TableCell className="tabular text-right">{money(t.hourlyRate)}</TableCell>
+                      <TableCell className="tabular text-right">
+                        {t.pricingBasis === 'per_trip' && t.ratePerTrip != null
+                          ? `${money(t.ratePerTrip)} / trip`
+                          : t.pricingBasis === 'per_unit' && t.preliminaryUnitRate != null
+                            ? `${money(t.preliminaryUnitRate)} / ${t.capacityUnit}`
+                            : `${money(t.hourlyRate)} / hr`}
+                      </TableCell>
                       <TableCell className="tabular text-right text-charcoal-600">
                         {t.loadMinutes} / {t.dumpMinutes} min
                       </TableCell>

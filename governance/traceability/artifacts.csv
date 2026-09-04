@@ -228,6 +228,7 @@ TST-engine-schedule,test,engine/schedule.test.ts,packages/engine/tests/schedule.
 TST-engine-snapshot,test,engine/snapshot.test.ts,packages/engine/tests/snapshot.test.ts,ENGINE
 TST-engine-surfaces,test,engine/surfaces.test.ts,packages/engine/tests/surfaces.test.ts,ENGINE
 TST-engine-takeoff,test,engine/takeoff.test.ts,packages/engine/tests/takeoff.test.ts,ENGINE
+TST-engine-trip-haul,test,engine/trip-haul.test.ts,packages/engine/tests/trip-haul.test.ts,ENGINE
 TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.test.ts,ENGINE
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
@@ -247,6 +248,7 @@ TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
 TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
 TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
 TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
+TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
 TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE
@@ -287,6 +289,7 @@ TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENG
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
+TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE

@@ -86,6 +86,62 @@ export interface PreliminaryHaulResult {
     warnings: readonly string[];
 }
 export declare function preliminaryHaulCost(quantity: number, ratePerUnit: number, unit: string): PreliminaryHaulResult;
+/**
+ * Haul priced by the trip.
+ *
+ * The commonest way a trucker actually quotes, and it is not a per-unit rate
+ * wearing different clothes. **You pay for the truck that arrives, not for the
+ * dirt in it**, so a partial load costs a whole trip: 1,200 CY at 14 CY a truck
+ * is 85.7 loads and 86 trips paid. Pricing that as a rate per cubic yard
+ * understates it by most of a trip on every job, and by a great deal more on a
+ * small one where a single partial load is a large share of the work.
+ *
+ * Some hauls carry a minimum billable quantity per trip instead — "$12 a ton,
+ * 22-ton minimum" — which is the same idea from the other side: the trucker is
+ * paid for capacity whether or not it is filled.
+ *
+ * This gives a defensible cost and deliberately says nothing about duration.
+ * A negotiated trip rate is a real price; it is not a haul analysis, and it
+ * cannot tell you how many trucks the loader needs or how long the haul takes.
+ * `analyzeHaulCycle` answers those, and RULE-004 still wants it before an
+ * estimate is issued on cycle-dependent work.
+ */
+export interface TripHaulInput {
+    /** Quantity to move, in the same unit as the truck capacity. */
+    quantity: number;
+    /** What one truck carries. */
+    truckCapacity: number;
+    /** The negotiated price for one trip. */
+    ratePerTrip: number;
+    /**
+     * Minimum quantity billed per trip, where the quote is written that way.
+     * Defaults to the truck's capacity, which is the usual arrangement.
+     */
+    minimumBillableQuantity?: number;
+    /**
+     * Whether a partial load is paid as a whole trip. True by default, because
+     * that is what "per trip" means; set false only where the quote genuinely
+     * prorates the last load, which is rare and worth stating explicitly.
+     */
+    chargeWholeTrips?: boolean;
+}
+export interface TripHaulResult {
+    quantity: number;
+    truckCapacity: number;
+    /** Loads the quantity actually fills, fractional. */
+    loads: number;
+    /** Trips paid for, which is what the invoice will say. */
+    tripsPaid: number;
+    ratePerTrip: number;
+    truckingCost: number;
+    /** Quantity paid for but not moved, because the last truck was not full. */
+    unusedCapacity: number;
+    /** The cost per unit this works out to, for comparison against a unit quote. */
+    effectiveRatePerUnit: number;
+    derivation: readonly string[];
+    warnings: readonly string[];
+}
+export declare function tripHaulCost(input: TripHaulInput): TripHaulResult;
 export interface CutFillInput {
     /** Total cut in bank cubic yards. */
     cutBcy: number;

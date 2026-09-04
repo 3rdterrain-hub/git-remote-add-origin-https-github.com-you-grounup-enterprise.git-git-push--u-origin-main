@@ -133,6 +133,56 @@ export function preliminaryHaulCost(quantity, ratePerUnit, unit) {
         ],
     };
 }
+export function tripHaulCost(input) {
+    const { quantity, truckCapacity, ratePerTrip, chargeWholeTrips = true, } = input;
+    assertNonNegative(quantity, 'quantity');
+    assertNonNegative(ratePerTrip, 'ratePerTrip');
+    if (!(truckCapacity > 0)) {
+        throw new RangeError('A trip-priced haul needs a positive truck capacity');
+    }
+    const minimum = input.minimumBillableQuantity ?? truckCapacity;
+    if (!(minimum > 0)) {
+        throw new RangeError('A minimum billable quantity must be positive');
+    }
+    const derivation = [];
+    const warnings = [];
+    const loads = safeDivide(quantity, truckCapacity);
+    const tripsPaid = chargeWholeTrips ? Math.ceil(loads) : roundTo(loads, 4);
+    const truckingCost = money(tripsPaid * ratePerTrip);
+    derivation.push(`${roundTo(quantity, 3)} over ${truckCapacity} per truck = ${roundTo(loads, 4)} loads`);
+    derivation.push(chargeWholeTrips
+        ? `rounded up to ${tripsPaid} trips, because a partial load is paid as a whole trip`
+        : `${tripsPaid} trips, prorated — the quote pays the last load by quantity`);
+    derivation.push(`x ${unitRate(ratePerTrip)} per trip = ${money(truckingCost)}`);
+    const billedQuantity = tripsPaid * minimum;
+    const unusedCapacity = roundTo(Math.max(billedQuantity - quantity, 0), 4);
+    if (chargeWholeTrips && unusedCapacity > 0) {
+        /*
+         * Worth saying out loud rather than leaving in the arithmetic: on a small
+         * haul the unfilled part of the last truck can be a large share of what is
+         * paid for, and an estimator comparing this against a per-unit quote needs
+         * to see it.
+         */
+        warnings.push(`${unusedCapacity} of billed capacity is not moved: the last truck runs `
+            + `${roundTo(unusedCapacity, 2)} short and is paid in full. On a haul this size that `
+            + `is ${roundTo(safeDivide(unusedCapacity, billedQuantity) * 100, 1)}% of what is billed.`);
+    }
+    warnings.push('Priced by the trip. This is a cost and not a haul analysis: it says nothing about '
+        + 'how many trucks the loader needs or how long the haul takes. RULE-004 wants a '
+        + 'cycle analysis before issue where the schedule depends on the haul.');
+    return {
+        quantity: roundTo(quantity, 4),
+        truckCapacity,
+        loads: roundTo(loads, 4),
+        tripsPaid,
+        ratePerTrip: unitRate(ratePerTrip),
+        truckingCost,
+        unusedCapacity,
+        effectiveRatePerUnit: unitRate(safeDivide(truckingCost, quantity)),
+        derivation,
+        warnings,
+    };
+}
 /** Within this fraction of the fill requirement, the site is called balanced. */
 const CUT_FILL_TOLERANCE = 0.02;
 /**

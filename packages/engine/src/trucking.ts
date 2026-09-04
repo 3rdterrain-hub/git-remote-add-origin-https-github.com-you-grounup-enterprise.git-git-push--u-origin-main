@@ -242,6 +242,129 @@ export function preliminaryHaulCost(
   };
 }
 
+/**
+ * Haul priced by the trip.
+ *
+ * The commonest way a trucker actually quotes, and it is not a per-unit rate
+ * wearing different clothes. **You pay for the truck that arrives, not for the
+ * dirt in it**, so a partial load costs a whole trip: 1,200 CY at 14 CY a truck
+ * is 85.7 loads and 86 trips paid. Pricing that as a rate per cubic yard
+ * understates it by most of a trip on every job, and by a great deal more on a
+ * small one where a single partial load is a large share of the work.
+ *
+ * Some hauls carry a minimum billable quantity per trip instead — "$12 a ton,
+ * 22-ton minimum" — which is the same idea from the other side: the trucker is
+ * paid for capacity whether or not it is filled.
+ *
+ * This gives a defensible cost and deliberately says nothing about duration.
+ * A negotiated trip rate is a real price; it is not a haul analysis, and it
+ * cannot tell you how many trucks the loader needs or how long the haul takes.
+ * `analyzeHaulCycle` answers those, and RULE-004 still wants it before an
+ * estimate is issued on cycle-dependent work.
+ */
+export interface TripHaulInput {
+  /** Quantity to move, in the same unit as the truck capacity. */
+  quantity: number;
+  /** What one truck carries. */
+  truckCapacity: number;
+  /** The negotiated price for one trip. */
+  ratePerTrip: number;
+  /**
+   * Minimum quantity billed per trip, where the quote is written that way.
+   * Defaults to the truck's capacity, which is the usual arrangement.
+   */
+  minimumBillableQuantity?: number;
+  /**
+   * Whether a partial load is paid as a whole trip. True by default, because
+   * that is what "per trip" means; set false only where the quote genuinely
+   * prorates the last load, which is rare and worth stating explicitly.
+   */
+  chargeWholeTrips?: boolean;
+}
+
+export interface TripHaulResult {
+  quantity: number;
+  truckCapacity: number;
+  /** Loads the quantity actually fills, fractional. */
+  loads: number;
+  /** Trips paid for, which is what the invoice will say. */
+  tripsPaid: number;
+  ratePerTrip: number;
+  truckingCost: number;
+  /** Quantity paid for but not moved, because the last truck was not full. */
+  unusedCapacity: number;
+  /** The cost per unit this works out to, for comparison against a unit quote. */
+  effectiveRatePerUnit: number;
+  derivation: readonly string[];
+  warnings: readonly string[];
+}
+
+export function tripHaulCost(input: TripHaulInput): TripHaulResult {
+  const {
+    quantity, truckCapacity, ratePerTrip,
+    chargeWholeTrips = true,
+  } = input;
+
+  assertNonNegative(quantity, 'quantity');
+  assertNonNegative(ratePerTrip, 'ratePerTrip');
+  if (!(truckCapacity > 0)) {
+    throw new RangeError('A trip-priced haul needs a positive truck capacity');
+  }
+
+  const minimum = input.minimumBillableQuantity ?? truckCapacity;
+  if (!(minimum > 0)) {
+    throw new RangeError('A minimum billable quantity must be positive');
+  }
+
+  const derivation: string[] = [];
+  const warnings: string[] = [];
+
+  const loads = safeDivide(quantity, truckCapacity);
+  const tripsPaid = chargeWholeTrips ? Math.ceil(loads) : roundTo(loads, 4);
+  const truckingCost = money(tripsPaid * ratePerTrip);
+
+  derivation.push(
+    `${roundTo(quantity, 3)} over ${truckCapacity} per truck = ${roundTo(loads, 4)} loads`);
+  derivation.push(
+    chargeWholeTrips
+      ? `rounded up to ${tripsPaid} trips, because a partial load is paid as a whole trip`
+      : `${tripsPaid} trips, prorated — the quote pays the last load by quantity`);
+  derivation.push(`x ${unitRate(ratePerTrip)} per trip = ${money(truckingCost)}`);
+
+  const billedQuantity = tripsPaid * minimum;
+  const unusedCapacity = roundTo(Math.max(billedQuantity - quantity, 0), 4);
+  if (chargeWholeTrips && unusedCapacity > 0) {
+    /*
+     * Worth saying out loud rather than leaving in the arithmetic: on a small
+     * haul the unfilled part of the last truck can be a large share of what is
+     * paid for, and an estimator comparing this against a per-unit quote needs
+     * to see it.
+     */
+    warnings.push(
+      `${unusedCapacity} of billed capacity is not moved: the last truck runs `
+      + `${roundTo(unusedCapacity, 2)} short and is paid in full. On a haul this size that `
+      + `is ${roundTo(safeDivide(unusedCapacity, billedQuantity) * 100, 1)}% of what is billed.`);
+  }
+
+  warnings.push(
+    'Priced by the trip. This is a cost and not a haul analysis: it says nothing about '
+    + 'how many trucks the loader needs or how long the haul takes. RULE-004 wants a '
+    + 'cycle analysis before issue where the schedule depends on the haul.');
+
+  return {
+    quantity: roundTo(quantity, 4),
+    truckCapacity,
+    loads: roundTo(loads, 4),
+    tripsPaid,
+    ratePerTrip: unitRate(ratePerTrip),
+    truckingCost,
+    unusedCapacity,
+    effectiveRatePerUnit: unitRate(safeDivide(truckingCost, quantity)),
+    derivation,
+    warnings,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Cut / fill balance (Section 11)
 // ---------------------------------------------------------------------------
