@@ -39,10 +39,18 @@ create table lead_intake_forms (
   company_id    uuid not null references companies(id) on delete cascade,
   name          text not null check (length(trim(name)) between 1 and 120),
 
-  -- The form's public address. Random, opaque, and replaceable without
-  -- disturbing the company or the leads already collected.
+  /*
+   * The form's public address. Random, opaque, and replaceable without
+   * disturbing the company or the leads already collected.
+   *
+   * Built from `gen_random_uuid()` rather than `gen_random_bytes()`: the latter
+   * comes from pgcrypto, which Supabase installs into the `extensions` schema
+   * rather than `public`, so a migration that reaches for it unqualified fails
+   * on a real project and passes locally. A v4 UUID carries 122 bits from the
+   * same cryptographic source and needs no extension at all.
+   */
   public_key    text not null unique
-                  default encode(gen_random_bytes(18), 'base64')
+                  default replace(gen_random_uuid()::text, '-', '')
                   check (length(public_key) between 16 and 64),
 
   is_active     boolean not null default true,

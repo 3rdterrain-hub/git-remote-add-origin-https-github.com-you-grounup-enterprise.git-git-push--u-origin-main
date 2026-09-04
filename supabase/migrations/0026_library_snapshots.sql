@@ -233,7 +233,86 @@ comment on function app.snapshot_drift(uuid) is
 
 -- -----------------------------------------------------------------------------
 -- RLS and grants
+--
+-- `app.apply_tenant_rls` enabled row level security and wrote the policies, and
+-- granted nothing — table privileges came from migration 0012, which by
+-- definition cannot cover a table created after it. On a local PostgreSQL that
+-- is harmless, because a new table has no privileges to begin with. On Supabase
+-- it is not: a project ships with ALTER DEFAULT PRIVILEGES granting everything
+-- on every new table in `public` to anon, so a table created here is readable
+-- by anonymous visitors from the moment it exists.
+--
+-- The gate caught it on the first real deployment. The test harness had not
+-- reproduced Supabase's default privileges, so the tests were proving a
+-- property of a database that did not resemble the one being deployed to; the
+-- harness now sets them, and this failure reproduces locally.
+--
+-- Fixed in the helper rather than in these two tables, so every table created
+-- by it from here on carries the right privileges by construction instead of
+-- depending on the author of each migration remembering.
 -- -----------------------------------------------------------------------------
+/*
+ * The same function as migration 0010, with the two privilege statements it
+ * always needed. Every line above them is copied unchanged; a test asserts the
+ * policies it writes are identical, so this is a fix rather than a rewrite.
+ */
+create or replace function app.apply_tenant_rls(
+  p_table text,
+  p_read_permission text default null,
+  p_write_permission text default null,
+  p_delete_permission text default null
+)
+returns void
+language plpgsql
+as $rls$
+declare
+  v_read  text := case when p_read_permission is null
+                       then format('app.is_member(%I.company_id)', p_table)
+                       else format('(app.is_member(%I.company_id) and app.has_permission(%I.company_id, %L))',
+                                   p_table, p_table, p_read_permission) end;
+  v_write text := case when p_write_permission is null
+                       then format('app.is_member(company_id)')
+                       else format('(app.is_member(company_id) and app.has_permission(company_id, %L))', p_write_permission) end;
+  v_del   text := case when coalesce(p_delete_permission, p_write_permission) is null
+                       then format('app.is_member(%I.company_id)', p_table)
+                       else format('(app.is_member(%I.company_id) and app.has_permission(%I.company_id, %L))',
+                                   p_table, p_table, coalesce(p_delete_permission, p_write_permission)) end;
+begin
+  execute format('alter table %I enable row level security', p_table);
+  execute format('alter table %I force row level security', p_table);
+
+  execute format('drop policy if exists %I on %I', p_table || '_select', p_table);
+  execute format('create policy %I on %I for select to authenticated using (%s)',
+                 p_table || '_select', p_table, v_read);
+
+  execute format('drop policy if exists %I on %I', p_table || '_insert', p_table);
+  execute format('create policy %I on %I for insert to authenticated with check (%s)',
+                 p_table || '_insert', p_table, v_write);
+
+  execute format('drop policy if exists %I on %I', p_table || '_update', p_table);
+  execute format('create policy %I on %I for update to authenticated using (%s) with check (%s)',
+                 p_table || '_update', p_table,
+                 replace(v_write, 'app.is_member(company_id)', format('app.is_member(%I.company_id)', p_table)),
+                 v_write);
+
+  execute format('drop policy if exists %I on %I', p_table || '_delete', p_table);
+  execute format('create policy %I on %I for delete to authenticated using (%s)',
+                 p_table || '_delete', p_table, v_del);
+
+  /*
+   * The privileges, which this function used to leave to whoever wrote the
+   * migration. Revoked from anon unconditionally: row level security is not a
+   * substitute for withholding access, and a policy that returns no rows still
+   * lets an anonymous caller confirm the table exists.
+   */
+  execute format('revoke all on table %I from anon', p_table);
+  execute format('grant select, insert, update, delete on table %I to authenticated', p_table);
+end;
+$rls$;
+
+comment on function app.apply_tenant_rls(text, text, text, text) is
+  'Enables row level security on a tenant table, writes the four policies, and sets the table privileges. The privileges were added in migration 0026: before that it granted nothing, table privileges came from migration 0012, and a table created after 0012 was therefore left with Supabase''s default grant of everything to anon.';
+
 select app.apply_tenant_rls('library_snapshots', null, 'estimates.write');
 select app.apply_tenant_rls('library_snapshot_entries', null, 'estimates.write');
 

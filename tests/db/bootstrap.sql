@@ -61,3 +61,28 @@ grant select on auth.users to authenticated, service_role;
 -- Schema usage only. Table privileges are granted by migration 0012, which is
 -- production code rather than test scaffolding.
 grant usage on schema public to anon, authenticated, service_role;
+
+/*
+ * Supabase's default privileges on the public schema.
+ *
+ * This is scaffolding that has to exist, and its absence hid a real defect
+ * until the migrations were first pushed to an actual project.
+ *
+ * A Supabase project ships with ALTER DEFAULT PRIVILEGES granting everything on
+ * every new table in `public` to anon, authenticated and service_role. That
+ * means a table created by a migration is readable by anonymous visitors from
+ * the moment it exists, and stays that way until something revokes it — which
+ * is precisely why `app.assert_security_gates()` checks.
+ *
+ * Without these lines the harness created tables with no anon grant at all, so
+ * the gate had nothing to catch, every test passed, and the first real deploy
+ * stopped on migration 0026 with two tables anon could read. The tests were
+ * proving a property of a database that did not resemble the one being
+ * deployed to.
+ */
+alter default privileges in schema public
+  grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on functions to anon, authenticated, service_role;

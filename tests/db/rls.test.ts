@@ -93,14 +93,28 @@ describe('row level security', () => {
       await expect(h.sql(`select app.assert_security_gates()`))
         .rejects.toThrow(/RLS coverage gate failed.*gate_probe/s);
 
+      /*
+       * Enabling row level security is not enough, and this is the half the
+       * platform got wrong on its first real deployment. Supabase grants
+       * everything on every new table in `public` to anon by default, so a
+       * table arrives readable by anonymous visitors and a policy that returns
+       * them no rows still lets them confirm it exists. The harness reproduces
+       * those defaults, so the probe has to be configured the way a real table
+       * must be — both halves — before the gate is satisfied.
+       */
       await h.sql(`alter table gate_probe enable row level security`);
       await h.sql(`alter table gate_probe force row level security`);
+      await expect(h.sql(`select app.assert_security_gates()`))
+        .rejects.toThrow(/Privilege gate failed.*gate_probe/s);
+
+      await h.sql(`revoke all on gate_probe from anon`);
       await expect(h.sql(`select app.assert_security_gates()`)).resolves.toBeDefined();
 
-      // And it catches a table exposed to the anonymous role.
+      // And it catches the privilege being handed back.
       await h.sql(`grant select on gate_probe to anon`);
       await expect(h.sql(`select app.assert_security_gates()`))
         .rejects.toThrow(/Privilege gate failed.*gate_probe/s);
+      await h.sql(`revoke all on gate_probe from anon`);
 
       await h.sql(`drop table gate_probe`);
       await expect(h.sql(`select app.assert_security_gates()`)).resolves.toBeDefined();

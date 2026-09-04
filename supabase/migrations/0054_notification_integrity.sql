@@ -111,4 +111,21 @@ create trigger forbid_notification_edit
 comment on table notifications is
   'An event somebody should see. ENTITY. Content is fixed once raised — row level security restricts rows and not columns, so the old update policy that meant to allow marking a notice read in fact allowed rewriting the title and severity of every company-wide one. Read state is per person, in notification_receipts.';
 
+
+-- -----------------------------------------------------------------------------
+-- Withhold from anonymous callers
+--
+-- Migration 0012 revoked everything in `public` from anon in one statement,
+-- which by definition covered only the tables existing then. A Supabase project
+-- grants everything on every *new* table in `public` to anon by default, so a
+-- table created after 0012 arrives readable by anonymous visitors and stays
+-- that way until something says otherwise.
+--
+-- Missed until the migrations were first pushed to a real project, because the
+-- test harness did not reproduce those default privileges: a new table had no
+-- anon grant to revoke, so the gate had nothing to catch and every test passed.
+-- The harness sets them now, and this reproduces locally.
+-- -----------------------------------------------------------------------------
+revoke all on notification_receipts from anon;
+
 select app.assert_security_gates();

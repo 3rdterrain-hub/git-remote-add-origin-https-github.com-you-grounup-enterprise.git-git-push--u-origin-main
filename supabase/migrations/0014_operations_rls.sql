@@ -132,3 +132,22 @@ begin
     raise exception 'Privilege gate failed. The anon role can read: %', array_to_string(v_leaks, ', ');
   end if;
 end $$;
+
+-- -----------------------------------------------------------------------------
+-- Withhold from anonymous callers
+--
+-- Migration 0012 revoked everything in `public` from anon in one statement,
+-- which by definition covered only the tables existing then. A Supabase project
+-- grants everything on every *new* table in `public` to anon by default, so a
+-- table created after 0012 arrives readable by anonymous visitors and stays
+-- that way until something says otherwise.
+--
+-- Missed until the migrations were first pushed to a real project, because the
+-- test harness did not reproduce those default privileges: a new table had no
+-- anon grant to revoke, so the gate had nothing to catch and every test passed.
+-- The harness sets them now, and this reproduces locally.
+-- -----------------------------------------------------------------------------
+revoke all on ai_models from anon;
+revoke all on ai_prompts from anon;
+revoke all on notification_preferences from anon;
+revoke all on notifications from anon;

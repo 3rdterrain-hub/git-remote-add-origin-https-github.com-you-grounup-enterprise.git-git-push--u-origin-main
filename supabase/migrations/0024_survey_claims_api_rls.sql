@@ -138,4 +138,24 @@ revoke all on all tables in schema public from anon;
 grant select on plans to anon;
 grant select on plan_prices to anon;
 
+
+-- -----------------------------------------------------------------------------
+-- Withhold from anonymous callers
+--
+-- Migration 0012 revoked everything in `public` from anon in one statement,
+-- which by definition covered only the tables existing then. A Supabase project
+-- grants everything on every *new* table in `public` to anon by default, so a
+-- table created after 0012 arrives readable by anonymous visitors and stays
+-- that way until something says otherwise.
+--
+-- Missed until the migrations were first pushed to a real project, because the
+-- test harness did not reproduce those default privileges: a new table had no
+-- anon grant to revoke, so the gate had nothing to catch and every test passed.
+-- The harness sets them now, and this reproduces locally.
+-- -----------------------------------------------------------------------------
+revoke all on api_keys from anon;
+revoke all on metric_definitions from anon;
+revoke all on network_ratings from anon;
+revoke all on network_vendors from anon;
+
 select app.assert_security_gates();
