@@ -27,6 +27,8 @@
 -- Earthwork quantity is the number a heavy civil bid is won or lost on. A wrong
 -- one that looks right is the worst failure this module can have, which is what
 -- the original datum guard was written to say.
+--
+-- @implements EDM-000041
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

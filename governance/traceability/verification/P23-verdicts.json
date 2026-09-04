@@ -1,0 +1,102 @@
+{
+  "phase": "P23",
+  "title": "Platform Engineering & Implementation Controls",
+  "method": "Every P23 requirement is control N of a domain, and every one carries the same acceptance criterion: 'Control N is accepted when implementation artifacts, automated checks, source requirement references, owner/evidence fields and applicable Phase 22 execution controls are present.' The five conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged after building the declaration mechanism and 4 tests. Three of the five conditions fail and one of them cannot be assessed at all, so P23 verifies at zero. Two of the failures are the interesting part: this is the phase that asks whether an implementation can point back at what it implements, and until this build the platform's traceability ran in one direction only.",
+  "findings": [
+    {
+      "id": "P23-F1",
+      "title": "Traceability ran one way, and the direction it ran was the one that over-claims",
+      "detail": "Every mapping in the register was derived: a rule matched a topic word against a requirement and concluded that a named artifact is relevant. No source file anywhere in the repository stated what it implements — a scan for any requirement identifier in any `.ts`, `.sql` or `.mjs` file returned nothing.",
+      "why_it_matters": "This build has documented repeatedly that derived tracing over-claims — every phase judged has come in far below its traced percentage, several at zero against 70% traced. The reason is structural: a rule can only guess, and a guess pointed at 9,475 requirements produces a number people stop checking. 'Source requirement references' is one of this phase's five acceptance conditions and it names exactly the missing direction.",
+      "status": "resolved",
+      "resolution": "A source file may now declare what it implements in its own header — `@implements EDM-000002` — and the generator records it in a `declared_by` column that is deliberately never merged into `artifacts`, because a rule firing and an author saying so are different kinds of claim. Every declared identifier must name a requirement that exists: a dangling one fails the build rather than being ignored, and it caught eleven of mine on its first run, because requirement identifiers are not uniform across the register. Eleven requirements now carry a declaration from the migrations and tests built in this session — only ones judged met, so the declaration and the verdict agree. Four tests hold the distinction, including one asserting that a declaration is never counted as verification."
+    },
+    {
+      "id": "P23-F2",
+      "title": "The acceptance criterion depends on a phase the register does not contain",
+      "detail": "Every P23 requirement is accepted in part when 'applicable Phase 22 execution controls are present'. The register contains thirty phases and P21 and P22 are not among them — the corpus runs P01 to P20 and then jumps to P23.",
+      "why_it_matters": "One of the five conditions cannot be assessed against anything, in either direction: there is no way to satisfy it and no way to declare it inapplicable, because the controls it refers to were never delivered into the register this build treats as its requirements spine.",
+      "status": "open",
+      "why_not_resolved": "It is a gap in the specification rather than in the platform, and inventing what Phase 22 would have said in order to mark a condition met would be the worst kind of over-claim — manufacturing the standard and then passing it. Recorded so that the zero on this phase is read correctly: it is not entirely a statement about the implementation."
+    },
+    {
+      "id": "P23-F3",
+      "title": "Nothing has an owner",
+      "detail": "'Owner/evidence fields' is a condition, and no artifact, table, field, engine, agent or requirement in this platform records an accountable owner. The registry classifies every table into the five categories and names its purpose; it names nobody. P01 and P03 recorded the same absence from the governance and data-architecture sides.",
+      "why_it_matters": "Evidence is abundant — generated ledgers, verdicts citing named tests, a gate that runs everything — and evidence with no owner answers what happened and not who answers for it. Three phases have now found this independently, which is what makes it structural rather than an oversight.",
+      "status": "open",
+      "why_not_resolved": "An owner field is trivial to add and meaningless to populate here: this repository has one author and no organization behind it to assign accountability to. Adding a column and writing the same name into every row would be a control that records a formality. The honest build is an ownership model with real people in it, which belongs to whoever operates the platform."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All five are required by the criterion. Three fail, and one of the three cannot be assessed at all — see F2.",
+    "conditions": [
+      "implementation artifacts",
+      "automated checks",
+      "source requirement references",
+      "owner/evidence fields",
+      "applicable Phase 22 execution controls"
+    ]
+  },
+  "platform_conditions": {
+    "implementation artifacts": {
+      "status": "met",
+      "evidence": "264 hand-written files across an estimating engine of 28 modules with zero dependencies, a document renderer, 50 ordered migrations building 136 tables and 12 views, Edge Functions for billing, AI and a versioned public API, a web application of 23 screens, and a governance apparatus of registries, generators and ledgers. Every one is in the repository and every count in that sentence is generated from the tree rather than typed, with a drift check that fails the build."
+    },
+    "automated checks": {
+      "status": "met",
+      "evidence": "One command is the whole gate and the pipeline runs the same one: typecheck, four drift checks, six suites totaling 1,899 tests, a production build and a bundle secret scan. The database suite applies all 50 migrations unmodified to real PostgreSQL compiled to WebAssembly, so it needs no service and no credentials. The checks check themselves: a test asserts the pipeline cannot be narrowed to a subset, the count generator refuses to record from a red run, every generated claim fails the build when it drifts from the tree, and a pattern that stops matching its target fails loudly rather than silently covering nothing."
+    },
+    "source requirement references": {
+      "status": "not_met",
+      "gap": "Eleven requirements now carry a declaration from a source file that states it implements them, which is the mechanism this condition asks for and is the first time the register has run in that direction at all. Eleven of 9,475 is a beginning rather than a condition met, and the honest reading is that the mechanism exists and the coverage does not. Declaring the rest is not a scan: it is per-artifact work of the same kind the verification ledgers required, and declaring anything not actually verified would recreate the over-claim the mechanism was built to escape."
+    },
+    "owner/evidence fields": {
+      "status": "not_met",
+      "gap": "Evidence is the strongest thing in this repository — see F3 — and ownership does not exist anywhere in it. Half a condition is not a condition."
+    },
+    "applicable Phase 22 execution controls": {
+      "status": "not_met",
+      "gap": "P21 and P22 are absent from the register, so this condition refers to controls that were never delivered. It cannot be satisfied and cannot be declared inapplicable. Recorded as F2 rather than quietly passed."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Testing Architecture",
+      "Migration & Seed Data",
+      "Multi-Tenant SaaS Foundation",
+      "Implementation Traceability"
+    ],
+    "partial": {
+      "Repository & Monorepo Governance": "A workspace monorepo with a dependency-free engine package, a renderer, a web app, functions and shared modules, and one gate over all of it. There is no ownership file, no per-package release, no dependency policy and no import boundary enforced by tooling.",
+      "Application Architecture": "The five-category rule is enforced against the live schema rather than documented — every table is an engine, library, entity, workflow or agent, and an unclassified one fails the build. Deterministic computation is separated from advisory AI by constraint. What is missing is architecture as a described thing: no module boundary enforcement, no layering rule, no dependency direction check.",
+      "Canonical Data Layer": "One schema shared by every module, judged in full at P03 where 41 of 75 concerns are met. It is the strongest layer in the platform and it is not a separately addressable data layer: there is no repository pattern, no data access library, and modules reach the tables directly through PostgREST.",
+      "Security Engineering": "Forced row level security with two migration-time gates, hashed and scoped API keys, an append-only audit ledger that since this build records the caller's address, agent and correlation id, redaction by field name and value shape, and a build-output secret scan. What P20 and P28 named remains absent: no detection and response, no secret rotation, no security monitoring.",
+      "Observability": "A structured logger with correlation carried through every line, metrics with bounded low-cardinality labels, health and readiness separated with per-check deadlines, and every API request logged with its key, status and duration. Nothing is deployed, so nothing consumes any of it.",
+      "DevSecOps & CI/CD": "A continuous integration workflow runs the whole gate on every branch and pull request and needs no secrets; a deployment workflow is dispatched by a person behind a GitHub Environment. Both are real files. Whether either has executed is the owner's to see — P20 recorded that none had, and the repository has since been pushed.",
+      "Identity & Access": "Judged in full at P01, where 9 of 25 controls are met. Authentication is Supabase Auth's; authorization is this platform's and is thorough. Sessions, devices and external identities are absent.",
+      "API & Event Platform": "Nine versioned endpoints behind a pure authorization function with one error shape, an OpenAPI specification generated from the route table with drift failing the build, scoped keys stored only as a hash. The event half does not exist: no bus, no publish, no subscribe, no webhook.",
+      "Integration Adapters": "A governed connector framework with injected I/O and recorded runs, and a working NOAA weather adapter. No connector registry, no retry policy, no credential rotation.",
+      "Estimating Platform Foundation": "The most thoroughly built and most thoroughly verified part of the platform: 529 engine tests, P26 at 75%, P25 at 79%, P05 at 52%, with library snapshots making an issued price reproducible against the rates that made it.",
+      "Master Library Services": "Three-tier scope with platform, enterprise group and company precedence, approval before activation, versioned rows with validity derived rather than stored, and snapshot capture. Judged at P25, 79% verified.",
+      "Document/Plan Intelligence": "PDF splitting, text-layer detection, sheet classification against the National CAD Standard, full-text search, and a governed analyst capped at draft authority with citations. OCR is a pluggable interface with no implementation behind it.",
+      "AI Service Foundation": "One agent, one model catalog, versioned prompts, append-only messages, metered usage with an allowance checked before a request runs. There is no model registry, no evaluation and no fallback.",
+      "AI Coding Governance": "Unusually strong for what it is: the rules this codebase is built under are enforced by tests rather than stated in a document — the five-category rule, the tracing-is-not-verification distinction, American English, the pipeline's own shape, and every generated count. What does not exist is governance of AI *as a coding tool*: no policy on generated code, no provenance on a commit, no review requirement.",
+      "Local Development": "One command installs, one runs the gate, and the database suite needs no service and no credentials because PostgreSQL runs in WebAssembly — which is what lets the same command run identically on a laptop and on a fork's pull request. There is no seeded local environment for the application itself, and 22 of 23 screens read fixtures rather than a local database.",
+      "Developer Experience": "Typed end to end, one gate, generated documentation that cannot drift from the tree, and error messages throughout the schema written to tell somebody what to do instead. There is no scaffolding, no code generation from the schema, and no contributor guide."
+    },
+    "not_built": {
+      "Architecture Decision Records": "No ADRs. Decisions are recorded — extensively, in migration headers and verdict files, with the reasoning and the rejected alternative — and none of it is in the form this domain asks for, indexed and numbered and reviewable as a set.",
+      "Feature Flags & Release Control": "No feature flag of any kind. Entitlements gate capability by plan, which is licensing rather than release control: there is no flag, no rollout percentage, no kill switch and no experiment.",
+      "Workflow & Approval Engine": "No engine. Approvals are per-object rules in the schema — authority limits by amount, approval before activation, period cutoffs — and there is no configurable workflow, no state machine a tenant can define, no routing and no escalation. P01 and P07 recorded the same.",
+      "Backup/Recovery Hooks": "No backup, no restore, no point-in-time objective, no hook of any kind. P20 recorded this and nothing has changed.",
+      "Environment & Infrastructure": "Environments are named in a deployment workflow and none exists. No infrastructure as code, no provisioning, no container.",
+      "Operational Readiness": "No readiness review, no runbook beyond deployment, no on-call, no incident model.",
+      "Performance & Resilience": "The one measurable improvement this build made is the tenant key indexes added at P03, which removed a sequential scan from every read on 53 tables. There is no performance work beyond it: no baseline, no load test, no query budget, no circuit breaker, no bulkhead, no chaos exercise.",
+      "Configuration & White Label": "No white label, no branding, no theme, no terminology override — the capability the pricing page was corrected for advertising. Tenant configuration exists for libraries and commercial controls and is not a configuration layer.",
+      "Mobile/Field Foundation": "No native application, no offline store, no sync, no conflict resolution. The web application is responsive and that is the whole of it.",
+      "Audit & Evidence": "The audit ledger is real and now records the request behind each change, and this domain asks for more than a ledger: no evidence collection, no control framework, no attestation, no external audit path. P01 recorded that reads and exports are audited nowhere and that append-only is a weaker claim than tamper-evident."
+    }
+  }
+}

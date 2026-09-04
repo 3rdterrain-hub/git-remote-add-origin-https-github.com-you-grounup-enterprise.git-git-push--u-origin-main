@@ -24,6 +24,8 @@
 -- has no request headers, and an audit row without an address is still an audit
 -- row. A ledger that refused writes when it could not identify the caller would
 -- turn an observability gap into an outage.
+--
+-- @implements EDM-000006
 -- =============================================================================
 
 /**

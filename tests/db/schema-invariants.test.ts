@@ -7,6 +7,8 @@
  *
  * Three of these were true before anybody checked and are now held. One was
  * false on 53 of 136 tables.
+ *
+ * @implements EDM-000003, EDM-000013, EDM-000014, EDM-000067
  */
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { createHarness, type Harness } from './harness.js';

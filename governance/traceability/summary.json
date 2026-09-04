@@ -6,6 +6,11 @@
     "traced": "An artifact exists that implements this topic, but no test suite is claimed for it.",
     "untraced": "Nothing in this repository claims to implement it. The honest default."
   },
+  "declarations": {
+    "note": "Requirements a source file states it implements, in its own header, using @implements. Derived tracing runs requirement-to-artifact by rule and over-claims; a declaration runs artifact-to-requirement and is a claim somebody made. Neither is verification, and the two are never added together.",
+    "declared": 11,
+    "files": 9
+  },
   "totals": {
     "requirements": 9475,
     "traced_tested": 4826,
@@ -13,8 +18,8 @@
     "untraced": 4649,
     "traced_percent": 50.9,
     "verified": 1878,
-    "verification_attempted": 7458,
-    "not_verified": 5580
+    "verification_attempted": 7758,
+    "not_verified": 5880
   },
   "artifacts": {
     "total": 277,

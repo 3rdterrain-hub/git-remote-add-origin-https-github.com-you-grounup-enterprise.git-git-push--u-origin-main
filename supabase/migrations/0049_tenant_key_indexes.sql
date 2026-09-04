@@ -22,6 +22,8 @@
 -- written once cannot be applied inconsistently. A governance test asserts the
 -- same rule against the live catalog, so a table added later cannot arrive
 -- without one.
+--
+-- @implements EDM-000002
 -- =============================================================================
 
 do $$

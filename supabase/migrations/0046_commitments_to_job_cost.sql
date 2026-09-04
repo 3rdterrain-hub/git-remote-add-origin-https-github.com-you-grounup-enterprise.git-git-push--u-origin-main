@@ -24,6 +24,8 @@
 -- is labor, fuel, materials, subcontracts, rentals and services, with the open
 -- commitment beside it — which is the number a project manager actually
 -- forecasts from.
+--
+-- @implements EDM-000032
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

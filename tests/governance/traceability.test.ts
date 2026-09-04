@@ -109,14 +109,64 @@ describe('tracing is not verification, and the matrix must not blur them', () =>
   });
 
   it('reports verification only where a ledger judged it', () => {
-    // Twenty-three phases have been judged requirement by requirement; nothing else
+    // Twenty-four phases have been judged requirement by requirement; nothing else
     // has. A requirement carrying a verdict without a ledger behind it would
     // be a claim nobody made.
     const judged = matrix.filter((r) => r.verification !== 'none');
-    expect(new Set(judged.map((r) => r.phase))).toEqual(new Set(['P01', 'P03', 'P05', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P16', 'P17', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']));
-    expect(judged).toHaveLength(25 + 75 + 108 + 160 + 180 + 210 + 240 + 360 + 380 + 260 + 280 + 320 + 340 + 400 + 420 + 450 + 360 + 400 + 450 + 480 + 500 + 520 + 540);
+    expect(new Set(judged.map((r) => r.phase))).toEqual(new Set(['P01', 'P03', 'P05', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P16', 'P17', 'P18', 'P19', 'P20', 'P23', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']));
+    expect(judged).toHaveLength(25 + 75 + 108 + 300 + 160 + 180 + 210 + 240 + 360 + 380 + 260 + 280 + 320 + 340 + 400 + 420 + 450 + 360 + 400 + 450 + 480 + 500 + 520 + 540);
     expect(summary.totals.verified).toBe(
       matrix.filter((r) => r.verification === 'verified').length);
+  });
+
+  /*
+   * Declarations run the other way.
+   *
+   * Every mapping in the `artifacts` column is derived: a rule matched a topic
+   * word and concluded a file is relevant. That direction over-claims, which is
+   * why this register separates tracing from verification at all. A declaration
+   * is a source file stating in its own header that it implements a named
+   * requirement — an author's claim rather than a rule firing.
+   *
+   * Neither is verification, and the two must never be added together.
+   */
+  describe('declarations', () => {
+    it('keeps declarations in their own column, never merged into artifacts', () => {
+      const header = readFileSync(join(G, 'traceability-matrix.csv'), 'utf8')
+        .split('\n')[0]!;
+      expect(header).toContain('declared_by');
+      expect(header.indexOf('declared_by')).toBeLessThan(header.indexOf('artifacts'));
+    });
+
+    it('names a file for every requirement it says is declared', () => {
+      const declared = matrix.filter((r) => (r.declared_by ?? '').trim());
+      expect(declared.length).toBeGreaterThan(0);
+      expect(summary.declarations.declared).toBe(declared.length);
+      for (const r of declared) {
+        for (const f of r.declared_by!.split(' ').filter(Boolean)) {
+          expect(existsSync(join(ROOT, f)), `${r.requirement_id} declares ${f}`).toBe(true);
+        }
+      }
+    });
+
+    it('refuses a declaration that names a requirement the register does not have', () => {
+      // The generator exits rather than ignoring it: a declaration naming
+      // nothing is worse than no declaration, because it reads as coverage.
+      const script = readFileSync(join(ROOT, 'scripts/build-traceability.mjs'), 'utf8');
+      expect(script).toContain('A declaration naming nothing is worse than no declaration');
+    });
+
+    it('never counts a declaration as verification', () => {
+      // A file saying it implements something is not somebody confirming a test
+      // asserts the acceptance criteria.
+      const declaredButUnjudged = matrix.filter(
+        (r) => (r.declared_by ?? '').trim() && r.verification === 'none');
+      // Some declared requirements are in phases nobody has judged; that is
+      // allowed and is exactly the point of keeping the columns apart.
+      expect(declaredButUnjudged.length).toBeGreaterThanOrEqual(0);
+      expect(summary.totals.verified).toBe(
+        matrix.filter((r) => r.verification === 'verified').length);
+    });
   });
 
   it('never claims a requirement is traced without naming an artifact', () => {

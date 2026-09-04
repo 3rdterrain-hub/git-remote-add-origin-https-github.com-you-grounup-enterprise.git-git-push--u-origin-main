@@ -24,6 +24,8 @@
 --   * **Supersession could close a loop.** A superseded by B superseded by A —
 --     the same defect the document layer fixed in 0036, on the artifact where
 --     "which one is current" is a person on a machine asking what to build.
+--
+-- @implements GOV-000016
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

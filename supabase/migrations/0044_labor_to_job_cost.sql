@@ -29,6 +29,8 @@
 -- safety rates already follow; a job cost that moves every time somebody edits
 -- a timesheet is not a job cost. Withdrawing an approval removes the cost
 -- again, so the two never disagree.
+--
+-- @implements EDM-000033
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

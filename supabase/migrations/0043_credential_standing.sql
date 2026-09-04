@@ -26,6 +26,8 @@
 -- What can be derived is now derived. What cannot be — whether a credential was
 -- revoked, or has been applied for but not yet issued — is what the stored
 -- column now holds, and only that.
+--
+-- @implements GOV-000024
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

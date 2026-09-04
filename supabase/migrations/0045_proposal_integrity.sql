@@ -25,6 +25,8 @@
 -- overwrite it. The same reasoning applies with more force to a human typing a
 -- number into the document that goes to the customer: the engine computes the
 -- bid price, and the proposal presents it.
+--
+-- @implements GOV-000016
 -- =============================================================================
 
 /**
