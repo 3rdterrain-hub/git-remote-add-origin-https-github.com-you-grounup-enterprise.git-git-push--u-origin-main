@@ -125,11 +125,11 @@ describe('estimate hierarchy', () => {
       })).rejects.toThrow(/eli_parametric_basis/);
     });
 
-    it('refuses to be labelled anything stronger than an allowance', async () => {
+    it('refuses to be labeled anything stronger than an allowance', async () => {
       /*
        * The honesty of top-down estimating in one constraint. measurement_method
        * is an estimator input rather than an engine output, so without this a
-       * rate per square foot could be labelled an explicit dimension and pass
+       * rate per square foot could be labeled an explicit dimension and pass
        * the approval gate that the label decides.
        */
       await expect(line({

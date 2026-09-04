@@ -67,7 +67,7 @@ alter table estimate_line_items
  * A rate-priced line is an allowance, and the database says so rather than
  * trusting an application to remember. `measurement_method` is an estimator
  * input rather than an engine output, so nothing else would have stopped a
- * conceptual line being labelled as an explicit dimension and sailing through
+ * conceptual line being labeled as an explicit dimension and sailing through
  * the approval gate that the label decides.
  */
 alter table estimate_line_items

@@ -20,7 +20,7 @@
  *      is answered by the parent's quantity. Change forty lots to sixty and
  *      every driven quantity beneath it changes, which is the whole point of
  *      entering the shape first.
- *   3. **A conceptual line, honestly labelled.** Early in a bid there are no
+ *   3. **A conceptual line, honestly labeled.** Early in a bid there are no
  *      drawings and the number is a rate per square foot from experience. That
  *      is a real and useful estimate and it is not a priced build-up, so it
  *      carries `estimator_allowance` — the weakest method on the scale — and
