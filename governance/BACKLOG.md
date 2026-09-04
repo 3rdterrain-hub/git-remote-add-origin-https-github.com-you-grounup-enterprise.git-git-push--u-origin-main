@@ -34,9 +34,12 @@ become a customer.
 - [x] The engine compiled into the Edge runtime, with a drift check
 - [x] Edge Functions typechecked for the first time (found two SDK pins that
       were older than the APIs the code called)
-- [ ] `price-estimate` Edge Function: database rows → engine input → result
-- [ ] Create an estimate, add lines from the library, price it, approve it,
-      issue a proposal — every button wired
+- [x] `price-estimate` Edge Function: loads through the caller's own client so
+      row level security decides what may be priced, maps rows into the engine,
+      writes through the one permitted door with the service role. 16 mapping
+      tests, 9 page tests.
+- [ ] Create an estimate, add lines from the library, approve it, issue a
+      proposal — the remaining buttons
 
 ---
 
@@ -125,7 +128,31 @@ Not customizable, and each is a separate piece of work:
   * **Dashboards** — fixed tiles, no arrangement or choice of metric, even
     though `metric_definitions` is already a per-company governed catalog.
 
-### 9. Follow-up automation
+### 9. On-screen takeoff
+Half of takeoff is built and it is the harder half. Earthwork is complete:
+`surfaces` holds elevation grids, `compareSurfaces()` computes cut and fill cell
+by cell with the coverage it actually achieved, cross-sections and stockpiles
+are there, and a `surface_comparison` writes onto an estimate line through
+`applied_line_item_id`. Quantity governance is complete too — every line records
+whether its number came from an explicit dimension, a verified scale or an
+approximate one, and that choice moves the confidence score, the approval gate
+and whether the estimate may be issued at all.
+
+What is missing is the thing most estimators mean by the word: a drawing viewer
+you measure on. No sheet viewer, no scale calibration against a known dimension,
+no polyline for linear feet, no polygon for area, no counts on symbols, and no
+table to hold any of it. A sitework contractor can take off earthwork from
+survey data today and cannot take off a storm line by clicking along it.
+
+Needs: a sheet viewer over the `document_sheets` already extracted, a
+calibration that records what it was calibrated against (because
+`measurement_method` already distinguishes verified from approximate scale, and
+that distinction has to stay honest), measurement shapes stored with their sheet
+and their scale so a number can be re-checked, and the same
+`applied_line_item_id` path earthwork already uses so a measurement lands on an
+estimate line rather than being retyped.
+
+### 10. Follow-up automation
 Nothing in the platform acts on a schedule. Every notification is produced by a
 database trigger reacting to a change — a machine going down, a service coming
 due, a credential expiring — which means the platform can tell you something
@@ -144,7 +171,7 @@ which already has categories, severity, receipts and immutability.
 The hard part is not the timer. It is making a follow-up stop: acting on the
 thing has to cancel the chase, or the platform becomes noise inside a week.
 
-### 10. HRM and payroll
+### 11. HRM and payroll
 Today this is labor, not HR: `employees`, `crews`, `credentials`,
 `time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
 leave, no benefits, no performance reviews, no onboarding, no org chart, and no
@@ -154,13 +181,13 @@ Payroll is the load-bearing piece and the one with real consequences: it has to
 reconcile to approved time entries, post to job cost through the path migration
 0044 already built, and never pay from unapproved hours.
 
-### 11. Asset lifecycle accounting
+### 12. Asset lifecycle accounting
 `assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
 nothing does anything with them. No depreciation schedule, no book value, no
 salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
 as a gap in the P12 verdict and still open.
 
-### 12. General ledger
+### 13. General ledger
 No chart of accounts, no journal entries, no trial balance, no bank
 reconciliation, no profit and loss, no balance sheet. What exists is
 construction job cost and billing that was designed to feed an accounting

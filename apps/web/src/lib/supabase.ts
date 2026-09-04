@@ -55,6 +55,10 @@ export async function callFunction<T>(name: string, body: unknown): Promise<T> {
     throw Object.assign(new Error(err.message ?? `${name} failed with ${res.status}`), {
       code: err.code ?? 'unknown',
       status: res.status,
+      // Some failures carry detail worth showing: the pricing function returns
+      // the list of holes it found so the workspace can point at the lines
+      // rather than saying that something, somewhere, is missing.
+      details: err.problems ?? err.details ?? null,
     });
   }
   return payload as T;

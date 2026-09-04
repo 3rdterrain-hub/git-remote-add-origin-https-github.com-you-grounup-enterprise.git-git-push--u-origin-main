@@ -33,10 +33,19 @@ describe('a proposal presents the estimate it cites', () => {
    */
   const version = async (status: string, bid: number) => {
     const [v] = await h.asUser(owner, () => h.sql<{ id: string }>(
-      `insert into estimate_versions (company_id, estimate_id, version_number, status,
-         total_price, bid_price)
-       values ($1,$2,$3,'draft',$4,$4) returning id`,
-      [company, estimate, ++n, bid]));
+      `insert into estimate_versions (company_id, estimate_id, version_number, status)
+       values ($1,$2,$3,'draft') returning id`,
+      [company, estimate, ++n]));
+    /*
+     * Priced through the engine's own door rather than by typing a number into
+     * the row. Since migration 0058 there is no other way — which is the point
+     * of this suite: a proposal takes the price the engine produced, and the
+     * only prices that exist are ones the engine produced.
+     */
+    await h.sql(
+      `select app.record_engine_result($1, 'grounup-engine@test',
+         jsonb_build_object('total_price', $2::numeric, 'bid_price', $2::numeric))`,
+      [v!.id, bid]);
     if (status !== 'draft') {
       const [snap] = await h.asUser(owner, () => h.sql<{ id: string }>(
         `insert into library_snapshots (company_id, estimate_version_id, engine_version,

@@ -396,9 +396,21 @@ describe('row level security', () => {
   // ---------------------------------------------------------------------------
   describe('estimate version immutability (RULE-009)', () => {
     it('allows edits while the version is a draft', async () => {
+      // An estimator's own input, which is theirs to change on a draft. The
+      // cost columns beside it are not: migration 0058 made those the engine's.
       await h.asUser(alice, () =>
-        h.sql(`update estimate_versions set direct_cost = 12500 where id = $1`, [ridgelineVersion]));
-      const [v] = await h.sql<{ direct_cost: string }>(`select direct_cost from estimate_versions where id = $1`, [ridgelineVersion]);
+        h.sql(`update estimate_versions set shift_hours = 10 where id = $1`, [ridgelineVersion]));
+      const [v] = await h.sql<{ shift_hours: string }>(
+        `select shift_hours from estimate_versions where id = $1`, [ridgelineVersion]);
+      expect(Number(v!.shift_hours)).toBe(10);
+    });
+
+    it('prices a draft through the engine and not by hand', async () => {
+      await h.sql(
+        `select app.record_engine_result($1, 'grounup-engine@test',
+           jsonb_build_object('direct_cost', 12500))`, [ridgelineVersion]);
+      const [v] = await h.sql<{ direct_cost: string }>(
+        `select direct_cost from estimate_versions where id = $1`, [ridgelineVersion]);
       expect(Number(v!.direct_cost)).toBe(12500);
     });
 
@@ -413,12 +425,25 @@ describe('row level security', () => {
         await h.sql(`update estimate_versions set library_snapshot_id = $2 where id = $1`,
           [ridgelineVersion, snap]);
       });
+      // `blocked_from_issue` is the engine's conclusion, so clearing it goes
+      // through the engine's door like every other output.
+      await h.sql(
+        `select app.record_engine_result($1, 'grounup-engine@test',
+           jsonb_build_object('blocked_from_issue', false))`, [ridgelineVersion]);
       await h.asUser(alice, () =>
-        h.sql(`update estimate_versions set status = 'issued', issued_at = now(), blocked_from_issue = false where id = $1`,
+        h.sql(`update estimate_versions set status = 'issued', issued_at = now() where id = $1`,
           [ridgelineVersion]));
-      await expect(
-        h.asUser(alice, () =>
-          h.sql(`update estimate_versions set direct_cost = 1 where id = $1`, [ridgelineVersion])),
+      /*
+       * Two independent refusals stand between an issued price and a changed
+       * one. RULE-009 freezes the whole version; the 0058 guard refuses the
+       * cost columns whatever the status. This asserts the version-level one,
+       * which is the stricter of the two and the one this suite is about — so
+       * the write is attempted through the engine's door, where only RULE-009
+       * can be what stops it.
+       */
+      await expect(h.sql(
+        `select app.record_engine_result($1, 'grounup-engine@test',
+           jsonb_build_object('direct_cost', 1))`, [ridgelineVersion]),
       ).rejects.toThrow(/immutable \(RULE-009\)/);
     });
 

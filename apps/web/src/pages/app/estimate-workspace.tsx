@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   ChevronRight, ChevronDown, FileText, Send, Copy, AlertTriangle, Truck,
   Layers, Scale, ClipboardList, Ban, HelpCircle, Info, Wrench, Users2,
+  Calculator, Loader2, CheckCircle2,
 } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,9 +17,36 @@ import { ESTIMATE, CUT_FILL, HAUL, BID_RECONCILIATION } from '@/data/demo';
 import { RFIS } from '@/data/operations';
 import { money, percent, qty, integer, unitRate, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
+import { usePermissions } from '@/lib/data/session';
 
 export function EstimateWorkspacePage() {
   const e = ESTIMATE;
+  const { estimateId } = useParams();
+  const { can } = usePermissions();
+
+  /*
+   * Pricing is the one action on this screen that changes a number, and it is
+   * deliberately the only way a number can change: since migration 0058 the
+   * engine's output columns refuse a hand-written value, and the function that
+   * writes them is granted to the service role alone. The browser asks; the
+   * Edge Function that hosts the engine answers.
+   */
+  const [pricing, setPricing] = useState(false);
+  const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
+  const canPrice = can('estimates.write');
+
+  async function runPricing() {
+    if (!estimateId) return;
+    setPricing(true);
+    setOutcome(null);
+    try {
+      setOutcome(await priceEstimateVersion(estimateId));
+    } finally {
+      setPricing(false);
+    }
+  }
 
   // Discipline and machine rollups computed from the engine result, not
   // tabulated by hand.
@@ -61,6 +89,23 @@ export function EstimateWorkspacePage() {
         }
         actions={
           <>
+            {isSupabaseConfigured ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button variant="outline" onClick={runPricing} disabled={pricing || !canPrice}>
+                      {pricing ? <Loader2 className="size-4 animate-spin" /> : <Calculator className="size-4" />}
+                      {pricing ? 'Pricing' : 'Price with engine'}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canPrice ? (
+                  <TooltipContent>
+                    Pricing an estimate needs estimates.write in this company.
+                  </TooltipContent>
+                ) : null}
+              </Tooltip>
+            ) : null}
             <Button variant="outline"><Copy className="size-4" /> New version</Button>
             <Button variant="outline"><FileText className="size-4" /> Proposal preview</Button>
             <Tooltip>
@@ -76,6 +121,8 @@ export function EstimateWorkspacePage() {
           </>
         }
       />
+
+      {outcome ? <PricingOutcomeNotice outcome={outcome} /> : null}
 
       {e.blockedFromIssue ? (
         <Alert tone="danger" icon={<AlertTriangle className="size-4" />}
@@ -775,5 +822,65 @@ function DetailRow({ label, value, hint, strong }: { label: string; value: strin
       </dt>
       <dd className={cn('tabular shrink-0 text-right', strong ? 'font-semibold text-charcoal-900' : 'text-charcoal-700')}>{value}</dd>
     </div>
+  );
+}
+
+/**
+ * What came back from a pricing run.
+ *
+ * Four outcomes, and three of them are not errors. An estimate that cannot be
+ * priced because a machine has no rate in force is telling the estimator
+ * something specific and fixable; collapsing that into "pricing failed" would
+ * leave them guessing at a bid they are about to send.
+ */
+function PricingOutcomeNotice({ outcome }: { outcome: PricingOutcome }) {
+  if (outcome.status === 'priced') {
+    const r = outcome.result;
+    return (
+      <Alert tone="success" icon={<CheckCircle2 className="size-4" />}
+        title={`Priced at ${money(r.bidPrice)} by engine ${r.engineVersion}`}>
+        {integer(r.lineCount)} lines · direct {money(r.directCost)} · margin{' '}
+        {percent(r.grossMarginPercent)} · confidence {r.weightedConfidence.toFixed(1)}{' '}
+        ({titleCase(r.confidenceBand)}).
+        {r.blockedFromIssue
+          ? ` Still blocked from issue: ${r.executiveDecisionReason}`
+          : ' Ready to issue.'}
+        {r.warnings.length ? ` ${r.warnings.length} warning(s) recorded on the version.` : ''}
+      </Alert>
+    );
+  }
+
+  if (outcome.status === 'incomplete') {
+    return (
+      <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
+        title="The engine needs more before it can price this">
+        <ul className="mt-1 space-y-1">
+          {outcome.problems.map((p, i) => (
+            <li key={`${p.field}-${p.lineId ?? 'version'}-${i}`} className="flex gap-2">
+              <span className="font-mono text-[11px] text-charcoal-500">{p.field}</span>
+              <span>{p.detail}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-charcoal-500">
+          Nothing was written. A price computed around a missing rate is a confident
+          number with nothing behind it, which is the one thing this refuses to produce.
+        </p>
+      </Alert>
+    );
+  }
+
+  if (outcome.status === 'frozen') {
+    return (
+      <Alert tone="info" icon={<Ban className="size-4" />} title="This version's price is frozen">
+        {outcome.message}
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert tone="danger" icon={<AlertTriangle className="size-4" />} title="Pricing did not run">
+      {outcome.message}
+    </Alert>
   );
 }
