@@ -8,9 +8,14 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, Progress } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ASSETS, MAINTENANCE_DUE, WORK_ORDERS, FUEL_TRANSACTIONS } from '@/data/fleet';
+import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
+import { useQuery } from '@/lib/data/query';
+import {
+  loadAssets, loadMaintenanceDue, loadWorkOrders, loadFuel,
+  demonstrationAssets, demonstrationMaintenance, demonstrationWorkOrders, demonstrationFuel,
+} from '@/lib/data/fleet';
 import { EQUIPMENT_SPECS } from '@/data/catalog';
-import { money, moneyCompact, percent, qty, integer, dateTime, date, titleCase, plural } from '@/lib/format';
+import { money, moneyCompact, qty, integer, dateTime, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 const STATUS_TONE: Record<string, 'success' | 'info' | 'warn' | 'danger'> = {
@@ -18,20 +23,43 @@ const STATUS_TONE: Record<string, 'success' | 'info' | 'warn' | 'danger'> = {
 };
 
 export function FleetPage() {
+  const assetsQ = useQuery(loadAssets, []);
+  const maintenanceQ = useQuery(loadMaintenanceDue, []);
+  const workOrdersQ = useQuery(loadWorkOrders, []);
+  const fuelQ = useQuery(loadFuel, []);
+
+  const demo = assetsQ.status === 'demonstration';
+  const ASSETS = assetsQ.status === 'ready' ? assetsQ.data : demo ? demonstrationAssets() : [];
+  const MAINTENANCE_DUE = maintenanceQ.status === 'ready' ? maintenanceQ.data
+    : demo ? demonstrationMaintenance() : [];
+  const WORK_ORDERS = workOrdersQ.status === 'ready' ? workOrdersQ.data
+    : demo ? demonstrationWorkOrders() : [];
+  const FUEL_TRANSACTIONS = fuelQ.status === 'ready' ? fuelQ.data : demo ? demonstrationFuel() : [];
+
   const active = ASSETS.filter((a) => a.status !== 'down');
   const down = ASSETS.filter((a) => a.status === 'down');
-  const overdue = MAINTENANCE_DUE.filter((m) => m.hoursRemaining < 0);
-  const dueSoon = MAINTENANCE_DUE.filter((m) => m.hoursRemaining >= 0 && m.hoursRemaining <= 50);
+  const overdue = MAINTENANCE_DUE.filter((m) => m.hoursRemaining != null && m.hoursRemaining < 0);
+  const dueSoon = MAINTENANCE_DUE.filter(
+    (m) => m.hoursRemaining != null && m.hoursRemaining >= 0 && m.hoursRemaining <= 50);
   const openWo = WORK_ORDERS.filter((w) => !['complete', 'canceled'].includes(w.status));
   const fuelGallons = FUEL_TRANSACTIONS.reduce((a, f) => a + f.gallons, 0);
-  const fuelCost = FUEL_TRANSACTIONS.reduce((a, f) => a + f.gallons * f.pricePerGallon, 0);
+  const fuelCost = FUEL_TRANSACTIONS.reduce((a, f) => a + f.totalCost, 0);
   const fuelExceptions = FUEL_TRANSACTIONS.filter((f) => f.exception);
-  const avgUtilization = ASSETS.reduce((a, x) => a + x.utilization30d, 0) / ASSETS.length;
-  const ownedValue = ASSETS.reduce((a, x) => a + x.acquisitionCost, 0);
+  const ownedValue = ASSETS.reduce((a, x) => a + (x.acquisitionCost ?? 0), 0);
 
-  // Utilization below this is the threshold at which owning is hard to justify.
-  const UNDER_UTILISED = 0.35;
-  const idle = ASSETS.filter((a) => a.utilization30d < UNDER_UTILISED && a.acquisitionCost > 0);
+  /*
+   * Hours run, not a utilization percentage.
+   *
+   * A percentage needs an assumed denominator — hours available per day,
+   * working days per month — and the platform has neither. Below roughly one
+   * shift a week over thirty days is where owning gets hard to justify, and
+   * that is a threshold on a measured number rather than on an invented ratio.
+   */
+  const LOW_HOURS_30D = 40;
+  const metered = ASSETS.filter((a) => a.hoursLast30 != null);
+  const totalHours30 = metered.reduce((a, x) => a + (x.hoursLast30 ?? 0), 0);
+  const idle = metered.filter(
+    (a) => (a.hoursLast30 ?? 0) < LOW_HOURS_30D && (a.acquisitionCost ?? 0) > 0);
 
   return (
     <div className="space-y-6">
@@ -46,10 +74,15 @@ export function FleetPage() {
         }
       />
 
+      {demo ? <DemonstrationNotice what="this page" /> : null}
+      {assetsQ.status === 'loading' ? <LoadingState label="Loading the fleet" /> : null}
+      {assetsQ.status === 'error'
+        ? <ErrorState message={assetsQ.message} onRetry={assetsQ.refetch} /> : null}
+
       {overdue.length ? (
         <Alert tone="danger" icon={<AlertTriangle className="size-4" />}
           title={`${plural(overdue.length, 'machine')} past ${overdue.length === 1 ? 'its' : 'their'} service interval`}>
-          {overdue.map((m) => `${m.assetNumber} (${Math.abs(m.hoursRemaining)}h over)`).join(', ')}. Running past a
+          {overdue.map((m) => `${m.assetNumber} (${Math.abs(m.hoursRemaining ?? 0)}h over)`).join(', ')}. Running past a
           service interval is how a $1,200 oil change becomes a $28,000 engine.
         </Alert>
       ) : null}
@@ -57,9 +90,13 @@ export function FleetPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Fleet size" value={ASSETS.length} icon={<Truck className="size-4" />}
           hint={`${active.length} available or assigned`} />
-        <StatTile label="Average utilization" value={percent(avgUtilization, 0)}
-          tone={avgUtilization >= 0.6 ? 'success' : 'warn'} icon={<Gauge className="size-4" />}
-          hint="operating hours ÷ available, last 30 days" />
+        <StatTile label="Hours run (30 days)"
+          value={metered.length ? integer(totalHours30) : '—'}
+          tone={metered.length && totalHours30 / metered.length >= 100 ? 'success' : 'warn'}
+          icon={<Gauge className="size-4" />}
+          hint={metered.length
+            ? `across ${metered.length} ${metered.length === 1 ? 'machine' : 'machines'} with meter readings`
+            : 'no meter readings in the window'} />
         <StatTile label="Down or in shop" value={down.length + ASSETS.filter((a) => a.status === 'in_maintenance').length}
           tone={down.length ? 'danger' : 'warn'} icon={<Wrench className="size-4" />}
           hint={`${plural(openWo.length, 'open work order')}`} />
@@ -119,9 +156,11 @@ export function FleetPage() {
                     </TableCell>
                     <TableCell><Badge variant={STATUS_TONE[a.status]}>{titleCase(a.status)}</Badge></TableCell>
                     <TableCell>
-                      <Progress value={a.utilization30d * 100}
-                        indicatorClassName={a.utilization30d < UNDER_UTILISED ? 'bg-danger-500' : a.utilization30d < 0.6 ? 'bg-warn-600' : 'bg-success-600'} />
-                      <p className="tabular mt-1 text-xs text-charcoal-500">{percent(a.utilization30d, 0)}</p>
+                      <Progress value={Math.min(((a.hoursLast30 ?? 0) / 200) * 100, 100)}
+                        indicatorClassName={(a.hoursLast30 ?? 0) < LOW_HOURS_30D ? 'bg-danger-500' : (a.hoursLast30 ?? 0) < 100 ? 'bg-warn-600' : 'bg-success-600'} />
+                      <p className="tabular mt-1 text-xs text-charcoal-500">
+                        {a.hoursLast30 == null ? 'no meter readings' : `${integer(a.hoursLast30)} hr in 30 days`}
+                      </p>
                     </TableCell>
                     <TableCell className="text-xs text-charcoal-500">
                       {a.lastTelemetryAt ? (
@@ -160,8 +199,12 @@ export function FleetPage() {
                 </TableHeader>
                 <TableBody>
                   {MAINTENANCE_DUE.map((m) => {
-                    const used = m.currentHours - m.lastPerformedHours;
-                    const pct = Math.min((used / m.intervalHours) * 100, 100);
+                    // A schedule with no hour interval runs on miles or on a
+                    // calendar, so it has no hour progress to show.
+                    const used = m.currentHours - (m.lastPerformedHours ?? 0);
+                    const pct = m.intervalHours
+                      ? Math.min((used / m.intervalHours) * 100, 100) : 0;
+                    const remaining = m.hoursRemaining;
                     return (
                       <TableRow key={m.id}>
                         <TableCell>
@@ -169,16 +212,23 @@ export function FleetPage() {
                           <p className="text-xs text-charcoal-500">{m.assetName}</p>
                         </TableCell>
                         <TableCell className="text-charcoal-600">{m.scheduleName}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{m.intervalHours} h</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{integer(m.lastPerformedHours)}</TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">
+                          {m.intervalHours == null ? 'n/a' : `${m.intervalHours} h`}
+                        </TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">{integer(m.lastPerformedHours ?? 0)}</TableCell>
                         <TableCell className="tabular text-right">{integer(m.currentHours)}</TableCell>
                         <TableCell className={cn('tabular text-right font-semibold',
-                          m.hoursRemaining < 0 ? 'text-danger-700' : m.hoursRemaining <= 50 ? 'text-warn-700' : 'text-success-700')}>
-                          {m.hoursRemaining < 0 ? `${Math.abs(m.hoursRemaining)} over` : `${m.hoursRemaining} h`}
+                          remaining == null ? 'text-charcoal-500'
+                            : remaining < 0 ? 'text-danger-700'
+                            : remaining <= 50 ? 'text-warn-700' : 'text-success-700')}>
+                          {remaining == null ? 'not hour-based'
+                            : remaining < 0 ? `${Math.abs(remaining)} over` : `${remaining} h`}
                         </TableCell>
                         <TableCell>
                           <Progress value={pct}
-                            indicatorClassName={m.hoursRemaining < 0 ? 'bg-danger-500' : m.hoursRemaining <= 50 ? 'bg-warn-600' : 'bg-success-600'} />
+                            indicatorClassName={remaining == null ? 'bg-charcoal-300'
+                              : remaining < 0 ? 'bg-danger-500'
+                              : remaining <= 50 ? 'bg-warn-600' : 'bg-success-600'} />
                         </TableCell>
                       </TableRow>
                     );
@@ -326,9 +376,10 @@ export function FleetPage() {
         <TabsContent value="utilization" className="space-y-6">
           {idle.length ? (
             <Alert tone="warn" icon={<TrendingDown className="size-4" />}
-              title={`${plural(idle.length, 'owned machine')} under ${percent(UNDER_UTILISED, 0)} utilization`}>
-              {idle.map((a) => `${a.assetNumber} (${percent(a.utilization30d, 0)})`).join(', ')}. At this rate the
-              ownership cost per operating hour exceeds the rental rate — worth a rent-versus-own review.
+              title={`${plural(idle.length, 'owned machine')} ran under ${LOW_HOURS_30D} hours in 30 days`}>
+              {idle.map((a) => `${a.assetNumber} (${integer(a.hoursLast30 ?? 0)} hr)`).join(', ')}. Ownership cost
+              is spread over the hours a machine runs, so at this rate the cost per operating hour climbs above
+              the catalog rate the work was priced at — worth a rent-versus-own review.
             </Alert>
           ) : null}
 
@@ -354,10 +405,11 @@ export function FleetPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ASSETS.filter((a) => a.acquisitionCost > 0 && a.equipmentCode).map((a) => {
+                  {ASSETS.filter((a) => (a.acquisitionCost ?? 0) > 0 && a.equipmentCode).map((a) => {
                     const catalogRate = EQUIPMENT_SPECS[a.equipmentCode as keyof typeof EQUIPMENT_SPECS]?.hourlyRate ?? 0;
-                    // Straight-line ownership cost per hour run to date.
-                    const costPerHour = a.acquisitionCost / Math.max(a.currentHours, 1);
+                    // Straight-line ownership cost per hour run to date. The filter
+                    // above guarantees an acquisition cost, so the fallback never runs.
+                    const costPerHour = (a.acquisitionCost ?? 0) / Math.max(a.currentHours, 1);
                     const spread = catalogRate - costPerHour;
                     return (
                       <TableRow key={a.id}>
@@ -366,9 +418,11 @@ export function FleetPage() {
                           <p className="text-xs text-charcoal-500">{a.name}</p>
                         </TableCell>
                         <TableCell>
-                          <Progress value={a.utilization30d * 100}
-                            indicatorClassName={a.utilization30d < UNDER_UTILISED ? 'bg-danger-500' : 'bg-success-600'} />
-                          <p className="tabular mt-1 text-xs text-charcoal-500">{percent(a.utilization30d, 0)}</p>
+                          <Progress value={Math.min(((a.hoursLast30 ?? 0) / 200) * 100, 100)}
+                            indicatorClassName={(a.hoursLast30 ?? 0) < LOW_HOURS_30D ? 'bg-danger-500' : 'bg-success-600'} />
+                          <p className="tabular mt-1 text-xs text-charcoal-500">
+                            {integer(a.hoursLast30 ?? 0)} hr in 30 days
+                          </p>
                         </TableCell>
                         <TableCell className="tabular text-right text-charcoal-600">{integer(a.currentHours)} h</TableCell>
                         <TableCell className="tabular text-right text-charcoal-600">{moneyCompact(a.acquisitionCost)}</TableCell>

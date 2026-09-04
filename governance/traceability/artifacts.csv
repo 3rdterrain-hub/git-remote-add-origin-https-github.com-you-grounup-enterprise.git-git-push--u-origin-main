@@ -278,6 +278,7 @@ TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
 TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
+TST-web-fleet,test,web/fleet.test.tsx,apps/web/src/pages/app/fleet.test.tsx,ENGINE
 TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.tsx,ENGINE
 TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
 TST-web-projects,test,web/projects.test.tsx,apps/web/src/pages/app/projects.test.tsx,ENGINE

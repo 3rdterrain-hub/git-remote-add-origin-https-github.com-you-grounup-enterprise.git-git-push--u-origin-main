@@ -129,7 +129,13 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
 ];
 
 export interface ApInvoice {
-  id: string; vendor: string; invoiceNumber: string; invoiceDate: string; dueDate: string;
+  id: string; vendor: string; invoiceNumber: string; invoiceDate: string;
+  /**
+   * Nullable, because `ap_invoices.due_date` is. An invoice that arrives with
+   * no terms is money owed on a date nobody knows, and the cash forecast is
+   * required to say so rather than to pick a month for it.
+   */
+  dueDate: string | null;
   amount: number; retainageWithheld: number; amountPaid: number;
   matchStatus: string; status: string; po?: string; project?: string;
 }
@@ -140,6 +146,9 @@ export const AP_INVOICES: ApInvoice[] = [
   { id: 'ap-3', vendor: 'Gerken', invoiceNumber: 'GK-5520-7', invoiceDate: '2026-08-26', dueDate: '2026-09-25', amount: 14_680, retainageWithheld: 0, amountPaid: 0, matchStatus: 'quantity_variance', status: 'disputed', po: 'PO-2026-0402', project: 'PRJ-2026-008' },
   { id: 'ap-4', vendor: 'Core & Main', invoiceNumber: 'CM-7741-2', invoiceDate: '2026-07-30', dueDate: '2026-08-29', amount: 41_620, retainageWithheld: 0, amountPaid: 41_620, matchStatus: 'matched', status: 'paid', po: 'PO-2026-0418', project: 'PRJ-2026-011' },
   { id: 'ap-5', vendor: 'Norwalk Concrete', invoiceNumber: 'NC-2210-1', invoiceDate: '2026-08-20', dueDate: '2026-09-19', amount: 9_400, retainageWithheld: 0, amountPaid: 9_400, matchStatus: 'matched', status: 'paid', po: 'PO-2026-0426', project: 'PRJ-2026-011' },
+  // Arrived without terms. Real, common, and the case the cash forecast has to
+  // report as unscheduled instead of quietly dating.
+  { id: 'ap-6', vendor: 'Fort Miami Precast', invoiceNumber: 'FMP-0031', invoiceDate: '2026-09-01', dueDate: null, amount: 7_850, retainageWithheld: 0, amountPaid: 0, matchStatus: 'matched', status: 'received', project: 'PRJ-2026-011' },
 ];
 
 export interface InventoryItem {

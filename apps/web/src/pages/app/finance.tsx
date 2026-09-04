@@ -9,30 +9,95 @@ import { Alert, Progress, Separator } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
-  SCHEDULE_OF_VALUES, PAY_APPLICATIONS, WIP, AP_INVOICES, RETAINAGE_PERCENT, payApplicationTotals, PROJECT,
-} from '@/data/finance';
+  loadPayApplications, loadWip, loadPayables, loadCashForecast,
+  demonstrationPayApplications, demonstrationWip, demonstrationPayables, demonstrationCashForecast,
+} from '@/lib/data/finance';
+import { useQuery } from '@/lib/data/query';
+import { DemonstrationNotice, ErrorState, LoadingState, EmptyState } from '@/components/data-state';
 import { money, moneyCompact, percent, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export function FinancePage() {
-  const t = payApplicationTotals();
-  const draft = PAY_APPLICATIONS.find((p) => p.status === 'draft');
-  const paid = PAY_APPLICATIONS.filter((p) => p.status === 'paid');
+  const payAppsQ = useQuery(loadPayApplications, []);
+  const wipQ = useQuery(loadWip, []);
+  const payablesQ = useQuery(loadPayables, []);
+  const cashQ = useQuery(loadCashForecast, []);
 
-  const retainageHeld = paid.reduce((a, p) => a + p.retainage, 0) + t.retainage;
-  const openAp = AP_INVOICES.filter((i) => !['paid', 'void'].includes(i.status));
-  const blockedAp = AP_INVOICES.filter((i) => !['matched', 'no_po'].includes(i.matchStatus) && i.status !== 'paid');
+  const demonstration = payAppsQ.status === 'demonstration';
+  const loading = [payAppsQ, wipQ, payablesQ, cashQ].some((q) => q.status === 'loading');
+  const failure = [payAppsQ, wipQ, payablesQ, cashQ].find((q) => q.status === 'error');
 
-  // Over/under billing across the portfolio: the WIP question that matters.
-  const wipTotals = WIP.reduce((acc, w) => {
-    const earned = w.contract * w.percentComplete;
-    acc.earned += earned;
+  const PAY_APPS = payAppsQ.status === 'ready' ? payAppsQ.data
+    : demonstration ? demonstrationPayApplications() : [];
+  const WIP = wipQ.status === 'ready' ? wipQ.data : demonstration ? demonstrationWip() : [];
+  const AP = payablesQ.status === 'ready' ? payablesQ.data
+    : demonstration ? demonstrationPayables() : [];
+  const CASH = cashQ.status === 'ready' ? cashQ.data
+    : demonstration ? demonstrationCashForecast() : [];
+
+  const draft = PAY_APPS.find((p) => p.status === 'draft') ?? PAY_APPS[0];
+  const openAp = AP.filter((i) => !['paid', 'void'].includes(i.status));
+  const blockedAp = AP.filter((i) => i.blocked);
+
+  /*
+   * Portfolio totals skip a project the view could not compute — a job with no
+   * approved budget has no earned revenue, and folding it in as a zero would
+   * report the whole portfolio as more under billed than it is. The count of
+   * what was skipped is shown rather than silently dropped.
+   */
+  const measurable = WIP.filter((w) => w.earnedRevenue != null);
+  const unmeasured = WIP.length - measurable.length;
+  const wipTotals = measurable.reduce((acc, w) => {
+    acc.earned += w.earnedRevenue ?? 0;
     acc.billed += w.billedToDate;
     acc.cost += w.actualCost;
-    acc.contract += w.contract;
+    acc.contract += w.contractValue;
     return acc;
   }, { earned: 0, billed: 0, cost: 0, contract: 0 });
   const underBilled = wipTotals.earned - wipTotals.billed;
+
+  // Retainage the owner is holding, taken from the latest application on each
+  // project rather than summed across periods — every figure is cumulative.
+  const retainageHeld = PAY_APPS.length
+    ? [...new Map(PAY_APPS.map((p) => [p.projectNumber, p])).values()]
+        .reduce((a, p) => a + p.retainageToDate, 0)
+    : 0;
+  const retainagePercent = draft?.retainagePercent ?? 0;
+
+  /*
+   * The certificate's own lines, and their totals. Summed from the lines rather
+   * than read off the header so the table and its footer cannot disagree — and
+   * where they disagree with the header, that is a real discrepancy on a
+   * certified document and the reader should be able to see it.
+   */
+  /*
+   * Cash. The scheduled months are what the database can date; `unscheduled` is
+   * the bucket the view keeps for real amounts whose timing is unknown, and it
+   * is reported to the reader rather than folded into a month. The two invented
+   * months this chart used to carry are the reason that bucket exists.
+   */
+  const scheduled = CASH.filter((m) => m.month != null) as Array<typeof CASH[number] & { month: string }>;
+  const unscheduled = CASH.find((m) => m.month == null);
+  const horizon = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  const next30 = CASH.reduce((a, m) => {
+    // A month bucket is dated at its first day, so a month that has started
+    // counts toward the next thirty days only up to the horizon. Bucketing by
+    // month is as fine as the view goes; a tighter window would need the item
+    // grain, and claiming more precision than that would be the old defect.
+    if (m.month == null || m.month > horizon) return a;
+    return { inflow: a.inflow + m.inflow, outflow: a.outflow + m.outflow };
+  }, { inflow: 0, outflow: 0 });
+
+  const lines = draft?.lines ?? [];
+  const lineTotals = lines.reduce((a, l) => ({
+    scheduled: a.scheduled + l.scheduledValue,
+    previous: a.previous + l.previousCompleted,
+    thisPeriod: a.thisPeriod + l.thisPeriod,
+    stored: a.stored + l.storedMaterials,
+    toDate: a.toDate + l.completedToDate,
+  }), { scheduled: 0, previous: 0, thisPeriod: 0, stored: 0, toDate: 0 });
+
+  if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
   return (
     <div className="space-y-6">
@@ -47,6 +112,9 @@ export function FinancePage() {
         }
       />
 
+      {demonstration ? <DemonstrationNotice /> : null}
+      {loading ? <LoadingState label="Reading billing, cost and payables" /> : null}
+
       {blockedAp.length ? (
         <Alert tone="danger" icon={<AlertTriangle className="size-4" />}
           title={`${plural(blockedAp.length, 'invoice')} cannot be paid — three-way match failed`}>
@@ -58,15 +126,19 @@ export function FinancePage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Contract value" value={moneyCompact(wipTotals.contract)} icon={<CircleDollarSign className="size-4" />}
-          hint={`${WIP.length} projects`} />
+          hint={unmeasured
+            ? `${plural(measurable.length, 'measurable project')}, ${unmeasured} without a budget`
+            : plural(measurable.length, 'project')} />
         <StatTile label="Earned to date" value={moneyCompact(wipTotals.earned)} icon={<TrendingUp className="size-4" />}
-          hint={`${percent(wipTotals.earned / wipTotals.contract, 0)} of contract`} />
+          hint={wipTotals.contract
+            ? `${percent(wipTotals.earned / wipTotals.contract, 0)} of contract, cost-to-cost`
+            : 'no measurable contract value'} />
         <StatTile label={underBilled >= 0 ? 'Under billed' : 'Over billed'} value={moneyCompact(Math.abs(underBilled))}
           tone={underBilled > 0 ? 'warn' : 'success'}
           icon={underBilled >= 0 ? <TrendingDown className="size-4" /> : <TrendingUp className="size-4" />}
           hint={underBilled > 0 ? 'work performed but not yet invoiced' : 'billed ahead of work performed'} />
         <StatTile label="Retainage held" value={moneyCompact(retainageHeld)} icon={<Lock className="size-4" />}
-          hint={`${percent(RETAINAGE_PERCENT, 0)} withheld until closeout`} />
+          hint={retainagePercent ? `${percent(retainagePercent, 0)} withheld until closeout` : 'withheld until closeout'} />
         <StatTile label="Open payables" value={moneyCompact(openAp.reduce((a, i) => a + i.amount - i.amountPaid, 0))}
           tone={blockedAp.length ? 'danger' : 'neutral'} icon={<Receipt className="size-4" />}
           hint={`${plural(openAp.length, 'invoice')}, ${blockedAp.length} blocked`} />
@@ -85,9 +157,10 @@ export function FinancePage() {
           <Card>
             <CardHeader className="flex-row items-start justify-between space-y-0">
               <div>
-                <CardTitle>Application for payment no. {draft?.number}</CardTitle>
+                <CardTitle>Application for payment no. {draft?.number ?? '—'}</CardTitle>
                 <CardDescription>
-                  {PROJECT.number} · {date(draft?.periodStart)} to {date(draft?.periodEnd)} · draft
+                  {draft ? `${draft.projectNumber} · ${date(draft.periodStart)} to ${date(draft.periodEnd)} · ${titleCase(draft.status)}`
+                    : 'No application on file'}
                 </CardDescription>
               </div>
               <Button><FileCheck className="size-4" /> Submit</Button>
@@ -108,41 +181,49 @@ export function FinancePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {SCHEDULE_OF_VALUES.map((s) => {
-                    const toDate = s.previousCompleted + s.thisPeriod + s.storedMaterials;
-                    const pct = toDate / s.scheduledValue;
-                    return (
-                      <TableRow key={s.id}>
-                        <TableCell className="font-mono text-xs text-charcoal-500">{s.itemNumber}</TableCell>
-                        <TableCell className="font-medium text-charcoal-900">{s.description}</TableCell>
-                        <TableCell className="tabular text-right">{money(s.scheduledValue)}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{money(s.previousCompleted)}</TableCell>
-                        <TableCell className={cn('tabular text-right', s.thisPeriod > 0 && 'font-medium text-charcoal-900')}>
-                          {s.thisPeriod ? money(s.thisPeriod) : '—'}
-                        </TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">
-                          {s.storedMaterials ? money(s.storedMaterials) : '—'}
-                        </TableCell>
-                        <TableCell className="tabular text-right font-medium">{money(toDate)}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{percent(pct, 0)}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{money(s.scheduledValue - toDate)}</TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {lines.map((l) => (
+                    <TableRow key={l.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-500">{l.itemNumber}</TableCell>
+                      <TableCell className="font-medium text-charcoal-900">{l.description}</TableCell>
+                      <TableCell className="tabular text-right">{money(l.scheduledValue)}</TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">{money(l.previousCompleted)}</TableCell>
+                      <TableCell className={cn('tabular text-right', l.thisPeriod > 0 && 'font-medium text-charcoal-900')}>
+                        {l.thisPeriod ? money(l.thisPeriod) : '—'}
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {l.storedMaterials ? money(l.storedMaterials) : '—'}
+                      </TableCell>
+                      <TableCell className="tabular text-right font-medium">{money(l.completedToDate)}</TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {l.scheduledValue ? percent(l.completedToDate / l.scheduledValue, 0) : '—'}
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {money(l.scheduledValue - l.completedToDate)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
                 <TableFooter>
                   <TableRow className="hover:bg-charcoal-50">
                     <TableCell colSpan={2}>Totals</TableCell>
-                    <TableCell className="tabular text-right">{money(t.scheduled)}</TableCell>
-                    <TableCell className="tabular text-right">{money(t.previous)}</TableCell>
-                    <TableCell className="tabular text-right">{money(t.thisPeriod)}</TableCell>
-                    <TableCell className="tabular text-right">{money(t.stored)}</TableCell>
-                    <TableCell className="tabular text-right">{money(t.totalEarned)}</TableCell>
-                    <TableCell className="tabular text-right">{percent(t.totalEarned / t.scheduled, 0)}</TableCell>
-                    <TableCell className="tabular text-right">{money(t.scheduled - t.totalEarned)}</TableCell>
+                    <TableCell className="tabular text-right">{money(lineTotals.scheduled)}</TableCell>
+                    <TableCell className="tabular text-right">{money(lineTotals.previous)}</TableCell>
+                    <TableCell className="tabular text-right">{money(lineTotals.thisPeriod)}</TableCell>
+                    <TableCell className="tabular text-right">{money(lineTotals.stored)}</TableCell>
+                    <TableCell className="tabular text-right">{money(lineTotals.toDate)}</TableCell>
+                    <TableCell className="tabular text-right">
+                      {lineTotals.scheduled ? percent(lineTotals.toDate / lineTotals.scheduled, 0) : '—'}
+                    </TableCell>
+                    <TableCell className="tabular text-right">
+                      {money(lineTotals.scheduled - lineTotals.toDate)}
+                    </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
+              {!lines.length && !loading ? (
+                <EmptyState title="No lines on this application"
+                  hint="A pay application bills against the schedule of values. Add the schedule to the project and the lines appear here." />
+              ) : null}
             </CardContent>
           </Card>
 
@@ -150,21 +231,28 @@ export function FinancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Certificate summary</CardTitle>
-                <CardDescription>The AIA G702 arithmetic, computed rather than typed.</CardDescription>
+                <CardDescription>
+                  The AIA G702 arithmetic. Every figure is a stored column on the certificate — the
+                  contract sum to date and the total earned are generated by the database from their
+                  parts, so a certificate cannot disagree with itself.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
-                <Row label="Original contract sum" value={money(t.scheduled)} />
-                <Row label="Net change by approved change orders" value={money(t.approvedChanges)} />
-                <Row label="Contract sum to date" value={money(t.scheduled + t.approvedChanges)} strong />
+                <Row label="Original contract sum" value={money(draft?.contractSum ?? 0)} />
+                <Row label="Net change by approved change orders" value={money(draft?.approvedChanges ?? 0)} />
+                <Row label="Contract sum to date" value={money(draft?.contractSumToDate ?? 0)} strong />
                 <Separator />
-                <Row label="Total completed and stored to date" value={money(t.totalEarned)} />
-                <Row label={`Retainage at ${percent(RETAINAGE_PERCENT, 0)}`} value={`(${money(t.retainage)})`} />
-                <Row label="Total earned less retainage" value={money(t.totalEarned - t.retainage)} strong />
-                <Row label="Less previous certificates for payment" value={`(${money(t.previousPayments)})`} />
+                <Row label="Total completed and stored to date" value={money(draft?.totalEarned ?? 0)} />
+                <Row label={`Retainage at ${percent(retainagePercent, 0)}`}
+                  value={`(${money(draft?.retainageToDate ?? 0)})`} />
+                <Row label="Total earned less retainage"
+                  value={money((draft?.totalEarned ?? 0) - (draft?.retainageToDate ?? 0))} strong />
+                <Row label="Less previous certificates for payment"
+                  value={`(${money(draft?.previousPayments ?? 0)})`} />
                 <Separator />
-                <Row label="Current payment due" value={money(t.currentDue)} strong emphasis />
+                <Row label="Current payment due" value={money(draft?.currentDue ?? 0)} strong emphasis />
                 <Row label="Balance to finish, plus retainage"
-                  value={money(t.scheduled + t.approvedChanges - t.totalEarned + t.retainage)} />
+                  value={money((draft?.contractSumToDate ?? 0) - (draft?.totalEarned ?? 0) + (draft?.retainageToDate ?? 0))} />
               </CardContent>
             </Card>
 
@@ -189,7 +277,7 @@ export function FinancePage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {PAY_APPLICATIONS.map((p) => (
+                    {PAY_APPS.map((p) => (
                       <TableRow key={p.id}>
                         <TableCell className="tabular font-medium text-charcoal-900">{p.number}</TableCell>
                         <TableCell className="whitespace-nowrap text-xs text-charcoal-600">
@@ -238,28 +326,54 @@ export function FinancePage() {
                 </TableHeader>
                 <TableBody>
                   {WIP.map((w) => {
-                    const earned = w.contract * w.percentComplete;
-                    const delta = w.billedToDate - earned;
-                    const margin = earned ? (earned - w.actualCost) / earned : 0;
+                    /*
+                     * A project with no approved budget has no percent complete
+                     * and therefore no earned revenue, no over/under billing
+                     * and no margin. The view returns null for all four and the
+                     * row says so — showing 0% would read as "no work done",
+                     * and pairing that with a contract value would report the
+                     * entire contract as under-billed cash.
+                     */
+                    const unmeasurable = w.percentComplete == null;
+                    const delta = w.overUnderBilled;
+                    const margin = w.earnedMargin;
                     return (
-                      <TableRow key={w.project}>
+                      <TableRow key={w.projectId}>
                         <TableCell>
-                          <p className="font-medium text-charcoal-900">{w.project}</p>
-                          <p className="max-w-56 truncate text-xs text-charcoal-500">{w.name}</p>
+                          <p className="font-medium text-charcoal-900">{w.projectNumber}</p>
+                          <p className="max-w-56 truncate text-xs text-charcoal-500">{w.projectName}</p>
                         </TableCell>
                         <TableCell>
-                          <Progress value={w.percentComplete * 100} indicatorClassName="bg-charcoal-700" />
-                          <p className="tabular mt-1 text-xs text-charcoal-500">{percent(w.percentComplete, 0)}</p>
+                          {unmeasurable ? (
+                            <p className="text-xs text-charcoal-500">No approved budget</p>
+                          ) : (
+                            <>
+                              <Progress value={(w.percentComplete ?? 0) * 100}
+                                indicatorClassName={(w.costRatio ?? 0) > 1 ? 'bg-danger-500' : 'bg-charcoal-700'} />
+                              <p className="tabular mt-1 text-xs text-charcoal-500">
+                                {percent(w.percentComplete ?? 0, 0)}
+                                {(w.costRatio ?? 0) > 1
+                                  ? ` · ${percent(w.costRatio ?? 0, 0)} of budget spent` : ''}
+                              </p>
+                            </>
+                          )}
                         </TableCell>
-                        <TableCell className="tabular text-right">{money(w.contract)}</TableCell>
+                        <TableCell className="tabular text-right">{money(w.contractValue)}</TableCell>
                         <TableCell className="tabular text-right text-charcoal-600">{money(w.actualCost)}</TableCell>
-                        <TableCell className="tabular text-right">{money(earned)}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{money(w.billedToDate)}</TableCell>
-                        <TableCell className={cn('tabular text-right font-medium', delta >= 0 ? 'text-success-700' : 'text-warn-700')}>
-                          {delta >= 0 ? '' : '('}{money(Math.abs(delta))}{delta >= 0 ? '' : ')'}
+                        <TableCell className="tabular text-right">
+                          {w.earnedRevenue == null ? '—' : money(w.earnedRevenue)}
                         </TableCell>
-                        <TableCell className={cn('tabular text-right font-medium', margin >= 0.15 ? 'text-success-700' : margin >= 0.08 ? 'text-warn-700' : 'text-danger-700')}>
-                          {percent(margin, 1)}
+                        <TableCell className="tabular text-right text-charcoal-600">{money(w.billedToDate)}</TableCell>
+                        <TableCell className={cn('tabular text-right font-medium',
+                          delta == null ? 'text-charcoal-400' : delta >= 0 ? 'text-success-700' : 'text-warn-700')}>
+                          {delta == null ? '—'
+                            : `${delta >= 0 ? '' : '('}${money(Math.abs(delta))}${delta >= 0 ? '' : ')'}`}
+                        </TableCell>
+                        <TableCell className={cn('tabular text-right font-medium',
+                          margin == null ? 'text-charcoal-400'
+                            : margin >= 0.15 ? 'text-success-700'
+                            : margin >= 0.08 ? 'text-warn-700' : 'text-danger-700')}>
+                          {margin == null ? '—' : percent(margin, 1)}
                         </TableCell>
                       </TableRow>
                     );
@@ -267,14 +381,24 @@ export function FinancePage() {
                 </TableBody>
                 <TableFooter>
                   <TableRow className="hover:bg-charcoal-50">
-                    <TableCell colSpan={2}>Portfolio</TableCell>
+                    <TableCell colSpan={2}>
+                      Portfolio
+                      {unmeasured ? (
+                        <span className="ml-2 text-xs font-normal text-charcoal-500">
+                          excludes {plural(unmeasured, 'project')} with no approved budget
+                        </span>
+                      ) : null}
+                    </TableCell>
                     <TableCell className="tabular text-right">{money(wipTotals.contract)}</TableCell>
                     <TableCell className="tabular text-right">{money(wipTotals.cost)}</TableCell>
                     <TableCell className="tabular text-right">{money(wipTotals.earned)}</TableCell>
                     <TableCell className="tabular text-right">{money(wipTotals.billed)}</TableCell>
-                    <TableCell className="tabular text-right">({money(Math.abs(underBilled))})</TableCell>
                     <TableCell className="tabular text-right">
-                      {percent((wipTotals.earned - wipTotals.cost) / wipTotals.earned, 1)}
+                      {underBilled >= 0 ? `(${money(underBilled)})` : money(-underBilled)}
+                    </TableCell>
+                    <TableCell className="tabular text-right">
+                      {wipTotals.earned
+                        ? percent((wipTotals.earned - wipTotals.cost) / wipTotals.earned, 1) : '—'}
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -308,8 +432,8 @@ export function FinancePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {AP_INVOICES.map((i) => {
-                    const blocked = !['matched', 'no_po'].includes(i.matchStatus) && i.status !== 'paid';
+                  {AP.map((i) => {
+                    const blocked = i.blocked;
                     return (
                       <TableRow key={i.id} className={cn(blocked && 'bg-danger-50/40')}>
                         <TableCell className="font-medium text-charcoal-900">{i.vendor}</TableCell>
@@ -318,7 +442,9 @@ export function FinancePage() {
                           <p className="text-xs text-charcoal-400">{date(i.invoiceDate)}</p>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-charcoal-600">{i.po ?? '—'}</TableCell>
-                        <TableCell className="whitespace-nowrap text-charcoal-600">{date(i.dueDate)}</TableCell>
+                        <TableCell className="whitespace-nowrap text-charcoal-600">
+                          {i.dueDate ? date(i.dueDate) : <span className="text-charcoal-400">no terms</span>}
+                        </TableCell>
                         <TableCell className="tabular text-right font-medium">{money(i.amount)}</TableCell>
                         <TableCell className="tabular text-right text-charcoal-600">
                           {i.retainageWithheld ? `(${money(i.retainageWithheld)})` : '—'}
@@ -340,6 +466,10 @@ export function FinancePage() {
                   })}
                 </TableBody>
               </Table>
+              {!AP.length && !loading ? (
+                <EmptyState title="No payables on file"
+                  hint="Vendor invoices appear here once they are received against a purchase order." />
+              ) : null}
             </CardContent>
           </Card>
         </TabsContent>
@@ -357,13 +487,10 @@ export function FinancePage() {
             <CardContent className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Expected in, next 30 days">
-                  <span className="text-lg font-bold text-success-700">{money(t.currentDue)}</span>
+                  <span className="text-lg font-bold text-success-700">{money(next30.inflow)}</span>
                 </Field>
                 <Field label="Payables due, next 30 days">
-                  <span className="text-lg font-bold text-danger-700">
-                    {money(openAp.filter((i) => i.status !== 'on_hold' && i.status !== 'disputed')
-                      .reduce((a, i) => a + i.amount - i.amountPaid, 0))}
-                  </span>
+                  <span className="text-lg font-bold text-danger-700">{money(next30.outflow)}</span>
                 </Field>
                 <Field label="Retainage receivable at closeout">
                   <span className="text-lg font-bold text-charcoal-900">{money(retainageHeld)}</span>
@@ -373,52 +500,83 @@ export function FinancePage() {
               <Separator />
 
               <div className="space-y-3">
-                {[
-                  ['September', t.currentDue, 42_920],
-                  ['October', 286_400, 118_600],
-                  ['November', 198_200, 94_300],
-                ].map(([month, inflow, outflow]) => {
-                  const net = (inflow as number) - (outflow as number);
-                  const scale = Math.max(inflow as number, outflow as number, 1);
+                {scheduled.length ? scheduled.map((m) => {
+                  const scale = Math.max(m.inflow, m.outflow + m.outflowBlocked, 1);
                   return (
-                    <div key={String(month)}>
+                    <div key={m.month}>
                       <div className="flex items-baseline justify-between text-sm">
-                        <span className="font-medium text-charcoal-900">{month}</span>
-                        <span className={cn('tabular font-semibold', net >= 0 ? 'text-success-700' : 'text-danger-700')}>
-                          {net >= 0 ? '+' : '−'}{money(Math.abs(net))} net
+                        <span className="font-medium text-charcoal-900">{monthLabel(m.month)}</span>
+                        <span className={cn('tabular font-semibold', m.net >= 0 ? 'text-success-700' : 'text-danger-700')}>
+                          {m.net >= 0 ? '+' : '\u2212'}{money(Math.abs(m.net))} net
                         </span>
                       </div>
                       <div className="mt-1.5 space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="w-14 text-xs text-charcoal-500">In</span>
                           <div className="h-3 flex-1 overflow-hidden rounded bg-charcoal-100">
-                            <div className="h-full rounded bg-success-600" style={{ width: `${((inflow as number) / scale) * 100}%` }} />
+                            <div className="h-full rounded bg-success-600" style={{ width: `${(m.inflow / scale) * 100}%` }} />
                           </div>
-                          <span className="tabular w-24 text-right text-xs text-charcoal-600">{money(inflow as number)}</span>
+                          <span className="tabular w-24 text-right text-xs text-charcoal-600">{money(m.inflow)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-14 text-xs text-charcoal-500">Out</span>
-                          <div className="h-3 flex-1 overflow-hidden rounded bg-charcoal-100">
-                            <div className="h-full rounded bg-danger-500" style={{ width: `${((outflow as number) / scale) * 100}%` }} />
+                          <div className="flex h-3 flex-1 overflow-hidden rounded bg-charcoal-100">
+                            <div className="h-full bg-danger-500" style={{ width: `${(m.outflow / scale) * 100}%` }} />
+                            {/*
+                              * Blocked money is owed and is not leaving on this
+                              * date. Drawn in the same bar so the total owed is
+                              * visible, hatched apart so it is not read as cash
+                              * that will actually move.
+                              */}
+                            <div className="h-full bg-danger-500/30" style={{ width: `${(m.outflowBlocked / scale) * 100}%` }} />
                           </div>
-                          <span className="tabular w-24 text-right text-xs text-charcoal-600">{money(outflow as number)}</span>
+                          <span className="tabular w-24 text-right text-xs text-charcoal-600">
+                            {money(m.outflow)}
+                            {m.outflowBlocked ? <span className="text-charcoal-400"> +{moneyCompact(m.outflowBlocked)}</span> : null}
+                          </span>
                         </div>
                       </div>
                     </div>
                   );
-                })}
+                }) : !loading ? (
+                  <EmptyState title="Nothing scheduled"
+                    hint="A month appears once there is a certified pay application on a contract with recorded payment terms, or an invoice with a due date." />
+                ) : null}
               </div>
 
-              <Alert tone="warn" icon={<Banknote className="size-4" />} title="Under billing is a cash problem before it is an accounting one">
-                {money(Math.abs(underBilled))} of work has been performed but not yet invoiced. That is payroll
-                and material already spent, sitting in the ground until it is billed.
-              </Alert>
+              {unscheduled ? (
+                <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
+                  title="Money with no date on it">
+                  {unscheduled.inflow ? `${money(unscheduled.inflow)} receivable ` : ''}
+                  {unscheduled.inflow && (unscheduled.outflow || unscheduled.outflowBlocked) ? 'and ' : ''}
+                  {unscheduled.outflow + unscheduled.outflowBlocked
+                    ? `${money(unscheduled.outflow + unscheduled.outflowBlocked)} payable ` : ''}
+                  has no expected date. A receivable is undated until its contract records payment
+                  terms in days; a payable is undated until the invoice carries a due date. These
+                  amounts are real and are deliberately left out of the months above rather than
+                  assumed into one.
+                </Alert>
+              ) : null}
+
+              {underBilled < 0 ? (
+                <Alert tone="warn" icon={<Banknote className="size-4" />}
+                  title="Under billing is a cash problem before it is an accounting one">
+                  {money(Math.abs(underBilled))} of work has been performed but not yet invoiced. That is payroll
+                  and material already spent, sitting in the ground until it is billed.
+                </Alert>
+              ) : null}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
+}
+
+/** A bucket's first-of-month date, as a month. */
+function monthLabel(month: string) {
+  return new Date(`${month}T00:00:00Z`).toLocaleDateString('en-US',
+    { month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
 function Row({ label, value, strong, emphasis }: { label: string; value: string; strong?: boolean; emphasis?: boolean }) {
