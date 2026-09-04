@@ -1,0 +1,122 @@
+{
+  "phase": "P16",
+  "title": "Survey, GIS & Geospatial",
+  "method": "Every P16 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N using controlled spatial data, coordinate/reference metadata, source evidence, applicable QA checks, authorization boundaries and mapped test evidence.' The six conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
+  "judged_before_and_after": "Judged after building migration 0047, a georeference on the engine's Grid, and 16 tests. Two of the six conditions still fail, so P16 verifies at zero. The phase found the most dangerous defect in the build so far: the platform would difference two surfaces covering different ground and report a confident earthwork quantity from it.",
+  "findings": [
+    {
+      "id": "P16-F1",
+      "title": "A surface had no location, and two surfaces of the same shape were compared as though they covered the same ground",
+      "detail": "A surface was a cell size, a row count, a column count and a grid of elevations. There was no origin — not in the `surfaces` table and not in the engine's `Grid` interface. The comparison guard required the two grids to have the same cell size and the same dimensions and called that 'sharing a grid'. Two 10x10 grids at 25 feet, one over the north end of a site and one five hundred feet south, satisfied every check the platform made.",
+      "why_it_matters": "`app.enforce_surface_datum_match()` exists because 'a volume computed between two surfaces on different vertical datums is wrong by the offset and looks entirely plausible.' That sentence is the whole argument, and it applies with more force to two surfaces that are not over the same ground at all — where the answer is not off by an offset but unrelated to the site. Earthwork quantity is the number a heavy civil bid is won or lost on. A wrong one that looks right is the worst failure this module can have, and the platform had already written down why.",
+      "status": "resolved",
+      "resolution": "Migration 0047 adds `origin_easting` and `origin_northing` to `surfaces`, with a constraint that both are present or neither — half a georeference locates nothing. The comparison guard refuses a surface that carries no origin, naming it, and refuses two surfaces whose origins differ, printing both. Storing an ungeoreferenced surface stays legal, because an imported file may arrive before anybody has established where it goes; computing a quantity from one does not. The engine's `Grid` gained an optional origin: it throws when two grids state different origins, and returns a warning when either does not state one, so a caller holding grids from outside the database is told that alignment could not be checked rather than being left to assume it."
+    },
+    {
+      "id": "P16-F2",
+      "title": "The horizontal datum and coordinate system were never compared, though the vertical datum was",
+      "detail": "`surveys` carries `horizontal_datum`, `vertical_datum` and `coordinate_system`. The guard compared only the vertical datum and the units.",
+      "why_it_matters": "NAD27 and NAD83 differ by tens of meters in parts of the United States. Two grids on different horizontal datums do not cover the same ground even when their origin coordinates read identically — which, now that origins exist, is precisely the case that would otherwise pass.",
+      "status": "resolved",
+      "resolution": "Both are compared, each with its own message. An unstated coordinate system prints as 'unstated' rather than as an empty string, so the error names what is missing instead of showing a blank."
+    },
+    {
+      "id": "P16-F3",
+      "title": "A comparison did not have to be between surfaces from its own project",
+      "detail": "`surface_comparisons` carries a project and two surface references. The tenant guard checked that the project belonged to the company and nothing checked the surfaces. One site's existing ground could be differenced against another site's design and the result filed under a third project.",
+      "why_it_matters": "It is the cross-tenant hole one level in — not between companies, but between jobs inside one. A quantity booked to the wrong project is a wrong quantity on two projects at once.",
+      "status": "resolved",
+      "resolution": "Both surfaces must belong to the project the comparison is filed under, with a message that says why."
+    },
+    {
+      "id": "P16-F4",
+      "title": "The platform performs no coordinate transformation of any kind",
+      "detail": "Coordinate reference metadata is recorded faithfully — horizontal datum, vertical datum, coordinate system, units — and used entirely to refuse mismatches. Nothing converts between them. A survey delivered in NAD83 California Zone III and a design in a site calibration cannot be brought together; they can only be rejected.",
+      "why_it_matters": "'Coordinate Reference Systems' is a domain of thirteen requirements in this phase, and refusing a mismatch is the safe half of it. The useful half is reprojection, and a survey department deals in it daily.",
+      "status": "open",
+      "why_not_resolved": "Reprojection is a geodesy problem, not a programming one: it needs datum transformation grids — NADCON, GEOID18 — that are published data files, and an implementation that is wrong is worse than an absence because it produces plausible coordinates. The deterministic engine's rule is that it computes only what it can compute exactly, with zero dependencies; a transformation that is approximated inside it would violate that. The honest build is a governed geodetic library with its grids under version control and a test suite against published control points, and it is a phase of work rather than a loose end."
+    },
+    {
+      "id": "P16-F5",
+      "title": "Reality capture is recorded as a file path and nothing else",
+      "detail": "`surveys.capture_method` names drone photogrammetry, LiDAR, GPS rover and total station, and `storage_path` holds whatever was produced. There is no point cloud, no orthomosaic, no flight, no image, no control point, no residual, no accuracy report. Eleven of this phase's twenty-nine domains describe that layer.",
+      "why_it_matters": "'Applicable QA checks' is one of this phase's six acceptance conditions, and for reality capture the QA is the control network: a photogrammetric surface with no reported residuals against known control is a picture, not a survey. The platform accepts one and will difference it.",
+      "status": "open",
+      "why_not_resolved": "It is absence rather than defect, and it is large — point cloud storage and tiling, flight planning and compliance, control networks with adjustment and residuals, orthomosaic management, change detection. Recorded at full size rather than partially built, and the georeference control added this phase is what stops the absence from producing a wrong number in the meantime."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "All six are required by the criterion. Two fail, so no P16 requirement verifies regardless of how much of its domain exists.",
+    "conditions": [
+      "controlled spatial data",
+      "coordinate/reference metadata",
+      "source evidence",
+      "applicable QA checks",
+      "authorization boundaries",
+      "mapped test evidence"
+    ]
+  },
+  "platform_conditions": {
+    "controlled spatial data": {
+      "status": "met",
+      "evidence": "Surveys, surfaces, comparisons and machine control files are governed records with company and project ownership, forced row level security, tenant parentage enforced structurally, and append-only audit of every change. A surface must carry either its elevations or a stored file, never neither. A machine control file cannot be published without recording who published it and when, cannot be marked superseded without naming what superseded it, and carries a SHA-256 checksum constrained to the right shape — so the file a grader loaded can be proven to be the file that was published."
+    },
+    "coordinate/reference metadata": {
+      "status": "met",
+      "evidence": "Every survey records its horizontal datum, vertical datum, coordinate system and units, and since migration 0047 every surface used in a quantity records where it sits. All six are compared before a volume is computed, each with its own message. The metadata is not decorative: it is the precondition, and a comparison that cannot satisfy it is refused rather than approximated. What the platform does not do is convert between reference frames, which is recorded as F4 rather than counted here."
+    },
+    "source evidence": {
+      "status": "met",
+      "evidence": "A comparison names the two surfaces it differenced, each surface names the survey it came from, and each survey names its capture method, capture date, capturer and stored file. A comparison records the engine version that computed it, the cells compared and skipped, the resulting coverage, and the warnings the engine raised — so a quantity can be re-derived and the conditions under which it was produced are part of the record. Where a comparison was applied to an estimate, the line item it fed is named."
+    },
+    "applicable QA checks": {
+      "status": "not_met",
+      "gap": "The checks that exist are real and were extended this phase: reference frame agreement, grid agreement, georeference agreement, project agreement, coverage reported as a fraction rather than assumed, cells skipped counted rather than silently dropped, an implausible depth warned about, and a missing elevation excluding a cell rather than being read as zero. What is absent is the survey QA a surveyor would recognize: no control network, no check shots, no residuals, no closure, no reported accuracy, no point density, and no acceptance threshold that a capture must meet before a quantity may be computed from it. The platform can tell that two surfaces are comparable; it cannot tell whether either is any good."
+    },
+    "authorization boundaries": {
+      "status": "met",
+      "evidence": "Row level security is enabled and forced on every table in this module, policies are generated by audited helpers, and reads and writes are gated on the projects permissions rather than on membership alone. Surfaces and comparisons are reachable only inside the company that owns them, and since 0047 only inside the project that owns them. Machine control publication records its actor. The anonymous role holds no privilege on any of it."
+    },
+    "mapped test evidence": {
+      "status": "not_met",
+      "gap": "The engine is thoroughly tested — 529 tests including prismoidal and average-end-area volumes, stockpiles, progress against design, unit conversions and the georeference added this phase — and the database controls now have 42 tests behind them. That is test evidence for the arithmetic and the guards. It is not test evidence for the phase: twenty-one of twenty-nine domains have no implementation to test, so there is nothing mapped to them. A condition asking whether each requirement has mapped tests cannot be met where the capability does not exist, and counting engine coverage toward drone operations or point cloud management would be the kind of borrowed evidence this register exists to prevent."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Volumes & Earthwork",
+      "Surface & Terrain Models"
+    ],
+    "partial": {
+      "Coordinate Reference Systems": "Every survey records its horizontal datum, vertical datum, coordinate system and units, and since 0047 all four are enforced before a quantity is computed. Nothing transforms between them — recorded as F4.",
+      "Existing Conditions": "An existing-ground surface is a first-class role, captured by any of six methods, differenced against design with full provenance. There is no feature capture: no breaklines, no boundaries, no utilities, no existing structures.",
+      "Topographic Survey": "A topographic capture becomes a gridded surface with a cell size, coverage and elevation range. There are no points, no breaklines, no contours and no triangulated model — the grid is the only representation.",
+      "Machine Control Handoff": "The strongest of the partial domains: files are versioned, typed by format and vendor, checksummed, published with an actor and a moment, superseded rather than replaced, and tied to the surface they were generated from. What is missing is the generation itself — no file is produced by the platform, only recorded.",
+      "Survey Deliverables": "A comparison is a deliverable and carries its own provenance, and the PDF engine renders reports deterministically. There is no drawing, no plan set, no stakeout report and no signed and sealed output.",
+      "Progress & Change Detection": "The engine computes progress against design and can difference an as-built surface against either. Nothing schedules it, trends it over time, or detects change without being asked.",
+      "Spatial Analytics": "Volumes, areas, depths and coverage are computed and reported. There is no spatial query of any kind — no intersection, no buffer, no proximity, and no geometry type in the database at all."
+    },
+    "not_built": {
+      "GIS Core": "No geometry column, no spatial index, no PostGIS, no layer, no feature. The platform stores coordinates as numerics and grids as JSON.",
+      "GIS Field Collection": "No field collection application, no form, no offline capture, no attribute schema.",
+      "GNSS Survey": "No receiver, no correction source, no RTK session, no fix quality, no observation.",
+      "Total Station Survey": "No instrument, no setup, no backsight, no traverse, no raw observation.",
+      "Digital Levels": "No level run, no benchmark, no closure, no adjustment.",
+      "Survey Control": "No control point, no monument, no network, no adjustment, no residual — the absence that makes the QA condition fail.",
+      "LiDAR Reality Capture": "A capture method can be named 'lidar' and nothing else exists: no point cloud, no classification, no intensity, no return.",
+      "Point Cloud Management": "No storage, no tiling, no level of detail, no viewer, no clipping.",
+      "Photogrammetry": "No image, no camera model, no tie point, no bundle adjustment, no processing run.",
+      "Orthomosaic Management": "No orthomosaic, no tile service, no resolution, no vintage.",
+      "Drone Operations": "No flight, no plan, no mission, no pilot, no log.",
+      "Drone Media & Inspection": "No image catalog, no inspection, no annotation, no defect located on an asset.",
+      "Regulatory & Flight Compliance": "No airspace, no authorization, no waiver, no currency, no incident report.",
+      "Reality Capture QA/QC": "No accuracy assessment, no ground truth comparison, no density check, no acceptance threshold.",
+      "Construction Layout": "No stakeout point, no layout report, no as-staked record, no offset.",
+      "Corridor & Linear Infrastructure": "No alignment, no station, no cross section stored, no corridor model. The engine computes average end area volumes from cross sections a caller supplies and the platform stores none.",
+      "Utility Mapping": "No utility, no depth of cover, no subsurface utility engineering quality level, no conflict.",
+      "Geofencing & Location Intelligence": "No geofence, no location event, no dwell, no alert. Assets carry a last telemetry timestamp and no position history.",
+      "AI Geospatial Intelligence": "No feature extraction, no classification, no automated takeoff from imagery. The one governed agent reads documents.",
+      "Geospatial Digital Twin": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  }
+}

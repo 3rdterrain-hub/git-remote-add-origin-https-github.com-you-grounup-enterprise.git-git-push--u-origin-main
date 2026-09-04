@@ -22,6 +22,20 @@ import { assertFinite, assertPositive, factor, qty, roundTo, safeDivide } from '
  * cloud. A null on either surface excludes the cell from the volume rather than
  * treating the missing elevation as zero, which would invent an enormous cut.
  */
+/**
+ * Where a grid sits on the ground.
+ *
+ * In the survey's own coordinate system and units — this engine never projects
+ * anything, it only refuses to difference two grids that disagree about where
+ * they are.
+ */
+export interface GridOrigin {
+  /** Easting of the center of cell (0,0). */
+  easting: number;
+  /** Northing of the center of cell (0,0). */
+  northing: number;
+}
+
 export interface Grid {
   /** Cell size in feet. Square cells; a rectangular grid is not supported. */
   cellSize: number;
@@ -29,6 +43,14 @@ export interface Grid {
   cols: number;
   /** Row-major elevations in feet. `null` means no data at that cell. */
   elevations: (number | null)[];
+  /**
+   * Where cell (0,0) is. Optional, because a caller may legitimately hold two
+   * grids it already knows are aligned — but when both grids carry one and they
+   * disagree, the comparison is refused, and when either is missing the result
+   * says so. Two grids of equal shape over different ground produce a volume
+   * that is entirely fictitious and entirely plausible.
+   */
+  origin?: GridOrigin;
   name?: string;
 }
 
@@ -111,6 +133,27 @@ export function compareSurfaces(existing: Grid, design: Grid): SurfaceVolumeResu
       `Surfaces must share a grid to be compared: existing is ${existing.rows}×${existing.cols} at ` +
         `${existing.cellSize} ft, design is ${design.rows}×${design.cols} at ${design.cellSize} ft. ` +
         `Resample one onto the other before comparing.`,
+    );
+  }
+
+  // Same shape is not the same place. Refused when both grids say where they
+  // are and disagree; noted when either does not say.
+  if (existing.origin && design.origin) {
+    if (
+      existing.origin.easting !== design.origin.easting ||
+      existing.origin.northing !== design.origin.northing
+    ) {
+      throw new RangeError(
+        `Surfaces start at different places: existing at ${existing.origin.easting}, ` +
+          `${existing.origin.northing}; design at ${design.origin.easting}, ` +
+          `${design.origin.northing}. Grids of the same shape over different ground ` +
+          `produce a plausible and fictitious volume.`,
+      );
+    }
+  } else {
+    warnings.push(
+      'Neither surface carries a georeference, or only one does, so alignment could not be ' +
+        'checked. The volume assumes the two grids cover the same ground.',
     );
   }
 

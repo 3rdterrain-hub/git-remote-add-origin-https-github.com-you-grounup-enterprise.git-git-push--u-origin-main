@@ -37,12 +37,14 @@ describe('survey, claims, network and API', () => {
          values ($1,$2,'Pre-construction topo','2026-05-01','NAVD88') returning id`,
         [ridgeline, project]))[0]!.id;
       existingSurface = (await h.sql<{ id: string }>(
-        `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols, elevations)
-         values ($1,$2,'Existing ground','existing',25,10,10,'[]'::jsonb) returning id`,
+        `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols,
+           elevations, origin_easting, origin_northing)
+         values ($1,$2,'Existing ground','existing',25,10,10,'[]'::jsonb,1500000,700000) returning id`,
         [ridgeline, survey]))[0]!.id;
       designSurface = (await h.sql<{ id: string }>(
-        `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols, elevations)
-         values ($1,$2,'Design subgrade','design',25,10,10,'[]'::jsonb) returning id`,
+        `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols,
+           elevations, origin_easting, origin_northing)
+         values ($1,$2,'Design subgrade','design',25,10,10,'[]'::jsonb,1500000,700000) returning id`,
         [ridgeline, survey]))[0]!.id;
     });
   });
@@ -76,8 +78,9 @@ describe('survey, claims, network and API', () => {
           `insert into surveys (company_id, project_id, name, captured_on, vertical_datum)
            values ($1,$2,'Drone flight','2026-08-01','NGVD29') returning id`, [ridgeline, project]);
         return (await h.sql<{ id: string }>(
-          `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols, elevations)
-           values ($1,$2,'As-built','as_built',25,10,10,'[]'::jsonb) returning id`,
+          `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols,
+             elevations, origin_easting, origin_northing)
+           values ($1,$2,'As-built','as_built',25,10,10,'[]'::jsonb,1500000,700000) returning id`,
           [ridgeline, sv[0]!.id]))[0]!.id;
       });
       await expect(
@@ -90,8 +93,10 @@ describe('survey, claims, network and API', () => {
     it('refuses a comparison across mismatched grids', async () => {
       const coarse = await h.asUser(alice, () =>
         h.sql<{ id: string }>(
-          `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols, elevations)
-           values ($1,$2,'Coarse','design',50,10,10,'[]'::jsonb) returning id`, [ridgeline, survey]));
+          `insert into surfaces (company_id, survey_id, name, surface_role, cell_size_ft, grid_rows, grid_cols,
+             elevations, origin_easting, origin_northing)
+           values ($1,$2,'Coarse','design',50,10,10,'[]'::jsonb,1500000,700000) returning id`,
+          [ridgeline, survey]));
       await expect(
         h.asUser(alice, () =>
           h.sql(`insert into surface_comparisons (company_id, project_id, existing_surface_id, design_surface_id, name)

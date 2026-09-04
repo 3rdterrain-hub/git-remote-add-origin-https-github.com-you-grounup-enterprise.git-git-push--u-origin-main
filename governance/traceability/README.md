@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,828 verified of 6,618
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,828 verified of 6,978
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -46,6 +46,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P09 Workforce & Human Resources | 210 | 0 |
 | P08 CRM, Sales & Customer Management | 180 | 6 (3%) |
 | P07 Project Operations | 160 | 18 (11%) |
+| P16 Survey, GIS & Geospatial | 360 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -98,6 +99,17 @@ something nothing feeds. Migration 0046 closed all three: an issued order
 commits, an approved invoice consumes the commitment and becomes cost, and the
 two never double-count.
 
+P16 verifies at zero and found the most dangerous defect in the build. A surface
+was a cell size, a row count and a column count with **no origin anywhere** —
+not in the table and not in the engine — so "sharing a grid" meant sharing a
+*shape*. Two 10x10 grids at 25 feet, one over the north end of a site and one
+five hundred feet south, passed every check and produced a confident earthwork
+quantity that was entirely fictitious. The platform had already written the
+argument against itself: the guard that existed says a volume across mismatched
+datums "is wrong by the offset and looks entirely plausible." Migration 0047
+anchors a surface to the ground and refuses a comparison that cannot prove the
+two cover it.
+
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
 absent: detection and response, secret lifecycle, and security monitoring. It
@@ -141,7 +153,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 273 cataloged artifacts, 144 answer for at least one requirement.
+Of 274 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -166,9 +178,9 @@ This distinction is the whole integrity of the matrix, and it is enforced.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
   confirmed a specific test asserts it. **1,828 requirements are verified** of
-  6,618 judged, across P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded
-  in its own `verification/*-ledger.csv`. P09, P20, P27, P28 and P29 were judged and
-  verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  6,978 judged, across P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded
+  in its own `verification/*-ledger.csv`. P09, P16, P20, P27, P28 and P29 were judged
+  and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

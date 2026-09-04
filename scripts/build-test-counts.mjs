@@ -97,6 +97,7 @@ for (const [name] of SUITES) {
   }
 }
 const governanceTests = counts.find(([n]) => n === 'governance')?.[1] ?? 0;
+const engineTests = counts.find(([n]) => n === 'engine')?.[1] ?? 0;
 const pipelineTests = perFile.get('pipeline.test.ts') ?? 0;
 
 const V = 'governance/traceability/verification';
@@ -108,6 +109,7 @@ const PROSE = [
   [`${V}/P20-verdicts.json`, /[\d,]+ further tests hold the shape of the pipeline/g, `${fmt(pipelineTests)} further tests hold the shape of the pipeline`],
   [`${V}/P28-verdicts.json`, /[\d,]+ tests in all/g, `${fmt(total)} tests in all`],
   [`${V}/README.md`, /met — [\d,]+ tests, migrations run unmodified/g, `met — ${fmt(total)} tests, migrations run unmodified`],
+  [`${V}/P16-verdicts.json`, /[\d,]+ tests including prismoidal/g, `${fmt(engineTests)} tests including prismoidal`],
 ];
 
 const proseEdits = new Map();

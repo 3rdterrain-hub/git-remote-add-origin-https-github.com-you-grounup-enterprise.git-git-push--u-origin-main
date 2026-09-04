@@ -257,3 +257,52 @@ describe('progress against design', () => {
     expect(() => progressAgainstDesign(original, flat(98), design, 0)).toThrow(RangeError);
   });
 });
+
+/*
+ * Same shape is not the same place.
+ *
+ * A grid was a cell size, a row count and a column count — no origin anywhere —
+ * so two hundred-by-hundred grids at five feet, one over the north end of a
+ * site and one over the south, satisfied every check and produced a cut and
+ * fill figure that was entirely fictitious and entirely plausible. Earthwork
+ * quantity is what a heavy civil bid is won on.
+ */
+describe('georeference', () => {
+  const flat = (elevation: number, origin?: { easting: number; northing: number }) => ({
+    cellSize: 10,
+    rows: 2,
+    cols: 2,
+    elevations: [elevation, elevation, elevation, elevation],
+    ...(origin ? { origin } : {}),
+  });
+
+  it('refuses two grids that start at different places', () => {
+    expect(() =>
+      compareSurfaces(
+        flat(100, { easting: 1_500_000, northing: 700_000 }),
+        flat(95, { easting: 1_500_500, northing: 700_000 }),
+      ),
+    ).toThrow(/start at different places/);
+  });
+
+  it('compares two grids that start at the same place', () => {
+    const r = compareSurfaces(
+      flat(100, { easting: 1_500_000, northing: 700_000 }),
+      flat(95, { easting: 1_500_000, northing: 700_000 }),
+    );
+    // 4 cells × 100 sf × 5 ft = 2,000 cf = 74.0741 cy.
+    expect(r.cutBcy).toBe(74.0741);
+    expect(r.warnings.filter((w) => w.includes('georeference'))).toEqual([]);
+  });
+
+  it('says so when it could not check alignment', () => {
+    const r = compareSurfaces(flat(100), flat(95));
+    expect(r.warnings.some((w) => w.includes('georeference'))).toBe(true);
+  });
+
+  it('says so when only one grid carries an origin', () => {
+    // Half an answer is not an alignment check.
+    const r = compareSurfaces(flat(100, { easting: 1_500_000, northing: 700_000 }), flat(95));
+    expect(r.warnings.some((w) => w.includes('georeference'))).toBe(true);
+  });
+});

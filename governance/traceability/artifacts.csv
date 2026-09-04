@@ -245,6 +245,7 @@ TST-db-seed,test,db/seed.test.ts,tests/db/seed.test.ts,ENGINE
 TST-db-semantic,test,db/semantic.test.ts,tests/db/semantic.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
+TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE

@@ -109,12 +109,12 @@ describe('tracing is not verification, and the matrix must not blur them', () =>
   });
 
   it('reports verification only where a ledger judged it', () => {
-    // Nineteen phases have been judged requirement by requirement; nothing else
+    // Twenty phases have been judged requirement by requirement; nothing else
     // has. A requirement carrying a verdict without a ledger behind it would
     // be a claim nobody made.
     const judged = matrix.filter((r) => r.verification !== 'none');
-    expect(new Set(judged.map((r) => r.phase))).toEqual(new Set(['P05', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']));
-    expect(judged).toHaveLength(108 + 160 + 180 + 210 + 240 + 260 + 280 + 320 + 340 + 400 + 420 + 450 + 360 + 400 + 450 + 480 + 500 + 520 + 540);
+    expect(new Set(judged.map((r) => r.phase))).toEqual(new Set(['P05', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P16', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']));
+    expect(judged).toHaveLength(108 + 160 + 180 + 210 + 240 + 360 + 260 + 280 + 320 + 340 + 400 + 420 + 450 + 360 + 400 + 450 + 480 + 500 + 520 + 540);
     expect(summary.totals.verified).toBe(
       matrix.filter((r) => r.verification === 'verified').length);
   });
