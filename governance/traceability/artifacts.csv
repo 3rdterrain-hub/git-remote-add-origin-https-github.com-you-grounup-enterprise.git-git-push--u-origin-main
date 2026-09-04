@@ -221,6 +221,7 @@ TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
+TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE

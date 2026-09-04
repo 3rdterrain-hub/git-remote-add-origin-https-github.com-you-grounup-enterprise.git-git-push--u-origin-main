@@ -184,20 +184,44 @@ Deno.serve(async (req) => {
    * `tenant.fromWithGlobals()`, which is separate precisely so it has to be
    * chosen deliberately and shows up in a review.
    */
+  /*
+   * A client that says who is asking.
+   *
+   * The gateway authenticates with an API key and necessarily runs as the
+   * service role, so `auth.uid()` in the database is null — and before
+   * migration 0050 every row this function wrote was audited as an anonymous
+   * insert. These headers reach the database as transaction-local request
+   * headers, where `app.request_context()` reads them, so a change made through
+   * the public API is attributable to the key that made it and to the request
+   * it belonged to.
+   *
+   * Built per request rather than once at module load, because the labels are
+   * per request. It is an HTTP wrapper; constructing one costs nothing.
+   */
+  const attributed = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      headers: {
+        'x-grounup-actor': `api_key:${key.id}`,
+        'x-grounup-correlation': correlationId,
+      },
+    },
+  });
+
   const tenant = {
     from(table: string) {
       return {
         select: (columns: string) =>
-          service.from(table).select(columns).eq('company_id', key.companyId),
+          attributed.from(table).select(columns).eq('company_id', key.companyId),
         insert: (row: Record<string, unknown>) =>
-          service.from(table).insert({ ...row, company_id: key.companyId }),
+          attributed.from(table).insert({ ...row, company_id: key.companyId }),
         upsert: (row: Record<string, unknown>, opts: { onConflict: string }) =>
-          service.from(table).upsert({ ...row, company_id: key.companyId }, opts),
+          attributed.from(table).upsert({ ...row, company_id: key.companyId }, opts),
       };
     },
     /** Rows the company owns, plus platform-global rows owned by nobody. */
     fromWithGlobals(table: string, columns: string) {
-      return service.from(table).select(columns)
+      return attributed.from(table).select(columns)
         .or(`company_id.eq.${key.companyId},company_id.is.null`);
     },
   };
@@ -325,7 +349,7 @@ Deno.serve(async (req) => {
          * number under a name the company redefined would be a wrong answer
          * wearing a right label.
          */
-        const { data, error } = await service
+        const { data, error } = await attributed
           .from('reporting_metric_values')
           .select('key, name, description, domain, unit, grain, source_view, ' +
                   'higher_is_better, target_value, value')

@@ -39,7 +39,7 @@
   "platform_conditions": {
     "controlled integration/deployment/test/operations evidence": {
       "status": "not_met",
-      "gap": "Test evidence is strong and integration evidence is real: 1,888 tests across six suites with the production migrations run unmodified against PostgreSQL, an OpenAPI specification generated from the gateway's own route table with drift failing the build, governed connectors with recorded runs, and a versioned public API behind scoped keys. Deployment evidence does not exist, because nothing has been deployed. Operations evidence does not exist, because nothing is running: the observability library produces structured logs, metrics and health checks and no deployment consumes them. A workflow that has never executed is not evidence that deployment is controlled — it is a description of how it would be."
+      "gap": "Test evidence is strong and integration evidence is real: 1,899 tests across six suites with the production migrations run unmodified against PostgreSQL, an OpenAPI specification generated from the gateway's own route table with drift failing the build, governed connectors with recorded runs, and a versioned public API behind scoped keys. Deployment evidence does not exist, because nothing has been deployed. Operations evidence does not exist, because nothing is running: the observability library produces structured logs, metrics and health checks and no deployment consumes them. A workflow that has never executed is not evidence that deployment is controlled — it is a description of how it would be."
     },
     "security and tenant boundaries": {
       "status": "met",
@@ -55,7 +55,7 @@
     },
     "mapped acceptance tests": {
       "status": "met",
-      "evidence": "1,888 tests run by a single command that is also the whole release gate: typecheck, three drift checks, six suites and a production build. The database suite runs the production migrations unmodified against PostgreSQL 18 compiled to WebAssembly, so it needs no service and no credentials — which is what lets the same command run identically on a developer's machine and on a fork's pull request. 35 further tests hold the shape of the pipeline itself, so it cannot be quietly narrowed to a subset."
+      "evidence": "1,899 tests run by a single command that is also the whole release gate: typecheck, three drift checks, six suites and a production build. The database suite runs the production migrations unmodified against PostgreSQL 18 compiled to WebAssembly, so it needs no service and no credentials — which is what lets the same command run identically on a developer's machine and on a fork's pull request. 35 further tests hold the shape of the pipeline itself, so it cannot be quietly narrowed to a subset."
     }
   },
 
@@ -68,7 +68,7 @@
       "Security Engineering": "Forced row level security with two migration-time gates, hashed and scoped API keys, an append-only audit ledger, redaction by field name and value shape, and now a build-output secret scan enforcing the client boundary. What P28 named remains absent: no detection and response, no secret rotation lifecycle, no security monitoring.",
       "Observability": "A structured logger with correlation carried through every line, metrics with bounded low-cardinality labels, and health and readiness separated with per-check deadlines — all built, all tested, and consumed by nothing, because nothing is running.",
       "Testing Governance": "One command is the gate for a developer and for the pipeline, and a test asserts the pipeline cannot narrow it to a subset. Coverage is measured for the engine and not enforced as a threshold; there is no flake tracking and no test quarantine.",
-      "Automated Test Platform": "Six suites, 1,888 tests, migrations run unmodified against real PostgreSQL, no credentials needed anywhere. There is no performance test, no load test, no browser end-to-end suite, and no scheduled run.",
+      "Automated Test Platform": "Six suites, 1,899 tests, migrations run unmodified against real PostgreSQL, no credentials needed anywhere. There is no performance test, no load test, no browser end-to-end suite, and no scheduled run.",
       "Requirements Traceability & Coverage": "The strongest domain in this phase: a generated matrix over all 9,475 requirements, thirteen phases verified requirement by requirement with named evidence, and the tracing/verification distinction enforced by test. What is missing is coverage of the remaining nineteen phases.",
       "API Governance": "Nine versioned endpoints behind a pure authorization function with one error shape, an OpenAPI specification generated from the route table with drift failing the build, scoped keys stored only as a hash, and every request logged. There is no rate limiting, no deprecation policy, and no consumer registry.",
       "External Connectors": "A governed connector framework with recorded runs and a weather connector using it. No connector registry, no retry policy per connector, no credential rotation."

@@ -1,0 +1,142 @@
+{
+  "phase": "P01",
+  "title": "Enterprise Governance & Tenancy",
+  "method": "P01 is 25 governance requirements in one domain, each a distinct control with its own statement, sharing one acceptance criterion: 'A tenant can contain a defined hierarchy while preventing unauthorized cross-tenant access.' Each is judged individually against the schema, its constraints, triggers and policies, and the tests behind them. A requirement is verified only where the control actually operates — not where the schema anticipates it.",
+  "judged_before_and_after": "Judged after building migration 0050 and 11 tests. 9 of 25 are met. This is the phase that judges the governance apparatus itself, and the honest result is that the tenancy and authorization half is strong and the enterprise-governance half — policies, delegation, segregation of duties, classification, retention, break-glass, governance reporting — is largely absent.",
+  "findings": [
+    {
+      "id": "P01-F1",
+      "title": "The audit ledger asked four questions it could not answer",
+      "detail": "`audit_events` carries `correlation_id`, `ip_address`, `user_agent` and `actor_email` beside the actor, action and full prior and new state. None of the four was written by anything — not the row trigger on every governed table, not any of the three other writers in the schema. Every audit row in the platform had them null.",
+      "why_it_matters": "The state half of this ledger is excellent and is what makes it worth having. The other half is what an investigation actually starts from: where did this come from, what else happened in the same request, and who was it. Worst of all, a change made through the public API was audited as an **anonymous insert** — the gateway authenticates with a named API key and necessarily runs as the service role, and `auth.uid()` is null for a service role, so the ledger recorded that a time entry appeared and nothing about who created it.",
+      "status": "resolved",
+      "resolution": "The context was already there and nobody read it: PostgREST publishes each request's headers as a transaction-local setting, so the address, the agent and a caller-supplied correlation id are available to the trigger for the asking — and transaction-local means they cannot leak between requests on a pooled connection. `app.request_context()` reads them and `app.audit_row()` records them, alongside an actor email resolved from the user profile so the ledger reads without a join. The API gateway now labels itself per request, so a write through the public API names the key that made it. A stated label never overrides a real signed-in user, because a header is a claim and a JWT is authenticated. Every field degrades to null rather than failing — a direct session has no request headers, and a ledger that refused writes it could not attribute would turn an observability gap into an outage."
+    },
+    {
+      "id": "P01-F2",
+      "title": "Nobody's reads are audited, and neither are exports",
+      "detail": "The audit triggers fire on insert, update and delete. The `app.audit_action` enum declares seven more kinds of event — login, export, approve, reject, issue, award and the three AI actions — and the row trigger produces three of them. Access is recorded nowhere.",
+      "why_it_matters": "This requirement names access and export explicitly, and export is the first thing an auditor asks about. Reading a competitor's estimate would leave no trace if row level security ever let it happen, which means the platform's central security guarantee has no detection layer behind it — only prevention.",
+      "status": "open",
+      "why_not_resolved": "Auditing reads at the row trigger is not possible — PostgreSQL has no select trigger — and doing it in policy predicates would write an audit row per row returned, which turns a report into a denial of service against the ledger. The honest implementation is at the access boundary: the API gateway already logs every request with its key, path, status and duration, and extending that to a governed access log with the same retention as the audit ledger is the real fix. It belongs with export, which cannot be audited because nothing exports yet — P29 recorded the Export button that carries no handler."
+    },
+    {
+      "id": "P01-F3",
+      "title": "Append-only is not tamper-evident, and the platform is careful not to say it is",
+      "detail": "`audit_events` refuses update and delete through `app.forbid_mutation()`, tested. There is no hash chain, no signature and no external anchor, so a database superuser could disable the trigger and rewrite history.",
+      "why_it_matters": "The requirement asks for tamper-evident records. Append-only under application privileges is a strong control and a weaker claim, and conflating the two is exactly the kind of overstatement this register exists to catch.",
+      "status": "open",
+      "why_not_resolved": "Recorded as a distinction rather than a defect, because the platform never claims otherwise — the library snapshot migration goes out of its way to say its digest is 'a drift check, not a tamper control'. A real fix is a hash chain over the ledger with periodic external anchoring, which is a genuine build and belongs with the compliance framework P20 recorded as absent."
+    },
+    {
+      "id": "P01-F4",
+      "title": "One approver of sufficient rank is not two people",
+      "detail": "Commercial authority limits check that the approver holds a tier sufficient for the amount. Nothing anywhere requires a second person, and nothing prevents the same user raising, approving, receiving and paying against the same purchase order.",
+      "why_it_matters": "Segregation of duties and dual approval are the two controls this requirement names, and they are the two an auditor tests first on a system that moves money. The platform has authority and no separation.",
+      "status": "open",
+      "why_not_resolved": "The database half is straightforward — refuse an approval whose actor created the record, and require a second distinct approver above a threshold. The half that makes it usable is not: a two-person company cannot satisfy it, so the rule has to be configurable per company and per object with a stated fallback, and that is the general approval framework this phase records as missing at requirement ten. Building the refusal without the policy behind it would produce a control that either blocks small companies from operating or is switched off everywhere, and both are worse than the honest gap."
+    }
+  ],
+  "requirements": {
+    "000001": {
+      "status": "not_met",
+      "gap": "Companies, projects and one level of divisions exist, each tenant-owned with forced row level security and structural parentage. Business units, offices and departments do not — divisions are a single flat level under a company, with no nesting and no notion of an office or a department anywhere in the schema. P03 recorded the same absence from the data-architecture side."
+    },
+    "000002": {
+      "status": "not_met",
+      "gap": "There is no organization hierarchy to version. Divisions carry no effective dates, no ownership and no history beyond the audit ledger's record that a row changed. The versioning discipline the platform applies to libraries, plans, documents, metrics and estimates was never applied to the organization itself."
+    },
+    "000003": {
+      "status": "met",
+      "evidence": "Named roles carry explicit permission arrays and an approval tier, checked by app.has_permission with wildcards honored only as a whole grant rather than as prefixes. Every policy on every table is generated by two audited helpers rather than written by hand, so a table cannot be added with a hand-rolled policy that disagrees with the model. 51 row level security tests and 65 gateway authorization tests hold it."
+    },
+    "000004": {
+      "status": "not_met",
+      "gap": "Three of the seven scopes exist and four do not. Tenant and company scope are the foundation of every policy; a membership's project_scope narrows a user to named projects; record type is the table itself. Office, department and owned-record scope have nothing to scope by — there are no offices or departments, and no policy anywhere distinguishes a record's creator from any other member of the company."
+    },
+    "000005": {
+      "status": "not_met",
+      "gap": "No segregation of duties. The same user may raise a purchase order, approve it, receive against it and approve the vendor invoice; the same user may create a change order and execute it if they hold the tier. Dual approval does not exist for any object — commercial authority limits check that one approver holds a sufficient tier, never that a second person is involved. P07 recorded this from the operations side."
+    },
+    "000006": {
+      "status": "met",
+      "evidence": "Invitation, activation and suspension are governed states. company_invitations carry an expiry and a single-use acceptance; company_memberships carry an explicit status with joined and left timestamps; employees carry a lifecycle across applicant, onboarding, active, on leave and terminated, and a terminated employee must record when. Removing the last active owner from a company is refused outright, which is what makes suspension safe. Restoration is reactivation of the same membership row, so history survives it."
+    },
+    "000007": {
+      "status": "not_met",
+      "gap": "External users do not exist. Customers, vendors and subcontractors are records rather than identities: none can sign in, none has a restricted role, and there is no portal for any of them. P07 and P08 both recorded the absence of any external surface, and proposals.viewed_at exists precisely because somebody anticipated one."
+    },
+    "000008": {
+      "status": "not_met",
+      "gap": "No policy management of any kind. There is no policy record, no owner, no acknowledgment and no supersession of a policy — the versioning-and-supersession machinery exists for documents, plans, libraries, metrics and machine control files, and was never pointed at policies. Toolbox talks are the nearest thing and are a safety meeting record rather than a governed policy."
+    },
+    "000009": {
+      "status": "not_met",
+      "gap": "Configuration is per company and largely flat. Pricing profiles, condition modifiers, work calendars, authority limits, credential requirements, financial periods and metric definitions are all tenant-owned and governed, and the three-tier library scope gives platform, enterprise group and company precedence for reference data — real layering, for libraries. There is no configuration precedence for anything else: no enterprise layer above a company for settings, no office or project layer below it, no user preference layer, and nothing that declares which layer wins."
+    },
+    "000010": {
+      "status": "not_met",
+      "gap": "Approval policy is configurable for four objects and hard-coded everywhere else. commercial_authority_limits let a company set signing thresholds by amount for contracts, change orders, claim settlements and purchase orders, routed to a role holding the required tier — genuinely configurable, by object and amount. Nothing else is: a pay application is approved by anyone holding finance.write regardless of value, a timecard by anyone with the permission, an estimate by anyone who may approve estimates. There is no risk dimension, no scope condition and no rule engine."
+    },
+    "000011": {
+      "status": "not_met",
+      "gap": "No delegation. There is no way to grant approval authority to another person for a period, no acting-for relationship, and no record that an approval was made under delegated authority. A person on leave is a person whose approvals stop."
+    },
+    "000012": {
+      "status": "not_met",
+      "gap": "The strongest audit ledger in the platform and it still fails this requirement as written. What holds: every governed table writes prior and new state to an append-only ledger no privilege level can edit, a governance test asserts every table is either audited or frozen, and since migration 0050 each row records the caller's address, agent, correlation id and email — and for a service-role caller such as the public API gateway, the key it states for itself, which had previously been audited as an anonymous insert. What fails: **access is not audited at all** — the triggers fire on insert, update and delete, so nobody's reads are recorded, and reading a competitor's estimate would leave no trace if row level security ever let it happen. **Export is not audited**, which P10 recorded and which is the first thing an auditor asks about. And 'tamper-evident' is a stronger claim than append-only: the ledger has no hash chain, so a database superuser could disable the trigger, and the platform is careful never to claim otherwise."
+    },
+    "000013": {
+      "status": "not_met",
+      "gap": "No data classification. Nothing marks an entity or a field as personal, confidential or public, and nothing inherits a classification. The redaction layer recognizes sensitive shapes by field name and value pattern at the logging boundary — a good control at the wrong altitude for this requirement, because nothing in the database says what a column is."
+    },
+    "000014": {
+      "status": "not_met",
+      "gap": "No retention schedule and no legal hold. P15, P28, P29 and P03 each recorded this, and P29 established the mechanism: a company cannot be deleted at all, because the owner-retention guard refuses the cascade and cannot be satisfied. The requirement's own qualifier — 'without destroying required evidence' — is satisfied vacuously, since nothing is destroyed."
+    },
+    "000015": {
+      "status": "met",
+      "evidence": "Explicit lifecycle states are the norm rather than the exception, and every one is a constrained set rather than free text: draft, review and approved on estimates and library rows; active and suspended on companies, memberships and assets; superseded on documents, machine control files and every versioned artifact; archived through app.record_status. Deletion is refused where history matters — an executed contract, a settled claim, a metric definition somebody reported a number under, a credential a person was assigned work on."
+    },
+    "000016": {
+      "status": "met",
+      "evidence": "Change control is enforced structurally on exactly the things this requirement names, and this build closed the last gaps in it. A library row cannot go active without an approver. An estimate version cannot be approved without the library snapshot that priced it, and is frozen afterwards. An issued proposal is frozen through to its line items. An executed contract and a settled claim are frozen. A published machine control file's source surface is frozen. A metric definition publishes a version on every change to its calculation and cannot be deleted once reported under. What is absent is a change *request* — the workflow in front of the lock — which is recorded at 000010 as the missing general approval framework."
+    },
+    "000017": {
+      "status": "met",
+      "evidence": "AI permissions are structural rather than procedural. ai_agents_never_autonomous is a check constraint, so an agent with write authority cannot be configured no matter what anybody sets. The analyst reads a document it is handed and has no tool surface to route or escalate through. It cannot bypass authorization because it has none of its own: everything it produces is a finding, and a finding becomes a business record only when a person with the permission accepts it."
+    },
+    "000018": {
+      "status": "met",
+      "evidence": "Every AI output is a proposal by construction. A finding is inert until accepted, acceptance records which business row was created from it, and a factual finding cannot exist without a citation or a sheet reference — enforced in the database and rejected by the validator before it reaches the database. RULE-008 holds the same line for arithmetic: the deterministic engine is authoritative and AI may not overwrite it. There is no automation policy permitting a narrower action, which is the correct state for a platform with one agent at draft authority."
+    },
+    "000019": {
+      "status": "not_met",
+      "gap": "There is a settings screen and it is not an administrative console. Roles, permissions, memberships, invitations, authority limits, credential requirements, financial periods and metric definitions are all governed tables a screen could manage, and 22 of the 23 application screens read demonstration fixtures rather than governed records — the platform-wide gap P29 recorded. There is no console for policies, retention or audit because none of those exist to manage."
+    },
+    "000020": {
+      "status": "not_met",
+      "gap": "No break-glass access. There is no emergency elevation, no justification prompt, no time limit, no elevated logging and no post-event review. The only path to elevated access is the service role key, which is held by infrastructure rather than by a person and grants everything with no record that a human used it."
+    },
+    "000021": {
+      "status": "not_met",
+      "gap": "Session and device governance does not exist in the platform. Authentication is Supabase Auth's, so sessions and refresh tokens are handled there and are outside this schema; nothing here sets a session policy, records a device, evaluates a location or scores authentication risk. The multi-factor toggle that once appeared in settings was removed in this build precisely because it was a control that switched nothing."
+    },
+    "000022": {
+      "status": "met",
+      "evidence": "app.provision_company is a single governed transaction that creates the company, its owner membership, its seeded roles, its entitlement and its trial, and refuses to leave a company without an active owner. It is versioned in the sense that matters — the template is migration-controlled code covered by tests, not a document somebody follows. Units and industry defaults come from the three-tier seed catalog the company inherits. Region, currency and language are not parameters, which is truthful rather than missing: the platform is single-region and single-locale, and currency is recorded as a real gap at P03-F4 rather than pretended at provisioning."
+    },
+    "000023": {
+      "status": "met",
+      "evidence": "Capability control is complete and enforced at the boundary. Plans carry versioned entitlements pinned onto a subscription at purchase, so a plan change cannot retroactively alter what somebody bought. Limits are checked by app.plan_limit and enforced by count triggers on the governed objects. AI credits are metered per period and checked before a request runs — the gap P30 recorded and this build closed. Access is derived from verified Stripe webhook state and never from a browser redirect, with a materialized grace window so a Stripe outage is not an outage. Effective dates are on the entitlement, and the price a checkout uses is resolved server-side from the catalog."
+    },
+    "000024": {
+      "status": "met",
+      "evidence": "Notifications are governed and produced by rules rather than by hand: a recordable safety incident, a credential withdrawn or recorded already lapsed, a machine going down, a service coming due, a machine still assigned a superseded design. Each carries a category, a severity, a deep link and the entity it concerns, is scoped to the company or to one user, and fires on the transition rather than on every touch — because a notice on every edit is how people learn to ignore notices. What is absent is policy-driven routing to a named owner or approver, which belongs with the approval framework at 000010."
+    },
+    "000025": {
+      "status": "not_met",
+      "gap": "No governance reporting. Eleven reporting views cover project financials, labor, safety, schedule, bids, plan usage and metrics, and not one covers governance: there is no access report, no approval report, no policy status, no audit summary, no retention report and no exception register. The audit ledger is queryable and nothing queries it. P29 recorded that the reporting layer reaches almost nobody; here it does not exist at all."
+    }
+  }
+}
