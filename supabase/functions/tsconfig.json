@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@supabase/supabase-js": ["../../node_modules/@supabase/supabase-js/dist/module/index.d.ts"],
+      "stripe": ["../../node_modules/stripe/types/index.d.ts"],
+      "@anthropic-ai/sdk": ["../../node_modules/@anthropic-ai/sdk/index.d.mts"]
+    }
+  },
+  "include": ["**/*.ts", "deno-globals.d.ts"],
+  "exclude": ["_shared/engine/**"]
+}

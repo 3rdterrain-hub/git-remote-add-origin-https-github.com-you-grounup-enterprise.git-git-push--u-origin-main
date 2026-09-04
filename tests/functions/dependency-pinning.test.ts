@@ -52,9 +52,12 @@ describe('the privileged boundary is built from pinned dependencies', () => {
      * the exception below with a reason, so an unpinned dependency is a
      * decision somebody made rather than one nobody noticed.
      */
-    const exceptions = new Map([
-      ['stripe', 'Cannot be pinned from this repository: the exact 17.x version has to come from the registry, and determining it needs a network-connected `deno cache`. Recorded in the P31 verdict alongside the missing deno.lock, which is the same fix.'],
-    ]);
+    // Empty, and it should stay that way. Stripe used to sit here — the exact
+    // version had to come from the registry, which needed network access this
+    // repository did not have when the exception was written. It has one now,
+    // stripe is pinned to 19.3.0, and the exception is gone rather than
+    // grandfathered.
+    const exceptions = new Map<string, string>();
 
     const unpinned = Object.entries(config.imports)
       .filter(([, spec]) => !/@\d+\.\d+\.\d+$/.test(spec))
@@ -82,4 +85,38 @@ describe('the privileged boundary is built from pinned dependencies', () => {
       expect(text, wf).not.toMatch(/run:\s*npm install/);
     }
   });
+});
+
+/**
+ * The versions that are typechecked are the versions that deploy.
+ *
+ * `supabase/functions/tsconfig.json` checks this code against the SDK type
+ * declarations installed in `node_modules`, while Deno resolves the specifiers
+ * in `deno.json` at deploy time. If those drift apart, the build proves a
+ * property of code that never runs — which is worse than not checking at all,
+ * because it reads as a guarantee.
+ *
+ * Turning the check on is what found the drift in the first place: the
+ * functions were calling an Anthropic thinking mode and a Stripe API version
+ * that neither pinned SDK had ever heard of.
+ */
+describe('the typechecked SDK is the deployed SDK', () => {
+  const devDeps = (JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as
+    { devDependencies?: Record<string, string> }).devDependencies ?? {};
+
+  for (const [name, spec] of Object.entries(config.imports)) {
+    const version = spec.match(/@(\d+\.\d+\.\d+)$/)?.[1];
+    if (!version) continue;
+    // supabase-js resolves from JSR, which has no npm package to install
+    // beside it; the browser client pins its own copy separately.
+    if (name === '@supabase/supabase-js') continue;
+
+    it(`installs ${name}@${version} locally, matching the deploy pin`, () => {
+      const installed = (JSON.parse(
+        readFileSync(join(ROOT, 'node_modules', name, 'package.json'), 'utf8')) as
+        { version: string }).version;
+      expect(installed).toBe(version);
+      expect(devDeps[name]).toBeDefined();
+    });
+  }
 });

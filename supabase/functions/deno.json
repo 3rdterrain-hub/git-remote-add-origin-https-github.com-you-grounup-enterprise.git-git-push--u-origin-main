@@ -1,9 +1,9 @@
 {
   "lock": false,
   "imports": {
-    "@anthropic-ai/sdk": "npm:@anthropic-ai/sdk@0.71.0",
+    "@anthropic-ai/sdk": "npm:@anthropic-ai/sdk@0.123.0",
     "@supabase/supabase-js": "jsr:@supabase/supabase-js@2.112.4",
-    "stripe": "npm:stripe@17"
+    "stripe": "npm:stripe@19.3.0"
   },
   "compilerOptions": {
     "strict": true,

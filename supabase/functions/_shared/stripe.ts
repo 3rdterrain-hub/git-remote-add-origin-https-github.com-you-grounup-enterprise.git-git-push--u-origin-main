@@ -17,7 +17,11 @@ export function stripeClient(): Stripe {
     throw new Error('STRIPE_SECRET_KEY holds a publishable key; a secret key is required');
   }
   cached = new Stripe(key, {
-    apiVersion: '2025-09-30.clover',
+    // The version the pinned SDK is built for. These were out of step before
+    // the functions were typechecked: the code named a clover release the
+    // pinned stripe@17 had never heard of, so the SDK modelled one set of
+    // response shapes while the API returned another.
+    apiVersion: '2025-10-29.clover',
     httpClient: Stripe.createFetchHttpClient(),
   });
   return cached;

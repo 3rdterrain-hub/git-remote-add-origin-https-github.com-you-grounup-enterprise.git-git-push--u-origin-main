@@ -1,0 +1,113 @@
+# Requested build order
+
+Everything asked for, in the order it will be built, with what each one
+actually needs. Nothing here is a plan to be re-approved — it is the queue.
+
+Written down because the requests arrived faster than they could be built, and
+a request held only in a conversation is a request that gets dropped.
+
+---
+
+## In flight
+
+### 1. SaaS spine — signing up produces a company
+**Status: database done, screen in progress.**
+
+`app.provision_company()` existed since migration 0011 and nothing outside the
+tests had ever called it. A real sign-up produced an auth user and a profile and
+stopped there: no company, no membership, no role, and row level security
+correctly showing that person an empty platform forever. There was no way to
+become a customer.
+
+- [x] `app.slugify()`, `app.create_my_company()`, `my_companies` view — migration 0059
+- [x] 9 database tests: ownership, seeded pricing profile, bounded trial, slug
+      collision, double-submit idempotency, tenant isolation
+- [ ] Onboarding screen and the shell redirect that reaches it
+
+### 2. Estimating end to end
+**Status: the security boundary is done. The pricing path is next.**
+
+- [x] Migration 0058 — engine outputs are writable only by the engine.
+      Before it, any holder of estimate write permission could set
+      `total_price` by hand and stamp `engine_version = 'made up'` beside it.
+      12 tests.
+- [x] The engine compiled into the Edge runtime, with a drift check
+- [x] Edge Functions typechecked for the first time (found two SDK pins that
+      were older than the APIs the code called)
+- [ ] `price-estimate` Edge Function: database rows → engine input → result
+- [ ] Create an estimate, add lines from the library, price it, approve it,
+      issue a proposal — every button wired
+
+---
+
+## Queued
+
+### 3. Super admin console
+Log in and see every company using the platform, turn features on and off per
+company, see subscription standing, inspect a failed webhook.
+
+Nothing of this exists. The subscription machinery is complete and entirely
+tenant-facing; row level security is built so no company can see another, which
+is right for customers and means the operator of GrounUp has no way to see their
+own. Needs a platform-admin boundary that is genuinely separate from tenant
+roles — not a role inside a company — plus an audited override path, because an
+operator changing a customer's entitlement is exactly the action that must never
+be untraceable.
+
+### 4. Leads
+A public lead capture form, and leads funnelling through the system to an
+opportunity and on to an estimate.
+
+`leads`, `opportunities`, `crm_activities` already exist and nothing writes
+them. The public form is the interesting part: it takes writes from an
+unauthenticated visitor, which is the only place in the platform that does, so
+it needs its own narrow path — rate limiting, spam resistance, and a
+company-scoped intake key rather than an open endpoint.
+
+### 5. Workers clock in and out, with geofencing
+`time_entries` holds hours, not times: `straight_hours`, `overtime_hours`,
+`doubletime_hours` against a `work_date`. A punch is a different record — an
+instant, a location, and a device — and it rolls up into a time entry rather
+than replacing it. Projects already carry `latitude` and `longitude`, so the
+fence has something to be drawn around.
+
+Needs: a punch table, a geofence per project, the roll-up into `time_entries`
+that keeps the existing approval and job-cost posting intact, and an honest
+answer for a punch that arrives outside the fence or with no location at all —
+recorded and flagged, never silently discarded or silently accepted.
+
+### 6. Weather on the dashboard, for the company's own area
+Projects carry `site_city`, `site_state`, `latitude` and `longitude`, so there
+is somewhere to ask about. The call belongs in an Edge Function rather than the
+browser: a weather provider key is a secret, and the platform's rule is that no
+secret reaches anything the browser downloads.
+
+Worth connecting to `daily_reports`, which already record weather by hand — a
+forecast beside the observed conditions on the same job is worth more than a
+widget.
+
+### 7. HRM and payroll
+Today this is labor, not HR: `employees`, `crews`, `credentials`,
+`time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
+leave, no benefits, no performance reviews, no onboarding, no org chart, and no
+HR role among the eleven seeded roles.
+
+Payroll is the load-bearing piece and the one with real consequences: it has to
+reconcile to approved time entries, post to job cost through the path migration
+0044 already built, and never pay from unapproved hours.
+
+### 8. Asset lifecycle accounting
+`assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
+nothing does anything with them. No depreciation schedule, no book value, no
+salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
+as a gap in the P12 verdict and still open.
+
+### 9. General ledger
+No chart of accounts, no journal entries, no trial balance, no bank
+reconciliation, no profit and loss, no balance sheet. What exists is
+construction job cost and billing that was designed to feed an accounting
+system rather than be one — the Finance screen's "Export to accounting" button
+is that intent.
+
+Making GrounUp the accounting system is a real change of scope rather than a
+gap to fill, and it is last for that reason.
