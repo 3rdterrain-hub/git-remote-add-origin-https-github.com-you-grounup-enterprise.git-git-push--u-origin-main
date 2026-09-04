@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,914 verified of 7,855
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,913 verified of 7,975
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -51,7 +51,8 @@ Fifteen phases have been verified requirement by requirement — see
 | P03 Data Architecture | 75 | 41 (55%) |
 | P01 Enterprise Governance & Tenancy | 25 | 9 (36%) |
 | P23 Platform Engineering & Implementation Controls | 300 | 0 |
-| P04 Master Library Registry | 97 | 36 (37%) |
+| P04 Master Library Registry | 97 | 35 (36%) |
+| P06 AI Platform | 120 | 0 |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -179,6 +180,23 @@ with the evidence behind it, and deliberately does **not** move the rate: a
 library rate is an approved record, and rewriting one automatically from field
 data would be the automation overreach the governance rules exist to prevent.
 
+P06 verifies at zero and found the recurring defect at its most ironic. **The
+platform built a control requiring evaluation before a prompt may be trusted —
+`ai_prompts` cannot reach `active` without an activator, a moment and an
+evaluation pass rate — and enforced it on a table nothing read.** The analyst
+ran a model, a prompt version and a system prompt compiled into the function;
+`ai_models` and `ai_prompts` were empty. That is exactly the control P27 said
+was missing when it recorded that nothing measures whether the agent is any
+good. Separately, **fifteen agents shipped enabled and one exists**, so the
+catalog advertised fourteen assistants that are not there.
+
+**And it corrected this build's own work.** P04 had judged prompt governance
+*met*, reasoning from the table's model without checking whether anything obeyed
+it. It does not. P04 requirement 41 is now `not_met` with the correction
+recorded rather than the original quietly rewritten, and P04 moves from 36
+verified to 35. A verdict that overstates is worse than a defect in the code,
+because it is a defect in the checking.
+
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
 absent: detection and response, secret lifecycle, and security monitoring. It
@@ -222,7 +240,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 278 cataloged artifacts, 144 answer for at least one requirement.
+Of 279 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -246,10 +264,10 @@ This distinction is the whole integrity of the matrix, and it is enforced.
   artifact is covered by a named test suite which runs in `npm run verify`.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
-  confirmed a specific test asserts it. **1,914 requirements are verified** of
-  7,855 judged, across P01, P03, P04, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and
-  P30, each recorded in its own `verification/*-ledger.csv`. P09, P16, P17, P20, P23, P27,
-  P28 and P29 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
+  confirmed a specific test asserts it. **1,913 requirements are verified** of
+  7,975 judged, across P01, P03, P04, P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and
+  P30, each recorded in its own `verification/*-ledger.csv`. P06, P09, P16, P17, P20,
+  P23, P27, P28 and P29 were judged and verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
 derived mapping says an implementing artifact exists. It does not say anyone

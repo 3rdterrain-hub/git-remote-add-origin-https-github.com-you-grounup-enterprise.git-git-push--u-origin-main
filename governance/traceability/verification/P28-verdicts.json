@@ -34,7 +34,7 @@
     },
     "mapped security tests": {
       "status": "met",
-      "evidence": "Security behavior is tested rather than asserted: 51 RLS tests, 65 gateway authorization tests, 49 redaction and observability tests, and governance tests that fail the build if a table is unclassified or a category invariant is broken. 1,911 tests in all, with the production migrations run unmodified against real PostgreSQL 18."
+      "evidence": "Security behavior is tested rather than asserted: 51 RLS tests, 65 gateway authorization tests, 49 redaction and observability tests, and governance tests that fail the build if a table is unclassified or a category invariant is broken. 1,920 tests in all, with the production migrations run unmodified against real PostgreSQL 18."
     },
     "threat/failure handling": {
       "status": "partial",

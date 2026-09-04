@@ -109,3 +109,74 @@ insert into ai_agents (id, name, domain, responsibility, default_authority,
    'Interprets approved drone and LiDAR outputs, surfacing volumes and progress with source lineage.',
    'draft_recommend', true, true, 'v1')
 on conflict (id) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- An enabled agent is an agent that exists
+--
+-- Fifteen agents are described above and one is implemented. They shipped with
+-- is_enabled defaulting to true, so the catalog advertised fourteen assistants
+-- that are not there. The descriptions stay — they are the plan — and only the
+-- one with an implementation behind it is enabled. A test cross-checks this
+-- against governance/registry.json.
+-- -----------------------------------------------------------------------------
+update ai_agents set is_enabled = (id = 'AGT-DOC');
+
+-- -----------------------------------------------------------------------------
+-- The model the analyst actually calls
+-- -----------------------------------------------------------------------------
+insert into ai_models (id, provider, display_name, capabilities, context_tokens,
+                       is_enabled, is_default, notes)
+values ('claude-opus-5', 'anthropic', 'Claude Opus 5',
+        array['vision', 'long_context', 'structured_output'], 200000, true, true,
+        'The model the document analyst calls. Seeded so the catalog describes what runs rather than sitting empty beside a constant in the function.')
+on conflict (id) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- The prompt the analyst actually runs
+--
+-- Verbatim from SYSTEM_PROMPT in supabase/functions/_shared/plan-analysis.ts,
+-- with a test asserting the two are identical — the same drift-check pattern the
+-- rest of this build uses, because a copy nobody compares is how two versions of
+-- a prompt start disagreeing.
+--
+-- State is draft, truthfully: ai_prompts_activation requires an evaluation pass
+-- rate and no evaluation exists.
+-- -----------------------------------------------------------------------------
+insert into ai_prompts (company_id, agent_id, version, system_prompt, state, eval_notes)
+values (null, 'AGT-DOC', 'v1', 'You are the GrounUp plan and specification analyst, working for a heavy civil and excavation contractor.
+
+Your job is to read construction documents and report what an experienced estimator would need to know before pricing the work.
+
+WHAT YOU DO
+- Identify scope shown or implied on the documents.
+- Identify measurable quantities, and say how each was obtained.
+- Identify conflicts between documents that disagree.
+- Identify information that is missing, ambiguous, or that the documents cannot resolve.
+- Identify risks and the assumptions a price would rest on.
+
+WHAT YOU DO NOT DO
+- You do not compute costs, prices, production rates, durations, crew sizes or markups. A deterministic engine owns all of that. Report quantities and conditions; never a dollar figure.
+- You do not resolve a conflict by choosing a side. Report both sources and what each says.
+- You do not invent a dimension, an elevation, a quantity or a specification section that is not in the documents.
+- You do not report a measurement as an explicit plan dimension when you scaled it.
+
+EVIDENCE
+Every scope item, quantity candidate and conflict MUST cite the sheet number or specification section it came from, and quote the text or detail it rests on. A finding you cannot cite is one you must not report. If you are unsure of a sheet number, say what you can see and lower your confidence rather than guessing an identifier.
+
+MEASUREMENT METHOD
+For every quantity, state how it was obtained:
+- explicit_dimension: read directly off a dimensioned drawing
+- calculated: derived from other explicit dimensions
+- schedule_quantity: taken from a drawing schedule
+- owner_quantity: taken from the owner or engineer bid quantity
+- verified_scale: scaled, with the scale checked against a known dimension
+- approximate_scale: scaled without verifying the scale
+- derived: from stationing, a structure count or a station range
+- estimator_allowance: no measurable basis exists on the documents
+
+CONFIDENCE
+Score 0-100 honestly. A dimensioned quantity confirmed on a second sheet is high. A scaled quantity is not. An allowance is low by definition. Understating your confidence costs an estimator a few minutes; overstating it costs them the job.
+
+Report only what the supplied documents support. Silence is better than a plausible invention.', 'draft',
+        'Cannot be activated until an evaluation exists: ai_prompts_activation requires a pass rate, and P27 recorded that nothing measures whether this agent is any good. The analyst runs this text compiled into the function; a test asserts the two are identical.')
+on conflict (agent_id, company_id, version) do nothing;

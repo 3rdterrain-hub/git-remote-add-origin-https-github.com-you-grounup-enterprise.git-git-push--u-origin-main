@@ -1,0 +1,93 @@
+{
+  "phase": "P06",
+  "title": "AI Platform",
+  "method": "Every P06 requirement is capability N of a domain across 20 domains of 6, and the register supplies no acceptance criteria. Each domain is judged against what the AI layer actually does — its tables, constraints, the analyst function and its validator — and a requirement is verified only where the capability operates, not where the schema anticipates it.",
+  "judged_before_and_after": "Judged after building migration 0052, a seed correction and 9 tests. P06 verifies at zero, and the finding that produced that zero also corrected a judgment this build had made two phases earlier.",
+  "findings": [
+    {
+      "id": "P06-F1",
+      "title": "A prompt governance model that requires evaluation before activation, enforced on a table nothing read",
+      "detail": "`ai_prompts` carries a state across draft, evaluating, active and retired and a constraint — `ai_prompts_activation` — that a prompt cannot reach `active` without an activator, a moment **and an evaluation pass rate**. That is precisely the control P27 said was missing when it recorded that nothing measures whether the agent is any good. The table was empty. No statement anywhere in the platform read it. The analyst runs `const MODEL`, `const PROMPT_VERSION = 'v1'` and a `SYSTEM_PROMPT` compiled into the function, and `ai_findings.prompt_version` recorded a string naming no governed row. `ai_models` was empty too.",
+      "why_it_matters": "It is the recurring defect at its most ironic: the platform built the control that would have caught the gap another phase recorded, on a table nobody uses. And it means the prompt that decides what an AI says about a customer's drawings was versioned only by being in git.",
+      "status": "resolved",
+      "resolution": "The catalogs now describe what runs. `ai_models` carries the model the analyst calls, marked default. `ai_prompts` carries the analyst's system prompt verbatim, seeded from the function's own source with a test asserting the two are identical — the drift-check pattern this build uses everywhere, because a copy nobody compares is how two versions of a prompt start disagreeing. It is seeded as a **draft**, truthfully: activation demands an evaluation pass rate, none exists, and writing a number there to make the row activatable would fabricate the evidence the constraint was built to demand. Two tests prove the constraint bites and that an evaluated prompt can be activated.",
+      "note": "The analyst still reads its prompt from the compiled constant rather than the catalog, and it should stay that way until an evaluation exists — reading an unevaluated prompt from a table would be worse than reading a reviewed constant from code."
+    },
+    {
+      "id": "P06-F2",
+      "title": "Fourteen agents were advertised as enabled and one exists",
+      "detail": "`ai_agents` ships fifteen seeded agents — estimator, takeoff assistant, revision analyst, project manager, scheduler, CRM assistant, fleet manager, procurement assistant and more — every one with `is_enabled` defaulting to true. One has an implementation: the document analyst. A screen reading that catalog would offer a customer fourteen assistants that are not there.",
+      "why_it_matters": "It is the settings-toggle-that-switches-nothing defect moved into the data, where it is harder to see and would reach a customer as a product claim rather than as a dead control.",
+      "status": "resolved",
+      "resolution": "Only the implemented agent ships enabled. The other fourteen keep their descriptions, because they are the plan and a plan is worth having — they simply must not read as capability. A test cross-checks the enabled set against the agents registered in `governance/registry.json`, so an agent cannot be advertised before it is built."
+    },
+    {
+      "id": "P06-F3",
+      "title": "A judgment this build made two phases earlier was overstated, and is corrected",
+      "detail": "P04 requirement 41 (Prompt governance) was judged **met**, on the reasoning that `ai_prompts` is 'a governed three-tier library: versioned, activated by a named person, append-only in its message history, and referenced by every AI finding so a finding names the prompt version that produced it.' The governance model is real. The last clause was false — nothing referenced `ai_prompts` at all, and the finding's `prompt_version` is a free-text string.",
+      "why_it_matters": "A verdict that overstates is worse than a defect in the code, because it is a defect in the checking, and this register's entire value is that its numbers can be trusted. It was found by reading the function rather than the schema — which is the lesson: judging a governance model from the table it lives in says nothing about whether anything obeys it.",
+      "status": "resolved",
+      "resolution": "P04 requirement 41 is now `not_met` with the correction recorded in the verdict rather than the original quietly rewritten, the same way the P30 AI-credits verdict was corrected when P27 found it wrong. P04 moves from 36 verified to 35."
+    }
+  ],
+  "acceptance_conditions": {
+    "note": "The register supplies no acceptance criteria for P06, so each domain is judged against what it does. The conditions below are the ones the phase's own domains imply and are assessed platform-wide.",
+    "conditions": [
+      "a governed model and prompt the runtime actually uses",
+      "evaluation before a prompt is trusted",
+      "human oversight of every output",
+      "tenant isolation of AI data",
+      "mapped test evidence"
+    ]
+  },
+  "platform_conditions": {
+    "a governed model and prompt the runtime actually uses": {
+      "status": "not_met",
+      "gap": "Since this phase the catalogs describe what runs and are proven to match it by test, which is the half that was missing entirely. The runtime still reads its own compiled constants rather than the catalog, and deliberately so: reading a prompt from a table that cannot be legitimately activated would be worse than reading a reviewed one from code. This condition is met when the analyst resolves an active prompt from `ai_prompts`, and that requires an evaluation first."
+    },
+    "evaluation before a prompt is trusted": {
+      "status": "not_met",
+      "gap": "The constraint exists and bites — a prompt cannot be activated without a pass rate, proven by test. There is no evaluation: no golden set, no scoring, no harness, no result. P27 left this open for a reason that still holds — a real evaluation needs drawings and expert labels, somebody who knows the trade saying what a correct reading of a sheet is, and manufacturing a golden set from the model's own output would measure nothing except agreement with itself."
+    },
+    "human oversight of every output": {
+      "status": "met",
+      "evidence": "Structural rather than procedural, and the strongest thing in this layer. `ai_agents_never_autonomous` is a check constraint, so an agent with write authority cannot be configured no matter what anybody sets. A factual finding cannot exist without a citation or a sheet reference, enforced in the database and rejected by `validateFindings` before it reaches the database. Findings are inert until a person accepts them, and acceptance records which business row was created. RULE-008 holds the same line for arithmetic: the deterministic engine is authoritative and AI may not overwrite it. The prompt forbids the model computing what the engine owns, resolving a conflict by picking a side, or inventing dimensions — and the validator enforces all three in code, because a prompt is a request and a validator is a control."
+    },
+    "tenant isolation of AI data": {
+      "status": "met",
+      "evidence": "Conversations, messages and findings all carry company_id with forced row level security, an index leading on it since migration 0049, and structural tenant parentage. Messages are append-only. Every run writes a usage event and, since P30's correction, an allowance is checked before a request is allowed to proceed. The catalogs are platform-scoped and readable by members, denied to anonymous."
+    },
+    "mapped test evidence": {
+      "status": "not_met",
+      "gap": "28 tests cover the analyst's contract — schema, citations, confidence bounds, the prompt's prohibitions — and 9 more now cover the catalogs. That is evidence for the contract and the governance. It is not evidence for the phase: fifteen of twenty domains have no implementation, so there is nothing mapped to them, and a contract test cannot tell you whether a citation supports the claim attached to it."
+    }
+  },
+  "domain_status": {
+    "built": [
+      "Human Oversight",
+      "Tenant Isolation"
+    ],
+    "partial": {
+      "Agents": "One agent, capped at draft authority by constraint, with a stated responsibility and a citation requirement. Fourteen more are described and disabled since this phase. There is no agent runtime, no tool surface and no delegation between agents.",
+      "Models": "The model catalog now names the model that runs, with provider, capabilities, context window and cost columns. Nothing routes between models, falls back, or records cost per call against the catalog's rates.",
+      "Prompts": "Versioned, state-managed, activation gated on evaluation, and now carrying the exact text the analyst runs with a drift check. The runtime does not read it — see F1.",
+      "Explainability": "Genuinely strong for what exists: a finding cannot exist without a citation or a sheet reference, carries a bounded confidence, and names its agent, model and prompt version. There is no reasoning trace, no counterfactual and no explanation of why a confidence is what it is.",
+      "Observability": "Every run is logged with correlation, metered as a usage event, and recorded in append-only messages; the analyst's cost is estimated per call. Nothing is deployed, so nothing consumes any of it, and there is no AI-specific dashboard.",
+      "Privacy": "Redaction by field name and value shape at the logging boundary, tenant isolation on every AI table, and no personal data deliberately sent to the model beyond the document under analysis. There is no data-processing agreement, no retention on AI conversations and no opt-out.",
+      "Security": "The provider key is server-side only and proven absent from the bundle by a build-output scan; prompts are not user-supplied; the validator rejects malformed output before it reaches the database. There is no prompt-injection defense for document content, which is the live risk for a system that reads customer PDFs — recorded here as the honest limit.",
+      "API": "The analyst is invoked as an Edge Function. Nothing about AI is exposed through the versioned public API: no endpoint reads a finding, invokes an agent or reads the catalog.",
+      "Architecture": "A clean separation the platform enforces: deterministic computation in a dependency-free engine, advisory AI beside it, and a constraint making the boundary unconfigurable. It is an architecture for one agent — no orchestration layer, no routing, no shared context."
+    },
+    "not_built": {
+      "Evaluation": "No golden set, no scoring, no harness, no result — the absence that keeps the prompt a draft and the one P27 left open with its reason.",
+      "Knowledge": "No knowledge base, no curated corpus, no grounding source beyond the document handed to the agent.",
+      "RAG": "No retrieval. No embeddings, no vector index, no chunking, no reranking — the document is passed whole.",
+      "Learning": "No feedback loop. Acceptance and rejection of findings are recorded and nothing consumes them: no fine-tuning, no preference data, no prompt improvement from outcomes.",
+      "Orchestration": "No orchestration. One agent, one call, no chain, no plan, no tool loop, no handoff.",
+      "Multimodal": "The analyst reads pages of a PDF, which is the one modality. No audio, no video, no photograph analysis — the site photographs a construction platform would most want read do not exist as a capability.",
+      "Marketplace": "No marketplace. No third-party agent, no packaging, no installation, no revenue share.",
+      "UI/UX": "There is no AI surface in the application. Findings are database rows; no screen presents one, accepts one or shows a citation — the platform-wide gap where 22 of 23 screens read demonstration fixtures.",
+      "White Label": "No white label anywhere in the platform, for AI or otherwise — P04 and P23 recorded the same, and the pricing page was corrected in this build for advertising it."
+    }
+  }
+}

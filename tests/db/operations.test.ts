@@ -265,26 +265,35 @@ describe('operations governance', () => {
       ).rejects.toThrow(/duplicate key/);
     });
 
-    it('lets a tenant read the shipped prompts but not edit them', async () => {
-      await h.sql(`insert into ai_prompts (company_id, agent_id, version, system_prompt, state,
-                                           eval_pass_rate, eval_sample_size, activated_by, activated_at)
-                   values (null,'AGT-DOC','v1','shipped','active',0.97,180,$1, now())`, [alice]);
+    it('lets a tenant read the shipped prompt but not edit it', async () => {
+      // The platform prompt is seeded since migration 0052 — it carries the
+      // exact text the analyst runs — so this reads the real one rather than
+      // planting a fixture and reading that back.
+      const [before] = await h.sql<{ system_prompt: string }>(
+        `select system_prompt from ai_prompts where company_id is null and agent_id='AGT-DOC'`);
+      expect(before!.system_prompt.length).toBeGreaterThan(100);
+
       const readable = await h.asUser(alice, () =>
         h.sql(`select id from ai_prompts where company_id is null`));
       expect(readable.length).toBeGreaterThan(0);
 
       await h.asUser(alice, () =>
         h.sql(`update ai_prompts set system_prompt = 'hijacked' where company_id is null`));
-      const [row] = await h.sql<{ system_prompt: string }>(
-        `select system_prompt from ai_prompts where company_id is null`);
-      expect(row!.system_prompt).toBe('shipped');
+      const [after] = await h.sql<{ system_prompt: string }>(
+        `select system_prompt from ai_prompts where company_id is null and agent_id='AGT-DOC'`);
+      expect(after!.system_prompt).toBe(before!.system_prompt);
     });
 
     it('exposes the model catalog read-only', async () => {
-      await h.sql(`insert into ai_models (id, provider, display_name, is_enabled)
-                   values ('claude-opus-5','Anthropic','Claude Opus 5', true)`);
-      const models = await h.asUser(alice, () => h.sql(`select id from ai_models`));
-      expect(models).toHaveLength(1);
+      const models = await h.asUser(alice, () => h.sql<{ id: string }>(
+        `select id from ai_models order by id`));
+      expect(models.map((m) => m.id)).toContain('claude-opus-5');
+
+      await h.asUser(alice, () =>
+        h.sql(`update ai_models set display_name = 'hijacked' where id = 'claude-opus-5'`));
+      const [row] = await h.sql<{ display_name: string }>(
+        `select display_name from ai_models where id = 'claude-opus-5'`);
+      expect(row!.display_name).toBe('Claude Opus 5');
     });
   });
 
