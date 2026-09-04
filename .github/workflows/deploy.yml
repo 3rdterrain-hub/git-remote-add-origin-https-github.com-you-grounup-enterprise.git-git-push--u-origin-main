@@ -18,6 +18,12 @@
 #   SUPABASE_DB_PASSWORD    the database password, for `db push`
 #   VITE_SUPABASE_URL       public, embedded in the browser bundle by design
 #   VITE_SUPABASE_ANON_KEY  public, protected by row level security
+#   SUPABASE_DB_URL         optional; a psql connection string. Set it and this
+#                           workflow loads the seed catalog. Leave it unset and
+#                           the seed step is skipped and says so — the catalog
+#                           then has to be loaded by hand per docs/DEPLOYMENT.md,
+#                           and until it is, the platform has no cost codes, no
+#                           rates, no plans to subscribe to and no AI agent row.
 #
 # The Stripe secret key, the Stripe webhook signing secret, the service-role
 # key and the AI provider key are NOT here and must not be. They are set once
@@ -95,6 +101,30 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: supabase db push --linked
 
+      # `supabase db push` applies migrations and nothing else. The catalog —
+      # 4,671 library records, the plan catalog the checkout validates against,
+      # and the AI agent row every finding references — lives in supabase/seed
+      # and was applied by nobody: the runbook says to run these by hand and the
+      # workflow did not, so a deployment that followed the workflow alone came
+      # up with an empty library and no plans to sell.
+      #
+      # Every statement in both files is idempotent, so this is safe to re-run
+      # on every deployment.
+      - name: Load the seed catalog
+        if: ${{ inputs.migrate }}
+        env:
+          SEED_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SEED_URL" ]; then
+            echo "SUPABASE_DB_URL is not set; skipping the seed catalog."
+            echo "Load it by hand per docs/DEPLOYMENT.md before anybody signs up:"
+            echo "  psql \"\$DATABASE_URL\" -f supabase/seed/0001_global_library.sql"
+            echo "  psql \"\$DATABASE_URL\" -f supabase/seed/0002_plan_catalog.sql"
+            exit 0
+          fi
+          psql "$SEED_URL" -v ON_ERROR_STOP=1 -f supabase/seed/0001_global_library.sql
+          psql "$SEED_URL" -v ON_ERROR_STOP=1 -f supabase/seed/0002_plan_catalog.sql
+
       - name: Deploy Edge Functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -117,7 +147,13 @@ jobs:
       - name: Check the environment build carries no server secret
         run: npm run bundle:check
 
-      - name: Publish the built application
+      # Named for what it does. This uploads the bundle; it does not publish it.
+      # The frontend host is a choice the runbook leaves open — Vercel, Netlify,
+      # Cloudflare Pages, S3 — so the last step of a deployment is somebody
+      # taking this artifact to whichever one they picked. Calling that
+      # "publish" would be the same overstatement this build spent thirty phases
+      # removing.
+      - name: Upload the built bundle for the frontend host
         uses: actions/upload-artifact@v4
         with:
           name: web-dist-${{ inputs.environment }}

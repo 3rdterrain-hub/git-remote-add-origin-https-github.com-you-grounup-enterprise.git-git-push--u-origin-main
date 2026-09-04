@@ -20,7 +20,7 @@ describe('operations governance', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'a@r.test'), ($2,'b@k.test'), ($3,'pm@r.test')`,
       [alice, bob, pm]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'b@k.test'), ($3,'pm@r.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'b@k.test'), ($3,'pm@r.test') on conflict (id) do nothing`,
       [alice, bob, pm]);
 
     ridgeline = (await h.asUser(alice, () =>

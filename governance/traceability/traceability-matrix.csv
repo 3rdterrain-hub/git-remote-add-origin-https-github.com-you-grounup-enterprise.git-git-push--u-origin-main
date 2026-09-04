@@ -29,7 +29,7 @@ CPF-000002,P02,Identity & Access,traced_tested,not_verified,derived,,TR-032,TBL-
 CPF-000003,P02,Identity & Access,traced_tested,verified,derived,,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,"The platform shall support non-human identities for integrations, jobs, and AI agents."
 CPF-000004,P02,Identity & Access,traced_tested,verified,derived,,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,All protected platform actions shall use a centralized authorization decision service.
 CPF-000005,P02,Identity & Access,traced_tested,not_verified,derived,,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,The platform shall register device posture and support risk-based access controls.
-CPF-000006,P02,Tenancy,traced_tested,verified,derived,,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,"Tenant context shall propagate through API, event, job, cache, search, file, and AI operations."
+CPF-000006,P02,Tenancy,traced_tested,verified,derived,supabase/migrations/0055_attach_profile_trigger.sql tests/db/signup.test.ts,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,"Tenant context shall propagate through API, event, job, cache, search, file, and AI operations."
 CPF-000007,P02,Tenancy,traced_tested,verified,derived,,TR-031,TBL-companies TBL-company_memberships TBL-enterprise_groups,TST-db-rls TST-gov-registry,All storage and query paths shall enforce tenant isolation.
 CPF-000008,P02,Tenancy,untraced,not_verified,,,,,,Tenants shall support region selection and data-residency constraints.
 CPF-000009,P02,Tenancy,untraced,not_verified,,,,,,"Tenant provisioning shall create required namespaces, defaults, indexes, storage, keys, and baseline configurations."
@@ -105,7 +105,7 @@ EDM-000018,P03,Data Architecture,traced_tested,not_verified,derived,,TR-003,ENG-
 EDM-000019,P03,Data Architecture,untraced,not_verified,,,,,,Records shall map to retention and legal-hold policies.
 EDM-000020,P03,Data Architecture,untraced,verified,,,,,,"Imported, calculated, converted, and AI-generated values shall preserve lineage."
 EDM-000021,P03,Data Architecture,traced_tested,not_verified,derived,,TR-032,TBL-roles TBL-user_profiles TBL-company_memberships ENG-014,TST-db-rls TST-fn-api-gateway,Imported records shall preserve source system and external identifier.
-EDM-000022,P03,Data Architecture,untraced,verified,,,,,,"Party, vendor, customer, project, and resource master data shall support duplicate detection."
+EDM-000022,P03,Data Architecture,untraced,verified,,supabase/migrations/0056_equipment_rate_uniqueness.sql,,,,"Party, vendor, customer, project, and resource master data shall support duplicate detection."
 EDM-000023,P03,Data Architecture,untraced,not_verified,,,,,,"Master-record merges shall preserve aliases, lineage, audit, and reversal evidence."
 EDM-000024,P03,Data Architecture,untraced,not_verified,,,,,,Parties and business objects shall support typed effective-dated relationships.
 EDM-000025,P03,Data Architecture,untraced,not_verified,,,,,,"Legal entities, business units, branches, teams, and projects shall support hierarchical relationships."

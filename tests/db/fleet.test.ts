@@ -14,7 +14,7 @@ describe('fleet, workforce and scheduling', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test'), ($2,'f@r.test')`, [owner, foreman]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'f@r.test')`, [owner, foreman]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'f@r.test') on conflict (id) do nothing`, [owner, foreman]);
     company = (await h.asUser(owner, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','business') as id`)))[0]!.id;
 

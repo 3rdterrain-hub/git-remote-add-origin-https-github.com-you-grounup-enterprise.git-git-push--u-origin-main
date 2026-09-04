@@ -35,7 +35,7 @@ describe('library governance', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'a@r.test'),($2,'d@r.test'),($3,'b@k.test')`,
       [alice, dana, bob]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'),($2,'d@r.test'),($3,'b@k.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'),($2,'d@r.test'),($3,'b@k.test') on conflict (id) do nothing`,
       [alice, dana, bob]);
     ridgeline = (await h.asUser(alice, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;

@@ -33,7 +33,8 @@ describe('row level security', () => {
       [alice, bob, dana, vic]);
     await h.sql(`insert into user_profiles (id, email, full_name) values
       ($1,'alice@ridgeline.test','Alice Okafor'), ($2,'bob@kesler.test','Bob Ferreira'),
-      ($3,'dana@shared.test','Dana Whitfield'), ($4,'vic@ridgeline.test','Vic Nakamura')`,
+      ($3,'dana@shared.test','Dana Whitfield'), ($4,'vic@ridgeline.test','Vic Nakamura')
+       on conflict (id) do nothing`,
       [alice, bob, dana, vic]);
 
     ridgeline = (await h.asUser(alice, () =>

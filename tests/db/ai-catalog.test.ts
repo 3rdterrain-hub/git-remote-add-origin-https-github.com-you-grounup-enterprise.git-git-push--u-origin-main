@@ -37,7 +37,7 @@ describe('the AI catalogs describe what actually runs', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test')`, [owner]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test')`, [owner]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test') on conflict (id) do nothing`, [owner]);
   }, 180_000);
 
   afterAll(async () => { await h?.db.close(); });

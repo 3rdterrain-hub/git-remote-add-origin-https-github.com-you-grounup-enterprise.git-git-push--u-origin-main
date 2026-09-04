@@ -27,7 +27,7 @@ describe('commercial records', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test'), ($2,'r@k.test')`, [owner, rival]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'r@k.test')`, [owner, rival]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'r@k.test') on conflict (id) do nothing`, [owner, rival]);
     company = (await h.asUser(owner, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
     rivalCompany = (await h.asUser(rival, () =>
@@ -359,7 +359,7 @@ describe('commercial authority', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'boss@r.test'), ($2,'jr@r.test')`,
       [boss, junior]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'boss@r.test'), ($2,'jr@r.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'boss@r.test'), ($2,'jr@r.test') on conflict (id) do nothing`,
       [boss, junior]);
     company = (await h.asUser(boss, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
@@ -447,7 +447,7 @@ describe('commercial authority', () => {
     // The platform must not invent a signing policy nobody set.
     const other = '66666666-6666-4666-8666-666666666666';
     await h.sql(`insert into auth.users (id, email) values ($1,'free@x.test')`, [other]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'free@x.test')`, [other]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'free@x.test') on conflict (id) do nothing`, [other]);
     const free = (await h.asUser(other, () => h.sql<{ id: string }>(
       `select app.provision_company('Free','free','enterprise') as id`)))[0]!.id;
     const p = (await h.asUser(other, () => h.sql<{ id: string }>(
@@ -474,7 +474,7 @@ describe('commercial authority', () => {
      */
     const senior = '77777777-7777-4777-8777-777777777777';
     await h.sql(`insert into auth.users (id, email) values ($1,'se@r.test')`, [senior]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'se@r.test')`, [senior]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'se@r.test') on conflict (id) do nothing`, [senior]);
     const [role] = await h.sql<{ id: string }>(
       `insert into roles (company_id, key, name, description, permissions, approval_tier)
        values ($1,'contract_admin','Contract Administrator','Drafts contracts, cannot execute them.',
@@ -520,7 +520,7 @@ describe('purchase order authority', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'b@p.test'), ($2,'buy@p.test')`,
       [boss, buyer]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'b@p.test'), ($2,'buy@p.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'b@p.test'), ($2,'buy@p.test') on conflict (id) do nothing`,
       [boss, buyer]);
     company = (await h.asUser(boss, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;

@@ -23,7 +23,7 @@ describe('plan versioning', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test'), ($2,'x@k.test')`, [owner, other]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'x@k.test')`, [owner, other]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'x@k.test') on conflict (id) do nothing`, [owner, other]);
     company = (await h.asUser(owner, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','business') as id`)))[0]!.id;
   }, 180_000);
@@ -281,7 +281,7 @@ describe('plan limits are enforced, not merely recorded', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'lim@r.test')`, [owner]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'lim@r.test')`, [owner]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'lim@r.test') on conflict (id) do nothing`, [owner]);
     // Starter allows 3 seats, 25 active estimates and 10 active projects.
     starter = (await h.asUser(owner, () =>
       h.sql<{ id: string }>(`select app.provision_company('Small','small','starter') as id`)))[0]!.id;
@@ -332,14 +332,14 @@ describe('plan limits are enforced, not merely recorded', () => {
     for (const email of ['a@x.test', 'b@x.test']) {
       const id = crypto.randomUUID();
       await h.sql(`insert into auth.users (id, email) values ($1,$2)`, [id, email]);
-      await h.sql(`insert into user_profiles (id, email) values ($1,$2)`, [id, email]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,$2) on conflict (id) do nothing`, [id, email]);
       await h.sql(
         `insert into company_memberships (company_id, user_id, role_id, status)
          values ($1,$2,$3,'invited')`, [starter, id, role!.id]);
     }
     const extra = crypto.randomUUID();
     await h.sql(`insert into auth.users (id, email) values ($1,'c@x.test')`, [extra]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'c@x.test')`, [extra]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'c@x.test') on conflict (id) do nothing`, [extra]);
     await expect(h.sql(
       `insert into company_memberships (company_id, user_id, role_id, status)
        values ($1,$2,$3,'invited')`, [starter, extra, role!.id]))
@@ -349,7 +349,7 @@ describe('plan limits are enforced, not merely recorded', () => {
   it('lets an unlimited plan through', async () => {
     const boss = crypto.randomUUID();
     await h.sql(`insert into auth.users (id, email) values ($1,'boss@x.test')`, [boss]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'boss@x.test')`, [boss]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'boss@x.test') on conflict (id) do nothing`, [boss]);
     const big = (await h.asUser(boss, () =>
       h.sql<{ id: string }>(`select app.provision_company('Big','big','enterprise') as id`)))[0]!.id;
     const [limit] = await h.sql<{ n: number | null }>(

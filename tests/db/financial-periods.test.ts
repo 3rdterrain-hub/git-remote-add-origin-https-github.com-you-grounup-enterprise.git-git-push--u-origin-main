@@ -26,7 +26,7 @@ describe('financial periods', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test'), ($2,'f@x.test')`, [owner, other]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'f@x.test')`, [owner, other]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'f@x.test') on conflict (id) do nothing`, [owner, other]);
     company = (await h.asUser(owner, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
     free = (await h.asUser(other, () =>

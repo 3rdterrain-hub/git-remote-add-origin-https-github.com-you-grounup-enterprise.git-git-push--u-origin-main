@@ -24,7 +24,7 @@ describe('scheduling governance', () => {
   beforeAll(async () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'a@r.test'), ($2,'b@k.test')`, [alice, bob]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'b@k.test')`, [alice, bob]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'b@k.test') on conflict (id) do nothing`, [alice, bob]);
     ridgeline = (await h.asUser(alice, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
     kesler = (await h.asUser(bob, () =>

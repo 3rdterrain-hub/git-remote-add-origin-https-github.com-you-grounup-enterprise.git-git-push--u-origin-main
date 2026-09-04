@@ -10,9 +10,14 @@
 create schema if not exists auth;
 
 create table if not exists auth.users (
-  id            uuid primary key default gen_random_uuid(),
-  email         text unique not null,
-  created_at    timestamptz not null default now()
+  id                  uuid primary key default gen_random_uuid(),
+  email               text unique not null,
+  -- Supabase carries the sign-up metadata here, and app.handle_new_user()
+  -- reads a full name out of it. The harness carries it too, so the profile
+  -- trigger attached in migration 0055 is exercised by every test that creates
+  -- a user rather than only in production.
+  raw_user_meta_data  jsonb not null default '{}'::jsonb,
+  created_at          timestamptz not null default now()
 );
 
 -- Supabase resolves auth.uid() from the request JWT. The harness resolves it

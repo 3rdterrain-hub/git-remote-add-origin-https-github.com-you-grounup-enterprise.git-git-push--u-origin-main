@@ -2,9 +2,7 @@
   "phase": "P20",
   "title": "Integration, Deployment & Production Readiness",
   "method": "Every P20 requirement is capability N of a domain, and every one carries the same acceptance criterion: 'Verify requirement N through controlled integration/deployment/test/operations evidence, security and tenant boundaries, failure/recovery scenarios, traceability and mapped acceptance tests.' The five conditions are assessed platform-wide. A requirement is verified only where the condition set holds AND its domain is actually built.",
-
   "judged_before_and_after": "Judged after building everything this phase needs that can be built without credentials or a running environment: a continuous integration workflow, a dispatched deployment workflow, the Supabase project configuration, and a build-output check that enforces the secret boundary. Two of the five conditions still fail, and they fail for a reason no amount of further building here would change — see the finding below. P20 verifies at zero, and the zero is the useful part.",
-
   "findings": [
     {
       "id": "P20-F1",
@@ -22,9 +20,17 @@
       "status": "resolved",
       "resolution": "`npm run bundle:check` scans what the build emitted, two independent ways. By name: a `VITE_` variable carrying a server secret's name is refused. By shape: the emitted files are searched for the literal forms — `sk_live_`, `sk_test_`, `rk_`, `whsec_`, `sk-ant-`, and a service-role JWT — so a key smuggled under an innocent variable name is still caught. It runs in both workflows after the build. The anon key is deliberately not checked: it is public by design and row level security is what makes that safe.",
       "note": "The first version of the service-role check hard-coded one base64 encoding of `service_role` and silently missed a realistic JWT, because base64 encodes three bytes at a time and the alignment depends on what precedes the substring. Caught by planting a real token shape and watching the check pass when it should have failed. All three alignments are now computed rather than written down, and a test asserts they are computed."
+    },
+    {
+      "id": "P20-F3",
+      "title": "Pre-flight for the first deployment found four things that would have broken it",
+      "detail": "Asked to deploy, this build could not — the credentials are the owner's — so it pre-flighted the path instead, and the path was not ready. **The profile trigger was never attached**: `app.handle_new_user()` has existed since migration 0011 with its own comment reading 'Attach with: create trigger on_auth_user_created ...', which is an instruction sitting in a database, so the first person to sign up would have got no `user_profiles` row and every join resolving a person would have found nothing. **The workflow never loaded the seed**: `supabase db push` applies migrations only, and the catalog — 4,671 library records, the plan catalog the checkout validates against, the AI agent row every finding references — is in `supabase/seed`, applied by the runbook's manual psql steps that the workflow does not perform, so a deployment following the workflow alone came up with an empty library and nothing to sell. **The seed could not be run twice**: the equipment rate insert carried no conflict clause, and adding one did nothing because `equipment_rates` had no unique constraint to conflict on — so a second deployment silently doubled the equipment rate library, 34 rates becoming 51. And **a step named 'Publish the built application' uploaded a zip**.",
+      "why_it_matters": "Every one of these would have surfaced as a broken first deployment rather than as a failed one, which is worse: the migrations would have applied, the functions would have deployed, the log would have been green, and the platform would have had no library, no plans, and no profile for whoever signed up first.",
+      "status": "resolved",
+      "resolution": "Migration 0055 attaches the trigger, and the test harness now carries `raw_user_meta_data` as Supabase does so every suite that creates a user exercises the real sign-up path — five tests cover it end to end, from a row in `auth.users` to a provisioned company. Migration 0056 makes an equipment rate unique per machine, source and effective date in each scope, matching the constraint `labor_rates` has carried since 0004, and collapses any duplicate that already exists. The deploy workflow loads the seed when a database URL is provided and says plainly what to run by hand when it is not, and the upload step is named for what it does. A test applies every seed file twice and asserts the catalog is the same size afterwards — unchanged, not merely un-erroring.",
+      "note": "The condition this phase fails on is unchanged: nothing has still been deployed. What changed is that the first attempt now has a chance of working."
     }
   ],
-
   "acceptance_conditions": {
     "note": "All five are required by the criterion. Two of them cannot be satisfied by anything in a repository, which is the phase's honest result rather than a gap in this build.",
     "conditions": [
@@ -35,11 +41,10 @@
       "mapped acceptance tests"
     ]
   },
-
   "platform_conditions": {
     "controlled integration/deployment/test/operations evidence": {
       "status": "not_met",
-      "gap": "Test evidence is strong and integration evidence is real: 1,937 tests across six suites with the production migrations run unmodified against PostgreSQL, an OpenAPI specification generated from the gateway's own route table with drift failing the build, governed connectors with recorded runs, and a versioned public API behind scoped keys. Deployment evidence does not exist, because nothing has been deployed. Operations evidence does not exist, because nothing is running: the observability library produces structured logs, metrics and health checks and no deployment consumes them. A workflow that has never executed is not evidence that deployment is controlled — it is a description of how it would be."
+      "gap": "Test evidence is strong and integration evidence is real: 1,944 tests across six suites with the production migrations run unmodified against PostgreSQL, an OpenAPI specification generated from the gateway's own route table with drift failing the build, governed connectors with recorded runs, and a versioned public API behind scoped keys. Deployment evidence does not exist, because nothing has been deployed. Operations evidence does not exist, because nothing is running: the observability library produces structured logs, metrics and health checks and no deployment consumes them. A workflow that has never executed is not evidence that deployment is controlled — it is a description of how it would be."
     },
     "security and tenant boundaries": {
       "status": "met",
@@ -55,10 +60,9 @@
     },
     "mapped acceptance tests": {
       "status": "met",
-      "evidence": "1,937 tests run by a single command that is also the whole release gate: typecheck, three drift checks, six suites and a production build. The database suite runs the production migrations unmodified against PostgreSQL 18 compiled to WebAssembly, so it needs no service and no credentials — which is what lets the same command run identically on a developer's machine and on a fork's pull request. 35 further tests hold the shape of the pipeline itself, so it cannot be quietly narrowed to a subset."
+      "evidence": "1,944 tests run by a single command that is also the whole release gate: typecheck, three drift checks, six suites and a production build. The database suite runs the production migrations unmodified against PostgreSQL 18 compiled to WebAssembly, so it needs no service and no credentials — which is what lets the same command run identically on a developer's machine and on a fork's pull request. 35 further tests hold the shape of the pipeline itself, so it cannot be quietly narrowed to a subset."
     }
   },
-
   "domain_status": {
     "built": [],
     "partial": {
@@ -68,7 +72,7 @@
       "Security Engineering": "Forced row level security with two migration-time gates, hashed and scoped API keys, an append-only audit ledger, redaction by field name and value shape, and now a build-output secret scan enforcing the client boundary. What P28 named remains absent: no detection and response, no secret rotation lifecycle, no security monitoring.",
       "Observability": "A structured logger with correlation carried through every line, metrics with bounded low-cardinality labels, and health and readiness separated with per-check deadlines — all built, all tested, and consumed by nothing, because nothing is running.",
       "Testing Governance": "One command is the gate for a developer and for the pipeline, and a test asserts the pipeline cannot narrow it to a subset. Coverage is measured for the engine and not enforced as a threshold; there is no flake tracking and no test quarantine.",
-      "Automated Test Platform": "Six suites, 1,937 tests, migrations run unmodified against real PostgreSQL, no credentials needed anywhere. There is no performance test, no load test, no browser end-to-end suite, and no scheduled run.",
+      "Automated Test Platform": "Six suites, 1,944 tests, migrations run unmodified against real PostgreSQL, no credentials needed anywhere. There is no performance test, no load test, no browser end-to-end suite, and no scheduled run.",
       "Requirements Traceability & Coverage": "The strongest domain in this phase: a generated matrix over all 9,475 requirements, thirteen phases verified requirement by requirement with named evidence, and the tracing/verification distinction enforced by test. What is missing is coverage of the remaining nineteen phases.",
       "API Governance": "Nine versioned endpoints behind a pure authorization function with one error shape, an OpenAPI specification generated from the route table with drift failing the build, scoped keys stored only as a hash, and every request logged. There is no rate limiting, no deprecation policy, and no consumer registry.",
       "External Connectors": "A governed connector framework with recorded runs and a weather connector using it. No connector registry, no retry policy per connector, no credential rotation."

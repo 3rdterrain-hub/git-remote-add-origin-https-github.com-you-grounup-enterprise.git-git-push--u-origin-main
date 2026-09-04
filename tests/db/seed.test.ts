@@ -1,4 +1,7 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import { readdir, readFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createHarness, type Harness } from './harness.js';
 
 describe('global seed library loads into a real database', () => {
@@ -114,5 +117,59 @@ describe('global seed library loads into a real database', () => {
       h.sql(`insert into ai_agents (id, name, domain, responsibility, default_authority)
              values ('AGT-ROGUE','Rogue','x','x','autonomous')`),
     ).rejects.toThrow();
+  });
+});
+
+
+/*
+ * The seed is applied by a deployment, and a deployment happens more than once.
+ *
+ * `supabase db push` applies migrations and nothing else, so the catalog — the
+ * library, the plan catalog the checkout validates against, and the AI agent
+ * row every finding references — is loaded separately. The deploy workflow now
+ * does that on every run, which is only safe if every statement in both files
+ * can be applied twice. One of them could not: the equipment rate insert
+ * carried no `on conflict` and would have failed the second deployment.
+ */
+describe('the seed can be applied twice', () => {
+  let h: Harness;
+
+  beforeAll(async () => { h = await createHarness({ seed: true }); }, 180_000);
+  afterAll(async () => { await h?.db.close(); });
+
+  it('replays every seed file without error', async () => {
+    const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'seed');
+    const files = (await readdir(dir)).filter((f) => f.endsWith('.sql')).sort();
+    expect(files.length).toBeGreaterThan(0);
+    for (const file of files) {
+      const sql = await readFile(join(dir, file), 'utf8');
+      await expect(h.db.exec(sql), `${file} is not idempotent`).resolves.toBeDefined();
+    }
+  });
+
+  it('leaves the catalog the same size it was', async () => {
+    // Idempotent means unchanged, not merely un-erroring: a seed that inserted
+    // a second copy of every row would also "succeed".
+    const counts = () => h.sql<{ tbl: string; n: string }>(
+      `select 'tasks' as tbl, count(*)::text as n from tasks where company_id is null
+       union all select 'equipment_rates', count(*)::text from equipment_rates where company_id is null
+       union all select 'labor_rates', count(*)::text from labor_rates where company_id is null
+       union all select 'production_rates', count(*)::text from production_rates where company_id is null
+       union all select 'assemblies', count(*)::text from assemblies where company_id is null
+       union all select 'plans', count(*)::text from plans
+       union all select 'ai_agents', count(*)::text from ai_agents
+       order by 1`);
+
+    const before = await counts();
+    for (const row of before) expect(Number(row.n), row.tbl).toBeGreaterThan(0);
+
+    const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'seed');
+    for (const file of (await readdir(dir)).filter((f) => f.endsWith('.sql')).sort()) {
+      await h.db.exec(await readFile(join(dir, file), 'utf8'));
+    }
+
+    // Unchanged, not merely un-erroring: a seed that inserted a second copy of
+    // every row would also "succeed".
+    expect(await counts()).toEqual(before);
   });
 });

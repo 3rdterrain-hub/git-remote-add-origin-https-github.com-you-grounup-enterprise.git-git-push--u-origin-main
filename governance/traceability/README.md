@@ -258,7 +258,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 282 cataloged artifacts, 144 answer for at least one requirement.
+Of 283 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|

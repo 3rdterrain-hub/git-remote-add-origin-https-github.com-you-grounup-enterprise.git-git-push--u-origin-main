@@ -89,7 +89,8 @@ from (values
   ('EQ-MIL', 525::numeric, 4200::numeric, 18000::numeric, 54000::numeric),
   ('EQ-LAS', 18.75::numeric, 150::numeric, 650::numeric, 1800::numeric)
 ) as v(code, hourly, daily, weekly, monthly)
-join equipment e on e.code = v.code and e.company_id is null and e.enterprise_group_id is null;
+join equipment e on e.code = v.code and e.company_id is null and e.enterprise_group_id is null
+on conflict (equipment_id, source, effective_date) where company_id is null do nothing;
 
 
 -- ---------------------------------------------------------------------------

@@ -8,8 +8,8 @@
   },
   "declarations": {
     "note": "Requirements a source file states it implements, in its own header, using @implements. Derived tracing runs requirement-to-artifact by rule and over-claims; a declaration runs artifact-to-requirement and is a claim somebody made. Neither is verification, and the two are never added together.",
-    "declared": 15,
-    "files": 13
+    "declared": 17,
+    "files": 16
   },
   "totals": {
     "requirements": 9475,
@@ -22,9 +22,9 @@
     "not_verified": 7545
   },
   "artifacts": {
-    "total": 282,
+    "total": 283,
     "referenced": 144,
-    "unreferenced": 138
+    "unreferenced": 139
   },
   "rule_hits": {
     "TR-037": 495,

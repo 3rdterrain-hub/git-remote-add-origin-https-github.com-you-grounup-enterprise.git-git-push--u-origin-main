@@ -25,7 +25,7 @@ describe('usage against allowance', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'o@r.test'), ($2,'e@r.test')`,
       [owner, other]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'e@r.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@r.test'), ($2,'e@r.test') on conflict (id) do nothing`,
       [owner, other]);
     // Starter publishes 250 AI credits a month; enterprise publishes null.
     starter = (await h.asUser(owner, () =>

@@ -25,7 +25,7 @@ describe('metric governance', () => {
     h = await createHarness({ seed: true });
     await h.sql(`insert into auth.users (id, email) values ($1,'a@r.test'), ($2,'r@r.test')`,
       [admin, reader]);
-    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'r@r.test')`,
+    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test'), ($2,'r@r.test') on conflict (id) do nothing`,
       [admin, reader]);
     company = (await h.asUser(admin, () =>
       h.sql<{ id: string }>(`select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
