@@ -15,6 +15,7 @@ export * from './resources.js';
 export * from './trucking.js';
 export * from './surfaces.js';
 export * from './takeoff.js';
+export * from './hierarchy.js';
 export * from './assemblies.js';
 export * from './materials.js';
 export * from './pricing.js';

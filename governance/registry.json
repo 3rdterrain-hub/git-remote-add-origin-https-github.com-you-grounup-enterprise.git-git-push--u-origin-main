@@ -319,6 +319,12 @@
       "name": "Takeoff Measurement",
       "path": "packages/engine/src/takeoff.ts",
       "purpose": "Quantities measured off a drawing: scale calibration that records what it was checked against, traced lengths, enclosed areas with deductions, pitch correction, depth to volume, and counts. A scale calibrated against a printed dimension resolves to verified_scale and one taken from the title block to approximate_scale, which the confidence engine scores differently and the approval gate routes on."
+    },
+    {
+      "id": "ENG-030",
+      "name": "Estimate Hierarchy",
+      "path": "packages/engine/src/hierarchy.ts",
+      "purpose": "Top-down estimating: a tree of lines where a parent rolls its children up, a child quantity is driven by its parent, and a conceptual line priced at a rate carries estimator_allowance so the confidence engine and approval gate treat it as the judgment it is."
     }
   ],
   "ai_agents": [

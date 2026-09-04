@@ -28,6 +28,7 @@ ENG-026,engine,Health Engine,supabase/functions/_shared/observability/health.ts,
 ENG-027,engine,Work Calendar Engine,packages/engine/src/calendar.ts,ENGINE
 ENG-028,engine,Critical Path Engine,packages/engine/src/schedule.ts,ENGINE
 ENG-029,engine,Takeoff Measurement,packages/engine/src/takeoff.ts,ENGINE
+ENG-030,engine,Estimate Hierarchy,packages/engine/src/hierarchy.ts,ENGINE
 AI-001,ai_agent,Plan Analyst,supabase/functions/ai-analyze-document,AI_AGENT
 TBL-ai_agents,table,ai_agents,supabase/migrations (table ai_agents),AI_AGENT
 TBL-ai_conversations,table,ai_conversations,supabase/migrations (table ai_conversations),AI_AGENT
@@ -213,6 +214,7 @@ TST-engine-calendar,test,engine/calendar.test.ts,packages/engine/tests/calendar.
 TST-engine-confidence,test,engine/confidence.test.ts,packages/engine/tests/confidence.test.ts,ENGINE
 TST-engine-estimate,test,engine/estimate.test.ts,packages/engine/tests/estimate.test.ts,ENGINE
 TST-engine-estimating-acceptance,test,engine/estimating-acceptance.test.ts,packages/engine/tests/estimating-acceptance.test.ts,ENGINE
+TST-engine-hierarchy,test,engine/hierarchy.test.ts,packages/engine/tests/hierarchy.test.ts,ENGINE
 TST-engine-materials,test,engine/materials.test.ts,packages/engine/tests/materials.test.ts,ENGINE
 TST-engine-numeric,test,engine/numeric.test.ts,packages/engine/tests/numeric.test.ts,ENGINE
 TST-engine-overrides,test,engine/overrides.test.ts,packages/engine/tests/overrides.test.ts,ENGINE
@@ -239,6 +241,7 @@ TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
 TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.test.ts,ENGINE
+TST-db-estimate-hierarchy,test,db/estimate-hierarchy.test.ts,tests/db/estimate-hierarchy.test.ts,ENGINE
 TST-db-estimating-acceptance,test,db/estimating-acceptance.test.ts,tests/db/estimating-acceptance.test.ts,ENGINE
 TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
 TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
@@ -284,6 +287,7 @@ TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENG
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
+TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE

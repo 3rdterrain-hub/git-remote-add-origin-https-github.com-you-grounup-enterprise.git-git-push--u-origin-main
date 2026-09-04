@@ -22,9 +22,9 @@
     "not_verified": 7545
   },
   "artifacts": {
-    "total": 311,
+    "total": 315,
     "referenced": 144,
-    "unreferenced": 167
+    "unreferenced": 171
   },
   "rule_hits": {
     "TR-037": 495,

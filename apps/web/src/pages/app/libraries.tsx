@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Library, Search, Lock, Copy, ShieldCheck, Info } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Library, Search, Lock, Copy, ShieldCheck, Info, Plus, Archive } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { LABOR, EQUIPMENT_SPECS, CREWS, PRODUCTION_RATES, MODIFIERS, PRICING_PROFILES } from '@/data/catalog';
 import { loadedLaborRate, calculatePrice } from '@grounup/engine';
 import { money, unitRate, percent, qty, titleCase } from '@/lib/format';
+import { useQuery } from '@/lib/data/query';
+import {
+  loadServices, loadTasks, createService, createTask, retireRow,
+  loadTruckingRates, loadDisposalSites, loadVendors,
+} from '@/lib/data/library';
+import { loadMemberships } from '@/lib/data/session';
+import { ServiceForm, TaskForm } from '@/components/library/editor';
+import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { usePermissions } from '@/lib/data/session';
 
 /** Counts shipped by the global seed, mirrored from the generated seed SQL. */
 const SEED_COUNTS = {
@@ -21,6 +31,81 @@ const SEED_COUNTS = {
 export function LibrariesPage() {
   const [q, setQ] = useState('');
   const match = (s: string) => !q || s.toLowerCase().includes(q.toLowerCase());
+
+  /*
+   * Services and tasks are read live, because they are the two the user is
+   * expected to add to. The resource tabs below still render the sample
+   * catalog; converting them is the same work again and is queued rather than
+   * half-done here.
+   */
+  const servicesQ = useQuery(loadServices, []);
+  const tasksQ = useQuery(loadTasks, []);
+  const truckingQ = useQuery(loadTruckingRates, []);
+  const disposalQ = useQuery(loadDisposalSites, []);
+  const vendorsQ = useQuery(loadVendors, []);
+  const membershipsQ = useQuery(loadMemberships, []);
+  const { can } = usePermissions();
+  const canWrite = can('libraries.write');
+
+  const [adding, setAdding] = useState<'service' | 'task' | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [writeError, setWriteError] = useState<string | null>(null);
+
+  const services = servicesQ.status === 'ready' ? servicesQ.data : [];
+  const tasks = tasksQ.status === 'ready' ? tasksQ.data : [];
+  const companyId = membershipsQ.status === 'ready' ? membershipsQ.data[0]?.companyId ?? null : null;
+  const trucking = truckingQ.status === 'ready' ? truckingQ.data : [];
+  const disposal = disposalQ.status === 'ready' ? disposalQ.data : [];
+  const vendors = vendorsQ.status === 'ready' ? vendorsQ.data : [];
+  const subs = vendors.filter((v) => v.vendorType === 'subcontractor');
+
+  const shownServices = useMemo(
+    () => services.filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
+    [services, q]);
+  const shownTasks = useMemo(
+    () => tasks.filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
+    [tasks, q]);
+
+  async function addService(v: Parameters<typeof ServiceForm>[0] extends never ? never
+    : { code: string; name: string; description: string; category: string;
+        subcategory: string; defaultUnit: string; supportedUnits: string[] }) {
+    if (!supabase || !companyId) return;
+    setBusy(true); setWriteError(null);
+    try {
+      await createService(supabase, { companyId, ...v });
+      setAdding(null);
+      servicesQ.refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That service could not be saved.');
+    } finally { setBusy(false); }
+  }
+
+  async function addTask(v: {
+    code: string; name: string; defaultUnit: string; category: string;
+    productionRequired: boolean; crewRequired: boolean; equipmentRequired: boolean;
+    materialRequired: boolean; safetyReviewRequired: boolean;
+  }) {
+    if (!supabase || !companyId) return;
+    setBusy(true); setWriteError(null);
+    try {
+      await createTask(supabase, { companyId, ...v });
+      setAdding(null);
+      tasksQ.refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That task could not be saved.');
+    } finally { setBusy(false); }
+  }
+
+  async function retire(table: 'services' | 'tasks', id: string) {
+    if (!supabase) return;
+    setBusy(true); setWriteError(null);
+    try {
+      await retireRow(supabase, table, id);
+      (table === 'services' ? servicesQ : tasksQ).refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That row could not be retired.');
+    } finally { setBusy(false); }
+  }
 
   return (
     <div className="space-y-6">
@@ -55,6 +140,10 @@ export function LibrariesPage() {
 
       <Tabs defaultValue="labor">
         <TabsList>
+          <TabsTrigger value="services">Services</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="hauling">Hauling</TabsTrigger>
+          <TabsTrigger value="subs">Subcontractors</TabsTrigger>
           <TabsTrigger value="labor">Labor</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
           <TabsTrigger value="crews">Crews</TabsTrigger>
@@ -64,6 +153,333 @@ export function LibrariesPage() {
         </TabsList>
 
         {/* ---------------------------------------------------------- labor */}
+        {/* ------------------------------------------------------- services */}
+        <TabsContent value="services" className="space-y-4">
+          {servicesQ.status === 'demonstration' ? <DemonstrationNotice /> : null}
+          {servicesQ.status === 'loading' ? <LoadingState label="Reading the service catalog" /> : null}
+          {servicesQ.status === 'error'
+            ? <ErrorState message={servicesQ.message} onRetry={servicesQ.refetch} /> : null}
+          {writeError ? <Alert tone="danger">{writeError}</Alert> : null}
+
+          {adding === 'service' ? (
+            <ServiceForm title="New service" busy={busy} error={null}
+              onSubmit={addService} onCancel={() => setAdding(null)} />
+          ) : null}
+
+          <Card>
+            <CardHeader className="flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle>Services</CardTitle>
+                <CardDescription>
+                  What you sell, and what an estimate line is built from. Yours sit on top of
+                  the catalog; the catalog itself is read-only for every company.
+                </CardDescription>
+              </div>
+              {isSupabaseConfigured && adding !== 'service' ? (
+                <Button size="sm" disabled={!canWrite || !companyId}
+                  onClick={() => { setAdding('service'); setWriteError(null); }}>
+                  <Plus className="size-4" /> Add service
+                </Button>
+              ) : null}
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Trade</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>Scope</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {shownServices.slice(0, 300).map((x) => (
+                    <TableRow key={x.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{x.code}</TableCell>
+                      <TableCell className="font-medium text-charcoal-900">{x.name}</TableCell>
+                      <TableCell className="text-charcoal-600">{x.category ?? '—'}</TableCell>
+                      <TableCell className="text-charcoal-600">{x.defaultUnit}</TableCell>
+                      <TableCell><ScopeBadge scope={x.scope} /></TableCell>
+                      <TableCell>
+                        {x.editable && x.status === 'active' ? (
+                          <Button size="sm" variant="ghost" disabled={busy}
+                            onClick={() => retire('services', x.id)}>
+                            <Archive className="size-4" /> Retire
+                          </Button>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!shownServices.length && servicesQ.status === 'ready' ? (
+                <EmptyState title={q ? 'Nothing matches that' : 'No services yet'}
+                  hint="Add one, or connect a workspace to load the shipped catalog." />
+              ) : null}
+              {shownServices.length > 300 ? (
+                <p className="border-t border-charcoal-200 p-3 text-xs text-charcoal-500">
+                  Showing the first 300 of {shownServices.length}. Narrow the search to see the rest.
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ---------------------------------------------------------- tasks */}
+        <TabsContent value="tasks" className="space-y-4">
+          {tasksQ.status === 'loading' ? <LoadingState label="Reading tasks" /> : null}
+          {tasksQ.status === 'error'
+            ? <ErrorState message={tasksQ.message} onRetry={tasksQ.refetch} /> : null}
+          {writeError ? <Alert tone="danger">{writeError}</Alert> : null}
+
+          {adding === 'task' ? (
+            <TaskForm busy={busy} error={null}
+              onSubmit={addTask} onCancel={() => setAdding(null)} />
+          ) : null}
+
+          <Card>
+            <CardHeader className="flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle>Tasks</CardTitle>
+                <CardDescription>
+                  The units of work a service is built from. What a task requires decides what
+                  the estimating engine insists on before it will price a line using it.
+                </CardDescription>
+              </div>
+              {isSupabaseConfigured && adding !== 'task' ? (
+                <Button size="sm" disabled={!canWrite || !companyId}
+                  onClick={() => { setAdding('task'); setWriteError(null); }}>
+                  <Plus className="size-4" /> Add task
+                </Button>
+              ) : null}
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Trade</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>Requires</TableHead>
+                    <TableHead>Scope</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {shownTasks.slice(0, 300).map((x) => (
+                    <TableRow key={x.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{x.code}</TableCell>
+                      <TableCell className="font-medium text-charcoal-900">{x.name}</TableCell>
+                      <TableCell className="text-charcoal-600">{x.category ?? '—'}</TableCell>
+                      <TableCell className="text-charcoal-600">{x.defaultUnit}</TableCell>
+                      <TableCell className="text-xs text-charcoal-500">
+                        {[x.productionRequired && 'production', x.crewRequired && 'crew',
+                          x.equipmentRequired && 'equipment', x.materialRequired && 'material',
+                          x.safetyReviewRequired && 'safety review']
+                          .filter(Boolean).join(', ') || 'nothing'}
+                      </TableCell>
+                      <TableCell><ScopeBadge scope={x.scope} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!shownTasks.length && tasksQ.status === 'ready' ? (
+                <EmptyState title={q ? 'Nothing matches that' : 'No tasks yet'} />
+              ) : null}
+              {shownTasks.length > 300 ? (
+                <p className="border-t border-charcoal-200 p-3 text-xs text-charcoal-500">
+                  Showing the first 300 of {shownTasks.length}.
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* -------------------------------------------------------- hauling */}
+        <TabsContent value="hauling" className="space-y-4">
+          {truckingQ.status === 'loading' ? <LoadingState label="Reading haul rates" /> : null}
+          {truckingQ.status === 'error'
+            ? <ErrorState message={truckingQ.message} onRetry={truckingQ.refetch} /> : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Haul rates</CardTitle>
+              <CardDescription>
+                Cycle time is computed from these, not guessed: capacity, load and dump
+                minutes, and loaded and empty speeds give the engine a real haul cycle
+                rather than a rate per ton somebody remembered.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Truck</TableHead>
+                    <TableHead className="text-right">Capacity</TableHead>
+                    <TableHead className="text-right">Hourly</TableHead>
+                    <TableHead className="text-right">Load / dump</TableHead>
+                    <TableHead className="text-right">Loaded / empty</TableHead>
+                    <TableHead>Vendor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trucking.filter((t) => match(`${t.code} ${t.name} ${t.truckType}`)).map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{t.code}</TableCell>
+                      <TableCell>
+                        <p className="font-medium text-charcoal-900">{t.name}</p>
+                        <p className="text-xs text-charcoal-500">{titleCase(t.truckType)}</p>
+                      </TableCell>
+                      <TableCell className="tabular text-right">
+                        {qty(t.capacity, 1)} {t.capacityUnit}
+                      </TableCell>
+                      <TableCell className="tabular text-right">{money(t.hourlyRate)}</TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {t.loadMinutes} / {t.dumpMinutes} min
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {t.loadedSpeedMph} / {t.emptySpeedMph} mph
+                      </TableCell>
+                      <TableCell className="text-charcoal-600">{t.vendorName ?? '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!trucking.length && truckingQ.status === 'ready' ? (
+                <EmptyState title="No haul rates yet"
+                  hint="A haul rate is a negotiated position with a specific trucker, so there is no catalog default for one." />
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Disposal sites</CardTitle>
+              <CardDescription>
+                Where spoil goes, what it costs to tip, and whether the site will take
+                contaminated material — which decides the answer long before price does.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Site</TableHead>
+                    <TableHead>Accepts</TableHead>
+                    <TableHead className="text-right">Tipping fee</TableHead>
+                    <TableHead>Contaminated</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {disposal.filter((d) => match(`${d.code} ${d.name}`)).map((d) => (
+                    <TableRow key={d.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{d.code}</TableCell>
+                      <TableCell>
+                        <p className="font-medium text-charcoal-900">{d.name}</p>
+                        <p className="text-xs text-charcoal-500">
+                          {[d.city, d.stateProvince].filter(Boolean).join(', ') || '—'}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xs text-charcoal-600">
+                        {d.materialTypes.join(', ') || '—'}
+                      </TableCell>
+                      <TableCell className="tabular text-right">
+                        {money(d.tippingFee)} / {d.feeUnit}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={d.acceptsContaminated ? 'warn' : 'default'}>
+                          {d.acceptsContaminated ? 'Accepted' : 'Not accepted'}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!disposal.length && disposalQ.status === 'ready' ? (
+                <EmptyState title="No disposal sites yet" />
+              ) : null}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* --------------------------------------------------- subcontractors */}
+        <TabsContent value="subs" className="space-y-4">
+          {vendorsQ.status === 'loading' ? <LoadingState label="Reading subcontractors" /> : null}
+          {vendorsQ.status === 'error'
+            ? <ErrorState message={vendorsQ.message} onRetry={vendorsQ.refetch} /> : null}
+
+          {subs.some((v) => v.insuranceLapsed && v.status === 'active') ? (
+            <Alert tone="danger" title="Insurance has lapsed on an active subcontractor">
+              A lapsed certificate is the exposure that lands on you, not on them. The date is
+              stored and the lapse is worked out from today, so this cannot go stale.
+            </Alert>
+          ) : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Subcontractors</CardTitle>
+              <CardDescription>
+                Who a subcontract line can be priced against. Qualification is a decision
+                somebody records after checking rather than a default.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Insurance</TableHead>
+                    <TableHead>Qualified</TableHead>
+                    <TableHead className="text-right">Performance</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subs.filter((v) => match(`${v.code} ${v.name}`)).map((v) => (
+                    <TableRow key={v.id}>
+                      <TableCell className="font-mono text-xs text-charcoal-600">{v.code}</TableCell>
+                      <TableCell>
+                        <p className="font-medium text-charcoal-900">{v.name}</p>
+                        <p className="text-xs text-charcoal-500">
+                          {[v.city, v.stateProvince].filter(Boolean).join(', ') || '—'}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xs text-charcoal-600">
+                        {v.contactName ?? '—'}
+                        {v.email ? <span className="block text-charcoal-400">{v.email}</span> : null}
+                      </TableCell>
+                      <TableCell>
+                        {v.insuranceExpiresOn ? (
+                          <Badge variant={v.insuranceLapsed ? 'danger' : 'success'}>
+                            {v.insuranceLapsed ? 'Lapsed' : 'Current'}
+                          </Badge>
+                        ) : <span className="text-xs text-charcoal-400">not recorded</span>}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={v.isQualified ? 'success' : 'warn'}>
+                          {v.isQualified ? 'Qualified' : 'Not yet'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {v.performanceScore == null ? '—' : v.performanceScore.toFixed(1)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!subs.length && vendorsQ.status === 'ready' ? (
+                <EmptyState title="No subcontractors yet"
+                  hint="Add them under Procurement, or import your vendor list." />
+              ) : null}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="labor">
           <Card><CardContent className="p-0">
             <Table>
