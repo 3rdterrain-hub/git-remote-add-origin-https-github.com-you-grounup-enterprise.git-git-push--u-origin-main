@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  *
  * Deliberately separate from whatever is underneath it. The overlay knows about
  * points, clicks and the shape being drawn; it knows nothing about PDFs, pages
- * or rendering, so the measuring behaviour can be tested without a document —
+ * or rendering, so the measuring behavior can be tested without a document —
  * and so a sheet delivered as an image, a photograph or eventually a model view
  * is measured by the same code.
  *

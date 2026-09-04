@@ -46,6 +46,7 @@ critical path engine, schedule dates and float.
 | `resources.ts` | Loaded labor rate, crew cost with overtime premium, equipment rate hierarchy, fuel |
 | `trucking.ts` | Trip-based haul cycle, fleet balance, cut/fill balance in correct volume states |
 | `surfaces.ts` | Surface comparison, cut/fill grids, cross sections, progress to grade |
+| `takeoff.ts` | On-screen measurement: scale calibration that records what it was checked against, traced lengths, areas with deductions, roof pitch, depth to volume, counts |
 | `assemblies.ts` | Recipe expansion through nested assemblies, cycles refused by name |
 | `materials.ts` | Waste, order multiples, supplier minimums, freight and tax |
 | `pricing.ts` | Cost buckets, parallel and stacked markup, regional factor, escalation |

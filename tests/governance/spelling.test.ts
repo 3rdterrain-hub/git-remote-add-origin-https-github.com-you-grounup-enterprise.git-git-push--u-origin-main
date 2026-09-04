@@ -49,6 +49,16 @@ const ALLOWED_ISE_STEMS = [
 
 const ISE_FAMILY = /\b[A-Za-z]+is(?:e|es|ed|ing|ation|ations|able)\b/g;
 
+/**
+ * The last word of a camelCase or PascalCase identifier, lowercased.
+ *
+ * A plain word is returned unchanged, so prose is unaffected.
+ */
+function lastWordOf(token: string): string {
+  const parts = token.split(/(?=[A-Z])/).filter(Boolean);
+  return (parts[parts.length - 1] ?? token).toLowerCase();
+}
+
 /** -yse verbs. "analyses" is excluded: it is the American plural of analysis. */
 const YSE_FAMILY = /\b[A-Za-z]+lys(?:e|ed|ing)\b/g;
 
@@ -112,7 +122,12 @@ function scan(): Hit[] {
     lines.forEach((line, i) => {
       const record = (word: string) => hits.push({ file, line: i + 1, word });
       for (const m of line.matchAll(ISE_FAMILY)) {
-        const word = m[0].toLowerCase();
+        // Source is mostly identifiers, and an identifier is several words with
+        // the spaces taken out: `pitchRise` is "pitch" and "rise", and only the
+        // last part can carry an -ise ending. Without this the allowlist is
+        // checked against the whole identifier, so `ris` never matches
+        // `pitchrise` and a perfectly American variable is reported as British.
+        const word = lastWordOf(m[0]);
         if (!ALLOWED_ISE_STEMS.some((stem) => word.startsWith(stem))) record(m[0]);
       }
       for (const m of line.matchAll(YSE_FAMILY)) record(m[0]);
@@ -149,6 +164,25 @@ describe('American English', () => {
       .map((m) => m[0].toLowerCase())
       .filter((w) => !ALLOWED_ISE_STEMS.some((s) => w.startsWith(s)));
     expect(found).toEqual(['prioritise', 'decentralise']);
+  });
+
+  it('reads a camelCase identifier as the words it is made of', () => {
+    /*
+     * Source is mostly identifiers, and `pitchRise` is "pitch" and "rise" with
+     * the space taken out. Checking the allowlist against the whole token means
+     * `ris` never matches `pitchrise`, and this scanner reported one of its own
+     * repository's American variables as British until it split them.
+     */
+    expect(lastWordOf('pitchRise')).toBe('rise');
+    expect(lastWordOf('setPitchRise')).toBe('rise');
+    expect(lastWordOf('otherwise')).toBe('otherwise');
+    expect(lastWordOf('shouldPrioritise')).toBe('prioritise');
+  });
+
+  it('still catches a British word hiding at the end of an identifier', () => {
+    // Splitting must not become an exemption: the last segment is checked.
+    const token = 'shouldPrioritise';
+    expect(ALLOWED_ISE_STEMS.some((s) => lastWordOf(token).startsWith(s))).toBe(false);
   });
 
   it('does not flag American words that end in -ise or -yses', () => {

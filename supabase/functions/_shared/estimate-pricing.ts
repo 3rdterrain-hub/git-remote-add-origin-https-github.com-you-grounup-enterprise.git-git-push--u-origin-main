@@ -38,7 +38,7 @@ import {
 // ---------------------------------------------------------------------------
 type Num = number | string | null | undefined;
 
-export interface LabourRateRow {
+export interface LaborRateRow {
   id: string; classification: string; labor_group: string | null;
   base_wage_per_hour: Num; burden_percent: Num;
   overtime_multiplier: Num; doubletime_multiplier: Num;
@@ -50,7 +50,7 @@ export interface CrewMemberRow {
   straight_hours_per_shift: Num;
   overtime_hours_per_shift: Num;
   doubletime_hours_per_shift: Num;
-  labor_rates: LabourRateRow | null;
+  labor_rates: LaborRateRow | null;
 }
 
 export interface CrewRow {
@@ -89,7 +89,7 @@ export interface ResourceRow {
   quote_reference: string | null;
   equipment: EquipmentRow | null;
   materials: MaterialRow | null;
-  labor_rates: LabourRateRow | null;
+  labor_rates: LaborRateRow | null;
 }
 
 export interface ModifierRow {

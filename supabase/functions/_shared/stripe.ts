@@ -19,7 +19,7 @@ export function stripeClient(): Stripe {
   cached = new Stripe(key, {
     // The version the pinned SDK is built for. These were out of step before
     // the functions were typechecked: the code named a clover release the
-    // pinned stripe@17 had never heard of, so the SDK modelled one set of
+    // pinned stripe@17 had never heard of, so the SDK modeled one set of
     // response shapes while the API returned another.
     apiVersion: '2025-10-29.clover',
     httpClient: Stripe.createFetchHttpClient(),

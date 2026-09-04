@@ -260,4 +260,15 @@ begin
   end loop;
 end $$;
 
+-- -----------------------------------------------------------------------------
+-- Audit
+--
+-- Every table in this schema is either audited or frozen, and a governance test
+-- asserts the general rule — which is how this omission was caught rather than
+-- shipped. A retraced measurement changes a quantity on a bid, so who moved it
+-- and when is exactly the kind of thing the ledger exists for.
+-- -----------------------------------------------------------------------------
+select app.attach_standard_triggers('public.takeoff_calibrations'::regclass);
+select app.attach_standard_triggers('public.takeoff_measurements'::regclass);
+
 select app.assert_security_gates();

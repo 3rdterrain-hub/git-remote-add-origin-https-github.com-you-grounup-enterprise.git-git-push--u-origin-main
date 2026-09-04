@@ -69,7 +69,7 @@ describe('the measuring surface', () => {
     /*
      * A third point would silently redefine the scale that every measurement
      * already taken on this sheet was taken at. Starting over is the honest
-     * behaviour.
+     * behavior.
      */
     render(<Harness tool="calibrate" />);
     const svg = screen.getByRole('application');
