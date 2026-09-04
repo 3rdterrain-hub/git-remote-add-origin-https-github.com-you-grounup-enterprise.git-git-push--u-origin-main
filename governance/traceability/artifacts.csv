@@ -282,6 +282,7 @@ TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.ts
 TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
 TST-web-projects,test,web/projects.test.tsx,apps/web/src/pages/app/projects.test.tsx,ENGINE
 TST-web-reports,test,web/reports.test.tsx,apps/web/src/pages/app/reports.test.tsx,ENGINE
+TST-web-safety,test,web/safety.test.tsx,apps/web/src/pages/app/safety.test.tsx,ENGINE
 TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE
 TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE

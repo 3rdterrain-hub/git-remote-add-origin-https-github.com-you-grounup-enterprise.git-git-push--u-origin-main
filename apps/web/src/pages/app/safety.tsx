@@ -8,7 +8,14 @@ import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { INCIDENTS, TOOLBOX_TALKS, OBSERVATIONS, INSPECTIONS, DEFICIENCIES } from '@/data/safety';
+import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
+import { useQuery } from '@/lib/data/query';
+import {
+  loadIncidents, loadObservations, loadToolboxTalks, loadInspections, loadDeficiencies,
+  loadSafetyRates, loadLapsedCredentials,
+  demonstrationIncidents, demonstrationObservations, demonstrationTalks,
+  demonstrationInspections, demonstrationDeficiencies, demonstrationRates,
+} from '@/lib/data/safety';
 import { date, dateTime, qty, titleCase, plural, percent } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +24,26 @@ const SEVERITY: Record<string, 'default' | 'warn' | 'danger'> = {
 };
 
 export function SafetyPage() {
+  const incidentsQ = useQuery(loadIncidents, []);
+  const observationsQ = useQuery(loadObservations, []);
+  const talksQ = useQuery(loadToolboxTalks, []);
+  const inspectionsQ = useQuery(loadInspections, []);
+  const deficienciesQ = useQuery(loadDeficiencies, []);
+  const ratesQ = useQuery(loadSafetyRates, []);
+  const credentialsQ = useQuery(loadLapsedCredentials, []);
+
+  const demo = incidentsQ.status === 'demonstration';
+  const pick = <T,>(q: { status: string; data?: T[] }, fallback: () => T[]): T[] =>
+    q.status === 'ready' ? (q.data as T[]) : demo ? fallback() : [];
+
+  const INCIDENTS = pick(incidentsQ, demonstrationIncidents);
+  const OBSERVATIONS = pick(observationsQ, demonstrationObservations);
+  const TOOLBOX_TALKS = pick(talksQ, demonstrationTalks);
+  const INSPECTIONS = pick(inspectionsQ, demonstrationInspections);
+  const DEFICIENCIES = pick(deficienciesQ, demonstrationDeficiencies);
+  const rates = ratesQ.status === 'ready' ? ratesQ.data : demo ? demonstrationRates : null;
+  const lapsed = credentialsQ.status === 'ready' ? credentialsQ.data : [];
+
   const open = INCIDENTS.filter((i) => i.investigationState !== 'closed');
   const recordable = INCIDENTS.filter((i) => i.isOshaRecordable);
   const daysAway = INCIDENTS.reduce((a, i) => a + i.daysAway, 0);
@@ -40,6 +67,22 @@ export function SafetyPage() {
           </>
         }
       />
+
+      {demo ? <DemonstrationNotice what="this page" /> : null}
+      {incidentsQ.status === 'loading' ? <LoadingState label="Loading safety records" /> : null}
+      {incidentsQ.status === 'error'
+        ? <ErrorState message={incidentsQ.message} onRetry={incidentsQ.refetch} /> : null}
+
+      {/*
+        * TRIR and DART, which this page never showed.
+        *
+        * P29 found both defined against a view that could not produce them, and
+        * DART adding restricted *days* into a rate that counts *cases*. They are
+        * the two numbers a contractor is prequalified on and an insurer rates.
+        */}
+      {rates ? <SafetyRatesCard rates={rates} /> : null}
+
+      {lapsed.length > 0 ? <LapsedCredentialsCard rows={lapsed} /> : null}
 
       {open.some((i) => i.severity === 'critical') ? (
         <Alert tone="danger" icon={<ShieldAlert className="size-4" />}
@@ -272,7 +315,9 @@ export function SafetyPage() {
                 </TableHeader>
                 <TableBody>
                   {DEFICIENCIES.map((d) => {
-                    const overdue = d.status !== 'closed' && new Date(d.dueOn) < new Date();
+                    // A deficiency with no due date cannot be overdue.
+                    const overdue = d.status !== 'closed' && d.dueOn != null
+                      && new Date(d.dueOn) < new Date();
                     return (
                       <TableRow key={d.id} className={cn(overdue && 'bg-warn-50/40')}>
                         <TableCell>
@@ -304,5 +349,112 @@ export function SafetyPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/**
+ * The recordable rates, and what they are computed from.
+ *
+ * Published with the hours behind them rather than alone: a rate over two weeks
+ * of timesheets is not the same claim as a rate over a year, and the
+ * denominator is the part somebody checking the number will ask for first.
+ */
+function SafetyRatesCard({ rates }: { rates: { trir: number | null; dart: number | null; recordables: number; hoursObserved: number; lostTimeCases: number } }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recordable rates</CardTitle>
+        <CardDescription>
+          OSHA TRIR and DART per 100 full-time workers per year, computed from recordable incidents
+          against approved hours. DART counts cases, not days: a case costing sixty restricted days
+          counts once.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {rates.hoursObserved === 0 ? (
+          <EmptyState
+            title="No approved hours to compute a rate against"
+            hint="A rate needs a denominator. Recordable incidents are counted below; TRIR and DART appear once approved time exists for the same period — an invented denominator would publish a confident and unfounded safety figure."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatTile label="TRIR" value={rates.trir == null ? '—' : rates.trir.toFixed(2)}
+              tone={rates.trir != null && rates.trir > 3 ? 'danger' : 'success'}
+              icon={<ShieldAlert className="size-4" />}
+              hint="recordables x 200,000 / hours" />
+            <StatTile label="DART" value={rates.dart == null ? '—' : rates.dart.toFixed(2)}
+              tone={rates.dart != null && rates.dart > 2 ? 'danger' : 'success'}
+              icon={<ShieldAlert className="size-4" />}
+              hint="days away, restricted or transferred — cases, not days" />
+            <StatTile label="Recordables" value={rates.recordables}
+              hint={`${rates.lostTimeCases} with days away`} />
+            <StatTile label="Hours behind the rate"
+              value={Math.round(rates.hoursObserved).toLocaleString('en-US')}
+              hint="approved time only" />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/**
+ * What has lapsed, and what it stops somebody doing.
+ *
+ * Derived on read rather than stored, so it is correct on the day it is read
+ * rather than on the day somebody last edited the record — the defect P09
+ * found, where an expired license still read valid and passed the assignment
+ * gate that exists to catch it.
+ */
+function LapsedCredentialsCard({ rows }: { rows: Array<{ credentialId: string; employeeName: string; credentialName: string; standing: string; expiresOn: string | null; daysRemaining: number | null; blocksWorkTypes: string[] }> }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ShieldAlert className="size-4" /> Credentials lapsed or lapsing
+        </CardTitle>
+        <CardDescription>
+          An assignment to work requiring one of these is refused by the database, naming the person
+          and what is missing.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Person</TableHead>
+              <TableHead>Credential</TableHead>
+              <TableHead>Standing</TableHead>
+              <TableHead className="text-right">Expires</TableHead>
+              <TableHead>Blocks</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((c) => (
+              <TableRow key={c.credentialId}>
+                <TableCell className="font-medium text-charcoal-900">{c.employeeName}</TableCell>
+                <TableCell>{c.credentialName}</TableCell>
+                <TableCell>
+                  <Badge variant={c.standing === 'expiring' ? 'warn' : 'danger'}>
+                    {titleCase(c.standing)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="tabular text-right text-xs text-charcoal-600">
+                  {c.expiresOn ? date(c.expiresOn) : '—'}
+                  {c.daysRemaining != null ? (
+                    <span className="ml-1 text-charcoal-400">
+                      ({c.daysRemaining < 0 ? `${Math.abs(c.daysRemaining)} days ago` : `${c.daysRemaining} days`})
+                    </span>
+                  ) : null}
+                </TableCell>
+                <TableCell className="text-xs text-charcoal-600">
+                  {c.blocksWorkTypes.length ? c.blocksWorkTypes.join(', ') : 'nothing configured'}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
