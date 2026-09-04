@@ -2,7 +2,7 @@
  * Fleet, and the number this page used to invent.
  *
  * The sample dataset carried a `utilization30d` ratio for every machine, shown
- * as a percentage, coloured green or red against a threshold — and nothing in
+ * as a percentage, colored green or red against a threshold — and nothing in
  * the platform computed it. A utilization percentage needs a denominator: hours
  * available. Available means what — every hour of the month, every shift hour,
  * every hour the machine was assigned to a job? The three answers differ by a
