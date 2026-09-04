@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, FileStack, HardHat, Users, Library,
   BarChart3, Settings, CreditCard, Menu, X, Bell, Search, ChevronDown, Bot,
@@ -15,6 +15,8 @@ import { ESTIMATE } from '@/data/demo';
 import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
+import { useQuery } from '@/lib/data/query';
+import { loadMemberships } from '@/lib/data/session';
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -43,6 +45,14 @@ const ADMIN_NAV = [
 ] as const;
 
 export function AppShell() {
+  /*
+   * A signed-in person with no company sees an empty screen on every route,
+   * because row level security correctly returns nothing to somebody who
+   * belongs nowhere. Before migration 0059 that was every person who had ever
+   * signed up. Send them somewhere they can do something about it.
+   */
+  const memberships = useQuery(loadMemberships, []);
+
   const [open, setOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -83,6 +93,18 @@ export function AppShell() {
     setQuery('');
     navigate(hit.path);
   };
+
+  if (memberships.status === 'loading') {
+    return (
+      <div className="flex min-h-full items-center justify-center" role="status" aria-live="polite">
+        <span className="size-6 animate-spin rounded-full border-2 border-charcoal-200 border-t-yellow-500" />
+        <span className="sr-only">Loading your workspace</span>
+      </div>
+    );
+  }
+  if (memberships.status === 'ready' && memberships.data.length === 0) {
+    return <Navigate to="/welcome" replace />;
+  }
 
   return (
     <div className="flex min-h-full bg-charcoal-100">

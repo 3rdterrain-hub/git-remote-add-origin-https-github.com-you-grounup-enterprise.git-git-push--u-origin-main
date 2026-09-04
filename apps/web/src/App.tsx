@@ -11,6 +11,7 @@ import { LandingPage } from '@/pages/landing';
  */
 const AppShell = lazy(() => import('@/components/layout/app-shell').then((m) => ({ default: m.AppShell })));
 const AuthPage = lazy(() => import('@/pages/auth').then((m) => ({ default: m.AuthPage })));
+const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })));
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
 const EstimatesPage = lazy(() => import('@/pages/app/estimates').then((m) => ({ default: m.EstimatesPage })));
@@ -58,6 +59,12 @@ export function App() {
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
           <Route path="/reset-password" element={<AuthPage mode="reset" />} />
+          {/*
+            * Signed in, no company yet. Deliberately outside /app: the shell
+            * assumes a tenant, and every screen inside it would resolve to an
+            * empty list for somebody who has none.
+            */}
+          <Route path="/welcome" element={<OnboardingPage />} />
 
           {/* Authenticated application */}
           <Route path="/app" element={<AppShell />}>

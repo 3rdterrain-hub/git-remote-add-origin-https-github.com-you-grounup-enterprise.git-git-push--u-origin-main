@@ -125,7 +125,26 @@ Not customizable, and each is a separate piece of work:
   * **Dashboards** — fixed tiles, no arrangement or choice of metric, even
     though `metric_definitions` is already a per-company governed catalog.
 
-### 9. HRM and payroll
+### 9. Follow-up automation
+Nothing in the platform acts on a schedule. Every notification is produced by a
+database trigger reacting to a change — a machine going down, a service coming
+due, a credential expiring — which means the platform can tell you something
+happened and cannot tell you that nothing has.
+
+Follow-up is the second kind. A lead nobody has called in five days, a proposal
+sent and not answered, an RFI past its response date, a submittal sitting in
+review, an invoice past due, a change order unsigned while the work proceeds.
+Each is an absence, and an absence has no trigger to fire on.
+
+Needs: a scheduled runner (`pg_cron` or a scheduled Edge Function), rules that
+are data rather than code so a company can set its own intervals, and an
+outbound path — email at minimum. The rules belong beside `notifications`,
+which already has categories, severity, receipts and immutability.
+
+The hard part is not the timer. It is making a follow-up stop: acting on the
+thing has to cancel the chase, or the platform becomes noise inside a week.
+
+### 10. HRM and payroll
 Today this is labor, not HR: `employees`, `crews`, `credentials`,
 `time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
 leave, no benefits, no performance reviews, no onboarding, no org chart, and no
@@ -135,13 +154,13 @@ Payroll is the load-bearing piece and the one with real consequences: it has to
 reconcile to approved time entries, post to job cost through the path migration
 0044 already built, and never pay from unapproved hours.
 
-### 10. Asset lifecycle accounting
+### 11. Asset lifecycle accounting
 `assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
 nothing does anything with them. No depreciation schedule, no book value, no
 salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
 as a gap in the P12 verdict and still open.
 
-### 11. General ledger
+### 12. General ledger
 No chart of accounts, no journal entries, no trial balance, no bank
 reconciliation, no profit and loss, no balance sheet. What exists is
 construction job cost and billing that was designed to feed an accounting

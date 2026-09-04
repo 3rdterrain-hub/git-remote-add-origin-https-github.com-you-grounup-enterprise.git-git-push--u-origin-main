@@ -130,7 +130,11 @@ export const loadMemberships: Query<Membership[]> = async (client) => {
  * one transaction, because a half-provisioned tenant is worse than none.
  */
 export async function createCompany(
-  client: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> },
+  // PromiseLike rather than Promise: supabase-js returns a builder that is
+  // thenable but carries no `catch` or `finally`, and demanding a full Promise
+  // here rejects the real client.
+  client: { rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }> },
   name: string,
   planId = 'starter',
 ): Promise<string> {

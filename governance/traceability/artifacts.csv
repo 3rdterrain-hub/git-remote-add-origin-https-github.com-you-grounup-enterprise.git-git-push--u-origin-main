@@ -223,12 +223,14 @@ TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,E
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
+TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
+TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.test.ts,ENGINE
 TST-db-estimating-acceptance,test,db/estimating-acceptance.test.ts,tests/db/estimating-acceptance.test.ts,ENGINE
 TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
 TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
@@ -240,6 +242,7 @@ TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
+TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
@@ -290,3 +293,4 @@ TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test
 TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
 TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE
+TST-web-onboarding,test,web/onboarding.test.tsx,apps/web/src/pages/onboarding.test.tsx,ENGINE
