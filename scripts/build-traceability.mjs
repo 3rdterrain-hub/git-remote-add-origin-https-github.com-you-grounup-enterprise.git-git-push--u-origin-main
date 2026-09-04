@@ -134,7 +134,7 @@ function buildArtifacts() {
  * overrides the derived status for that requirement.
  */
 const verification = new Map();
-for (const phase of ['P05', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']) {
+for (const phase of ['P05', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P14', 'P15', 'P18', 'P19', 'P20', 'P24', 'P25', 'P26', 'P27', 'P28', 'P29', 'P30']) {
   const path = join(G, `traceability/verification/${phase}-ledger.csv`);
   for (const row of readCsv(path)) {
     verification.set(row.requirement_id, row.verification);

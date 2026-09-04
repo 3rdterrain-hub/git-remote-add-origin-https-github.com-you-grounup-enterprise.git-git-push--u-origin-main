@@ -40,6 +40,7 @@ const p27 = JSON.parse(readFileSync(join(G, 'traceability/verification/P27-verdi
 const p29 = JSON.parse(readFileSync(join(G, 'traceability/verification/P29-verdicts.json'), 'utf8'));
 const p09 = JSON.parse(readFileSync(join(G, 'traceability/verification/P09-verdicts.json'), 'utf8'));
 const p08 = JSON.parse(readFileSync(join(G, 'traceability/verification/P08-verdicts.json'), 'utf8'));
+const p07 = JSON.parse(readFileSync(join(G, 'traceability/verification/P07-verdicts.json'), 'utf8'));
 
 function readCsv(path) {
   const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
@@ -348,3 +349,4 @@ function buildAspectLedger(phase, spec) {
 
 buildAspectLedger('P10', p10);
 buildAspectLedger('P08', p08);
+buildAspectLedger('P07', p07);

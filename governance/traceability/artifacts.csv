@@ -223,6 +223,7 @@ TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.t
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
+TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
 TST-db-estimating-acceptance,test,db/estimating-acceptance.test.ts,tests/db/estimating-acceptance.test.ts,ENGINE
 TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE

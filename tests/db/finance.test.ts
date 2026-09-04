@@ -105,19 +105,36 @@ describe('finance and procurement', () => {
 
     it('refuses to invoice beyond the commitment', async () => {
       // A vendor invoicing over the PO is a change to approve, not a payable
-      // to quietly post.
+      // to quietly post. Driven through a real invoice since migration 0046:
+      // the constraint had always guarded `invoiced_amount`, and until then
+      // nothing but a hand-written update ever moved that column.
       await expect(
-        h.asUser(owner, () =>
-          h.sql(`update purchase_orders set invoiced_amount=150000 where id=$1`, [po])),
-      ).rejects.toThrow(/purchase_orders_not_over_invoiced/);
+        h.asUser(owner, () => h.sql(
+          `insert into ap_invoices (company_id, vendor_id, purchase_order_id, project_id,
+             invoice_number, invoice_date, amount, approval_state, approved_by, approved_at)
+           values ($1,$2,$3,$4,'INV-OVER','2026-05-01',150000,'approved',$5,now())`,
+          [company, vendor, po, project, owner])),
+      ).rejects.toThrow(/committed at .* would take invoices against it to/);
     });
 
     it('absorbs freight and rounding inside a small tolerance', async () => {
-      await h.asUser(owner, () =>
-        h.sql(`update purchase_orders set invoiced_amount=128450 where id=$1`, [po]));
+      // 128,450 against a commitment of 128,400 — inside the 0.1% the
+      // constraint allows, because freight and rounding are not a change order.
+      await h.asUser(owner, () => h.sql(
+        `insert into ap_invoices (company_id, vendor_id, purchase_order_id, project_id,
+           invoice_number, invoice_date, amount, approval_state, approved_by, approved_at)
+         values ($1,$2,$3,$4,'INV-FREIGHT','2026-05-02',128450,'approved',$5,now())`,
+        [company, vendor, po, project, owner]));
       const [p] = await h.sql<{ invoiced_amount: string }>(
         `select invoiced_amount from purchase_orders where id=$1`, [po]);
       expect(Number(p!.invoiced_amount)).toBe(128_450);
+    });
+
+    it('derives the invoiced total rather than letting it be typed', async () => {
+      await expect(
+        h.asUser(owner, () => h.sql(
+          `update purchase_orders set invoiced_amount=1 where id=$1`, [po])),
+      ).rejects.toThrow(/derived from them and cannot be set to/);
     });
 
     it('refuses to pay more than has been invoiced', async () => {

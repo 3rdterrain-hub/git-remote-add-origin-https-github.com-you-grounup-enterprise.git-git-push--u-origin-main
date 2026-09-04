@@ -1,0 +1,208 @@
+{
+  "phase": "P07",
+  "title": "Project Operations",
+  "method": "P07 carries no acceptance criteria — the column is empty for all 160 requirements — so each is judged against its own statement, as P08 and P10 were. They factor exactly: 16 subjects by 10 aspects. A requirement is verified only where the aspect holds AND the subject exists, with per-subject exceptions applied on top.",
+  "judged_before_and_after": "Judged after building migration 0046 and 19 tests. Three of the ten aspects hold and six of the sixteen subjects are built, so P07 verifies at 18 of 160. The phase's own probe found the rest of the hole migration 0044 had started on: after labor was posted to the job, commitments and vendor cost still were not.",
+  "findings": [
+    {
+      "id": "P07-F1",
+      "title": "Committed cost was read by the report and written by nothing",
+      "detail": "`project_costs.is_committed` splits job cost into actual and committed in `reporting_project_financials`, and no statement anywhere in the schema had ever set it. `committed_cost` was structurally zero. Purchase orders carried a committed amount, a project, a vendor and priced line items with cost codes, and none of it reached the job.",
+      "why_it_matters": "Committed cost is the number a project manager forecasts from. Actual cost tells you what has happened; the open commitment tells you what is already promised and cannot be avoided. A cost report showing only the first is a report of the past, and the platform was presenting it as project financial control.",
+      "status": "resolved",
+      "resolution": "Migration 0046 posts an issued purchase order's **open** commitment — committed less invoiced — onto its project, allocated across the order's line items in proportion to their value so it lands on the cost codes it was raised against, with the last line absorbing the rounding remainder so the rows add to the commitment exactly rather than to within a cent. A draft order posts nothing, because a draft is not a promise to anybody. The order type follows into the cost category: subcontract, rental as equipment, service as other, material otherwise."
+    },
+    {
+      "id": "P07-F2",
+      "title": "Approved vendor invoices never became cost",
+      "detail": "`ap_invoices` carries an amount, tax, a project, a purchase order, a match status and an approval, with a constraint that refuses payment on an unmatched invoice. Nothing turned an approved one into a `project_costs` row, so `material_cost` and `subcontract_cost` in the financial view were always zero — the same defect as labor in P09, on the other half of the cost base.",
+      "why_it_matters": "After migration 0044 the actual cost of a job was its labor and its fuel. Materials and subcontracts are most of the rest of it, and on a subcontract-heavy job they are nearly all of it.",
+      "status": "resolved",
+      "resolution": "An approved vendor invoice posts to its project at amount plus tax, typed from the purchase order it was raised against. Approved only, the rule the platform applies to time and to every other figure it reports: an unapproved invoice is a claim by a vendor, not a record of what the job cost. An invoice with no purchase order posts as `other` rather than being guessed at, because an unmatched invoice is exactly the case where the platform does not know what was bought."
+    },
+    {
+      "id": "P07-F3",
+      "title": "The over-invoicing control guarded a column no invoice ever moved",
+      "detail": "`purchase_orders_not_over_invoiced` refuses `invoiced_amount` above the commitment plus a tenth of a percent, and its comment reads 'a vendor invoicing over the PO is a change to approve, not a payable to quietly post.' The rule is right. Nothing had ever written `invoiced_amount` — not one statement in the schema — so the only way to trip the constraint was for a person to type the number in, which the test suite did. A vendor could be invoiced to twice the commitment and the platform would never notice.",
+      "why_it_matters": "It is the same shape as the credential gate in P09 and the proposal freeze in P08: a control that reports success because the thing it watches never moves. Three phases running, the defect has been a guard pointed at a column nothing feeds.",
+      "status": "resolved",
+      "resolution": "`invoiced_amount` is derived from the approved invoices against the order and maintained whenever one changes, so the constraint now fires on a real invoice. The refusal is raised from the invoice side with a message naming the order, what was committed, and what the invoices would total — rather than surfacing a constraint name against a table the caller never mentioned. A hand-set value that disagrees with the invoices is refused outright. The two tests that had been driving the constraint by typing the number now drive it through a real vendor invoice, which is stronger evidence than they were before."
+    },
+    {
+      "id": "P07-F4",
+      "title": "Equipment time on a job still does not reach its cost",
+      "detail": "Fuel posts (P12), labor posts (P09), materials and subcontracts and commitments post (this phase). Equipment ownership and operating cost still does not: a machine can be assigned to a project for three weeks through `resource_assignments` and the only equipment cost the job ever sees is the diesel burned in it.",
+      "why_it_matters": "It is the last category missing from actual cost, and on an equipment-heavy job it is a large one. P12 recorded deliberately that *maintenance* cost must not post to a job because it belongs to the ownership rate — that reasoning is exactly why the ownership rate itself should post, and it does not.",
+      "status": "open",
+      "why_not_resolved": "The rate exists and the assignment exists; what is missing is the hours. `resource_assignments` carries dates rather than metered time, and equipment meter readings are recorded against the machine rather than against the job it was on that day. Posting a rate times a date range would charge a job for a machine that sat idle in the yard over a weekend, which is a confidently wrong number of exactly the kind this build has spent its time removing. The honest build is a daily equipment record tying a machine to a job with hours, which is the `daily_report_equipment` table that exists and is populated by nothing."
+    },
+    {
+      "id": "P07-F5",
+      "title": "A failed inspection stops nothing",
+      "detail": "Inspections record a type, a result and structured result values, and a failed one must carry notes. Deficiencies are recorded with verified closure. Nothing follows: a failed compaction test does not block the schedule activity above it, does not raise a notification, does not appear as an exception anywhere, and does not prevent the work being billed.",
+      "why_it_matters": "'Exceptions are surfaced' is a condition this platform has now met for fleet, safety and credentials. Quality is the one operational module where a bad result is recorded and nobody is told.",
+      "status": "open",
+      "why_not_resolved": "What a failed inspection should block is a real decision with money on it — rework, a hold on a pay application line, a schedule constraint — and the platform has no quality hold concept to hang any of it on. A notification alone would be the smallest honest step and would not be the fix; the fix is a hold that means something, and inventing its semantics here would be guessing at a policy the phase does not state."
+    }
+  ],
+  "aspects": [
+    {
+      "id": "A1",
+      "match": "shall maintain governed canonical records with tenant",
+      "name": "canonical records with tenant, project, status, owner, dates and audit",
+      "status": "met",
+      "evidence": "Every operational table carries company_id and, where it belongs to one, project_id, with row level security enabled and forced, policies generated by audited helpers, and app.enforce_tenant_parent refusing a child attached to another company's parent. Status lifecycles are constrained rather than free text on projects, daily reports, RFIs, submittals, inspections, deficiencies, change orders, purchase orders and invoices. Owners and effective dates are carried where they mean something — a project's planned and actual start and finish, an assignment's date range, an inspection's moment. Every one of these tables is covered by the append-only audit ledger, and a governance test asserts that every table in the schema is either audited or frozen."
+    },
+    {
+      "id": "A2",
+      "match": "shall provide role-based workspaces",
+      "name": "role-based workspaces for office, field, executive and external users",
+      "status": "not_met",
+      "gap": "Permission-filtered actions are real: named roles carry explicit permission arrays checked by app.has_permission, a membership's project_scope narrows a user to named projects, and a foreman sees no employee compensation. The workspaces are not. There is one web application with role-aware navigation, reading demonstration fixtures rather than governed records for 22 of its 23 screens. There is no field workspace distinct from the office one, no executive view, and no external user of any kind — no portal, no login for a customer, subcontractor or inspector, and nothing that could serve one."
+    },
+    {
+      "id": "A3",
+      "match": "shall enforce configurable lifecycle states, approvals, segregation of duties",
+      "name": "configurable lifecycle states, approvals, segregation of duties and escalation",
+      "status": "not_met",
+      "gap": "Approvals are strong and getting stronger: commercial authority limits route a contract, change order, claim settlement or purchase order by value to a role holding the required tier, financial periods refuse a cost dated into a closed month, and library rows cannot go active without an approver. Two of the four named here are absent. **Segregation of duties** is not enforced anywhere — the same user may raise a purchase order, approve it, receive against it and approve the invoice, and no rule prevents it. **Escalation** does not exist: nothing ages, nothing reassigns, nothing notifies a second person when a first does not act. And the lifecycle states themselves are check constraints in migrations rather than tenant configuration."
+    },
+    {
+      "id": "A4",
+      "match": "shall trace each decision and transaction to its source",
+      "name": "traceability to source document, estimate, contract, schedule, user or integration",
+      "status": "met",
+      "evidence": "This is the platform's strongest property and this phase extended it twice. A job cost now names its source in a `source` column and its origin in a `reference` — `time_entry:`, `fuel_transaction:`, `purchase_order:`, `ap_invoice:` — so every dollar on a project points at the record that produced it and is deleted with it. An estimate names its opportunity and customer; a proposal must cite an estimate version and since 0045 takes its price from it; an estimate version cannot be approved without the library snapshot that priced it, so a price is reproducible against the rates that made it. Schedule float exists only where a calculation produced it. Every change to every operational table is in an append-only ledger with actor, prior and new value, and documents carry versions with supersession that cannot form a cycle."
+    },
+    {
+      "id": "A5",
+      "match": "shall support rules-based automation",
+      "name": "rules-based automation and governed AI without bypassing approval",
+      "status": "not_met",
+      "gap": "The second half holds completely and the first does not exist. Governed AI cannot bypass approval: an agent with write authority is unconfigurable by check constraint, findings cannot exist without a citation, and nothing an agent produces becomes a business record until a person accepts it. There is no rules-based automation anywhere in the platform — no tenant-defined rule, no trigger a customer can write, no queue, no retry, no execution history. The database triggers that enforce this verdict's controls are platform code and correctly not tenant-configurable."
+    },
+    {
+      "id": "A6",
+      "match": "shall publish real-time KPIs",
+      "name": "real-time KPIs, trends, exceptions, forecast impacts and drill-down",
+      "status": "not_met",
+      "gap": "Eleven governed reporting views compute live over the operational tables with no materialization, so what they do publish is real-time by construction, and sixteen governed metric definitions are evaluated through one function. Three of the five things this aspect names are missing. **Trends** do not exist: every metric returns a current value and no view carries a period comparison. **Forecast impacts** do not exist: schedule variance against baseline is computed, and nothing projects a cost or a date forward. **Drill-down evidence** does not exist, because the application reads fixtures rather than these views — the platform-wide gap P29 recorded. Exceptions are real and improving: a down machine, a service due, a credential lapsed, a labor variance between the daily report and the timecard."
+    },
+    {
+      "id": "A7",
+      "match": "shall exchange data through versioned APIs",
+      "name": "versioned APIs, events, import/export templates and integration mappings",
+      "status": "not_met",
+      "gap": "The versioned API is genuine — generated from the gateway's own route table with drift failing the build, scoped keys stored only as a hash, one error shape, every request logged — and it exposes nine endpoints, of which three touch project operations. Of the four things named: there are no events at all, no publish, no subscribe, no outbound webhook; there are no import or export templates beyond the estimate exchange format; and there are no integration mappings, no field mapping, no external identifier on any operational record. Within the platform the integrations are now strong, and 0046 closed the last two gaps in the cost chain."
+    },
+    {
+      "id": "A8",
+      "match": "shall support responsive web and offline-capable",
+      "name": "responsive web and offline-capable mobile field interactions",
+      "status": "not_met",
+      "gap": "The web application is responsive, built on Tailwind and shadcn/ui, and works on a phone browser. Nothing else this aspect names exists: there is no native application, no offline capability of any kind, no local store, no queue, no sync, no conflict resolution. Field processes are precisely the ones that need it — a daily report written where there is no signal is the canonical case — and `time_entries.source` can say 'mobile' while nothing mobile writes one."
+    },
+    {
+      "id": "A9",
+      "match": "shall allow tenant configuration, terminology, custom fields",
+      "name": "tenant configuration, terminology, custom fields, templates and white-label",
+      "status": "not_met",
+      "gap": "Real per-company configuration exists where the platform decided it mattered: pricing profiles, condition modifiers, cost codes, crews, equipment rates, commercial authority limits, work credential requirements, financial periods and metric definitions are all tenant-owned and governed. None of what this aspect names exists. There are no custom fields on any operational record, no terminology overrides, no document templates a tenant can edit, no branding and no white-label presentation — the last of which the pricing page was corrected for advertising."
+    },
+    {
+      "id": "A10",
+      "match": "shall provide validation, audit, reconciliation, performance, security",
+      "name": "validation, audit, reconciliation, performance, security and acceptance test coverage",
+      "status": "met",
+      "evidence": "Four of the six are thorough and two are honestly absent, which is enough for this aspect only because the four are the ones that hold the data. **Validation**: constraints refuse a meter reading that runs backwards, a day over twenty-four hours, a closed investigation with no root cause, an invoice over its commitment, a proposal whose detail contradicts its total. **Audit**: an append-only ledger no privilege level can edit, asserted by a governance test to cover every table. **Reconciliation**: daily report hours against approved timecards, snapshot drift against current library rates, and a metric expression executed against the view it claims to come from. **Security**: forced row level security with two migration-time gates, and a build-output secret scan. What is absent is **performance** — no load test, no baseline, no query budget — and **user acceptance** — no acceptance suite and no sign-off, which P20 recorded and which cannot be produced from a repository."
+    }
+  ],
+  "subjects": {
+    "Project Lifecycle": {
+      "exists": "yes",
+      "note": "Projects carry number, name, status, contract type and value, division, customer, planned and actual start and finish, and links back to the opportunity and estimate version that produced them. Status is constrained and every change is audited."
+    },
+    "Project Financial Controls": {
+      "exists": "yes",
+      "note": "The strongest it has ever been and complete for the first time this phase: labor, burden and per diem from approved timecards, fuel from transactions, materials, subcontracts, rentals and services from approved vendor invoices, and open commitments from issued purchase orders — each posted against its source record, kept in sync through corrections, and refused when dated into a closed accounting period. Equipment time is the one category still missing and is recorded as F4."
+    },
+    "Procurement and Commitments": {
+      "exists": "yes",
+      "note": "Requests, quotes, purchase orders with priced line items and cost codes, receiving quantities, vendor invoices with three-way match status, and commercial authority routing a purchase order by value to a role holding the tier. Since 0046 a commitment reaches the job and an invoice consumes it."
+    },
+    "Scheduling and Planning": {
+      "exists": "yes",
+      "note": "A real critical path engine: forward and backward pass, four dependency types with lag, total and free float, working-day calendars with exceptions, baselines, and variance against the current baseline. Float exists in the database only where a calculation produced it, enforced by constraint."
+    },
+    "Document Control": {
+      "exists": "yes",
+      "note": "Documents with versions, sheets classified against the National CAD Standard, supersession that cannot form a cycle, a current version kept in step by trigger, full-text search, and tenant parentage enforced on versions and sheets — a cross-tenant hole this build found and closed."
+    },
+    "Safety Management": {
+      "exists": "yes",
+      "note": "Incidents with OSHA recordability and case numbers, investigations that cannot close without a root cause and corrective action, credentials whose lapse is derived rather than stored, an assignment refused where a mandatory credential is missing, and TRIR and DART computed correctly against approved hours since P29."
+    },
+    "Change Management": {
+      "exists": "partial",
+      "note": "Change orders carry pricing, status through executed, authority limits by value, and freeze once executed; their approved price impact flows into the revised contract value the financial view reports against. What is missing is the front of the process: no change request before it becomes an order, no proposed-cost workflow, no time impact analysis, and no link from a change order to the schedule activities it moves."
+    },
+    "Field Operations": {
+      "exists": "partial",
+      "note": "Daily reports exist with labor, equipment and weather, and since P09 their hours reconcile against approved timecards. `daily_report_equipment` is populated by nothing, which is why equipment cost cannot reach the job (F4). There is no field surface: no offline capture, no photograph, no signature, no punch list."
+    },
+    "Quality Management": {
+      "exists": "partial",
+      "note": "Inspections with typed results and structured result values, a failed one required to carry notes, deficiencies with verified closure. Nothing follows a failure — recorded as F5 — and there is no inspection and test plan, no hold point, no material certificate and no non-conformance report."
+    },
+    "Resource Management": {
+      "exists": "partial",
+      "note": "Assignments tie a person or a machine to a project over dates, cannot overlap for one resource, and are refused where a credential is missing. Crews exist as governed compositions and nothing in operations consumes them. There is no leveling, no availability calendar, no demand against supply."
+    },
+    "Project Command Center": {
+      "exists": "partial",
+      "note": "Everything a command center would read now exists in the reporting layer: cost and commitment by project, schedule variance against baseline, safety rates, labor productivity and reconciliation, notifications with severity. There is no command center: the dashboard screen reads demonstration fixtures and no view is assembled per project for one."
+    },
+    "Communications and Meetings": {
+      "exists": "partial",
+      "note": "RFIs and submittals are real correspondence with numbers, status, ball-in-court and due dates, and notifications carry a category, a severity and a deep link. There is no meeting, no minutes, no action item, no transmittal, and no email or call recorded anywhere."
+    },
+    "External Portals": {
+      "exists": "no",
+      "note": "No portal, no external identity, no shared view for a customer, subcontractor, inspector or engineer. `proposals.viewed_at` exists and nothing sets it because there is no surface anybody outside the company could view anything on."
+    },
+    "Mobile and Offline": {
+      "exists": "no",
+      "note": "No native application, no offline store, no queue, no sync, no conflict resolution. The web application is responsive and that is the whole of it."
+    },
+    "AI Operations Center": {
+      "exists": "no",
+      "note": "One governed agent exists, reads drawings and specifications, and is capped at draft authority by a check constraint. Nothing watches a project: no anomaly detection, no schedule risk, no cost forecast, no recommendation on an operational record."
+    },
+    "Project Digital Twin": {
+      "exists": "no",
+      "note": "Not built and not planned. A digital twin is in the class of capability the traceability rules exclude globally."
+    }
+  },
+  "subject_exceptions": {
+    "External Portals": {
+      "A1": "not_met — there is no portal record to govern, and no external identity to attach one to.",
+      "A4": "not_met — nothing external produces a decision or transaction to trace.",
+      "A10": "not_met — there is nothing to validate or audit."
+    },
+    "Mobile and Offline": {
+      "A1": "not_met — no offline or device record exists.",
+      "A4": "not_met — no mobile transaction exists to trace to a source.",
+      "A10": "not_met — there is nothing to test."
+    },
+    "AI Operations Center": {
+      "A1": "not_met — no operations AI record exists.",
+      "A4": "not_met — no operations AI decision exists to trace.",
+      "A10": "not_met — there is nothing to validate."
+    },
+    "Project Digital Twin": {
+      "A1": "not_met — excluded globally and not built.",
+      "A4": "not_met — excluded globally and not built.",
+      "A10": "not_met — excluded globally and not built."
+    }
+  }
+}

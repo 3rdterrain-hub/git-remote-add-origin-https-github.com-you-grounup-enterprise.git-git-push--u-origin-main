@@ -19,7 +19,7 @@ has drifted from the code.
 
 ## Where we stand
 
-**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,810 verified of 6,458
+**9,475 requirements. 4,826 traced (50.9%). 4,649 untraced. 1,828 verified of 6,618
 judged.**
 
 Fifteen phases have been verified requirement by requirement — see
@@ -45,6 +45,7 @@ Fifteen phases have been verified requirement by requirement — see
 | P29 Business Intelligence & Analytics | 520 | 0 |
 | P09 Workforce & Human Resources | 210 | 0 |
 | P08 CRM, Sales & Customer Management | 180 | 6 (3%) |
+| P07 Project Operations | 160 | 18 (11%) |
 
 P20 verifies at zero for a reason worth stating plainly: this build added a
 CI workflow, a deployment workflow, the Supabase project configuration and a
@@ -85,6 +86,17 @@ because the content lives in a table that trigger never touched. All four are
 reproduced in tests and closed by migration 0045: the price is now the engine's
 bid price rather than a typed number, nothing leaves draft from an unapproved
 estimate, the detail must tie, and the freeze reaches the content.
+
+P07 verifies at 18 of 160 and finished the job cost chain three phases had been
+opening one link at a time. **Committed cost was read by the report and written
+by nothing**, so a project manager could not see a dollar of what the company
+had already promised a vendor. **Approved vendor invoices never became cost**,
+so materials and subcontracts were zero alongside the labor P09 fixed. And the
+control refusing to over-invoice a purchase order **guarded a column no invoice
+ever moved** — the third phase running where the defect was a guard pointed at
+something nothing feeds. Migration 0046 closed all three: an issued order
+commits, an approved invoice consumes the commitment and becomes cost, and the
+two never double-count.
 
 P28 verifies at zero with its **five load-bearing conditions met** — allow/deny,
 tenant isolation, least privilege, audit evidence and security tests — and three
@@ -129,7 +141,7 @@ Tracing had claimed 78 of P05's 108 and 310 of P26's 450 before any of that
 existed. **Derived tracing over-claims** — treat the 50.9% as an upper bound,
 not a coverage figure.
 
-Of 272 cataloged artifacts, 144 answer for at least one requirement.
+Of 273 cataloged artifacts, 144 answer for at least one requirement.
 
 | Best covered | | Least covered | |
 |---|---:|---|---:|
@@ -153,9 +165,9 @@ This distinction is the whole integrity of the matrix, and it is enforced.
   artifact is covered by a named test suite which runs in `npm run verify`.
 - **`untraced`** — nothing here claims to implement it. The honest default.
 - **Verified** — someone read this requirement's acceptance criteria and
-  confirmed a specific test asserts it. **1,810 requirements are verified** of
-  6,458 judged, across P05, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded in
-  its own `verification/*-ledger.csv`. P09, P20, P27, P28 and P29 were judged and
+  confirmed a specific test asserts it. **1,828 requirements are verified** of
+  6,618 judged, across P05, P07, P08, P10, P11, P12, P14, P15, P18, P19, P24, P25, P26 and P30, each recorded
+  in its own `verification/*-ledger.csv`. P09, P20, P27, P28 and P29 were judged and
   verified at zero. Every phase that has not been judged reports `none`, and a test asserts it.
 
 Every mapping is marked `derived`, because rules are applied mechanically. A
