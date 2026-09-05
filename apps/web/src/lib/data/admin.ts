@@ -531,13 +531,15 @@ export async function setOperatorRole(
  */
 export async function createCompanyFor(
   client: Rpc,
-  input: { ownerEmail: string; name: string; reason: string; slug?: string },
+  input: { ownerEmail: string; name: string; reason: string; slug?: string;
+           planId?: string },
 ): Promise<string> {
   const { data, error } = await client.rpc('create_company_for', {
     p_owner_email: input.ownerEmail.trim(),
     p_name: input.name.trim(),
     p_reason: input.reason.trim(),
     p_slug: input.slug?.trim() || null,
+    p_plan: input.planId ?? 'grounup',
   });
   if (error) throw new Error(error.message);
   return String(data);
@@ -1852,3 +1854,58 @@ export const loadEarnings: Query<EarningsMonth[]> = async (client) => {
     payingCompanies: Number(m.paying_companies ?? 0),
   }));
 };
+
+
+/** Make a plan for one customer. Private unless somebody says otherwise. */
+export async function createPlan(
+  client: Rpc,
+  input: {
+    id: string; name: string; tagline: string; description: string;
+    maxSeats: number | null; maxEstimates: number | null; maxProjects: number | null;
+    storageGb: number | null; aiCredits: number | null; features: string[];
+    trialDays: number; isPublic: boolean;
+  },
+): Promise<void> {
+  const { error } = await client.rpc('create_plan', {
+    p_id: input.id.trim(), p_name: input.name.trim(),
+    p_tagline: input.tagline.trim() || null,
+    p_description: input.description.trim() || null,
+    p_max_seats: input.maxSeats, p_max_estimates: input.maxEstimates,
+    p_max_projects: input.maxProjects, p_storage_gb: input.storageGb,
+    p_ai_credits: input.aiCredits, p_features: input.features,
+    p_trial_days: input.trialDays, p_is_public: input.isPublic,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function setPlanVisibility(
+  client: Rpc, planId: string, isPublic: boolean, isActive: boolean, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('set_plan_visibility', {
+    p_plan: planId, p_is_public: isPublic, p_is_active: isActive,
+    p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export type EarningsGrain = 'week' | 'month' | 'year';
+
+/** Money by the period asked for, rather than the one a view happened to have. */
+export const loadEarningsBy = (grain: EarningsGrain, periods: number):
+  Query<EarningsMonth[]> => async (client) => {
+    const { data, error } = await client.rpc('earnings', {
+      p_grain: grain, p_periods: periods,
+    });
+    if (error) throw new Error(error.message);
+    const rows = (Array.isArray(data) ? data : []) as Array<Record<string, unknown>>;
+    return rows.map((m) => ({
+      month: String(m.period),
+      invoicedCents: Number(m.invoiced_cents ?? 0),
+      paidCents: Number(m.paid_cents ?? 0),
+      outstandingCents: Number(m.outstanding_cents ?? 0),
+      refundedCents: Number(m.refunded_cents ?? 0),
+      netCents: Number(m.net_cents ?? 0),
+      invoices: Number(m.invoices ?? 0),
+      payingCompanies: Number(m.paying_companies ?? 0),
+    }));
+  };

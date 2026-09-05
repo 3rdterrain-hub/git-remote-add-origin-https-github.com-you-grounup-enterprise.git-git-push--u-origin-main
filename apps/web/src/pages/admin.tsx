@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Building2, ShieldAlert, Webhook, AlertTriangle, Loader2, Check, X, Search,
-  RotateCw,
+  RotateCw, Plus,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadAdminCompanies, loadWebhookHealth, loadOverrides, loadStuckEvents,
+  loadAdminCompanies, loadWebhookHealth, loadOverrides, loadStuckEvents, loadPlans,
   isPlatformAdmin, setFeatureOverride, clearFeatureOverride, replayStripeEvent,
-  type AdminCompany,
+  createCompanyFor, type AdminCompany,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { ExportButton } from '@/components/admin/export-button';
@@ -48,6 +48,7 @@ export function AdminCompanies() {
   const webhooksQ = useQuery(loadWebhookHealth, []);
   const overridesQ = useQuery(loadOverrides, []);
   const stuckQ = useQuery(loadStuckEvents, []);
+  const plansQ = useQuery(loadPlans, []);
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [filter, setFilter] = useState('');
@@ -58,6 +59,34 @@ export function AdminCompanies() {
   const [replayed, setReplayed] = useState<string | null>(null);
 
   const stuck = stuckQ.status === 'ready' ? stuckQ.data : [];
+  const plans = (plansQ.status === 'ready' ? plansQ.data : []).filter((p) => p.isActive);
+
+  /*
+   * Adding a company lives here rather than on a screen of its own. It was on
+   * "Accounts", which meant somebody who wanted to add a customer went looking
+   * under Companies, did not find it, and had to be told where it was.
+   */
+  const [adding, setAdding] = useState(false);
+  const [newCo, setNewCo] = useState({
+    ownerEmail: '', name: '', reason: '', planId: 'grounup',
+  });
+  const [addBusy, setAddBusy] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [added, setAdded] = useState<string | null>(null);
+
+  async function addCompany() {
+    if (!supabase) return;
+    setAddBusy(true); setAddError(null); setAdded(null);
+    try {
+      await createCompanyFor(supabase, newCo);
+      setAdded(`${newCo.name} is on the platform, owned by ${newCo.ownerEmail}.`);
+      setNewCo({ ownerEmail: '', name: '', reason: '', planId: 'grounup' });
+      setAdding(false);
+      companiesQ.refetch();
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : 'That company could not be created.');
+    } finally { setAddBusy(false); }
+  }
 
   /**
    * Apply a stored event again.
@@ -173,6 +202,9 @@ export function AdminCompanies() {
               * the query to "everything" would be a quiet escalation dressed as
               * a convenience, and every export is recorded in the ledger.
               */}
+            <Button variant="outline" size="sm" onClick={() => setAdding(!adding)}>
+              <Plus className="size-4" /> Add a company
+            </Button>
             <ExportButton what="Companies" rows={shown} columns={[
               { header: 'Company', value: (c) => c.name },
               { header: 'Address', value: (c) => c.slug },
@@ -188,6 +220,71 @@ export function AdminCompanies() {
               { header: 'Customer since', value: (c) => c.createdAt },
             ]} />
           </div>
+
+          {addError ? <Alert tone="danger">{addError}</Alert> : null}
+          {added ? <Alert tone="success">{added}</Alert> : null}
+
+          {adding ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Add a company</CardTitle>
+                <CardDescription>
+                  For a customer who signed on a call, a demonstration tenant, or somebody
+                  moving over. They sign up first at the normal address — GrounUp never
+                  issues a login on somebody&apos;s behalf — and then you name their address
+                  here and the company is theirs.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="co-owner">The owner&apos;s email</Label>
+                    <Input id="co-owner" type="email" value={newCo.ownerEmail}
+                      placeholder="them@theircompany.com"
+                      onChange={(e) => setNewCo({ ...newCo, ownerEmail: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="co-name">Company name</Label>
+                    <Input id="co-name" value={newCo.name} placeholder="Ridgeline Excavating"
+                      onChange={(e) => setNewCo({ ...newCo, name: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="co-plan">Plan</Label>
+                    <select id="co-plan" value={newCo.planId}
+                      className="h-9 w-full rounded border border-charcoal-300 bg-white
+                                 px-2 text-sm"
+                      onChange={(e) => setNewCo({ ...newCo, planId: e.target.value })}>
+                      {plans.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}{!p.isPublic ? ' (not on the pricing page)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="co-why">Why it is being created by hand</Label>
+                  <Input id="co-why" value={newCo.reason}
+                    placeholder="Signed on a call, migrating from spreadsheets"
+                    onChange={(e) => setNewCo({ ...newCo, reason: e.target.value })} />
+                </div>
+                <div className="flex gap-2">
+                  <Button disabled={addBusy || !newCo.ownerEmail.trim()
+                    || newCo.name.trim().length < 2 || newCo.reason.trim().length < 5}
+                    onClick={addCompany}>
+                    {addBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                    Create the company
+                  </Button>
+                  <Button variant="ghost" onClick={() => setAdding(false)}>Cancel</Button>
+                </div>
+                <p className="text-xs text-charcoal-500">
+                  It arrives set up exactly as a self-serve signup does: default pricing
+                  profile, overhead, profit and contingency, and whatever trial the plan
+                  carries.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardContent className="p-0">

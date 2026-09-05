@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@/lib/data/query';
 import {
   loadAdminCompanies, loadWebhookHealth, loadUpsellPotential, loadProposals,
-  loadRevenue, loadRevenueByCompany, loadGrowth, loadRecentSignups,
+  loadRevenue, loadRevenueByCompany, loadGrowth, loadRecentSignups, loadEarningsBy,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { ExportButton } from '@/components/admin/export-button';
@@ -41,6 +41,8 @@ export function AdminDashboard() {
   const byCompanyQ = useQuery(loadRevenueByCompany, []);
   const growthQ = useQuery(loadGrowth, []);
   const signupsQ = useQuery(loadRecentSignups, []);
+  // Money, beside the rate. They are different figures and neither is wrong.
+  const earningsQ = useQuery(loadEarningsBy('month', 6), []);
 
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
   const webhooks = webhooksQ.status === 'ready' ? webhooksQ.data : [];
@@ -50,11 +52,13 @@ export function AdminDashboard() {
   const byCompany = byCompanyQ.status === 'ready' ? byCompanyQ.data : [];
   const growth = growthQ.status === 'ready' ? growthQ.data : [];
   const signups = signupsQ.status === 'ready' ? signupsQ.data : [];
+  const earnings = earningsQ.status === 'ready' ? earningsQ.data : [];
+  const earnedThisMonth = earnings[0];
   const thisMonth = growth.at(-1);
   const lastMonth = growth.at(-2);
 
   const failure = [companiesQ, webhooksQ, potentialQ, proposalsQ,
-                   revenueQ, byCompanyQ, growthQ, signupsQ]
+                   revenueQ, byCompanyQ, growthQ, signupsQ, earningsQ]
     .find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
@@ -141,6 +145,13 @@ export function AdminDashboard() {
             : undefined}
           icon={<Gift className="size-4" />}
           tone={revenue && revenue.givenAwayCents > 0 ? 'warn' : 'neutral'} />
+        <Tile label="Came in this month" to="/admin/reports"
+          value={earnedThisMonth ? money(earnedThisMonth.netCents / 100) : '—'}
+          hint={earnedThisMonth && earnedThisMonth.outstandingCents
+            ? `${money(earnedThisMonth.outstandingCents / 100)} still outstanding`
+            : 'invoiced, paid and net'}
+          icon={<Banknote className="size-4" />}
+          tone={earnedThisMonth && earnedThisMonth.netCents > 0 ? 'success' : 'neutral'} />
         <Tile label="Stripe disagrees" to="/admin/billing"
           value={revenue ? integer(revenue.accountsThatDisagree) : '—'}
           hint={revenue && revenue.accountsThatDisagree
@@ -325,7 +336,7 @@ export function AdminDashboard() {
       </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile label="Proposal pipeline" value={money(pipelineCents / 100)} to="/admin/controls"
+        <Tile label="Upsells waiting" value={money(pipelineCents / 100)} to="/admin/reports"
           hint={`${integer(open.length)} open, per month as estimated`}
           icon={<TrendingUp className="size-4" />} tone={open.length ? 'warn' : 'neutral'} />
         <Tile label="Worth a call" value={integer(signals.length)} to="/admin/churn"

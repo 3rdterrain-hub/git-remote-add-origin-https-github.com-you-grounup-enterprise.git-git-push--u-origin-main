@@ -28,11 +28,7 @@ const AdminAnnouncements = lazy(() => import('@/pages/admin/announcements').then
 const AdminOutbox = lazy(() => import('@/pages/admin/outbox').then((m) => ({ default: m.AdminOutbox })));
 const AdminReports = lazy(() => import('@/pages/admin/reports').then((m) => ({ default: m.AdminReports })));
 const AdminRoles = lazy(() => import('@/pages/admin/roles').then((m) => ({ default: m.AdminRoles })));
-const AdminAccounts = lazy(() => import('@/pages/admin/accounts').then((m) => ({ default: m.AdminAccounts })));
-const AdminControls = lazy(() => import('@/pages/admin/controls').then((m) => ({ default: m.AdminControls })));
 const AdminBilling = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminBilling })));
-const AdminFrontEnd = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminFrontEnd })));
-const AdminSettings = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminSettings })));
 const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })));
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
@@ -122,8 +118,6 @@ export function App() {
             <Route path="companies/:companyId/billing" element={<AdminCompanyBilling />} />
             <Route path="packages" element={<AdminPackages />} />
             <Route path="billing" element={<AdminBilling />} />
-            <Route path="controls" element={<AdminControls />} />
-            <Route path="accounts" element={<AdminAccounts />} />
             <Route path="roles" element={<AdminRoles />} />
             <Route path="activity" element={<AdminActivity />} />
             <Route path="announcements" element={<AdminAnnouncements />} />
@@ -132,8 +126,6 @@ export function App() {
             <Route path="churn" element={<AdminChurn />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="refunds" element={<AdminRefunds />} />
-            <Route path="front-end" element={<AdminFrontEnd />} />
-            <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* Authenticated application */}

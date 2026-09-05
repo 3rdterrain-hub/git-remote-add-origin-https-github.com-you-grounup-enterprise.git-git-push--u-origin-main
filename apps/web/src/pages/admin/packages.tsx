@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Package, Eye, EyeOff, Check, Loader2, Save } from 'lucide-react';
+import { Package, Eye, EyeOff, Check, Loader2, Save, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
@@ -13,7 +13,10 @@ import {
   loadPlans, loadAdminCompanies, loadPlanPrices, setPlanPrice,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState } from '@/components/data-state';
-import { loadFeatureCatalog, setPlanLimits, setPlanFeatures, setPlanTrial } from '@/lib/data/admin';
+import {
+  loadFeatureCatalog, setPlanLimits, setPlanFeatures, setPlanTrial, createPlan,
+  setPlanVisibility,
+} from '@/lib/data/admin';
 import { supabase } from '@/lib/supabase';
 import { integer, money } from '@/lib/format';
 import type { OperatorContext } from './shell';
@@ -71,6 +74,39 @@ export function AdminPackages() {
       plansQ.refetch();
     } catch (err) {
       setPlanError(err instanceof Error ? err.message : 'That could not be saved.');
+    } finally { setPlanBusy(false); }
+  }
+
+  /*
+   * A plan for one customer. The catalog was fixed at seed time, so making one
+   * meant a migration — for the thing somebody negotiates on a call.
+   */
+  const [creating, setCreating] = useState(false);
+  const [draft, setDraft] = useState({
+    id: '', name: '', tagline: '', description: '',
+    maxSeats: '', maxEstimates: '', maxProjects: '', storageGb: '', aiCredits: '',
+    trialDays: '0', features: [] as string[], isPublic: false,
+  });
+
+  async function makePlan() {
+    if (!supabase) return;
+    setPlanBusy(true); setPlanError(null);
+    try {
+      await createPlan(supabase, {
+        id: draft.id, name: draft.name, tagline: draft.tagline,
+        description: draft.description,
+        maxSeats: orNull(draft.maxSeats), maxEstimates: orNull(draft.maxEstimates),
+        maxProjects: orNull(draft.maxProjects), storageGb: orNull(draft.storageGb),
+        aiCredits: orNull(draft.aiCredits), features: draft.features,
+        trialDays: Number(draft.trialDays || 0), isPublic: draft.isPublic,
+      });
+      setDraft({ id: '', name: '', tagline: '', description: '', maxSeats: '',
+                 maxEstimates: '', maxProjects: '', storageGb: '', aiCredits: '',
+                 trialDays: '0', features: [], isPublic: false });
+      setCreating(false);
+      plansQ.refetch();
+    } catch (err) {
+      setPlanError(err instanceof Error ? err.message : 'That plan could not be created.');
     } finally { setPlanBusy(false); }
   }
 
@@ -409,16 +445,163 @@ export function AdminPackages() {
                   onChange={(e) => setPlanDraft({ ...planDraft, reason: e.target.value })} />
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button disabled={!isSuper || planBusy || planDraft.reason.trim().length < 5}
                   onClick={() => savePlan(editingPlan)}>
                   {planBusy ? <Loader2 className="size-4 animate-spin" /> : null}
                   Save the plan
                 </Button>
+                {(() => {
+                  const p = plans.find((x) => x.id === editingPlan);
+                  if (!p) return null;
+                  return (
+                    <>
+                      <Button variant="outline"
+                        disabled={!isSuper || planBusy || planDraft.reason.trim().length < 5}
+                        onClick={async () => {
+                          if (!supabase) return;
+                          setPlanBusy(true);
+                          try {
+                            await setPlanVisibility(supabase, p.id, !p.isPublic, p.isActive,
+                              planDraft.reason);
+                            plansQ.refetch();
+                          } catch (err) {
+                            setPlanError(err instanceof Error ? err.message
+                              : 'That could not be changed.');
+                          } finally { setPlanBusy(false); }
+                        }}>
+                        {p.isPublic ? 'Take off the pricing page' : 'Put on the pricing page'}
+                      </Button>
+                      <Button variant="ghost"
+                        disabled={!isSuper || planBusy || planDraft.reason.trim().length < 5}
+                        onClick={async () => {
+                          if (!supabase) return;
+                          setPlanBusy(true);
+                          try {
+                            await setPlanVisibility(supabase, p.id, p.isPublic, !p.isActive,
+                              planDraft.reason);
+                            plansQ.refetch();
+                          } catch (err) {
+                            setPlanError(err instanceof Error ? err.message
+                              : 'That could not be changed.');
+                          } finally { setPlanBusy(false); }
+                        }}>
+                        {p.isActive ? 'Retire it' : 'Sell it again'}
+                      </Button>
+                    </>
+                  );
+                })()}
                 <Button variant="ghost" onClick={() => setEditingPlan(null)}>Cancel</Button>
               </div>
+              <p className="text-xs text-charcoal-500">
+                Retiring a plan stops anybody else buying it and moves nobody: an
+                entitlement holds its own terms, so the customers on it keep what they
+                agreed to.
+              </p>
             </div>
           ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>A plan for one customer</CardTitle>
+          <CardDescription>
+            For somebody on terms nobody else is on. Private unless you say otherwise —
+            a negotiated plan appearing on the public pricing page is the one mistake here
+            that everybody sees at once.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {!creating ? (
+            <Button variant="outline" disabled={!isSuper} onClick={() => setCreating(true)}>
+              <Plus className="size-4" /> Make a plan
+            </Button>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-id">Id</Label>
+                  <Input id="new-id" value={draft.id} placeholder="third_terrain"
+                    onChange={(e) => setDraft({ ...draft, id: e.target.value })} />
+                  <p className="text-xs text-charcoal-500">
+                    Lower case, digits and underscores. It never changes.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-name">Name</Label>
+                  <Input id="new-name" value={draft.name} placeholder="3RD Terrain"
+                    onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="new-tagline">Tagline</Label>
+                <Input id="new-tagline" value={draft.tagline}
+                  placeholder="Everything, on our own terms"
+                  onChange={(e) => setDraft({ ...draft, tagline: e.target.value })} />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {([
+                  ['maxSeats', 'Seats'], ['maxEstimates', 'Active estimates'],
+                  ['maxProjects', 'Active projects'], ['storageGb', 'Storage GB'],
+                  ['aiCredits', 'AI credits'], ['trialDays', 'Trial days'],
+                ] as const).map(([key, label]) => (
+                  <div key={key} className="space-y-1.5">
+                    <Label htmlFor={`new-${key}`}>{label}</Label>
+                    <Input id={`new-${key}`} type="number" min="0"
+                      placeholder={key === 'trialDays' ? '0' : 'unlimited'}
+                      value={draft[key]}
+                      onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-medium text-charcoal-800">What it includes</p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {catalog.map((f) => (
+                    <label key={f.key}
+                      className="flex cursor-pointer items-center gap-2 rounded border
+                                 border-charcoal-200 p-2 text-sm hover:bg-charcoal-50">
+                      <input type="checkbox" className="size-4 accent-charcoal-900"
+                        checked={draft.features.includes(f.key)}
+                        onChange={(e) => setDraft({
+                          ...draft,
+                          features: e.target.checked
+                            ? [...draft.features, f.key]
+                            : draft.features.filter((k) => k !== f.key),
+                        })} />
+                      {f.label}
+                    </label>
+                  ))}
+                </div>
+                <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="checkbox" className="size-4 accent-charcoal-900"
+                    checked={draft.features.includes('*')}
+                    onChange={(e) => setDraft({
+                      ...draft,
+                      features: e.target.checked
+                        ? ['*'] : draft.features.filter((k) => k !== '*'),
+                    })} />
+                  Everything, including whatever is built later
+                </label>
+                <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="checkbox" className="size-4 accent-charcoal-900"
+                    checked={draft.isPublic}
+                    onChange={(e) => setDraft({ ...draft, isPublic: e.target.checked })} />
+                  Put it on the public pricing page
+                </label>
+              </div>
+              {planError ? <Alert tone="danger">{planError}</Alert> : null}
+              <div className="flex gap-2">
+                <Button disabled={!isSuper || planBusy || !draft.id.trim()
+                  || draft.name.trim().length < 2} onClick={makePlan}>
+                  {planBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                  Create the plan
+                </Button>
+                <Button variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

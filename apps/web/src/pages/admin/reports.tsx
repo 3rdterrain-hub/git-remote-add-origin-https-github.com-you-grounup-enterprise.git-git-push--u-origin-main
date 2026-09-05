@@ -1,13 +1,22 @@
 import { useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { CalendarClock, Banknote, Activity, AlertTriangle, ShieldCheck } from 'lucide-react';
+import {
+  CalendarClock, Banknote, Activity, AlertTriangle, ShieldCheck, TrendingUp,
+  Check, X, Loader2,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@/lib/data/query';
-import { loadCompanyActivity, loadExpiring, loadEarnings } from '@/lib/data/admin';
+import {
+  loadCompanyActivity, loadExpiring, loadEarningsBy, loadProposals, loadAdminCompanies,
+  decideUpsell, type EarningsGrain,
+} from '@/lib/data/admin';
 import { ExportButton } from '@/components/admin/export-button';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { money, integer, date, dateTime } from '@/lib/format';
@@ -34,14 +43,47 @@ export function AdminReports() {
   const { can } = useOutletContext<OperatorContext>();
   const activityQ = useQuery(loadCompanyActivity, []);
   const expiringQ = useQuery(loadExpiring, []);
-  const earningsQ = useQuery(loadEarnings, []);
+  const [grain, setGrain] = useState<EarningsGrain>('month');
+  // Enough periods that each grain covers a comparable span: half a year of
+  // weeks, two years of months, five years.
+  const periods = grain === 'week' ? 26 : grain === 'month' ? 24 : 5;
+  const earningsQ = useQuery(loadEarningsBy(grain, periods), [grain]);
   const [standing, setStanding] = useState<string>('all');
+  /*
+   * Upsell proposals live here rather than on a screen of their own. They were
+   * on "Controls", a name that told nobody what was behind it — and the
+   * dashboard tile that counted them led to a page where they were the third
+   * thing down.
+   */
+  const proposalsQ = useQuery(loadProposals, []);
+  const companiesQ = useQuery(loadAdminCompanies, []);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<Record<string, string>>({});
 
   const activity = activityQ.status === 'ready' ? activityQ.data : [];
   const expiring = expiringQ.status === 'ready' ? expiringQ.data : [];
   const earnings = earningsQ.status === 'ready' ? earningsQ.data : [];
 
-  const failure = [activityQ, expiringQ, earningsQ].find((q) => q.status === 'error');
+  const proposals = (proposalsQ.status === 'ready' ? proposalsQ.data : [])
+    .filter((p) => p.state === 'proposed');
+  const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
+  const companyName = (id: string) =>
+    companies.find((c) => c.companyId === id)?.name ?? id;
+
+  async function decide(id: string, approve: boolean) {
+    if (!supabase) return;
+    setBusy(id); setError(null);
+    try {
+      await decideUpsell(supabase, id, approve, note[id]?.trim() || null);
+      proposalsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That decision could not be recorded.');
+    } finally { setBusy(null); }
+  }
+
+  const failure = [activityQ, expiringQ, earningsQ, proposalsQ, companiesQ]
+    .find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
   const shown = standing === 'all'
@@ -68,6 +110,75 @@ export function AdminReports() {
           cancellation that has not been written yet, and it looks identical on the tenant
           list to a customer who is in the platform every day.
         </Alert>
+      ) : null}
+
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+
+      {proposals.length ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="size-4" /> Upsells waiting on you ({proposals.length})
+            </CardTitle>
+            <CardDescription>
+              Somebody wrote these up with a reason. You cannot approve one you proposed
+              yourself — the same rule the platform applies inside a customer&apos;s own
+              account when an estimate is approved.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {proposals.map((p) => (
+              <div key={p.id} className="rounded border border-charcoal-200 p-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-charcoal-900">
+                      {companyName(p.companyId)}
+                      {p.estimatedMonthlyCents != null ? (
+                        <span className="ml-2 text-sm font-normal text-charcoal-600">
+                          {money(p.estimatedMonthlyCents / 100)} a month estimated
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="mt-0.5 text-sm text-charcoal-600">{p.rationale}</p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {p.proposedPlanId ? (
+                        <Badge variant="success">Move to {p.proposedPlanId}</Badge>
+                      ) : null}
+                      {p.proposedFeatures.map((f) => (
+                        <Badge key={f} variant="default">{f}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Input value={note[p.id] ?? ''} className="h-8 w-56 text-xs"
+                      placeholder="Note (required to reject)"
+                      aria-label="Decision note"
+                      onChange={(e) => setNote({ ...note, [p.id]: e.target.value })} />
+                    <div className="flex gap-1.5">
+                      <Button size="sm" disabled={busy === p.id}
+                        onClick={() => decide(p.id, true)}>
+                        <Check className="size-3.5" /> Approve
+                      </Button>
+                      <Button size="sm" variant="ghost"
+                        disabled={busy === p.id || (note[p.id] ?? '').trim().length < 5}
+                        onClick={() => decide(p.id, false)}>
+                        <X className="size-3.5" /> Reject
+                      </Button>
+                      {busy === p.id ? (
+                        <Loader2 className="mt-1.5 size-4 animate-spin text-charcoal-400" />
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-charcoal-500">
+                  Approving records the decision. Applying it to the customer is a separate,
+                  audited act on their own page — so what was agreed and what was done stay
+                  two facts rather than one.
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       ) : null}
 
       <Card>
@@ -238,8 +349,19 @@ export function AdminReports() {
                 the accounts.
               </CardDescription>
             </div>
-            <ExportButton what="Earnings by month" rows={earnings} columns={[
-              { header: 'Month', value: (m) => m.month },
+            <div className="flex items-end gap-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="grain" className="text-xs">By</Label>
+                <select id="grain" value={grain}
+                  className="h-9 rounded border border-charcoal-300 bg-white px-2 text-sm"
+                  onChange={(e) => setGrain(e.target.value as EarningsGrain)}>
+                  <option value="week">Week</option>
+                  <option value="month">Month</option>
+                  <option value="year">Year</option>
+                </select>
+              </div>
+            <ExportButton what={`Earnings by ${grain}`} rows={earnings} columns={[
+              { header: 'Period', value: (m) => m.month },
               { header: 'Invoiced', value: (m) => (m.invoicedCents / 100).toFixed(2) },
               { header: 'Paid', value: (m) => (m.paidCents / 100).toFixed(2) },
               { header: 'Outstanding', value: (m) => (m.outstandingCents / 100).toFixed(2) },
@@ -248,13 +370,14 @@ export function AdminReports() {
               { header: 'Invoices', value: (m) => m.invoices },
               { header: 'Paying companies', value: (m) => m.payingCompanies },
             ]} />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Month</TableHead>
+                <TableHead>{grain === 'week' ? 'Week of' : grain === 'year' ? 'Year' : 'Month'}</TableHead>
                 <TableHead className="text-right">Invoiced</TableHead>
                 <TableHead className="text-right">Paid</TableHead>
                 <TableHead className="text-right">Outstanding</TableHead>

@@ -12,9 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadCompanyControls, loadPlans, setAllowance, clearAllowance, setCompanyPlan,
-  deleteCompany, suspendCompany, restoreCompany,
-  ALLOWANCE_LABEL, type Allowance, type SuspensionKind,
+  loadCompanyControls, loadPlans, loadFeatureCatalog, loadOverrides,
+  setAllowance, clearAllowance, setCompanyPlan, setFeatureOverride,
+  clearFeatureOverride, deleteCompany, suspendCompany, restoreCompany,
+  setBillingTerms, clearBillingTerms,
+  ALLOWANCE_LABEL, type Allowance, type SuspensionKind, type BillingTermKind,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState } from '@/components/data-state';
 import { supabase } from '@/lib/supabase';
@@ -44,6 +46,8 @@ export function AdminCompany() {
 
   const controlsQ = useQuery(loadCompanyControls(companyId), [companyId]);
   const plansQ = useQuery(loadPlans, []);
+  const catalogQ = useQuery(loadFeatureCatalog, []);
+  const overridesQ = useQuery(loadOverrides, []);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +64,14 @@ export function AdminCompany() {
 
   const c = controlsQ.status === 'ready' ? controlsQ.data : null;
   const plans = plansQ.status === 'ready' ? plansQ.data : [];
+  const catalog = catalogQ.status === 'ready' ? catalogQ.data : [];
+  const overrides = (overridesQ.status === 'ready' ? overridesQ.data : [])
+    .filter((o) => o.companyId === companyId);
+
+  const [featureWhy, setFeatureWhy] = useState('');
+  const [terms, setTerms] = useState<{ kind: BillingTermKind; reason: string;
+    percentOff: string; seatPrice: string; coupon: string }>(
+    { kind: 'free', reason: '', percentOff: '', seatPrice: '', coupon: '' });
 
   if (controlsQ.status === 'error') {
     return <ErrorState message={controlsQ.message} onRetry={controlsQ.refetch} />;
@@ -125,9 +137,7 @@ export function AdminCompany() {
             <CreditCard className="size-4" /> Open their subscription
           </Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/admin/accounts">Terms, discounts and comps</Link>
-        </Button>
+
       </div>
 
       <Card>
@@ -186,6 +196,151 @@ export function AdminCompany() {
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>What they can use</CardTitle>
+          <CardDescription>
+            What their plan includes, and anything turned on or off for them
+            specifically. An override composes over the plan — it survives a plan change
+            and the next Stripe invoice, which editing the entitlement would not. A feature
+            marked <strong>not gated</strong> is one the database does not yet refuse:
+            turning it off makes the pricing page honest and stops nothing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="feature-why">Why, for whichever you change</Label>
+            <Input id="feature-why" value={featureWhy}
+              placeholder="Agreed on the call with their operations manager"
+              onChange={(e) => setFeatureWhy(e.target.value)} />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {catalog.map((f) => {
+              const plan = plans.find((p) => p.id === c.planId);
+              const inPlan = (plan?.features ?? []).includes('*')
+                || (plan?.features ?? []).includes(f.key);
+              const override = overrides.find((o) => o.feature === f.key);
+              const on = override ? override.effect === 'grant' : inPlan;
+              return (
+                <div key={f.key}
+                  className={`rounded border p-2.5 ${override
+                    ? 'border-warn-300 bg-warn-50/40' : 'border-charcoal-200'}`}>
+                  <label className="flex cursor-pointer items-start gap-2">
+                    <input type="checkbox" className="mt-0.5 size-4 accent-charcoal-900"
+                      checked={on}
+                      disabled={!mayAllow || featureWhy.trim().length < 5
+                        || busy === f.key}
+                      onChange={(e) => run(f.key, async () => {
+                        const wanted = e.target.checked;
+                        if (wanted === inPlan) {
+                          // Back to whatever the plan says: withdraw the override
+                          // rather than adding one that agrees with it.
+                          await clearFeatureOverride(supabase!, c.companyId, f.key, featureWhy);
+                        } else {
+                          await setFeatureOverride(supabase!, {
+                            companyId: c.companyId, feature: f.key,
+                            effect: wanted ? 'grant' : 'revoke', reason: featureWhy,
+                          });
+                        }
+                        overridesQ.refetch();
+                      }, `${f.label} changed.`)} />
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-1.5 text-sm
+                                       font-medium text-charcoal-900">
+                        {f.label}
+                        {override ? <Badge variant="warn">override</Badge> : null}
+                        {!f.enforced ? <Badge variant="default">not gated</Badge> : null}
+                      </span>
+                      <span className="block text-xs text-charcoal-500">{f.description}</span>
+                    </span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>What they pay</CardTitle>
+          <CardDescription>
+            {c.terms
+              ? `On ${c.terms.replace(/_/g, ' ')} terms. Setting another replaces it.`
+              : 'On the list price. Free, a percentage off, or an agreed price per seat.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="terms-kind">Arrangement</Label>
+              <select id="terms-kind" value={terms.kind}
+                className="h-9 w-full rounded border border-charcoal-300 bg-white px-2 text-sm"
+                onChange={(e) => setTerms({ ...terms, kind: e.target.value as BillingTermKind })}>
+                <option value="free">Free — comped, no charge</option>
+                <option value="percent_off">A percentage off</option>
+                <option value="fixed_seat_price">An agreed price per seat</option>
+              </select>
+            </div>
+            {terms.kind === 'percent_off' ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="terms-pct">Percent off</Label>
+                <Input id="terms-pct" type="number" min="1" max="100" value={terms.percentOff}
+                  onChange={(e) => setTerms({ ...terms, percentOff: e.target.value })} />
+              </div>
+            ) : null}
+            {terms.kind === 'fixed_seat_price' ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="terms-seat">Dollars per seat</Label>
+                <Input id="terms-seat" type="number" min="0" step="0.01" value={terms.seatPrice}
+                  onChange={(e) => setTerms({ ...terms, seatPrice: e.target.value })} />
+              </div>
+            ) : null}
+            {terms.kind !== 'free' ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="terms-coupon">Stripe coupon id</Label>
+                <Input id="terms-coupon" value={terms.coupon} placeholder="REFERRAL25"
+                  onChange={(e) => setTerms({ ...terms, coupon: e.target.value })} />
+              </div>
+            ) : null}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="terms-why">Why</Label>
+            <Input id="terms-why" value={terms.reason}
+              placeholder="Founding customer, comped for a year"
+              onChange={(e) => setTerms({ ...terms, reason: e.target.value })} />
+          </div>
+          {terms.kind !== 'free' && !terms.coupon ? (
+            <Alert tone="warn" icon={<AlertTriangle className="size-4" />}>
+              Without a Stripe coupon this is recorded but not charged — Stripe bills the
+              card and does not know about a discount it was never told about.
+            </Alert>
+          ) : null}
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={!mayManage || busy === 'terms'
+              || terms.reason.trim().length < 5}
+              onClick={() => run('terms', () => setBillingTerms(supabase!, {
+                companyId: c.companyId, kind: terms.kind, reason: terms.reason,
+                percentOff: terms.kind === 'percent_off' ? Number(terms.percentOff) : null,
+                seatPriceCents: terms.kind === 'fixed_seat_price'
+                  ? Math.round(Number(terms.seatPrice) * 100) : null,
+                stripeCouponId: terms.coupon || null,
+              }), 'Terms recorded.')}>
+              {busy === 'terms' ? <Loader2 className="size-4 animate-spin" /> : null}
+              Record the arrangement
+            </Button>
+            {c.terms ? (
+              <Button variant="ghost" disabled={!mayManage || busy === 'terms'
+                || terms.reason.trim().length < 5}
+                onClick={() => run('terms', () => clearBillingTerms(
+                  supabase!, c.companyId, terms.reason), 'Back on the list price.')}>
+                Back to the list price
+              </Button>
+            ) : null}
+          </div>
         </CardContent>
       </Card>
 

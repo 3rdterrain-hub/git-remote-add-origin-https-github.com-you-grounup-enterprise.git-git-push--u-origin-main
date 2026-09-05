@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
-  Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
+  LogOut, Loader2, KeyRound, Filter, TrendingDown,
   Banknote, History, Megaphone, Mail, CalendarClock,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
@@ -44,30 +44,47 @@ const PERMISSIONS = [
  * built on. `needs: []` means the section has nothing behind it worth gating —
  * the dashboard and their own settings.
  */
+/*
+ * Grouped, because a flat list of fourteen is a list nobody reads. The groups
+ * are the questions somebody actually arrives with: who are my customers, what
+ * am I earning, what am I selling, and who works here.
+ *
+ * Four screens were removed rather than reorganized. "Accounts" and "Controls"
+ * each held a slice of one customer, which meant picking the company again on
+ * every screen — both now live on that customer's own page. "Settings" and
+ * "Front end" were read-only explanations of where configuration lives, which
+ * is a thing to write in documentation and not a thing to put in a navigation
+ * bar pretending to be a screen.
+ */
 const SECTIONS = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, needs: [] as string[] },
-  { to: '/admin/companies', label: 'Companies', icon: Building2, needs: ['companies.read'] },
-  { to: '/admin/traffic', label: 'Traffic', icon: Filter, needs: ['companies.read'] },
-  { to: '/admin/accounts', label: 'Accounts', icon: Users,
-    needs: ['companies.manage', 'billing.manage'] },
-  { to: '/admin/packages', label: 'Packages', icon: Package, needs: ['pricing.manage'] },
-  { to: '/admin/billing', label: 'Billing', icon: CreditCard, needs: ['billing.read'] },
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true,
+    group: '', needs: [] as string[] },
+
+  { to: '/admin/companies', label: 'Companies', icon: Building2,
+    group: 'Customers', needs: ['companies.read'] },
   { to: '/admin/reports', label: 'Reports', icon: CalendarClock,
-    needs: ['companies.read', 'billing.read'] },
+    group: 'Customers', needs: ['companies.read', 'billing.read'] },
   { to: '/admin/churn', label: 'Losing customers', icon: TrendingDown,
-    needs: ['billing.read'] },
+    group: 'Customers', needs: ['billing.read'] },
+  { to: '/admin/traffic', label: 'Traffic', icon: Filter,
+    group: 'Customers', needs: ['companies.read'] },
+
+  { to: '/admin/billing', label: 'Billing', icon: CreditCard,
+    group: 'Money', needs: ['billing.read'] },
   { to: '/admin/refunds', label: 'Refunds', icon: Banknote,
-    needs: ['refunds.request', 'refunds.approve'] },
-  { to: '/admin/controls', label: 'Controls', icon: ShieldAlert,
-    needs: ['upsell.decide', 'features.manage', 'operators.manage'] },
-  { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },
-  { to: '/admin/activity', label: 'Staff activity', icon: History,
-    needs: ['operators.manage'] },
+    group: 'Money', needs: ['refunds.request', 'refunds.approve'] },
+  { to: '/admin/packages', label: 'Plans and prices', icon: Package,
+    group: 'Money', needs: ['pricing.manage'] },
+
   { to: '/admin/announcements', label: 'Announcements', icon: Megaphone,
-    needs: ['announcements.publish', 'companies.read'] },
-  { to: '/admin/outbox', label: 'Outbox', icon: Mail, needs: ['billing.read'] },
-  { to: '/admin/front-end', label: 'Front end', icon: Globe, needs: ['pricing.manage'] },
-  { to: '/admin/settings', label: 'Settings', icon: Settings, needs: [] as string[] },
+    group: 'Reaching people', needs: ['announcements.publish', 'companies.read'] },
+  { to: '/admin/outbox', label: 'Outbox', icon: Mail,
+    group: 'Reaching people', needs: ['billing.read'] },
+
+  { to: '/admin/roles', label: 'People and roles', icon: KeyRound,
+    group: 'Your team', needs: ['operators.manage'] },
+  { to: '/admin/activity', label: 'What they did', icon: History,
+    group: 'Your team', needs: ['operators.manage'] },
 ];
 
 export function AdminShell() {
@@ -177,6 +194,10 @@ export function AdminShell() {
   const can = (permission: string) => held.has(permission);
   const visible = SECTIONS.filter(
     (s) => s.needs.length === 0 || s.needs.some(can));
+  // A heading appears above the first item of each group, and only if that
+  // group has anything the reader may see.
+  const firstOf = new Map<string, string>();
+  for (const s of visible) if (s.group && !firstOf.has(s.group)) firstOf.set(s.group, s.to);
 
   return (
     <div className="flex min-h-full bg-charcoal-100">
@@ -186,15 +207,23 @@ export function AdminShell() {
           <Badge variant="warn">{isSuper ? 'Superadmin' : 'Operator'}</Badge>
         </div>
 
-        <nav className="flex-1 space-y-0.5 px-3">
-          {visible.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end}
+        <nav className="flex-1 space-y-0.5 px-3 pb-4">
+          {visible.map(({ to, label, icon: Icon, end, group }) => (
+            <div key={to}>
+              {firstOf.get(group) === to ? (
+                <p className="px-3 pb-1 pt-4 text-[11px] font-medium uppercase
+                              tracking-wide text-charcoal-500">
+                  {group}
+                </p>
+              ) : null}
+            <NavLink to={to} end={end}
               className={({ isActive }) => cn(
                 'flex items-center gap-2.5 rounded px-3 py-2 text-sm transition-colors',
                 isActive ? 'bg-charcoal-800 text-white'
                   : 'text-charcoal-300 hover:bg-charcoal-800/60 hover:text-white')}>
               <Icon className="size-4" /> {label}
             </NavLink>
+            </div>
           ))}
         </nav>
 
