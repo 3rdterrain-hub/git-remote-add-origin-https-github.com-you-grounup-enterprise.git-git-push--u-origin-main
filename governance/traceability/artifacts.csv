@@ -54,6 +54,7 @@ TBL-companies,table,companies,supabase/migrations (table companies),ENTITY
 TBL-company_billing_terms,table,company_billing_terms,supabase/migrations (table company_billing_terms),ENTITY
 TBL-company_invitations,table,company_invitations,supabase/migrations (table company_invitations),ENTITY
 TBL-company_memberships,table,company_memberships,supabase/migrations (table company_memberships),ENTITY
+TBL-company_suspensions,table,company_suspensions,supabase/migrations (table company_suspensions),ENTITY
 TBL-condition_modifiers,table,condition_modifiers,supabase/migrations (table condition_modifiers),LIBRARY
 TBL-connector_runs,table,connector_runs,supabase/migrations (table connector_runs),WORKFLOW
 TBL-connectors,table,connectors,supabase/migrations (table connectors),ENTITY
@@ -290,6 +291,7 @@ TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
 TST-db-support-sessions,test,db/support-sessions.test.ts,tests/db/support-sessions.test.ts,ENGINE
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
+TST-db-suspension,test,db/suspension.test.ts,tests/db/suspension.test.ts,ENGINE
 TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE

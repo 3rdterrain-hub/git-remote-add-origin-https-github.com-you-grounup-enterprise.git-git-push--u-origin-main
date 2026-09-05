@@ -1042,3 +1042,71 @@ export async function replayStripeEvent(eventId: string, reason: string): Promis
     eventId, reason: reason.trim(),
   });
 }
+
+// ---------------------------------------------------------------------------
+// Suspending an account
+//
+// Read-only, never a lockout: a suspended company keeps reading and exporting
+// everything it built and simply cannot add to it. Two texts, deliberately —
+// the note for colleagues and the message the customer sees are not the same
+// sentence, and writing one and displaying the other is how somebody sends a
+// paying business a line they never meant to send.
+// ---------------------------------------------------------------------------
+export type SuspensionKind = 'nonpayment' | 'abuse' | 'legal_hold' | 'requested';
+
+export interface Suspension {
+  id: string;
+  companyId: string;
+  companyName: string;
+  kind: SuspensionKind;
+  reason: string;
+  customerMessage: string;
+  suspendedAt: string;
+  liftedAt: string | null;
+  liftReason: string | null;
+  suspendedByEmail: string | null;
+  live: boolean;
+  seats: number;
+}
+
+export const loadSuspensions: Query<Suspension[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_suspensions')
+    .select('id, company_id, company_name, kind, reason, customer_message, suspended_at, lifted_at, lift_reason, suspended_by_email, live, seats')) as Array<Record<string, unknown>>;
+  return rows.map((s) => ({
+    id: String(s.id),
+    companyId: String(s.company_id),
+    companyName: String(s.company_name),
+    kind: s.kind as SuspensionKind,
+    reason: String(s.reason),
+    customerMessage: String(s.customer_message),
+    suspendedAt: String(s.suspended_at),
+    liftedAt: (s.lifted_at as string | null) ?? null,
+    liftReason: (s.lift_reason as string | null) ?? null,
+    suspendedByEmail: (s.suspended_by_email as string | null) ?? null,
+    live: Boolean(s.live),
+    seats: Number(s.seats ?? 0),
+  }));
+};
+
+export async function suspendCompany(
+  client: Rpc,
+  input: { companyId: string; kind: SuspensionKind; reason: string; customerMessage: string },
+): Promise<void> {
+  const { error } = await client.rpc('suspend_company', {
+    p_company: input.companyId,
+    p_kind: input.kind,
+    p_reason: input.reason.trim(),
+    p_customer_message: input.customerMessage.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function restoreCompany(
+  client: Rpc, companyId: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('restore_company', {
+    p_company: companyId, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}

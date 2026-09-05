@@ -144,3 +144,32 @@ export async function createCompany(
   if (error) throw new Error(error.message);
   return String(data);
 }
+
+/**
+ * Whether this company is in read-only, and what it was told.
+ *
+ * Read here rather than discovered on a refusal: somebody who saves a day's
+ * work and then learns their account is suspended has lost the day, and the
+ * message is written for them precisely so they can be told before that.
+ */
+export interface MySuspension {
+  companyId: string;
+  kind: string;
+  customerMessage: string;
+  suspendedAt: string;
+}
+
+export const loadMySuspension: Query<MySuspension | null> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_suspension')
+    .select('company_id, kind, customer_message, suspended_at')
+    .limit(1)) as Array<Record<string, unknown>>;
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    companyId: String(r.company_id),
+    kind: String(r.kind),
+    customerMessage: String(r.customer_message),
+    suspendedAt: String(r.suspended_at),
+  };
+};

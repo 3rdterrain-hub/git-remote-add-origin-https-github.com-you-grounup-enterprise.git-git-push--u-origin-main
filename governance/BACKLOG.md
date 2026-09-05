@@ -133,8 +133,30 @@ also be the one who can re-apply a payment. And the operator who asks for a
 replay cannot declare it successful — only service_role may finish one.
 17 tests.
 
-Still open: suspending a company, and a second operator approving a change to a
-paying customer's entitlement.
+**An account can be suspended, and given back.** Migration 0082. Until now the
+only lever over a company that stopped paying was revoking its entitlement —
+the same control used to end a comp — so "three months in arrears" and "the free
+year ran out" left identical records and told the customer nothing.
+
+A suspension is **read-only, never a lockout**: they still sign in, still open,
+read, print and export every estimate, project and document they ever made, and
+cannot add to it until it is lifted. Holding a contractor's own records over an
+unpaid invoice is not leverage; it is the thing that makes them tell every other
+contractor never to use you. The same reasoning already governs the free tier.
+
+Two texts, deliberately: the note for colleagues and the sentence the customer
+sees are different, and `my_suspension` carries only the second. The customer
+reads it as a banner before they lose a morning's work, not as an error after.
+
+The guard is a trigger on every table carrying a `company_id`, written as a loop
+over the catalog rather than a list — a table added next year is covered without
+anybody remembering the file exists — and the migration refuses to finish if it
+covered fewer than a hundred. Machine writes are never blocked, because the
+Stripe webhook recording the payment is what ends a non-payment suspension, and
+a guard that refused it would make one impossible to end by paying. 21 tests.
+
+Still open: a second operator approving a change to a paying customer's
+entitlement.
 
 ### 3b. What the business is earning — **built**
 Migration 0078. The console could count companies and could not say what the

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, Gift, Percent, Tag, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react';
+import {
+  Building2, Gift, Percent, Tag, Loader2, ShieldAlert, AlertTriangle, PauseCircle,
+  PlayCircle,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +13,9 @@ import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadAdminCompanies, loadBillingTerms, createCompanyFor, setBillingTerms,
-  clearBillingTerms, type BillingTermKind,
+  loadAdminCompanies, loadBillingTerms, loadSuspensions, createCompanyFor,
+  setBillingTerms, clearBillingTerms, suspendCompany, restoreCompany,
+  type BillingTermKind, type SuspensionKind,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { supabase } from '@/lib/supabase';
@@ -39,12 +43,17 @@ export function AdminAccounts() {
   const { can } = useOutletContext<OperatorContext>();
   const companiesQ = useQuery(loadAdminCompanies, []);
   const termsQ = useQuery(loadBillingTerms, []);
+  const suspensionsQ = useQuery(loadSuspensions, []);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [made, setMade] = useState<string | null>(null);
 
   const [newCo, setNewCo] = useState({ ownerEmail: '', name: '', reason: '' });
+  const [susp, setSusp] = useState<{
+    companyId: string; kind: SuspensionKind; reason: string; customerMessage: string;
+  }>({ companyId: '', kind: 'nonpayment', reason: '', customerMessage: '' });
+
   const [term, setTerm] = useState<{
     companyId: string; kind: BillingTermKind; reason: string;
     percentOff: string; seatPrice: string; validUntil: string; coupon: string;
@@ -53,10 +62,12 @@ export function AdminAccounts() {
 
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
   const terms = termsQ.status === 'ready' ? termsQ.data : [];
+  const suspensions = suspensionsQ.status === 'ready' ? suspensionsQ.data : [];
+  const live = suspensions.filter((x) => x.live);
   const mayCreate = can('companies.manage');
   const mayPrice = can('billing.manage');
 
-  const failure = [companiesQ, termsQ].find((q) => q.status === 'error');
+  const failure = [companiesQ, termsQ, suspensionsQ].find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
   async function create() {
@@ -102,6 +113,29 @@ export function AdminAccounts() {
       termsQ.refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'That arrangement could not be ended.');
+    } finally { setBusy(null); }
+  }
+
+  async function suspend() {
+    if (!supabase) return;
+    setBusy('suspend'); setError(null);
+    try {
+      await suspendCompany(supabase, susp);
+      setSusp({ companyId: '', kind: 'nonpayment', reason: '', customerMessage: '' });
+      suspensionsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That account could not be suspended.');
+    } finally { setBusy(null); }
+  }
+
+  async function restore(companyId: string) {
+    if (!supabase) return;
+    setBusy(companyId); setError(null);
+    try {
+      await restoreCompany(supabase, companyId, 'Restored from the operator console');
+      suspensionsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That account could not be restored.');
     } finally { setBusy(null); }
   }
 
@@ -256,6 +290,131 @@ export function AdminAccounts() {
           </Button>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <PauseCircle className="size-4" /> Put an account into read-only
+          </CardTitle>
+          <CardDescription>
+            A suspension is read-only, never a lockout. They can still sign in, and still
+            open, read, print and export every estimate, project and document they ever
+            made — they simply cannot add to it until it is lifted. Holding a
+            contractor&apos;s own records over an unpaid invoice is not leverage.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="susp-company">Company</Label>
+              <select id="susp-company" value={susp.companyId}
+                className="h-9 w-full rounded border border-charcoal-300 bg-white px-2 text-sm"
+                onChange={(e) => setSusp({ ...susp, companyId: e.target.value })}>
+                <option value="">Choose a company</option>
+                {companies
+                  .filter((c) => !live.some((s) => s.companyId === c.companyId))
+                  .map((c) => (
+                    <option key={c.companyId} value={c.companyId}>{c.name}</option>
+                  ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="susp-kind">Why</Label>
+              <select id="susp-kind" value={susp.kind}
+                className="h-9 w-full rounded border border-charcoal-300 bg-white px-2 text-sm"
+                onChange={(e) => setSusp({ ...susp, kind: e.target.value as SuspensionKind })}>
+                <option value="nonpayment">Not paying</option>
+                <option value="abuse">Abuse of the platform</option>
+                <option value="legal_hold">Legal hold</option>
+                <option value="requested">They asked for it</option>
+              </select>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="susp-reason">Your note, for whoever reads this in a year</Label>
+            <Input id="susp-reason" value={susp.reason}
+              placeholder="Invoices from June and July unpaid after four reminders"
+              onChange={(e) => setSusp({ ...susp, reason: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="susp-message">What the customer will see</Label>
+            <Input id="susp-message" value={susp.customerMessage}
+              placeholder="Your account is read-only until the outstanding invoice is paid. Everything you have made is still here."
+              onChange={(e) => setSusp({ ...susp, customerMessage: e.target.value })} />
+            <p className="text-xs text-charcoal-500">
+              This is the exact sentence they get when they try to save something. Your note
+              above is never shown to them.
+            </p>
+          </div>
+          <Button variant="outline" disabled={!mayCreate || busy === 'suspend'
+            || !susp.companyId || susp.reason.trim().length < 10
+            || susp.customerMessage.trim().length < 10}
+            onClick={suspend}>
+            {busy === 'suspend' ? <Loader2 className="size-4 animate-spin" />
+              : <PauseCircle className="size-4" />}
+            Put it into read-only
+          </Button>
+        </CardContent>
+      </Card>
+
+      {live.length ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Currently suspended ({live.length})</CardTitle>
+            <CardDescription>What each of them was told, and who decided.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Why</TableHead>
+                  <TableHead>They were told</TableHead>
+                  <TableHead className="text-right">Seats</TableHead>
+                  <TableHead>Since</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {live.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-medium text-charcoal-900">
+                      {s.companyName}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="danger">{s.kind.replace(/_/g, ' ')}</Badge>
+                      <span className="mt-1 block text-xs text-charcoal-600">{s.reason}</span>
+                      {s.suspendedByEmail ? (
+                        <span className="block text-xs text-charcoal-400">
+                          {s.suspendedByEmail}
+                        </span>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="max-w-72 text-xs text-charcoal-600">
+                      {s.customerMessage}
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-700">
+                      {s.seats}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-xs text-charcoal-500">
+                      {date(s.suspendedAt)}
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" variant="ghost"
+                        disabled={!mayCreate || busy === s.companyId}
+                        onClick={() => restore(s.companyId)}>
+                        {busy === s.companyId ? <Loader2 className="size-4 animate-spin" />
+                          : <PlayCircle className="size-4" />}
+                        Restore
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

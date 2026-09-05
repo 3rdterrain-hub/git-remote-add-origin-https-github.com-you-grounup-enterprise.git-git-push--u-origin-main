@@ -26,6 +26,7 @@
     "company_billing_terms": "ENTITY",
     "company_invitations": "ENTITY",
     "company_memberships": "ENTITY",
+    "company_suspensions": "ENTITY",
     "condition_modifiers": "LIBRARY",
     "connector_runs": "WORKFLOW",
     "connectors": "ENTITY",

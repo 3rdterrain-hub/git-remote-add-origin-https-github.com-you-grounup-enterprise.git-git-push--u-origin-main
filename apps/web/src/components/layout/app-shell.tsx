@@ -16,7 +16,7 @@ import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
 import { useQuery } from '@/lib/data/query';
-import { loadMemberships } from '@/lib/data/session';
+import { loadMemberships, loadMySuspension } from '@/lib/data/session';
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -53,6 +53,8 @@ export function AppShell() {
    * signed up. Send them somewhere they can do something about it.
    */
   const memberships = useQuery(loadMemberships, []);
+  const suspensionQ = useQuery(loadMySuspension, []);
+  const suspension = suspensionQ.status === 'ready' ? suspensionQ.data : null;
 
   const [open, setOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
@@ -299,6 +301,25 @@ export function AppShell() {
         </header>
 
         <main key={location.pathname} className="min-w-0 flex-1 p-4 lg:p-6">
+          {/*
+            * Said here rather than discovered on a refusal. Somebody who spends
+            * a morning on an estimate and only then learns their account is
+            * read-only has lost the morning, and the message exists to be read
+            * before that rather than after.
+            */}
+          {suspension ? (
+            <div className="mb-5 rounded-[--radius-card] border border-danger-300
+                            bg-danger-50 p-4">
+              <p className="flex items-center gap-2 font-medium text-danger-800">
+                <ShieldAlert className="size-4" /> This account is read-only
+              </p>
+              <p className="mt-1 text-sm text-danger-700">{suspension.customerMessage}</p>
+              <p className="mt-1 text-xs text-danger-600">
+                Everything you have made is still here and can be opened, printed and
+                exported. Nothing has been deleted.
+              </p>
+            </div>
+          ) : null}
           <Outlet />
         </main>
       </div>
