@@ -16,7 +16,7 @@ import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
 import { useQuery } from '@/lib/data/query';
-import { loadMemberships, loadMySuspension } from '@/lib/data/session';
+import { loadMemberships, loadMySuspension, loadMyPaymentProblem } from '@/lib/data/session';
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -55,6 +55,8 @@ export function AppShell() {
   const memberships = useQuery(loadMemberships, []);
   const suspensionQ = useQuery(loadMySuspension, []);
   const suspension = suspensionQ.status === 'ready' ? suspensionQ.data : null;
+  const paymentQ = useQuery(loadMyPaymentProblem, []);
+  const payment = paymentQ.status === 'ready' ? paymentQ.data : null;
 
   const [open, setOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
@@ -307,6 +309,31 @@ export function AppShell() {
             * read-only has lost the morning, and the message exists to be read
             * before that rather than after.
             */}
+          {/*
+            * A card that is being refused, said before access is affected
+            * rather than on the day it goes. Usually an expired card, and the
+            * customer has no way of knowing.
+            */}
+          {payment && !suspension ? (
+            <div className="mb-5 rounded-[--radius-card] border border-warn-300
+                            bg-warn-50 p-4">
+              <p className="flex items-center gap-2 font-medium text-warn-800">
+                <ShieldAlert className="size-4" /> {payment.whatHappened}
+              </p>
+              <p className="mt-1 text-sm text-warn-700">
+                {payment.stripeGaveUp
+                  ? 'We have stopped retrying. Your subscription will end unless it is paid.'
+                  : 'We will try again automatically, but updating the card now avoids any interruption.'}
+              </p>
+              {payment.hostedInvoiceUrl ? (
+                <a href={payment.hostedInvoiceUrl} target="_blank" rel="noreferrer"
+                  className="mt-2 inline-block text-sm font-medium text-warn-800 underline">
+                  Pay it now
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+
           {suspension ? (
             <div className="mb-5 rounded-[--radius-card] border border-danger-300
                             bg-danger-50 p-4">

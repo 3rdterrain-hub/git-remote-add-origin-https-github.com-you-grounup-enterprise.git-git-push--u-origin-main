@@ -144,6 +144,7 @@ describe('schema invariants', () => {
       'cancellation_reasons (text)',
       'api_requests (bigint)', 'audit_events (bigint)', 'usage_events (bigint)',
       'signup_attempts (bigint)', 'visit_events (bigint)',
+      'payment_failures (bigint)',
     ]);
     expect(notUuid.map((r) => `${r.tbl} (${r.typ})`).filter((k) => !allowed.has(k))).toEqual([]);
   });

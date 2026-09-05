@@ -95,6 +95,7 @@
     "opportunities": "ENTITY",
     "pay_application_lines": "ENTITY",
     "pay_applications": "ENTITY",
+    "payment_failures": "ENTITY",
     "plan_prices": "LIBRARY",
     "plan_versions": "ENTITY",
     "plans": "LIBRARY",

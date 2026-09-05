@@ -71,6 +71,11 @@ export async function handleEvent(admin: Admin, event: StripeEventLike) {
         period_start?: number | null; period_end?: number | null;
         hosted_invoice_url?: string | null; invoice_pdf?: string | null;
         created?: number; status_transitions?: { paid_at?: number | null };
+        attempt_count?: number; next_payment_attempt?: number | null;
+        last_finalization_error?: { code?: string; message?: string } | null;
+        payment_intent?: {
+          last_payment_error?: { code?: string; decline_code?: string; message?: string };
+        } | null;
       };
       const companyId = await companyForCustomer(admin, invoice.customer ?? null);
       if (!companyId) return;
@@ -92,6 +97,33 @@ export async function handleEvent(admin: Admin, event: StripeEventLike) {
           ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
           : null,
       }, { onConflict: 'stripe_invoice_id' });
+
+      /*
+       * A refusal is an event, so it is recorded rather than counted into a
+       * column: "how many times has this card been declined" cannot be
+       * answered by a number that gets overwritten. Whether they are still
+       * failing is derived from the invoice above, so nothing here has to
+       * remember to clear anything when they finally pay.
+       */
+      if (event.type === 'invoice.payment_failed') {
+        const err = invoice.payment_intent?.last_payment_error;
+        const { error: failErr } = await admin.rpc('record_payment_failure', {
+          p_company: companyId,
+          p_invoice: invoice.id,
+          p_attempt: invoice.attempt_count ?? 1,
+          p_amount_cents: invoice.amount_due ?? 0,
+          p_currency: (invoice.currency ?? 'usd').toUpperCase(),
+          // The decline code is the specific one and the reason a customer can
+          // act on; `code` is the generic wrapper around it.
+          p_code: err?.decline_code ?? err?.code
+                  ?? invoice.last_finalization_error?.code ?? null,
+          p_message: err?.message ?? invoice.last_finalization_error?.message ?? null,
+          // Null means Stripe has stopped trying, which is when a person has to.
+          p_next_attempt: invoice.next_payment_attempt
+            ? new Date(invoice.next_payment_attempt * 1000).toISOString() : null,
+        });
+        if (failErr) console.error('[webhook] could not record the payment failure', failErr);
+      }
       return;
     }
   }

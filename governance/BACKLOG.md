@@ -177,6 +177,31 @@ The dialog can never prevent a cancellation. One click leaves, whether or not
 anything is answered — a form that held somebody in would be the dark pattern
 this platform exists not to be, and they would leave anyway, angrier. 15 tests.
 
+**A card being refused is visible and actionable.** Migration 0084. A
+subscription in `past_due` has shown as an orange badge since 0064 and nobody
+could act on it: the console could not say how much was owed, why the card was
+refused, how many times Stripe had tried or when it would stop — and the
+customer was told nothing until the day their access went.
+
+This is the most expensive gap on the platform, because a failed payment is
+usually an expired card rather than a decision to leave. They still want the
+product and do not know anything is wrong.
+
+Two shapes, held apart. **An attempt is an event**: each refusal is recorded
+append-only, because "how many times has this card been declined" cannot be
+answered by a column that gets overwritten. **Whether they are still failing is
+derived** from the invoice, so paying is what makes the problem stop and no code
+has to remember to clear a flag — a test proves it by marking an invoice paid
+and watching the row disappear while the history stays.
+
+`app.payment_problems()` is a definer function read by both views rather than a
+definer view built on an invoker one, which would have silently applied the
+operator's own tenant visibility and shown them an empty screen that looked like
+good news. That trap has now been hit twice and is written down in both places.
+
+The customer sees it in the application, in words rather than in Stripe decline
+codes, before their access is affected. 17 tests.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

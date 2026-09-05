@@ -1,13 +1,18 @@
 import { useOutletContext } from 'react-router-dom';
-import { TrendingDown, HelpCircle, Users, ShieldCheck } from 'lucide-react';
+import {
+  TrendingDown, HelpCircle, Users, ShieldCheck, CreditCard, ExternalLink,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@/lib/data/query';
-import { loadChurnReasons, loadChurnByMonth, loadCancellations } from '@/lib/data/admin';
+import {
+  loadChurnReasons, loadChurnByMonth, loadCancellations, loadFailingPayments,
+} from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
-import { money, integer, date } from '@/lib/format';
+import { Button } from '@/components/ui/button';
+import { money, integer, date, dateTime } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
 /**
@@ -27,12 +32,14 @@ export function AdminChurn() {
   const reasonsQ = useQuery(loadChurnReasons, []);
   const monthsQ = useQuery(loadChurnByMonth, []);
   const listQ = useQuery(loadCancellations, []);
+  const failingQ = useQuery(loadFailingPayments, []);
 
   const reasons = reasonsQ.status === 'ready' ? reasonsQ.data : [];
   const months = monthsQ.status === 'ready' ? monthsQ.data : [];
   const list = listQ.status === 'ready' ? listQ.data : [];
+  const failing = failingQ.status === 'ready' ? failingQ.data : [];
 
-  const failure = [reasonsQ, monthsQ, listQ].find((q) => q.status === 'error');
+  const failure = [reasonsQ, monthsQ, listQ, failingQ].find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
   const total = reasons.reduce((a, r) => a + r.customers, 0);
@@ -42,7 +49,9 @@ export function AdminChurn() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-charcoal-900">Why they left</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-charcoal-900">
+          Losing customers
+        </h1>
         <p className="mt-1 text-sm text-charcoal-500">
           {total
             ? `${integer(total)} cancellations over twelve months, worth `
@@ -63,6 +72,99 @@ export function AdminChurn() {
           gap in the customers.
         </Alert>
       ) : null}
+
+      {/*
+        * Failing cards sit above the cancellations, because they are the ones
+        * that have not happened yet. A customer whose card expired has not
+        * decided anything — they are about to be lost by accident, and a phone
+        * call fixes it.
+        */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="size-4" />
+            Cards being refused ({failing.length})
+          </CardTitle>
+          <CardDescription>
+            Not customers who decided to leave — usually a card that expired, and they have
+            no way of knowing. Ordered by how long it has been going on rather than by what
+            it is worth.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Who to call</TableHead>
+                <TableHead>What happened</TableHead>
+                <TableHead className="text-right">Owed</TableHead>
+                <TableHead className="text-right">Tries</TableHead>
+                <TableHead>Next try</TableHead>
+                <TableHead className="text-right">Days</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {failing.map((p) => (
+                <TableRow key={p.stripeInvoiceId}
+                  className={p.stripeGaveUp ? 'bg-danger-50/40' : undefined}>
+                  <TableCell className="font-medium text-charcoal-900">
+                    {p.companyName}
+                    <span className="block text-xs text-charcoal-500">
+                      {p.seats} seat{p.seats === 1 ? '' : 's'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-xs text-charcoal-700">
+                    {p.ownerEmail ?? '—'}
+                  </TableCell>
+                  <TableCell className="max-w-64 text-xs text-charcoal-600">
+                    {p.failureCode ? (
+                      <Badge variant={p.failureCode === 'expired_card' ? 'warn' : 'default'}>
+                        {p.failureCode.replace(/_/g, ' ')}
+                      </Badge>
+                    ) : null}
+                    {p.failureMessage ? (
+                      <span className="mt-1 block">{p.failureMessage}</span>
+                    ) : null}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-charcoal-900">
+                    {money(p.amountCents / 100)}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-charcoal-600">
+                    {p.attempts}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-xs">
+                    {p.stripeGaveUp ? (
+                      <Badge variant="danger">Stripe stopped trying</Badge>
+                    ) : (
+                      <span className="text-charcoal-500">
+                        {p.nextAttemptAt ? dateTime(p.nextAttemptAt) : '—'}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-charcoal-700">
+                    {p.daysFailing}
+                  </TableCell>
+                  <TableCell>
+                    {p.hostedInvoiceUrl ? (
+                      <Button asChild size="sm" variant="ghost">
+                        <a href={p.hostedInvoiceUrl} target="_blank" rel="noreferrer">
+                          Invoice <ExternalLink className="size-3.5" />
+                        </a>
+                      </Button>
+                    ) : null}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!failing.length && failingQ.status === 'ready' ? (
+            <EmptyState title="Every card is going through"
+              hint="Nobody is about to be lost to an expired card." />
+          ) : null}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

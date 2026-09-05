@@ -194,3 +194,39 @@ export const loadCancellationReasons: Query<CancellationReason[]> = async (clien
     needsDetail: Boolean(r.needs_detail),
   }));
 };
+
+/**
+ * The company's own outstanding payment, if there is one.
+ *
+ * Read so the application can say so before access is affected. A failed
+ * payment is usually an expired card; the customer does not know, and every
+ * day nobody tells them is a day closer to a cancellation that did not have
+ * to happen.
+ */
+export interface MyPaymentProblem {
+  companyId: string;
+  amountCents: number;
+  attempts: number;
+  nextAttemptAt: string | null;
+  stripeGaveUp: boolean;
+  hostedInvoiceUrl: string | null;
+  whatHappened: string;
+}
+
+export const loadMyPaymentProblem: Query<MyPaymentProblem | null> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_payment_problem')
+    .select('company_id, amount_cents, attempts, next_attempt_at, stripe_gave_up, hosted_invoice_url, what_happened')
+    .limit(1)) as Array<Record<string, unknown>>;
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    companyId: String(r.company_id),
+    amountCents: Number(r.amount_cents ?? 0),
+    attempts: Number(r.attempts ?? 0),
+    nextAttemptAt: (r.next_attempt_at as string | null) ?? null,
+    stripeGaveUp: Boolean(r.stripe_gave_up),
+    hostedInvoiceUrl: (r.hosted_invoice_url as string | null) ?? null,
+    whatHappened: String(r.what_happened),
+  };
+};

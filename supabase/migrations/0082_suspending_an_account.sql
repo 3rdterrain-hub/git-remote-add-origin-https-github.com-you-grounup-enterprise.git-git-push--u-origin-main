@@ -137,11 +137,30 @@ $$;
 comment on function app.refuse_when_suspended() is
   'Refuses a person''s write while their company is suspended, and says why in the words the operator wrote for them. Reads are untouched, and machine writes are never blocked — the Stripe webhook that ends a non-payment suspension is a machine write.';
 
+/** Put the guard on one table. What a later migration calls for a new one. */
+create or replace function app.guard_suspension(p_table text)
+returns void
+language plpgsql
+as $$
+begin
+  execute format('drop trigger if exists %I on public.%I',
+                 p_table || '_suspension', p_table);
+  execute format(
+    'create trigger %I before insert or update or delete on public.%I
+       for each row execute function app.refuse_when_suspended()',
+    p_table || '_suspension', p_table);
+end;
+$$;
+
+comment on function app.guard_suspension(text) is
+  'Puts the read-only guard on one tenant table. Every table carrying a company_id needs it; a migration that adds one calls this, and the invariant test in tests/db/suspension.test.ts fails on the next run if it did not.';
+
 /*
  * Applied to every table that has a company_id. Written as a loop over the
- * catalog rather than a list, so a table added next year is covered without
- * anybody remembering this file exists — the alternative is a suspension that
- * silently stops covering whatever was built most recently.
+ * catalog rather than a list, so nothing built before today is missed — and a
+ * test asserts the same coverage from the other side, so a table added later
+ * that forgets `app.guard_suspension` fails on the next run rather than
+ * quietly falling outside every suspension.
  */
 do $$
 declare
@@ -161,12 +180,7 @@ begin
                             'company_suspensions', 'stripe_events')
     order by c.relname
   loop
-    execute format('drop trigger if exists %I on public.%I',
-                   r.relname || '_suspension', r.relname);
-    execute format(
-      'create trigger %I before insert or update or delete on public.%I
-         for each row execute function app.refuse_when_suspended()',
-      r.relname || '_suspension', r.relname);
+    perform app.guard_suspension(r.relname);
     v_count := v_count + 1;
   end loop;
 

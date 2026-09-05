@@ -123,6 +123,7 @@ TBL-notifications,table,notifications,supabase/migrations (table notifications),
 TBL-opportunities,table,opportunities,supabase/migrations (table opportunities),ENTITY
 TBL-pay_application_lines,table,pay_application_lines,supabase/migrations (table pay_application_lines),ENTITY
 TBL-pay_applications,table,pay_applications,supabase/migrations (table pay_applications),ENTITY
+TBL-payment_failures,table,payment_failures,supabase/migrations (table payment_failures),ENTITY
 TBL-plan_prices,table,plan_prices,supabase/migrations (table plan_prices),LIBRARY
 TBL-plan_versions,table,plan_versions,supabase/migrations (table plan_versions),ENTITY
 TBL-plans,table,plans,supabase/migrations (table plans),LIBRARY
@@ -278,6 +279,7 @@ TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-operator-dashboard,test,db/operator-dashboard.test.ts,tests/db/operator-dashboard.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
+TST-db-payment-failures,test,db/payment-failures.test.ts,tests/db/payment-failures.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
 TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE

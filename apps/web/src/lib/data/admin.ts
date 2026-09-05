@@ -1205,3 +1205,55 @@ export const loadCancellations: Query<Cancellation[]> = async (client) => {
     cameBack: Boolean(c.came_back),
   }));
 };
+
+// ---------------------------------------------------------------------------
+// Cards that are being refused
+//
+// Usually an expired card rather than a decision to leave, which is why the
+// list is ordered by how long it has been failing rather than by what it is
+// worth: the customer does not know anything is wrong.
+// ---------------------------------------------------------------------------
+export interface FailingPayment {
+  companyId: string;
+  companyName: string;
+  stripeInvoiceId: string;
+  attempts: number;
+  amountCents: number;
+  failureCode: string | null;
+  failureMessage: string | null;
+  firstFailedAt: string;
+  lastFailedAt: string;
+  nextAttemptAt: string | null;
+  stripeGaveUp: boolean;
+  hostedInvoiceUrl: string | null;
+  subscriptionStatus: string | null;
+  accessUntil: string | null;
+  seats: number;
+  ownerEmail: string | null;
+  daysFailing: number;
+}
+
+export const loadFailingPayments: Query<FailingPayment[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_failing_payments')
+    .select('company_id, company_name, stripe_invoice_id, attempts, amount_cents, failure_code, failure_message, first_failed_at, last_failed_at, next_attempt_at, stripe_gave_up, hosted_invoice_url, subscription_status, access_until, seats, owner_email, days_failing')) as Array<Record<string, unknown>>;
+  return rows.map((p) => ({
+    companyId: String(p.company_id),
+    companyName: String(p.company_name),
+    stripeInvoiceId: String(p.stripe_invoice_id),
+    attempts: Number(p.attempts ?? 0),
+    amountCents: Number(p.amount_cents ?? 0),
+    failureCode: (p.failure_code as string | null) ?? null,
+    failureMessage: (p.failure_message as string | null) ?? null,
+    firstFailedAt: String(p.first_failed_at),
+    lastFailedAt: String(p.last_failed_at),
+    nextAttemptAt: (p.next_attempt_at as string | null) ?? null,
+    stripeGaveUp: Boolean(p.stripe_gave_up),
+    hostedInvoiceUrl: (p.hosted_invoice_url as string | null) ?? null,
+    subscriptionStatus: (p.subscription_status as string | null) ?? null,
+    accessUntil: (p.access_until as string | null) ?? null,
+    seats: Number(p.seats ?? 0),
+    ownerEmail: (p.owner_email as string | null) ?? null,
+    daysFailing: Number(p.days_failing ?? 0),
+  }));
+};
