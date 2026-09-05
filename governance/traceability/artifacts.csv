@@ -263,6 +263,7 @@ TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
+TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
 TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
