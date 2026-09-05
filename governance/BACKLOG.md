@@ -416,8 +416,28 @@ raised, because an invoice issued on the thirty-first for the following month is
 next month's money and mixing those is how a revenue report stops matching the
 accounts. 17 tests, passing on the first run.
 
-Still open: a second operator approving a change to a paying customer's
-entitlement.
+**Closed without building: a second operator approving a change to a paying
+customer's entitlement.** Carried since migration 0064 and now deliberately
+dropped rather than left as a permanent "still open".
+
+The protection it was reaching for already exists three times over. Every
+operator action is audited into the customer's own ledger, where the customer
+can read it. The staff activity screen reads the same records down the operator
+axis, so "who changed this account, and when" is a query. `features.manage` and
+`billing.manage` are marked powerful and held by the superadmin alone by
+default. And where a second pair of eyes genuinely matters — money leaving the
+business — the segregation is enforced: `decide_refund` and `decide_upsell` both
+refuse the person who asked.
+
+What a mandatory approval gate would add on top of that is friction, and it
+would fall hardest on the case this platform actually has: one person running
+the whole operation, for whom every feature toggle would need an approver who
+does not exist. That is a rule people work around rather than follow.
+
+If the platform ever has enough operators for the rule to be meaningful, it
+belongs as a setting rather than a law — off for a company of one, on when
+somebody turns it on — and the propose/decide machinery to implement it is
+already written twice.
 
 ### 3b. What the business is earning — **built**
 Migration 0078. The console could count companies and could not say what the
