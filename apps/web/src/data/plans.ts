@@ -151,21 +151,82 @@ export const COMPARISON: { group: string; rows: ComparisonRow[] }[] = [
  * Falls back to the shipped defaults when Supabase is not configured, so the
  * pricing page always renders something truthful rather than an empty state.
  */
+/**
+ * The plans a visitor is shown, read from the catalog.
+ *
+ * This used to render a hardcoded list and overlay live prices onto it, which
+ * meant the pricing page and the plan catalog were two copies of the same
+ * decision. Retiring four tiers in the database changed nothing a visitor saw —
+ * and the operator console asserted, wrongly, that the page read the catalog
+ * directly.
+ *
+ * It does now. `plans` and `plan_prices` are the only two tables an anonymous
+ * visitor may read at all, which is precisely so this page can be honest
+ * without opening anything else.
+ *
+ * The fixture remains as the unconfigured fallback, because a build with no
+ * workspace still has a pricing page to show.
+ */
 export async function loadPlanPrices(): Promise<Plan[]> {
   if (!supabase) return PLANS;
-  const { data, error } = await supabase
-    .from('plan_prices')
-    .select('plan_id, interval, unit_amount_cents, is_active')
-    .eq('is_active', true);
-  if (error || !data) return PLANS;
 
-  return PLANS.map((p) => {
-    const monthly = data.find((d) => d.plan_id === p.id && d.interval === 'month');
-    const yearly = data.find((d) => d.plan_id === p.id && d.interval === 'year');
+  const [{ data: catalog, error: catalogError }, { data: prices }] = await Promise.all([
+    supabase.from('plans')
+      .select('id, name, tagline, description, max_seats, max_active_estimates, max_active_projects, storage_gb, ai_credits_per_month, trial_days, sort_order')
+      .eq('is_public', true).eq('is_active', true)
+      .order('sort_order'),
+    supabase.from('plan_prices')
+      .select('plan_id, interval, unit_amount_cents, is_active')
+      .eq('is_active', true),
+  ]);
+
+  // A pricing page that fails to a blank screen is worse than one showing the
+  // shipped defaults, so an unreadable catalog falls back rather than throwing.
+  if (catalogError || !catalog?.length) return PLANS;
+
+  const price = (planId: string, interval: string) =>
+    (prices ?? []).find((d) => d.plan_id === planId && d.interval === interval)
+      ?.unit_amount_cents ?? 0;
+
+  /** "Unlimited" is the honest word for a null limit, not "0". */
+  const limit = (v: number | null, unit: string) =>
+    v === null || v === undefined ? 'Unlimited' : `${v.toLocaleString()} ${unit}`;
+
+  return catalog.map((p) => {
+    const known = PLANS.find((x) => x.id === p.id);
     return {
-      ...p,
-      monthlyCents: monthly?.unit_amount_cents ?? p.monthlyCents,
-      yearlyCents: yearly?.unit_amount_cents ?? p.yearlyCents,
+      id: String(p.id),
+      name: String(p.name),
+      tagline: String(p.tagline ?? ''),
+      monthlyCents: price(String(p.id), 'month'),
+      yearlyCents: price(String(p.id), 'year'),
+      // A plan with no seat cap is priced per seat rather than capped at one.
+      seats: p.max_seats === null ? 'Per user, per month' : `Up to ${p.max_seats} users`,
+      trialDays: Number(p.trial_days ?? 0),
+      highlight: catalog.length === 1 ? true : known?.highlight,
+      headline: known?.headline ?? splitDescription(String(p.description ?? '')),
+      limits: {
+        estimates: limit(p.max_active_estimates as number | null, 'active estimates'),
+        projects: limit(p.max_active_projects as number | null, 'active projects'),
+        storage: p.storage_gb === null ? 'Unlimited' : `${p.storage_gb} GB included`,
+        ai: p.ai_credits_per_month === null
+          ? 'Unlimited' : `${Number(p.ai_credits_per_month).toLocaleString()} AI credits a month`,
+      },
     };
   });
 }
+
+/**
+ * Bullet points from a plan's own description.
+ *
+ * Used only where the catalog carries a plan the fixture has never heard of —
+ * which is the normal case now that the catalog is the authority.
+ */
+function splitDescription(description: string): string[] {
+  return description
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .slice(0, 6);
+}
+

@@ -50,6 +50,19 @@ const ALLOWED_ISE_STEMS = [
 const ISE_FAMILY = /\b[A-Za-z]+is(?:e|es|ed|ing|ation|ations|able)\b/g;
 
 /**
+ * Whether an -ise word is one American English spells that way.
+ *
+ * Checked against the *end* of the word rather than the start, because a prefix
+ * makes an allowed word unrecognisable to a `startsWith` test: `advertis` is on
+ * the list and `unadvertised` does not begin with it, so this scanner reported
+ * a perfectly American word in its own repository as British.
+ */
+export function isAllowedIse(word: string): boolean {
+  return ALLOWED_ISE_STEMS.some((stem) =>
+    word === stem || word.startsWith(stem) || new RegExp(`${stem}(e|es|ed|ing|able)$`).test(word));
+}
+
+/**
  * The last word of a camelCase or PascalCase identifier, lowercased.
  *
  * A plain word is returned unchanged, so prose is unaffected.
@@ -128,7 +141,7 @@ function scan(): Hit[] {
         // checked against the whole identifier, so `ris` never matches
         // `pitchrise` and a perfectly American variable is reported as British.
         const word = lastWordOf(m[0]);
-        if (!ALLOWED_ISE_STEMS.some((stem) => word.startsWith(stem))) record(m[0]);
+        if (!isAllowedIse(word)) record(m[0]);
       }
       for (const m of line.matchAll(YSE_FAMILY)) record(m[0]);
       for (const m of line.matchAll(BRITISH_RE)) record(m[0]);
@@ -164,6 +177,25 @@ describe('American English', () => {
       .map((m) => m[0].toLowerCase())
       .filter((w) => !ALLOWED_ISE_STEMS.some((s) => w.startsWith(s)));
     expect(found).toEqual(['prioritise', 'decentralise']);
+  });
+
+  it('allows a prefixed form of an American word', () => {
+    /*
+     * `advertis` is on the list and `unadvertised` does not begin with it. A
+     * `startsWith` test therefore reported a perfectly American word in this
+     * repository as British — the second false positive this scanner has
+     * produced against its own source, and the second one fixed in the rule
+     * rather than by renaming the word.
+     */
+    expect(isAllowedIse('unadvertised')).toBe(true);
+    expect(isAllowedIse('advertised')).toBe(true);
+    expect(isAllowedIse('unsupervised')).toBe(true);
+  });
+
+  it('still catches a British word that merely ends like an allowed one', () => {
+    // Splitting and suffixing must not become a way through.
+    expect(isAllowedIse('prioritise')).toBe(false);
+    expect(isAllowedIse('organised')).toBe(false);
   });
 
   it('reads a camelCase identifier as the words it is made of', () => {

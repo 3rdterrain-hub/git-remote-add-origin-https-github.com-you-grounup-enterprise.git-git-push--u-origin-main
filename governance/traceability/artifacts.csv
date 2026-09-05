@@ -258,6 +258,7 @@ TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
+TST-db-one-plan,test,db/one-plan.test.ts,tests/db/one-plan.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE

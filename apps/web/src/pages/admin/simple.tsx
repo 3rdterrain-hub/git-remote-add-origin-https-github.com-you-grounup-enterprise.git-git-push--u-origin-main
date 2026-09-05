@@ -184,11 +184,14 @@ export function AdminBilling() {
 /**
  * What the public site shows.
  *
- * The pricing page reads `plans` directly — the only two tables an anonymous
- * visitor may read at all — so whether a plan appears there is a property of
- * the plan rather than of a separate content system. That is why this screen
- * shows plan visibility rather than a page editor: there is no second copy of
- * the pricing to keep in step.
+ * The pricing page reads `plans` and `plan_prices` — the only two tables an
+ * anonymous visitor may read at all — so whether a plan appears there is a
+ * property of the plan rather than of a separate content system.
+ *
+ * That was not true when this screen first claimed it. The page rendered a
+ * hardcoded list of five tiers and overlaid live prices onto it, so retiring
+ * four of them in the database changed nothing a visitor saw. The claim was
+ * written here before the behavior existed; the behavior exists now.
  */
 export function AdminFrontEnd() {
   const plansQ = useQuery(loadPlans, []);

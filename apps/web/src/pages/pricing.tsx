@@ -111,15 +111,34 @@ export function PricingPage() {
                 <p className="mt-1 min-h-10 text-sm text-charcoal-500">{p.tagline}</p>
 
                 <div className="mt-5">
-                  <span className="tabular text-4xl font-bold tracking-tight text-charcoal-900">
-                    ${price(p).toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                  </span>
-                  <span className="ml-1 text-sm text-charcoal-500">/month</span>
-                  {yearly ? (
-                    <p className="mt-1 text-xs text-charcoal-500">
-                      ${(p.yearlyCents / 100).toLocaleString('en-US')} billed annually
-                    </p>
-                  ) : null}
+                  {/*
+                    * A plan with no price configured shows that it has none.
+                    * Rendering the arithmetic result would print "$0/month",
+                    * which is not a price that is missing — it is a price, and
+                    * a wrong one, on a page people make decisions from.
+                    */}
+                  {price(p) > 0 ? (
+                    <>
+                      <span className="tabular text-4xl font-bold tracking-tight text-charcoal-900">
+                        ${price(p).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                      </span>
+                      <span className="ml-1 text-sm text-charcoal-500">/month</span>
+                      {yearly ? (
+                        <p className="mt-1 text-xs text-charcoal-500">
+                          ${(p.yearlyCents / 100).toLocaleString('en-US')} billed annually
+                        </p>
+                      ) : null}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold tracking-tight text-charcoal-900">
+                        Talk to us
+                      </span>
+                      <p className="mt-1 text-xs text-charcoal-500">
+                        No price is published for this plan yet.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <p className="mt-2 text-sm font-medium text-charcoal-700">{p.seats}</p>
@@ -128,11 +147,15 @@ export function PricingPage() {
                   className="mt-5 w-full"
                   variant={p.highlight ? 'default' : p.contactSales ? 'outline' : 'dark'}
                   disabled={pending === p.id}
-                  onClick={() => (p.contactSales ? (window.location.href = 'mailto:sales@grounup.example') : startCheckout(p.id))}
+                  onClick={() => (p.contactSales || price(p) === 0
+                    ? (window.location.href = 'mailto:sales@grounup.example')
+                    : startCheckout(p.id))}
                 >
                   {pending === p.id ? <Loader2 className="size-4 animate-spin" /> : null}
-                  {p.contactSales ? 'Contact sales' : p.trialDays ? `Start ${p.trialDays}-day trial` : 'Choose plan'}
-                  {!pending && !p.contactSales ? <ArrowRight className="size-4" /> : null}
+                  {p.contactSales || price(p) === 0 ? 'Contact sales'
+                    : p.trialDays ? `Start ${p.trialDays}-day trial` : 'Choose plan'}
+                  {!pending && !p.contactSales && price(p) > 0
+                    ? <ArrowRight className="size-4" /> : null}
                 </Button>
 
                 <ul className="mt-6 flex-1 space-y-2.5 border-t border-charcoal-200 pt-5">

@@ -180,3 +180,59 @@ Score 0-100 honestly. A dimensioned quantity confirmed on a second sheet is high
 Report only what the supplied documents support. Silence is better than a plausible invention.', 'draft',
         'Cannot be activated until an evaluation exists: ai_prompts_activation requires a pass rate, and P27 recorded that nothing measures whether this agent is any good. The analyst runs this text compiled into the function; a test asserts the two are identical.')
 on conflict (agent_id, company_id, version) do nothing;
+
+-- =============================================================================
+-- One plan
+--
+-- The catalog above is the five-tier ladder this platform shipped with, kept
+-- because plans are versioned commercial terms: anything that ever bought under
+-- one still points at it, so they are retired rather than deleted.
+--
+-- Tiers make sense where different customers need different capabilities. In
+-- construction they do not — a one-man shop and a forty-person contractor both
+-- need estimating, takeoff, projects, fleet and job cost, and neither needs a
+-- "professional" version of estimating because there is no such thing. Gating
+-- by tier means the smallest customer evaluates a deliberately crippled product,
+-- which is the worst arrangement for a platform whose cheapest tier is also its
+-- demo.
+--
+-- What varies is scale. So: one plan, everything in it, priced per seat, with
+-- the two things that genuinely cost money to serve measured rather than tiered.
+-- =============================================================================
+
+update plans set is_public = false, is_active = false
+ where id in ('starter', 'professional', 'business', 'enterprise', 'free');
+
+insert into plans (id, name, tagline, description, tier, is_public, is_active,
+                   max_seats, max_companies, max_active_estimates, max_active_projects,
+                   storage_gb, ai_credits_per_month, features, trial_days, sort_order) values
+  ('grounup', 'GrounUp',
+   'Everything, priced per person.',
+   'One plan. Estimating, takeoff, projects, scheduling, fleet, workforce, procurement, finance, safety, survey and the full master library — all of it, for everybody. Priced per active seat. AI credits and storage are measured, because they are the two things that cost real money to serve; everything else is included because a smaller contractor does not need a smaller product.',
+   10, true, true,
+   -- Seats are the unit of billing rather than a ceiling. A cap here would
+   -- refuse the eleventh person on a plan that charges for the eleventh person.
+   null, null, null, null,
+   100, 500,
+   array['*'],
+   14, 10),
+
+  -- Not advertised. Not a feature difference either: single sign-on, an agreed
+  -- service level, negotiated terms. Selling it is a conversation.
+  ('grounup_enterprise', 'GrounUp Enterprise',
+   'The same product, on your terms.',
+   'Everything in GrounUp, with the things an enterprise negotiates rather than buys: single sign-on, an agreed service level, custom terms, and storage and AI allowances set to whatever the contract says.',
+   20, false, true,
+   null, null, null, null,
+   null, null,
+   array['*'],
+   0, 20)
+on conflict (id) do update set
+  name = excluded.name, tagline = excluded.tagline, description = excluded.description,
+  is_public = excluded.is_public, is_active = excluded.is_active,
+  max_seats = excluded.max_seats, max_companies = excluded.max_companies,
+  max_active_estimates = excluded.max_active_estimates,
+  max_active_projects = excluded.max_active_projects,
+  storage_gb = excluded.storage_gb, ai_credits_per_month = excluded.ai_credits_per_month,
+  features = excluded.features, trial_days = excluded.trial_days,
+  sort_order = excluded.sort_order;
