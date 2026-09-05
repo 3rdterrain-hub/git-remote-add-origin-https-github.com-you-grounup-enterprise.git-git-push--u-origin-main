@@ -226,6 +226,25 @@ Two kinds, because they differ: a refund puts money back on the card and cannot
 be undone; a credit reduces the next invoice, moves nothing, and is usually what
 a customer who is staying would rather have. 22 tests, passing on the first run.
 
+**What the staff did is readable.** Migration 0086. Every operator action has
+been audited since 0064, and audited into the *customer's* ledger — deliberately,
+so a company can read what was done to them. That is the right place for it and
+the wrong place to answer the other question: what did the people I hired do
+this week. The records were spread across every tenant's history with no way to
+read down the operator axis, and the actions belonging to no tenant at all —
+publishing a price, editing a role, taking somebody on — sat in rows with a null
+company that nothing ever looked at.
+
+This adds no recording. It is three views over rows that already existed, which
+is worth saying because the tempting version is a second log that would
+immediately disagree with the first.
+
+One thing it found: counting ledger rows reports every action twice. A single
+operator action leaves two entries — the function's own, carrying the reason,
+and the audit trigger's, carrying the exact before and after. Both belong in the
+ledger; a screen saying somebody opened two customer accounts when they opened
+one does not. The summary counts by the thing acted on instead. 13 tests.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

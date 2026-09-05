@@ -3,7 +3,7 @@ import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
   Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
-  Banknote,
+  Banknote, History,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +58,8 @@ const SECTIONS = [
   { to: '/admin/controls', label: 'Controls', icon: ShieldAlert,
     needs: ['upsell.decide', 'features.manage', 'operators.manage'] },
   { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },
+  { to: '/admin/activity', label: 'Staff activity', icon: History,
+    needs: ['operators.manage'] },
   { to: '/admin/front-end', label: 'Front end', icon: Globe, needs: ['pricing.manage'] },
   { to: '/admin/settings', label: 'Settings', icon: Settings, needs: [] as string[] },
 ];

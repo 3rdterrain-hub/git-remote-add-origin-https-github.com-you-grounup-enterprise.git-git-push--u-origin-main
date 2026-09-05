@@ -1343,3 +1343,81 @@ export async function decideRefund(
 export async function applyRefund(refundId: string): Promise<void> {
   await callFunction<{ applied: boolean }>('apply-refund', { refundId });
 }
+
+// ---------------------------------------------------------------------------
+// What your staff did
+//
+// No new recording — the same rows a customer reads in their own history,
+// joined down the operator axis instead of the tenant one.
+// ---------------------------------------------------------------------------
+export interface OperatorAction {
+  id: string;
+  occurredAt: string;
+  operatorId: string;
+  operatorEmail: string | null;
+  operatorRole: string | null;
+  operatorSinceRevoked: boolean;
+  action: string;
+  entityTable: string;
+  entityId: string | null;
+  reason: string | null;
+  companyId: string | null;
+  companyName: string | null;
+  platformWide: boolean;
+}
+
+export const loadOperatorActivity: Query<OperatorAction[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_operator_activity')
+    .select('id, occurred_at, operator_id, operator_email, operator_role, operator_since_revoked, action, entity_table, entity_id, reason, company_id, company_name, platform_wide')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    occurredAt: String(r.occurred_at),
+    operatorId: String(r.operator_id),
+    operatorEmail: (r.operator_email as string | null) ?? null,
+    operatorRole: (r.operator_role as string | null) ?? null,
+    operatorSinceRevoked: Boolean(r.operator_since_revoked),
+    action: String(r.action),
+    entityTable: String(r.entity_table),
+    entityId: (r.entity_id as string | null) ?? null,
+    reason: (r.reason as string | null) ?? null,
+    companyId: (r.company_id as string | null) ?? null,
+    companyName: (r.company_name as string | null) ?? null,
+    platformWide: Boolean(r.platform_wide),
+  }));
+};
+
+export interface OperatorSummary {
+  operatorId: string;
+  operatorEmail: string;
+  operatorRole: string | null;
+  accessWithdrawn: boolean;
+  grantedAt: string;
+  actions30Days: number;
+  companiesTouched: number;
+  refundActions: number;
+  featureActions: number;
+  accountsOpened: number;
+  termsSet: number;
+  lastSeen: string | null;
+}
+
+export const loadOperatorSummary: Query<OperatorSummary[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_operator_summary')
+    .select('operator_id, operator_email, operator_role, access_withdrawn, granted_at, actions_30_days, companies_touched, refund_actions, feature_actions, accounts_opened, terms_set, last_seen')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    operatorId: String(r.operator_id),
+    operatorEmail: String(r.operator_email),
+    operatorRole: (r.operator_role as string | null) ?? null,
+    accessWithdrawn: Boolean(r.access_withdrawn),
+    grantedAt: String(r.granted_at),
+    actions30Days: Number(r.actions_30_days ?? 0),
+    companiesTouched: Number(r.companies_touched ?? 0),
+    refundActions: Number(r.refund_actions ?? 0),
+    featureActions: Number(r.feature_actions ?? 0),
+    accountsOpened: Number(r.accounts_opened ?? 0),
+    termsSet: Number(r.terms_set ?? 0),
+    lastSeen: (r.last_seen as string | null) ?? null,
+  }));
+};

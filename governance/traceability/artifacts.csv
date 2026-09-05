@@ -277,6 +277,7 @@ TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/no
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-one-plan,test,db/one-plan.test.ts,tests/db/one-plan.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
+TST-db-operator-activity,test,db/operator-activity.test.ts,tests/db/operator-activity.test.ts,ENGINE
 TST-db-operator-dashboard,test,db/operator-dashboard.test.ts,tests/db/operator-dashboard.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
