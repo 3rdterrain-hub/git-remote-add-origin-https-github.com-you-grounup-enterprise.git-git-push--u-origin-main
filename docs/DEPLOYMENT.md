@@ -148,7 +148,15 @@ the platform.
 ### Deploy the functions
 
 ```bash
-supabase functions deploy create-checkout-session
+# --import-map is required. Every function imports @supabase/supabase-js by
+# bare specifier, and supabase/functions/deno.json is what resolves it; without
+# the flag the bundler refuses every function with "Relative import path not
+# prefixed with ./". The pinning test asserts the map is the single place those
+# versions are declared, which is exactly why the flag cannot be omitted.
+supabase functions deploy --import-map supabase/functions/deno.json
+
+# Or one at a time:
+supabase functions deploy create-checkout-session --import-map supabase/functions/deno.json
 supabase functions deploy create-billing-portal-session
 supabase functions deploy change-subscription
 supabase functions deploy cancel-subscription

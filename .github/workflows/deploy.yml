@@ -133,7 +133,14 @@ jobs:
             name="$(basename "$fn")"
             [ "$name" = "_shared" ] && continue
             echo "Deploying $name"
-            supabase functions deploy "$name" --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+            # --import-map is required, not optional. Every function imports
+            # @supabase/supabase-js by bare specifier and the map in
+            # supabase/functions/deno.json is what resolves it; without the flag
+            # the bundler reports "Relative import path not prefixed with ./"
+            # and every function fails to deploy.
+            supabase functions deploy "$name" \
+              --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" \
+              --import-map supabase/functions/deno.json
           done
 
       # Built here rather than reusing the verify artifact, because the browser

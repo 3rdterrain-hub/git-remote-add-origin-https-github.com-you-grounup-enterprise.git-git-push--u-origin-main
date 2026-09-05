@@ -8,7 +8,7 @@
 | Document rendering (source + tests) | 8 | ~1,800 |
 | Database migrations (71 files, 143 tables, 23 views) | 71 | ~16,300 |
 | Edge Functions + shared modules | 52 | ~8,100 |
-| Database & function tests | 56 | ~14,100 |
+| Database & function tests | 56 | ~14,200 |
 | Governance & traceability tests | 6 | ~2,800 |
 | Web application (40 routes, 24 app screens) | 120 | ~22,900 |
 | Documentation | 14 | ~4,700 |

@@ -120,3 +120,30 @@ describe('the typechecked SDK is the deployed SDK', () => {
     });
   }
 });
+
+/**
+ * The deploy command has to carry the import map.
+ *
+ * Every function imports `@supabase/supabase-js` by bare specifier, and the map
+ * in `supabase/functions/deno.json` is the single place its version is pinned —
+ * which the first test in this file exists to enforce. The consequence is that
+ * `supabase functions deploy` without `--import-map` fails on every function
+ * with "Relative import path not prefixed with ./", which is how the first real
+ * deployment of these functions went.
+ *
+ * Asserted against the workflow rather than remembered, because the failure
+ * happens at deploy time and nowhere earlier.
+ */
+describe('the deploy command resolves the pinned dependencies', () => {
+  it('passes the import map to supabase functions deploy', () => {
+    const workflow = readFileSync(join(ROOT, '.github/workflows/deploy.yml'), 'utf8');
+    const deployLines = workflow.split('\n').filter((l) => l.includes('functions deploy'));
+    expect(deployLines.length).toBeGreaterThan(0);
+    expect(workflow).toMatch(/--import-map supabase\/functions\/deno\.json/);
+  });
+
+  it('documents the same command for a deploy by hand', () => {
+    const doc = readFileSync(join(ROOT, 'docs/DEPLOYMENT.md'), 'utf8');
+    expect(doc).toMatch(/--import-map supabase\/functions\/deno\.json/);
+  });
+});
