@@ -240,7 +240,27 @@ an expired remote pilot certificate should refuse an assignment the same way
 every other credential does), imagery against a project and date, and the
 processing step that turns photographs into a grid.
 
-### 13. BIM
+### 13. Deleting a customer
+A tenant cannot currently be deleted. `protect_last_owner` used to block the
+cascade and no longer does — migration 0072 tells "the last administrator is
+being removed" from "the company is going" — but ten append-only ledgers refuse
+a DELETE at any privilege level and several reference `companies`.
+
+That refusal is correct and must stay: an audit trail somebody can erase is not
+an audit trail. What is missing is the workflow around it, which is a real piece
+of work rather than a foreign key:
+
+  * export what the customer is owed, in a form they can actually use;
+  * remove their business data — estimates, projects, documents, costs;
+  * reduce the ledgers to something that answers a legal question without
+    holding personal data. `audit_events.actor_email` names people, and
+    migration 0072 deliberately did not touch it.
+
+Until this exists, a customer asking to be deleted is a manual job, and the
+platform has a compliance gap rather than a housekeeping one. Worth saying
+plainly: it is the kind of thing that only becomes urgent once somebody asks.
+
+### 14. BIM
 Model-based quantities from IFC. **Recommended last, and only if customers ask
 for it by name.**
 
@@ -260,7 +280,7 @@ one is `explicit_dimension` — the strongest reliability the measurement scale
 allows — and it reaches an estimate through the same `applied_line_item_id`
 path surfaces and on-screen measurements already use.
 
-### 14. Follow-up automation
+### 15. Follow-up automation
 Nothing in the platform acts on a schedule. Every notification is produced by a
 database trigger reacting to a change — a machine going down, a service coming
 due, a credential expiring — which means the platform can tell you something
@@ -279,7 +299,7 @@ which already has categories, severity, receipts and immutability.
 The hard part is not the timer. It is making a follow-up stop: acting on the
 thing has to cancel the chase, or the platform becomes noise inside a week.
 
-### 15. HRM and payroll
+### 16. HRM and payroll
 Today this is labor, not HR: `employees`, `crews`, `credentials`,
 `time_entries`, `labor_rates`. Missing entirely — no payroll run, no PTO or
 leave, no benefits, no performance reviews, no onboarding, no org chart, and no
@@ -289,13 +309,13 @@ Payroll is the load-bearing piece and the one with real consequences: it has to
 reconcile to approved time entries, post to job cost through the path migration
 0044 already built, and never pay from unapproved hours.
 
-### 16. Asset lifecycle accounting
+### 17. Asset lifecycle accounting
 `assets` records `acquisition_cost`, `acquired_on` and `disposed_on`, and
 nothing does anything with them. No depreciation schedule, no book value, no
 salvage, no disposal proceeds or gain, no transfer between divisions. Recorded
 as a gap in the P12 verdict and still open.
 
-### 17. General ledger
+### 18. General ledger
 No chart of accounts, no journal entries, no trial balance, no bank
 reconciliation, no profit and loss, no balance sheet. What exists is
 construction job cost and billing that was designed to feed an accounting

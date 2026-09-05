@@ -241,6 +241,7 @@ TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-go
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
+TST-db-deleting-a-company,test,db/deleting-a-company.test.ts,tests/db/deleting-a-company.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
 TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.test.ts,ENGINE
 TST-db-estimate-hierarchy,test,db/estimate-hierarchy.test.ts,tests/db/estimate-hierarchy.test.ts,ENGINE
