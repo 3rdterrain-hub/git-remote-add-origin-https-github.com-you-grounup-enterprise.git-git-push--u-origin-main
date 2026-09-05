@@ -15,8 +15,12 @@ import { ESTIMATE } from '@/data/demo';
 import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
+import { supabase } from '@/lib/supabase';
 import { useQuery } from '@/lib/data/query';
-import { loadMemberships, loadMySuspension, loadMyPaymentProblem } from '@/lib/data/session';
+import {
+  loadMemberships, loadMySuspension, loadMyPaymentProblem, loadMyAnnouncements,
+  dismissAnnouncement,
+} from '@/lib/data/session';
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -57,6 +61,23 @@ export function AppShell() {
   const suspension = suspensionQ.status === 'ready' ? suspensionQ.data : null;
   const paymentQ = useQuery(loadMyPaymentProblem, []);
   const payment = paymentQ.status === 'ready' ? paymentQ.data : null;
+  const announcementsQ = useQuery(loadMyAnnouncements, []);
+  const announcements = announcementsQ.status === 'ready' ? announcementsQ.data : [];
+  const [cleared, setCleared] = useState<string[]>([]);
+
+  /*
+   * Cleared locally as well as in the database, so the banner goes the moment
+   * it is dismissed rather than on the next refetch. The database is still the
+   * record — this only avoids a banner that lingers after being told to go.
+   */
+  async function clearAnnouncement(id: string) {
+    setCleared((seen) => [...seen, id]);
+    if (!supabase) return;
+    await dismissAnnouncement(supabase, id).catch(() => {
+      // It failed; put it back rather than pretending it cleared.
+      setCleared((seen) => seen.filter((x) => x !== id));
+    });
+  }
 
   const [open, setOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
@@ -309,6 +330,26 @@ export function AppShell() {
             * read-only has lost the morning, and the message exists to be read
             * before that rather than after.
             */}
+          {/*
+            * What the platform has to say, and what the reader can make go
+            * away. Above the billing warnings, which are about them
+            * specifically and stay until they are fixed.
+            */}
+          {announcements.filter((a) => !cleared.includes(a.id)).map((a) => (
+            <div key={a.id}
+              className="mb-3 flex items-start justify-between gap-3 rounded-[--radius-card]
+                         border border-charcoal-200 bg-charcoal-50 p-4">
+              <div className="min-w-0">
+                <p className="font-medium text-charcoal-900">{a.title}</p>
+                <p className="mt-0.5 text-sm text-charcoal-700">{a.body}</p>
+              </div>
+              <Button variant="ghost" size="sm" className="shrink-0"
+                onClick={() => clearAnnouncement(a.id)}>
+                Dismiss
+              </Button>
+            </div>
+          ))}
+
           {/*
             * A card that is being refused, said before access is affected
             * rather than on the day it goes. Usually an expired card, and the

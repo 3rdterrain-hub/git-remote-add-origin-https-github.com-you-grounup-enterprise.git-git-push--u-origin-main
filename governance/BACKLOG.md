@@ -269,6 +269,30 @@ The CSV writer handles the two things that make real exports go wrong — the
 customer whose name has a comma in it, and the field a spreadsheet decides is a
 formula. 10 database tests, 7 on the writer.
 
+**The platform can tell everybody something.** Migration 0088. Maintenance on
+Sunday, a price change next month, a feature worth knowing about — there was no
+way to say any of it. The `notifications` table is the wrong shape: one row per
+person per notice means writing a row for every user, more for everybody who
+signs up afterwards, and cleaning them all up later. An announcement is one
+thing that is true for a while, and who has seen it is a separate, much smaller
+fact. So: one row for the message, one per person who cleared it, and a view
+that works out what somebody should see now.
+
+**Retracting does not unsend.** Somebody read it; a platform that could make
+that untrue is one whose history means nothing. Retracting stops it being shown
+and records why.
+
+**Dismissal is one person's.** An estimator clearing a banner must not clear it
+for the owner who has not read it, which is what per-company dismissal does and
+what makes broadcast features quietly useless.
+
+Three audiences rather than a query builder — everyone, the paying customers,
+the free ones — because an audience nobody can describe in a sentence is one
+somebody eventually gets wrong, and getting it wrong here means telling the
+wrong customers something alarming. A maintenance notice must carry an end
+date: a banner about last Sunday is worse than no banner. 20 tests, passing on
+the first run.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

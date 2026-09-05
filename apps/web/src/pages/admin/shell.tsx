@@ -3,7 +3,7 @@ import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
   Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
-  Banknote, History,
+  Banknote, History, Megaphone,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +36,7 @@ const PERMISSIONS = [
   'companies.read', 'companies.manage', 'billing.read', 'billing.manage',
   'upsell.propose', 'upsell.decide', 'features.manage', 'pricing.manage',
   'operators.manage', 'support.open', 'refunds.request', 'refunds.approve',
+  'announcements.publish',
 ] as const;
 
 /*
@@ -60,6 +61,8 @@ const SECTIONS = [
   { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },
   { to: '/admin/activity', label: 'Staff activity', icon: History,
     needs: ['operators.manage'] },
+  { to: '/admin/announcements', label: 'Announcements', icon: Megaphone,
+    needs: ['announcements.publish', 'companies.read'] },
   { to: '/admin/front-end', label: 'Front end', icon: Globe, needs: ['pricing.manage'] },
   { to: '/admin/settings', label: 'Settings', icon: Settings, needs: [] as string[] },
 ];

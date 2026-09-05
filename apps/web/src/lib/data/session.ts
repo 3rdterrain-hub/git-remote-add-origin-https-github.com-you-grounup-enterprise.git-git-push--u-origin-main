@@ -230,3 +230,44 @@ export const loadMyPaymentProblem: Query<MyPaymentProblem | null> = async (clien
     whatHappened: String(r.what_happened),
   };
 };
+
+/** What this person should be shown right now, and clearing one. */
+export interface MyAnnouncement {
+  id: string;
+  title: string;
+  body: string;
+  kind: 'info' | 'maintenance' | 'warning';
+  startsAt: string;
+  endsAt: string | null;
+}
+
+export const loadMyAnnouncements: Query<MyAnnouncement[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_announcements')
+    .select('id, title, body, kind, starts_at, ends_at')) as Array<Record<string, unknown>>;
+  return rows.map((a) => ({
+    id: String(a.id),
+    title: String(a.title),
+    body: String(a.body),
+    kind: a.kind as 'info' | 'maintenance' | 'warning',
+    startsAt: String(a.starts_at),
+    endsAt: (a.ends_at as string | null) ?? null,
+  }));
+};
+
+/**
+ * Clear one, for me.
+ *
+ * Deliberately per person rather than per company: an estimator clearing a
+ * banner must not clear it for the owner who has not read it.
+ */
+export async function dismissAnnouncement(
+  client: {
+    rpc: (fn: string, args: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  },
+  id: string,
+): Promise<void> {
+  const { error } = await client.rpc('dismiss_announcement', { p_id: id });
+  if (error) throw new Error(error.message);
+}

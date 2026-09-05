@@ -185,9 +185,14 @@ describe('ENTITY — stores business records', () => {
      * of anybody — somebody reading the pricing page belongs to no tenant, and
      * inventing one to own the row would be the same mistake in the other
      * direction.
+     *
+     * `announcements` is one message shown to many companies, and
+     * `announcement_dismissals` is one person clearing it. Giving either a
+     * company would mean a row per tenant for a thing that is true once.
      */
     expect(withoutCompany.sort()).toEqual([
-      'companies', 'enterprise_groups', 'network_ratings', 'network_vendors',
+      'announcement_dismissals', 'announcements', 'companies',
+      'enterprise_groups', 'network_ratings', 'network_vendors',
       'plan_versions', 'platform_admins', 'signup_attempts',
       'stripe_event_replays', 'user_profiles', 'visit_events',
     ]);

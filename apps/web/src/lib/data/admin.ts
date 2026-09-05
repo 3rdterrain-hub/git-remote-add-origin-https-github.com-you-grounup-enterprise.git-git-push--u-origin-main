@@ -1461,3 +1461,69 @@ export const loadExports: Query<ExportRecord[]> = async (client) => {
     companyName: (e.company_name as string | null) ?? null,
   }));
 };
+
+// ---------------------------------------------------------------------------
+// Telling everybody
+// ---------------------------------------------------------------------------
+export type AnnouncementKind = 'info' | 'maintenance' | 'warning';
+export type AnnouncementAudience = 'everyone' | 'paying' | 'free';
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  kind: AnnouncementKind;
+  audience: AnnouncementAudience;
+  startsAt: string;
+  endsAt: string | null;
+  retractedAt: string | null;
+  retractReason: string | null;
+  publishedByEmail: string | null;
+  live: boolean;
+  dismissals: number;
+}
+
+export const loadAnnouncements: Query<Announcement[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_announcements')
+    .select('id, title, body, kind, audience, starts_at, ends_at, retracted_at, retract_reason, published_by_email, live, dismissals')) as Array<Record<string, unknown>>;
+  return rows.map((a) => ({
+    id: String(a.id),
+    title: String(a.title),
+    body: String(a.body),
+    kind: a.kind as AnnouncementKind,
+    audience: a.audience as AnnouncementAudience,
+    startsAt: String(a.starts_at),
+    endsAt: (a.ends_at as string | null) ?? null,
+    retractedAt: (a.retracted_at as string | null) ?? null,
+    retractReason: (a.retract_reason as string | null) ?? null,
+    publishedByEmail: (a.published_by_email as string | null) ?? null,
+    live: Boolean(a.live),
+    dismissals: Number(a.dismissals ?? 0),
+  }));
+};
+
+export async function publishAnnouncement(
+  client: Rpc,
+  input: { title: string; body: string; kind: AnnouncementKind;
+           audience: AnnouncementAudience; startsAt?: string | null; endsAt?: string | null },
+): Promise<void> {
+  const { error } = await client.rpc('publish_announcement', {
+    p_title: input.title.trim(),
+    p_body: input.body.trim(),
+    p_kind: input.kind,
+    p_audience: input.audience,
+    p_starts: input.startsAt ?? null,
+    p_ends: input.endsAt ?? null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function retractAnnouncement(
+  client: Rpc, id: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('retract_announcement', {
+    p_id: id, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}

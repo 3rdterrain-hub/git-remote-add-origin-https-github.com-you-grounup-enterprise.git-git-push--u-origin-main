@@ -8,6 +8,8 @@
     "ai_messages": "AI_AGENT",
     "ai_models": "LIBRARY",
     "ai_prompts": "LIBRARY",
+    "announcement_dismissals": "ENTITY",
+    "announcements": "ENTITY",
     "ap_invoices": "ENTITY",
     "api_keys": "ENTITY",
     "api_requests": "ENTITY",

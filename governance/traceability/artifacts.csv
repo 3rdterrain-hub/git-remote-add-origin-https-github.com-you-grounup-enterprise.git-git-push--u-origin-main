@@ -36,6 +36,8 @@ TBL-ai_findings,table,ai_findings,supabase/migrations (table ai_findings),AI_AGE
 TBL-ai_messages,table,ai_messages,supabase/migrations (table ai_messages),AI_AGENT
 TBL-ai_models,table,ai_models,supabase/migrations (table ai_models),LIBRARY
 TBL-ai_prompts,table,ai_prompts,supabase/migrations (table ai_prompts),LIBRARY
+TBL-announcement_dismissals,table,announcement_dismissals,supabase/migrations (table announcement_dismissals),ENTITY
+TBL-announcements,table,announcements,supabase/migrations (table announcements),ENTITY
 TBL-ap_invoices,table,ap_invoices,supabase/migrations (table ap_invoices),ENTITY
 TBL-api_keys,table,api_keys,supabase/migrations (table api_keys),ENTITY
 TBL-api_requests,table,api_requests,supabase/migrations (table api_requests),ENTITY
@@ -247,6 +249,7 @@ TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,E
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
+TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
