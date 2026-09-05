@@ -10,10 +10,10 @@
 | Edge Functions + shared modules | 52 | ~8,100 |
 | Database & function tests | 56 | ~14,200 |
 | Governance & traceability tests | 6 | ~2,800 |
-| Web application (40 routes, 24 app screens) | 120 | ~22,900 |
+| Web application (40 routes, 24 app screens) | 120 | ~23,000 |
 | Documentation | 14 | ~4,700 |
 | Seed & tooling | 8 | ~1,900 |
-| **Total hand-written** | **378** | **~85,400** |
+| **Total hand-written** | **378** | **~85,500** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the

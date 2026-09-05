@@ -80,12 +80,19 @@ export function PricingPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
+          {/*
+            * The headline follows the catalog rather than describing a ladder
+            * that may not exist. With one plan the old copy — "pricing that
+            * grows with the company" — promised tiers a visitor would then look
+            * for and not find.
+            */}
           <h1 className="text-4xl font-bold tracking-tight text-charcoal-900 sm:text-5xl">
-            Pricing that grows with the company
+            {plans.length === 1 ? 'One plan. Everything in it.' : 'Pricing that grows with the company'}
           </h1>
           <p className="mt-4 text-lg text-charcoal-500">
-            Start with one estimator and a seeded master library. Grow into divisions, regions and
-            multiple companies without changing platform.
+            {plans.length === 1
+              ? 'Every part of GrounUp, for everybody, priced per person. A smaller contractor does not need a smaller product — so the only thing that changes with company size is how many seats you buy.'
+              : 'Start with one estimator and a seeded master library. Grow into divisions, regions and multiple companies without changing platform.'}
           </p>
 
           <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-charcoal-200 bg-charcoal-50 px-4 py-2">
@@ -187,51 +194,109 @@ export function PricingPage() {
         </Alert>
       </section>
 
-      {/* --------------------------------------------------------- comparison */}
+      {/* ----------------------------------------------- what is included */}
+      {/*
+        * A comparison table compares nothing when there is one plan, and a
+        * column of ticks against a single column reads as a page that has not
+        * been finished. What a visitor actually wants to know with one plan is
+        * what is in it — so that is what this says.
+        */}
       <section className="border-t border-charcoal-200 bg-charcoal-50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold tracking-tight text-charcoal-900">Compare every plan</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-charcoal-900">
+            {plans.length === 1 ? "What's included" : 'Compare every plan'}
+          </h2>
 
-          <div className="mt-8 overflow-hidden rounded-[--radius-card] border border-charcoal-200 bg-white">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-charcoal-50 hover:bg-charcoal-50">
-                  <TableHead className="min-w-64">Capability</TableHead>
-                  {plans.map((p) => (
-                    <TableHead key={p.id} className="min-w-32 text-center">{p.name}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          {plans.length === 1 ? (
+            <>
+              <p className="mt-2 max-w-2xl text-charcoal-500">
+                All of it. There is no tier that withholds a feature, because a smaller
+                contractor does not need a smaller estimating engine.
+              </p>
+
+              <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {COMPARISON.map((group) => (
-                  // Fragment, not <>: the element map() returns is the list
-                  // child, so the key belongs here rather than on the row inside.
-                  <Fragment key={group.group}>
-                    <TableRow className="bg-charcoal-900 hover:bg-charcoal-900">
-                      <TableCell colSpan={plans.length + 1} className="py-2 text-xs font-semibold uppercase tracking-wide text-white">
-                        {group.group}
-                      </TableCell>
-                    </TableRow>
-                    {group.rows.map((row) => (
-                      <TableRow key={row.label}>
-                        <TableCell className="text-sm font-medium text-charcoal-700">{row.label}</TableCell>
-                        {row.values.map((v, i) => (
-                          <TableCell key={i} className="text-center">
-                            {typeof v === 'boolean' ? (
-                              v ? <Check className="mx-auto size-4 text-success-600" />
-                                : <Minus className="mx-auto size-4 text-charcoal-300" />
-                            ) : (
-                              <span className="tabular text-sm font-medium text-charcoal-700">{v}</span>
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </Fragment>
+                  <div key={group.group}
+                    className="rounded-[--radius-card] border border-charcoal-200 bg-white p-5">
+                    <h3 className="font-semibold text-charcoal-900">{group.group}</h3>
+                    <ul className="mt-3 space-y-2">
+                      {group.rows.map((row) => (
+                        <li key={row.label} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 size-4 shrink-0 text-success-600" />
+                          <span className="text-charcoal-700">{row.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
+              </div>
+
+              <div className="mt-8 rounded-[--radius-card] border border-charcoal-200 bg-white p-6">
+                <h3 className="font-semibold text-charcoal-900">
+                  The two things that are measured
+                </h3>
+                <p className="mt-1 text-sm text-charcoal-500">
+                  Everything else is included outright. These two cost real money to serve, so
+                  they are counted rather than capped by tier.
+                </p>
+                <dl className="mt-4 grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-medium text-charcoal-900">Storage</dt>
+                    <dd className="mt-1 text-sm text-charcoal-500">
+                      {plans[0]?.limits.storage}. Measured as what you are holding, not as
+                      everything you have ever uploaded — delete a file and it stops counting.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-charcoal-900">AI credits</dt>
+                    <dd className="mt-1 text-sm text-charcoal-500">
+                      {plans[0]?.limits.ai}. Spent when the platform reads a drawing for you.
+                      Nothing else in GrounUp consumes one.
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </>
+          ) : (
+            <div className="mt-8 overflow-hidden rounded-[--radius-card] border border-charcoal-200 bg-white">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-charcoal-50 hover:bg-charcoal-50">
+                    <TableHead className="min-w-64">Capability</TableHead>
+                    {plans.map((p) => (
+                      <TableHead key={p.id} className="text-center">{p.name}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {COMPARISON.map((group) => (
+                    <Fragment key={group.group}>
+                      <TableRow className="bg-charcoal-50/60 hover:bg-charcoal-50/60">
+                        <TableCell colSpan={plans.length + 1}
+                          className="font-semibold text-charcoal-900">{group.group}</TableCell>
+                      </TableRow>
+                      {group.rows.map((row) => (
+                        <TableRow key={row.label}>
+                          <TableCell className="text-charcoal-700">{row.label}</TableCell>
+                          {plans.map((p, i) => (
+                            <TableCell key={p.id} className="text-center">
+                              {row.values[i] === true ? (
+                                <Check className="mx-auto size-4 text-success-600" />
+                              ) : row.values[i] ? (
+                                <span className="text-xs text-charcoal-600">{row.values[i]}</span>
+                              ) : (
+                                <Minus className="mx-auto size-4 text-charcoal-300" />
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       </section>
 
