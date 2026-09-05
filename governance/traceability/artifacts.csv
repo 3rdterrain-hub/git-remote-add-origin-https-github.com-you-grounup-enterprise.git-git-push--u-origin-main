@@ -251,6 +251,7 @@ TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-pe
 TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
 TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
 TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
+TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
 TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE

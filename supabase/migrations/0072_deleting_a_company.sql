@@ -12,7 +12,7 @@
 -- tenant from a real project.
 --
 -- That matters beyond tidying up. A customer who asks to be deleted has to be
--- deletable, and a platform that cannot honour that has a compliance problem
+-- deletable, and a platform that cannot honor that has a compliance problem
 -- rather than a housekeeping one.
 --
 -- The fix is to notice the difference between the two cases. During a cascade

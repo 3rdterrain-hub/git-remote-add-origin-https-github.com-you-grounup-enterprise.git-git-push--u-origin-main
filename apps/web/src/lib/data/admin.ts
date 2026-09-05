@@ -389,3 +389,29 @@ export async function claimFirstSuperadmin(client: Rpc): Promise<void> {
   const { error } = await client.rpc('claim_first_superadmin', {});
   if (error) throw new Error(error.message);
 }
+
+/**
+ * Take somebody on as a sales operator.
+ *
+ * They must already have an account. GrounUp does not create logins for people
+ * — that is the identity provider's job, and issuing credentials this platform
+ * cannot manage or revoke would be worse than asking them to sign up first.
+ */
+export async function hireOperator(
+  client: Rpc, email: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('hire_operator', {
+    p_email: email.trim(), p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Withdraw operator access. Retires the grant; it stays answerable. */
+export async function revokeOperator(
+  client: Rpc, userId: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('revoke_operator', {
+    p_user_id: userId, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}

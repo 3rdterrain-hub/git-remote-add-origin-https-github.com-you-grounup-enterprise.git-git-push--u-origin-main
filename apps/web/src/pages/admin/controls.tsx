@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@/lib/data/query';
 import {
   loadProposals, loadAdminCompanies, loadOperators, loadOverrides,
-  decideUpsell, clearFeatureOverride,
+  decideUpsell, clearFeatureOverride, hireOperator, revokeOperator,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { supabase } from '@/lib/supabase';
@@ -36,6 +36,8 @@ export function AdminControls() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<Record<string, string>>({});
+  const [hireEmail, setHireEmail] = useState('');
+  const [hireReason, setHireReason] = useState('');
 
   const proposals = proposalsQ.status === 'ready' ? proposalsQ.data : [];
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
@@ -58,6 +60,29 @@ export function AdminControls() {
       proposalsQ.refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'That decision could not be recorded.');
+    } finally { setBusy(null); }
+  }
+
+  async function hire() {
+    if (!supabase) return;
+    setBusy('hire'); setError(null);
+    try {
+      await hireOperator(supabase, hireEmail, hireReason);
+      setHireEmail(''); setHireReason('');
+      operatorsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That person could not be taken on.');
+    } finally { setBusy(null); }
+  }
+
+  async function letGo(userId: string) {
+    if (!supabase) return;
+    setBusy(userId); setError(null);
+    try {
+      await revokeOperator(supabase, userId, 'Access withdrawn from the console');
+      operatorsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That access could not be withdrawn.');
     } finally { setBusy(null); }
   }
 
@@ -221,6 +246,7 @@ export function AdminControls() {
                 <TableHead>Why</TableHead>
                 <TableHead>Since</TableHead>
                 <TableHead>Standing</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -241,18 +267,55 @@ export function AdminControls() {
                       {o.revokedAt ? 'Revoked' : 'Active'}
                     </Badge>
                   </TableCell>
+                  <TableCell>
+                    {/*
+                      * No withdraw on the superadmin. Giving that seat up from
+                      * a screen would leave nobody able to grant anything, and
+                      * recovering means the database anyway — so handover stays
+                      * a deliberate act outside the product.
+                      */}
+                    {!o.revokedAt && o.role === 'sales' ? (
+                      <Button size="sm" variant="ghost"
+                        disabled={!isSuper || busy === o.userId}
+                        onClick={() => letGo(o.userId)}>Withdraw</Button>
+                    ) : null}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="border-t border-charcoal-200 p-4">
-            <p className="flex items-start gap-2 text-xs text-charcoal-500">
-              <UserPlus className="mt-0.5 size-3.5 shrink-0" />
-              <span>
-                There is deliberately no button to add an operator. It is the most powerful
-                grant in the system, and it is made in the database — one place to give it,
-                one place to take it back, and no screen that can be tricked into either.
-              </span>
+          <div className="space-y-3 border-t border-charcoal-200 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-charcoal-500">
+              Take somebody on
+            </p>
+            <div className="grid gap-3 sm:grid-cols-[1fr_1.5fr_auto]">
+              <div className="space-y-1.5">
+                <Label htmlFor="hire-email">Their email</Label>
+                <Input id="hire-email" type="email" value={hireEmail}
+                  placeholder="them@example.com"
+                  onChange={(e) => setHireEmail(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="hire-reason">Who they are and why</Label>
+                <Input id="hire-reason" value={hireReason}
+                  placeholder="Joining to sell into the Ohio market"
+                  onChange={(e) => setHireReason(e.target.value)} />
+              </div>
+              <div className="flex items-end">
+                <Button disabled={!isSuper || busy === 'hire'
+                  || !hireEmail.trim() || hireReason.trim().length < 5}
+                  onClick={hire}>
+                  {busy === 'hire' ? <Loader2 className="size-4 animate-spin" />
+                    : <UserPlus className="size-4" />} Grant access
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-charcoal-500">
+              They sign up first, at the normal address, and then you grant them access —
+              GrounUp does not create logins for people. This grants <strong>sales</strong>:
+              they see how every company is doing and can propose an upsell, and can change
+              nothing. There is one superadmin, the database enforces one, and handing that
+              over is done deliberately outside the product.
             </p>
           </div>
         </CardContent>
