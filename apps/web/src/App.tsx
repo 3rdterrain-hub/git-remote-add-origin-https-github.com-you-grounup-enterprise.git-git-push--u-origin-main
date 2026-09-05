@@ -19,6 +19,7 @@ const AdminCompanies = lazy(() => import('@/pages/admin').then((m) => ({ default
 const AdminPackages = lazy(() => import('@/pages/admin/packages').then((m) => ({ default: m.AdminPackages })));
 const AdminCompanyBilling = lazy(() => import('@/pages/admin/company-billing').then((m) => ({ default: m.AdminCompanyBilling })));
 const AdminTraffic = lazy(() => import('@/pages/admin/traffic').then((m) => ({ default: m.AdminTraffic })));
+const AdminChurn = lazy(() => import('@/pages/admin/churn').then((m) => ({ default: m.AdminChurn })));
 const AdminRoles = lazy(() => import('@/pages/admin/roles').then((m) => ({ default: m.AdminRoles })));
 const AdminAccounts = lazy(() => import('@/pages/admin/accounts').then((m) => ({ default: m.AdminAccounts })));
 const AdminControls = lazy(() => import('@/pages/admin/controls').then((m) => ({ default: m.AdminControls })));
@@ -110,6 +111,7 @@ export function App() {
             <Route path="accounts" element={<AdminAccounts />} />
             <Route path="roles" element={<AdminRoles />} />
             <Route path="traffic" element={<AdminTraffic />} />
+            <Route path="churn" element={<AdminChurn />} />
             <Route path="front-end" element={<AdminFrontEnd />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

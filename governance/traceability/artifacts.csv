@@ -46,6 +46,8 @@ TBL-assets,table,assets,supabase/migrations (table assets),ENTITY
 TBL-audit_events,table,audit_events,supabase/migrations (table audit_events),ENTITY
 TBL-bid_reconciliations,table,bid_reconciliations,supabase/migrations (table bid_reconciliations),ENTITY
 TBL-billing_invoices,table,billing_invoices,supabase/migrations (table billing_invoices),ENTITY
+TBL-cancellation_reasons,table,cancellation_reasons,supabase/migrations (table cancellation_reasons),LIBRARY
+TBL-cancellations,table,cancellations,supabase/migrations (table cancellations),ENTITY
 TBL-change_order_items,table,change_order_items,supabase/migrations (table change_order_items),ENTITY
 TBL-change_orders,table,change_orders,supabase/migrations (table change_orders),WORKFLOW
 TBL-claims,table,claims,supabase/migrations (table claims),WORKFLOW
@@ -247,6 +249,7 @@ TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGI
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
+TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
 TST-db-deleting-a-company,test,db/deleting-a-company.test.ts,tests/db/deleting-a-company.test.ts,ENGINE

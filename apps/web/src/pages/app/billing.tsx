@@ -14,6 +14,7 @@ import { PLANS } from '@/data/plans';
 import { callFunction, isSupabaseConfigured } from '@/lib/supabase';
 import { money, date, percent, integer } from '@/lib/format';
 import { usePermissions } from '@/lib/data/session';
+import { CancelDialog } from '@/components/billing/cancel-dialog';
 
 /** Usage against the plan's limits, as the entitlement endpoint reports it. */
 const USAGE = [
@@ -34,6 +35,8 @@ const INVOICES = [
 export function BillingPage() {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [canceling, setCanceling] = useState(false);
+  const [canceled, setCanceled] = useState<string | null>(null);
 
   const plan = PLANS.find((p) => p.id === COMPANY.plan)!;
   const { can } = usePermissions();
@@ -60,6 +63,22 @@ export function BillingPage() {
 
   return (
     <div className="space-y-6">
+      {canceling ? (
+        <CancelDialog companyId={COMPANY.id} onClose={() => setCanceling(false)}
+          onDone={(until) => {
+            setCanceling(false);
+            setCanceled(until);
+          }} />
+      ) : null}
+
+      {canceled !== null ? (
+        <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
+          title="Your subscription will not renew">
+          You keep everything until {date(canceled)}, and nothing you have made is deleted
+          after that — estimates, projects and documents stay readable and exportable.
+        </Alert>
+      ) : null}
+
       <PageHeader
         title="Subscription & Billing"
         description="Payment is handled entirely by Stripe. GrounUp stores the customer and subscription identifiers, the plan, the status and the period — never a card number."
@@ -70,6 +89,9 @@ export function BillingPage() {
               Manage payment method
             </Button>
             <Button asChild><Link to="/pricing">Change plan <ArrowUpRight className="size-4" /></Link></Button>
+            <Button variant="ghost" disabled={!canManage} onClick={() => setCanceling(true)}>
+              Cancel subscription
+            </Button>
           </>
         }
       />

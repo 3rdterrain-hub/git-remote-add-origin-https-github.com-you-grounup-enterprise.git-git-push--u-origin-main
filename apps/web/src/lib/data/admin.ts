@@ -1110,3 +1110,98 @@ export async function restoreCompany(
   });
   if (error) throw new Error(error.message);
 }
+
+// ---------------------------------------------------------------------------
+// Why they left
+//
+// The one number a subscription business cannot go back for. "Nobody was
+// asked" is carried as its own row rather than folded into "other": how often
+// it appears says how often the question is reaching anybody.
+// ---------------------------------------------------------------------------
+export interface ChurnReason {
+  reasonKey: string;
+  label: string;
+  customers: number;
+  monthlyCentsLost: number;
+  seatsLost: number;
+  averageMonths: number | null;
+  wouldComeBack: number;
+  competitors: string[];
+}
+
+export const loadChurnReasons: Query<ChurnReason[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_churn_reasons')
+    .select('reason_key, label, customers, monthly_cents_lost, seats_lost, average_months, would_come_back, competitors')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    reasonKey: String(r.reason_key),
+    label: String(r.label),
+    customers: Number(r.customers ?? 0),
+    monthlyCentsLost: Number(r.monthly_cents_lost ?? 0),
+    seatsLost: Number(r.seats_lost ?? 0),
+    averageMonths: r.average_months == null ? null : Number(r.average_months),
+    wouldComeBack: Number(r.would_come_back ?? 0),
+    competitors: (r.competitors as string[]) ?? [],
+  }));
+};
+
+export interface ChurnMonth {
+  month: string;
+  customersLost: number;
+  monthlyCentsLost: number;
+  gaveAReason: number;
+  customersGained: number;
+}
+
+export const loadChurnByMonth: Query<ChurnMonth[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_churn_by_month')
+    .select('month, customers_lost, monthly_cents_lost, gave_a_reason, customers_gained')) as Array<Record<string, unknown>>;
+  return rows.map((m) => ({
+    month: String(m.month),
+    customersLost: Number(m.customers_lost ?? 0),
+    monthlyCentsLost: Number(m.monthly_cents_lost ?? 0),
+    gaveAReason: Number(m.gave_a_reason ?? 0),
+    customersGained: Number(m.customers_gained ?? 0),
+  }));
+};
+
+export interface Cancellation {
+  id: string;
+  companyId: string;
+  companyName: string;
+  reasonKey: string | null;
+  reasonLabel: string | null;
+  detail: string | null;
+  competitor: string | null;
+  wouldReturn: boolean | null;
+  seatsAtCancellation: number | null;
+  monthlyCentsAtCancellation: number | null;
+  monthsAsACustomer: number | null;
+  source: string;
+  occurredAt: string;
+  cameBack: boolean;
+}
+
+export const loadCancellations: Query<Cancellation[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_cancellations')
+    .select('id, company_id, company_name, reason_key, reason_label, detail, competitor, would_return, seats_at_cancellation, monthly_cents_at_cancellation, months_as_a_customer, source, occurred_at, came_back')) as Array<Record<string, unknown>>;
+  return rows.map((c) => ({
+    id: String(c.id),
+    companyId: String(c.company_id),
+    companyName: String(c.company_name),
+    reasonKey: (c.reason_key as string | null) ?? null,
+    reasonLabel: (c.reason_label as string | null) ?? null,
+    detail: (c.detail as string | null) ?? null,
+    competitor: (c.competitor as string | null) ?? null,
+    wouldReturn: (c.would_return as boolean | null) ?? null,
+    seatsAtCancellation: c.seats_at_cancellation == null ? null : Number(c.seats_at_cancellation),
+    monthlyCentsAtCancellation: c.monthly_cents_at_cancellation == null
+      ? null : Number(c.monthly_cents_at_cancellation),
+    monthsAsACustomer: c.months_as_a_customer == null ? null : Number(c.months_as_a_customer),
+    source: String(c.source),
+    occurredAt: String(c.occurred_at),
+    cameBack: Boolean(c.came_back),
+  }));
+};

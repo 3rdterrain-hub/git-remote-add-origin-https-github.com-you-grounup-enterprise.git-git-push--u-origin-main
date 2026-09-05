@@ -173,3 +173,24 @@ export const loadMySuspension: Query<MySuspension | null> = async (client) => {
     suspendedAt: String(r.suspended_at),
   };
 };
+
+/** The reasons offered on the cancel screen. A library, not free text. */
+export interface CancellationReason {
+  key: string;
+  label: string;
+  description: string;
+  needsDetail: boolean;
+}
+
+export const loadCancellationReasons: Query<CancellationReason[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('cancellation_reasons')
+    .select('key, label, description, needs_detail')
+    .order('sort_order')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    key: String(r.key),
+    label: String(r.label),
+    description: String(r.description),
+    needsDetail: Boolean(r.needs_detail),
+  }));
+};

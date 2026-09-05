@@ -172,6 +172,22 @@ async function applySubscription(
     .upsert(state.entitlement, { onConflict: 'company_id' });
   if (entError) throw entError;
 
+  /*
+   * A subscription that ends without a cancellation on file is one the customer
+   * ended somewhere other than in GrounUp — Stripe's own portal, or a card that
+   * finally gave up. Recording it with no reason keeps the count complete and
+   * is deliberately not filed under "other": nobody was asked, and saying so is
+   * the honest answer. `record_cancellation` is idempotent per subscription, so
+   * this never overwrites a reason the customer actually gave.
+   */
+  if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+    const { error: churnError } = await admin.rpc('record_cancellation', {
+      p_company: companyId, p_reason: null, p_detail: null, p_competitor: null,
+      p_would_return: null, p_immediate: false, p_source: 'stripe',
+    });
+    if (churnError) console.error('[webhook] could not record the cancellation', churnError);
+  }
+
   await admin.from('audit_events').insert({
     company_id: companyId,
     action: 'update',

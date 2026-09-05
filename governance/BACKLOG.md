@@ -155,6 +155,28 @@ covered fewer than a hundred. Machine writes are never blocked, because the
 Stripe webhook recording the payment is what ends a non-payment suspension, and
 a guard that refused it would make one impossible to end by paying. 21 tests.
 
+**Why they left is asked at the only moment anybody will answer.** Migration
+0083. The platform could count cancellations and could not say why one
+happened, and this is the number a subscription business genuinely cannot go
+back for: somebody who left in March will not answer in June. The free-text
+comment the cancel screen already sent to Stripe was unreadable from GrounUp
+and unaggregatable anywhere.
+
+Three things it is careful about. **What they were worth is captured while it
+is still true** — a subscription's items are gone once it ends, so
+`app.subscription_monthly_cents` correctly returns nothing afterwards, and this
+is the one place in the schema where storing a computed number is right; a test
+proves the figure would have been lost had it waited. **"Nobody was asked" is a
+recorded answer**, not a missing one: a cancellation arriving through a Stripe
+webhook has no reason attached, and filing it under "other" would put a number
+beside something nobody said — how often that row appears is itself the useful
+figure, because it says how often the question is reaching anybody. **A reason
+is a library**, because seventy unique sentences is a report nobody reads twice.
+
+The dialog can never prevent a cancellation. One click leaves, whether or not
+anything is answered — a form that held somebody in would be the dark pattern
+this platform exists not to be, and they would leave anyway, angrier. 15 tests.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

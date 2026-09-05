@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
-  Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter,
+  Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +50,7 @@ const SECTIONS = [
     needs: ['companies.manage', 'billing.manage'] },
   { to: '/admin/packages', label: 'Packages', icon: Package, needs: ['pricing.manage'] },
   { to: '/admin/billing', label: 'Billing', icon: CreditCard, needs: ['billing.read'] },
+  { to: '/admin/churn', label: 'Why they left', icon: TrendingDown, needs: ['billing.read'] },
   { to: '/admin/controls', label: 'Controls', icon: ShieldAlert,
     needs: ['upsell.decide', 'features.manage', 'operators.manage'] },
   { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },

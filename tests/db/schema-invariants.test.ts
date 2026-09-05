@@ -141,6 +141,7 @@ describe('schema invariants', () => {
     const allowed = new Set([
       'ai_agents (text)', 'ai_models (text)', 'plans (text)', 'stripe_events (text)',
       'platform_roles (text)', 'platform_permissions (text)',
+      'cancellation_reasons (text)',
       'api_requests (bigint)', 'audit_events (bigint)', 'usage_events (bigint)',
       'signup_attempts (bigint)', 'visit_events (bigint)',
     ]);
