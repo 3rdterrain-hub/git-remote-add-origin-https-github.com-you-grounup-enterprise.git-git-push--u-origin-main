@@ -10,8 +10,8 @@ import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadProposals, loadAdminCompanies, loadOperators, loadOverrides,
-  decideUpsell, clearFeatureOverride, hireOperator, revokeOperator,
+  loadProposals, loadAdminCompanies, loadOperators, loadOverrides, loadPlatformRoles,
+  decideUpsell, clearFeatureOverride, hireOperator, revokeOperator, setOperatorRole,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { supabase } from '@/lib/supabase';
@@ -27,24 +27,31 @@ import type { OperatorContext } from './shell';
  * protection.
  */
 export function AdminControls() {
-  const { isSuper } = useOutletContext<OperatorContext>();
+  const { can } = useOutletContext<OperatorContext>();
+  const mayDecide = can('upsell.decide');
+  const mayHire = can('operators.manage');
+  const mayFeature = can('features.manage');
   const proposalsQ = useQuery(loadProposals, []);
   const companiesQ = useQuery(loadAdminCompanies, []);
   const operatorsQ = useQuery(loadOperators, []);
   const overridesQ = useQuery(loadOverrides, []);
+  const rolesQ = useQuery(loadPlatformRoles, []);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<Record<string, string>>({});
   const [hireEmail, setHireEmail] = useState('');
   const [hireReason, setHireReason] = useState('');
+  const [hireRole, setHireRole] = useState('sales');
 
   const proposals = proposalsQ.status === 'ready' ? proposalsQ.data : [];
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
   const operators = operatorsQ.status === 'ready' ? operatorsQ.data : [];
   const overrides = overridesQ.status === 'ready' ? overridesQ.data : [];
+  const roles = rolesQ.status === 'ready' ? rolesQ.data : [];
+  const grantable = roles.filter((r) => r.assignable);
 
-  const failure = [proposalsQ, companiesQ, operatorsQ, overridesQ]
+  const failure = [proposalsQ, companiesQ, operatorsQ, overridesQ, rolesQ]
     .find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
@@ -67,7 +74,7 @@ export function AdminControls() {
     if (!supabase) return;
     setBusy('hire'); setError(null);
     try {
-      await hireOperator(supabase, hireEmail, hireReason);
+      await hireOperator(supabase, hireEmail, hireReason, hireRole);
       setHireEmail(''); setHireReason('');
       operatorsQ.refetch();
     } catch (err) {
@@ -83,6 +90,17 @@ export function AdminControls() {
       operatorsQ.refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'That access could not be withdrawn.');
+    } finally { setBusy(null); }
+  }
+
+  async function changeRole(userId: string, roleKey: string) {
+    if (!supabase) return;
+    setBusy(userId); setError(null);
+    try {
+      await setOperatorRole(supabase, userId, roleKey, 'Role changed from the console');
+      operatorsQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That role could not be changed.');
     } finally { setBusy(null); }
   }
 
@@ -153,12 +171,12 @@ export function AdminControls() {
                   placeholder="Agreed at the quoted price"
                   onChange={(e) => setNote({ ...note, [p.id]: e.target.value })} />
                 <div className="flex gap-2">
-                  <Button size="sm" variant="success" disabled={!isSuper || busy === p.id}
+                  <Button size="sm" variant="success" disabled={!mayDecide || busy === p.id}
                     onClick={() => decide(p.id, true)}>
                     {busy === p.id ? <Loader2 className="size-4 animate-spin" />
                       : <Check className="size-4" />} Approve
                   </Button>
-                  <Button size="sm" variant="outline" disabled={!isSuper || busy === p.id}
+                  <Button size="sm" variant="outline" disabled={!mayDecide || busy === p.id}
                     onClick={() => decide(p.id, false)}>
                     <X className="size-4" /> Reject
                   </Button>
@@ -215,7 +233,7 @@ export function AdminControls() {
                       : <span className="text-warn-700">no end date</span>}
                   </TableCell>
                   <TableCell>
-                    <Button size="sm" variant="ghost" disabled={!isSuper || busy === o.feature}
+                    <Button size="sm" variant="ghost" disabled={!mayFeature || busy === o.feature}
                       onClick={() => withdraw(o.companyId, o.feature)}>Withdraw</Button>
                   </TableCell>
                 </TableRow>
@@ -254,9 +272,19 @@ export function AdminControls() {
                 <TableRow key={o.id}>
                   <TableCell className="text-charcoal-800">{o.email ?? o.userId}</TableCell>
                   <TableCell>
-                    <Badge variant={o.role === 'superadmin' ? 'warn' : 'default'}>
-                      {o.role}
-                    </Badge>
+                    {o.roleKey === 'superadmin' || o.revokedAt ? (
+                      <Badge variant={o.roleKey === 'superadmin' ? 'warn' : 'default'}>
+                        {roles.find((r) => r.key === o.roleKey)?.name ?? o.roleKey}
+                      </Badge>
+                    ) : (
+                      <select value={o.roleKey} disabled={!mayHire || busy === o.userId}
+                        className="h-8 rounded border border-charcoal-300 bg-white px-1.5 text-xs"
+                        onChange={(e) => changeRole(o.userId, e.target.value)}>
+                        {grantable.map((r) => (
+                          <option key={r.key} value={r.key}>{r.name}</option>
+                        ))}
+                      </select>
+                    )}
                   </TableCell>
                   <TableCell className="max-w-64 text-xs text-charcoal-600">{o.reason}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs text-charcoal-500">
@@ -274,9 +302,9 @@ export function AdminControls() {
                       * recovering means the database anyway — so handover stays
                       * a deliberate act outside the product.
                       */}
-                    {!o.revokedAt && o.role === 'sales' ? (
+                    {!o.revokedAt && o.roleKey !== 'superadmin' ? (
                       <Button size="sm" variant="ghost"
-                        disabled={!isSuper || busy === o.userId}
+                        disabled={!mayHire || busy === o.userId}
                         onClick={() => letGo(o.userId)}>Withdraw</Button>
                     ) : null}
                   </TableCell>
@@ -288,12 +316,22 @@ export function AdminControls() {
             <p className="text-xs font-medium uppercase tracking-wide text-charcoal-500">
               Take somebody on
             </p>
-            <div className="grid gap-3 sm:grid-cols-[1fr_1.5fr_auto]">
+            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_1.5fr_auto]">
               <div className="space-y-1.5">
                 <Label htmlFor="hire-email">Their email</Label>
                 <Input id="hire-email" type="email" value={hireEmail}
                   placeholder="them@example.com"
                   onChange={(e) => setHireEmail(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="hire-role">Role</Label>
+                <select id="hire-role" value={hireRole}
+                  className="h-9 w-full rounded border border-charcoal-300 bg-white px-2 text-sm"
+                  onChange={(e) => setHireRole(e.target.value)}>
+                  {grantable.map((r) => (
+                    <option key={r.key} value={r.key}>{r.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="hire-reason">Who they are and why</Label>
@@ -302,7 +340,7 @@ export function AdminControls() {
                   onChange={(e) => setHireReason(e.target.value)} />
               </div>
               <div className="flex items-end">
-                <Button disabled={!isSuper || busy === 'hire'
+                <Button disabled={!mayHire || busy === 'hire'
                   || !hireEmail.trim() || hireReason.trim().length < 5}
                   onClick={hire}>
                   {busy === 'hire' ? <Loader2 className="size-4 animate-spin" />
@@ -312,18 +350,19 @@ export function AdminControls() {
             </div>
             <p className="text-xs text-charcoal-500">
               They sign up first, at the normal address, and then you grant them access —
-              GrounUp does not create logins for people. This grants <strong>sales</strong>:
-              they see how every company is doing and can propose an upsell, and can change
-              nothing. There is one superadmin, the database enforces one, and handing that
-              over is done deliberately outside the product.
+              GrounUp does not create logins for people.{' '}
+              {grantable.find((r) => r.key === hireRole)?.description}{' '}
+              The superadmin role is not among these: there is one, the database enforces
+              one, and handing that seat over is done deliberately outside the product.
+              What each role may do is set under <strong>Roles</strong>.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {!isSuper ? (
+      {!mayDecide && !mayHire && !mayFeature ? (
         <Alert tone="warn" icon={<ShieldAlert className="size-4" />}
-          title="These controls are the superadmin's">
+          title="These controls are somebody else's">
           You can see what is in force. Changing it is refused by the database, not by
           these buttons being disabled.
         </Alert>

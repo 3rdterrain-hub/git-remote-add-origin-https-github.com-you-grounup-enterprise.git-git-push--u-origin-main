@@ -180,10 +180,16 @@ describe('ENTITY — stores business records', () => {
      * is not scoped to a tenant — and giving it a company_id would turn the
      * flag into a role inside somebody's account, which is precisely the
      * design this table exists to avoid.
+     *
+     * `visit_events` and `signup_attempts` record people who are not customers
+     * of anybody — somebody reading the pricing page belongs to no tenant, and
+     * inventing one to own the row would be the same mistake in the other
+     * direction.
      */
     expect(withoutCompany.sort()).toEqual([
       'companies', 'enterprise_groups', 'network_ratings', 'network_vendors',
-      'plan_versions', 'platform_admins', 'user_profiles',
+      'plan_versions', 'platform_admins', 'signup_attempts', 'user_profiles',
+      'visit_events',
     ]);
   });
 });

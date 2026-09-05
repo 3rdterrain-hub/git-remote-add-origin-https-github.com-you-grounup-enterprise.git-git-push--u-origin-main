@@ -7,9 +7,12 @@
  * `ai.request` on every run, and `app.current_usage` has always aggregated it
  * over the paid period. Both halves existed; nothing put them together.
  *
- * These tests hold the join, and hold its deliberate permissiveness: a null
- * allowance is unlimited, and so is having no entitlement at all, because a
- * billing gap must not become an outage.
+ * These tests hold the join, and hold where it is deliberately permissive and
+ * where it stopped being so. A null allowance on a live plan is unlimited. No
+ * entitlement at all used to be unlimited too, which meant a company that
+ * stopped paying was served more generously than one that paid; migration 0077
+ * lands that case on the free plan's allowance instead. A billing gap still
+ * never becomes an outage — it becomes the free tier.
  */
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { createHarness, type Harness } from './harness.js';
@@ -94,12 +97,17 @@ describe('usage against allowance', () => {
       expect(row!.within_allowance).toBe(true);
     });
 
-    it('treats a company with no entitlement as unlimited', async () => {
-      // A billing gap must not become an outage.
+    it('treats a company with no entitlement as free, not as unlimited', async () => {
+      /*
+       * This asserted `null` — unlimited — under "a billing gap must not become
+       * an outage". Half right: it must not, and it did not have to be
+       * unlimited to avoid one. Unlimited meant a company that stopped paying
+       * got more AI credits than one that paid, so a lapse now lands on the
+       * free plan's twenty-five.
+       */
       await h.sql(`delete from entitlements where company_id=$1`, [starter]);
       const [row] = await allowance(starter);
-      expect(row!.allowed).toBeNull();
-      expect(row!.within_allowance).toBe(true);
+      expect(Number(row!.allowed)).toBe(25);
     });
   });
 

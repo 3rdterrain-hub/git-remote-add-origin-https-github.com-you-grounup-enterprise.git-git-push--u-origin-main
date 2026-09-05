@@ -169,7 +169,10 @@ describe('row level security', () => {
 
     it('still lets an anonymous visitor read the public plan catalog', async () => {
       const plans = await h.asAnon(() => h.sql<{ id: string }>(`select id from plans order by sort_order`));
-      expect(plans.map((p) => p.id)).toEqual(['starter', 'professional', 'business', 'enterprise']);
+      // The two plans actually sold: the permanent free tier and the paid one.
+      // The five-tier ladder this platform shipped with is withdrawn, and the
+      // enterprise and partner plans are negotiated rather than listed.
+      expect(plans.map((p) => p.id)).toEqual(['free', 'grounup']);
       // The non-public partner plan is not exposed.
       expect(plans.map((p) => p.id)).not.toContain('partner_white_label');
     });

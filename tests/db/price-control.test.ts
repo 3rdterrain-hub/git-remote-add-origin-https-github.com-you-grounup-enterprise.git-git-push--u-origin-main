@@ -173,7 +173,7 @@ describe('price control and the first operator', () => {
        */
       await expect(h.asUser(second, () => h.sql(
         `select app.set_plan_price('grounup','month',100,'price_x')`)))
-        .rejects.toThrow(/Only the superadmin/);
+        .rejects.toThrow(/do not have permission/);
     });
 
     it('records who changed a price and to what', async () => {

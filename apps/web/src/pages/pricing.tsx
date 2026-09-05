@@ -96,7 +96,10 @@ export function PricingPage() {
             * for and not find.
             */}
           <h1 className="text-4xl font-bold tracking-tight text-charcoal-900 sm:text-5xl">
-            {plans.length === 1 ? 'One plan. Everything in it.' : 'Pricing that grows with the company'}
+            {plans.some((p) => p.free) && plans.length <= 2
+              ? 'Free to start. One plan when you outgrow it.'
+              : plans.length === 1 ? 'One plan. Everything in it.'
+              : 'Pricing that grows with the company'}
           </h1>
           <p className="mt-4 text-lg text-charcoal-500">
             {plans.length === 1
@@ -163,15 +166,26 @@ export function PricingPage() {
                   className="mt-5 w-full"
                   variant={p.highlight ? 'default' : p.contactSales ? 'outline' : 'dark'}
                   disabled={pending === p.id}
-                  onClick={() => (p.contactSales || price(p) === 0 || !canCharge(p)
-                    ? (window.location.href = 'mailto:sales@grounup.example')
-                    : startCheckout(p.id))}
+                  asChild={p.free}
+                  onClick={p.free ? undefined : () => (
+                    p.contactSales || price(p) === 0 || !canCharge(p)
+                      ? (window.location.href = 'mailto:sales@grounup.example')
+                      : startCheckout(p.id))}
                 >
-                  {pending === p.id ? <Loader2 className="size-4 animate-spin" /> : null}
-                  {p.contactSales || price(p) === 0 || !canCharge(p) ? 'Contact sales'
-                    : p.trialDays ? `Start ${p.trialDays}-day trial` : 'Choose plan'}
-                  {!pending && !p.contactSales && price(p) > 0 && canCharge(p)
-                    ? <ArrowRight className="size-4" /> : null}
+                  {/*
+                    * A free plan is not a plan with an unknown price. It goes
+                    * to signup like any other free product, rather than to a
+                    * sales inbox that has nothing to sell them.
+                    */}
+                  {p.free ? <Link to="/signup">Start free <ArrowRight className="size-4" /></Link> : (
+                    <>
+                      {pending === p.id ? <Loader2 className="size-4 animate-spin" /> : null}
+                      {p.contactSales || price(p) === 0 || !canCharge(p) ? 'Contact sales'
+                        : p.trialDays ? `Start ${p.trialDays}-day trial` : 'Choose plan'}
+                      {!pending && !p.contactSales && price(p) > 0 && canCharge(p)
+                        ? <ArrowRight className="size-4" /> : null}
+                    </>
+                  )}
                 </Button>
 
                 <ul className="mt-6 flex-1 space-y-2.5 border-t border-charcoal-200 pt-5">

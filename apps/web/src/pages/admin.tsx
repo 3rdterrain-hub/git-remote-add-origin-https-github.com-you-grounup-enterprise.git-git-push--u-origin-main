@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Building2, ShieldAlert, Webhook, AlertTriangle, Loader2, Check, X, Search,
@@ -181,9 +182,20 @@ export function AdminCompanies() {
                         {date(c.createdAt)}
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="outline" onClick={() => setSelected(c)}>
-                          Features{c.overrideCount ? ` (${c.overrideCount})` : ''}
-                        </Button>
+                        <div className="flex justify-end gap-1.5">
+                          {/*
+                            * Opening the account is a support session, not a way in:
+                            * the screen it leads to shows billing only, for a stated
+                            * reason, for an hour, and writes itself into this
+                            * company's own history.
+                            */}
+                          <Button asChild size="sm" variant="ghost">
+                            <Link to={`/admin/companies/${c.companyId}`}>Subscription</Link>
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setSelected(c)}>
+                            Features{c.overrideCount ? ` (${c.overrideCount})` : ''}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

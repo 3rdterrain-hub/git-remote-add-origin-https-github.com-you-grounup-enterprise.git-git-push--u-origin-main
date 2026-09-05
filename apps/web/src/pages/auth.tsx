@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert } from '@/components/ui/misc';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { recordSignupAttempt } from '@/lib/analytics';
 
 type Mode = 'login' | 'signup' | 'reset';
 
@@ -47,11 +48,22 @@ export function AuthPage({ mode }: { mode: Mode }) {
         if (err) throw err;
         navigate('/app');
       } else if (mode === 'signup') {
+        /*
+         * Recorded on submit, so a signup that fails is not silence from the
+         * operator's side. "That email is already registered" and "the password
+         * is too short" are opposite problems and both look identical to
+         * somebody watching only the accounts that got created.
+         */
+        recordSignupAttempt(email, 'started');
         const { error: err } = await supabase.auth.signUp({
           email, password,
           options: { data: { company_name: companyName } },
         });
-        if (err) throw err;
+        if (err) {
+          recordSignupAttempt(email, 'failed', err.message);
+          throw err;
+        }
+        recordSignupAttempt(email, 'completed');
         setNotice('Check your email to verify the account, then sign in.');
       } else {
         const { error: err } = await supabase.auth.resetPasswordForEmail(email, {

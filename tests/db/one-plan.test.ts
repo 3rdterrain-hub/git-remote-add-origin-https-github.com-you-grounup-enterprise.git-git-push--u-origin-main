@@ -34,10 +34,19 @@ describe('one plan, priced per seat', () => {
   afterAll(async () => { await h?.db.close(); });
 
   describe('the catalog', () => {
-    it('sells exactly one plan publicly', async () => {
+    it('sells exactly one paid plan, beside the free one', async () => {
+      /*
+       * The point of one plan was never that nothing else is listed — it was
+       * that nobody has to choose between crippled versions of the same
+       * product. Migration 0077 adds a permanent free tier, which is a
+       * different question: not which product you get, but whether you are
+       * paying for the half of it that runs a construction company.
+       */
       const rows = await h.sql<{ id: string }>(
         `select id from plans where is_public and is_active order by id`);
-      expect(rows.map((r) => r.id)).toEqual(['grounup']);
+      expect(rows.map((r) => r.id)).toEqual(['free', 'grounup']);
+      // One of them is the free tier; there is exactly one thing to buy.
+      expect(rows.filter((r) => r.id !== 'free')).toHaveLength(1);
     });
 
     it('keeps an unadvertised plan for what enterprises negotiate', async () => {

@@ -23,8 +23,12 @@ insert into plans (id, name, tagline, description, tier, is_public, is_active,
    'Everything in Starter plus project execution, job cost, field production and AI plan review.',
    20, true, true,
    10, 1, 250, 75, 100, 2000,
+   -- A contractor running several jobs at once has crews on them and safety
+   -- records about them; those keys were missing only because migration 0077
+   -- named the modules after this catalog was written.
    array['estimating','takeoff','master_libraries','crm_basic','crm_full','proposals','documents',
-         'projects','job_cost','field_production','change_orders','ai_plan_review','reports'],
+         'projects','job_cost','field_production','change_orders','ai_plan_review','reports',
+         'workforce','safety'],
    14, 20),
 
   ('business', 'Business',
@@ -34,6 +38,7 @@ insert into plans (id, name, tagline, description, tier, is_public, is_active,
    50, 3, null, null, 500, 10000,
    array['estimating','takeoff','master_libraries','crm_basic','crm_full','proposals','documents',
          'projects','job_cost','field_production','change_orders','ai_plan_review','reports',
+         'workforce','safety','survey','finance',
          'divisions','procurement','fleet','scheduling','analytics','api_access','calibration'],
    14, 30),
 
@@ -200,8 +205,12 @@ on conflict (agent_id, company_id, version) do nothing;
 -- the two things that genuinely cost money to serve measured rather than tiered.
 -- =============================================================================
 
+-- The five-tier ladder is withdrawn. `free` is deliberately not in this list:
+-- migration 0077 turned it into the permanent free tier every install has, and
+-- hiding it here would take it back off the pricing page the day after the seed
+-- next ran.
 update plans set is_public = false, is_active = false
- where id in ('starter', 'professional', 'business', 'enterprise', 'free');
+ where id in ('starter', 'professional', 'business', 'enterprise');
 
 insert into plans (id, name, tagline, description, tier, is_public, is_active,
                    max_seats, max_companies, max_active_estimates, max_active_projects,

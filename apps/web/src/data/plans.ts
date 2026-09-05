@@ -28,6 +28,14 @@ export interface Plan {
    * checkout that fails at Stripe in front of them.
    */
   chargeable?: { month: boolean; year: boolean };
+  /**
+   * Whether this plan is free on purpose.
+   *
+   * Distinct from a plan whose price is simply unknown: both read as zero, and
+   * the two need opposite calls to action. A free plan says "start free" and
+   * goes to signup; a plan with no published price says "talk to us".
+   */
+  free?: boolean;
   headline: string[];
   limits: { estimates: string; projects: string; storage: string; ai: string };
 }
@@ -209,10 +217,17 @@ export async function loadPlanPrices(): Promise<Plan[]> {
       tagline: String(p.tagline ?? ''),
       monthlyCents: price(String(p.id), 'month'),
       yearlyCents: price(String(p.id), 'year'),
+      // A published price of zero, rather than no published price at all.
+      free: (prices ?? []).some(
+        (d) => d.plan_id === p.id && Number(d.unit_amount_cents) === 0),
       // A plan with no seat cap is priced per seat rather than capped at one.
       seats: p.max_seats === null ? 'Per user, per month' : `Up to ${p.max_seats} users`,
       trialDays: Number(p.trial_days ?? 0),
-      highlight: catalog.length === 1 ? true : known?.highlight,
+      // With a free tier beside it, the paid plan is the one to highlight —
+      // "the only plan" is no longer a reason on its own.
+      highlight: catalog.length === 1
+        ? true
+        : known?.highlight ?? (Number(price(String(p.id), 'month')) > 0),
       /*
        * A price that is real but not yet chargeable — decided before Stripe was
        * connected — shows the number and routes to sales. Sending somebody into

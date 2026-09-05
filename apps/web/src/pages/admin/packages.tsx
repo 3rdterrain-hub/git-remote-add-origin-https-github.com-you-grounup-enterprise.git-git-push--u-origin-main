@@ -29,7 +29,8 @@ import type { OperatorContext } from './shell';
  * everybody sits on it.
  */
 export function AdminPackages() {
-  const { isSuper } = useOutletContext<OperatorContext>();
+  const { can } = useOutletContext<OperatorContext>();
+  const isSuper = can('pricing.manage');
   const plansQ = useQuery(loadPlans, []);
   const companiesQ = useQuery(loadAdminCompanies, []);
   const pricesQ = useQuery(loadPlanPrices, []);

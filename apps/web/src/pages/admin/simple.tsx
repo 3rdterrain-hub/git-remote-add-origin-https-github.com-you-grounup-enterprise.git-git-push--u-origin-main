@@ -303,7 +303,8 @@ export function AdminFrontEnd() {
  * saying so is better than a screen of switches that do nothing.
  */
 export function AdminSettings() {
-  const { isSuper } = useOutletContext<OperatorContext>();
+  const { can } = useOutletContext<OperatorContext>();
+  const isSuper = can('pricing.manage');
 
   const rows: { name: string; where: string; why: string }[] = [
     { name: 'Plan terms and limits', where: 'Versioned in the database',

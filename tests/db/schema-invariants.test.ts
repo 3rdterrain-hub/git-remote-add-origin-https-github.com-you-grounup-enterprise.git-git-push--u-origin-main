@@ -136,11 +136,13 @@ describe('schema invariants', () => {
 
     // Natural keys on platform catalogs, where the key *is* the identity and is
     // quoted in configuration and in Stripe's own payloads; and sequences on
-    // the three append-only logs, where rows arrive in order, in volume, and
-    // are never referenced by anything else.
+    // the append-only logs, where rows arrive in order, in volume, and are
+    // never referenced by anything else.
     const allowed = new Set([
       'ai_agents (text)', 'ai_models (text)', 'plans (text)', 'stripe_events (text)',
+      'platform_roles (text)', 'platform_permissions (text)',
       'api_requests (bigint)', 'audit_events (bigint)', 'usage_events (bigint)',
+      'signup_attempts (bigint)', 'visit_events (bigint)',
     ]);
     expect(notUuid.map((r) => `${r.tbl} (${r.typ})`).filter((k) => !allowed.has(k))).toEqual([]);
   });

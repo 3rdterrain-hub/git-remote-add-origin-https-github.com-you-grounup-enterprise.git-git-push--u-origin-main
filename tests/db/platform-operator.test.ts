@@ -205,7 +205,7 @@ describe('the platform operator', () => {
     it('refuses a customer trying to grant themselves a feature', async () => {
       await expect(h.asUser(customer, () => h.sql(
         `select app.set_feature_override($1,'white_label','grant','I would like it')`,
-        [company]))).rejects.toThrow(/Only the superadmin/);
+        [company]))).rejects.toThrow(/do not have permission/);
     });
 
     it('shows the customer what was done to their own account', async () => {

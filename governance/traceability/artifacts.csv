@@ -51,6 +51,7 @@ TBL-change_orders,table,change_orders,supabase/migrations (table change_orders),
 TBL-claims,table,claims,supabase/migrations (table claims),WORKFLOW
 TBL-commercial_authority_limits,table,commercial_authority_limits,supabase/migrations (table commercial_authority_limits),ENTITY
 TBL-companies,table,companies,supabase/migrations (table companies),ENTITY
+TBL-company_billing_terms,table,company_billing_terms,supabase/migrations (table company_billing_terms),ENTITY
 TBL-company_invitations,table,company_invitations,supabase/migrations (table company_invitations),ENTITY
 TBL-company_memberships,table,company_memberships,supabase/migrations (table company_memberships),ENTITY
 TBL-condition_modifiers,table,condition_modifiers,supabase/migrations (table condition_modifiers),LIBRARY
@@ -123,6 +124,8 @@ TBL-plan_prices,table,plan_prices,supabase/migrations (table plan_prices),LIBRAR
 TBL-plan_versions,table,plan_versions,supabase/migrations (table plan_versions),ENTITY
 TBL-plans,table,plans,supabase/migrations (table plans),LIBRARY
 TBL-platform_admins,table,platform_admins,supabase/migrations (table platform_admins),ENTITY
+TBL-platform_permissions,table,platform_permissions,supabase/migrations (table platform_permissions),LIBRARY
+TBL-platform_roles,table,platform_roles,supabase/migrations (table platform_roles),LIBRARY
 TBL-pricing_profiles,table,pricing_profiles,supabase/migrations (table pricing_profiles),LIBRARY
 TBL-production_actuals,table,production_actuals,supabase/migrations (table production_actuals),ENTITY
 TBL-production_calibrations,table,production_calibrations,supabase/migrations (table production_calibrations),ENTITY
@@ -150,10 +153,12 @@ TBL-schedule_calculations,table,schedule_calculations,supabase/migrations (table
 TBL-schedule_dependencies,table,schedule_dependencies,supabase/migrations (table schedule_dependencies),ENTITY
 TBL-schedule_of_values,table,schedule_of_values,supabase/migrations (table schedule_of_values),ENTITY
 TBL-services,table,services,supabase/migrations (table services),LIBRARY
+TBL-signup_attempts,table,signup_attempts,supabase/migrations (table signup_attempts),ENTITY
 TBL-stripe_events,table,stripe_events,supabase/migrations (table stripe_events),ENTITY
 TBL-submittals,table,submittals,supabase/migrations (table submittals),WORKFLOW
 TBL-subscription_items,table,subscription_items,supabase/migrations (table subscription_items),ENTITY
 TBL-subscriptions,table,subscriptions,supabase/migrations (table subscriptions),ENTITY
+TBL-support_sessions,table,support_sessions,supabase/migrations (table support_sessions),ENTITY
 TBL-surface_comparisons,table,surface_comparisons,supabase/migrations (table surface_comparisons),ENTITY
 TBL-surfaces,table,surfaces,supabase/migrations (table surfaces),ENTITY
 TBL-surveys,table,surveys,supabase/migrations (table surveys),ENTITY
@@ -169,6 +174,7 @@ TBL-usage_events,table,usage_events,supabase/migrations (table usage_events),ENT
 TBL-user_profiles,table,user_profiles,supabase/migrations (table user_profiles),ENTITY
 TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overrides),ENTITY
 TBL-vendors,table,vendors,supabase/migrations (table vendors),ENTITY
+TBL-visit_events,table,visit_events,supabase/migrations (table visit_events),ENTITY
 TBL-work_calendar_exceptions,table,work_calendar_exceptions,supabase/migrations (table work_calendar_exceptions),LIBRARY
 TBL-work_calendars,table,work_calendars,supabase/migrations (table work_calendars),LIBRARY
 TBL-work_credential_requirements,table,work_credential_requirements,supabase/migrations (table work_credential_requirements),ENTITY
@@ -250,6 +256,7 @@ TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
 TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
 TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
 TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
+TST-db-free-and-terms,test,db/free-and-terms.test.ts,tests/db/free-and-terms.test.ts,ENGINE
 TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
 TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
@@ -262,6 +269,7 @@ TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/no
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-one-plan,test,db/one-plan.test.ts,tests/db/one-plan.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
+TST-db-operator-dashboard,test,db/operator-dashboard.test.ts,tests/db/operator-dashboard.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
@@ -278,8 +286,10 @@ TST-db-semantic,test,db/semantic.test.ts,tests/db/semantic.test.ts,ENGINE
 TST-db-signup,test,db/signup.test.ts,tests/db/signup.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
+TST-db-support-sessions,test,db/support-sessions.test.ts,tests/db/support-sessions.test.ts,ENGINE
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
 TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
+TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE

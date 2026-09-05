@@ -73,7 +73,7 @@ describe('hiring operators', () => {
     it('is the superadmin alone', async () => {
       await expect(h.asUser(hire, () => h.sql(
         `select app.hire_operator('someone@grounup.test','A friend of mine')`)))
-        .rejects.toThrow(/Only the superadmin/);
+        .rejects.toThrow(/do not have permission/);
     });
 
     it('records the hire in the ledger', async () => {
@@ -86,24 +86,56 @@ describe('hiring operators', () => {
       expect(rows[0]!.reason).toMatch(/Ohio market/);
     });
 
-    it('can only ever grant sales', async () => {
+    it('cannot grant the superadmin role, whatever is passed', async () => {
       /*
        * The refusal that matters most. A screen able to mint a superadmin is a
-       * screen worth attacking, and there is exactly one by construction — so
-       * the function does not take a role at all.
+       * screen worth attacking. Migration 0074 gave hiring a role parameter —
+       * support and finance are real jobs — so "there is nothing to pass" is no
+       * longer the guard. The guard is that the superadmin role is marked
+       * unassignable, which is a property of the role rather than a condition
+       * somebody has to remember to write at each call site.
        */
-      const [sig] = await h.sql<{ args: string }>(
-        `select pg_get_function_identity_arguments(p.oid) as args
-           from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-          where n.nspname = 'app' and p.proname = 'hire_operator'`);
-      // Two text parameters: an email and a reason. No role among them, so
-      // there is nothing to pass that could ask for a superadmin.
-      expect(sig!.args).not.toMatch(/role/);
-      expect(sig!.args.split(',')).toHaveLength(2);
+      await expect(h.asUser(boss, () => h.sql(
+        `select app.hire_operator('someone@grounup.test','Taking over the platform','superadmin')`)))
+        .rejects.toThrow(/cannot be granted from a screen/);
 
-      const roles = await h.sql<{ role: string }>(
-        `select role from platform_admins where granted_by = $1`, [boss]);
-      expect(roles.every((x) => x.role === 'sales')).toBe(true);
+      await expect(h.asUser(boss, () => h.sql(
+        `select app.hire_operator('someone@grounup.test','Inventing a job','emperor')`)))
+        .rejects.toThrow(/no operator role called/);
+
+      const [n] = await h.sql<{ n: string }>(
+        `select count(*)::text as n from platform_admins
+          where role = 'superadmin' and revoked_at is null`);
+      expect(Number(n!.n)).toBe(1);
+    });
+
+    it('grants the role that was asked for', async () => {
+      const hire = '99999999-9999-4999-8999-999999999999';
+      await h.sql(`insert into auth.users (id, email) values ($1,'books@grounup.test')`, [hire]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,'books@grounup.test')
+                   on conflict (id) do nothing`, [hire]);
+      await h.asUser(boss, () => h.sql(
+        `select app.hire_operator('books@grounup.test','Handles the invoicing','finance')`));
+
+      const [r] = await h.sql<{ role: string; role_key: string }>(
+        `select role, role_key from platform_admins where user_id = $1`, [hire]);
+      // The tier stays coarse so the one-superadmin index still holds; what
+      // they may actually do comes from the role key.
+      expect(r!.role).toBe('sales');
+      expect(r!.role_key).toBe('finance');
+
+      // And finance sees billing without seeing the tenant list.
+      const [can] = await h.asUser(hire, () => h.sql<{ billing: boolean; companies: boolean }>(
+        `select app.operator_can('billing.read') as billing,
+                app.operator_can('companies.read') as companies`));
+      expect(can!.billing).toBe(true);
+      expect(can!.companies).toBe(false);
+
+      const seen = await h.asUser(hire, () => h.sql(`select company_id from admin_companies`));
+      expect(seen).toHaveLength(0);
+
+      await h.asUser(boss, () => h.sql(
+        `select app.revoke_operator($1,'Contract ended')`, [hire]));
     });
   });
 
@@ -154,7 +186,7 @@ describe('hiring operators', () => {
     it('is the superadmin alone', async () => {
       await expect(h.asUser(other, () => h.sql(
         `select app.revoke_operator($1,'I would rather work alone')`, [boss])))
-        .rejects.toThrow(/Only the superadmin/);
+        .rejects.toThrow(/do not have permission/);
     });
 
     it('lets a revoked person be taken on again', async () => {

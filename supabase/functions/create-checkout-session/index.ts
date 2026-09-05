@@ -67,6 +67,34 @@ Deno.serve(async (req) => {
       .eq('id', companyId)
       .single();
 
+    /*
+     * Seats and terms.
+     *
+     * The plan is priced per seat, and this used to send `quantity: 1` — so a
+     * forty-person contractor checked out at the price of one person. The
+     * count comes from the same function the usage screen and the operator
+     * console read, so what Stripe charges for and what GrounUp reports cannot
+     * disagree.
+     *
+     * A negotiated arrangement travels as its Stripe coupon. A coupon-less
+     * arrangement is deliberately not applied here: an operator can record an
+     * agreed price before Stripe knows about it, and quietly discounting a
+     * checkout on the strength of a row Stripe never saw would put the two
+     * out of step in the direction that costs money.
+     */
+    const { data: seatCount } = await admin
+      .rpc('seat_price_cents', { p_company: companyId, p_interval: interval ?? 'month' });
+    const { data: seats } = await admin.rpc('billable_seats', { p_company: companyId });
+    const quantity = Math.max(1, Number(seats ?? 1));
+
+    const { data: terms } = await admin
+      .from('company_billing_terms')
+      .select('kind, stripe_coupon_id, applies_in_stripe')
+      .eq('company_id', companyId)
+      .is('revoked_at', null)
+      .maybeSingle();
+    const couponId = terms?.applies_in_stripe ? terms.stripe_coupon_id : null;
+
     const stripe = stripeClient();
     let customerId = existing?.stripe_customer_id as string | undefined;
     if (!customerId) {
@@ -87,7 +115,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
-      line_items: [{ price: resolved.priceId, quantity: 1 }],
+      line_items: [{ price: resolved.priceId, quantity }],
       // client_reference_id is echoed back on checkout.session.completed and is
       // how the webhook binds a brand-new subscription to its company.
       client_reference_id: String(companyId),
@@ -97,7 +125,10 @@ Deno.serve(async (req) => {
           grounup_plan_id: resolved.planId,
         },
       },
-      allow_promotion_codes: true,
+      // A recorded arrangement and a promotion code the customer types are
+      // mutually exclusive in Stripe; the arrangement wins, because somebody
+      // agreed to it.
+      ...(couponId ? { discounts: [{ coupon: couponId }] } : { allow_promotion_codes: true }),
       billing_address_collection: 'auto',
       success_url: `${appUrl}${safePath(successPath, '/app/settings/billing')}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}${safePath(cancelPath, '/pricing')}?checkout=canceled`,
@@ -108,7 +139,10 @@ Deno.serve(async (req) => {
       company_id: companyId,
       user_id: caller.userId,
       metric: 'billing.checkout_started',
-      metadata: { plan_id: resolved.planId, interval: interval ?? 'month' },
+      metadata: {
+        plan_id: resolved.planId, interval: interval ?? 'month',
+        quantity, coupon: couponId, seat_price_cents: seatCount ?? null,
+      },
     });
 
     return json({ url: session.url, sessionId: session.id, planId: resolved.planId }, 200, origin);

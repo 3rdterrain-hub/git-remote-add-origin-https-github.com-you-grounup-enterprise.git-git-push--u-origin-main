@@ -70,8 +70,113 @@ their own table; a revoke beats a grant beats the plan.
 **Every operator action is audited into the customer's own ledger**, so the
 customer can read what was done to them.
 
+**Operators hold permissions, not a rank.** Migrations 0068 and 0073 shipped two
+kinds of operator, superadmin and sales, which is too blunt for how a business
+is actually staffed: support needs billing and no commercial authority, finance
+needs billing and nothing else, an account manager needs both and no feature
+flags. Migration 0074 gives the platform side the same model the tenant side
+has had since 0002 — a role holds a list of permission keys, `'*'` is the
+wildcard, and `app.operator_can()` is the one question every function asks.
+Migration 0076 adds a catalog of permissions, so a role cannot be granted one
+that does not exist, and lets the superadmin edit any role or invent new ones.
+
+Two things stay outside the permission system on purpose, because they are
+structural rather than administrative: there is exactly one superadmin, still a
+partial unique index; and that seat cannot be given up, narrowed or granted
+from a screen, whatever the permissions say.
+
+**The business can be run from the console.** Migration 0076 adds the four jobs
+that previously needed a database connection — creating a company for somebody
+who signed on a call, giving an account away, discounting one, and deciding what
+each kind of operator may do. Every arrangement is a record with a reason, an
+author and an end date, and `applies_in_stripe` is derived rather than asserted:
+a discount Stripe was never told about is shown as not in effect, because it is
+not.
+
+Migration 0078 adds what the business is earning: revenue read from the
+subscription items Stripe's own webhooks mirrored, what is being given away
+counted beside it, growth by month, and the accounts where Stripe and GrounUp
+disagree about the price. Yearly is divided by twelve and the screen says so.
+
+**An operator can look inside a subscription without becoming the customer.**
+Migration 0079. Support cannot answer "why was I charged that" from a plan id,
+and the obvious build — impersonation — is wrong three times over: it opens
+every estimate and contract the customer holds to answer a billing question, it
+records whatever the operator does as the customer having done it, and it is
+unnecessary, because what support needs is a view rather than an identity.
+
+So an operator opens a *support session* on one company, saying why. It lasts an
+hour, it is written into that company's own audit ledger where the customer
+reads it, and while it is open one definer view shows that company's billing in
+full — subscription, items, seats, invoices, allowances, arrangement, overrides,
+and the Stripe events for them that failed. No policy anywhere gained an
+`or app.is_platform_admin()`, and the operator still cannot read one estimate.
+Seventeen tests, most of them refusals.
+
 Still open: suspending a company, and a second operator approving a change to a
 paying customer's entitlement.
+
+### 3b. What the business is earning — **built**
+Migration 0078. The console could count companies and could not say what the
+platform earns.
+
+- [x] `app.subscription_monthly_cents()` — from the items Stripe's own webhooks
+      mirrored, so revenue is what Stripe bills rather than what the catalog
+      wishes it billed. Yearly divided by twelve, and the screen says so.
+- [x] `admin_revenue_by_company`, `admin_revenue`, `admin_growth`,
+      `admin_recent_signups`. 15 tests.
+
+What is given away is counted rather than omitted, and the accounts where
+Stripe and GrounUp disagree about the price are counted rather than averaged.
+
+### 3c. Who came, and who tried — **built**
+Migration 0080. The console could see customers and nothing of the people who
+looked and did not become one, which is most of them.
+
+- [x] `visit_events` and `signup_attempts`, both append-only, both written
+      through the only two anon-executable functions besides `submit_lead`.
+- [x] `admin_traffic`, `admin_traffic_sources`, `admin_signup_funnel`,
+      `admin_failed_signups`, and a Traffic screen. 17 tests.
+
+Three lines held on purpose. **No address and no user agent** — what is kept
+about a device is one of three words, and the identifier that groups a browser's
+page views is a random value that browser generated for itself and can lose. **A
+referrer is reduced to its site**, because a search URL carries somebody's search
+terms. **The console and the application are never recorded**, both because they
+are not traffic and because a function anybody can call should not confirm which
+internal paths exist.
+
+The list worth having is the last one: people who typed their email into the
+signup form, got an error, and never came back — with the message they saw.
+"Already registered" and "password too short" are opposite problems, and before
+this both looked identical from the operator's side, which is to say invisible.
+
+### 3a. Free forever — **built**
+Migration 0077. The app is free to install and use; a subscription is what
+turns on the half of it that runs a construction company.
+
+- [x] A permanent `free` plan: estimating, takeoff, the master library, leads,
+      proposals and documents, two seats, five active estimates, 1 GB, 25 AI
+      credits a month.
+- [x] `app.effective_plan()` — derived, so a trial that ends lands on free
+      rather than on nothing, with no scheduled job to be late.
+- [x] Feature gates that refuse the write, on twenty-seven tables, INSERT only.
+
+Two findings this turned up, both fixed:
+
+**`has_entitlement` was called from exactly one place in the platform.** Every
+other feature boundary was a claim the database did nothing about, which meant
+a paid module was one API call away for anybody with an anon key.
+
+**A lapsed entitlement meant unlimited.** `app.plan_limit` returned NULL when no
+entitlement was live, and NULL means unlimited — so letting a subscription lapse
+removed every cap it existed to impose. Two tests asserted this as intended
+behavior under the heading "a billing gap must not become an outage". The first
+half was right; a gap now lands on the free tier instead.
+
+The gates are INSERT-only on purpose. A company whose subscription ends can
+still open, read, edit and export every project it ever ran. Holding a
+customer's own records hostage to a renewal is not a business model.
 
 ### 4. Leads
 A public lead capture form, and leads funnelling through the system to an

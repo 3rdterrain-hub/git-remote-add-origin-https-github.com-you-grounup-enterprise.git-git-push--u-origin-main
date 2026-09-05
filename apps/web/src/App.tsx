@@ -1,6 +1,7 @@
-import { Suspense, lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/misc';
+import { recordVisit } from '@/lib/analytics';
 import { LandingPage } from '@/pages/landing';
 
 /**
@@ -16,6 +17,10 @@ const AdminLoginPage = lazy(() => import('@/pages/admin/login').then((m) => ({ d
 const AdminDashboard = lazy(() => import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboard })));
 const AdminCompanies = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminCompanies })));
 const AdminPackages = lazy(() => import('@/pages/admin/packages').then((m) => ({ default: m.AdminPackages })));
+const AdminCompanyBilling = lazy(() => import('@/pages/admin/company-billing').then((m) => ({ default: m.AdminCompanyBilling })));
+const AdminTraffic = lazy(() => import('@/pages/admin/traffic').then((m) => ({ default: m.AdminTraffic })));
+const AdminRoles = lazy(() => import('@/pages/admin/roles').then((m) => ({ default: m.AdminRoles })));
+const AdminAccounts = lazy(() => import('@/pages/admin/accounts').then((m) => ({ default: m.AdminAccounts })));
 const AdminControls = lazy(() => import('@/pages/admin/controls').then((m) => ({ default: m.AdminControls })));
 const AdminBilling = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminBilling })));
 const AdminFrontEnd = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminFrontEnd })));
@@ -58,9 +63,23 @@ function RouteFallback() {
   );
 }
 
+/**
+ * Counts a page view on every navigation.
+ *
+ * Inside the router rather than at the entry point, because a single-page
+ * application changes pages without reloading — counting only the first would
+ * report every visitor as having read one page and left.
+ */
+function CountTheVisit() {
+  const { pathname } = useLocation();
+  useEffect(() => { recordVisit(pathname); }, [pathname]);
+  return null;
+}
+
 export function App() {
   return (
     <TooltipProvider delayDuration={200}>
+      <CountTheVisit />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Public */}
@@ -84,9 +103,13 @@ export function App() {
           <Route path="/admin" element={<AdminShell />}>
             <Route index element={<AdminDashboard />} />
             <Route path="companies" element={<AdminCompanies />} />
+            <Route path="companies/:companyId" element={<AdminCompanyBilling />} />
             <Route path="packages" element={<AdminPackages />} />
             <Route path="billing" element={<AdminBilling />} />
             <Route path="controls" element={<AdminControls />} />
+            <Route path="accounts" element={<AdminAccounts />} />
+            <Route path="roles" element={<AdminRoles />} />
+            <Route path="traffic" element={<AdminTraffic />} />
             <Route path="front-end" element={<AdminFrontEnd />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

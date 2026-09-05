@@ -106,8 +106,15 @@ describe('global seed library loads into a real database', () => {
   });
 
   it('loads the plan catalog and the AI agent registry', async () => {
-    const [plans] = await h.sql<{ c: number }>(`select count(*)::int c from plans`);
-    expect(plans!.c).toBe(5);
+    /*
+     * What is offered, rather than how many rows exist. The catalog keeps the
+     * withdrawn five-tier ladder and two unlisted plans for the history of
+     * companies still on them, so a bare count says nothing about what a
+     * visitor can buy — which is the thing worth asserting.
+     */
+    const offered = await h.sql<{ id: string }>(
+      `select id from plans where is_active and is_public order by sort_order`);
+    expect(offered.map((p) => p.id)).toEqual(['free', 'grounup']);
     const [agents] = await h.sql<{ c: number }>(`select count(*)::int c from ai_agents`);
     expect(agents!.c).toBe(15);
   });

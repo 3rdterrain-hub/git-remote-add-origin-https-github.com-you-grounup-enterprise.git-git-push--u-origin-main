@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
-  Globe, Settings, LogOut, Loader2,
+  Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -11,36 +11,57 @@ import { Alert } from '@/components/ui/misc';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import {
   isPlatformAdmin, isSuperadmin, superadminSeatIsOpen, claimFirstSuperadmin,
+  myOperatorPermissions,
 } from '@/lib/data/admin';
 import { cn } from '@/lib/utils';
 
 /**
  * The console every operator screen sits inside.
  *
- * Two facts decide what a person sees here, and they are asked of the database
- * rather than inferred: are you an operator at all, and are you the one who
- * decides. Sales sees the same tenants and none of the controls; hiding a
- * button is a courtesy on top of a refusal, never instead of one, and every
- * function behind these screens checks for itself.
+ * What a person sees here is decided by what they may do, asked of the
+ * database rather than inferred from a role name. Hiding a section is a
+ * courtesy on top of a refusal, never instead of one: every function behind
+ * these screens checks for itself, and the views return nothing to somebody
+ * without the permission to read them.
  */
 export interface OperatorContext {
   isSuper: boolean;
+  /** Whether the signed-in operator holds a platform permission. */
+  can: (permission: string) => boolean;
 }
 
+/** Every permission the console asks about, in one place. */
+const PERMISSIONS = [
+  'companies.read', 'companies.manage', 'billing.read', 'billing.manage',
+  'upsell.propose', 'upsell.decide', 'features.manage', 'pricing.manage',
+  'operators.manage', 'support.open',
+] as const;
+
+/*
+ * A section appears when the operator holds any one of the permissions it is
+ * built on. `needs: []` means the section has nothing behind it worth gating —
+ * the dashboard and their own settings.
+ */
 const SECTIONS = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, superOnly: false },
-  { to: '/admin/companies', label: 'Companies', icon: Building2, superOnly: false },
-  { to: '/admin/packages', label: 'Packages', icon: Package, superOnly: false },
-  { to: '/admin/billing', label: 'Billing', icon: CreditCard, superOnly: false },
-  { to: '/admin/controls', label: 'Superadmin controls', icon: ShieldAlert, superOnly: true },
-  { to: '/admin/front-end', label: 'Front end', icon: Globe, superOnly: true },
-  { to: '/admin/settings', label: 'Settings', icon: Settings, superOnly: false },
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, needs: [] as string[] },
+  { to: '/admin/companies', label: 'Companies', icon: Building2, needs: ['companies.read'] },
+  { to: '/admin/traffic', label: 'Traffic', icon: Filter, needs: ['companies.read'] },
+  { to: '/admin/accounts', label: 'Accounts', icon: Users,
+    needs: ['companies.manage', 'billing.manage'] },
+  { to: '/admin/packages', label: 'Packages', icon: Package, needs: ['pricing.manage'] },
+  { to: '/admin/billing', label: 'Billing', icon: CreditCard, needs: ['billing.read'] },
+  { to: '/admin/controls', label: 'Controls', icon: ShieldAlert,
+    needs: ['upsell.decide', 'features.manage', 'operators.manage'] },
+  { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },
+  { to: '/admin/front-end', label: 'Front end', icon: Globe, needs: ['pricing.manage'] },
+  { to: '/admin/settings', label: 'Settings', icon: Settings, needs: [] as string[] },
 ];
 
 export function AdminShell() {
   const navigate = useNavigate();
   const [state, setState] = useState<'checking' | 'operator' | 'no'>('checking');
   const [isSuper, setIsSuper] = useState(false);
+  const [held, setHeld] = useState<Set<string>>(new Set());
   const [email, setEmail] = useState<string | null>(null);
   /*
    * Whether nobody yet holds the operator seat. `platform_admins` has no insert
@@ -66,6 +87,11 @@ export function AdminShell() {
         ]);
         if (canceled) return;
         setIsSuper(superadmin);
+        if (operator) {
+          const permissions = await myOperatorPermissions(supabase!, [...PERMISSIONS]);
+          if (canceled) return;
+          setHeld(permissions);
+        }
         if (!operator) setSeatOpen(await superadminSeatIsOpen(supabase!).catch(() => false));
         setState(operator ? 'operator' : 'no');
       } catch {
@@ -135,14 +161,16 @@ export function AdminShell() {
     return <Navigate to="/admin/login" replace />;
   }
 
-  const visible = SECTIONS.filter((s) => !s.superOnly || isSuper);
+  const can = (permission: string) => held.has(permission);
+  const visible = SECTIONS.filter(
+    (s) => s.needs.length === 0 || s.needs.some(can));
 
   return (
     <div className="flex min-h-full bg-charcoal-100">
       <aside className="flex w-60 flex-col bg-charcoal-900">
         <div className="flex items-center gap-2 px-5 py-4">
           <Logo className="text-white" showDescriptor={false} />
-          <Badge variant="warn">{isSuper ? 'Super' : 'Sales'}</Badge>
+          <Badge variant="warn">{isSuper ? 'Superadmin' : 'Operator'}</Badge>
         </div>
 
         <nav className="flex-1 space-y-0.5 px-3">
@@ -160,7 +188,8 @@ export function AdminShell() {
         <div className="border-t border-charcoal-800 p-3">
           <p className="truncate px-2 text-xs text-charcoal-400">{email}</p>
           <p className="px-2 text-[11px] text-charcoal-500">
-            {isSuper ? 'Approves everything' : 'Sees and proposes'}
+            {isSuper ? 'Approves everything'
+              : `${held.size} permission${held.size === 1 ? '' : 's'}`}
           </p>
           <Button variant="ghost" size="sm" className="mt-2 w-full justify-start text-charcoal-300"
             onClick={async () => {
@@ -176,13 +205,13 @@ export function AdminShell() {
         <div className="mx-auto max-w-[100rem] p-6">
           {!isSuper ? (
             <Alert tone="neutral" className="mb-5" icon={<ShieldAlert className="size-4" />}
-              title="You are signed in as sales">
-              You can see how every company is doing and propose an upsell with a reason
-              attached. Changing a customer&apos;s plan or features is the superadmin&apos;s, and
-              the database refuses it here regardless of what this screen shows.
+              title="You hold some of what this console can do">
+              The sections you can see are the ones your role covers. Everything else is
+              refused by the database rather than merely hidden here, so reaching a screen
+              another way changes nothing about what you can do on it.
             </Alert>
           ) : null}
-          <Outlet context={{ isSuper } satisfies OperatorContext} />
+          <Outlet context={{ isSuper, can } satisfies OperatorContext} />
         </div>
       </main>
     </div>

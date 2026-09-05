@@ -364,13 +364,25 @@ describe('plan limits are enforced, not merely recorded', () => {
     expect(Number(count!.n)).toBe(30);
   });
 
-  it('never locks a company out for having no entitlement at all', async () => {
-    // A billing gap must not become a data outage.
+  it('falls back to the free allowance rather than to unlimited', async () => {
+    /*
+     * This used to assert NULL — no entitlement, no limit — under the heading
+     * "a billing gap must not become a data outage". The first half of that is
+     * right and the second half was backwards: NULL means unlimited, so
+     * letting a subscription lapse removed every cap it was there to impose.
+     * A company that stops paying now lands on the free plan's allowance,
+     * which is neither an outage nor a reward.
+     */
     await h.sql(`delete from entitlements where company_id=$1`, [starter]);
     const [limit] = await h.sql<{ n: number | null }>(
       `select app.plan_limit($1,'max_active_estimates') as n`, [starter]);
-    expect(limit!.n).toBeNull();
-    await expect(addEstimate(99)).resolves.toBeDefined();
+    expect(Number(limit!.n)).toBe(5);
+
+    // Still no outage: what they already have stays readable and editable.
+    const kept = await h.sql(`select id from estimates where company_id=$1 limit 1`, [starter]);
+    expect(kept.length).toBeGreaterThan(0);
+    // And a new one is refused with a message that names the plan they are on.
+    await expect(addEstimate(99)).rejects.toThrow(/GrounUp Free/);
   });
 
   it('reports usage against allowance', async () => {

@@ -109,13 +109,13 @@ describe('platform operator roles', () => {
        */
       await expect(h.asUser(seller, () => h.sql(
         `select app.set_feature_override($1,'white_label','grant','Customer asked nicely')`,
-        [company]))).rejects.toThrow(/Only the superadmin/);
+        [company]))).rejects.toThrow(/do not have permission/);
     });
 
     it('cannot withdraw one either', async () => {
       await expect(h.asUser(seller, () => h.sql(
         `select app.clear_feature_override($1,'white_label','No longer needed')`, [company])))
-        .rejects.toThrow(/Only the superadmin/);
+        .rejects.toThrow(/do not have permission/);
     });
 
     it('can propose an upsell, with a reason', async () => {
@@ -150,7 +150,7 @@ describe('platform operator roles', () => {
            'Steady growth, three new estimators this quarter') as id`, [company])))[0]!.id;
       await expect(h.asUser(seller, () => h.sql(
         `select app.decide_upsell($1, true)`, [id])))
-        .rejects.toThrow(/Only the superadmin may decide/);
+        .rejects.toThrow(/do not have permission to decide/);
     });
   });
 
@@ -218,13 +218,51 @@ describe('platform operator roles', () => {
 
   describe('where the potential is', () => {
     it('names why a customer is worth a call', async () => {
+      /*
+       * Under one plan the reason is never "there is a bigger plan" — there
+       * isn't one. It is seats in use against seats billed, which is the whole
+       * commercial relationship on a per-seat plan.
+       */
+      await h.sql(`insert into subscriptions
+                     (company_id, stripe_subscription_id, stripe_customer_id,
+                      plan_id, status, quantity, current_period_start, current_period_end)
+                   values ($1,'sub_test','cus_test','grounup','active',1,
+                           now() - interval '3 days', now() + interval '27 days')`,
+        [company]);
+      for (const [id, email] of [
+        ['66666666-6666-4666-8666-666666666666', 'crew1@r.test'],
+        ['77777777-7777-4777-8777-777777777777', 'crew2@r.test'],
+      ] as const) {
+        await h.sql(`insert into auth.users (id, email) values ($1,$2)`, [id, email]);
+        await h.sql(`insert into user_profiles (id, email) values ($1,$2)
+                     on conflict (id) do nothing`, [id, email]);
+        await h.sql(`insert into company_memberships (company_id, user_id, role_id, status)
+                     select $1, $2, r.id, 'active' from roles r
+                      where r.company_id = $1 or r.company_id is null
+                      order by r.company_id nulls last, r.approval_tier limit 1`,
+          [company, id]);
+      }
+
       const [r] = await h.asUser(seller, () => h.sql<{
-        signal: string; current_plan: string; next_plan: string | null;
-      }>(`select signal, current_plan, next_plan from admin_upsell_potential
-           where company_id = $1`, [company]));
-      expect(r!.current_plan).toBe('starter');
-      expect(r!.next_plan).not.toBeNull();
-      expect(r!.signal).toBeTruthy();
+        signal: string | null; seats_in_use: number;
+        seats_billed: number; seats_unbilled: number;
+      }>(`select signal, seats_in_use, seats_billed, seats_unbilled
+            from admin_upsell_potential where company_id = $1`, [company]));
+      expect(Number(r!.seats_in_use)).toBe(3);
+      expect(Number(r!.seats_billed)).toBe(1);
+      expect(Number(r!.seats_unbilled)).toBe(2);
+      expect(r!.signal).toBe('Using 3 seats, billed for 1');
+    });
+
+    it('says nothing rather than inventing a reason', async () => {
+      // A customer inside every allowance, billed for what they use, has no
+      // upsell — and a pipeline that admits that is one an operator can trust.
+      await h.sql(`update subscriptions set quantity = 3 where company_id = $1`, [company]);
+      const [r] = await h.asUser(seller, () => h.sql<{ signal: string | null }>(
+        `select signal from admin_upsell_potential where company_id = $1`, [company]));
+      expect(r!.signal).toBeNull();
+      // Put the gap back for the tests that follow.
+      await h.sql(`update subscriptions set quantity = 1 where company_id = $1`, [company]);
     });
 
     it('counts the proposals already open on an account', async () => {

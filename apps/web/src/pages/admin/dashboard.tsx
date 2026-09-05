@@ -1,6 +1,7 @@
 import { useOutletContext } from 'react-router-dom';
 import {
   Building2, Banknote, TrendingUp, AlertTriangle, Webhook, Clock, ArrowUpRight,
+  Gift, UserPlus, Users, Scale,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@/lib/data/query';
 import {
   loadAdminCompanies, loadWebhookHealth, loadUpsellPotential, loadProposals,
+  loadRevenue, loadRevenueByCompany, loadGrowth, loadRecentSignups,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { money, integer, date } from '@/lib/format';
@@ -22,24 +24,36 @@ import type { OperatorContext } from './shell';
  * There is no way from here into a customer's estimates, and there is not meant
  * to be.
  *
- * Every number is counted rather than tracked. Monthly revenue is summed from
- * the plans companies are actually on, not from a figure somebody updates —
- * which means it cannot be stale, and it means it will disagree with Stripe
- * whenever a subscription is mid-change. The screen says which it is.
+ * Every number is counted rather than tracked. Revenue is summed from the
+ * subscription items Stripe's own webhooks mirrored — what Stripe bills, not
+ * what GrounUp thinks it ought to. Where the two disagree the screen says so
+ * and counts the accounts, rather than picking one and looking confident.
  */
 export function AdminDashboard() {
-  const { isSuper } = useOutletContext<OperatorContext>();
+  const { can } = useOutletContext<OperatorContext>();
+  const isSuper = can('upsell.decide');
   const companiesQ = useQuery(loadAdminCompanies, []);
   const webhooksQ = useQuery(loadWebhookHealth, []);
   const potentialQ = useQuery(loadUpsellPotential, []);
   const proposalsQ = useQuery(loadProposals, []);
+  const revenueQ = useQuery(loadRevenue, []);
+  const byCompanyQ = useQuery(loadRevenueByCompany, []);
+  const growthQ = useQuery(loadGrowth, []);
+  const signupsQ = useQuery(loadRecentSignups, []);
 
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
   const webhooks = webhooksQ.status === 'ready' ? webhooksQ.data : [];
   const potential = potentialQ.status === 'ready' ? potentialQ.data : [];
   const proposals = proposalsQ.status === 'ready' ? proposalsQ.data : [];
+  const revenue = revenueQ.status === 'ready' ? revenueQ.data : null;
+  const byCompany = byCompanyQ.status === 'ready' ? byCompanyQ.data : [];
+  const growth = growthQ.status === 'ready' ? growthQ.data : [];
+  const signups = signupsQ.status === 'ready' ? signupsQ.data : [];
+  const thisMonth = growth.at(-1);
+  const lastMonth = growth.at(-2);
 
-  const failure = [companiesQ, webhooksQ, potentialQ, proposalsQ]
+  const failure = [companiesQ, webhooksQ, potentialQ, proposalsQ,
+                   revenueQ, byCompanyQ, growthQ, signupsQ]
     .find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
@@ -48,7 +62,9 @@ export function AdminDashboard() {
   const trials = companies.filter((c) => c.entitlementSource === 'trial');
   const stuck = webhooks.filter((w) => w.unprocessed);
   const open = proposals.filter((p) => p.state === 'proposed');
-  const signals = potential.filter((p) => p.signal && p.signal !== 'Room to move up');
+  // Null signal is a real answer under one plan: a customer inside every
+  // allowance, billed for what they use, has no upsell to chase.
+  const signals = potential.filter((p) => p.signal);
 
   /*
    * Estimated from the proposals on file rather than from the plan ladder: what
@@ -86,19 +102,216 @@ export function AdminDashboard() {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Tile label="Recurring revenue"
+          value={revenue ? money(revenue.mrrCents / 100) : '—'}
+          hint={revenue ? `${money(revenue.arrCents / 100)} a year at this rate` : undefined}
+          icon={<Banknote className="size-4" />}
+          tone={revenue && revenue.mrrCents > 0 ? 'success' : 'neutral'} />
         <Tile label="Companies" value={integer(companies.length)}
           hint={`${integer(paying.length)} paying, ${integer(trials.length)} on trial`}
           icon={<Building2 className="size-4" />} />
-        <Tile label="Proposal pipeline" value={money(pipelineCents / 100)}
-          hint={`${integer(open.length)} open, per month as estimated`}
-          icon={<TrendingUp className="size-4" />} tone={open.length ? 'warn' : 'neutral'} />
-        <Tile label="Worth a call" value={integer(signals.length)}
-          hint="at a limit, or a trial ending"
-          icon={<ArrowUpRight className="size-4" />} />
+        <Tile label="Seats"
+          value={revenue ? integer(revenue.seatsInUse) : '—'}
+          hint={revenue
+            ? `${integer(revenue.seatsBilled)} billed${revenue.seatsUnbilled
+                ? ` · ${integer(revenue.seatsUnbilled)} in use and not billed` : ''}`
+            : undefined}
+          icon={<Users className="size-4" />}
+          tone={revenue && revenue.seatsUnbilled > 0 ? 'warn' : 'neutral'} />
         <Tile label="Stuck webhooks" value={integer(stuck.length)}
           hint={stuck.length ? 'someone paid and did not get access' : 'all events processed'}
           icon={<Webhook className="size-4" />}
           tone={stuck.length ? 'danger' : 'success'} />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Tile label="New companies this month"
+          value={thisMonth ? integer(thisMonth.newCompanies) : '—'}
+          hint={lastMonth ? `${integer(lastMonth.newCompanies)} last month` : undefined}
+          icon={<Building2 className="size-4" />} />
+        <Tile label="New people this month"
+          value={thisMonth ? integer(thisMonth.newUsers) : '—'}
+          hint={lastMonth ? `${integer(lastMonth.newUsers)} last month` : undefined}
+          icon={<UserPlus className="size-4" />} />
+        <Tile label="Given away"
+          value={revenue ? money((revenue.givenAwayCents + revenue.discountedCents) / 100) : '—'}
+          hint={revenue
+            ? `${integer(revenue.onTerms)} on terms, ${integer(revenue.onFree)} on the free plan`
+            : undefined}
+          icon={<Gift className="size-4" />}
+          tone={revenue && revenue.givenAwayCents > 0 ? 'warn' : 'neutral'} />
+        <Tile label="Stripe disagrees"
+          value={revenue ? integer(revenue.accountsThatDisagree) : '—'}
+          hint={revenue && revenue.accountsThatDisagree
+            ? 'billed differently from what the plan says'
+            : 'every account bills what its plan says'}
+          icon={<Scale className="size-4" />}
+          tone={revenue && revenue.accountsThatDisagree > 0 ? 'warn' : 'success'} />
+      </div>
+
+      {revenue && revenue.inArrears + revenue.leaving > 0 ? (
+        <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
+          title={`${integer(revenue.inArrears)} account(s) behind on payment, `
+            + `${integer(revenue.leaving)} canceling at the end of the period`}>
+          Both are still using the platform today. Neither will be next month unless
+          somebody calls.
+        </Alert>
+      ) : null}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Where the revenue comes from</CardTitle>
+            <CardDescription>
+              What Stripe bills each account a month. A yearly subscription is shown
+              divided by twelve so it sits beside the monthly ones.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Standing</TableHead>
+                  <TableHead className="text-right">Seats</TableHead>
+                  <TableHead className="text-right">A month</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {byCompany.slice(0, 12).map((r) => (
+                  <TableRow key={r.companyId}>
+                    <TableCell className="font-medium text-charcoal-900">
+                      {r.name}
+                      {r.terms ? (
+                        <Badge variant="warn" className="ml-1.5">
+                          {r.terms === 'free' ? 'Comped' : 'Discounted'}
+                        </Badge>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={r.subscriptionStatus === 'active' ? 'success'
+                        : r.subscriptionStatus ? 'warn' : 'default'}>
+                        {r.subscriptionStatus ?? (r.onTheFreePlan ? 'Free' : 'No subscription')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-600">
+                      {r.seats}
+                      {r.seatsBilled != null && r.seatsBilled !== r.seats
+                        ? ` / ${r.seatsBilled} billed` : ''}
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-900">
+                      {money(r.billedMonthlyCents / 100)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {!byCompany.length && byCompanyQ.status === 'ready' ? (
+              <EmptyState title="Nothing is being billed yet"
+                hint="Revenue appears here as Stripe confirms subscriptions." />
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Who arrived</CardTitle>
+            <CardDescription>
+              The most recent people to sign up, and which company they landed in.
+              Somebody with no company got stuck partway through.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Person</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Signed up</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {signups.slice(0, 12).map((u) => (
+                  <TableRow key={u.userId}>
+                    <TableCell className="text-charcoal-800">
+                      {u.fullName ?? u.email ?? u.userId}
+                    </TableCell>
+                    <TableCell>
+                      {u.noCompanyYet ? (
+                        <Badge variant="warn">Never finished</Badge>
+                      ) : (
+                        <span className="text-charcoal-700">
+                          {u.companyName}
+                          {u.isOwner ? (
+                            <Badge variant="default" className="ml-1.5">Owner</Badge>
+                          ) : null}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-xs text-charcoal-500">
+                      {date(u.createdAt)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {!signups.length && signupsQ.status === 'ready' ? (
+              <EmptyState title="Nobody has signed up yet" />
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Month by month</CardTitle>
+          <CardDescription>
+            Thirteen months, so this one has the same month last year beside it.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Month</TableHead>
+                <TableHead className="text-right">Companies</TableHead>
+                <TableHead className="text-right">People</TableHead>
+                <TableHead className="text-right">Subscriptions</TableHead>
+                <TableHead className="text-right">Cancellations</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...growth].reverse().map((g) => (
+                <TableRow key={g.month}>
+                  <TableCell className="whitespace-nowrap text-charcoal-700">
+                    {date(g.month)}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-charcoal-900">
+                    {g.newCompanies || '—'}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-charcoal-700">
+                    {g.newUsers || '—'}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-success-700">
+                    {g.newSubscriptions || '—'}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-danger-700">
+                    {g.canceledSubscriptions || '—'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Tile label="Proposal pipeline" value={money(pipelineCents / 100)}
+          hint={`${integer(open.length)} open, per month as estimated`}
+          icon={<TrendingUp className="size-4" />} tone={open.length ? 'warn' : 'neutral'} />
+        <Tile label="Worth a call" value={integer(signals.length)}
+          hint="over an allowance, or a trial ending"
+          icon={<ArrowUpRight className="size-4" />} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -125,7 +338,9 @@ export function AdminDashboard() {
                   <TableRow key={p.companyId}>
                     <TableCell className="font-medium text-charcoal-900">{p.name}</TableCell>
                     <TableCell>
-                      <Badge variant="default">{p.currentPlan ?? 'none'}</Badge>
+                      <Badge variant="default">
+                        {p.currentPlanName ?? p.currentPlan ?? 'Free'}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-charcoal-600">{p.signal}</TableCell>
                     <TableCell className="tabular text-right text-charcoal-600">
@@ -136,8 +351,8 @@ export function AdminDashboard() {
               </TableBody>
             </Table>
             {!signals.length && potentialQ.status === 'ready' ? (
-              <EmptyState title="Nobody is near a limit"
-                hint="Which is either good news or a sign the limits are generous." />
+              <EmptyState title="Every account is inside its allowances"
+                hint="Seats billed match seats used, and nobody is over on credits or storage." />
             ) : null}
           </CardContent>
         </Card>
