@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@/lib/data/query';
-import { loadOperatorActivity, loadOperatorSummary } from '@/lib/data/admin';
+import { loadOperatorActivity, loadOperatorSummary, loadExports } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { integer, dateTime, date } from '@/lib/format';
 import type { OperatorContext } from './shell';
@@ -45,12 +45,14 @@ export function AdminActivity() {
   const { can } = useOutletContext<OperatorContext>();
   const activityQ = useQuery(loadOperatorActivity, []);
   const summaryQ = useQuery(loadOperatorSummary, []);
+  const exportsQ = useQuery(loadExports, []);
   const [filter, setFilter] = useState('');
 
   const activity = activityQ.status === 'ready' ? activityQ.data : [];
   const summary = summaryQ.status === 'ready' ? summaryQ.data : [];
+  const exports = exportsQ.status === 'ready' ? exportsQ.data : [];
 
-  const failure = [activityQ, summaryQ].find((q) => q.status === 'error');
+  const failure = [activityQ, summaryQ, exportsQ].find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
   const q = filter.trim().toLowerCase();
@@ -214,6 +216,50 @@ export function AdminActivity() {
           </Table>
           {!shown.length && activityQ.status === 'ready' ? (
             <EmptyState title={filter ? 'Nothing matches that' : 'Nothing has happened yet'} />
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Data taken out</CardTitle>
+          <CardDescription>
+            An export is the one action that removes a record from every protection this
+            platform has. Recorded rather than restricted: somebody who can read a list on
+            screen can copy it by hand, and pretending otherwise would be the platform
+            lying to itself about its own boundaries. What makes it answerable is the trace.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>When</TableHead>
+                <TableHead>Who</TableHead>
+                <TableHead>What</TableHead>
+                <TableHead className="text-right">Rows</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {exports.slice(0, 30).map((e) => (
+                <TableRow key={`${e.occurredAt}:${e.what}`}>
+                  <TableCell className="whitespace-nowrap text-xs text-charcoal-500">
+                    {dateTime(e.occurredAt)}
+                  </TableCell>
+                  <TableCell className="text-xs text-charcoal-800">
+                    {e.operatorEmail ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-charcoal-700 capitalize">{e.what}</TableCell>
+                  <TableCell className="tabular text-right text-charcoal-900">
+                    {integer(e.rows)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!exports.length && exportsQ.status === 'ready' ? (
+            <EmptyState title="Nothing has been exported"
+              hint="Every export appears here, with who took it and how much." />
           ) : null}
         </CardContent>
       </Card>

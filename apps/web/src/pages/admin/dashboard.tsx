@@ -13,6 +13,7 @@ import {
   loadRevenue, loadRevenueByCompany, loadGrowth, loadRecentSignups,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { ExportButton } from '@/components/admin/export-button';
 import { money, integer, date } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
@@ -161,11 +162,28 @@ export function AdminDashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Where the revenue comes from</CardTitle>
-            <CardDescription>
-              What Stripe bills each account a month. A yearly subscription is shown
-              divided by twelve so it sits beside the monthly ones.
-            </CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle>Where the revenue comes from</CardTitle>
+                <CardDescription>
+                  What Stripe bills each account a month. A yearly subscription is shown
+                  divided by twelve so it sits beside the monthly ones.
+                </CardDescription>
+              </div>
+              <ExportButton what="Revenue by company" rows={byCompany} columns={[
+                { header: 'Company', value: (r) => r.name },
+                { header: 'Plan', value: (r) => r.planName },
+                { header: 'Subscription', value: (r) => r.subscriptionStatus },
+                { header: 'Canceling', value: (r) => r.cancelAtPeriodEnd },
+                { header: 'Seats in use', value: (r) => r.seats },
+                { header: 'Seats billed', value: (r) => r.seatsBilled },
+                { header: 'Billed monthly', value: (r) => (r.billedMonthlyCents / 100).toFixed(2) },
+                { header: 'Expected monthly', value: (r) => (r.expectedMonthlyCents / 100).toFixed(2) },
+                { header: 'List monthly', value: (r) => (r.listMonthlyCents / 100).toFixed(2) },
+                { header: 'Arrangement', value: (r) => r.terms },
+                { header: 'Customer since', value: (r) => r.createdAt },
+              ]} />
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <Table>

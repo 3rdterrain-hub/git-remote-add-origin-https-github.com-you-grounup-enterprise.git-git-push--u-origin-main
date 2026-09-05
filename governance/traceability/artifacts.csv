@@ -260,6 +260,7 @@ TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.tes
 TST-db-estimate-hierarchy,test,db/estimate-hierarchy.test.ts,tests/db/estimate-hierarchy.test.ts,ENGINE
 TST-db-estimating-acceptance,test,db/estimating-acceptance.test.ts,tests/db/estimating-acceptance.test.ts,ENGINE
 TST-db-event-replay,test,db/event-replay.test.ts,tests/db/event-replay.test.ts,ENGINE
+TST-db-exports,test,db/exports.test.ts,tests/db/exports.test.ts,ENGINE
 TST-db-finance,test,db/finance.test.ts,tests/db/finance.test.ts,ENGINE
 TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-periods.test.ts,ENGINE
 TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
@@ -325,6 +326,7 @@ TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summar
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
+TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE

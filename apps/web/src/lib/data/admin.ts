@@ -1421,3 +1421,43 @@ export const loadOperatorSummary: Query<OperatorSummary[]> = async (client) => {
     lastSeen: (r.last_seen as string | null) ?? null,
   }));
 };
+
+/**
+ * Record that data left the platform.
+ *
+ * An export removes rows from every protection this platform has, so the one
+ * thing that keeps it answerable is the trace. Records what and how many —
+ * never the rows themselves, because a ledger holding a copy of the export
+ * would be a second copy of the thing worth worrying about.
+ */
+export async function recordExport(
+  client: Rpc, what: string, rows: number, companyId?: string | null,
+): Promise<void> {
+  const { error } = await client.rpc('record_export', {
+    p_what: what, p_rows: rows, p_company: companyId ?? null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export interface ExportRecord {
+  occurredAt: string;
+  operatorEmail: string | null;
+  operatorRole: string | null;
+  what: string;
+  rows: number;
+  companyName: string | null;
+}
+
+export const loadExports: Query<ExportRecord[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_exports')
+    .select('occurred_at, operator_email, operator_role, what, rows, company_name')) as Array<Record<string, unknown>>;
+  return rows.map((e) => ({
+    occurredAt: String(e.occurred_at),
+    operatorEmail: (e.operator_email as string | null) ?? null,
+    operatorRole: (e.operator_role as string | null) ?? null,
+    what: String(e.what),
+    rows: Number(e.rows ?? 0),
+    companyName: (e.company_name as string | null) ?? null,
+  }));
+};

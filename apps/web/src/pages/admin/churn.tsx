@@ -11,6 +11,7 @@ import {
   loadChurnReasons, loadChurnByMonth, loadCancellations, loadFailingPayments,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { ExportButton } from '@/components/admin/export-button';
 import { Button } from '@/components/ui/button';
 import { money, integer, date, dateTime } from '@/lib/format';
 import type { OperatorContext } from './shell';
@@ -275,10 +276,28 @@ export function AdminChurn() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Every cancellation</CardTitle>
-          <CardDescription>
-            What they said, what they were worth, and whether they have come back since.
-          </CardDescription>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <CardTitle>Every cancellation</CardTitle>
+              <CardDescription>
+                What they said, what they were worth, and whether they have come back since.
+              </CardDescription>
+            </div>
+            <ExportButton what="Cancellations" rows={list} columns={[
+              { header: 'Company', value: (c) => c.companyName },
+              { header: 'Reason', value: (c) => c.reasonLabel ?? 'Nobody was asked' },
+              { header: 'What they said', value: (c) => c.detail },
+              { header: 'Moved to', value: (c) => c.competitor },
+              { header: 'Would return', value: (c) => c.wouldReturn },
+              { header: 'Seats', value: (c) => c.seatsAtCancellation },
+              { header: 'Was worth monthly', value: (c) => c.monthlyCentsAtCancellation == null
+                ? null : (c.monthlyCentsAtCancellation / 100).toFixed(2) },
+              { header: 'Months as a customer', value: (c) => c.monthsAsACustomer },
+              { header: 'How we heard', value: (c) => c.source },
+              { header: 'When', value: (c) => c.occurredAt },
+              { header: 'Came back', value: (c) => c.cameBack },
+            ]} />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <Table>

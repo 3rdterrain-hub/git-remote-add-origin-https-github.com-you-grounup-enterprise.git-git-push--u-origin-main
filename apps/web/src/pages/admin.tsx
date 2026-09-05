@@ -20,6 +20,7 @@ import {
   type AdminCompany,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { ExportButton } from '@/components/admin/export-button';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { date, dateTime, integer, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -161,10 +162,31 @@ export function AdminCompanies() {
         </TabsList>
 
         <TabsContent value="companies" className="space-y-4">
-          <div className="relative max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-            <Input value={filter} className="pl-9" placeholder="Name, address or owner"
-              onChange={(e) => setFilter(e.target.value)} aria-label="Filter companies" />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="relative max-w-sm flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
+              <Input value={filter} className="pl-9" placeholder="Name, address or owner"
+                onChange={(e) => setFilter(e.target.value)} aria-label="Filter companies" />
+            </div>
+            {/*
+              * Exports what is on screen, filter and all. A button that widened
+              * the query to "everything" would be a quiet escalation dressed as
+              * a convenience, and every export is recorded in the ledger.
+              */}
+            <ExportButton what="Companies" rows={shown} columns={[
+              { header: 'Company', value: (c) => c.name },
+              { header: 'Address', value: (c) => c.slug },
+              { header: 'Owner', value: (c) => c.ownerEmail },
+              { header: 'Plan', value: (c) => c.planId },
+              { header: 'Entitlement active', value: (c) => c.entitlementActive },
+              { header: 'Entitlement source', value: (c) => c.entitlementSource },
+              { header: 'Subscription', value: (c) => c.subscriptionStatus },
+              { header: 'Period ends', value: (c) => c.currentPeriodEnd },
+              { header: 'People', value: (c) => c.memberCount },
+              { header: 'Estimates', value: (c) => c.estimateCount },
+              { header: 'Projects', value: (c) => c.projectCount },
+              { header: 'Customer since', value: (c) => c.createdAt },
+            ]} />
           </div>
 
           <Card>

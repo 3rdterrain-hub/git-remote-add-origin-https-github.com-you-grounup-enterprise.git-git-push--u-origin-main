@@ -245,6 +245,30 @@ and the audit trigger's, carrying the exact before and after. Both belong in the
 ledger; a screen saying somebody opened two customer accounts when they opened
 one does not. The summary counts by the thing acted on instead. 13 tests.
 
+**Data can be taken out, and it is answerable.** Migration 0087. An export is
+the one action that removes a record from every protection this platform has —
+row level security, permissions, support sessions: none of them reach a
+spreadsheet on somebody's laptop.
+
+The export itself is unremarkable: the rows come from views that already decide
+who may see them, and the button exports what is on screen rather than widening
+the query to everything, which would be a quiet escalation dressed as a
+convenience. What this adds is the part that was missing. `audit_events` has
+carried an `export` action since migration 0001 and nothing had ever written
+one; now every export lands in the same ledger as everything else, appears on
+the staff activity screen, and — when it concerns one customer — in that
+customer's own history.
+
+Recorded rather than restricted, deliberately. Somebody who can read the tenant
+list on screen can copy it by hand, and a platform that pretends otherwise is
+lying to itself about its own boundaries. And the record holds the shape only,
+never the rows: a ledger carrying the export would be a second copy of the thing
+the export was worth worrying about.
+
+The CSV writer handles the two things that make real exports go wrong — the
+customer whose name has a comma in it, and the field a spreadsheet decides is a
+formula. 10 database tests, 7 on the writer.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 
