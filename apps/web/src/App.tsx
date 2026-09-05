@@ -11,7 +11,15 @@ import { LandingPage } from '@/pages/landing';
  */
 const AppShell = lazy(() => import('@/components/layout/app-shell').then((m) => ({ default: m.AppShell })));
 const AuthPage = lazy(() => import('@/pages/auth').then((m) => ({ default: m.AuthPage })));
-const AdminPage = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminPage })));
+const AdminShell = lazy(() => import('@/pages/admin/shell').then((m) => ({ default: m.AdminShell })));
+const AdminLoginPage = lazy(() => import('@/pages/admin/login').then((m) => ({ default: m.AdminLoginPage })));
+const AdminDashboard = lazy(() => import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboard })));
+const AdminCompanies = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminCompanies })));
+const AdminPackages = lazy(() => import('@/pages/admin/packages').then((m) => ({ default: m.AdminPackages })));
+const AdminControls = lazy(() => import('@/pages/admin/controls').then((m) => ({ default: m.AdminControls })));
+const AdminBilling = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminBilling })));
+const AdminFrontEnd = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminFrontEnd })));
+const AdminSettings = lazy(() => import('@/pages/admin/simple').then((m) => ({ default: m.AdminSettings })));
 const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })));
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
@@ -72,7 +80,16 @@ export function App() {
             * that route assumes a company and reads that company's records,
             * and this reads across all of them.
             */}
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminShell />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="companies" element={<AdminCompanies />} />
+            <Route path="packages" element={<AdminPackages />} />
+            <Route path="billing" element={<AdminBilling />} />
+            <Route path="controls" element={<AdminControls />} />
+            <Route path="front-end" element={<AdminFrontEnd />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
 
           {/* Authenticated application */}
           <Route path="/app" element={<AppShell />}>

@@ -28,9 +28,15 @@ describe('the platform operator', () => {
       await h.sql(`insert into user_profiles (id, email) values ($1,$2) on conflict (id) do nothing`,
         [id, email]);
     }
-    // Granted with the service role: adding an operator is a deployment act.
+    /*
+     * Granted with the service role: adding an operator is a deployment act.
+     * Superadmin specifically — migration 0068 split the role in two, and
+     * changing a customer's entitlement is the deciding half rather than the
+     * selling one.
+     */
     await h.sql(
-      `insert into platform_admins (user_id, reason) values ($1,'Runs the platform')`, [admin]);
+      `insert into platform_admins (user_id, reason, role)
+       values ($1,'Runs the platform','superadmin')`, [admin]);
 
     company = (await h.asUser(customer, () => h.sql<{ id: string }>(
       `select app.provision_company('Ridgeline','ridgeline','business') as id`)))[0]!.id;
@@ -199,7 +205,7 @@ describe('the platform operator', () => {
     it('refuses a customer trying to grant themselves a feature', async () => {
       await expect(h.asUser(customer, () => h.sql(
         `select app.set_feature_override($1,'white_label','grant','I would like it')`,
-        [company]))).rejects.toThrow(/Only a platform operator/);
+        [company]))).rejects.toThrow(/Only the superadmin/);
     });
 
     it('shows the customer what was done to their own account', async () => {
@@ -231,7 +237,8 @@ describe('the platform operator', () => {
       const temp = '33333333-3333-4333-8333-333333333333';
       await h.sql(`insert into auth.users (id, email) values ($1,'t@g.test')`, [temp]);
       await h.sql(`insert into user_profiles (id, email) values ($1,'t@g.test') on conflict (id) do nothing`, [temp]);
-      await h.sql(`insert into platform_admins (user_id, reason) values ($1,'Temporary cover')`, [temp]);
+      await h.sql(`insert into platform_admins (user_id, reason, role)
+                   values ($1,'Temporary cover','sales')`, [temp]);
       expect((await h.asUser(temp, () => h.sql(`select 1 from admin_companies`))).length)
         .toBeGreaterThan(0);
 

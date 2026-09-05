@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  Building2, ShieldAlert, Webhook, AlertTriangle, Loader2, Check, X, Search, ArrowLeft,
+  Building2, ShieldAlert, Webhook, AlertTriangle, Loader2, Check, X, Search,
 } from 'lucide-react';
-import { Logo } from '@/components/layout/logo';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +40,7 @@ import { cn } from '@/lib/utils';
  * Knowing that Ridgeline exists and is paying is the operator's business.
  * Knowing what Ridgeline bid is not.
  */
-export function AdminPage() {
+export function AdminCompanies() {
   const companiesQ = useQuery(loadAdminCompanies, []);
   const webhooksQ = useQuery(loadWebhookHealth, []);
   const overridesQ = useQuery(loadOverrides, []);
@@ -76,35 +74,35 @@ export function AdminPage() {
 
   if (!isSupabaseConfigured) {
     return (
-      <Shell>
+      <>
         <Alert tone="info" icon={<ShieldAlert className="size-4" />}
           title="The operator console needs a configured workspace">
           This build runs against the demonstration dataset, which has one company in it
           and no subscriptions. Connect a Supabase project to see the tenants of a real
           deployment.
         </Alert>
-      </Shell>
+      </>
     );
   }
 
   if (isAdmin === false) {
     return (
-      <Shell>
+      <>
         <Alert tone="warn" icon={<ShieldAlert className="size-4" />}
           title="This console is for platform operators">
           Your account is not one. Nothing here would load for you in any case — the
           views behind this screen return nothing to a caller who is not an operator,
           and the controls refuse them.
         </Alert>
-      </Shell>
+      </>
     );
   }
 
   const failure = [companiesQ, webhooksQ, overridesQ].find((q) => q.status === 'error');
-  if (failure) return <Shell><ErrorState message={failure.message} onRetry={failure.refetch} /></Shell>;
+  if (failure) return <><ErrorState message={failure.message} onRetry={failure.refetch} /></>;
 
   return (
-    <Shell>
+    <>
       {stuck.length ? (
         <Alert tone="danger" icon={<AlertTriangle className="size-4" />}
           title={`${integer(stuck.length)} Stripe event(s) arrived and never finished`}>
@@ -308,26 +306,7 @@ export function AdminPage() {
           overrides={overrides.filter((o) => o.companyId === selected.companyId)}
           onChanged={() => { overridesQ.refetch(); companiesQ.refetch(); }} />
       ) : null}
-    </Shell>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-full bg-charcoal-100">
-      <header className="border-b border-charcoal-200 bg-white">
-        <div className="mx-auto flex max-w-[100rem] items-center justify-between gap-4 px-6 py-3">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <Badge variant="warn">Operator</Badge>
-          </div>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/app"><ArrowLeft className="size-4" /> Back to the application</Link>
-          </Button>
-        </div>
-      </header>
-      <main className="mx-auto max-w-[100rem] space-y-6 p-6">{children}</main>
-    </div>
+    </>
   );
 }
 

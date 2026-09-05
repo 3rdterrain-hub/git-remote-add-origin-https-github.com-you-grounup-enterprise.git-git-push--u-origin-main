@@ -136,6 +136,7 @@
     "time_entries": "ENTITY",
     "toolbox_talks": "ENTITY",
     "trucking_rates": "LIBRARY",
+    "upsell_proposals": "ENTITY",
     "usage_events": "ENTITY",
     "user_profiles": "ENTITY",
     "value_overrides": "ENTITY",

@@ -48,7 +48,7 @@
     },
     "security and tenant boundaries": {
       "status": "met",
-      "evidence": "Row level security is enabled and forced on all 142 tables, with a migration-time gate that refuses to apply if one is left open and a second gate that fails if the anonymous role can read anything beyond the public plan catalog. Tenant parentage is enforced structurally on every parent-child pair, including the two in the document layer this build found missing. Secrets are held server-side only, and since this phase that is enforced against the build output rather than trusted: `bundle:check` refuses a bundle carrying a server secret by name or by shape. 256 governance tests hold the rules themselves."
+      "evidence": "Row level security is enabled and forced on all 143 tables, with a migration-time gate that refuses to apply if one is left open and a second gate that fails if the anonymous role can read anything beyond the public plan catalog. Tenant parentage is enforced structurally on every parent-child pair, including the two in the document layer this build found missing. Secrets are held server-side only, and since this phase that is enforced against the build output rather than trusted: `bundle:check` refuses a bundle carrying a server secret by name or by shape. 256 governance tests hold the rules themselves."
     },
     "failure/recovery scenarios": {
       "status": "not_met",

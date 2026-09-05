@@ -159,3 +159,171 @@ export async function clearFeatureOverride(
   });
   if (error) throw new Error(error.message);
 }
+
+// ---------------------------------------------------------------------------
+// Roles, proposals and where the potential is
+// ---------------------------------------------------------------------------
+export type OperatorRole = 'superadmin' | 'sales';
+
+export interface Operator {
+  id: string;
+  userId: string;
+  email: string | null;
+  role: OperatorRole;
+  reason: string;
+  grantedAt: string;
+  revokedAt: string | null;
+}
+
+export const loadOperators: Query<Operator[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('platform_admins')
+    .select('id, user_id, role, reason, granted_at, revoked_at, user_profiles(email)')
+    .order('granted_at', { ascending: false })) as Array<Record<string, unknown>>;
+  return rows.map((o) => {
+    const p = o.user_profiles as { email?: string } | Array<{ email?: string }> | null;
+    const one = Array.isArray(p) ? p[0] : p;
+    return {
+      id: String(o.id), userId: String(o.user_id),
+      email: one?.email ?? null,
+      role: o.role as OperatorRole,
+      reason: String(o.reason),
+      grantedAt: String(o.granted_at),
+      revokedAt: (o.revoked_at as string | null) ?? null,
+    };
+  });
+};
+
+export interface UpsellPotential {
+  companyId: string;
+  name: string;
+  currentPlan: string | null;
+  currentTier: number | null;
+  nextPlan: string | null;
+  nextPlanName: string | null;
+  memberCount: number;
+  maxSeats: number | null;
+  activeEstimates: number;
+  maxActiveEstimates: number | null;
+  entitlementSource: string | null;
+  trialEnds: string | null;
+  /** Why this customer is worth a call, derived rather than guessed. */
+  signal: string | null;
+  openProposals: number;
+}
+
+export const loadUpsellPotential: Query<UpsellPotential[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_upsell_potential')
+    .select('company_id, name, current_plan, current_tier, next_plan, next_plan_name, member_count, max_seats, active_estimates, max_active_estimates, entitlement_source, trial_ends, signal, open_proposals')
+    .order('name')) as Array<Record<string, unknown>>;
+  return rows.map((u) => ({
+    companyId: String(u.company_id), name: String(u.name),
+    currentPlan: (u.current_plan as string | null) ?? null,
+    currentTier: u.current_tier == null ? null : Number(u.current_tier),
+    nextPlan: (u.next_plan as string | null) ?? null,
+    nextPlanName: (u.next_plan_name as string | null) ?? null,
+    memberCount: Number(u.member_count ?? 0),
+    maxSeats: u.max_seats == null ? null : Number(u.max_seats),
+    activeEstimates: Number(u.active_estimates ?? 0),
+    maxActiveEstimates: u.max_active_estimates == null ? null : Number(u.max_active_estimates),
+    entitlementSource: (u.entitlement_source as string | null) ?? null,
+    trialEnds: (u.trial_ends as string | null) ?? null,
+    signal: (u.signal as string | null) ?? null,
+    openProposals: Number(u.open_proposals ?? 0),
+  }));
+};
+
+export interface Proposal {
+  id: string;
+  companyId: string;
+  proposedPlanId: string | null;
+  proposedFeatures: string[];
+  rationale: string;
+  estimatedMonthlyCents: number | null;
+  state: 'proposed' | 'approved' | 'rejected' | 'withdrawn' | 'applied';
+  proposedBy: string | null;
+  proposedAt: string;
+  decidedAt: string | null;
+  decisionNote: string | null;
+}
+
+export const loadProposals: Query<Proposal[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('upsell_proposals')
+    .select('id, company_id, proposed_plan_id, proposed_features, rationale, estimated_monthly_cents, state, proposed_by, proposed_at, decided_at, decision_note')
+    .order('proposed_at', { ascending: false })
+    .limit(300)) as Array<Record<string, unknown>>;
+  return rows.map((p) => ({
+    id: String(p.id), companyId: String(p.company_id),
+    proposedPlanId: (p.proposed_plan_id as string | null) ?? null,
+    proposedFeatures: (p.proposed_features as string[]) ?? [],
+    rationale: String(p.rationale),
+    estimatedMonthlyCents: p.estimated_monthly_cents == null
+      ? null : Number(p.estimated_monthly_cents),
+    state: p.state as Proposal['state'],
+    proposedBy: (p.proposed_by as string | null) ?? null,
+    proposedAt: String(p.proposed_at),
+    decidedAt: (p.decided_at as string | null) ?? null,
+    decisionNote: (p.decision_note as string | null) ?? null,
+  }));
+};
+
+export interface PlanRow {
+  id: string; name: string; tagline: string | null; tier: number;
+  isPublic: boolean; isActive: boolean;
+  maxSeats: number | null; maxActiveEstimates: number | null;
+  maxActiveProjects: number | null; storageGb: number | null;
+  aiCreditsPerMonth: number | null; features: string[]; trialDays: number;
+}
+
+export const loadPlans: Query<PlanRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('plans')
+    .select('id, name, tagline, tier, is_public, is_active, max_seats, max_active_estimates, max_active_projects, storage_gb, ai_credits_per_month, features, trial_days')
+    .order('tier')) as Array<Record<string, unknown>>;
+  return rows.map((p) => ({
+    id: String(p.id), name: String(p.name),
+    tagline: (p.tagline as string | null) ?? null,
+    tier: Number(p.tier ?? 0),
+    isPublic: Boolean(p.is_public), isActive: Boolean(p.is_active),
+    maxSeats: p.max_seats == null ? null : Number(p.max_seats),
+    maxActiveEstimates: p.max_active_estimates == null ? null : Number(p.max_active_estimates),
+    maxActiveProjects: p.max_active_projects == null ? null : Number(p.max_active_projects),
+    storageGb: p.storage_gb == null ? null : Number(p.storage_gb),
+    aiCreditsPerMonth: p.ai_credits_per_month == null ? null : Number(p.ai_credits_per_month),
+    features: (p.features as string[]) ?? [],
+    trialDays: Number(p.trial_days ?? 0),
+  }));
+};
+
+/** Whether the signed-in operator is the one who decides. */
+export async function isSuperadmin(client: Rpc): Promise<boolean> {
+  const { data, error } = await client.rpc('is_superadmin', {});
+  if (error) throw new Error(error.message);
+  return data === true;
+}
+
+export async function proposeUpsell(
+  client: Rpc,
+  input: { companyId: string; planId: string | null; features: string[];
+           rationale: string; estimatedMonthlyCents: number | null },
+): Promise<void> {
+  const { error } = await client.rpc('propose_upsell', {
+    p_company: input.companyId,
+    p_plan_id: input.planId,
+    p_features: input.features,
+    p_rationale: input.rationale,
+    p_estimated_monthly_cents: input.estimatedMonthlyCents,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function decideUpsell(
+  client: Rpc, proposalId: string, approve: boolean, note: string | null,
+): Promise<void> {
+  const { error } = await client.rpc('decide_upsell', {
+    p_proposal: proposalId, p_approve: approve, p_note: note,
+  });
+  if (error) throw new Error(error.message);
+}

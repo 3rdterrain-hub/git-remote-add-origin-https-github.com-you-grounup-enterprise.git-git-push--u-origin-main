@@ -45,7 +45,7 @@ vi.mock('@/lib/data/admin', async () => {
   };
 });
 
-const { AdminPage } = await import('./admin');
+const { AdminCompanies } = await import('./admin');
 
 const company = {
   companyId: 'c-1', name: 'Ridgeline Construction', slug: 'ridgeline',
@@ -70,7 +70,7 @@ describe('the operator console', () => {
   });
 
   it('lists tenants with what the operator needs to run the business', async () => {
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     expect(screen.getByText('dana@ridgeline.test')).toBeInTheDocument();
     expect(screen.getByText('business')).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('the operator console', () => {
      * Knowing Ridgeline has 47 estimates is the operator's business. Knowing
      * what Ridgeline bid is not, and there is nowhere here to find out.
      */
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('47')).toBeInTheDocument());
     expect(screen.getByText('9')).toBeInTheDocument();
     for (const forbidden of [/bid price/i, /contract value/i, /estimate name/i]) {
@@ -98,7 +98,7 @@ describe('the operator console', () => {
      * thing keeping them out.
      */
     hoisted.admin = false;
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() =>
       expect(screen.getByText('This console is for platform operators')).toBeInTheDocument());
     expect(screen.getByText(/return nothing to a caller who is not an operator/)).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('the operator console', () => {
       processedAt: null, processingState: 'failed', processingError: 'timeout',
       attempts: 3, livemode: true, unprocessed: true,
     }];
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() =>
       expect(screen.getByText(/1 Stripe event\(s\) arrived and never finished/)).toBeInTheDocument());
     expect(screen.getByText(/cannot use what they paid for/)).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('the operator console', () => {
 
   it('filters the tenant list', async () => {
     hoisted.companies = [company, { ...company, companyId: 'c-2', name: 'Northshore', slug: 'northshore' }];
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Northshore')).toBeInTheDocument());
     await userEvent.type(screen.getByLabelText('Filter companies'), 'north');
     await waitFor(() =>
@@ -130,7 +130,7 @@ describe('the operator console', () => {
   });
 
   it('applies a feature override with its reason', async () => {
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: /^Features/ }));
     await userEvent.type(screen.getByLabelText('Feature key'), 'ai_plan_review');
@@ -146,7 +146,7 @@ describe('the operator console', () => {
   it('will not apply an override without a reason worth the name', async () => {
     // The database refuses one under five characters regardless. This is the
     // form agreeing with the rule rather than being the rule.
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: /^Features/ }));
     await userEvent.type(screen.getByLabelText('Feature key'), 'ai_plan_review');
@@ -156,7 +156,7 @@ describe('the operator console', () => {
 
   it('shows a refused override rather than pretending it applied', async () => {
     hoisted.setError = 'Only a platform operator may change a company\'s features';
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: /^Features/ }));
     await userEvent.type(screen.getByLabelText('Feature key'), 'x');
@@ -172,7 +172,7 @@ describe('the operator console', () => {
       id: 'o-1', companyId: 'c-1', feature: 'white_label', effect: 'grant',
       reason: 'Enterprise contract', grantedAt: '2026-02-01T00:00:00Z', validUntil: null,
     }];
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('tab', { name: /Overrides/ }));
     await waitFor(() => expect(screen.getByText('no end date')).toBeInTheDocument());
@@ -183,7 +183,7 @@ describe('the operator console', () => {
       id: 'o-1', companyId: 'c-1', feature: 'white_label', effect: 'grant',
       reason: 'Enterprise contract', grantedAt: '2026-02-01T00:00:00Z', validUntil: null,
     }];
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() => expect(screen.getByText('Ridgeline Construction')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: /^Features/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Withdraw' }));
@@ -192,7 +192,7 @@ describe('the operator console', () => {
 
   it('says plainly that a demonstration build has no tenants to operate', async () => {
     hoisted.configured = false;
-    renderPage(<AdminPage />);
+    renderPage(<AdminCompanies />);
     await waitFor(() =>
       expect(screen.getByText('The operator console needs a configured workspace')).toBeInTheDocument());
   });

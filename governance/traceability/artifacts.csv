@@ -164,6 +164,7 @@ TBL-tasks,table,tasks,supabase/migrations (table tasks),LIBRARY
 TBL-time_entries,table,time_entries,supabase/migrations (table time_entries),ENTITY
 TBL-toolbox_talks,table,toolbox_talks,supabase/migrations (table toolbox_talks),ENTITY
 TBL-trucking_rates,table,trucking_rates,supabase/migrations (table trucking_rates),LIBRARY
+TBL-upsell_proposals,table,upsell_proposals,supabase/migrations (table upsell_proposals),ENTITY
 TBL-usage_events,table,usage_events,supabase/migrations (table usage_events),ENTITY
 TBL-user_profiles,table,user_profiles,supabase/migrations (table user_profiles),ENTITY
 TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overrides),ENTITY
@@ -258,6 +259,7 @@ TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
+TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
@@ -317,3 +319,4 @@ TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,E
 TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE
 TST-web-onboarding,test,web/onboarding.test.tsx,apps/web/src/pages/onboarding.test.tsx,ENGINE
+TST-web-hermetic,test,web/hermetic.test.ts,apps/web/src/test/hermetic.test.ts,ENGINE

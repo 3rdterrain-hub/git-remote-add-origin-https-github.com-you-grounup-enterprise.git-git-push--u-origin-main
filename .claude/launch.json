@@ -3,9 +3,14 @@
   "configurations": [
     {
       "name": "grounup-web",
-      "runtimeExecutable": ".claude/dev-server.sh",
-      "runtimeArgs": [],
-      "port": 5173
+      "runtimeExecutable": "/Users/tradertree/.grounup-tools/node-v24.20.0-darwin-x64/bin/node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "apps/web/vite.config.ts"
+      ],
+      "port": 5173,
+      "autoPort": false
     }
   ]
 }
