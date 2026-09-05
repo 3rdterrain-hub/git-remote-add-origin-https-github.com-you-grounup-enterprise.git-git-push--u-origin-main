@@ -1257,3 +1257,89 @@ export const loadFailingPayments: Query<FailingPayment[]> = async (client) => {
     daysFailing: Number(p.days_failing ?? 0),
   }));
 };
+
+// ---------------------------------------------------------------------------
+// Money going back
+//
+// The decision lives here; the money lives in Stripe. `youMayDecide` is
+// derived in the database rather than reassembled on the screen, because the
+// segregation rule — the person who asked is not the person who releases it,
+// unless they are the superadmin — is three separate facts and a screen that
+// rebuilt it would eventually rebuild it wrong.
+// ---------------------------------------------------------------------------
+export type RefundKind = 'refund' | 'credit';
+export type RefundState = 'requested' | 'approved' | 'rejected' | 'applied' | 'failed';
+
+export interface RefundRequest {
+  id: string;
+  companyId: string;
+  companyName: string;
+  kind: RefundKind;
+  amountCents: number;
+  reason: string;
+  stripeInvoiceId: string | null;
+  state: RefundState;
+  requestedAt: string;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  appliedAt: string | null;
+  stripeRefundId: string | null;
+  error: string | null;
+  requestedByEmail: string | null;
+  decidedByEmail: string | null;
+  youMayDecide: boolean;
+}
+
+export const loadRefunds: Query<RefundRequest[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_refunds')
+    .select('id, company_id, company_name, kind, amount_cents, reason, stripe_invoice_id, state, requested_at, decided_at, decision_note, applied_at, stripe_refund_id, error, requested_by_email, decided_by_email, you_may_decide')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    companyId: String(r.company_id),
+    companyName: String(r.company_name),
+    kind: r.kind as RefundKind,
+    amountCents: Number(r.amount_cents ?? 0),
+    reason: String(r.reason),
+    stripeInvoiceId: (r.stripe_invoice_id as string | null) ?? null,
+    state: r.state as RefundState,
+    requestedAt: String(r.requested_at),
+    decidedAt: (r.decided_at as string | null) ?? null,
+    decisionNote: (r.decision_note as string | null) ?? null,
+    appliedAt: (r.applied_at as string | null) ?? null,
+    stripeRefundId: (r.stripe_refund_id as string | null) ?? null,
+    error: (r.error as string | null) ?? null,
+    requestedByEmail: (r.requested_by_email as string | null) ?? null,
+    decidedByEmail: (r.decided_by_email as string | null) ?? null,
+    youMayDecide: Boolean(r.you_may_decide),
+  }));
+};
+
+export async function requestRefund(
+  client: Rpc,
+  input: { companyId: string; kind: RefundKind; amountCents: number;
+           reason: string; stripeInvoiceId?: string | null },
+): Promise<void> {
+  const { error } = await client.rpc('request_refund', {
+    p_company: input.companyId,
+    p_kind: input.kind,
+    p_amount_cents: input.amountCents,
+    p_reason: input.reason.trim(),
+    p_invoice: input.stripeInvoiceId ?? null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function decideRefund(
+  client: Rpc, refundId: string, approve: boolean, note: string | null,
+): Promise<void> {
+  const { error } = await client.rpc('decide_refund', {
+    p_request: refundId, p_approve: approve, p_note: note?.trim() || null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Send an approved one to Stripe. The amount comes from the row, not from here. */
+export async function applyRefund(refundId: string): Promise<void> {
+  await callFunction<{ applied: boolean }>('apply-refund', { refundId });
+}

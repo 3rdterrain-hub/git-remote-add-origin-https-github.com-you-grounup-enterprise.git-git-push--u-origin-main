@@ -202,6 +202,30 @@ good news. That trap has now been hit twice and is written down in both places.
 The customer sees it in the application, in words rather than in Stripe decline
 codes, before their access is affected. 17 tests.
 
+**Money can go back to a customer.** Migration 0085. The thing support is asked
+for most and could not do at all — a month charged after a cancellation, a
+double charge after a card retry, a wrong price — every one of which ended with
+somebody logging into Stripe, moving money, and leaving no record in GrounUp of
+who decided or why.
+
+What lives here is the decision, not the money. Stripe holds the charge and
+knows what is refundable; duplicating that would create a second ledger that
+disagrees with the first. GrounUp keeps the part Stripe cannot: who asked, why,
+who released it, and whether it worked.
+
+The rule is the same segregation the platform already enforces on upsell
+proposals and on approving an estimate: **the person who asks is not the person
+who releases**. The superadmin is the stated exception, because they are the
+business and a rule that made refunds impossible for a company of one is a rule
+people work around in Stripe instead — and it starts applying to everybody else
+the day anyone is hired. Sending to Stripe is a third act, and only service_role
+can record what Stripe did, so approving a refund and declaring it paid stay
+separate.
+
+Two kinds, because they differ: a refund puts money back on the card and cannot
+be undone; a credit reduces the next invoice, moves nothing, and is usually what
+a customer who is staying would rather have. 22 tests, passing on the first run.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

@@ -3,6 +3,7 @@ import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
   Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
+  Banknote,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,7 @@ export interface OperatorContext {
 const PERMISSIONS = [
   'companies.read', 'companies.manage', 'billing.read', 'billing.manage',
   'upsell.propose', 'upsell.decide', 'features.manage', 'pricing.manage',
-  'operators.manage', 'support.open',
+  'operators.manage', 'support.open', 'refunds.request', 'refunds.approve',
 ] as const;
 
 /*
@@ -52,6 +53,8 @@ const SECTIONS = [
   { to: '/admin/billing', label: 'Billing', icon: CreditCard, needs: ['billing.read'] },
   { to: '/admin/churn', label: 'Losing customers', icon: TrendingDown,
     needs: ['billing.read'] },
+  { to: '/admin/refunds', label: 'Refunds', icon: Banknote,
+    needs: ['refunds.request', 'refunds.approve'] },
   { to: '/admin/controls', label: 'Controls', icon: ShieldAlert,
     needs: ['upsell.decide', 'features.manage', 'operators.manage'] },
   { to: '/admin/roles', label: 'Roles', icon: KeyRound, needs: ['operators.manage'] },

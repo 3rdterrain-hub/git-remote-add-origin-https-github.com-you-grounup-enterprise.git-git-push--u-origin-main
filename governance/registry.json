@@ -113,6 +113,7 @@
     "proposals": "ENTITY",
     "purchase_order_items": "ENTITY",
     "purchase_orders": "ENTITY",
+    "refund_requests": "ENTITY",
     "regional_factors": "LIBRARY",
     "resource_assignments": "ENTITY",
     "rfis": "WORKFLOW",

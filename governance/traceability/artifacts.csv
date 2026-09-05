@@ -141,6 +141,7 @@ TBL-proposal_line_items,table,proposal_line_items,supabase/migrations (table pro
 TBL-proposals,table,proposals,supabase/migrations (table proposals),ENTITY
 TBL-purchase_order_items,table,purchase_order_items,supabase/migrations (table purchase_order_items),ENTITY
 TBL-purchase_orders,table,purchase_orders,supabase/migrations (table purchase_orders),ENTITY
+TBL-refund_requests,table,refund_requests,supabase/migrations (table refund_requests),ENTITY
 TBL-regional_factors,table,regional_factors,supabase/migrations (table regional_factors),LIBRARY
 TBL-resource_assignments,table,resource_assignments,supabase/migrations (table resource_assignments),ENTITY
 TBL-rfis,table,rfis,supabase/migrations (table rfis),WORKFLOW
@@ -284,6 +285,7 @@ TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-ope
 TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
+TST-db-refunds,test,db/refunds.test.ts,tests/db/refunds.test.ts,ENGINE
 TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
 TST-db-safety-controls,test,db/safety-controls.test.ts,tests/db/safety-controls.test.ts,ENGINE
 TST-db-safety,test,db/safety.test.ts,tests/db/safety.test.ts,ENGINE

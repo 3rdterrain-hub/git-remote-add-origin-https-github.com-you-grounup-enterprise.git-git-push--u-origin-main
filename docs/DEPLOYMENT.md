@@ -158,6 +158,7 @@ supabase functions deploy --import-map supabase/functions/deno.json
 # Or one at a time:
 supabase functions deploy create-checkout-session --import-map supabase/functions/deno.json
 supabase functions deploy replay-stripe-event --import-map supabase/functions/deno.json
+supabase functions deploy apply-refund --import-map supabase/functions/deno.json
 supabase functions deploy cancel-subscription --import-map supabase/functions/deno.json
 supabase functions deploy stripe-webhook --no-verify-jwt --import-map supabase/functions/deno.json
 supabase functions deploy create-billing-portal-session
