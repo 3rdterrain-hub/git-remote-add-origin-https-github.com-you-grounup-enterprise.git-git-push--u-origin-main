@@ -1,12 +1,20 @@
-import { Package, Eye, EyeOff, Check } from 'lucide-react';
+import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { Package, Eye, EyeOff, Check, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useQuery } from '@/lib/data/query';
-import { loadPlans, loadAdminCompanies } from '@/lib/data/admin';
+import {
+  loadPlans, loadAdminCompanies, loadPlanPrices, setPlanPrice,
+} from '@/lib/data/admin';
 import { LoadingState, ErrorState } from '@/components/data-state';
-import { integer } from '@/lib/format';
+import { supabase } from '@/lib/supabase';
+import { integer, money } from '@/lib/format';
+import type { OperatorContext } from './shell';
 
 /**
  * What is for sale.
@@ -21,14 +29,57 @@ import { integer } from '@/lib/format';
  * everybody sits on it.
  */
 export function AdminPackages() {
+  const { isSuper } = useOutletContext<OperatorContext>();
   const plansQ = useQuery(loadPlans, []);
   const companiesQ = useQuery(loadAdminCompanies, []);
+  const pricesQ = useQuery(loadPlanPrices, []);
+
+  const [editing, setEditing] = useState<string | null>(null);
+  const [amount, setAmount] = useState('');
+  const [stripeId, setStripeId] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const plans = plansQ.status === 'ready' ? plansQ.data : [];
   const companies = companiesQ.status === 'ready' ? companiesQ.data : [];
+  const prices = pricesQ.status === 'ready' ? pricesQ.data : [];
 
-  const failure = [plansQ, companiesQ].find((q) => q.status === 'error');
+  const failure = [plansQ, companiesQ, pricesQ].find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
+
+  const priceFor = (planId: string, interval: 'month' | 'year') =>
+    prices.find((p) => p.planId === planId && p.interval === interval && p.isActive);
+
+  const key = (planId: string, interval: string) => `${planId}:${interval}`;
+
+  function startEdit(planId: string, interval: 'month' | 'year') {
+    const existing = priceFor(planId, interval);
+    setAmount(existing ? String(existing.unitAmountCents / 100) : '');
+    setStripeId(existing?.stripePriceId ?? '');
+    setError(null);
+    setEditing(key(planId, interval));
+  }
+
+  async function save(planId: string, interval: 'month' | 'year') {
+    if (!supabase) return;
+    const dollars = Number(amount);
+    if (!Number.isFinite(dollars) || dollars < 0) {
+      setError('A price must be zero or more.');
+      return;
+    }
+    setBusy(true); setError(null);
+    try {
+      await setPlanPrice(supabase, {
+        planId, interval,
+        unitAmountCents: Math.round(dollars * 100),
+        stripePriceId: stripeId.trim(),
+      });
+      setEditing(null);
+      pricesQ.refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'That price could not be published.');
+    } finally { setBusy(false); }
+  }
 
   const onPlan = (id: string) => companies.filter((c) => c.planId === id).length;
 
@@ -42,6 +93,102 @@ export function AdminPackages() {
       </div>
 
       {plansQ.status === 'loading' ? <LoadingState label="Reading the plan catalog" /> : null}
+
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Price</CardTitle>
+          <CardDescription>
+            What a seat costs, per month and per year. A price needs the Stripe price it
+            corresponds to: GrounUp does not create prices in Stripe, and quoting a number
+            checkout cannot charge would be worse than quoting none.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Plan</TableHead>
+                <TableHead>Billed</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead>Stripe price</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {plans.filter((p) => p.isActive).flatMap((p) =>
+                (['month', 'year'] as const).map((interval) => {
+                  const existing = priceFor(p.id, interval);
+                  const isEditing = editing === key(p.id, interval);
+                  return (
+                    <TableRow key={key(p.id, interval)}>
+                      <TableCell className="font-medium text-charcoal-900">{p.name}</TableCell>
+                      <TableCell className="text-charcoal-600">
+                        {interval === 'month' ? 'Monthly' : 'Annually'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {isEditing ? (
+                          <div className="flex items-center justify-end gap-1">
+                            <span className="text-charcoal-500">$</span>
+                            <Input value={amount} inputMode="decimal" autoFocus
+                              className="h-8 w-24 text-right"
+                              aria-label={`${p.name} ${interval} price`}
+                              onChange={(e) => setAmount(e.target.value)} />
+                          </div>
+                        ) : existing ? (
+                          <span className="tabular font-medium text-charcoal-900">
+                            {money(existing.unitAmountCents / 100)}
+                            <span className="text-charcoal-400">
+                              {interval === 'month' ? ' / user / mo' : ' / user / yr'}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="text-xs text-warn-700">not published</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <Input value={stripeId} className="h-8 font-mono text-xs"
+                            placeholder="price_1AbC..."
+                            aria-label={`${p.name} ${interval} Stripe price id`}
+                            onChange={(e) => setStripeId(e.target.value)} />
+                        ) : (
+                          <span className="font-mono text-xs text-charcoal-500">
+                            {existing?.stripePriceId ?? '—'}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <div className="flex gap-1">
+                            <Button size="sm" disabled={busy || !stripeId.trim()}
+                              onClick={() => save(p.id, interval)}>
+                              {busy ? <Loader2 className="size-4 animate-spin" />
+                                : <Save className="size-4" />} Publish
+                            </Button>
+                            <Button size="sm" variant="ghost"
+                              onClick={() => setEditing(null)}>Cancel</Button>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="outline" disabled={!isSuper}
+                            onClick={() => startEdit(p.id, interval)}>
+                            {existing ? 'Change' : 'Set price'}
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }))}
+            </TableBody>
+          </Table>
+          <p className="border-t border-charcoal-200 p-4 text-xs text-charcoal-500">
+            Create the price in Stripe first (Products &rarr; your product &rarr; Add price,
+            recurring, per unit), then paste its id here. Changing a price affects new
+            subscriptions; existing ones keep what they were created at until they renew.
+          </p>
+        </CardContent>
+      </Card>
 
       <Alert tone="neutral" icon={<Package className="size-4" />}
         title="A plan is versioned, not edited">

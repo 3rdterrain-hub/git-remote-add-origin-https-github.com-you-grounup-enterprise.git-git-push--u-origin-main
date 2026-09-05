@@ -9,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/misc';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { isPlatformAdmin, isSuperadmin } from '@/lib/data/admin';
+import {
+  isPlatformAdmin, isSuperadmin, superadminSeatIsOpen, claimFirstSuperadmin,
+} from '@/lib/data/admin';
 import { cn } from '@/lib/utils';
 
 /**
@@ -40,6 +42,15 @@ export function AdminShell() {
   const [state, setState] = useState<'checking' | 'operator' | 'no'>('checking');
   const [isSuper, setIsSuper] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  /*
+   * Whether nobody yet holds the operator seat. `platform_admins` has no insert
+   * policy on purpose — it is the most powerful grant in the system — which is
+   * right once a platform is running and wrong on the day it is installed,
+   * because there is nobody to do the granting.
+   */
+  const [seatOpen, setSeatOpen] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) { setState('no'); return; }
@@ -55,6 +66,7 @@ export function AdminShell() {
         ]);
         if (canceled) return;
         setIsSuper(superadmin);
+        if (!operator) setSeatOpen(await superadminSeatIsOpen(supabase!).catch(() => false));
         setState(operator ? 'operator' : 'no');
       } catch {
         if (!canceled) setState('no');
@@ -82,6 +94,41 @@ export function AdminShell() {
             This build runs against the demonstration dataset, which has one company in it
             and no subscriptions to operate.
           </Alert>
+        </div>
+      );
+    }
+    if (email && seatOpen) {
+      return (
+        <div className="mx-auto max-w-lg space-y-4 p-10">
+          <Alert tone="warn" icon={<ShieldAlert className="size-4" />}
+            title="Nobody operates this platform yet">
+            The operator seat is unclaimed. It can be taken once, by the first account
+            registered here — which is how a new installation gets its first
+            administrator without anybody writing SQL. After that it is granted in the
+            database like any other operator access.
+          </Alert>
+          {claimError ? <Alert tone="danger">{claimError}</Alert> : null}
+          <div className="rounded-[--radius-card] border border-charcoal-200 bg-white p-5">
+            <p className="text-sm text-charcoal-700">
+              Signed in as <span className="font-medium">{email}</span>.
+            </p>
+            <Button className="mt-3" disabled={claiming}
+              onClick={async () => {
+                if (!supabase) return;
+                setClaiming(true); setClaimError(null);
+                try {
+                  await claimFirstSuperadmin(supabase);
+                  window.location.reload();
+                } catch (err) {
+                  setClaimError(err instanceof Error ? err.message
+                    : 'That seat could not be claimed.');
+                  setClaiming(false);
+                }
+              }}>
+              {claiming ? <Loader2 className="size-4 animate-spin" /> : null}
+              Claim the operator seat
+            </Button>
+          </div>
         </div>
       );
     }

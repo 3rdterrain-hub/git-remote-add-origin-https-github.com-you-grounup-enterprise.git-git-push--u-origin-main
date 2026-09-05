@@ -327,3 +327,65 @@ export async function decideUpsell(
   });
   if (error) throw new Error(error.message);
 }
+
+// ---------------------------------------------------------------------------
+// Prices, and the first operator seat
+// ---------------------------------------------------------------------------
+export interface PlanPriceRow {
+  planId: string;
+  interval: 'month' | 'year';
+  unitAmountCents: number;
+  currency: string;
+  stripePriceId: string;
+  isActive: boolean;
+}
+
+export const loadPlanPrices: Query<PlanPriceRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('plan_prices')
+    .select('plan_id, interval, unit_amount_cents, currency, stripe_price_id, is_active')
+    .order('plan_id')) as Array<Record<string, unknown>>;
+  return rows.map((p) => ({
+    planId: String(p.plan_id),
+    interval: p.interval as 'month' | 'year',
+    unitAmountCents: Number(p.unit_amount_cents ?? 0),
+    currency: String(p.currency),
+    stripePriceId: String(p.stripe_price_id),
+    isActive: Boolean(p.is_active),
+  }));
+};
+
+/**
+ * Publish a price.
+ *
+ * The Stripe price id is required by the database, not by this function. GrounUp
+ * does not create prices in Stripe — the object has to exist there first — and
+ * quoting a number checkout cannot charge is worse than quoting none.
+ */
+export async function setPlanPrice(
+  client: Rpc,
+  input: { planId: string; interval: 'month' | 'year';
+           unitAmountCents: number; stripePriceId: string; currency?: string },
+): Promise<void> {
+  const { error } = await client.rpc('set_plan_price', {
+    p_plan_id: input.planId,
+    p_interval: input.interval,
+    p_unit_amount_cents: input.unitAmountCents,
+    p_stripe_price_id: input.stripePriceId,
+    p_currency: input.currency ?? 'USD',
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Whether nobody yet holds the superadmin seat, so a screen may offer it. */
+export async function superadminSeatIsOpen(client: Rpc): Promise<boolean> {
+  const { data, error } = await client.rpc('superadmin_seat_is_open', {});
+  if (error) throw new Error(error.message);
+  return data === true;
+}
+
+/** Take the first operator seat. Works once, for the earliest account. */
+export async function claimFirstSuperadmin(client: Rpc): Promise<void> {
+  const { error } = await client.rpc('claim_first_superadmin', {});
+  if (error) throw new Error(error.message);
+}
