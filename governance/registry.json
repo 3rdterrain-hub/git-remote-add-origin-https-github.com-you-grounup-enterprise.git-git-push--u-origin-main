@@ -54,6 +54,7 @@
     "document_sheets": "ENTITY",
     "document_versions": "ENTITY",
     "documents": "ENTITY",
+    "email_messages": "ENTITY",
     "employees": "ENTITY",
     "enterprise_groups": "ENTITY",
     "entitlement_overrides": "ENTITY",

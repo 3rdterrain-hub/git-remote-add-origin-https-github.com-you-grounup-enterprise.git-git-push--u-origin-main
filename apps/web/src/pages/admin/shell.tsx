@@ -3,7 +3,7 @@ import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
   Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
-  Banknote, History, Megaphone,
+  Banknote, History, Megaphone, Mail,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,7 @@ const SECTIONS = [
     needs: ['operators.manage'] },
   { to: '/admin/announcements', label: 'Announcements', icon: Megaphone,
     needs: ['announcements.publish', 'companies.read'] },
+  { to: '/admin/outbox', label: 'Outbox', icon: Mail, needs: ['billing.read'] },
   { to: '/admin/front-end', label: 'Front end', icon: Globe, needs: ['pricing.manage'] },
   { to: '/admin/settings', label: 'Settings', icon: Settings, needs: [] as string[] },
 ];

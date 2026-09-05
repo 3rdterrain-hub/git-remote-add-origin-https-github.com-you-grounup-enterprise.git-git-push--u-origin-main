@@ -230,13 +230,17 @@ describe('suspending an account', () => {
         join pg_attribute a on a.attrelid = c.oid and a.attname = 'company_id'
                            and a.attnum > 0 and not a.attisdropped
         where n.nspname = 'public' and c.relkind = 'r'
-          -- The append-only ledgers, the suspension record itself (which has
-          -- to stay writable so it can be lifted), and cancellations — a
-          -- company that stopped paying is precisely the one that wants to
-          -- cancel, and refusing that would trap them.
+          /*
+           * The append-only ledgers; the suspension record itself, which has to
+           * stay writable so it can be lifted; cancellations, because a company
+           * that stopped paying is precisely the one that wants to cancel and
+           * refusing that would trap them; and the outbox, because the message
+           * telling somebody they have just been suspended is a write to a
+           * suspended company's mail.
+           */
           and c.relname not in ('audit_events','api_requests','usage_events',
                                 'company_suspensions','stripe_events',
-                                'cancellations')
+                                'cancellations','email_messages')
           and not exists (
             select 1 from pg_trigger t
             join pg_proc p on p.oid = t.tgfoid

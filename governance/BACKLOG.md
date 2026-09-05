@@ -293,6 +293,30 @@ wrong customers something alarming. A maintenance notice must carry an end
 date: a banner about last Sunday is worse than no banner. 20 tests, passing on
 the first run.
 
+**Email, at last.** Migration 0090. Every notice this platform produced was
+in-app, which reaches somebody only if they come looking — and the customer
+whose card expired is precisely the one who is not looking.
+`notification_preferences` has had an `email` column since migration 0018 and
+`notifications` an `emailed_at`; both had always been false and null. The intent
+was recorded and nothing implemented it, the same shape as `has_entitlement`
+before 0077.
+
+Four decisions hold it up. **Nothing sends inline**: a webhook that blocks on a
+mail provider times out, and a timed-out Stripe webhook is retried, so the
+customer would be charged once and emailed twice. Mail is written to an outbox
+in the same transaction as its cause and drained afterwards. **Every message
+carries a dedupe key**, because a retry is indistinguishable from an original
+and the only defense is refusing the second write. **Transactional mail cannot
+be switched off** — a preference that could suppress "your card was declined"
+produces a customer who loses their account without ever being told. **Nothing
+is silently discarded**: with no provider configured, messages queue and the
+console says so, because an outbox filling up for want of a key looks exactly
+like an outbox with nothing to send.
+
+Four things now reach people who are not signed in: a declined card, a
+suspension, a refund or credit that Stripe has actually moved, and whatever an
+operator announces. 19 tests.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 
@@ -475,7 +499,27 @@ also means there is no engine output here to forge, which is why the guard
 migration 0058 needed for estimates is unnecessary rather than absent.
 
 ### 10. Every trade in the service library
-The library is heavy civil and only heavy civil. Counting what is actually
+
+**First finding, fixed: every service said lump sum.** Migration 0089. All 188
+of them — common excavation, storm sewer installation, manhole installation,
+asphalt surface course, sod. An estimator who traced a takeoff and got 1,400
+cubic yards, then added "Common excavation" to the bid, landed on a line
+measured in lump sums with nowhere for the 1,400 to go. Migration 0063 built
+`app.apply_takeoff_to_line` to carry a measured quantity onto a line with its
+unit; the library it applies to said every unit was one.
+
+The recurring defect in its purest form: the platform presented a library of
+services with units, and the units were not units. Nothing failed, nothing was
+slow, and the number was wrong every time. Each service now carries the unit
+its trade actually bids in — volume for anything moved, length for anything
+laid, each for anything counted, tons for anything weighed, a day for the things
+that cost by the day. Lump sum survives on the twenty-two that genuinely have no
+measure. `supported_units` is corrected too: the old list gave every service the
+same nine, which offered tons on a survey and hours on a manhole. 12 tests,
+including one that fails if lump sum ever climbs back past a fifth of the
+library.
+
+Still to do: the library is heavy civil and only heavy civil. Counting what is actually
 seeded: Earthwork 52, Utilities 44, Demolition 36, Asphalt 30, Concrete 28,
 plus generic task rollups. There is no electrical, mechanical, plumbing,
 roofing, masonry, structural steel, carpentry, drywall, painting, finishes,

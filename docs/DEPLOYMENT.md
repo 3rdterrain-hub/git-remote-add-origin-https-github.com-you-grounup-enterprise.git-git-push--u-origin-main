@@ -159,6 +159,9 @@ supabase functions deploy --import-map supabase/functions/deno.json
 supabase functions deploy create-checkout-session --import-map supabase/functions/deno.json
 supabase functions deploy replay-stripe-event --import-map supabase/functions/deno.json
 supabase functions deploy apply-refund --import-map supabase/functions/deno.json
+# send-email is called by a scheduler, which has the service-role key and no
+# session, so JWT verification is off for the same reason as the Stripe webhook.
+supabase functions deploy send-email --no-verify-jwt --import-map supabase/functions/deno.json
 supabase functions deploy cancel-subscription --import-map supabase/functions/deno.json
 supabase functions deploy stripe-webhook --no-verify-jwt --import-map supabase/functions/deno.json
 supabase functions deploy create-billing-portal-session
@@ -404,3 +407,45 @@ Stated so nobody assumes otherwise:
   does not probe the deployed system afterwards.
 - **No infrastructure as code.** Buckets, policies and Stripe products are
   created by hand from this runbook.
+
+## Email
+
+Nothing on this platform sends mail inline. A webhook that blocks on an HTTP
+call to a mail provider is a webhook that times out, and a timed-out Stripe
+webhook is retried — so the customer is charged once and emailed twice. Mail is
+written to `email_messages` in the same transaction as the thing that caused it,
+with a dedupe key that makes a second copy impossible, and `send-email` drains
+the queue afterwards.
+
+Two secrets, server-side only. Neither may appear in a `VITE_` variable; both
+are read inside the Edge Function where the browser cannot reach them.
+
+```bash
+npx supabase secrets set RESEND_API_KEY=re_your_key_here
+npx supabase secrets set MAIL_FROM="GrounUp <billing@yourdomain.com>"
+```
+
+`MAIL_FROM` has to be a domain verified with the provider. An unverified sender
+is rejected with a 4xx, which the sender correctly treats as permanent — the
+message is marked failed rather than retried forever, and it appears on the
+Outbox screen with the provider's own words.
+
+Then run it on a schedule. Every five minutes is enough: the outbox holds
+anything that arrives between runs, and a customer being told about a declined
+card four minutes late costs nothing.
+
+```sql
+select cron.schedule(
+  'drain-the-outbox', '*/5 * * * *',
+  $$select net.http_post(
+      url := 'https://<project-ref>.supabase.co/functions/v1/send-email',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key', true)),
+      body := '{}'::jsonb)$$);
+```
+
+**Until those secrets are set, nothing sends and nothing is lost.** Messages
+queue, the Outbox screen says the provider is not configured, and they go out
+the moment it is. An outbox that is filling up because nobody set a key looks
+exactly like an outbox with nothing to send, so the screen distinguishes them.

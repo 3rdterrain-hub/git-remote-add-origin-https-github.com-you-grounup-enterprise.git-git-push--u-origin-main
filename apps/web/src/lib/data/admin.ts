@@ -1527,3 +1527,80 @@ export async function retractAnnouncement(
   });
   if (error) throw new Error(error.message);
 }
+
+// ---------------------------------------------------------------------------
+// The outbox
+//
+// Nothing on this platform sends mail inline: a webhook that blocks on a mail
+// provider times out, and a timed-out Stripe webhook is retried — so the
+// customer is charged once and emailed twice. Mail is queued beside the thing
+// that caused it and drained afterwards, which makes the queue itself the thing
+// worth watching.
+// ---------------------------------------------------------------------------
+export interface OutboxMessage {
+  id: string;
+  companyName: string | null;
+  toEmail: string;
+  subject: string;
+  category: string;
+  transactional: boolean;
+  state: 'queued' | 'sent' | 'failed' | 'suppressed';
+  suppressedReason: string | null;
+  error: string | null;
+  attempts: number;
+  queuedAt: string;
+  sentAt: string | null;
+}
+
+export const loadOutbox: Query<OutboxMessage[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_outbox')
+    .select('id, company_name, to_email, subject, category, transactional, state, suppressed_reason, error, attempts, queued_at, sent_at')) as Array<Record<string, unknown>>;
+  return rows.map((m) => ({
+    id: String(m.id),
+    companyName: (m.company_name as string | null) ?? null,
+    toEmail: String(m.to_email),
+    subject: String(m.subject),
+    category: String(m.category),
+    transactional: Boolean(m.transactional),
+    state: m.state as OutboxMessage['state'],
+    suppressedReason: (m.suppressed_reason as string | null) ?? null,
+    error: (m.error as string | null) ?? null,
+    attempts: Number(m.attempts ?? 0),
+    queuedAt: String(m.queued_at),
+    sentAt: (m.sent_at as string | null) ?? null,
+  }));
+};
+
+export interface OutboxHealth {
+  waiting: number;
+  sent: number;
+  failed: number;
+  switchedOff: number;
+  stuck: number;
+  oldestWaiting: string | null;
+}
+
+export const loadOutboxHealth: Query<OutboxHealth | null> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_outbox_health')
+    .select('*')) as Array<Record<string, unknown>>;
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    waiting: Number(r.waiting ?? 0),
+    sent: Number(r.sent ?? 0),
+    failed: Number(r.failed ?? 0),
+    switchedOff: Number(r.switched_off ?? 0),
+    stuck: Number(r.stuck ?? 0),
+    oldestWaiting: (r.oldest_waiting as string | null) ?? null,
+  };
+};
+
+/** Drain the queue now, rather than waiting for the schedule. */
+export async function sendQueuedEmail(): Promise<{
+  sent: number; waiting: number; configured: boolean; note?: string;
+}> {
+  return callFunction<{ sent: number; waiting: number; configured: boolean; note?: string }>(
+    'send-email', {});
+}
