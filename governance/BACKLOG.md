@@ -317,6 +317,105 @@ Four things now reach people who are not signed in: a declined card, a
 suspension, a refund or credit that Stripe has actually moved, and whatever an
 operator announces. 19 tests.
 
+**A working unsubscribe.** Migration 0091, fixing a defect I committed in 0090.
+The announcement email ended "You can switch these off under Settings,
+Notifications" and there was no such screen: `notification_preferences` had
+existed since migration 0018 and nothing in the application had ever read or
+written it, so the instruction pointed at nothing. The same defect this project
+keeps finding — the platform asserting something nothing does — and worse than
+usual, because an opt-out that does not work is the one part of bulk email that
+is not merely rude.
+
+The categories are a table rather than a constant in the screen, so the
+preferences page reads the same list the mail-sending code uses; two copies
+would drift, and the drift would appear as a category nobody can switch off
+because the screen has never heard of it. What cannot be switched off is shown
+rather than hidden, and switching it off is refused rather than silently
+ignored — a screen that accepted the change and did nothing would be the same
+defect again. 13 tests.
+
+**Everything controllable.** Migration 0092, after the plainest piece of
+feedback this project has had: "I need to manipulate and have everything
+controllable in superadmin." An operator could read everything and change
+almost nothing, and every gap had the same cause — the control existed for a
+company member, and an operator is deliberately a member of none.
+
+Five things, all of which now work:
+
+- **Allowances per company.** AI credits, storage, seats, estimates, projects,
+  as overrides that compose over the plan. Editing `entitlements` by hand would
+  have survived exactly until the next Stripe invoice, which is the trap
+  migration 0064 avoided for features.
+- **Which plan a company is on**, for anybody Stripe is not billing. A company
+  with a live subscription is refused, because moving it here would leave
+  GrounUp and Stripe disagreeing — the disagreement the dashboard counts.
+- **What a plan allows and includes**, so deciding the free tier gets three
+  seats and scheduling is a decision rather than a deployment. Features are
+  validated against a catalog: `has_entitlement` matches on exact strings, so a
+  typo was a feature that existed, was granted, and granted nothing.
+- **The trial**, readable since it existed and writable nowhere.
+- **Deleting a company** — and this was the one that had been quietly
+  impossible.
+
+Backlog item 13 is closed with it. Deleting a company failed three ways, each a
+guard that could not tell a cascade from an edit: the append-only ledgers
+refused the cascade's DELETE, `audit_events` refused the set-null UPDATE that
+migration 0072 added precisely so the ledger outlives its tenant, and the audit
+trigger tried to write a row referencing a company that was already gone.
+Migration 0072 drew the right distinction for `protect_last_owner` — during a
+cascade the parent is already gone, so a guard can ask whether the company still
+exists — and this applies the same test in the other three places. An edit is
+still refused. What is permitted is a row leaving because the tenant it
+described has left. 26 tests.
+
+The console also stopped being list-shaped. There is a page per company where
+everything about it can be changed, every dashboard tile opens what it counts,
+and the roles screen leads with the people rather than the roles — the question
+anybody actually arrives with is what this person controls.
+
+**More than one way to sign up.** Migration 0093 and the auth screen. There was
+one: an email address and a password somebody has to invent, remember and later
+reset. Most people arriving at a construction platform already have a Google
+account on the phone in their hand.
+
+The provider itself lives in Supabase Auth, which is where the client ids and
+secrets belong and nowhere this repository should carry them. What the database
+owns is what happens after, and it was quietly wrong for anybody who did not
+sign up by email: `app.handle_new_user` read `full_name`, which is the key this
+platform's own form sets. Google sends `name`. Apple sends a name *once*, on the
+first authorization, and never again — so a handler that missed it there missed
+it permanently. Neither would have raised an error; both would have produced a
+customer whose name the platform does not know.
+
+The handler now reads every key a provider uses, fills in rather than
+overwrites — somebody who signed up by email, set their name, then linked
+Google keeps the name they chose — and backfills anybody already affected. The
+button list is a build-time variable rather than a guess, because there is no
+way to ask Supabase which providers are configured and a button for one nobody
+set up leads to an error page instead of a sign-in. 8 tests.
+
+**What is ending, and what came in.** Migration 0094. Three questions an
+operator was asking with no way to answer.
+
+*Is this company alive?* The tenant list shows a plan and a subscription
+standing, neither of which says whether anybody is using it. A paying customer
+nobody has opened in six weeks looks identical there to one who is in it every
+day — and the first of those is a cancellation that has not been written yet.
+`admin_company_activity` reads `last_seen_at`, which every request already
+stamps, and flags the combination: paying and gone dark.
+
+*What ends soon?* Trials, manual grants, subscriptions already canceled, comps
+and discounts, allowances given for a while. Five dates on five tables, none of
+them anywhere an operator would look, so the first anybody knew was the customer
+ringing up.
+
+*What came in?* The dashboard reports recurring revenue, which is a rate rather
+than money. `admin_earnings_by_month` is invoiced, paid, outstanding, refunded
+and net — grouped by the month an invoice *covers* rather than the day it was
+raised, because an invoice issued on the thirty-first for the following month is
+next month's money and mixing those is how a revenue report stops matching the
+accounts. 17 tests, passing on the first run.
+
 Still open: a second operator approving a change to a paying customer's
 entitlement.
 

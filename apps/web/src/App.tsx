@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/misc';
 import { recordVisit } from '@/lib/analytics';
+import { AuthCallbackPage } from '@/pages/auth-callback';
 import { LandingPage } from '@/pages/landing';
 
 /**
@@ -17,6 +18,7 @@ const AdminLoginPage = lazy(() => import('@/pages/admin/login').then((m) => ({ d
 const AdminDashboard = lazy(() => import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboard })));
 const AdminCompanies = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminCompanies })));
 const AdminPackages = lazy(() => import('@/pages/admin/packages').then((m) => ({ default: m.AdminPackages })));
+const AdminCompany = lazy(() => import('@/pages/admin/company').then((m) => ({ default: m.AdminCompany })));
 const AdminCompanyBilling = lazy(() => import('@/pages/admin/company-billing').then((m) => ({ default: m.AdminCompanyBilling })));
 const AdminTraffic = lazy(() => import('@/pages/admin/traffic').then((m) => ({ default: m.AdminTraffic })));
 const AdminChurn = lazy(() => import('@/pages/admin/churn').then((m) => ({ default: m.AdminChurn })));
@@ -24,6 +26,7 @@ const AdminRefunds = lazy(() => import('@/pages/admin/refunds').then((m) => ({ d
 const AdminActivity = lazy(() => import('@/pages/admin/activity').then((m) => ({ default: m.AdminActivity })));
 const AdminAnnouncements = lazy(() => import('@/pages/admin/announcements').then((m) => ({ default: m.AdminAnnouncements })));
 const AdminOutbox = lazy(() => import('@/pages/admin/outbox').then((m) => ({ default: m.AdminOutbox })));
+const AdminReports = lazy(() => import('@/pages/admin/reports').then((m) => ({ default: m.AdminReports })));
 const AdminRoles = lazy(() => import('@/pages/admin/roles').then((m) => ({ default: m.AdminRoles })));
 const AdminAccounts = lazy(() => import('@/pages/admin/accounts').then((m) => ({ default: m.AdminAccounts })));
 const AdminControls = lazy(() => import('@/pages/admin/controls').then((m) => ({ default: m.AdminControls })));
@@ -104,11 +107,19 @@ export function App() {
             * that route assumes a company and reads that company's records,
             * and this reads across all of them.
             */}
+          {/*
+            * Where a provider redirects back to. Its own route so there is a
+            * place to wait for the session rather than a protected page
+            * deciding nobody is signed in during the instant before the token
+            * is exchanged.
+            */}
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminShell />}>
             <Route index element={<AdminDashboard />} />
             <Route path="companies" element={<AdminCompanies />} />
-            <Route path="companies/:companyId" element={<AdminCompanyBilling />} />
+            <Route path="companies/:companyId" element={<AdminCompany />} />
+            <Route path="companies/:companyId/billing" element={<AdminCompanyBilling />} />
             <Route path="packages" element={<AdminPackages />} />
             <Route path="billing" element={<AdminBilling />} />
             <Route path="controls" element={<AdminControls />} />
@@ -119,6 +130,7 @@ export function App() {
             <Route path="outbox" element={<AdminOutbox />} />
             <Route path="traffic" element={<AdminTraffic />} />
             <Route path="churn" element={<AdminChurn />} />
+            <Route path="reports" element={<AdminReports />} />
             <Route path="refunds" element={<AdminRefunds />} />
             <Route path="front-end" element={<AdminFrontEnd />} />
             <Route path="settings" element={<AdminSettings />} />

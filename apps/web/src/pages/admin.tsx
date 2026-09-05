@@ -210,7 +210,11 @@ export function AdminCompanies() {
                   {shown.map((c) => (
                     <TableRow key={c.companyId}>
                       <TableCell>
-                        <p className="font-medium text-charcoal-900">{c.name}</p>
+                        <Link to={`/admin/companies/${c.companyId}`}
+                          className="font-medium text-charcoal-900 underline-offset-2
+                                     hover:underline">
+                          {c.name}
+                        </Link>
                         <p className="font-mono text-xs text-charcoal-500">{c.slug}</p>
                       </TableCell>
                       <TableCell className="text-xs text-charcoal-600">{c.ownerEmail ?? '—'}</TableCell>
@@ -242,7 +246,7 @@ export function AdminCompanies() {
                             * company's own history.
                             */}
                           <Button asChild size="sm" variant="ghost">
-                            <Link to={`/admin/companies/${c.companyId}`}>Subscription</Link>
+                            <Link to={`/admin/companies/${c.companyId}`}>Manage</Link>
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => setSelected(c)}>
                             Features{c.overrideCount ? ` (${c.overrideCount})` : ''}

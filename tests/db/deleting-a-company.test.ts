@@ -82,31 +82,47 @@ describe('a company and its last owner', () => {
     });
   });
 
-  describe('what still stands between a tenant and deletion', () => {
+  describe('what used to stand between a tenant and deletion', () => {
     it('is no longer the owner guard', async () => {
       /*
        * Migration 0072's whole purpose. During a cascade the parent row is
        * already gone when the child trigger runs, so the guard can tell "the
        * last administrator is being removed" from "the company is going".
        */
+      // It now succeeds outright, which is the strongest form of "not that".
       const id = await company('cascadeprobe');
-      const failure = await h.sql(`delete from companies where id = $1`, [id])
-        .then(() => null, (e: Error) => e.message);
-      expect(failure).not.toMatch(/must retain at least one active owner/);
+      await expect(h.sql(`delete from companies where id = $1`, [id]))
+        .resolves.toBeDefined();
     });
 
-    it('is the append-only ledgers, which is the guard working', async () => {
+    it('is no longer the append-only ledgers either', async () => {
       /*
-       * An audit trail somebody can erase is not an audit trail, so this
-       * refusal is correct and must stay. Deleting a customer properly is a
-       * workflow — export, remove business data, reduce the ledgers to
-       * something that answers a legal question without holding personal data —
-       * and not something to reach by loosening immutability.
+       * This test used to assert the opposite, and the assertion was honest:
+       * the ledgers did refuse, and deleting a customer properly was described
+       * as a workflow nobody had built. Migration 0092 built it, using the same
+       * distinction 0072 drew — during a cascade the parent is already gone, so
+       * a guard can ask whether the company still exists.
+       *
+       * The immutability that mattered is untouched, which the next test holds.
        */
       const id = await company('ledgerprobe');
-      const failure = await h.sql(`delete from companies where id = $1`, [id])
-        .then(() => null, (e: Error) => e.message);
-      expect(failure).toMatch(/append-only/);
+      await expect(h.sql(`delete from companies where id = $1`, [id])).resolves.toBeDefined();
+      expect(await h.sql(`select id from companies where id = $1`, [id])).toHaveLength(0);
+    });
+
+    it('still refuses to let anybody edit a ledger', async () => {
+      /*
+       * The point of the guard, and the thing that would have been lost by
+       * loosening it carelessly. A row may leave because the tenant it
+       * described has left. Nothing may be rewritten.
+       */
+      const id = await company('editprobe');
+      await expect(h.sql(
+        `update library_row_versions set payload = '{}'::jsonb where company_id = $1`, [id]))
+        .rejects.toThrow(/append-only/);
+      await expect(h.sql(
+        `delete from library_row_versions where company_id = $1`, [id]))
+        .rejects.toThrow(/append-only/);
     });
 
     it('is not the audit ledger, which now outlives its tenant', async () => {

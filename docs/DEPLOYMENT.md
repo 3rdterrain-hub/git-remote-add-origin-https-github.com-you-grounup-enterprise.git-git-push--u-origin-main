@@ -449,3 +449,51 @@ select cron.schedule(
 queue, the Outbox screen says the provider is not configured, and they go out
 the moment it is. An outbox that is filling up because nobody set a key looks
 exactly like an outbox with nothing to send, so the screen distinguishes them.
+
+## Signing in with Google or Apple
+
+There is one way in by default: an email address and a password somebody has to
+invent, remember and later reset. Most people arriving already have a Google
+account on the phone in their hand.
+
+Three steps, and the middle one is the only fiddly part.
+
+**1. Get the credentials from the provider.** For Google, an OAuth 2.0 client
+in the Google Cloud console, with this as an authorized redirect URI:
+
+```
+https://<project-ref>.supabase.co/auth/v1/callback
+```
+
+For Apple, a Services ID and a signing key in the Apple developer account, with
+the same URI. Apple's secret is a JWT that expires — six months at most — so it
+is a diary entry as well as a setting.
+
+**2. Give them to Supabase.**
+
+```bash
+npx supabase secrets set SUPABASE_AUTH_GOOGLE_CLIENT_ID=... SUPABASE_AUTH_GOOGLE_SECRET=...
+```
+
+Then set `enabled = true` for that provider in `supabase/config.toml` and push:
+
+```bash
+npx supabase config push
+```
+
+**3. Tell the application which ones exist.** There is no way to ask Supabase
+which providers are configured, so the button list is a build-time variable. A
+button for a provider nobody set up leads to an error page rather than a
+sign-in, which is why the application never guesses.
+
+```
+VITE_OAUTH_PROVIDERS="google,apple"
+```
+
+Leave it unset and only the email form appears, which is the honest default.
+
+**What happens after** is migration 0093. Google sends the name under `name`;
+this platform's own form sets `full_name`; Apple sends a name exactly once, on
+the first authorization, and never again. The profile handler reads all of
+them, and fills in rather than overwrites — somebody who signed up by email,
+set their name, then linked Google keeps the name they chose.

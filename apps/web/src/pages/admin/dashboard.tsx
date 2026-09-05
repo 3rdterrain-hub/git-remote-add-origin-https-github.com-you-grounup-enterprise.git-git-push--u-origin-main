@@ -1,4 +1,4 @@
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import {
   Building2, Banknote, TrendingUp, AlertTriangle, Webhook, Clock, ArrowUpRight,
   Gift, UserPlus, Users, Scale,
@@ -103,15 +103,15 @@ export function AdminDashboard() {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile label="Recurring revenue"
+        <Tile label="Recurring revenue" to="/admin/billing"
           value={revenue ? money(revenue.mrrCents / 100) : '—'}
           hint={revenue ? `${money(revenue.arrCents / 100)} a year at this rate` : undefined}
           icon={<Banknote className="size-4" />}
           tone={revenue && revenue.mrrCents > 0 ? 'success' : 'neutral'} />
-        <Tile label="Companies" value={integer(companies.length)}
+        <Tile label="Companies" value={integer(companies.length)} to="/admin/companies"
           hint={`${integer(paying.length)} paying, ${integer(trials.length)} on trial`}
           icon={<Building2 className="size-4" />} />
-        <Tile label="Seats"
+        <Tile label="Seats" to="/admin/companies"
           value={revenue ? integer(revenue.seatsInUse) : '—'}
           hint={revenue
             ? `${integer(revenue.seatsBilled)} billed${revenue.seatsUnbilled
@@ -119,29 +119,29 @@ export function AdminDashboard() {
             : undefined}
           icon={<Users className="size-4" />}
           tone={revenue && revenue.seatsUnbilled > 0 ? 'warn' : 'neutral'} />
-        <Tile label="Stuck webhooks" value={integer(stuck.length)}
+        <Tile label="Stuck webhooks" value={integer(stuck.length)} to="/admin/companies"
           hint={stuck.length ? 'someone paid and did not get access' : 'all events processed'}
           icon={<Webhook className="size-4" />}
           tone={stuck.length ? 'danger' : 'success'} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile label="New companies this month"
+        <Tile label="New companies this month" to="/admin/traffic"
           value={thisMonth ? integer(thisMonth.newCompanies) : '—'}
           hint={lastMonth ? `${integer(lastMonth.newCompanies)} last month` : undefined}
           icon={<Building2 className="size-4" />} />
-        <Tile label="New people this month"
+        <Tile label="New people this month" to="/admin/traffic"
           value={thisMonth ? integer(thisMonth.newUsers) : '—'}
           hint={lastMonth ? `${integer(lastMonth.newUsers)} last month` : undefined}
           icon={<UserPlus className="size-4" />} />
-        <Tile label="Given away"
+        <Tile label="Given away" to="/admin/accounts"
           value={revenue ? money((revenue.givenAwayCents + revenue.discountedCents) / 100) : '—'}
           hint={revenue
             ? `${integer(revenue.onTerms)} on terms, ${integer(revenue.onFree)} on the free plan`
             : undefined}
           icon={<Gift className="size-4" />}
           tone={revenue && revenue.givenAwayCents > 0 ? 'warn' : 'neutral'} />
-        <Tile label="Stripe disagrees"
+        <Tile label="Stripe disagrees" to="/admin/billing"
           value={revenue ? integer(revenue.accountsThatDisagree) : '—'}
           hint={revenue && revenue.accountsThatDisagree
             ? 'billed differently from what the plan says'
@@ -199,7 +199,8 @@ export function AdminDashboard() {
                 {byCompany.slice(0, 12).map((r) => (
                   <TableRow key={r.companyId}>
                     <TableCell className="font-medium text-charcoal-900">
-                      {r.name}
+                      <Link to={`/admin/companies/${r.companyId}`}
+                        className="underline-offset-2 hover:underline">{r.name}</Link>
                       {r.terms ? (
                         <Badge variant="warn" className="ml-1.5">
                           {r.terms === 'free' ? 'Comped' : 'Discounted'}
@@ -324,10 +325,10 @@ export function AdminDashboard() {
       </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile label="Proposal pipeline" value={money(pipelineCents / 100)}
+        <Tile label="Proposal pipeline" value={money(pipelineCents / 100)} to="/admin/controls"
           hint={`${integer(open.length)} open, per month as estimated`}
           icon={<TrendingUp className="size-4" />} tone={open.length ? 'warn' : 'neutral'} />
-        <Tile label="Worth a call" value={integer(signals.length)}
+        <Tile label="Worth a call" value={integer(signals.length)} to="/admin/churn"
           hint="over an allowance, or a trial ending"
           icon={<ArrowUpRight className="size-4" />} />
       </div>
@@ -354,7 +355,10 @@ export function AdminDashboard() {
               <TableBody>
                 {signals.slice(0, 12).map((p) => (
                   <TableRow key={p.companyId}>
-                    <TableCell className="font-medium text-charcoal-900">{p.name}</TableCell>
+                    <TableCell className="font-medium text-charcoal-900">
+                      <Link to={`/admin/companies/${p.companyId}`}
+                        className="underline-offset-2 hover:underline">{p.name}</Link>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="default">
                         {p.currentPlanName ?? p.currentPlan ?? 'Free'}
@@ -434,19 +438,36 @@ export function AdminDashboard() {
   );
 }
 
-function Tile({ label, value, hint, icon, tone = 'neutral' }: {
+/**
+ * A number, and the screen it came from.
+ *
+ * Every tile that counts something links to where that something is. A figure
+ * you cannot open is a figure you have to go and find, which is the difference
+ * between a dashboard and a poster.
+ */
+function Tile({ label, value, hint, icon, tone = 'neutral', to }: {
   label: string; value: string; hint?: string; icon?: React.ReactNode;
   tone?: 'neutral' | 'success' | 'warn' | 'danger';
+  to?: string;
 }) {
-  return (
-    <div className="rounded-[--radius-card] border border-charcoal-200 bg-white p-4">
+  const inside = (
+    <>
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-charcoal-500">{label}</p>
         <span className="text-charcoal-400">{icon}</span>
       </div>
       <p className={cnTone(tone)}>{value}</p>
       {hint ? <p className="mt-0.5 text-xs text-charcoal-500">{hint}</p> : null}
-    </div>
+    </>
+  );
+  const shell = 'rounded-[--radius-card] border border-charcoal-200 bg-white p-4';
+  if (!to) return <div className={shell}>{inside}</div>;
+  return (
+    <Link to={to} className={`${shell} block transition-colors hover:border-charcoal-400
+                              hover:bg-charcoal-50 focus-visible:outline
+                              focus-visible:outline-2 focus-visible:outline-yellow-500`}>
+      {inside}
+    </Link>
   );
 }
 

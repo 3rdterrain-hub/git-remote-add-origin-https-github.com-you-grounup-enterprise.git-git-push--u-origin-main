@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert } from '@/components/ui/misc';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { recordSignupAttempt } from '@/lib/analytics';
+import { enabledProviders, providerLabel, signInWith, type OAuthProvider } from '@/lib/oauth';
 
 type Mode = 'login' | 'signup' | 'reset';
 
@@ -24,6 +25,9 @@ export function AuthPage({ mode }: { mode: Mode }) {
   const [companyName, setCompanyName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [oauth, setOauth] = useState<OAuthProvider | null>(null);
+  // Read once: which providers exist is a deployment fact, not a state change.
+  const providers = enabledProviders();
   const [notice, setNotice] = useState<string | null>(null);
 
   const copy = COPY[mode];
@@ -94,6 +98,39 @@ export function AuthPage({ mode }: { mode: Mode }) {
               workspace. Set <code className="font-mono text-[12px]">VITE_SUPABASE_URL</code> and{' '}
               <code className="font-mono text-[12px]">VITE_SUPABASE_ANON_KEY</code> to connect real authentication.
             </Alert>
+          ) : null}
+
+          {/*
+            * Above the form, because for most people it is the way in rather
+            * than an alternative to it. Only the providers this deployment
+            * says are configured appear — a button for one nobody set up leads
+            * to an error page instead of a sign-in.
+            */}
+          {providers.length && mode !== 'reset' ? (
+            <div className="mt-6 space-y-2">
+              {providers.map((p) => (
+                <Button key={p} type="button" variant="outline" className="w-full"
+                  disabled={oauth !== null}
+                  onClick={async () => {
+                    setError(null); setOauth(p);
+                    try {
+                      await signInWith(p);
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message
+                        : `Signing in with ${providerLabel(p)} did not start.`);
+                      setOauth(null);
+                    }
+                  }}>
+                  {oauth === p ? <Loader2 className="size-4 animate-spin" /> : null}
+                  Continue with {providerLabel(p)}
+                </Button>
+              ))}
+              <div className="flex items-center gap-3 pt-1">
+                <span className="h-px flex-1 bg-charcoal-200" />
+                <span className="text-xs text-charcoal-500">or use an email address</span>
+                <span className="h-px flex-1 bg-charcoal-200" />
+              </div>
+            </div>
           ) : null}
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>

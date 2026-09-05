@@ -69,6 +69,39 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
+# ---------------------------------------------------------------------------
+# Signing in with somebody else's account
+#
+# Most people arriving at a construction platform already have a Google account
+# on the phone in their hand, and the difference between one tap and inventing
+# a password is the difference between a signup and a bounce.
+#
+# Both are off until the credentials exist. The client id and secret come from
+# the environment and are never written here — this file is in the repository
+# and a secret in it is a secret published. Set them as Supabase secrets, or in
+# a local `.env` that git ignores:
+#
+#   SUPABASE_AUTH_GOOGLE_CLIENT_ID, SUPABASE_AUTH_GOOGLE_SECRET
+#   SUPABASE_AUTH_APPLE_CLIENT_ID,  SUPABASE_AUTH_APPLE_SECRET
+#
+# Then set VITE_OAUTH_PROVIDERS="google,apple" so the buttons appear. Enabling
+# one here without the other shows a button that leads to an error page, which
+# is why the application never guesses which providers exist.
+# ---------------------------------------------------------------------------
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+redirect_uri = ""
+skip_nonce_check = false
+
+[auth.external.apple]
+enabled = false
+client_id = "env(SUPABASE_AUTH_APPLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_APPLE_SECRET)"
+redirect_uri = ""
+skip_nonce_check = false
+
 # Every function is deployed with JWT verification ON except the Stripe
 # webhook, which Stripe cannot send a Supabase JWT to. Its authentication is
 # the signature check over the raw body, which is stronger: a forged request

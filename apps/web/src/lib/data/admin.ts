@@ -1604,3 +1604,251 @@ export async function sendQueuedEmail(): Promise<{
   return callFunction<{ sent: number; waiting: number; configured: boolean; note?: string }>(
     'send-email', {});
 }
+
+// ---------------------------------------------------------------------------
+// One company, everything about it
+// ---------------------------------------------------------------------------
+export type Allowance =
+  | 'max_seats' | 'max_active_estimates' | 'max_active_projects'
+  | 'storage_gb' | 'ai_credits_per_month';
+
+export const ALLOWANCE_LABEL: Record<Allowance, string> = {
+  max_seats: 'Seats',
+  max_active_estimates: 'Active estimates',
+  max_active_projects: 'Active projects',
+  storage_gb: 'Storage, in GB',
+  ai_credits_per_month: 'AI credits a month',
+};
+
+export interface CompanyControls {
+  companyId: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  planId: string;
+  planName: string | null;
+  entitlementSource: string | null;
+  entitlementActive: boolean;
+  accessValidUntil: string | null;
+  subscriptionStatus: string | null;
+  stripeSubscriptionId: string | null;
+  maxSeats: number | null;
+  maxActiveEstimates: number | null;
+  maxActiveProjects: number | null;
+  storageGb: number | null;
+  aiCreditsPerMonth: number | null;
+  overridden: Allowance[];
+  suspended: boolean;
+  featureOverrides: number;
+  terms: string | null;
+}
+
+export const loadCompanyControls = (companyId: string): Query<CompanyControls | null> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('admin_company_controls')
+      .select('*')
+      .eq('company_id', companyId)) as Array<Record<string, unknown>>;
+    const r = rows[0];
+    if (!r) return null;
+    const orNull = (k: string) => (r[k] == null ? null : Number(r[k]));
+    return {
+      companyId: String(r.company_id), name: String(r.name), slug: String(r.slug),
+      createdAt: String(r.created_at), planId: String(r.plan_id),
+      planName: (r.plan_name as string | null) ?? null,
+      entitlementSource: (r.entitlement_source as string | null) ?? null,
+      entitlementActive: Boolean(r.entitlement_active),
+      accessValidUntil: (r.access_valid_until as string | null) ?? null,
+      subscriptionStatus: (r.subscription_status as string | null) ?? null,
+      stripeSubscriptionId: (r.stripe_subscription_id as string | null) ?? null,
+      maxSeats: orNull('max_seats'),
+      maxActiveEstimates: orNull('max_active_estimates'),
+      maxActiveProjects: orNull('max_active_projects'),
+      storageGb: orNull('storage_gb'),
+      aiCreditsPerMonth: orNull('ai_credits_per_month'),
+      overridden: ((r.overridden as Allowance[] | null) ?? []),
+      suspended: Boolean(r.suspended),
+      featureOverrides: Number(r.feature_overrides ?? 0),
+      terms: (r.terms as string | null) ?? null,
+    };
+  };
+
+export async function setAllowance(
+  client: Rpc,
+  input: { companyId: string; allowance: Allowance; amount: number | null; reason: string },
+): Promise<void> {
+  const { error } = await client.rpc('set_allowance', {
+    p_company: input.companyId, p_allowance: input.allowance,
+    p_amount: input.amount, p_reason: input.reason.trim(), p_valid_until: null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function clearAllowance(
+  client: Rpc, companyId: string, allowance: Allowance, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('clear_allowance', {
+    p_company: companyId, p_allowance: allowance, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function setCompanyPlan(
+  client: Rpc, companyId: string, planId: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('set_company_plan', {
+    p_company: companyId, p_plan: planId, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Irreversible, and the name has to be typed. */
+export async function deleteCompany(
+  client: Rpc, companyId: string, confirmName: string, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('delete_company', {
+    p_company: companyId, p_confirm_name: confirmName.trim(), p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function setPlanTrial(
+  client: Rpc, planId: string, days: number, reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('set_plan_trial', {
+    p_plan: planId, p_days: days, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function setPlanLimits(
+  client: Rpc,
+  input: { planId: string; maxSeats: number | null; maxEstimates: number | null;
+           maxProjects: number | null; storageGb: number | null;
+           aiCredits: number | null; reason: string },
+): Promise<void> {
+  const { error } = await client.rpc('set_plan_limits', {
+    p_plan: input.planId, p_max_seats: input.maxSeats,
+    p_max_estimates: input.maxEstimates, p_max_projects: input.maxProjects,
+    p_storage_gb: input.storageGb, p_ai_credits: input.aiCredits,
+    p_reason: input.reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function setPlanFeatures(
+  client: Rpc, planId: string, features: string[], reason: string,
+): Promise<void> {
+  const { error } = await client.rpc('set_plan_features', {
+    p_plan: planId, p_features: features, p_reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export interface CatalogFeature {
+  key: string;
+  label: string;
+  description: string;
+  enforced: boolean;
+}
+
+export const loadFeatureCatalog: Query<CatalogFeature[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('feature_catalog')
+    .select('key, label, description, enforced')
+    .order('sort_order')) as Array<Record<string, unknown>>;
+  return rows.map((f) => ({
+    key: String(f.key), label: String(f.label),
+    description: String(f.description), enforced: Boolean(f.enforced),
+  }));
+};
+
+// ---------------------------------------------------------------------------
+// What is ending, and what came in
+// ---------------------------------------------------------------------------
+export interface CompanyActivity {
+  companyId: string;
+  name: string;
+  planId: string;
+  subscriptionStatus: string | null;
+  seats: number;
+  lastSeen: string | null;
+  daysQuiet: number | null;
+  standing: 'active' | 'quiet' | 'gone dark' | 'never used';
+  suspended: boolean;
+  payingAndGone: boolean;
+  estimates: number;
+  projects: number;
+}
+
+export const loadCompanyActivity: Query<CompanyActivity[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_company_activity')
+    .select('company_id, name, plan_id, subscription_status, seats, last_seen, days_quiet, standing, suspended, paying_and_gone, estimates, projects')) as Array<Record<string, unknown>>;
+  return rows.map((a) => ({
+    companyId: String(a.company_id),
+    name: String(a.name),
+    planId: String(a.plan_id),
+    subscriptionStatus: (a.subscription_status as string | null) ?? null,
+    seats: Number(a.seats ?? 0),
+    lastSeen: (a.last_seen as string | null) ?? null,
+    daysQuiet: a.days_quiet == null ? null : Number(a.days_quiet),
+    standing: a.standing as CompanyActivity['standing'],
+    suspended: Boolean(a.suspended),
+    payingAndGone: Boolean(a.paying_and_gone),
+    estimates: Number(a.estimates ?? 0),
+    projects: Number(a.projects ?? 0),
+  }));
+};
+
+export interface Expiring {
+  companyId: string;
+  companyName: string;
+  kind: 'trial' | 'granted' | 'canceling' | 'terms' | 'allowance';
+  what: string;
+  endsAt: string;
+  seats: number;
+  detail: string;
+}
+
+export const loadExpiring: Query<Expiring[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_expiring')
+    .select('company_id, company_name, kind, what, ends_at, seats, detail')) as Array<Record<string, unknown>>;
+  return rows.map((e) => ({
+    companyId: String(e.company_id),
+    companyName: String(e.company_name),
+    kind: e.kind as Expiring['kind'],
+    what: String(e.what),
+    endsAt: String(e.ends_at),
+    seats: Number(e.seats ?? 0),
+    detail: String(e.detail ?? ''),
+  }));
+};
+
+export interface EarningsMonth {
+  month: string;
+  invoicedCents: number;
+  paidCents: number;
+  outstandingCents: number;
+  refundedCents: number;
+  netCents: number;
+  invoices: number;
+  payingCompanies: number;
+}
+
+export const loadEarnings: Query<EarningsMonth[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_earnings_by_month')
+    .select('month, invoiced_cents, paid_cents, outstanding_cents, refunded_cents, net_cents, invoices, paying_companies')) as Array<Record<string, unknown>>;
+  return rows.map((m) => ({
+    month: String(m.month),
+    invoicedCents: Number(m.invoiced_cents ?? 0),
+    paidCents: Number(m.paid_cents ?? 0),
+    outstandingCents: Number(m.outstanding_cents ?? 0),
+    refundedCents: Number(m.refunded_cents ?? 0),
+    netCents: Number(m.net_cents ?? 0),
+    invoices: Number(m.invoices ?? 0),
+    payingCompanies: Number(m.paying_companies ?? 0),
+  }));
+};

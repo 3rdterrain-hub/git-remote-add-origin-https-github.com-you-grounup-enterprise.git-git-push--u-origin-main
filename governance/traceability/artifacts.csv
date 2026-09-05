@@ -36,6 +36,7 @@ TBL-ai_findings,table,ai_findings,supabase/migrations (table ai_findings),AI_AGE
 TBL-ai_messages,table,ai_messages,supabase/migrations (table ai_messages),AI_AGENT
 TBL-ai_models,table,ai_models,supabase/migrations (table ai_models),LIBRARY
 TBL-ai_prompts,table,ai_prompts,supabase/migrations (table ai_prompts),LIBRARY
+TBL-allowance_overrides,table,allowance_overrides,supabase/migrations (table allowance_overrides),ENTITY
 TBL-announcement_dismissals,table,announcement_dismissals,supabase/migrations (table announcement_dismissals),ENTITY
 TBL-announcements,table,announcements,supabase/migrations (table announcements),ENTITY
 TBL-ap_invoices,table,ap_invoices,supabase/migrations (table ap_invoices),ENTITY
@@ -97,6 +98,7 @@ TBL-estimate_line_modifiers,table,estimate_line_modifiers,supabase/migrations (t
 TBL-estimate_line_resources,table,estimate_line_resources,supabase/migrations (table estimate_line_resources),ENTITY
 TBL-estimate_versions,table,estimate_versions,supabase/migrations (table estimate_versions),ENTITY
 TBL-estimates,table,estimates,supabase/migrations (table estimates),ENTITY
+TBL-feature_catalog,table,feature_catalog,supabase/migrations (table feature_catalog),LIBRARY
 TBL-financial_periods,table,financial_periods,supabase/migrations (table financial_periods),ENTITY
 TBL-fuel_transactions,table,fuel_transactions,supabase/migrations (table fuel_transactions),ENTITY
 TBL-ingestion_jobs,table,ingestion_jobs,supabase/migrations (table ingestion_jobs),WORKFLOW
@@ -120,6 +122,7 @@ TBL-metric_definition_versions,table,metric_definition_versions,supabase/migrati
 TBL-metric_definitions,table,metric_definitions,supabase/migrations (table metric_definitions),LIBRARY
 TBL-network_ratings,table,network_ratings,supabase/migrations (table network_ratings),ENTITY
 TBL-network_vendors,table,network_vendors,supabase/migrations (table network_vendors),ENTITY
+TBL-notification_categories,table,notification_categories,supabase/migrations (table notification_categories),LIBRARY
 TBL-notification_preferences,table,notification_preferences,supabase/migrations (table notification_preferences),ENTITY
 TBL-notification_receipts,table,notification_receipts,supabase/migrations (table notification_receipts),ENTITY
 TBL-notifications,table,notifications,supabase/migrations (table notifications),ENTITY
@@ -258,6 +261,7 @@ TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,E
 TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
+TST-db-company-controls,test,db/company-controls.test.ts,tests/db/company-controls.test.ts,ENGINE
 TST-db-deleting-a-company,test,db/deleting-a-company.test.ts,tests/db/deleting-a-company.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
 TST-db-email,test,db/email.test.ts,tests/db/email.test.ts,ENGINE
@@ -280,11 +284,13 @@ TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
+TST-db-notification-preferences,test,db/notification-preferences.test.ts,tests/db/notification-preferences.test.ts,ENGINE
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
 TST-db-one-plan,test,db/one-plan.test.ts,tests/db/one-plan.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-operator-activity,test,db/operator-activity.test.ts,tests/db/operator-activity.test.ts,ENGINE
 TST-db-operator-dashboard,test,db/operator-dashboard.test.ts,tests/db/operator-dashboard.test.ts,ENGINE
+TST-db-operator-reports,test,db/operator-reports.test.ts,tests/db/operator-reports.test.ts,ENGINE
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-payment-failures,test,db/payment-failures.test.ts,tests/db/payment-failures.test.ts,ENGINE
@@ -304,6 +310,7 @@ TST-db-service-units,test,db/service-units.test.ts,tests/db/service-units.test.t
 TST-db-signup,test,db/signup.test.ts,tests/db/signup.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
+TST-db-social-signin,test,db/social-signin.test.ts,tests/db/social-signin.test.ts,ENGINE
 TST-db-support-sessions,test,db/support-sessions.test.ts,tests/db/support-sessions.test.ts,ENGINE
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
 TST-db-suspension,test,db/suspension.test.ts,tests/db/suspension.test.ts,ENGINE

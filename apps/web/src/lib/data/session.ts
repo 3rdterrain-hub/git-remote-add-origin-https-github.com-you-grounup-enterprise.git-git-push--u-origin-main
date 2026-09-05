@@ -271,3 +271,49 @@ export async function dismissAnnouncement(
   const { error } = await client.rpc('dismiss_announcement', { p_id: id });
   if (error) throw new Error(error.message);
 }
+
+/**
+ * What I am set to receive.
+ *
+ * Every category with my choice folded in, including the ones I cannot change:
+ * a list that quietly omitted those would read as a shorter list rather than
+ * an honest one.
+ */
+export interface NotificationSetting {
+  companyId: string;
+  category: string;
+  label: string;
+  description: string;
+  optional: boolean;
+  inApp: boolean;
+  email: boolean;
+}
+
+export const loadNotificationSettings: Query<NotificationSetting[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_notification_settings')
+    .select('company_id, category, label, description, optional, in_app, email')) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    companyId: String(r.company_id),
+    category: String(r.category),
+    label: String(r.label),
+    description: String(r.description),
+    optional: Boolean(r.optional),
+    inApp: Boolean(r.in_app),
+    email: Boolean(r.email),
+  }));
+};
+
+export async function setNotificationPreference(
+  client: {
+    rpc: (fn: string, args: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  },
+  input: { companyId: string; category: string; inApp: boolean; email: boolean },
+): Promise<void> {
+  const { error } = await client.rpc('set_notification_preference', {
+    p_company: input.companyId, p_category: input.category,
+    p_in_app: input.inApp, p_email: input.email,
+  });
+  if (error) throw new Error(error.message);
+}

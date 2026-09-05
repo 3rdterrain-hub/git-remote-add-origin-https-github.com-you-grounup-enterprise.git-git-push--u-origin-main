@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { ShieldAlert, Loader2, Plus, Lock } from 'lucide-react';
+import { ShieldAlert, Loader2, Plus, Lock, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadPlatformRoles, loadPlatformPermissions, setRolePermissions, createPlatformRole,
+  loadPlatformRoles, loadPlatformPermissions, loadOperators, setRolePermissions,
+  createPlatformRole, setOperatorRole, revokeOperator,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState } from '@/components/data-state';
 import { supabase } from '@/lib/supabase';
@@ -32,6 +33,7 @@ export function AdminRoles() {
   const { can } = useOutletContext<OperatorContext>();
   const rolesQ = useQuery(loadPlatformRoles, []);
   const permsQ = useQuery(loadPlatformPermissions, []);
+  const operatorsQ = useQuery(loadOperators, []);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +45,12 @@ export function AdminRoles() {
 
   const roles = rolesQ.status === 'ready' ? rolesQ.data : [];
   const permissions = permsQ.status === 'ready' ? permsQ.data : [];
+  const operators = (operatorsQ.status === 'ready' ? operatorsQ.data : [])
+    .filter((o) => !o.revokedAt);
+  const grantable = roles.filter((r) => r.assignable);
   const mayManage = can('operators.manage');
 
-  const failure = [rolesQ, permsQ].find((q) => q.status === 'error');
+  const failure = [rolesQ, permsQ, operatorsQ].find((q) => q.status === 'error');
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
   if (rolesQ.status === 'loading') return <LoadingState label="Reading roles" />;
 
@@ -108,6 +113,117 @@ export function AdminRoles() {
       </div>
 
       {error ? <Alert tone="danger">{error}</Alert> : null}
+
+      {/*
+        * Who, then what. The list used to start with the roles, which is the
+        * right shape for designing them and the wrong shape for the question
+        * anybody actually arrives with: what does this person control.
+        */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="size-4" /> Your people
+          </CardTitle>
+          <CardDescription>
+            What each of them controls. Changing somebody&apos;s role takes effect on their
+            next request — there is no cached copy of a permission anywhere.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {operators.map((o) => {
+            const held = roles.find((r) => r.key === o.roleKey);
+            const isSuper = o.roleKey === 'superadmin';
+            return (
+              <div key={o.userId}
+                className="grid gap-3 border-b border-charcoal-100 pb-4 last:border-0
+                           sm:grid-cols-[1fr_14rem_auto]">
+                <div className="min-w-0">
+                  <p className="font-medium text-charcoal-900">{o.email ?? o.userId}</p>
+                  <p className="text-xs text-charcoal-500">{o.reason}</p>
+                  {held ? (
+                    <p className="mt-1 text-xs text-charcoal-600">
+                      {held.permissions.includes('*')
+                        ? 'Everything on this platform.'
+                        : held.permissions.length
+                          ? permissions
+                              .filter((p) => held.permissions.includes(p.key))
+                              .map((p) => p.label).join(' · ')
+                          : 'Nothing yet — pick what they should control.'}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`role-${o.userId}`} className="text-xs">
+                    What they control
+                  </Label>
+                  {isSuper ? (
+                    <p className="flex h-9 items-center gap-1.5 text-sm text-charcoal-500">
+                      <Lock className="size-3.5" /> Superadmin
+                    </p>
+                  ) : (
+                    <select id={`role-${o.userId}`} value={o.roleKey}
+                      className="h-9 w-full rounded border border-charcoal-300 bg-white
+                                 px-2 text-sm"
+                      disabled={!mayManage || busy === o.userId}
+                      onChange={async (e) => {
+                        if (!supabase) return;
+                        setBusy(o.userId); setError(null);
+                        try {
+                          await setOperatorRole(supabase, o.userId, e.target.value,
+                            'Role changed from the roles screen');
+                          operatorsQ.refetch();
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message
+                            : 'That role could not be changed.');
+                        } finally { setBusy(null); }
+                      }}>
+                      {grantable.map((r) => (
+                        <option key={r.key} value={r.key}>{r.name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <div className="flex items-end">
+                  {busy === o.userId ? (
+                    <Loader2 className="mb-2 size-4 animate-spin text-charcoal-400" />
+                  ) : null}
+                  {!isSuper ? (
+                    <Button size="sm" variant="ghost" disabled={!mayManage || busy === o.userId}
+                      onClick={async () => {
+                        if (!supabase) return;
+                        setBusy(o.userId); setError(null);
+                        try {
+                          await revokeOperator(supabase, o.userId,
+                            'Access withdrawn from the roles screen');
+                          operatorsQ.refetch();
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message
+                            : 'That access could not be withdrawn.');
+                        } finally { setBusy(null); }
+                      }}>
+                      Withdraw
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+          {!operators.length && operatorsQ.status === 'ready' ? (
+            <p className="text-sm text-charcoal-500">
+              Nobody but you operates this platform yet. Take somebody on under
+              <strong> Controls</strong>.
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="text-lg font-bold text-charcoal-900">What each role means</h2>
+        <p className="mt-1 text-sm text-charcoal-500">
+          The jobs above are chosen from these. Change one and everybody holding it changes
+          with it.
+        </p>
+      </div>
 
       {roles.map((role) => (
         <Card key={role.key}>

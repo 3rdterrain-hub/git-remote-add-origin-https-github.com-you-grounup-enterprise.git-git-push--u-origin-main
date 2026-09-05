@@ -3,7 +3,7 @@ import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Package, CreditCard, ShieldAlert,
   Globe, Settings, LogOut, Loader2, Users, KeyRound, Filter, TrendingDown,
-  Banknote, History, Megaphone, Mail,
+  Banknote, History, Megaphone, Mail, CalendarClock,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +52,8 @@ const SECTIONS = [
     needs: ['companies.manage', 'billing.manage'] },
   { to: '/admin/packages', label: 'Packages', icon: Package, needs: ['pricing.manage'] },
   { to: '/admin/billing', label: 'Billing', icon: CreditCard, needs: ['billing.read'] },
+  { to: '/admin/reports', label: 'Reports', icon: CalendarClock,
+    needs: ['companies.read', 'billing.read'] },
   { to: '/admin/churn', label: 'Losing customers', icon: TrendingDown,
     needs: ['billing.read'] },
   { to: '/admin/refunds', label: 'Refunds', icon: Banknote,

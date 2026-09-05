@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, Switch, Separator } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { NotificationSettings } from '@/components/settings/notifications';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { COMPANY, USER } from '@/data/demo';
@@ -111,6 +112,7 @@ export function SettingsPage() {
           <TabsTrigger value="estimating">Estimating defaults</TabsTrigger>
           <TabsTrigger value="users">Users &amp; roles</TabsTrigger>
           <TabsTrigger value="branding">Branding</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="ai">AI registry</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -320,6 +322,9 @@ export function SettingsPage() {
         </TabsContent>
 
         {/* -------------------------------------------------------- security */}
+        <TabsContent value="notifications">
+          <NotificationSettings />
+        </TabsContent>
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>

@@ -7,11 +7,13 @@ import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useQuery } from '@/lib/data/query';
 import {
   loadPlans, loadAdminCompanies, loadPlanPrices, setPlanPrice,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState } from '@/components/data-state';
+import { loadFeatureCatalog, setPlanLimits, setPlanFeatures, setPlanTrial } from '@/lib/data/admin';
 import { supabase } from '@/lib/supabase';
 import { integer, money } from '@/lib/format';
 import type { OperatorContext } from './shell';
@@ -34,6 +36,43 @@ export function AdminPackages() {
   const plansQ = useQuery(loadPlans, []);
   const companiesQ = useQuery(loadAdminCompanies, []);
   const pricesQ = useQuery(loadPlanPrices, []);
+
+  const featuresQ = useQuery(loadFeatureCatalog, []);
+  const catalog = featuresQ.status === 'ready' ? featuresQ.data : [];
+
+  const [editingPlan, setEditingPlan] = useState<string | null>(null);
+  const [planDraft, setPlanDraft] = useState<{
+    maxSeats: string; maxEstimates: string; maxProjects: string; storageGb: string;
+    aiCredits: string; trialDays: string; features: string[]; reason: string;
+  }>({ maxSeats: '', maxEstimates: '', maxProjects: '', storageGb: '',
+       aiCredits: '', trialDays: '', features: [], reason: '' });
+  const [planBusy, setPlanBusy] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
+
+  /** Empty means unlimited, which is a real setting rather than a missing one. */
+  const orNull = (v: string) => (v.trim() === '' ? null : Number(v));
+
+  async function savePlan(planId: string) {
+    if (!supabase) return;
+    setPlanBusy(true); setPlanError(null);
+    try {
+      await setPlanLimits(supabase, {
+        planId,
+        maxSeats: orNull(planDraft.maxSeats),
+        maxEstimates: orNull(planDraft.maxEstimates),
+        maxProjects: orNull(planDraft.maxProjects),
+        storageGb: orNull(planDraft.storageGb),
+        aiCredits: orNull(planDraft.aiCredits),
+        reason: planDraft.reason,
+      });
+      await setPlanFeatures(supabase, planId, planDraft.features, planDraft.reason);
+      await setPlanTrial(supabase, planId, Number(planDraft.trialDays || 0), planDraft.reason);
+      setEditingPlan(null);
+      plansQ.refetch();
+    } catch (err) {
+      setPlanError(err instanceof Error ? err.message : 'That could not be saved.');
+    } finally { setPlanBusy(false); }
+  }
 
   const [editing, setEditing] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
@@ -219,11 +258,12 @@ export function AdminPackages() {
                 <TableHead className="text-right">Trial</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead className="text-right">Customers</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {plans.map((p) => (
-                <TableRow key={p.id}>
+                <TableRow key={p.id} className={editingPlan === p.id ? 'bg-charcoal-50' : undefined}>
                   <TableCell>
                     <p className="font-medium text-charcoal-900">{p.name}</p>
                     <p className="font-mono text-xs text-charcoal-500">{p.id}</p>
@@ -260,10 +300,125 @@ export function AdminPackages() {
                   <TableCell className="tabular text-right font-medium">
                     {integer(onPlan(p.id))}
                   </TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="ghost" disabled={!isSuper}
+                      onClick={() => {
+                        setEditingPlan(editingPlan === p.id ? null : p.id);
+                        setPlanDraft({
+                          maxSeats: p.maxSeats == null ? '' : String(p.maxSeats),
+                          maxEstimates: p.maxActiveEstimates == null ? '' : String(p.maxActiveEstimates),
+                          maxProjects: p.maxActiveProjects == null ? '' : String(p.maxActiveProjects),
+                          storageGb: p.storageGb == null ? '' : String(p.storageGb),
+                          aiCredits: p.aiCreditsPerMonth == null ? '' : String(p.aiCreditsPerMonth),
+                          trialDays: String(p.trialDays ?? 0),
+                          features: p.features ?? [],
+                          reason: '',
+                        });
+                      }}>
+                      {editingPlan === p.id ? 'Close' : 'Change'}
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {editingPlan ? (
+            <div className="space-y-4 border-t border-charcoal-200 p-4">
+              <div>
+                <p className="font-medium text-charcoal-900">
+                  What {plans.find((p) => p.id === editingPlan)?.name ?? editingPlan} allows
+                </p>
+                <p className="text-xs text-charcoal-500">
+                  Leave a box empty for unlimited. Companies already on this plan feel the
+                  change immediately — except where a paid subscription pinned their own
+                  numbers, which keeps what they bought.
+                </p>
+              </div>
+
+              {planError ? <Alert tone="danger">{planError}</Alert> : null}
+
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {([
+                  ['maxSeats', 'Seats'], ['maxEstimates', 'Active estimates'],
+                  ['maxProjects', 'Active projects'], ['storageGb', 'Storage GB'],
+                  ['aiCredits', 'AI credits'], ['trialDays', 'Trial days'],
+                ] as const).map(([key, label]) => (
+                  <div key={key} className="space-y-1.5">
+                    <Label htmlFor={`plan-${key}`}>{label}</Label>
+                    <Input id={`plan-${key}`} type="number" min="0"
+                      placeholder={key === 'trialDays' ? '0' : 'unlimited'}
+                      value={planDraft[key]}
+                      onChange={(e) => setPlanDraft({ ...planDraft, [key]: e.target.value })} />
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <p className="mb-2 text-sm font-medium text-charcoal-800">
+                  What it includes
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {catalog.map((f) => (
+                    <label key={f.key}
+                      className="flex cursor-pointer items-start gap-2 rounded border
+                                 border-charcoal-200 p-2 text-sm hover:bg-white">
+                      <input type="checkbox" className="mt-0.5 size-4 accent-charcoal-900"
+                        checked={planDraft.features.includes('*')
+                          || planDraft.features.includes(f.key)}
+                        disabled={planDraft.features.includes('*')}
+                        onChange={(e) => setPlanDraft({
+                          ...planDraft,
+                          features: e.target.checked
+                            ? [...planDraft.features, f.key]
+                            : planDraft.features.filter((k) => k !== f.key),
+                        })} />
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1.5 font-medium
+                                         text-charcoal-900">
+                          {f.label}
+                          {!f.enforced ? (
+                            <Badge variant="default" title="Nothing refuses the work without it">
+                              not gated
+                            </Badge>
+                          ) : null}
+                        </span>
+                        <span className="block text-xs text-charcoal-500">{f.description}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {planDraft.features.includes('*') ? (
+                  <p className="mt-2 text-xs text-charcoal-500">
+                    This plan includes everything, now and whatever is built later. Untick it
+                    by removing the wildcard, which is deliberately not a checkbox.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-xs text-charcoal-500">
+                    A feature marked <strong>not gated</strong> is one the database does not
+                    yet refuse. Turning it off makes the pricing page honest and stops
+                    nothing — which is worth knowing before you price around it.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="plan-why">Why this is changing</Label>
+                <Input id="plan-why" value={planDraft.reason}
+                  placeholder="Two seats was too tight to evaluate it properly"
+                  onChange={(e) => setPlanDraft({ ...planDraft, reason: e.target.value })} />
+              </div>
+
+              <div className="flex gap-2">
+                <Button disabled={!isSuper || planBusy || planDraft.reason.trim().length < 5}
+                  onClick={() => savePlan(editingPlan)}>
+                  {planBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                  Save the plan
+                </Button>
+                <Button variant="ghost" onClick={() => setEditingPlan(null)}>Cancel</Button>
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
