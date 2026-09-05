@@ -17,7 +17,10 @@ const hoisted = vi.hoisted(() => ({
   admin: true,
   companies: [] as unknown[],
   webhooks: [] as unknown[],
+  stuck: [] as unknown[],
   overrides: [] as unknown[],
+  replays: [] as unknown[],
+  replayError: null as string | null,
   set: [] as unknown[],
   cleared: [] as unknown[],
   setError: null as string | null,
@@ -33,7 +36,12 @@ vi.mock('@/lib/data/admin', async () => {
     ...actual,
     loadAdminCompanies: async () => hoisted.companies,
     loadWebhookHealth: async () => hoisted.webhooks,
+    loadStuckEvents: async () => hoisted.stuck,
     loadOverrides: async () => hoisted.overrides,
+    replayStripeEvent: async (eventId: string, reason: string) => {
+      if (hoisted.replayError) throw new Error(hoisted.replayError);
+      hoisted.replays.push([eventId, reason]);
+    },
     isPlatformAdmin: async () => hoisted.admin,
     setFeatureOverride: async (_c: unknown, input: unknown) => {
       if (hoisted.setError) throw new Error(hoisted.setError);
@@ -57,16 +65,26 @@ const company = {
   estimateCount: 47, projectCount: 9,
 };
 
+const stuckEvent = {
+  eventId: 'evt_1', type: 'invoice.paid', receivedAt: '2026-09-01T10:00:00Z',
+  processingState: 'failed', processingError: 'timeout', attempts: 3,
+  livemode: true, companyId: 'c-1', companyName: 'Ridgeline Construction',
+  stripeCustomerId: 'cus_x', lastAttempt: null, attemptsByHand: 0, lastError: null,
+};
+
 describe('the operator console', () => {
   beforeEach(() => {
     hoisted.configured = true;
     hoisted.admin = true;
     hoisted.companies = [company];
     hoisted.webhooks = [];
+    hoisted.stuck = [];
     hoisted.overrides = [];
     hoisted.set = [];
     hoisted.cleared = [];
     hoisted.setError = null;
+    hoisted.replays = [];
+    hoisted.replayError = null;
   });
 
   it('lists tenants with what the operator needs to run the business', async () => {
@@ -108,15 +126,69 @@ describe('the operator console', () => {
   it('raises the alarm on a webhook that never finished', async () => {
     // A subscription that silently failed to activate is a customer who paid
     // and cannot use what they paid for.
-    hoisted.webhooks = [{
-      eventId: 'evt_1', type: 'invoice.paid', receivedAt: '2026-09-01T10:00:00Z',
-      processedAt: null, processingState: 'failed', processingError: 'timeout',
-      attempts: 3, livemode: true, unprocessed: true,
-    }];
+    hoisted.stuck = [stuckEvent];
     renderPage(<AdminCompanies />);
     await waitFor(() =>
       expect(screen.getByText(/1 Stripe event\(s\) arrived and never finished/)).toBeInTheDocument());
     expect(screen.getByText(/cannot use what they paid for/)).toBeInTheDocument();
+  });
+
+  it('will not replay an event without a reason', async () => {
+    /*
+     * A replay writes a customer's subscription and entitlement. The reason is
+     * required by the database too — this only stops somebody reaching a
+     * refusal they could have been spared.
+     */
+    hoisted.stuck = [stuckEvent];
+    renderPage(<AdminCompanies />);
+    await userEvent.click(await screen.findByRole('tab', { name: /stripe events/i }));
+    const button = await screen.findByRole('button', { name: /apply it again/i });
+    expect(button).toBeDisabled();
+
+    await userEvent.type(
+      screen.getByLabelText(/why you are applying it/i),
+      'Customer paid on the 3rd and has no access');
+    expect(button).toBeEnabled();
+  });
+
+  it('sends only the event id and the reason', async () => {
+    // Never a payload. What gets applied is read from the database inside the
+    // function, so this screen cannot influence what reaches a customer.
+    hoisted.stuck = [stuckEvent];
+    renderPage(<AdminCompanies />);
+    await userEvent.click(await screen.findByRole('tab', { name: /stripe events/i }));
+    await userEvent.type(
+      await screen.findByLabelText(/why you are applying it/i),
+      'Customer paid and has no access');
+    await userEvent.click(screen.getByRole('button', { name: /apply it again/i }));
+
+    await waitFor(() => expect(hoisted.replays).toHaveLength(1));
+    expect(hoisted.replays[0]).toEqual(['evt_1', 'Customer paid and has no access']);
+  });
+
+  it('says so when a replay fails rather than looking successful', async () => {
+    hoisted.stuck = [stuckEvent];
+    hoisted.replayError = 'Stripe returned 404 for that subscription';
+    renderPage(<AdminCompanies />);
+    await userEvent.click(await screen.findByRole('tab', { name: /stripe events/i }));
+    await userEvent.type(
+      await screen.findByLabelText(/why you are applying it/i),
+      'Another attempt at this one');
+    await userEvent.click(screen.getByRole('button', { name: /apply it again/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/Stripe returned 404/)).toBeInTheDocument());
+  });
+
+  it('shows what has already been tried by hand', async () => {
+    hoisted.stuck = [{
+      ...stuckEvent, attemptsByHand: 2,
+      lastAttempt: '2026-09-02T09:00:00Z',
+      lastError: 'Stripe returned 404 for that subscription',
+    }];
+    renderPage(<AdminCompanies />);
+    await userEvent.click(await screen.findByRole('tab', { name: /stripe events/i }));
+    expect(await screen.findByText(/Tried 2 times by hand/)).toBeInTheDocument();
   });
 
   it('filters the tenant list', async () => {

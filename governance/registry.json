@@ -126,6 +126,7 @@
     "schedule_of_values": "ENTITY",
     "services": "LIBRARY",
     "signup_attempts": "ENTITY",
+    "stripe_event_replays": "ENTITY",
     "stripe_events": "ENTITY",
     "submittals": "WORKFLOW",
     "subscription_items": "ENTITY",

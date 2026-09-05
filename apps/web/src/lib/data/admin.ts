@@ -11,6 +11,7 @@
  * So there is no permission check in this module. There is nothing here worth
  * hiding that the database does not already refuse to hand over.
  */
+import { callFunction } from '@/lib/supabase';
 import { unwrap, type Query } from './query';
 
 export interface AdminCompany {
@@ -988,3 +989,56 @@ export const loadFailedSignups: Query<FailedSignup[]> = async (client) => {
     hasAnAccountNow: Boolean(f.has_an_account_now),
   }));
 };
+
+// ---------------------------------------------------------------------------
+// Events that never landed
+// ---------------------------------------------------------------------------
+export interface StuckEvent {
+  eventId: string;
+  type: string;
+  receivedAt: string;
+  processingState: string;
+  processingError: string | null;
+  attempts: number;
+  livemode: boolean;
+  companyId: string | null;
+  companyName: string | null;
+  stripeCustomerId: string | null;
+  lastAttempt: string | null;
+  attemptsByHand: number;
+  lastError: string | null;
+}
+
+export const loadStuckEvents: Query<StuckEvent[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('admin_stuck_events')
+    .select('event_id, type, received_at, processing_state, processing_error, attempts, livemode, company_id, company_name, stripe_customer_id, last_attempt, attempts_by_hand, last_error')) as Array<Record<string, unknown>>;
+  return rows.map((e) => ({
+    eventId: String(e.event_id),
+    type: String(e.type),
+    receivedAt: String(e.received_at),
+    processingState: String(e.processing_state),
+    processingError: (e.processing_error as string | null) ?? null,
+    attempts: Number(e.attempts ?? 0),
+    livemode: Boolean(e.livemode),
+    companyId: (e.company_id as string | null) ?? null,
+    companyName: (e.company_name as string | null) ?? null,
+    stripeCustomerId: (e.stripe_customer_id as string | null) ?? null,
+    lastAttempt: (e.last_attempt as string | null) ?? null,
+    attemptsByHand: Number(e.attempts_by_hand ?? 0),
+    lastError: (e.last_error as string | null) ?? null,
+  }));
+};
+
+/**
+ * Apply a stored event again.
+ *
+ * The browser sends an event id and a reason and nothing else. The payload is
+ * read out of the database by the function, so nothing here can influence what
+ * gets applied to a customer.
+ */
+export async function replayStripeEvent(eventId: string, reason: string): Promise<void> {
+  await callFunction<{ replayed: boolean }>('replay-stripe-event', {
+    eventId, reason: reason.trim(),
+  });
+}

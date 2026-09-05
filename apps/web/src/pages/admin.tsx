@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Building2, ShieldAlert, Webhook, AlertTriangle, Loader2, Check, X, Search,
+  RotateCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +15,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadAdminCompanies, loadWebhookHealth, loadOverrides,
-  isPlatformAdmin, setFeatureOverride, clearFeatureOverride,
+  loadAdminCompanies, loadWebhookHealth, loadOverrides, loadStuckEvents,
+  isPlatformAdmin, setFeatureOverride, clearFeatureOverride, replayStripeEvent,
   type AdminCompany,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
@@ -45,10 +46,38 @@ export function AdminCompanies() {
   const companiesQ = useQuery(loadAdminCompanies, []);
   const webhooksQ = useQuery(loadWebhookHealth, []);
   const overridesQ = useQuery(loadOverrides, []);
+  const stuckQ = useQuery(loadStuckEvents, []);
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<AdminCompany | null>(null);
+  const [replaying, setReplaying] = useState<string | null>(null);
+  const [replayWhy, setReplayWhy] = useState<Record<string, string>>({});
+  const [replayError, setReplayError] = useState<string | null>(null);
+  const [replayed, setReplayed] = useState<string | null>(null);
+
+  const stuck = stuckQ.status === 'ready' ? stuckQ.data : [];
+
+  /**
+   * Apply a stored event again.
+   *
+   * Nothing is sent but the event id and the reason: the payload comes out of
+   * the database inside the function, so this button cannot influence what
+   * reaches a customer's subscription.
+   */
+  async function replay(eventId: string) {
+    setReplaying(eventId); setReplayError(null); setReplayed(null);
+    try {
+      await replayStripeEvent(eventId, replayWhy[eventId] ?? '');
+      setReplayed(eventId);
+      setReplayWhy({ ...replayWhy, [eventId]: '' });
+      stuckQ.refetch(); webhooksQ.refetch(); companiesQ.refetch();
+    } catch (err) {
+      setReplayError(err instanceof Error ? err.message
+        : 'That event could not be applied. The reason is recorded against it.');
+      stuckQ.refetch();
+    } finally { setReplaying(null); }
+  }
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) { setIsAdmin(false); return; }
@@ -71,7 +100,6 @@ export function AdminCompanies() {
       || (c.ownerEmail ?? '').toLowerCase().includes(q));
   }, [companies, filter]);
 
-  const stuck = webhooks.filter((w) => w.unprocessed);
 
   if (!isSupabaseConfigured) {
     return (
@@ -127,7 +155,9 @@ export function AdminCompanies() {
         <TabsList>
           <TabsTrigger value="companies">Companies ({companies.length})</TabsTrigger>
           <TabsTrigger value="overrides">Overrides ({overrides.length})</TabsTrigger>
-          <TabsTrigger value="webhooks">Webhooks ({webhooks.length})</TabsTrigger>
+          <TabsTrigger value="webhooks">
+            Stripe events{stuck.length ? ` (${stuck.length} stuck)` : ''}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies" className="space-y-4">
@@ -259,6 +289,90 @@ export function AdminCompanies() {
         </TabsContent>
 
         <TabsContent value="webhooks">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="size-4" />
+                Arrived and never finished ({stuck.length})
+              </CardTitle>
+              <CardDescription>
+                Each of these is a customer who may have paid and got nothing. Applying one
+                again re-runs the exact message Stripe sent, from the copy stored when it
+                arrived — nothing here supplies a payload, and an event that already
+                finished cannot be applied twice.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {replayError ? <Alert tone="danger">{replayError}</Alert> : null}
+              {replayed ? (
+                <Alert tone="success">
+                  {replayed} was applied. The customer&apos;s access now matches what Stripe
+                  says they bought.
+                </Alert>
+              ) : null}
+
+              {stuck.map((e) => (
+                <div key={e.eventId} className="rounded border border-danger-200 bg-danger-50/40 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-charcoal-900">
+                        {e.type}
+                        {!e.livemode ? (
+                          <Badge variant="default" className="ml-2">test</Badge>
+                        ) : null}
+                      </p>
+                      <p className="font-mono text-xs text-charcoal-500">{e.eventId}</p>
+                      <p className="mt-1 text-xs text-charcoal-600">
+                        {e.companyName ?? (
+                          <>
+                            No company resolved
+                            {e.stripeCustomerId ? ` — Stripe customer ${e.stripeCustomerId}` : ''}
+                          </>
+                        )}
+                        {' · arrived '}{dateTime(e.receivedAt)}
+                      </p>
+                      {e.processingError ? (
+                        <p className="mt-1 text-xs text-danger-700">{e.processingError}</p>
+                      ) : null}
+                      {e.attemptsByHand > 0 ? (
+                        <p className="mt-1 text-xs text-charcoal-500">
+                          Tried {e.attemptsByHand} time{e.attemptsByHand === 1 ? '' : 's'} by hand
+                          {e.lastAttempt ? `, last ${dateTime(e.lastAttempt)}` : ''}
+                          {e.lastError ? ` — ${e.lastError}` : ''}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`why-${e.eventId}`} className="text-xs">
+                        Why you are applying it
+                      </Label>
+                      <Input id={`why-${e.eventId}`} value={replayWhy[e.eventId] ?? ''}
+                        placeholder="Customer paid on the 3rd and still has no access"
+                        onChange={(ev) => setReplayWhy({ ...replayWhy, [e.eventId]: ev.target.value })} />
+                    </div>
+                    <div className="flex items-end">
+                      <Button disabled={replaying === e.eventId
+                        || (replayWhy[e.eventId] ?? '').trim().length < 5}
+                        onClick={() => replay(e.eventId)}>
+                        {replaying === e.eventId
+                          ? <Loader2 className="size-4 animate-spin" />
+                          : <RotateCw className="size-4" />}
+                        Apply it again
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {!stuck.length && stuckQ.status === 'ready' ? (
+                <EmptyState title="Every Stripe event has landed"
+                  hint="Nobody has paid and been left without access." />
+              ) : null}
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Stripe events</CardTitle>

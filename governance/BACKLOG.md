@@ -113,6 +113,26 @@ and the Stripe events for them that failed. No policy anywhere gained an
 `or app.is_platform_admin()`, and the operator still cannot read one estimate.
 Seventeen tests, most of them refusals.
 
+**A stuck payment can be fixed from the console.** Migration 0081. The dashboard
+has shown Stripe events that arrived and never finished since 0064, under a
+banner correctly saying what one means — a customer who paid and cannot use what
+they paid for — and offered no way to fix one. The instruction in the webhook
+function was "replay it from the Stripe dashboard", which works and requires the
+person holding the support ticket to have a Stripe login, which support staff
+should not have.
+
+`handleEvent` moved out of the webhook into `_shared/stripe-events.ts` so a
+replay runs the same code rather than a second implementation of it; a second
+one would diverge, and only on the events that had already failed once. The
+replay path can only re-apply a payload already stored — a payload only reaches
+`stripe_events` after its signature was verified — and refuses an event that
+already finished, because re-applying a processed one writes an old
+subscription over a newer one. `webhooks.retry` is its own permission, held by
+support and not by account managers: the person closing a renewal should not
+also be the one who can re-apply a payment. And the operator who asks for a
+replay cannot declare it successful — only service_role may finish one.
+17 tests.
+
 Still open: suspending a company, and a second operator approving a change to a
 paying customer's entitlement.
 

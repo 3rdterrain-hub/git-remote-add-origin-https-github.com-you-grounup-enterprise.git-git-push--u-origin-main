@@ -188,8 +188,8 @@ describe('ENTITY — stores business records', () => {
      */
     expect(withoutCompany.sort()).toEqual([
       'companies', 'enterprise_groups', 'network_ratings', 'network_vendors',
-      'plan_versions', 'platform_admins', 'signup_attempts', 'user_profiles',
-      'visit_events',
+      'plan_versions', 'platform_admins', 'signup_attempts',
+      'stripe_event_replays', 'user_profiles', 'visit_events',
     ]);
   });
 });
