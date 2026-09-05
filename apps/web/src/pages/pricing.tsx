@@ -53,6 +53,15 @@ export function PricingPage() {
 
   const price = (p: Plan) => (yearly ? p.yearlyCents / 12 : p.monthlyCents) / 100;
 
+  /*
+   * Whether checkout can charge the interval currently being shown. A plan can
+   * have a live monthly price and no annual one — which is the ordinary state
+   * while Stripe is being set up — and treating the plan as chargeable would
+   * put somebody who toggled to Annual into a checkout that fails at Stripe.
+   */
+  const canCharge = (p: Plan) =>
+    p.chargeable ? (yearly ? p.chargeable.year : p.chargeable.month) : true;
+
   return (
     <div className="min-h-full bg-white">
       <header className="sticky top-0 z-40 border-b border-charcoal-200 bg-white/95 backdrop-blur">
@@ -154,14 +163,14 @@ export function PricingPage() {
                   className="mt-5 w-full"
                   variant={p.highlight ? 'default' : p.contactSales ? 'outline' : 'dark'}
                   disabled={pending === p.id}
-                  onClick={() => (p.contactSales || price(p) === 0
+                  onClick={() => (p.contactSales || price(p) === 0 || !canCharge(p)
                     ? (window.location.href = 'mailto:sales@grounup.example')
                     : startCheckout(p.id))}
                 >
                   {pending === p.id ? <Loader2 className="size-4 animate-spin" /> : null}
-                  {p.contactSales || price(p) === 0 ? 'Contact sales'
+                  {p.contactSales || price(p) === 0 || !canCharge(p) ? 'Contact sales'
                     : p.trialDays ? `Start ${p.trialDays}-day trial` : 'Choose plan'}
-                  {!pending && !p.contactSales && price(p) > 0
+                  {!pending && !p.contactSales && price(p) > 0 && canCharge(p)
                     ? <ArrowRight className="size-4" /> : null}
                 </Button>
 

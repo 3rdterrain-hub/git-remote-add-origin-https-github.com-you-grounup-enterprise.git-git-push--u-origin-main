@@ -19,6 +19,15 @@ export interface Plan {
   highlight?: boolean;
   contactSales?: boolean;
   trialDays: number;
+  /**
+   * Whether checkout can actually charge this, per interval.
+   *
+   * Per interval rather than per plan, because they differ: a monthly price can
+   * be connected to Stripe while the annual one is not, and a page that treated
+   * the plan as chargeable would send somebody toggling to Annual into a
+   * checkout that fails at Stripe in front of them.
+   */
+  chargeable?: { month: boolean; year: boolean };
   headline: string[];
   limits: { estimates: string; projects: string; storage: string; ai: string };
 }
@@ -210,8 +219,13 @@ export async function loadPlanPrices(): Promise<Plan[]> {
        * a checkout that will fail at Stripe is the one outcome worse than not
        * quoting at all.
        */
-      contactSales: !(prices ?? []).some(
-        (d) => d.plan_id === p.id && d.is_chargeable) || known?.contactSales,
+      chargeable: {
+        month: (prices ?? []).some(
+          (d) => d.plan_id === p.id && d.interval === 'month' && d.is_chargeable),
+        year: (prices ?? []).some(
+          (d) => d.plan_id === p.id && d.interval === 'year' && d.is_chargeable),
+      },
+      contactSales: known?.contactSales,
       headline: known?.headline ?? splitDescription(String(p.description ?? '')),
       limits: {
         estimates: limit(p.max_active_estimates as number | null, 'active estimates'),
