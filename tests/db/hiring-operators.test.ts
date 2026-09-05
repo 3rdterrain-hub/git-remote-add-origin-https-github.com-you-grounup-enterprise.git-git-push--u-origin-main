@@ -139,6 +139,42 @@ describe('hiring operators', () => {
     });
   });
 
+  describe('reading the list of operators', () => {
+    it('answers in one query, with the email attached', async () => {
+      /*
+       * The console asked PostgREST to embed `user_profiles` inside
+       * `platform_admins`, and there is no foreign key between them —
+       * `platform_admins.user_id` references `auth.users`, which is correct and
+       * not something the client can follow. Every call returned a
+       * schema-cache error, and it went unnoticed because the screen it was on
+       * put the list third, under two things that worked.
+       */
+      const rows = await h.asUser(boss, () => h.sql<{
+        email: string; role_key: string; role_name: string; active: boolean;
+      }>(`select email, role_key, role_name, active from admin_operators`));
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.some((r) => r.email === 'boss@grounup.test')).toBe(true);
+      expect(rows.every((r) => r.role_name !== null)).toBe(true);
+    });
+
+    it('says what each of them may actually do', async () => {
+      const [r] = await h.asUser(boss, () => h.sql<{ permissions: string[] }>(
+        `select permissions from admin_operators where email = 'boss@grounup.test'`));
+      expect(r!.permissions).toContain('*');
+    });
+
+    it('shows somebody who is not an operator nothing', async () => {
+      const stranger = '99999999-0000-4000-8000-000000000001';
+      await h.sql(`insert into auth.users (id, email) values ($1,'nobody@elsewhere.test')`,
+        [stranger]);
+      await h.sql(`insert into user_profiles (id, email)
+                   values ($1,'nobody@elsewhere.test') on conflict (id) do nothing`,
+        [stranger]);
+      const rows = await h.asUser(stranger, () => h.sql(`select id from admin_operators`));
+      expect(rows).toHaveLength(0);
+    });
+  });
+
   describe('letting somebody go', () => {
     it('withdraws access, and it stops working immediately', async () => {
       expect((await h.asUser(hire, () => h.sql(`select 1 from admin_companies`))).length)

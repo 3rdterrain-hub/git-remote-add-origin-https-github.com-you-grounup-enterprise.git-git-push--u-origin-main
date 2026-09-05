@@ -173,29 +173,39 @@ export interface Operator {
   role: OperatorRole;
   /** Which platform role they hold, and therefore what they may do. */
   roleKey: string;
+  roleName: string | null;
   reason: string;
   grantedAt: string;
   revokedAt: string | null;
+  /** When they last did anything, so a list of people says who is using it. */
+  lastActionAt: string | null;
 }
 
+/**
+ * Everybody who operates this platform.
+ *
+ * Reads a view rather than embedding `user_profiles` inside `platform_admins`.
+ * There is no foreign key between them — `platform_admins.user_id` references
+ * `auth.users`, which is the right reference and not one PostgREST can follow
+ * — so the embed had never worked, and returned a schema-cache error every
+ * time it was called.
+ */
 export const loadOperators: Query<Operator[]> = async (client) => {
   const rows = unwrap(await client
-    .from('platform_admins')
-    .select('id, user_id, role, role_key, reason, granted_at, revoked_at, user_profiles(email)')
-    .order('granted_at', { ascending: false })) as Array<Record<string, unknown>>;
-  return rows.map((o) => {
-    const p = o.user_profiles as { email?: string } | Array<{ email?: string }> | null;
-    const one = Array.isArray(p) ? p[0] : p;
-    return {
-      id: String(o.id), userId: String(o.user_id),
-      email: one?.email ?? null,
-      role: o.role as OperatorRole,
-      roleKey: String(o.role_key ?? o.role),
-      reason: String(o.reason),
-      grantedAt: String(o.granted_at),
-      revokedAt: (o.revoked_at as string | null) ?? null,
-    };
-  });
+    .from('admin_operators')
+    .select('id, user_id, email, role, role_key, role_name, reason, granted_at, revoked_at, last_action_at')) as Array<Record<string, unknown>>;
+  return rows.map((o) => ({
+    id: String(o.id),
+    userId: String(o.user_id),
+    email: (o.email as string | null) ?? null,
+    role: o.role as OperatorRole,
+    roleKey: String(o.role_key ?? o.role),
+    roleName: (o.role_name as string | null) ?? null,
+    reason: String(o.reason),
+    grantedAt: String(o.granted_at),
+    revokedAt: (o.revoked_at as string | null) ?? null,
+    lastActionAt: (o.last_action_at as string | null) ?? null,
+  }));
 };
 
 export interface UpsellPotential {

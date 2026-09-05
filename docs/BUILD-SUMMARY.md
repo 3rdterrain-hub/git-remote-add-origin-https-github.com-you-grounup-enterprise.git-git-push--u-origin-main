@@ -6,14 +6,14 @@
 |---|---:|---:|
 | Estimating engine (source + tests) | 43 | ~12,800 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (95 files, 161 tables, 60 views) | 95 | ~23,900 |
+| Database migrations (96 files, 161 tables, 61 views) | 96 | ~23,900 |
 | Edge Functions + shared modules | 57 | ~8,700 |
 | Database & function tests | 77 | ~18,800 |
 | Governance & traceability tests | 6 | ~2,800 |
 | Web application (48 routes, 24 app screens) | 137 | ~29,700 |
 | Documentation | 14 | ~5,300 |
 | Seed & tooling | 8 | ~1,900 |
-| **Total hand-written** | **445** | **~105,600** |
+| **Total hand-written** | **446** | **~105,700** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
