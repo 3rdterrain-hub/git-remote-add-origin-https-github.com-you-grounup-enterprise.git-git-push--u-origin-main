@@ -64,6 +64,8 @@ begin
   if p_unit_amount_cents is null or p_unit_amount_cents < 0 then
     raise exception 'A price must be zero or more' using errcode = 'check_violation';
   end if;
+  -- Migration 0071 relaxes this: a price may be decided before Stripe is
+  -- connected, and is marked not yet chargeable until it is.
   if p_stripe_price_id is null or length(trim(p_stripe_price_id)) = 0 then
     raise exception 'A price needs the Stripe price it corresponds to'
       using errcode = 'check_violation',

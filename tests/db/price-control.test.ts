@@ -109,11 +109,43 @@ describe('price control and the first operator', () => {
       expect(active[0]!.unit_amount_cents).toBe(24900);
     });
 
-    it('refuses a price with no Stripe price behind it', async () => {
-      // Quoting a number checkout cannot charge is worse than quoting none.
-      await expect(h.asUser(first, () => h.sql(
-        `select app.set_plan_price('grounup','year',199000,'')`)))
-        .rejects.toThrow(/needs the Stripe price/);
+    it('accepts a price decided before Stripe is connected', async () => {
+      /*
+       * Deciding what to charge and wiring up payments are separate acts that
+       * happen in that order. Migration 0070 refused this, protecting the wrong
+       * thing: a customer is harmed by a checkout that fails, not by a
+       * published number.
+       */
+      await h.asUser(first, () => h.sql(
+        `select app.set_plan_price('grounup','year',199000)`));
+      const [p] = await h.asUser(first, () => h.sql<{
+        unit_amount_cents: number; stripe_price_id: string | null; is_chargeable: boolean;
+      }>(`select unit_amount_cents, stripe_price_id, is_chargeable from plan_prices
+           where plan_id='grounup' and interval='year' and is_active`));
+      expect(p!.unit_amount_cents).toBe(199000);
+      expect(p!.stripe_price_id).toBeNull();
+      expect(p!.is_chargeable).toBe(false);
+    });
+
+    it('becomes chargeable the moment a Stripe id is pasted in', async () => {
+      // Derived from whether the id exists, so it cannot be forgotten.
+      await h.asUser(first, () => h.sql(
+        `select app.set_plan_price('grounup','year',199000,'price_live_yearly')`));
+      const [p] = await h.asUser(first, () => h.sql<{ is_chargeable: boolean }>(
+        `select is_chargeable from plan_prices
+          where plan_id='grounup' and interval='year' and is_active`));
+      expect(p!.is_chargeable).toBe(true);
+    });
+
+    it('treats whitespace as no Stripe id rather than as one', async () => {
+      await h.asUser(first, () => h.sql(
+        `select app.set_plan_price('grounup','year',199000,'   ')`));
+      const [p] = await h.asUser(first, () => h.sql<{
+        stripe_price_id: string | null; is_chargeable: boolean;
+      }>(`select stripe_price_id, is_chargeable from plan_prices
+           where plan_id='grounup' and interval='year' and is_active`));
+      expect(p!.stripe_price_id).toBeNull();
+      expect(p!.is_chargeable).toBe(false);
     });
 
     it('refuses an interval nobody bills on', async () => {
@@ -155,6 +187,7 @@ describe('price control and the first operator', () => {
         `select new_state, actor_id from audit_events
           where entity_table = 'public.plan_prices'
             and reason = 'Price published from the operator console'
+            and new_state->>'interval' = 'month'
           order by occurred_at desc limit 1`);
       expect(rows[0]!.new_state).toMatchObject({ plan: 'grounup', cents: 24900 });
       expect(rows[0]!.actor_id).toBe(first);

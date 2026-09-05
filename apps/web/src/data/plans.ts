@@ -176,7 +176,7 @@ export async function loadPlanPrices(): Promise<Plan[]> {
       .eq('is_public', true).eq('is_active', true)
       .order('sort_order'),
     supabase.from('plan_prices')
-      .select('plan_id, interval, unit_amount_cents, is_active')
+      .select('plan_id, interval, unit_amount_cents, is_active, is_chargeable')
       .eq('is_active', true),
   ]);
 
@@ -204,6 +204,14 @@ export async function loadPlanPrices(): Promise<Plan[]> {
       seats: p.max_seats === null ? 'Per user, per month' : `Up to ${p.max_seats} users`,
       trialDays: Number(p.trial_days ?? 0),
       highlight: catalog.length === 1 ? true : known?.highlight,
+      /*
+       * A price that is real but not yet chargeable — decided before Stripe was
+       * connected — shows the number and routes to sales. Sending somebody into
+       * a checkout that will fail at Stripe is the one outcome worse than not
+       * quoting at all.
+       */
+      contactSales: !(prices ?? []).some(
+        (d) => d.plan_id === p.id && d.is_chargeable) || known?.contactSales,
       headline: known?.headline ?? splitDescription(String(p.description ?? '')),
       limits: {
         estimates: limit(p.max_active_estimates as number | null, 'active estimates'),
