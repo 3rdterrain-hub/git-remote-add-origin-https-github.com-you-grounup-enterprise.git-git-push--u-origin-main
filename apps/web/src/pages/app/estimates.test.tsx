@@ -214,15 +214,21 @@ describe('the estimating screen', () => {
       await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
     });
 
-    it('leaves a tile counting nothing inert rather than filtering to an empty table', async () => {
+    it('responds even when it counts nothing, and says the list is empty', async () => {
+      /*
+       * These were left inert, which was defensible and wrong in practice: an
+       * inert tile looks exactly like a working one, so a screen where two of
+       * five respond reads as a screen where none of them do. Filtering to an
+       * empty table is a better answer than a control that ignores the press.
+       */
       hoisted.rows = [estimate()];
       renderPage(<EstimatesPage />);
       await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
-      /* Nothing is blocked and nothing has expired, so neither offers a click. */
-      expect(screen.queryByRole('button',
-        { name: /show the estimates the engine has blocked/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button',
-        { name: /show the estimates whose price has expired/i })).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button',
+        { name: /show the estimates the engine has blocked/i }));
+      expect(await screen.findByText('No estimates match those filters')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
     });
   });
 

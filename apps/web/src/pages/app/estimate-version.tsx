@@ -25,7 +25,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertTriangle, ArrowLeft, Calculator, CheckCircle2,
   Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck,
-  BookmarkPlus, GitBranch, GripVertical, Wrench,
+  BookmarkPlus, GitBranch, GripVertical, Trash2, Wrench, X,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
@@ -49,7 +49,7 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
-  issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines,
+  issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
@@ -535,6 +535,8 @@ function LineTable({
   /** The line being dragged, and the one it is currently hovering after. */
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
+  /** The line whose delete is asking a second time. */
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   const commit = async (lineId: string, next: number, expression: string | null) => {
     setSaving(lineId); setError(null);
@@ -561,6 +563,14 @@ function LineTable({
     try { await moveLine(supabase, moved, afterLineId); onChanged(); }
     catch (err) { setError(messageFor(err)); }
     finally { setSaving(null); }
+  };
+
+  const remove = async (line: LineRow) => {
+    if (!supabase) return;
+    setSaving(line.id); setError(null);
+    try { await deleteLine(supabase, line.id); onChanged(); }
+    catch (err) { setError(messageFor(err)); }
+    finally { setSaving(null); setConfirming(null); }
   };
 
   const toggleVisible = async (line: LineRow) => {
@@ -629,44 +639,28 @@ function LineTable({
                   onDragOver={editable ? (e) => { e.preventDefault(); setOver(l.id); } : undefined}
                   onDrop={editable ? (e) => { e.preventDefault(); void drop(l.id); } : undefined}
                 >
+                  {/*
+                    * Only the grip lives at the start of the row. A drag handle
+                    * has to be where the row begins to be findable; everything
+                    * else the row can do is one cluster at the other end, so an
+                    * estimator's eye travels once rather than across the table
+                    * and back.
+                    */}
                   <TableCell className="align-top">
-                    <div className="flex items-center gap-0.5">
-                      {editable ? (
-                        <span
-                          draggable
-                          onDragStart={() => setDragging(l.id)}
-                          onDragEnd={() => { setDragging(null); setOver(null); }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Drag to reorder ${l.description}`}
-                          title="Drag to reorder"
-                          className="cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
-                        >
-                          <GripVertical className="size-4" />
-                        </span>
-                      ) : null}
-                      {/*
-                        * A wrench rather than a chevron. The row shows what the
-                        * line costs; what it is built from — the crew, the
-                        * machines, the material and the haul — sits behind one
-                        * click, because a table that showed all of it for every
-                        * line would be unreadable at twenty lines.
-                        */}
-                      <button
-                        onClick={() => setOpen((o) =>
-                          o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
-                        aria-label={expanded
-                          ? `Hide the crew, equipment, material and haul on ${l.description}`
-                          : `Crew, equipment, material and haul on ${l.description}`}
-                        title="Crew, equipment, material and haul"
-                        aria-expanded={expanded}
-                        className={cn(
-                          'rounded p-1 hover:bg-charcoal-100 hover:text-charcoal-900',
-                          expanded ? 'bg-charcoal-100 text-charcoal-900' : 'text-charcoal-500',
-                        )}>
-                        <Wrench className="size-4" />
-                      </button>
-                    </div>
+                    {editable ? (
+                      <span
+                        draggable
+                        onDragStart={() => setDragging(l.id)}
+                        onDragEnd={() => { setDragging(null); setOver(null); }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Drag to reorder ${l.description}`}
+                        title="Drag to reorder"
+                        className="inline-flex cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
+                      >
+                        <GripVertical className="size-4" />
+                      </span>
+                    ) : null}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-start gap-1.5">
@@ -741,17 +735,25 @@ function LineTable({
                         : l.confidenceBand === 'high' ? 'success' : 'warn'}>
                         {titleCase(l.confidenceBand)}
                       </Badge>
-                      {editable ? (
-                        <button onClick={() => toggleVisible(l)}
-                          aria-label={l.clientVisible
-                            ? `Hide ${l.description} from the proposal`
-                            : `Show ${l.description} on the proposal`}
-                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
-                                     hover:text-charcoal-900">
-                          {l.clientVisible ? <Eye className="size-3.5" />
-                                           : <EyeOff className="size-3.5" />}
-                        </button>
-                      ) : null}
+                      {/*
+                        * Everything this row can do, together: what it is built
+                        * from, a line under it, whether the customer sees it,
+                        * and taking it off.
+                        */}
+                      <button
+                        onClick={() => setOpen((o) =>
+                          o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
+                        aria-label={expanded
+                          ? `Hide the crew, equipment, material and haul on ${l.description}`
+                          : `Crew, equipment, material and haul on ${l.description}`}
+                        title="Crew, equipment, material and haul"
+                        aria-expanded={expanded}
+                        className={cn(
+                          'rounded p-1 hover:bg-charcoal-100 hover:text-charcoal-900',
+                          expanded ? 'bg-charcoal-100 text-charcoal-900' : 'text-charcoal-400',
+                        )}>
+                        <Wrench className="size-3.5" />
+                      </button>
                       {editable && onAddAfter ? (
                         <button onClick={() => onAddAfter(l.id)}
                           aria-label={`Add a line under ${l.description}`}
@@ -760,6 +762,44 @@ function LineTable({
                                      hover:text-charcoal-900">
                           <Plus className="size-3.5" />
                         </button>
+                      ) : null}
+                      {editable ? (
+                        <button onClick={() => toggleVisible(l)}
+                          aria-label={l.clientVisible
+                            ? `Hide ${l.description} from the proposal`
+                            : `Show ${l.description} on the proposal`}
+                          title={l.clientVisible
+                            ? 'The customer sees this line'
+                            : 'Hidden from the proposal, still priced'}
+                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
+                                     hover:text-charcoal-900">
+                          {l.clientVisible ? <Eye className="size-3.5" />
+                                           : <EyeOff className="size-3.5" />}
+                        </button>
+                      ) : null}
+                      {editable ? (
+                        confirming === l.id ? (
+                          <span className="flex items-center gap-1">
+                            <button onClick={() => remove(l)} disabled={saving === l.id}
+                              aria-label={`Confirm removing ${l.description}`}
+                              className="rounded bg-danger-600 px-1.5 py-1 text-xs font-medium text-white hover:bg-danger-700">
+                              {saving === l.id ? 'Removing' : 'Remove'}
+                            </button>
+                            <button onClick={() => setConfirming(null)}
+                              aria-label="Keep this line"
+                              className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100">
+                              <X className="size-3.5" />
+                            </button>
+                          </span>
+                        ) : (
+                          <button onClick={() => setConfirming(l.id)}
+                            aria-label={`Remove ${l.description}`}
+                            title="Remove this line"
+                            className="rounded p-1 text-charcoal-400 hover:bg-danger-50
+                                       hover:text-danger-700">
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        )
                       ) : null}
                     </div>
                   </TableCell>
@@ -839,6 +879,16 @@ function AddLinesDialog({
   const results = services.status === 'ready' ? services.data : [];
   const isPicked = (id: string) => picked.some((p) => p.id === id);
 
+  /* Results by category, in the order the categories first appear. */
+  const grouped = (() => {
+    const byCategory = new Map<string, LibraryService[]>();
+    for (const s of results) {
+      const key = s.category ?? 'Uncategorized';
+      byCategory.set(key, [...(byCategory.get(key) ?? []), s]);
+    }
+    return [...byCategory.entries()];
+  })();
+
   const toggle = (s: LibraryService) => {
     setPicked((p) => isPicked(s.id) ? p.filter((x) => x.id !== s.id) : [...p, s]);
   };
@@ -868,7 +918,12 @@ function AddLinesDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
-      <DialogContent className="max-w-2xl">
+      {/*
+        * Wide, and tall. This is a window onto 860 services in 82 categories —
+        * a dialog sized for a form makes an estimator scroll a six-row porthole
+        * through a catalog.
+        */}
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Add from the library</DialogTitle>
           <DialogDescription>
@@ -898,32 +953,46 @@ function AddLinesDialog({
             </div>
           </div>
 
-          <div className="max-h-64 overflow-y-auto rounded-lg border border-charcoal-200">
+          <div className="max-h-[26rem] overflow-y-auto rounded-lg border border-charcoal-200">
             {services.status === 'loading' ? (
               <div className="p-4"><LoadingState label="Searching the library" /></div>
             ) : results.length === 0 ? (
               <p className="p-3 text-sm text-charcoal-500">
                 Nothing matched. Narrow the category, or add a line of your own from the table.
               </p>
-            ) : results.map((s) => (
-              <label key={s.id}
-                className={cn(
-                  'flex w-full cursor-pointer items-center gap-3 border-b border-charcoal-100 px-3 py-2 last:border-0',
-                  isPicked(s.id) ? 'bg-yellow-50' : 'hover:bg-charcoal-50',
-                )}>
-                <input type="checkbox" checked={isPicked(s.id)} onChange={() => toggle(s)}
-                  aria-label={`Add ${s.name}`}
-                  className="size-4 shrink-0 accent-yellow-500" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-charcoal-900">{s.name}</span>
-                  <span className="block text-xs text-charcoal-500">
-                    {s.code}{s.category ? ` · ${s.category}` : ''}
+            ) : grouped.map(([category, rows]) => (
+              <Fragment key={category}>
+                {/*
+                  * Grouped the way the library is organized. A flat list of
+                  * fifty services from six trades makes an estimator read every
+                  * row to find the two that belong to the work in front of them.
+                  */}
+                <p className="sticky top-0 z-10 border-b border-charcoal-200 bg-charcoal-50 px-3 py-1.5
+                              text-[11px] font-semibold uppercase tracking-[0.12em] text-charcoal-600">
+                  {category}
+                  <span className="ml-1.5 font-normal normal-case tracking-normal text-charcoal-400">
+                    {rows.length}
                   </span>
-                </span>
-                <Badge variant={s.isOwn ? 'info' : 'default'}>
-                  {s.isOwn ? 'yours' : s.defaultUnit}
-                </Badge>
-              </label>
+                </p>
+                {rows.map((s) => (
+                  <label key={s.id}
+                    className={cn(
+                      'flex w-full cursor-pointer items-center gap-3 border-b border-charcoal-100 px-3 py-2 last:border-0',
+                      isPicked(s.id) ? 'bg-yellow-50' : 'hover:bg-charcoal-50',
+                    )}>
+                    <input type="checkbox" checked={isPicked(s.id)} onChange={() => toggle(s)}
+                      aria-label={`Add ${s.name}`}
+                      className="size-4 shrink-0 accent-yellow-500" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-charcoal-900">{s.name}</span>
+                      <span className="block text-xs text-charcoal-500">{s.code}</span>
+                    </span>
+                    <Badge variant={s.isOwn ? 'info' : 'default'}>
+                      {s.isOwn ? 'yours' : s.defaultUnit}
+                    </Badge>
+                  </label>
+                ))}
+              </Fragment>
             ))}
           </div>
 

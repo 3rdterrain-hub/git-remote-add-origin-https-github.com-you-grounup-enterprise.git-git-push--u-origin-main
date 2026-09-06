@@ -125,28 +125,30 @@ export function EstimatesPage() {
       {all ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {/*
-            * Each tile shows what it counts. A tile counting nothing is left
-            * inert rather than made into a button that would filter the list
-            * down to an empty table.
+            * Every tile responds, including one counting nothing. Leaving those
+            * inert was defensible and wrong in practice: an inert tile looks
+            * exactly like a working one, so a screen where two of five respond
+            * reads as a screen where none of them do. Filtering to an empty
+            * table is fine — the table says so, and offers to clear it.
             */}
           <StatTile label="Estimates" value={all.length} hint="all statuses"
             active={status === 'all'} actionLabel="Show every estimate"
-            onClick={all.length ? () => setStatus('all') : undefined} />
+            onClick={() => setStatus('all')} />
           <StatTile label="Live value" value={moneyCompact(liveValue)}
             hint="draft, in review, approved and issued"
             active={status === 'live'} actionLabel="Show the estimates still in play"
-            onClick={liveValue > 0 ? () => setStatus('live') : undefined} />
+            onClick={() => setStatus('live')} />
           <StatTile label="Blocked from issue" value={blocked} tone={blocked ? 'danger' : 'success'}
             hint="the engine has not cleared these to bid"
             active={status === 'blocked'} actionLabel="Show the estimates the engine has blocked"
-            onClick={blocked ? () => setStatus('blocked') : undefined} />
+            onClick={() => setStatus('blocked')} />
           <StatTile label="Expired" value={expired} tone={expired ? 'danger' : undefined}
             icon={<CalendarClock className="size-4" />}
             hint={expiringSoon > 0
               ? `${expiringSoon} more within a week`
               : 'prices that have stopped being good'}
             active={status === 'expired'} actionLabel="Show the estimates whose price has expired"
-            onClick={expired ? () => setStatus('expired') : undefined} />
+            onClick={() => setStatus('expired')} />
           <StatTile
             label="Win rate"
             value={decidedValue > 0 ? `${Math.round((wonValue / decidedValue) * 100)}%` : '—'}
@@ -155,7 +157,7 @@ export function EstimatesPage() {
               ? `by value, across ${decided.length} decided ${decided.length === 1 ? 'bid' : 'bids'}`
               : 'nothing awarded or lost yet'}
             active={status === 'decided'} actionLabel="Show the bids that were won or lost"
-            onClick={decided.length ? () => setStatus('decided') : undefined} />
+            onClick={() => setStatus('decided')} />
         </div>
       ) : null}
 

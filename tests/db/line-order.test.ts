@@ -300,4 +300,61 @@ describe('a line where you are looking', () => {
     });
   });
 
+
+  describe('taking a line back off', () => {
+    it('removes it and renumbers what is left', async () => {
+      await h.asUser(chief, () => h.sql(
+        `delete from estimate_line_items where estimate_version_id = $1`, [version]));
+      const a = await add('Keep A');
+      const b = await add('Remove me');
+      await add('Keep B');
+
+      const [r] = await asChief<{ n: number }>(
+        `select app.delete_estimate_line($1) as n`, [b]);
+      expect(Number(r!.n)).toBe(1);
+      expect(await order()).toEqual(['Keep A', 'Keep B']);
+
+      const rows = await asChief<{ sort_order: number }>(
+        `select sort_order from estimate_line_items
+          where estimate_version_id = $1 order by sort_order`, [version]);
+      expect(rows.map((x) => Number(x.sort_order))).toEqual([10, 20]);
+      expect(a).toBeDefined();
+    });
+
+    it('takes anything beneath it, so a sub-line is never orphaned', async () => {
+      const parent = await add('Parent');
+      const child = (await asChief<{ id: string }>(
+        `select app.add_estimate_line($1,null,'Child',1,'CY') as id`, [version]))[0]!.id;
+      await asChief(`update estimate_line_items set parent_line_id = $2 where id = $1`,
+        [child, parent]);
+
+      const [r] = await asChief<{ n: number }>(
+        `select app.delete_estimate_line($1) as n`, [parent]);
+      expect(Number(r!.n)).toBe(2);
+      const [left] = await asChief<{ c: string }>(
+        `select count(*) as c from estimate_line_items where id in ($1,$2)`, [parent, child]);
+      expect(Number(left!.c)).toBe(0);
+    });
+
+    it('refuses on a version that is no longer open', async () => {
+      const e = (await asChief<{ id: string }>(
+        `select app.create_estimate('Frozen delete', null, null, null, $1) as id`,
+        [company]))[0]!.id;
+      const v = (await asChief<{ v: string }>(
+        `select current_version_id as v from estimates where id = $1`, [e]))[0]!.v;
+      const l = (await asChief<{ id: string }>(
+        `select app.add_estimate_line($1,null,'Only line',1,'CY') as id`, [v]))[0]!.id;
+      await h.asService(() => h.sql(
+        `update estimate_versions set status = 'archived' where id = $1`, [v]));
+      await expect(asChief(`select app.delete_estimate_line($1)`, [l]))
+        .rejects.toThrow(/make a new version/i);
+    });
+
+    it('refuses a line that is not there', async () => {
+      await expect(asChief(
+        `select app.delete_estimate_line('00000000-0000-4000-8000-00000000dead')`))
+        .rejects.toThrow(/no such estimate line/i);
+    });
+  });
+
 });

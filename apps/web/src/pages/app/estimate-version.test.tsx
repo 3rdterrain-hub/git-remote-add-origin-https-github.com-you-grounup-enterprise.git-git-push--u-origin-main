@@ -26,6 +26,7 @@ const hoisted = vi.hoisted(() => ({
   navigated: [] as string[],
   moved: [] as Array<{ line: string; after: string | null }>,
   inserted: [] as Array<Record<string, unknown>>,
+  deleted: [] as string[],
   services: [] as Array<Record<string, unknown>>,
   added: [] as Array<Record<string, unknown>>,
   batches: [] as Array<Record<string, unknown>>,
@@ -69,6 +70,7 @@ vi.mock('@/lib/data/estimates', async () => {
       hoisted.batches.push(input);
       return ['l-a', 'l-b'];
     },
+    deleteLine: async (_c: unknown, id: string) => { hoisted.deleted.push(id); return 1; },
     updateVersion: async (_c: unknown, _v: string, fields: Record<string, unknown>) => {
       hoisted.updated.push(fields);
     },
@@ -128,6 +130,7 @@ describe('the estimate workspace', () => {
     hoisted.updated = []; hoisted.revised = []; hoisted.navigated = [];
     hoisted.moved = []; hoisted.inserted = [];
     hoisted.services = []; hoisted.added = []; hoisted.batches = [];
+    hoisted.deleted = [];
   });
 
   it('shows the engine result and says which build produced it', async () => {
@@ -565,6 +568,118 @@ describe('the estimate workspace', () => {
       renderPage(<EstimateVersionPage />);
       await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
       expect(await screen.findByText(/quantities start at zero/i)).toBeInTheDocument();
+    });
+  });
+
+
+  // -------------------------------------------------------------------------
+  describe('taking a line off', () => {
+    const twoLines = () => version({
+      lines: [
+        line({ id: 'l-1', description: 'Strip and stockpile topsoil' }),
+        line({ id: 'l-2', description: 'Rock removal' }),
+      ],
+    });
+
+    it('asks a second time rather than removing on one press', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i }));
+      expect(hoisted.deleted).toEqual([]);
+      expect(await screen.findByRole('button',
+        { name: /confirm removing Strip and stockpile topsoil/i })).toBeInTheDocument();
+    });
+
+    it('removes it once confirmed', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i }));
+      await userEvent.click(screen.getByRole('button',
+        { name: /confirm removing Strip and stockpile topsoil/i }));
+      await waitFor(() => expect(hoisted.deleted).toEqual(['l-1']));
+    });
+
+    it('lets the line be kept after all', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i }));
+      await userEvent.click(screen.getByRole('button', { name: /keep this line/i }));
+      await waitFor(() => expect(screen.getByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i })).toBeInTheDocument());
+      expect(hoisted.deleted).toEqual([]);
+    });
+
+    it('offers no removal on a version that is frozen', async () => {
+      hoisted.version = version({
+        status: 'approved', approvedAt: '2026-09-02T00:00:00Z',
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByRole('button',
+        { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i }))
+        .toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: /^Remove /i })).not.toBeInTheDocument();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  describe('every control this row has, in one place', () => {
+    it('keeps the wrench, the plus, the eye and the remove together', async () => {
+      hoisted.version = version({
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      const wrench = await screen.findByRole('button',
+        { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i });
+      const cell = wrench.closest('td')!;
+      /*
+       * One cluster, so an estimator's eye travels once. The grip stays at the
+       * start of the row because a drag handle has to be where the row begins.
+       */
+      for (const name of [
+        /add a line under Strip and stockpile topsoil/i,
+        /(hide|show) Strip and stockpile topsoil (from|on) the proposal/i,
+        /^Remove Strip and stockpile topsoil$/i,
+      ]) {
+        expect(within(cell).getByRole('button', { name })).toBeInTheDocument();
+      }
+      expect(within(cell).queryByRole('button', { name: /drag to reorder/i })).toBeNull();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  describe('shopping the library with room to work', () => {
+    it('groups what it found by category', async () => {
+      hoisted.version = version({ lines: [line()] });
+      hoisted.services = [
+        { id: 's-1', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+        { id: 's-2', code: 'SVC-0007', name: 'Rock excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+        { id: 's-3', code: 'SVC-0050', name: 'Storm sewer installation', category: 'Utilities',
+          defaultUnit: 'LF', supportedUnits: ['LF'], isOwn: false },
+      ];
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
+      const dialog = await screen.findByRole('dialog');
+      expect(await within(dialog).findByText('Earthwork')).toBeInTheDocument();
+      expect(within(dialog).getByText('Utilities')).toBeInTheDocument();
+    });
+
+    it('files a service with no category rather than dropping it', async () => {
+      hoisted.version = version({ lines: [line()] });
+      hoisted.services = [
+        { id: 's-1', code: 'SVC-X', name: 'Something of your own', category: null,
+          defaultUnit: 'LS', supportedUnits: ['LS'], isOwn: true },
+      ];
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
+      const dialog = await screen.findByRole('dialog');
+      expect(await within(dialog).findByText('Uncategorized')).toBeInTheDocument();
+      expect(within(dialog).getByText('Something of your own')).toBeInTheDocument();
     });
   });
 

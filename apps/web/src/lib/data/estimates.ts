@@ -876,6 +876,20 @@ export async function addLines(
   });
 }
 
+/**
+ * Take a line off an open estimate.
+ *
+ * Returns how many rows went, counting anything beneath it, so the screen can
+ * say what happened rather than guess. A line accepted from an AI finding
+ * returns that finding to `proposed`, so the quantity can be reconsidered
+ * instead of being stuck accepted against a row that no longer exists.
+ */
+export async function deleteLine(
+  client: RpcCapable, lineId: string,
+): Promise<number> {
+  return rpc<number>(client, 'delete_estimate_line', { p_line: lineId });
+}
+
 /** Move a line among the lines it sits beside. Null puts it first. */
 export async function moveLine(
   client: RpcCapable, lineId: string, afterLineId: string | null,
