@@ -59,7 +59,10 @@ const LINE_SELECT =
 
 const RESOURCE_SELECT =
   'id, line_item_id, resource_kind, description, quantity, unit, unit_rate, hours, headcount, ' +
-  'quote_reference, ' +
+  'quote_reference, sort_order, role, drives_hours, production_per_hour, base_rate, ' +
+  'burden_rate, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, ' +
+  'haul_mode, round_trip_miles, average_speed_mph, truck_capacity, tons_per_load, ' +
+  'load_minutes, dump_minutes, queue_minutes, includes_disposal, ' +
   'equipment(id, name, equipment_class, fuel_gallons_per_hour, def_percent_of_fuel, ' +
   'operator_required, mobilization_required, mobilization_cost, ' +
   'equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, ' +

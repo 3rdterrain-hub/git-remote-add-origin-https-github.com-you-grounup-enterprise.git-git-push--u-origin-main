@@ -65,6 +65,12 @@ const equipmentResource = (over: Partial<ResourceRow> = {}): ResourceRow => ({
   id: 'res-1', line_item_id: 'line-1', resource_kind: 'equipment',
   description: null, quantity: '1', unit: 'HR', unit_rate: '0', hours: '0',
   headcount: null, quote_reference: null,
+  sort_order: 0, role: null, drives_hours: null, production_per_hour: null,
+  base_rate: null, burden_rate: null, rate_basis: 'hour',
+  mobilization_cost: '0', standby_days: '0', minimum_hours: null, is_owned: true,
+  haul_mode: 'hours', round_trip_miles: null, average_speed_mph: null,
+  truck_capacity: null, tons_per_load: null, load_minutes: null,
+  dump_minutes: null, queue_minutes: null, includes_disposal: false,
   equipment: {
     id: 'eq-1', name: 'Excavator 20-25 ton', equipment_class: 'excavator',
     fuel_gallons_per_hour: '6.2', def_percent_of_fuel: '0.03',
@@ -285,5 +291,178 @@ describe('the result on its way back to the database', () => {
   it('carries the engine version, because a price with no provenance is the old defect', () => {
     const payload = toEnginePayload(priceEstimate(snapshot(), ASOF).result);
     expect(payload.engineVersion).toBeTruthy();
+  });
+});
+
+
+/**
+ * What the estimator typed.
+ *
+ * An estimate is built out of a crew and a fleet somebody names on the spot at
+ * least as often as out of library rows: two operators at forty and fifteen, a
+ * D5 on a weekly rate, a quad axle running a twelve mile round trip. Until
+ * migration 0107 every one of those was dropped — a labor row with no library
+ * classification was filtered out of the crew, a machine with no catalog entry
+ * was refused, and a truck was flattened to rate times quantity whatever the
+ * haul distance was.
+ */
+describe('resources an estimator typed rather than picked', () => {
+  const typed = (over: Partial<ResourceRow>): ResourceRow => ({
+    ...equipmentResource(), equipment: null, ...over,
+  });
+
+  it('puts a hand-entered crew member on the line', () => {
+    /*
+     * The old filter required a joined labor_rates row, so this priced as no
+     * labor at all — a line that looked complete and cost nothing.
+     */
+    const input = buildEstimateInput(snapshot({
+      // No crew assigned to the line, so the loose labor rows are the crew.
+      lines: [line({ crews: null })],
+      resources: [typed({
+        id: 'r-crew', resource_kind: 'labor', role: 'Operator',
+        description: 'Excavator Operator', headcount: 2,
+        base_rate: '40', burden_rate: '15', unit_rate: '0',
+      })],
+    }), ASOF);
+    const crew = input.input.lines[0]!.crew!;
+    expect(crew.members).toHaveLength(1);
+    expect(crew.members[0]!.count).toBe(2);
+    expect(crew.members[0]!.classification.baseWagePerHour).toBe(40);
+    // Burden is entered in dollars beside the wage, as it reads on a rate
+    // sheet; the engine takes a fraction. 15 on 40 is 0.375.
+    expect(crew.members[0]!.classification.burdenPercent).toBeCloseTo(0.375, 6);
+    expect(crew.members[0]!.classification.classification).toBe('Excavator Operator');
+  });
+
+  it('takes the library classification when there is one', () => {
+    const input = buildEstimateInput(snapshot({
+      lines: [line({ crews: null })],
+      resources: [typed({
+        id: 'r-crew', resource_kind: 'labor', headcount: 3,
+        base_rate: '99', burden_rate: '99', labor_rates: laborRate,
+      })],
+    }), ASOF);
+    const member = input.input.lines[0]!.crew!.members[0]!;
+    // The library wins over what was typed beside it: an approved rate is not
+    // overridden by a number in a form.
+    expect(member.classification.baseWagePerHour).toBe(38.5);
+    expect(member.classification.burdenPercent).toBe(0.42);
+  });
+
+  it('skips a crew row with no wage rather than pricing it at nothing', () => {
+    const input = buildEstimateInput(snapshot({
+      lines: [line({ crews: null })],
+      resources: [
+        typed({ id: 'r-empty', resource_kind: 'labor', role: 'Labor', unit_rate: '0' }),
+        typed({ id: 'r-real', resource_kind: 'labor', base_rate: '30', headcount: 1 }),
+      ],
+    }), ASOF);
+    expect(input.input.lines[0]!.crew!.members).toHaveLength(1);
+  });
+
+  it('lets a crew assigned to the line beat loose labor rows', () => {
+    /*
+     * A crew is a governed library record with an approved composition. Rows
+     * typed on the line are what somebody put together for this scope, and
+     * they are the fallback rather than an override.
+     */
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-crew', resource_kind: 'labor', description: 'Somebody else',
+        base_rate: '1', burden_rate: '0', headcount: 9,
+      })],
+    }), ASOF);
+    expect(input.input.lines[0]!.crew!.name).not.toBe('Line labor');
+  });
+
+  it('bills a hand-entered machine on the basis it was quoted at', () => {
+    /*
+     * $2,650 a week is not $2,650 an hour. Treating an entered figure as
+     * hourly because that is the field the engine reads first would be wrong
+     * by a factor of forty.
+     */
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-dozer', resource_kind: 'equipment', description: 'Dozer D5',
+        unit_rate: '2650', rate_basis: 'week', mobilization_cost: '600',
+      })],
+    }), ASOF);
+    const item = input.input.lines[0]!.equipment![0]!;
+    expect(item.name).toBe('Dozer D5');
+    expect(item.rate.weeklyRate).toBe(2650);
+    expect(item.rate.hourlyRate).toBe(0);
+    expect(item.mobilizationCost).toBe(600);
+  });
+
+  it('takes an hourly quote as hourly', () => {
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-roller', resource_kind: 'equipment', description: 'Roller',
+        unit_rate: '87.50', rate_basis: 'hour',
+      })],
+    }), ASOF);
+    expect(input.input.lines[0]!.equipment![0]!.rate.hourlyRate).toBe(87.5);
+  });
+
+  it('reports a machine with neither a catalog entry nor a rate', () => {
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-none', resource_kind: 'equipment', description: 'Something', unit_rate: '0',
+      })],
+    }), ASOF);
+    expect(input.problems.some((p) =>
+      p.field === 'equipment' && /nothing to price it at/.test(p.detail))).toBe(true);
+  });
+
+  it('prices a trip haul as a haul cycle rather than rate times quantity', () => {
+    /*
+     * The gap this closes: every truck row was flattened into otherDirectCost
+     * as rate x quantity, so a twelve mile haul and a two mile haul cost the
+     * same. The engine has had `analyzeHaulCycle` from the start and the
+     * pricing path never called it.
+     */
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-truck', resource_kind: 'trucking', description: 'Quad-Axle Dump Truck',
+        haul_mode: 'trip', round_trip_miles: '12', average_speed_mph: '25',
+        truck_capacity: '22', load_minutes: '7', dump_minutes: '4',
+        queue_minutes: '10', unit_rate: '135', quantity: '1', unit: 'CY',
+      })],
+    }), ASOF);
+    const haul = input.input.lines[0]!.haul!;
+    // Round trip halved, because the number on the plan is the round trip.
+    expect(haul.oneWayMiles).toBe(6);
+    expect(haul.truckCapacity).toBe(22);
+    expect(haul.loadedSpeedMph).toBe(25);
+    expect(haul.emptySpeedMph).toBe(25);
+    expect(haul.dumpMinutes).toBe(4);
+    expect(haul.delayMinutes).toBe(10);
+    expect(haul.truckHourlyRate).toBe(135);
+    // And it is not silently double-counted as a flat direct cost.
+    expect(input.input.lines[0]!.otherDirectCost ?? 0).toBe(0);
+  });
+
+  it('leaves an hourly truck as an hourly cost', () => {
+    const input = buildEstimateInput(snapshot({
+      resources: [typed({
+        id: 'r-truck', resource_kind: 'trucking', description: 'Tri-axle',
+        haul_mode: 'hours', unit_rate: '135', hours: '12', quantity: '1',
+      })],
+    }), ASOF);
+    expect(input.input.lines[0]!.haul).toBeUndefined();
+    expect(input.input.lines[0]!.otherDirectCost).toBe(135 * 12);
+  });
+
+  it('counts a trip haul as something to price, so the line is not called empty', () => {
+    const input = buildEstimateInput(snapshot({
+      lines: [line({ production_rates: null, crews: null })],
+      resources: [typed({
+        id: 'r-truck', resource_kind: 'trucking', haul_mode: 'trip',
+        round_trip_miles: '12', average_speed_mph: '25', truck_capacity: '22',
+        dump_minutes: '4', unit_rate: '135',
+      })],
+    }), ASOF);
+    expect(input.problems.some((p) => p.field === 'resources')).toBe(false);
   });
 });

@@ -87,6 +87,33 @@ export interface ResourceRow {
   description: string | null; quantity: Num; unit: string | null;
   unit_rate: Num; hours: Num; headcount: number | null;
   quote_reference: string | null;
+  /*
+   * What the estimator typed. Migration 0107 added these because an estimate
+   * is built out of a crew and a fleet somebody names on the spot as often as
+   * out of library rows — "two operators at forty and fifteen, a D5 on a
+   * weekly, a quad axle running a twelve mile round trip" — and until now a
+   * resource with no library row behind it was silently ignored.
+   */
+  sort_order: number | null;
+  role: string | null;
+  drives_hours: boolean | null;
+  production_per_hour: Num;
+  base_rate: Num;
+  burden_rate: Num;
+  rate_basis: string | null;
+  mobilization_cost: Num;
+  standby_days: Num;
+  minimum_hours: Num;
+  is_owned: boolean | null;
+  haul_mode: string | null;
+  round_trip_miles: Num;
+  average_speed_mph: Num;
+  truck_capacity: Num;
+  tons_per_load: Num;
+  load_minutes: Num;
+  dump_minutes: Num;
+  queue_minutes: Num;
+  includes_disposal: boolean | null;
   equipment: EquipmentRow | null;
   materials: MaterialRow | null;
   labor_rates: LaborRateRow | null;
@@ -261,17 +288,27 @@ function toCrew(c: CrewRow, fallbackShiftHours: number): Crew {
  * the second case means the engine sees one shape and the cost of labor is
  * computed by the same code either way.
  */
+/**
+ * The crew on a line.
+ *
+ * A member comes from a library classification where one is named, and from
+ * what the estimator typed where one is not. That second case used to be
+ * dropped on the floor: the filter required a joined `labor_rates` row, so
+ * "Excavator Operator, two of them, forty base and fifteen burden" priced as
+ * no labor at all — a line that looked complete and cost nothing.
+ *
+ * Burden is entered as dollars per hour beside the wage, because that is how a
+ * contractor knows it and how it reads on a rate sheet. The engine takes a
+ * fraction, so it is divided rather than asked for twice.
+ */
 function crewFromResources(
   lineId: string, resources: ResourceRow[], shiftHours: number,
 ): Crew | null {
-  const labor = resources.filter((r) => r.resource_kind === 'labor' && one(r.labor_rates));
-  if (labor.length === 0) return null;
-  return {
-    id: `line:${lineId}`,
-    name: 'Line labor',
-    shiftHours,
-    members: labor.map((r) => {
-      const rate = one(r.labor_rates)!;
+  const labor = resources.filter((r) => r.resource_kind === 'labor');
+  const members = labor.map((r) => {
+    const rate = one(r.labor_rates);
+    const count = r.headcount ?? Math.max(1, Math.round(n(r.quantity, 1)));
+    if (rate) {
       return {
         classification: {
           id: rate.id,
@@ -283,9 +320,68 @@ function crewFromResources(
           doubletimeMultiplier: n(rate.doubletime_multiplier, 2),
           ...(rate.region ? { region: rate.region } : {}),
         },
-        count: r.headcount ?? Math.max(1, Math.round(n(r.quantity, 1))),
+        count,
       };
-    }),
+    }
+    const base = maybe(r.base_rate) !== undefined ? n(r.base_rate) : n(r.unit_rate);
+    if (!(base > 0)) return null;
+    const burdenDollars = n(r.burden_rate);
+    return {
+      classification: {
+        id: r.id,
+        classification: r.description ?? r.role ?? 'Labor',
+        group: r.role ?? 'Labor',
+        baseWagePerHour: base,
+        // Entered in dollars beside the wage; the engine wants a fraction.
+        burdenPercent: base > 0 ? burdenDollars / base : 0,
+        overtimeMultiplier: 1.5,
+        doubletimeMultiplier: 2,
+      },
+      count,
+    };
+  }).filter((m): m is NonNullable<typeof m> => m !== null);
+
+  if (members.length === 0) return null;
+  return { id: `line:${lineId}`, name: 'Line labor', shiftHours, members };
+}
+
+/**
+ * A machine on a line.
+ *
+ * From the catalog where one is named, and from what the estimator typed where
+ * one is not — a rate on the line with the basis it is rented at. The second
+ * case used to be refused outright, which made the fleet library a
+ * prerequisite for pricing anything rather than a convenience.
+ *
+ * The rate basis matters more than it looks. A machine quoted at $2,650 a week
+ * is not $2,650 an hour, and treating an entered figure as hourly because that
+ * is the field the engine reads first would be wrong by a factor of forty.
+ */
+/**
+ * A haul, from what the estimator entered about the route.
+ *
+ * Round-trip miles halved rather than asked for one way, because the number on
+ * a plan and in an estimator's head is the round trip. Speed is a single
+ * average for the same reason: a contractor knows the haul road, not two
+ * separate speeds, and the engine will take one figure for both legs.
+ */
+function toHaul(r: ResourceRow, l: LineRow) {
+  const roundTrip = n(r.round_trip_miles);
+  const speed = n(r.average_speed_mph);
+  const capacity = n(r.truck_capacity);
+  const delay = n(r.queue_minutes);
+  return {
+    quantity: n(l.measured_quantity),
+    unit: r.unit ?? l.unit ?? 'CY',
+    truckCapacity: capacity,
+    oneWayMiles: roundTrip / 2,
+    loadedSpeedMph: speed,
+    emptySpeedMph: speed,
+    ...(maybe(r.load_minutes) === undefined ? {} : { loadMinutes: n(r.load_minutes) }),
+    dumpMinutes: n(r.dump_minutes),
+    ...(delay > 0 ? { delayMinutes: delay } : {}),
+    truckHourlyRate: n(r.unit_rate),
+    ...(n(r.quantity, 0) > 0 ? { availableTrucks: Math.round(n(r.quantity)) } : {}),
   };
 }
 
@@ -294,11 +390,39 @@ function toEquipment(
 ): EquipmentItem | null {
   const e = one(r.equipment);
   if (!e) {
-    problems.push({
-      lineId: r.line_item_id, field: 'equipment',
-      detail: `An equipment resource on this line names no catalog item, so it has no rate to be priced at.`,
-    });
-    return null;
+    const rate = n(r.unit_rate);
+    if (!(rate > 0)) {
+      problems.push({
+        lineId: r.line_item_id, field: 'equipment',
+        detail: `"${r.description ?? 'An equipment row'}" names no catalog item and carries no `
+          + 'rate, so there is nothing to price it at.',
+      });
+      return null;
+    }
+    const basis = r.rate_basis ?? 'hour';
+    const typed: EquipmentRateCandidate = {
+      source: 'project_quote',
+      // Every basis is carried through as itself. The engine converts hours to
+      // whole rented periods; guessing an hourly equivalent here would throw
+      // away the rounding that is most of what a weekly rate costs.
+      hourlyRate: basis === 'hour' ? rate : 0,
+      ...(basis === 'day' ? { dailyRate: rate } : {}),
+      ...(basis === 'week' ? { weeklyRate: rate } : {}),
+      ...(basis === 'month' ? { monthlyRate: rate } : {}),
+      ...(r.quote_reference ? { reference: r.quote_reference } : {}),
+    };
+    return {
+      id: r.id,
+      name: r.description ?? 'Equipment',
+      equipmentClass: r.role ?? 'General',
+      rate: resolveEquipmentRate([typed], asOf),
+      count: Math.max(1, Math.round(n(r.quantity, 1))),
+      fuelGallonsPerHour: 0,
+      operatorRequired: false,
+      ...(n(r.mobilization_cost) > 0
+        ? { mobilizationRequired: true, mobilizationCost: n(r.mobilization_cost) }
+        : {}),
+    };
   }
 
   const candidates: EquipmentRateCandidate[] = (e.equipment_rates ?? []).map((x) => ({
@@ -480,10 +604,26 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         .reduce((a, r) => a + (maybe(r.unit_rate) !== undefined
           ? n(r.unit_rate) * n(r.quantity, 1) : 0), 0);
       const subcontractCost = sum('subcontract');
-      const otherDirectCost = sum('disposal') + sum('trucking');
+
+      /*
+       * Trucking, the way trucking actually works.
+       *
+       * Every truck row used to be flattened into `otherDirectCost` as rate
+       * times quantity, which prices a haul as though the distance did not
+       * matter. The engine has had `analyzeHaulCycle` since the beginning —
+       * cycle time, trips, fleet size from the loader's production — and the
+       * pricing path never called it, so a twelve mile haul and a two mile haul
+       * cost the same.
+       */
+      const haulRow = rs.find((r) => r.resource_kind === 'trucking' && r.haul_mode === 'trip');
+      const haul = haulRow ? toHaul(haulRow, l) : undefined;
+      const hourlyTrucking = rs
+        .filter((r) => r.resource_kind === 'trucking' && r.haul_mode !== 'trip')
+        .reduce((a, r) => a + n(r.unit_rate) * n(r.hours, 0) * Math.max(1, n(r.quantity, 1)), 0);
+      const otherDirectCost = sum('disposal') + hourlyTrucking;
 
       if (!rate && !crew && equipment.length === 0 && materials.length === 0
-          && subcontractCost === 0 && otherDirectCost === 0) {
+          && !haul && subcontractCost === 0 && otherDirectCost === 0) {
         problems.push({
           lineId: l.id, field: 'resources',
           detail: `"${l.description}" has no crew, equipment, material, subcontract or `
@@ -504,6 +644,7 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         ...(crew ? { crew } : {}),
         ...(equipment.length ? { equipment } : {}),
         ...(materials.length ? { materials } : {}),
+        ...(haul ? { haul } : {}),
         ...(subcontractCost ? { subcontractCost } : {}),
         ...(otherDirectCost ? { otherDirectCost } : {}),
         fuelPricePerGallon: n(v.fuel_price_per_gallon),
