@@ -35,6 +35,7 @@ import {
   type LineResource, type LineRow,
 } from '@/lib/data/estimates';
 import { UnitSelect } from '@/components/ui/unit-select';
+import { ProductionRatePanel } from '@/components/estimate/production-rate';
 import { FromLibrary } from '@/components/estimate/from-library';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -111,6 +112,13 @@ export function LineDetail({ line, editable, onChanged }: {
           </span>
         )}
       </div>
+
+      {/*
+        * The library rate under the line, beside the fleet rate the rows below
+        * imply. They answer the same question two ways, and an estimator needs
+        * to see both to know which one is deciding the hours.
+        */}
+      <ProductionRatePanel lineId={line.id} editable={editable} onChanged={onChanged} />
 
       {error ? <ErrorState message={error} /> : null}
       {resourcesQ.status === 'loading' ? <LoadingState label="Loading the build-up" /> : null}

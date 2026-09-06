@@ -12,7 +12,7 @@
  *     here, which is the gate migration 0097 added and nothing had before.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderPage } from '@/test/render';
 
@@ -24,6 +24,10 @@ const hoisted = vi.hoisted(() => ({
   updated: [] as Array<Record<string, unknown>>,
   revised: [] as Array<{ id: string; reason: string }>,
   navigated: [] as string[],
+  moved: [] as Array<{ line: string; after: string | null }>,
+  inserted: [] as Array<Record<string, unknown>>,
+  services: [] as Array<Record<string, unknown>>,
+  added: [] as Array<Record<string, unknown>>,
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -55,13 +59,24 @@ vi.mock('@/lib/data/estimates', async () => {
       return hoisted.version;
     },
     loadDrift: () => async () => [],
-    searchServices: () => async () => [],
+    searchServices: () => async () => hoisted.services,
+    addLine: async (_c: unknown, input: Record<string, unknown>) => {
+      hoisted.added.push(input);
+      return 'l-new';
+    },
     updateVersion: async (_c: unknown, _v: string, fields: Record<string, unknown>) => {
       hoisted.updated.push(fields);
     },
     reviseVersion: async (_c: unknown, id: string, reason: string) => {
       hoisted.revised.push({ id, reason });
       return 'v-2';
+    },
+    moveLine: async (_c: unknown, line: string, after: string | null) => {
+      hoisted.moved.push({ line, after });
+    },
+    insertLineAfter: async (_c: unknown, input: Record<string, unknown>) => {
+      hoisted.inserted.push(input);
+      return 'l-new';
     },
   };
 });
@@ -106,6 +121,8 @@ describe('the estimate workspace', () => {
     hoisted.permissions = ['estimates.read', 'estimates.write', 'estimates.approve', 'estimates.issue'];
     hoisted.version = version();
     hoisted.updated = []; hoisted.revised = []; hoisted.navigated = [];
+    hoisted.moved = []; hoisted.inserted = [];
+    hoisted.services = []; hoisted.added = [];
   });
 
   it('shows the engine result and says which build produced it', async () => {
@@ -332,6 +349,175 @@ describe('the estimate workspace', () => {
       await waitFor(() => expect(screen.getByText(/E-2026-0001/)).toBeInTheDocument());
       expect(screen.queryByRole('button',
         { name: /show only the lines that are blocking this bid/i })).not.toBeInTheDocument();
+    });
+  });
+
+
+  // -------------------------------------------------------------------------
+  describe('working on a line from the row it is on', () => {
+    const twoLines = () => version({
+      lines: [
+        line({ id: 'l-1', description: 'Strip topsoil' }),
+        line({ id: 'l-2', description: 'Mass excavation' }),
+      ],
+    });
+
+    it('keeps the build-up behind one click rather than on the row', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByText('Strip topsoil')).toBeInTheDocument());
+      /* Nothing of the crew or the machines is on screen until it is asked for. */
+      expect(screen.queryByRole('tab', { name: /crew/i })).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button',
+        { name: /crew, equipment, material and haul on Strip topsoil/i }));
+      expect(await screen.findByRole('tab', { name: /crew/i })).toBeInTheDocument();
+    });
+
+    it('says what the wrench opens, so it is not a mystery icon', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByRole('button',
+        { name: /crew, equipment, material and haul on Mass excavation/i })).toBeInTheDocument();
+    });
+
+    it('adds a line under the one whose plus was pressed', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /add a line under Strip topsoil/i }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByText(/directly under "Strip topsoil"/)).toBeInTheDocument();
+      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'Haul off');
+      await userEvent.click(within(dialog).getByRole('button', { name: /^add line$/i }));
+
+      await waitFor(() => expect(hoisted.inserted).toHaveLength(1));
+      expect(hoisted.inserted[0]!.afterLineId).toBe('l-1');
+    });
+
+    it('moves a line to sit after the row it was dropped on', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      const grip = await screen.findByRole('button', { name: /drag to reorder Strip topsoil/i });
+      /* The service name repeats the description in the fixture, so anchor on
+         the row's own controls rather than on its text. */
+      const target = screen
+        .getByRole('button', { name: /drag to reorder Mass excavation/i })
+        .closest('tr')!;
+
+      fireEvent.dragStart(grip);
+      fireEvent.dragOver(target);
+      fireEvent.drop(target);
+
+      await waitFor(() => expect(hoisted.moved).toEqual([{ line: 'l-1', after: 'l-2' }]));
+    });
+
+    it('offers a way to drop a line into first place', async () => {
+      hoisted.version = twoLines();
+      renderPage(<EstimateVersionPage />);
+      const grip = await screen.findByRole('button', { name: /drag to reorder Mass excavation/i });
+      /* The strip only exists while something is being dragged. */
+      expect(screen.queryByText(/drop here to put it first/i)).not.toBeInTheDocument();
+
+      fireEvent.dragStart(grip);
+      const strip = await screen.findByText(/drop here to put it first/i);
+      fireEvent.dragOver(strip);
+      fireEvent.drop(strip);
+
+      await waitFor(() => expect(hoisted.moved).toEqual([{ line: 'l-2', after: null }]));
+    });
+
+    it('offers neither drag nor plus on a version that is frozen', async () => {
+      hoisted.version = version({
+        status: 'approved', approvedAt: '2026-09-02T00:00:00Z',
+        lines: [line({ id: 'l-1', description: 'Strip topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByText('Strip topsoil')).toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: /drag to reorder/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /add a line under/i })).not.toBeInTheDocument();
+      /* The wrench stays: reading what a line is made of is not editing it. */
+      expect(screen.getByRole('button',
+        { name: /crew, equipment, material and haul on Strip topsoil/i })).toBeInTheDocument();
+    });
+  });
+
+
+  // -------------------------------------------------------------------------
+  describe('one field that searches and accepts', () => {
+    /*
+     * This dialog used to have two boxes, and only one of them suggested
+     * anything. Typing the item's name in the field that looked like where a
+     * name goes produced nothing at all.
+     */
+    const openAddLine = async () => {
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
+      return screen.findByRole('dialog');
+    };
+
+    it('suggests from the library as the description is typed', async () => {
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY', 'TON'], isOwn: false },
+      ];
+      const dialog = await openAddLine();
+      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
+      expect(await within(dialog).findByRole('option', { name: /Mass excavation/ }))
+        .toBeInTheDocument();
+    });
+
+    it('takes the unit from the service that was picked', async () => {
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+      ];
+      const dialog = await openAddLine();
+      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
+      await userEvent.click(await within(dialog).findByRole('option', { name: /Mass excavation/ }));
+      expect(within(dialog).getByLabelText(/unit for this line/i)).toHaveValue('CY');
+      expect(within(dialog).getByText(/From the library: Mass excavation/)).toBeInTheDocument();
+    });
+
+    it('is navigable from the keyboard, since that is how a list gets typed into', async () => {
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+      ];
+      const dialog = await openAddLine();
+      const field = within(dialog).getByLabelText(/what is this line/i);
+      await userEvent.type(field, 'mass');
+      await within(dialog).findByRole('option', { name: /Mass excavation/ });
+      await userEvent.keyboard('{ArrowDown}{Enter}');
+      expect(within(dialog).getByText(/From the library: Mass excavation/)).toBeInTheDocument();
+    });
+
+    it('keeps the typed words when nothing in the library matches', async () => {
+      hoisted.services = [];
+      const dialog = await openAddLine();
+      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'Mobilization');
+      expect(await within(dialog).findByText(/Nothing in the library matches/)).toBeInTheDocument();
+      await userEvent.click(within(dialog).getByRole('button', { name: /^add line$/i }));
+      await waitFor(() => expect(hoisted.added).toHaveLength(1));
+      expect(hoisted.added[0]).toMatchObject({ description: 'Mobilization', serviceId: null });
+    });
+
+    it('will not add a line with nothing in the field', async () => {
+      const dialog = await openAddLine();
+      expect(within(dialog).getByRole('button', { name: /^add line$/i })).toBeDisabled();
+    });
+
+    it('goes back to your own words after a library pick', async () => {
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+      ];
+      const dialog = await openAddLine();
+      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
+      await userEvent.click(await within(dialog).findByRole('option', { name: /Mass excavation/ }));
+      await userEvent.click(within(dialog).getByRole('button', { name: /use my own words/i }));
+      expect(within(dialog).queryByText(/From the library:/)).not.toBeInTheDocument();
     });
   });
 

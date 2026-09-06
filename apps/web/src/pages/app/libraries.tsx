@@ -5,10 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { CategorySelect } from '@/components/ui/category-select';
+import { loadProductionRates, SOURCE_LABEL } from '@/lib/data/production';
 import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LABOR, EQUIPMENT_SPECS, CREWS, PRODUCTION_RATES, MODIFIERS, PRICING_PROFILES } from '@/data/catalog';
+import { LABOR, EQUIPMENT_SPECS, CREWS, MODIFIERS, PRICING_PROFILES } from '@/data/catalog';
 import { loadedLaborRate, calculatePrice } from '@grounup/engine';
 import { money, unitRate, percent, qty, titleCase } from '@/lib/format';
 import { useQuery } from '@/lib/data/query';
@@ -32,6 +35,9 @@ const SEED_COUNTS = {
 
 export function LibrariesPage() {
   const [q, setQ] = useState('');
+  const [category, setCategory] = useState('');
+  const [taskCategory, setTaskCategory] = useState('');
+  const [rateCategory, setRateCategory] = useState('');
   const match = (s: string) => !q || s.toLowerCase().includes(q.toLowerCase());
 
   /*
@@ -42,6 +48,7 @@ export function LibrariesPage() {
    */
   const servicesQ = useQuery(loadServices, []);
   const tasksQ = useQuery(loadTasks, []);
+  const ratesQ = useQuery(loadProductionRates(q, rateCategory || null), [q, rateCategory]);
   const truckingQ = useQuery(loadTruckingRates, []);
   const disposalQ = useQuery(loadDisposalSites, []);
   const vendorsQ = useQuery(loadVendors, []);
@@ -87,16 +94,26 @@ export function LibrariesPage() {
     } finally { setBusy(false); }
   }
 
+  /*
+   * A shipped catalog of 860 services in 82 categories is a list nobody scrolls.
+   * The category comes from the same governed set the rows were filed under, so
+   * the filter cannot offer a category nothing carries — and cannot miss one.
+   */
   const shownServices = useMemo(
-    () => services.filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
-    [services, q]);
+    () => services
+      .filter((x) => !category || x.category === category)
+      .filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
+    [services, q, category]);
   const shownTasks = useMemo(
-    () => tasks.filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
-    [tasks, q]);
+    () => tasks
+      .filter((x) => !taskCategory || x.category === taskCategory)
+      .filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
+    [tasks, q, taskCategory]);
 
   async function addService(v: Parameters<typeof ServiceForm>[0] extends never ? never
     : { code: string; name: string; description: string; category: string;
-        subcategory: string; defaultUnit: string; supportedUnits: string[] }) {
+        subcategory: string; industry: string; defaultUnit: string;
+        supportedUnits: string[] }) {
     if (!supabase || !companyId) return;
     setBusy(true); setWriteError(null);
     try {
@@ -184,6 +201,17 @@ export function LibrariesPage() {
         {/* ---------------------------------------------------------- labor */}
         {/* ------------------------------------------------------- services */}
         <TabsContent value="services" className="space-y-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-full space-y-1.5 sm:w-72">
+              <Label htmlFor="lib-svc-cat">Filter by category</Label>
+              <CategorySelect id="lib-svc-cat" kind="service_category"
+                label="service category to filter by" canAdd={false}
+                value={category} onChange={setCategory} />
+            </div>
+            <p className="pb-1.5 text-xs text-charcoal-500">
+              {shownServices.length} of {services.length}
+            </p>
+          </div>
           {servicesQ.status === 'demonstration' ? <DemonstrationNotice /> : null}
           {servicesQ.status === 'loading' ? <LoadingState label="Reading the service catalog" /> : null}
           {servicesQ.status === 'error'
@@ -258,6 +286,17 @@ export function LibrariesPage() {
 
         {/* ---------------------------------------------------------- tasks */}
         <TabsContent value="tasks" className="space-y-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-full space-y-1.5 sm:w-72">
+              <Label htmlFor="lib-tsk-cat">Filter by category</Label>
+              <CategorySelect id="lib-tsk-cat" kind="task_category"
+                label="task category to filter by" canAdd={false}
+                value={taskCategory} onChange={setTaskCategory} />
+            </div>
+            <p className="pb-1.5 text-xs text-charcoal-500">
+              {shownTasks.length} of {tasks.length}
+            </p>
+          </div>
           {tasksQ.status === 'loading' ? <LoadingState label="Reading tasks" /> : null}
           {tasksQ.status === 'error'
             ? <ErrorState message={tasksQ.message} onRetry={tasksQ.refetch} /> : null}
@@ -766,45 +805,97 @@ export function LibrariesPage() {
         </TabsContent>
 
         {/* ------------------------------------------------------ production */}
-        <TabsContent value="production">
-          <Card><CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rate</TableHead>
-                  <TableHead className="text-right">Theoretical</TableHead>
-                  <TableHead className="text-right">Utilization</TableHead>
-                  <TableHead className="text-right">Practical / shift</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead className="text-right">Sample</TableHead>
-                  <TableHead className="text-right">Confidence</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Object.values(PRODUCTION_RATES).filter((r) => match(r.id)).map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-mono text-xs text-charcoal-700">{r.id}</TableCell>
-                    <TableCell className="tabular text-right">{qty(r.ratePerHour, 1)} {r.unit}/hr</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{percent(r.utilizationFactor, 0)}</TableCell>
-                    <TableCell className="tabular text-right font-semibold">
-                      {qty(r.ratePerHour * r.utilizationFactor * r.shiftHours, 0)} {r.unit}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={r.sourceType === 'company_actual' ? 'success' : r.sourceType === 'company_historical' ? 'info' : 'warn'}>
-                        {titleCase(r.sourceType)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{r.sampleSize || '—'}</TableCell>
-                    <TableCell className="tabular text-right">{percent(r.confidence, 0)}</TableCell>
+        <TabsContent value="production" className="space-y-4">
+          {/*
+            * This tab rendered a fixture of eight rates while the database held
+            * 2,124 — so the screen that is supposed to show a company what its
+            * work goes at showed it a demonstration instead. It reads the real
+            * library now, the company's own rates first.
+            */}
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-full space-y-1.5 sm:w-72">
+              <Label htmlFor="pr-cat">Filter by task category</Label>
+              <CategorySelect id="pr-cat" kind="task_category"
+                label="task category to filter by" canAdd={false}
+                value={rateCategory} onChange={setRateCategory} />
+            </div>
+            <p className="pb-1.5 text-xs text-charcoal-500">
+              {ratesQ.status === 'ready'
+                ? `${ratesQ.data.length} shown${ratesQ.data.length === 400 ? ' (narrow the search for more)' : ''}`
+                : ''}
+            </p>
+          </div>
+
+          {ratesQ.status === 'loading' ? <LoadingState label="Reading the production rates" /> : null}
+          {ratesQ.status === 'error'
+            ? <ErrorState message={ratesQ.message} onRetry={ratesQ.refetch} /> : null}
+
+          {ratesQ.status === 'ready' ? (
+            <Card><CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Task</TableHead>
+                    <TableHead className="text-right">Rate</TableHead>
+                    <TableHead className="text-right">Utilization</TableHead>
+                    <TableHead className="text-right">Practical / shift</TableHead>
+                    <TableHead>Source</TableHead>
+                    <TableHead className="text-right">Sample</TableHead>
+                    <TableHead className="text-right">Confidence</TableHead>
+                    <TableHead>Scope</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent></Card>
-          <Alert tone="warn" className="mt-4" icon={<Info className="size-4" />} title="RULE-010 — source confidence">
+                </TableHeader>
+                <TableBody>
+                  {ratesQ.data.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="p-6">
+                        <EmptyState title="No production rates match"
+                          hint="Clear the search, or record one your company has measured." />
+                      </TableCell>
+                    </TableRow>
+                  ) : ratesQ.data.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell>
+                        <p className="text-sm text-charcoal-900">{r.taskName ?? r.code}</p>
+                        <p className="text-xs text-charcoal-400">
+                          {r.taskCategory ?? '—'}{r.note ? ` · ${r.note}` : ''}
+                        </p>
+                      </TableCell>
+                      <TableCell className="tabular text-right">
+                        {qty(r.ratePerHour, 1)} {r.rateUnit}/hr
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {percent(r.utilizationFactor, 0)}
+                      </TableCell>
+                      <TableCell className="tabular text-right font-semibold">
+                        {qty(r.ratePerHour * r.utilizationFactor * r.shiftHours, 0)} {r.rateUnit}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={r.sourceType === 'company_actual' ? 'success'
+                          : r.sourceType === 'company_historical' ? 'info'
+                          : r.sourceType === 'estimator_judgment' ? 'warn' : 'warn'}>
+                          {SOURCE_LABEL[r.sourceType]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="tabular text-right text-charcoal-600">
+                        {r.sampleSize || '—'}
+                      </TableCell>
+                      <TableCell className="tabular text-right">
+                        {percent(r.confidenceScore, 0)}
+                      </TableCell>
+                      <TableCell><ScopeBadge scope={r.isOwn ? 'company' : 'global'} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent></Card>
+          ) : null}
+
+          <Alert tone="warn" icon={<Info className="size-4" />} title="RULE-010 — source confidence">
             Every rate that is not a company actual carries its source, its confidence and its review
             state. A seed benchmark is a starting point, not a company production standard, and the
-            engine says so on every estimate that uses one.
+            engine says so on every estimate that uses one. Record what your crews actually do and
+            it will outrank the benchmark everywhere.
           </Alert>
         </TabsContent>
 

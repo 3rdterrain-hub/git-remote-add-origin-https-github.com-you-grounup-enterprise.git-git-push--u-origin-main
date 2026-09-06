@@ -12,9 +12,32 @@
  * not editing the catalog.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ServiceForm, TaskForm } from './editor';
+
+/*
+ * The category is chosen from the governed list now rather than typed, so the
+ * form needs one to choose from. Stubbing the loader keeps this file about the
+ * form; `category-select.test.tsx` holds the picker's own behavior.
+ */
+vi.mock('@/lib/supabase', () => ({
+  get isSupabaseConfigured() { return true; },
+  get supabase() { return {}; },
+}));
+
+vi.mock('@/lib/data/categories', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/data/categories')>(
+    '@/lib/data/categories');
+  return {
+    ...actual,
+    loadCategories: (kind: string) => async () => [
+      { id: `c-${kind}`, kind, name: 'Electrical', description: null,
+        sortOrder: 10, isOwn: false },
+    ],
+  };
+});
+
+const { ServiceForm, TaskForm } = await import('./editor');
 
 const onSubmit = vi.fn();
 const onCancel = vi.fn();
@@ -48,7 +71,11 @@ describe('adding a service', () => {
     form();
     await userEvent.type(screen.getByLabelText('Code'), 'SVC-EL-0001');
     await userEvent.type(screen.getByLabelText('Name'), 'Branch circuit rough-in');
-    await userEvent.type(screen.getByLabelText('Trade or category'), 'Electrical');
+    /* Three pickers share the stubbed list, so target the one under test. */
+    const categoryField = screen.getByLabelText('service category');
+    await waitFor(() => expect(
+      within(categoryField).getByRole('option', { name: 'Electrical' })).toBeInTheDocument());
+    await userEvent.selectOptions(categoryField, 'Electrical');
     await userEvent.click(screen.getByRole('button', { name: /Save service/ }));
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
       code: 'SVC-EL-0001', name: 'Branch circuit rough-in', category: 'Electrical',

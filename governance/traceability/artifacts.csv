@@ -112,6 +112,7 @@ TBL-knowledge_articles,table,knowledge_articles,supabase/migrations (table knowl
 TBL-labor_rates,table,labor_rates,supabase/migrations (table labor_rates),LIBRARY
 TBL-lead_intake_forms,table,lead_intake_forms,supabase/migrations (table lead_intake_forms),ENTITY
 TBL-leads,table,leads,supabase/migrations (table leads),ENTITY
+TBL-library_categories,table,library_categories,supabase/migrations (table library_categories),LIBRARY
 TBL-library_row_versions,table,library_row_versions,supabase/migrations (table library_row_versions),ENTITY
 TBL-library_snapshot_entries,table,library_snapshot_entries,supabase/migrations (table library_snapshot_entries),ENTITY
 TBL-library_snapshots,table,library_snapshots,supabase/migrations (table library_snapshots),ENTITY
@@ -271,6 +272,7 @@ TST-db-browser-embeds,test,db/browser-embeds.test.ts,tests/db/browser-embeds.tes
 TST-db-building-a-line,test,db/building-a-line.test.ts,tests/db/building-a-line.test.ts,ENGINE
 TST-db-building-an-estimate,test,db/building-an-estimate.test.ts,tests/db/building-an-estimate.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
+TST-db-categories,test,db/categories.test.ts,tests/db/categories.test.ts,ENGINE
 TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
@@ -294,6 +296,7 @@ TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operato
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
 TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE
+TST-db-line-order,test,db/line-order.test.ts,tests/db/line-order.test.ts,ENGINE
 TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.test.ts,ENGINE
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
@@ -309,7 +312,9 @@ TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.tes
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-payment-failures,test,db/payment-failures.test.ts,tests/db/payment-failures.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
+TST-db-platform-rows-are-readable,test,db/platform-rows-are-readable.test.ts,tests/db/platform-rows-are-readable.test.ts,ENGINE
 TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
+TST-db-production-rates,test,db/production-rates.test.ts,tests/db/production-rates.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
 TST-db-refunds,test,db/refunds.test.ts,tests/db/refunds.test.ts,ENGINE
@@ -348,6 +353,7 @@ TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
 TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
+TST-web-production-rate,test,web/production-rate.test.tsx,apps/web/src/components/estimate/production-rate.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
@@ -355,6 +361,7 @@ TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/co
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
+TST-web-category-select,test,web/category-select.test.tsx,apps/web/src/components/ui/category-select.test.tsx,ENGINE
 TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE

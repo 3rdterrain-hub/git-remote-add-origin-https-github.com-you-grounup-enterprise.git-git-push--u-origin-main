@@ -365,13 +365,21 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
  * together, which is the correct set: a company that has copied a service to
  * change its numbers sees both, and the copy is marked as theirs.
  */
-export const searchServices = (term: string): Query<LibraryService[]> => async (client) => {
+export const searchServices = (
+  term: string, category?: string | null,
+): Query<LibraryService[]> => async (client) => {
   let q = client
     .from('services')
     .select('id, code, name, category, default_unit, supported_units, company_id')
     .eq('status', 'active');
   const t = term.trim();
   if (t) q = q.ilike('search_text', `%${t}%`);
+  /*
+   * Narrowing by category is what makes 860 services usable. It is an equality
+   * rather than a search because a category is a record since migration 0113,
+   * and the value here came from the same list the row was written from.
+   */
+  if (category) q = q.eq('category', category);
   const rows = unwrap(await q.order('name').limit(50)) as Array<Record<string, unknown>>;
   return rows.map((s) => ({
     id: String(s.id),
@@ -812,6 +820,34 @@ export async function setLineQuantity(
     .update({ measured_quantity: Math.max(quantity, 0) })
     .eq('id', lineId);
   if (error) throw new Error(error.message);
+}
+
+/**
+ * Add a line directly after another.
+ *
+ * Same library lookup as the button at the top of the table — the unit, the
+ * cost code and the production rate all come across — placed where the
+ * estimator was looking rather than at the bottom.
+ */
+export async function insertLineAfter(
+  client: RpcCapable,
+  input: { afterLineId: string; serviceId?: string | null; description?: string | null;
+           quantity?: number; unit?: string | null },
+): Promise<string> {
+  return rpc<string>(client, 'insert_estimate_line_after', {
+    p_line: input.afterLineId,
+    p_service: input.serviceId ?? null,
+    p_description: input.description?.trim() || null,
+    p_quantity: input.quantity ?? 0,
+    p_unit: input.unit || null,
+  });
+}
+
+/** Move a line among the lines it sits beside. Null puts it first. */
+export async function moveLine(
+  client: RpcCapable, lineId: string, afterLineId: string | null,
+): Promise<void> {
+  await rpc(client, 'move_estimate_line', { p_line: lineId, p_after: afterLineId });
 }
 
 export async function setEstimateStatus(

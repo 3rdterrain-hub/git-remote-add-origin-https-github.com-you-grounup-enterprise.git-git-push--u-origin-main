@@ -20,12 +20,12 @@
  *     rules live in `app.set_estimate_status` and are enforced there; the
  *     screen states them in advance so nobody discovers one by being refused.
  */
-import { Fragment, useState } from 'react';
+import { Fragment, useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowLeft, Calculator, CheckCircle2, ChevronDown, ChevronRight,
+  AlertTriangle, ArrowLeft, Calculator, CheckCircle2,
   Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck, Trash2,
-  BookmarkPlus, GitBranch,
+  BookmarkPlus, GitBranch, GripVertical, Wrench,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,11 +48,12 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, loadDrift, searchServices, addLine, setLineQuantity, setEstimateStatus,
-  issueProposal, updateLine, updateVersion, reviseVersion,
+  issueProposal, updateLine, updateVersion, reviseVersion, insertLineAfter, moveLine,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { UnitSelect } from '@/components/ui/unit-select';
+import { CategorySelect } from '@/components/ui/category-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import {
   ApplyTemplateDialog, ApplyWarnings, SaveTemplateDialog,
@@ -80,6 +81,8 @@ export function EstimateVersionPage() {
   const [notice, setNotice] = useState<{ tone: 'ok' | 'bad'; text: string } | null>(null);
   const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
   const [adding, setAdding] = useState(false);
+  /** When set, the new line goes directly under this one rather than at the end. */
+  const [addAfter, setAddAfter] = useState<string | null>(null);
   const [issuing, setIssuing] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
@@ -281,7 +284,9 @@ export function EstimateVersionPage() {
               </div>
             ) : (
               <LineTable version={v} editable={editable && can('estimates.write')}
-                onlyBlocking={onlyBlocking} onChanged={version.refetch} />
+                onlyBlocking={onlyBlocking}
+                onAddAfter={(id) => { setAddAfter(id); setAdding(true); }}
+                onChanged={version.refetch} />
             )}
           </CardContent>
         </Card>
@@ -332,8 +337,11 @@ export function EstimateVersionPage() {
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
         directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice} />
 
-      <AddLineDialog open={adding} onOpenChange={setAdding} versionId={v.id}
-        onAdded={() => { setAdding(false); version.refetch(); }} />
+      <AddLineDialog open={adding}
+        onOpenChange={(o) => { setAdding(o); if (!o) setAddAfter(null); }}
+        versionId={v.id} afterLineId={addAfter}
+        afterDescription={v.lines.find((l) => l.id === addAfter)?.description ?? null}
+        onAdded={() => { setAdding(false); setAddAfter(null); version.refetch(); }} />
       <IssueDialog open={issuing} onOpenChange={setIssuing} version={v}
         onIssued={() => { setIssuing(false); version.refetch(); }} />
       <ReviseDialog open={revising} onOpenChange={setRevising} version={v}
@@ -399,13 +407,18 @@ function CostBuckets({ costs, total }: { costs: Record<string, number>; total: n
  * rows to the database, and a version's `updated_at` should mean somebody
  * changed something.
  */
-function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
+function LineTable({ version, editable, onlyBlocking = false, onAddAfter, onChanged }: {
   version: VersionDetail; editable: boolean; onlyBlocking?: boolean;
+  /** The plus on a row: add a line directly beneath this one. */
+  onAddAfter?: (lineId: string) => void;
   onChanged: () => void;
 }) {
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string[]>([]);
+  /** The line being dragged, and the one it is currently hovering after. */
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [over, setOver] = useState<string | null>(null);
 
   const commit = async (lineId: string, raw: string, was: number) => {
     const next = Number(raw);
@@ -418,6 +431,23 @@ function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
 
   const shown = version.lines.filter((l) => !onlyBlocking || l.blocksIssue);
   const hiddenByFilter = version.lines.length - shown.length;
+
+  /*
+   * Dropping on a row puts the dragged line after it; dropping on the header
+   * strip above the first row puts it first. The database renumbers, so the
+   * order that comes back is the order that was asked for rather than an
+   * arithmetic that ran out of room between two neighbors.
+   */
+  const drop = async (afterLineId: string | null) => {
+    if (!supabase || !dragging || dragging === afterLineId) {
+      setDragging(null); setOver(null); return;
+    }
+    const moved = dragging;
+    setDragging(null); setOver(null); setSaving(moved); setError(null);
+    try { await moveLine(supabase, moved, afterLineId); onChanged(); }
+    catch (err) { setError(messageFor(err)); }
+    finally { setSaving(null); }
+  };
 
   const toggleVisible = async (line: LineRow) => {
     if (!supabase) return;
@@ -454,24 +484,75 @@ function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {/*
+            * Dropping here puts a line first. Without it the top of the list is
+            * the one position a drag cannot reach, since every drop target is
+            * "after this row".
+            */}
+          {editable && dragging ? (
+            <TableRow className="hover:bg-transparent"
+              onDragOver={(e) => { e.preventDefault(); setOver('__top__'); }}
+              onDrop={(e) => { e.preventDefault(); void drop(null); }}>
+              <TableCell colSpan={9}
+                className={cn('py-1 text-center text-xs',
+                  over === '__top__'
+                    ? 'bg-yellow-50 text-yellow-800'
+                    : 'text-charcoal-400')}>
+                Drop here to put it first
+              </TableCell>
+            </TableRow>
+          ) : null}
           {shown.map((l) => {
             const expanded = open.includes(l.id);
             return (
               <Fragment key={l.id}>
-                <TableRow className={cn(!l.clientVisible && 'bg-charcoal-50/70')}>
+                <TableRow
+                  className={cn(
+                    !l.clientVisible && 'bg-charcoal-50/70',
+                    over === l.id && 'border-b-2 border-yellow-500',
+                    dragging === l.id && 'opacity-50',
+                  )}
+                  onDragOver={editable ? (e) => { e.preventDefault(); setOver(l.id); } : undefined}
+                  onDrop={editable ? (e) => { e.preventDefault(); void drop(l.id); } : undefined}
+                >
                   <TableCell className="align-top">
-                    <button
-                      onClick={() => setOpen((o) =>
-                        o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
-                      aria-label={expanded
-                        ? `Hide what ${l.description} is made of`
-                        : `Show what ${l.description} is made of`}
-                      aria-expanded={expanded}
-                      className="rounded p-1 text-charcoal-500 hover:bg-charcoal-100
-                                 hover:text-charcoal-900">
-                      {expanded ? <ChevronDown className="size-4" />
-                                : <ChevronRight className="size-4" />}
-                    </button>
+                    <div className="flex items-center gap-0.5">
+                      {editable ? (
+                        <span
+                          draggable
+                          onDragStart={() => setDragging(l.id)}
+                          onDragEnd={() => { setDragging(null); setOver(null); }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Drag to reorder ${l.description}`}
+                          title="Drag to reorder"
+                          className="cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
+                        >
+                          <GripVertical className="size-4" />
+                        </span>
+                      ) : null}
+                      {/*
+                        * A wrench rather than a chevron. The row shows what the
+                        * line costs; what it is built from — the crew, the
+                        * machines, the material and the haul — sits behind one
+                        * click, because a table that showed all of it for every
+                        * line would be unreadable at twenty lines.
+                        */}
+                      <button
+                        onClick={() => setOpen((o) =>
+                          o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
+                        aria-label={expanded
+                          ? `Hide the crew, equipment, material and haul on ${l.description}`
+                          : `Crew, equipment, material and haul on ${l.description}`}
+                        title="Crew, equipment, material and haul"
+                        aria-expanded={expanded}
+                        className={cn(
+                          'rounded p-1 hover:bg-charcoal-100 hover:text-charcoal-900',
+                          expanded ? 'bg-charcoal-100 text-charcoal-900' : 'text-charcoal-500',
+                        )}>
+                        <Wrench className="size-4" />
+                      </button>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-start gap-1.5">
@@ -542,6 +623,15 @@ function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
                                            : <EyeOff className="size-3.5" />}
                         </button>
                       ) : null}
+                      {editable && onAddAfter ? (
+                        <button onClick={() => onAddAfter(l.id)}
+                          aria-label={`Add a line under ${l.description}`}
+                          title="Add a line under this one"
+                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
+                                     hover:text-charcoal-900">
+                          <Plus className="size-3.5" />
+                        </button>
+                      ) : null}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -578,35 +668,96 @@ function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
   );
 }
 
-/** Adding a line from the library, or by hand. */
-function AddLineDialog({ open, onOpenChange, versionId, onAdded }: {
-  open: boolean; onOpenChange: (v: boolean) => void; versionId: string; onAdded: () => void;
+/**
+ * Adding a line: one field that searches and accepts.
+ *
+ * This dialog used to have two boxes — "Search the library", which suggested as
+ * you typed, and "Or a line of your own", which did not. So typing the name of
+ * the item in the field that looks like where a name goes produced no
+ * suggestions at all, and the library only helped somebody who had already
+ * guessed which box was which.
+ *
+ * There is one field now. What you type searches; what matches drops down; what
+ * you pick brings its unit, cost code and production rate; and if nothing
+ * matches, the words you typed are the line. That is the same keystroke either
+ * way, which is the point — the library should not be a mode you enter.
+ */
+function AddLineDialog({
+  open, onOpenChange, versionId, afterLineId = null, afterDescription = null, onAdded,
+}: {
+  open: boolean; onOpenChange: (v: boolean) => void; versionId: string;
+  /** Set by the plus on a row: the new line goes directly under this one. */
+  afterLineId?: string | null;
+  afterDescription?: string | null;
+  onAdded: () => void;
 }) {
   const [term, setTerm] = useState('');
+  const [category, setCategory] = useState('');
   const [chosen, setChosen] = useState<LibraryService | null>(null);
-  const [unit, setUnit] = useState<string>('');
+  const [unit, setUnit] = useState<string>('LS');
   const [quantity, setQuantity] = useState('0');
-  const [freeText, setFreeText] = useState('');
+  /** Which suggestion the arrow keys are on. -1 is "none, keep what I typed". */
+  const [cursor, setCursor] = useState(-1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const services = useQuery(searchServices(term), [term, open]);
+  const services = useQuery(searchServices(term, category || null), [term, category, open]);
   const results = services.status === 'ready' ? services.data : [];
+  /*
+   * Suggestions are for choosing. Once something is chosen they would be a list
+   * of alternatives to a decision already made, so they go away until the
+   * estimator types again.
+   */
+  const suggesting = !chosen && (term.trim().length > 0 || category !== '');
 
-  const choose = (s: LibraryService) => { setChosen(s); setUnit(s.defaultUnit); };
+  const choose = (s: LibraryService) => {
+    setChosen(s);
+    setTerm(s.name);
+    setUnit(s.defaultUnit);
+    setCursor(-1);
+  };
+
+  const clear = () => { setChosen(null); setCursor(-1); };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!suggesting || results.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setCursor((c) => Math.min(c + 1, results.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setCursor((c) => Math.max(c - 1, -1));
+    } else if (e.key === 'Enter' && cursor >= 0) {
+      e.preventDefault();
+      choose(results[cursor]!);
+    } else if (e.key === 'Escape' && cursor >= 0) {
+      e.preventDefault();
+      setCursor(-1);
+    }
+  };
 
   const submit = async () => {
     if (!supabase) return;
     setBusy(true); setError(null);
     try {
-      await addLine(supabase, {
-        versionId,
+      /*
+       * The same library lookup either way — `insert_estimate_line_after` calls
+       * `add_estimate_line` underneath rather than repeating it, so the plus on
+       * a row cannot behave differently from the button at the top.
+       */
+      const fields = {
         serviceId: chosen?.id ?? null,
-        description: chosen ? null : freeText,
+        description: chosen ? null : term.trim(),
         quantity: Number(quantity) || 0,
-        unit: chosen ? unit : (unit || 'LS'),
-      });
-      setChosen(null); setTerm(''); setQuantity('0'); setFreeText(''); setUnit('');
+        unit: unit || 'LS',
+      };
+      if (afterLineId) {
+        await insertLineAfter(supabase, { afterLineId, ...fields });
+      } else {
+        await addLine(supabase, { versionId, ...fields });
+      }
+      setChosen(null); setTerm(''); setQuantity('0'); setUnit('LS'); setCategory('');
+      setCursor(-1);
       onAdded();
     } catch (err) { setError(messageFor(err)); }
     finally { setBusy(false); }
@@ -616,64 +767,68 @@ function AddLineDialog({ open, onOpenChange, versionId, onAdded }: {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add a line</DialogTitle>
+          <DialogTitle>{afterDescription ? 'Add a line here' : 'Add a line'}</DialogTitle>
           <DialogDescription>
-            A service brings its own unit, cost code and the production rate somebody measured.
-            The cost is not set here — the engine computes it when the estimate is priced.
+            {afterDescription ? `It goes directly under "${afterDescription}". ` : ''}
+            Type what the line is. A match from the library brings its unit, cost code and the
+            production rate somebody measured; anything else becomes a line of your own. The cost
+            is not set here — the engine computes it when the estimate is priced.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="svc-search">Search the library</Label>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-              <Input id="svc-search" className="pl-9" value={term} placeholder="Excavation, paving, storm sewer…"
-                onChange={(e) => { setTerm(e.target.value); setChosen(null); }} />
+          <div className="grid gap-3 sm:grid-cols-[1fr_14rem]">
+            <div className="space-y-1.5">
+              <Label htmlFor="line-what">What is this line?</Label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
+                <Input
+                  id="line-what"
+                  className="pl-9"
+                  value={term}
+                  autoComplete="off"
+                  role="combobox"
+                  aria-expanded={suggesting && results.length > 0}
+                  aria-controls="line-suggestions"
+                  aria-autocomplete="list"
+                  placeholder="Mass excavation, mobilization, storm sewer…"
+                  onChange={(e) => { setTerm(e.target.value); clear(); }}
+                  onKeyDown={onKeyDown}
+                />
+              </div>
+            </div>
+            {/*
+              * With 860 services across 82 categories, words alone make an
+              * estimator read a list to find the trade they are on. The list
+              * comes from the same governed set the services were filed under,
+              * so it cannot offer a category nothing carries.
+              */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-cat-filter">Category</Label>
+              <CategorySelect id="svc-cat-filter" kind="service_category"
+                label="category to search within" canAdd={false}
+                value={category}
+                onChange={(x) => { setCategory(x); clear(); }} />
             </div>
           </div>
 
-          {chosen ? (
-            <div className="rounded-lg border border-charcoal-200 bg-charcoal-50 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-charcoal-900">{chosen.name}</p>
-                  <p className="text-xs text-charcoal-500">
-                    {chosen.code}{chosen.category ? ` · ${chosen.category}` : ''}
-                    {chosen.isOwn ? ' · your library' : ' · platform catalog'}
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setChosen(null)}>
-                  <Trash2 className="size-4" /> Clear
-                </Button>
-              </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="line-unit">Unit</Label>
-                  {/* Narrowed to what the service can actually be bid in: the
-                      database refuses the rest, and offering one is a choice
-                      somebody makes before being told they cannot. */}
-                  <UnitSelect id="line-unit" value={unit} onChange={setUnit}
-                    allowed={chosen.supportedUnits} label="Unit for this line" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="line-qty">Quantity</Label>
-                  <Input id="line-qty" type="number" min={0} step="any" value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)} />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="max-h-64 overflow-y-auto rounded-lg border border-charcoal-200">
+          {suggesting ? (
+            <div id="line-suggestions" role="listbox" aria-label="Matching library services"
+              className="max-h-56 overflow-y-auto rounded-lg border border-charcoal-200">
               {services.status === 'loading' ? (
                 <div className="p-4"><LoadingState label="Searching the library" /></div>
               ) : results.length === 0 ? (
-                <div className="p-4 text-sm text-charcoal-500">
-                  Nothing matched. You can still add a line of your own below.
+                <div className="p-3 text-sm text-charcoal-500">
+                  Nothing in the library matches. Adding it will make a line of your own,
+                  which the engine prices from whatever crew and equipment you put on it.
                 </div>
-              ) : results.map((s) => (
-                <button key={s.id} type="button"
-                  className="flex w-full items-center justify-between gap-3 border-b border-charcoal-100 px-3 py-2 text-left last:border-0 hover:bg-charcoal-50"
+              ) : results.map((s, i) => (
+                <button key={s.id} type="button" role="option" aria-selected={i === cursor}
+                  className={cn(
+                    'flex w-full items-center justify-between gap-3 border-b border-charcoal-100 px-3 py-2 text-left last:border-0',
+                    i === cursor ? 'bg-yellow-50' : 'hover:bg-charcoal-50',
+                  )}
+                  onMouseEnter={() => setCursor(i)}
                   onClick={() => choose(s)}>
                   <span>
                     <span className="block text-sm font-medium text-charcoal-900">{s.name}</span>
@@ -687,34 +842,48 @@ function AddLineDialog({ open, onOpenChange, versionId, onAdded }: {
                 </button>
               ))}
             </div>
-          )}
+          ) : null}
 
-          {!chosen ? (
-            <div className="grid gap-3 sm:grid-cols-[1fr,7rem,7rem]">
-              <div className="space-y-1.5">
-                <Label htmlFor="line-desc">Or a line of your own</Label>
-                <Input id="line-desc" value={freeText} placeholder="Mobilization"
-                  onChange={(e) => setFreeText(e.target.value)} />
+          {chosen ? (
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-charcoal-200 bg-charcoal-50 p-3">
+              <div>
+                <p className="text-sm font-medium text-charcoal-900">
+                  From the library: {chosen.name}
+                </p>
+                <p className="text-xs text-charcoal-500">
+                  {chosen.code}{chosen.category ? ` · ${chosen.category}` : ''}
+                  {chosen.isOwn ? ' · your library' : ' · platform catalog'}
+                </p>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="line-unit-free">Unit</Label>
-                <UnitSelect id="line-unit-free" value={unit || 'LS'}
-                  onChange={setUnit} label="Unit for this line" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="line-qty-free">Quantity</Label>
-                <Input id="line-qty-free" type="number" min={0} step="any" value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)} />
-              </div>
+              <Button variant="ghost" size="sm" onClick={clear}>
+                <Trash2 className="size-4" /> Use my own words
+              </Button>
             </div>
           ) : null}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="line-unit">Unit</Label>
+              {/* Narrowed to what the service can actually be bid in: the
+                  database refuses the rest, and offering one is a choice
+                  somebody makes before being told they cannot. */}
+              <UnitSelect id="line-unit" value={unit} onChange={setUnit}
+                allowed={chosen?.supportedUnits}
+                label="Unit for this line" className="w-full" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="line-qty">Quantity</Label>
+              <Input id="line-qty" type="number" min={0} step="any" value={quantity}
+                onChange={(e) => setQuantity(e.target.value)} />
+            </div>
+          </div>
 
           {error ? <ErrorState message={error} /> : null}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
-          <Button onClick={submit} disabled={busy || (!chosen && freeText.trim().length === 0)}>
+          <Button onClick={submit} disabled={busy || term.trim().length === 0}>
             <Plus className="size-4" /> {busy ? 'Adding…' : 'Add line'}
           </Button>
         </DialogFooter>

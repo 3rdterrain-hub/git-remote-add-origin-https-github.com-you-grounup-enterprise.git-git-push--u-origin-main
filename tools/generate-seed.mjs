@@ -246,6 +246,16 @@ async function main() {
 set local check_function_bodies = off;
 `);
 
+  /*
+   * Migration 0113 makes a library category a record and refuses one that is
+   * not in the list, so the catalog's own categories have to be filed before
+   * the rows that use them. The slot is filled at the end from the values this
+   * file actually emits — derived rather than listed, so a trade pack naming a
+   * new category brings it along and cannot be forgotten.
+   */
+  const CATEGORY_SLOT = out.length;
+  out.push('');
+
   // --- Labor ---------------------------------------------------------------
   out.push(banner('Labor classifications'));
   out.push('insert into labor_rates (code, classification, labor_group, base_wage_per_hour, burden_percent, overtime_multiplier, doubletime_multiplier, region, effective_date, status) values');
@@ -649,6 +659,40 @@ join crews c on c.code = v.crew_code and c.company_id is null and c.enterprise_g
 join labor_rates l on l.code = v.labor_code and l.company_id is null and l.enterprise_group_id is null
 on conflict do nothing;
 `);
+
+  /*
+   * The categories, derived from everything above. A value the catalog uses and
+   * this misses would make the whole seed fail on 0113's guard, which is the
+   * behavior wanted: a silent category is what this migration exists to stop.
+   */
+  const categorySources = [
+    ['industry', [...services, ...tradeServices].map((r) => r.industry)],
+    ['service_category', [...services, ...tradeServices].map((r) => r.category)],
+    ['service_subcategory', [...services, ...tradeServices].map((r) => r.subcategory)],
+    ['task_category', [...tasks, ...tradeTasks].map((r) => r.task_category)],
+    ['modifier_category', allModifiers.map((m) => m.category)],
+    ['labor_group', labor.map((r) => r.group)],
+    ['equipment_class', equipment.map((r) => r.equipment_class)],
+    ['crew_discipline', crews.map((c) => c.discipline)],
+  ];
+  const categoryRows = [];
+  for (const [kind, values] of categorySources) {
+    const seen = new Set();
+    for (const raw of values) {
+      const name = typeof raw === 'string' ? raw.trim() : '';
+      if (!name || seen.has(name.toLowerCase())) continue;
+      seen.add(name.toLowerCase());
+      categoryRows.push(`  (${q(kind)}, ${q(name)})`);
+    }
+  }
+  out[CATEGORY_SLOT] = [
+    banner('Library categories — the vocabulary the catalog groups by'),
+    'insert into library_categories (company_id, kind, name)',
+    'select null, v.kind, v.name from (values',
+    categoryRows.join(',\n'),
+    ') as v(kind, name)',
+    'on conflict do nothing;\n',
+  ].join('\n');
 
   await writeFile(join(OUT_DIR, '0001_global_library.sql'), out.join('\n'), 'utf8');
 

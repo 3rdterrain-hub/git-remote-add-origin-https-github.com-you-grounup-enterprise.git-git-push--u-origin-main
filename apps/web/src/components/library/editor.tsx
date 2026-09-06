@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, Switch } from '@/components/ui/misc';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UnitSelect } from '@/components/ui/unit-select';
+import { CategorySelect } from '@/components/ui/category-select';
 
 /**
  * Adding to the company's own library.
@@ -25,7 +26,7 @@ export const UNITS = [
 
 export interface ServiceFormValues {
   code: string; name: string; description: string;
-  category: string; subcategory: string;
+  category: string; subcategory: string; industry: string;
   defaultUnit: string; supportedUnits: string[];
 }
 
@@ -46,7 +47,7 @@ export function ServiceForm({ initial, busy, error, onSubmit, onCancel, title }:
   const [v, setV] = useState<ServiceFormValues>({
     code: initial?.code ?? '', name: initial?.name ?? '',
     description: initial?.description ?? '', category: initial?.category ?? '',
-    subcategory: initial?.subcategory ?? '',
+    subcategory: initial?.subcategory ?? '', industry: initial?.industry ?? '',
     defaultUnit: initial?.defaultUnit ?? 'LS',
     supportedUnits: initial?.supportedUnits ?? ['LS'],
   });
@@ -77,12 +78,8 @@ export function ServiceForm({ initial, busy, error, onSubmit, onCancel, title }:
             hint="Unique within your library." placeholder="SVC-EL-0001" />
           <div className="space-y-1.5">
             <Label htmlFor="svc-unit">Default unit</Label>
-            <Select value={v.defaultUnit} onValueChange={(x) => set('defaultUnit', x)}>
-              <SelectTrigger id="svc-unit"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {UNITS.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <UnitSelect id="svc-unit" label="default unit" className="w-full"
+              value={v.defaultUnit} onChange={(x) => set('defaultUnit', x)} />
           </div>
         </div>
 
@@ -91,11 +88,29 @@ export function ServiceForm({ initial, busy, error, onSubmit, onCancel, title }:
         <Field id="svc-desc" label="Description" value={v.description}
           onChange={(x) => set('description', x)} />
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field id="svc-cat" label="Trade or category" value={v.category}
-            onChange={(x) => set('category', x)} placeholder="Electrical" />
-          <Field id="svc-sub" label="Subcategory" value={v.subcategory}
-            onChange={(x) => set('subcategory', x)} placeholder="Branch wiring" />
+        {/*
+          * Chosen rather than typed. A category is a record since migration
+          * 0113 and the database refuses one that is not — which is what stops
+          * "Site Work", "Sitework" and "Site work" becoming three categories
+          * that every report has to reconcile. The plus adds one to your
+          * company's list without leaving the form.
+          */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="svc-industry">Industry</Label>
+            <CategorySelect id="svc-industry" kind="industry" label="industry"
+              value={v.industry} onChange={(x) => set('industry', x)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="svc-cat">Trade or category</Label>
+            <CategorySelect id="svc-cat" kind="service_category" label="service category"
+              value={v.category} onChange={(x) => set('category', x)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="svc-sub">Subcategory</Label>
+            <CategorySelect id="svc-sub" kind="service_subcategory" label="subcategory"
+              value={v.subcategory} onChange={(x) => set('subcategory', x)} />
+          </div>
         </div>
 
         <div className="space-y-1.5">
@@ -172,18 +187,17 @@ export function TaskForm({ busy, error, onSubmit, onCancel }: {
             placeholder="TSK-EL-0001" />
           <div className="space-y-1.5">
             <Label htmlFor="tsk-unit">Unit</Label>
-            <Select value={v.defaultUnit} onValueChange={(x) => set('defaultUnit', x)}>
-              <SelectTrigger id="tsk-unit"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {UNITS.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <UnitSelect id="tsk-unit" label="default unit" className="w-full"
+              value={v.defaultUnit} onChange={(x) => set('defaultUnit', x)} />
           </div>
         </div>
         <Field id="tsk-name" label="Name" value={v.name} onChange={(x) => set('name', x)}
           placeholder="Pull and terminate 12 AWG branch circuit" />
-        <Field id="tsk-cat" label="Trade or category" value={v.category}
-          onChange={(x) => set('category', x)} placeholder="Electrical" />
+        <div className="space-y-1.5">
+          <Label htmlFor="tsk-cat">Trade or category</Label>
+          <CategorySelect id="tsk-cat" kind="task_category" label="task category"
+            value={v.category} onChange={(x) => set('category', x)} />
+        </div>
 
         <div className="space-y-2.5 border-t border-charcoal-200 pt-3">
           {toggles.map((t) => (
