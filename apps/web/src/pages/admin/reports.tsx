@@ -19,6 +19,7 @@ import {
 } from '@/lib/data/admin';
 import { ExportButton } from '@/components/admin/export-button';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { CompanyLink } from '@/components/admin/company-link';
 import { money, integer, date, dateTime } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
@@ -132,7 +133,7 @@ export function AdminReports() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium text-charcoal-900">
-                      {companyName(p.companyId)}
+                      <CompanyLink id={p.companyId} name={companyName(p.companyId)} />
                       {p.estimatedMonthlyCents != null ? (
                         <span className="ml-2 text-sm font-normal text-charcoal-600">
                           {money(p.estimatedMonthlyCents / 100)} a month estimated

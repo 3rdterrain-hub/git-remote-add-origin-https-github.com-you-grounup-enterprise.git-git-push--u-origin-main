@@ -179,3 +179,87 @@ describe('a working unsubscribe', () => {
     });
   });
 });
+
+/**
+ * A person's own settings.
+ *
+ * `user_profiles.preferences` has been a jsonb column since migration 0002 and
+ * nothing ever wrote to it, so every person got the same navigation in the same
+ * order. The setter merges rather than replaces, which is the whole point:
+ * two tabs each writing the whole object would overwrite each other, and a lost
+ * preference looks exactly like one that was never saved.
+ */
+describe('saving a preference', () => {
+  let h: Harness;
+  const alice = '11111111-1111-4111-8111-111111111111';
+  const bob = '22222222-2222-4222-8222-222222222222';
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    for (const [id, mail] of [[alice, 'a@r.test'], [bob, 'b@r.test']] as const) {
+      await h.sql(`insert into auth.users (id, email) values ($1,$2)`, [id, mail]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,$2)
+                   on conflict (id) do nothing`, [id, mail]);
+    }
+  }, 240_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('saves a key and gives back the whole object', async () => {
+    const [row] = await h.asUser(alice, () => h.sql<{ prefs: Record<string, unknown> }>(
+      `select app.set_my_preference('navigation',
+         '{"placement":"top","order":["/app"],"hidden":[]}'::jsonb) as prefs`));
+    expect(row!.prefs.navigation).toEqual({
+      placement: 'top', order: ['/app'], hidden: [],
+    });
+  });
+
+  it('merges rather than replacing, so two screens do not overwrite each other',
+    async () => {
+      await h.asUser(alice, () => h.sql(
+        `select app.set_my_preference('dashboard', '{"cards":["bids_due"]}'::jsonb)`));
+      const [row] = await h.asUser(alice, () => h.sql<{ prefs: Record<string, unknown> }>(
+        `select preferences as prefs from my_preferences`));
+      // The navigation preference from the previous test is still there.
+      expect(Object.keys(row!.prefs).sort()).toEqual(['dashboard', 'navigation']);
+    });
+
+  it('removes a key when given nothing, so a person can go back to the default',
+    async () => {
+      await h.asUser(alice, () => h.sql(
+        `select app.set_my_preference('dashboard', null)`));
+      const [row] = await h.asUser(alice, () => h.sql<{ prefs: Record<string, unknown> }>(
+        `select preferences as prefs from my_preferences`));
+      expect(Object.keys(row!.prefs)).toEqual(['navigation']);
+    });
+
+  it('refuses a key that is not a key', async () => {
+    await expect(h.asUser(alice, () => h.sql(
+      `select app.set_my_preference('Nav; drop table x', '{}'::jsonb)`)))
+      .rejects.toThrow(/lowercase letters, digits, dots and underscores/);
+  });
+
+  it('shows a person only their own', async () => {
+    // A colleague can select from user_profiles; nobody else's arrangement of
+    // their own sidebar is any of their business.
+    const rows = await h.asUser(bob, () => h.sql<{ prefs: unknown }>(
+      `select preferences as prefs from my_preferences`));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.prefs).toEqual({});
+  });
+
+  it('writes to the caller\'s own profile and nobody else\'s', async () => {
+    await h.asUser(bob, () => h.sql(
+      `select app.set_my_preference('navigation', '{"placement":"side"}'::jsonb)`));
+    const [a] = await h.sql<{ prefs: Record<string, unknown> }>(
+      `select preferences as prefs from user_profiles where id = $1`, [alice]);
+    // Alice's is untouched by Bob's save.
+    expect((a!.prefs.navigation as Record<string, unknown>).placement).toBe('top');
+  });
+
+  it('refuses somebody who is not signed in', async () => {
+    await expect(h.asAnon(() => h.sql(
+      `select app.set_my_preference('navigation', '{}'::jsonb)`)))
+      .rejects.toThrow();
+  });
+});

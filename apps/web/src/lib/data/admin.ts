@@ -1551,6 +1551,8 @@ export async function retractAnnouncement(
 // ---------------------------------------------------------------------------
 export interface OutboxMessage {
   id: string;
+  /** So an operator reading a failed message can open the account it is about. */
+  companyId: string | null;
   companyName: string | null;
   toEmail: string;
   subject: string;
@@ -1567,9 +1569,10 @@ export interface OutboxMessage {
 export const loadOutbox: Query<OutboxMessage[]> = async (client) => {
   const rows = unwrap(await client
     .from('admin_outbox')
-    .select('id, company_name, to_email, subject, category, transactional, state, suppressed_reason, error, attempts, queued_at, sent_at')) as Array<Record<string, unknown>>;
+    .select('id, company_id, company_name, to_email, subject, category, transactional, state, suppressed_reason, error, attempts, queued_at, sent_at')) as Array<Record<string, unknown>>;
   return rows.map((m) => ({
     id: String(m.id),
+    companyId: (m.company_id as string | null) ?? null,
     companyName: (m.company_name as string | null) ?? null,
     toEmail: String(m.to_email),
     subject: String(m.subject),

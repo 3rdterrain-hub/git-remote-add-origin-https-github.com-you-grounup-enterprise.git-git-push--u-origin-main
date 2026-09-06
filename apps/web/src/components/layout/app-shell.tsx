@@ -4,14 +4,13 @@ import {
   LayoutDashboard, Calculator, FileStack, HardHat, Users, Library,
   BarChart3, Settings, CreditCard, Menu, X, Bell, Search, ChevronDown, Bot,
   FileSignature, ArrowRight, CalendarDays, Truck, Users2, ShoppingCart, Banknote, ShieldAlert,
-  Mountain, Gavel, Network, KeyRound, Ruler,
+  Mountain, Gavel, Network, KeyRound, Ruler, SlidersHorizontal,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { COMPANY, USER } from '@/data/demo';
-import { ESTIMATE } from '@/data/demo';
 import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
@@ -21,7 +20,20 @@ import {
   loadMemberships, loadMySuspension, loadMyPaymentProblem, loadMyAnnouncements,
   dismissAnnouncement,
 } from '@/lib/data/session';
+import {
+  loadNavPreference, applyNavOrder, DEFAULT_NAV, type NavPreference,
+} from '@/lib/data/preferences';
+import { CustomizeNavDialog, type NavChoice } from './customize-nav';
+import { loadBlockedCount } from '@/lib/data/dashboard';
 
+/**
+ * Every screen the application has, in the order it ships in.
+ *
+ * A person's saved arrangement refers to these by `to`, which is stable, unique
+ * and already the thing the router knows the screen by — a separate key would
+ * be a second name for one thing and would drift from the route the first time
+ * somebody moved a page.
+ */
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/app/estimates', label: 'Estimator', icon: Calculator },
@@ -81,6 +93,27 @@ export function AppShell() {
 
   const [open, setOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
+
+  /*
+   * The arrangement, read from the profile and held here so a save takes effect
+   * without a round trip. Until it has loaded the shipped order is shown, which
+   * is the right thing to be wrong with: every screen is present and in a
+   * sensible order, rather than an empty bar that fills in a moment later.
+   */
+  const navPrefQ = useQuery(loadNavPreference, []);
+  const [navOverride, setNavOverride] = useState<NavPreference | null>(null);
+  const navPref = navOverride
+    ?? (navPrefQ.status === 'ready' ? navPrefQ.data : DEFAULT_NAV);
+
+  const withKeys = (items: readonly { to: string; label: string; icon: typeof LayoutDashboard;
+                                      end?: boolean }[]) =>
+    items.map((i) => ({ ...i, key: i.to }));
+  const mainNav = applyNavOrder(withKeys(NAV), navPref);
+  const adminNav = applyNavOrder(withKeys(ADMIN_NAV), navPref);
+  const choices: NavChoice[] = [...withKeys(NAV), ...withKeys(ADMIN_NAV)]
+    .map(({ key, label, icon }) => ({ key, label, icon }));
+  const onTop = navPref.placement === 'top';
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -89,6 +122,14 @@ export function AppShell() {
   const navigate = useNavigate();
   const pendingFindings = AI_FINDINGS.filter((f) => f.state === 'proposed').length;
   const unread = NOTIFICATIONS.filter((n) => !n.readAt);
+
+  /*
+   * How many of the caller's own estimates the engine has not cleared. Counted
+   * rather than fetched in full: the header needs a number, and the list lives
+   * on the estimator screen.
+   */
+  const blockedQ = useQuery(loadBlockedCount, []);
+  const blockedCount = blockedQ.status === 'ready' ? blockedQ.data : 0;
 
   // Debounced so typing does not fire a query per keystroke.
   useEffect(() => {
@@ -143,9 +184,15 @@ export function AppShell() {
         />
       ) : null}
 
+      {/*
+        * On top, the sidebar still exists — it is the mobile drawer. A phone has
+        * no room for eighteen items across, so the placement preference governs
+        * the desktop layout and the drawer is what a narrow screen always gets.
+        */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-charcoal-900 transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-charcoal-900 transition-transform',
+          onTop ? 'lg:hidden' : 'lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -169,19 +216,34 @@ export function AppShell() {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {NAV.map((item) => (
-            <NavItem key={item.to} {...item} onNavigate={() => setOpen(false)}
+          {mainNav.map(({ key, ...item }) => (
+            <NavItem key={key} {...item} onNavigate={() => setOpen(false)}
               badge={item.label === 'Plans & Specs' && pendingFindings ? pendingFindings : undefined} />
           ))}
-          <p className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal-500">
-            Administration
-          </p>
-          {ADMIN_NAV.map((item) => (
-            <NavItem key={item.to} {...item} onNavigate={() => setOpen(false)} />
+          {adminNav.length > 0 ? (
+            <p className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal-500">
+              Administration
+            </p>
+          ) : null}
+          {adminNav.map(({ key, ...item }) => (
+            <NavItem key={key} {...item} onNavigate={() => setOpen(false)} />
           ))}
         </nav>
 
         <div className="border-t border-charcoal-800 p-3">
+          {/*
+            * Pinned rather than left at the end of the list. With twenty-two
+            * items the list scrolls, and a control that lives past the fold is
+            * a control nobody finds.
+            */}
+          <button
+            onClick={() => { setCustomizing(true); setOpen(false); }}
+            className="mb-1 flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm
+                       font-medium text-charcoal-400 transition-colors
+                       hover:bg-charcoal-800/60 hover:text-white">
+            <SlidersHorizontal className="size-4 shrink-0" />
+            <span className="flex-1 text-left">Arrange this bar</span>
+          </button>
           <div className="flex items-center gap-3 rounded-md px-2 py-2">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-xs font-bold text-charcoal-900">
               {USER.name.split(' ').map((n) => n[0]).join('')}
@@ -196,9 +258,16 @@ export function AppShell() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-charcoal-200 bg-white px-4 lg:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+          <Button variant="ghost" size="icon" className={onTop ? '' : 'lg:hidden'}
+            onClick={() => setOpen(true)} aria-label="Open navigation">
             <Menu />
           </Button>
+
+          {/* The logo comes up here when the bar does, so it is still the
+              first thing on the page rather than disappearing with the rail. */}
+          {onTop ? (
+            <NavLink to="/app" className="hidden shrink-0 lg:block"><Logo /></NavLink>
+          ) : null}
 
           <div className="relative hidden max-w-md flex-1 md:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
@@ -250,10 +319,19 @@ export function AppShell() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            {ESTIMATE.blockedFromIssue ? (
-              <Badge variant="danger" className="hidden sm:inline-flex">
-                {ESTIMATE.number} blocked from issue
-              </Badge>
+            {/*
+              * The caller's own count, not a sample estimate's number. This
+              * read "EST-2026-0184 blocked from issue" in every signed-in
+              * person's header regardless of whose workspace it was, which is
+              * the platform asserting something about their data that came
+              * from a fixture.
+              */}
+            {blockedCount > 0 ? (
+              <NavLink to="/app/estimates" className="hidden sm:inline-flex">
+                <Badge variant="danger">
+                  {blockedCount} blocked from issue
+                </Badge>
+              </NavLink>
             ) : null}
             <Button variant="ghost" size="icon" aria-label="AI review queue" className="relative">
               <Bot />
@@ -323,6 +401,28 @@ export function AppShell() {
           </div>
         </header>
 
+        {/*
+          * The bar across the top. It scrolls sideways rather than wrapping,
+          * because a navigation whose height changes with the window moves the
+          * page under the reader every time they resize it.
+          */}
+        {onTop ? (
+          <nav className="sticky top-16 z-10 hidden shrink-0 items-center gap-1 overflow-x-auto
+                          border-b border-charcoal-200 bg-charcoal-900 px-3 py-1.5 lg:flex">
+            {[...mainNav, ...adminNav].map(({ key, ...item }) => (
+              <TopNavItem key={key} {...item}
+                badge={item.label === 'Plans & Specs' && pendingFindings ? pendingFindings : undefined} />
+            ))}
+            <button onClick={() => setCustomizing(true)}
+              className="ml-auto flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5
+                         text-sm font-medium text-charcoal-400 transition-colors
+                         hover:bg-charcoal-800/60 hover:text-white"
+              aria-label="Arrange this bar">
+              <SlidersHorizontal className="size-4" />
+            </button>
+          </nav>
+        ) : null}
+
         <main key={location.pathname} className="min-w-0 flex-1 p-4 lg:p-6">
           {/*
             * Said here rather than discovered on a refusal. Somebody who spends
@@ -391,7 +491,45 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+
+      <CustomizeNavDialog
+        open={customizing}
+        onOpenChange={setCustomizing}
+        items={choices}
+        value={navPref}
+        onSaved={setNavOverride}
+      />
     </div>
+  );
+}
+
+/** The same item, laid out for a bar that runs across rather than down. */
+function TopNavItem({ to, label, icon: Icon, end, badge }: {
+  to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; badge?: number;
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn(
+          'flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+          isActive
+            // A rail underneath rather than down the left, which is the same
+            // idea turned through ninety degrees along with everything else.
+            ? 'bg-charcoal-800 text-white shadow-[inset_0_-3px_0_0_var(--color-yellow-500)]'
+            : 'text-charcoal-300 hover:bg-charcoal-800/60 hover:text-white',
+        )
+      }
+    >
+      <Icon className="size-4 shrink-0" />
+      <span>{label}</span>
+      {badge ? (
+        <span className="rounded-full bg-yellow-500 px-1.5 text-[10px] font-bold text-charcoal-900">
+          {badge}
+        </span>
+      ) : null}
+    </NavLink>
   );
 }
 

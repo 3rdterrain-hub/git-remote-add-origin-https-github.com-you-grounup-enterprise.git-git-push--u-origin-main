@@ -188,6 +188,7 @@ TBL-user_profiles,table,user_profiles,supabase/migrations (table user_profiles),
 TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overrides),ENTITY
 TBL-vendors,table,vendors,supabase/migrations (table vendors),ENTITY
 TBL-visit_events,table,visit_events,supabase/migrations (table visit_events),ENTITY
+TBL-weather_days,table,weather_days,supabase/migrations (table weather_days),ENTITY
 TBL-work_calendar_exceptions,table,work_calendar_exceptions,supabase/migrations (table work_calendar_exceptions),LIBRARY
 TBL-work_calendars,table,work_calendars,supabase/migrations (table work_calendars),LIBRARY
 TBL-work_credential_requirements,table,work_credential_requirements,supabase/migrations (table work_credential_requirements),ENTITY
@@ -205,6 +206,7 @@ UI-api-access,ui,api-access,apps/web/src/pages/app/api-access.tsx,ENTITY
 UI-billing,ui,billing,apps/web/src/pages/app/billing.tsx,ENTITY
 UI-claims,ui,claims,apps/web/src/pages/app/claims.tsx,ENTITY
 UI-crm,ui,crm,apps/web/src/pages/app/crm.tsx,ENTITY
+UI-dashboard-live,ui,dashboard-live,apps/web/src/pages/app/dashboard-live.tsx,ENTITY
 UI-dashboard,ui,dashboard,apps/web/src/pages/app/dashboard.tsx,ENTITY
 UI-estimate-version,ui,estimate-version,apps/web/src/pages/app/estimate-version.tsx,ENTITY
 UI-estimate-workspace,ui,estimate-workspace,apps/web/src/pages/app/estimate-workspace.tsx,ENTITY
@@ -336,6 +338,8 @@ TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENG
 TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
+TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
+TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
@@ -352,6 +356,7 @@ TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
+TST-web-dashboard-live,test,web/dashboard-live.test.tsx,apps/web/src/pages/app/dashboard-live.test.tsx,ENGINE
 TST-web-estimate-pricing,test,web/estimate-pricing.test.tsx,apps/web/src/pages/app/estimate-pricing.test.tsx,ENGINE
 TST-web-estimate-version,test,web/estimate-version.test.tsx,apps/web/src/pages/app/estimate-version.test.tsx,ENGINE
 TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
@@ -369,4 +374,5 @@ TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,E
 TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE
 TST-web-onboarding,test,web/onboarding.test.tsx,apps/web/src/pages/onboarding.test.tsx,ENGINE
+TST-web-routes,test,web/routes.test.tsx,apps/web/src/routes.test.tsx,ENGINE
 TST-web-hermetic,test,web/hermetic.test.ts,apps/web/src/test/hermetic.test.ts,ENGINE

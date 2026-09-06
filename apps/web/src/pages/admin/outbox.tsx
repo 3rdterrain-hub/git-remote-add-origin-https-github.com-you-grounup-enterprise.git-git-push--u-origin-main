@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@/lib/data/query';
 import { loadOutbox, loadOutboxHealth, sendQueuedEmail } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { CompanyLink } from '@/components/admin/company-link';
 import { integer, dateTime } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
@@ -120,7 +121,9 @@ export function AdminOutbox() {
                   <TableCell className="text-xs text-charcoal-800">
                     {m.toEmail}
                     {m.companyName ? (
-                      <span className="block text-charcoal-400">{m.companyName}</span>
+                      <span className="block text-charcoal-400">
+                        <CompanyLink id={m.companyId} name={m.companyName} />
+                      </span>
                     ) : null}
                   </TableCell>
                   <TableCell className="max-w-72 text-charcoal-700">

@@ -159,6 +159,7 @@
     "value_overrides": "ENTITY",
     "vendors": "ENTITY",
     "visit_events": "ENTITY",
+    "weather_days": "ENTITY",
     "work_calendar_exceptions": "LIBRARY",
     "work_calendars": "LIBRARY",
     "work_credential_requirements": "ENTITY",

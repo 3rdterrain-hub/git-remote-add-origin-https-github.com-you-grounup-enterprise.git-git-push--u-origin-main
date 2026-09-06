@@ -138,7 +138,7 @@ export function AdminDashboard() {
           value={thisMonth ? integer(thisMonth.newUsers) : '—'}
           hint={lastMonth ? `${integer(lastMonth.newUsers)} last month` : undefined}
           icon={<UserPlus className="size-4" />} />
-        <Tile label="Given away" to="/admin/accounts"
+        <Tile label="Given away" to="/admin/companies"
           value={revenue ? money((revenue.givenAwayCents + revenue.discountedCents) / 100) : '—'}
           hint={revenue
             ? `${integer(revenue.onTerms)} on terms, ${integer(revenue.onFree)} on the free plan`

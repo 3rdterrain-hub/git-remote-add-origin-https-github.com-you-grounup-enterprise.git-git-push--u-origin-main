@@ -412,6 +412,10 @@ describe('every table leaves a record of what happened to it', () => {
     notifications: 'Per-user notices. Mutable by design, and of no evidentiary value.',
     // The ledger itself. Auditing the audit table would recurse.
     audit_events: 'The ledger. It is frozen and it cannot audit itself.',
+    // A cache of somebody else's forecast, replaced every few hours. Nothing
+    // in it originates here, and an estimate that needs to remember what
+    // weather it assumed copies the numbers rather than pointing at these.
+    weather_days: 'A refreshed forecast cache. Derived, replaceable, and of no evidentiary value.',
   };
 
   let tables: { table_name: string; audited: boolean; frozen: boolean }[] = [];

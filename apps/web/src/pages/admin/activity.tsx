@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@/lib/data/query';
 import { loadOperatorActivity, loadOperatorSummary, loadExports } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
+import { CompanyLink } from '@/components/admin/company-link';
 import { integer, dateTime, date } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
@@ -205,7 +206,7 @@ export function AdminActivity() {
                   <TableCell className="text-charcoal-700">
                     {a.platformWide ? (
                       <Badge variant="default">the platform</Badge>
-                    ) : (a.companyName ?? '—')}
+                    ) : <CompanyLink id={a.companyId} name={a.companyName} />}
                   </TableCell>
                   <TableCell className="max-w-96 text-xs text-charcoal-600">
                     {a.reason ?? <span className="text-charcoal-400">—</span>}

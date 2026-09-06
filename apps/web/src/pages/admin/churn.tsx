@@ -13,6 +13,7 @@ import {
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { ExportButton } from '@/components/admin/export-button';
 import { Button } from '@/components/ui/button';
+import { CompanyLink } from '@/components/admin/company-link';
 import { money, integer, date, dateTime } from '@/lib/format';
 import type { OperatorContext } from './shell';
 
@@ -110,11 +111,12 @@ export function AdminChurn() {
               {failing.map((p) => (
                 <TableRow key={p.stripeInvoiceId}
                   className={p.stripeGaveUp ? 'bg-danger-50/40' : undefined}>
-                  <TableCell className="font-medium text-charcoal-900">
-                    {p.companyName}
-                    <span className="block text-xs text-charcoal-500">
-                      {p.seats} seat{p.seats === 1 ? '' : 's'}
-                    </span>
+                  <TableCell>
+                    <CompanyLink id={p.companyId} name={p.companyName}>
+                      <span className="block text-xs text-charcoal-500">
+                        {p.seats} seat{p.seats === 1 ? '' : 's'}
+                      </span>
+                    </CompanyLink>
                   </TableCell>
                   <TableCell className="text-xs text-charcoal-700">
                     {p.ownerEmail ?? '—'}
@@ -315,8 +317,8 @@ export function AdminChurn() {
             <TableBody>
               {list.slice(0, 40).map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium text-charcoal-900">
-                    {c.companyName}
+                  <TableCell>
+                    <CompanyLink id={c.companyId} name={c.companyName} />
                   </TableCell>
                   <TableCell>
                     {c.reasonLabel ? (

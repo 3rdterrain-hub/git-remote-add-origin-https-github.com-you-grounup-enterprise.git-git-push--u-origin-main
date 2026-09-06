@@ -13,8 +13,21 @@ import { ESTIMATE, USER, HAUL, CUT_FILL } from '@/data/demo';
 import { ACTIVITY, AI_FINDINGS, ESTIMATES, OPPORTUNITIES, PROJECTS, RFIS } from '@/data/operations';
 import { money, moneyCompact, percent, integer, dateTime, relativeDays, qty, plural, titleCase } from '@/lib/format';
 import { GateBadge, ConfidencePill } from '@/components/estimating';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { DashboardLivePage } from './dashboard-live';
 
+/**
+ * With a workspace configured this shows what is actually due, waiting and
+ * blocked in the caller's own tenant. With none it shows the sample workspace,
+ * which is the honest way to show what the platform does to somebody who has
+ * not built anything in it yet.
+ */
 export function DashboardPage() {
+  if (isSupabaseConfigured) return <DashboardLivePage />;
+  return <DemonstrationDashboard />;
+}
+
+function DemonstrationDashboard() {
   const pipeline = OPPORTUNITIES
     .filter((o) => !['won', 'lost'].includes(o.stage))
     .reduce((a, o) => a + o.value, 0);
