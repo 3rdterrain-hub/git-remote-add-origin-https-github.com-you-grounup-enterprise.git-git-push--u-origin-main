@@ -28,6 +28,7 @@ ENG-026,engine,Health Engine,supabase/functions/_shared/observability/health.ts,
 ENG-027,engine,Work Calendar Engine,packages/engine/src/calendar.ts,ENGINE
 ENG-028,engine,Critical Path Engine,packages/engine/src/schedule.ts,ENGINE
 ENG-029,engine,Takeoff Measurement,packages/engine/src/takeoff.ts,ENGINE
+ENG-031,engine,Basin & Pond Engine,packages/engine/src/basins.ts,ENGINE
 ENG-030,engine,Estimate Hierarchy,packages/engine/src/hierarchy.ts,ENGINE
 AI-001,ai_agent,Plan Analyst,supabase/functions/ai-analyze-document,AI_AGENT
 TBL-ai_agents,table,ai_agents,supabase/migrations (table ai_agents),AI_AGENT
@@ -205,6 +206,7 @@ UI-billing,ui,billing,apps/web/src/pages/app/billing.tsx,ENTITY
 UI-claims,ui,claims,apps/web/src/pages/app/claims.tsx,ENTITY
 UI-crm,ui,crm,apps/web/src/pages/app/crm.tsx,ENTITY
 UI-dashboard,ui,dashboard,apps/web/src/pages/app/dashboard.tsx,ENTITY
+UI-estimate-version,ui,estimate-version,apps/web/src/pages/app/estimate-version.tsx,ENTITY
 UI-estimate-workspace,ui,estimate-workspace,apps/web/src/pages/app/estimate-workspace.tsx,ENTITY
 UI-estimates,ui,estimates,apps/web/src/pages/app/estimates.tsx,ENTITY
 UI-finance,ui,finance,apps/web/src/pages/app/finance.tsx,ENTITY
@@ -216,6 +218,7 @@ UI-plans,ui,plans,apps/web/src/pages/app/plans.tsx,ENTITY
 UI-procurement,ui,procurement,apps/web/src/pages/app/procurement.tsx,ENTITY
 UI-project-detail,ui,project-detail,apps/web/src/pages/app/project-detail.tsx,ENTITY
 UI-projects,ui,projects,apps/web/src/pages/app/projects.tsx,ENTITY
+UI-proposals-live,ui,proposals-live,apps/web/src/pages/app/proposals-live.tsx,ENTITY
 UI-proposals,ui,proposals,apps/web/src/pages/app/proposals.tsx,ENTITY
 UI-reports,ui,reports,apps/web/src/pages/app/reports.tsx,ENTITY
 UI-safety,ui,safety,apps/web/src/pages/app/safety.tsx,ENTITY
@@ -229,6 +232,7 @@ RPT-reporting_labor_productivity,report,reporting_labor_productivity,supabase/mi
 RPT-reporting_safety_summary,report,reporting_safety_summary,supabase/migrations/0025_semantic_layer.sql,ENGINE
 RPT-reporting_bid_performance,report,reporting_bid_performance,supabase/migrations/0025_semantic_layer.sql,ENGINE
 TST-engine-assemblies,test,engine/assemblies.test.ts,packages/engine/tests/assemblies.test.ts,ENGINE
+TST-engine-basins,test,engine/basins.test.ts,packages/engine/tests/basins.test.ts,ENGINE
 TST-engine-calendar,test,engine/calendar.test.ts,packages/engine/tests/calendar.test.ts,ENGINE
 TST-engine-confidence,test,engine/confidence.test.ts,packages/engine/tests/confidence.test.ts,ENGINE
 TST-engine-estimate,test,engine/estimate.test.ts,packages/engine/tests/estimate.test.ts,ENGINE
@@ -257,6 +261,7 @@ TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.t
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
+TST-db-building-an-estimate,test,db/building-an-estimate.test.ts,tests/db/building-an-estimate.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
 TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
@@ -348,12 +353,15 @@ TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
 TST-web-estimate-pricing,test,web/estimate-pricing.test.tsx,apps/web/src/pages/app/estimate-pricing.test.tsx,ENGINE
+TST-web-estimate-version,test,web/estimate-version.test.tsx,apps/web/src/pages/app/estimate-version.test.tsx,ENGINE
 TST-web-estimate-workspace,test,web/estimate-workspace.test.tsx,apps/web/src/pages/app/estimate-workspace.test.tsx,ENGINE
+TST-web-estimates,test,web/estimates.test.tsx,apps/web/src/pages/app/estimates.test.tsx,ENGINE
 TST-web-finance,test,web/finance.test.tsx,apps/web/src/pages/app/finance.test.tsx,ENGINE
 TST-web-fleet,test,web/fleet.test.tsx,apps/web/src/pages/app/fleet.test.tsx,ENGINE
 TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.tsx,ENGINE
 TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
 TST-web-projects,test,web/projects.test.tsx,apps/web/src/pages/app/projects.test.tsx,ENGINE
+TST-web-proposals-live,test,web/proposals-live.test.tsx,apps/web/src/pages/app/proposals-live.test.tsx,ENGINE
 TST-web-reports,test,web/reports.test.tsx,apps/web/src/pages/app/reports.test.tsx,ENGINE
 TST-web-safety,test,web/safety.test.tsx,apps/web/src/pages/app/safety.test.tsx,ENGINE
 TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE

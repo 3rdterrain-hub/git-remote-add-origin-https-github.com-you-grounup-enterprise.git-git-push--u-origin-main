@@ -15,11 +15,12 @@ import { cn } from '@/lib/utils';
  * pixels. The two differ the moment somebody zooms, and a measurement that
  * changes when you zoom is not a measurement.
  */
-export type Tool = 'none' | 'calibrate' | 'count' | 'linear' | 'area' | 'volume' | 'deduct';
+export type Tool =
+  | 'none' | 'calibrate' | 'count' | 'linear' | 'area' | 'volume' | 'basin' | 'deduct';
 
 /** How many points the tool needs before the shape means anything. */
 export const MINIMUM_POINTS: Record<Tool, number> = {
-  none: 0, calibrate: 2, count: 1, linear: 2, area: 3, volume: 3, deduct: 3,
+  none: 0, calibrate: 2, count: 1, linear: 2, area: 3, volume: 3, basin: 3, deduct: 3,
 };
 
 export interface OverlayProps {
@@ -43,6 +44,7 @@ const SHAPE_COLOR: Record<Tool, string> = {
   linear: 'stroke-emerald-600',
   area: 'stroke-violet-600',
   volume: 'stroke-orange-600',
+  basin: 'stroke-cyan-600',
   deduct: 'stroke-danger-500',
 };
 
@@ -77,7 +79,7 @@ export function MeasurementOverlay({
     onPointsChange([...points, p]);
   }
 
-  const closed = tool === 'area' || tool === 'volume' || tool === 'deduct';
+  const closed = tool === 'area' || tool === 'volume' || tool === 'basin' || tool === 'deduct';
   const path = (pts: readonly Point[], close: boolean) =>
     pts.length === 0 ? '' :
       `M ${pts.map((p) => `${p.x} ${p.y}`).join(' L ')}${close && pts.length > 2 ? ' Z' : ''}`;
@@ -99,7 +101,8 @@ export function MeasurementOverlay({
     >
       {existing.map((s) => (
         <g key={s.id}>
-          <path d={path(s.points, s.kind === 'area' || s.kind === 'volume' || s.kind === 'deduct')}
+          <path d={path(s.points, s.kind === 'area' || s.kind === 'volume'
+            || s.kind === 'basin' || s.kind === 'deduct')}
             className={cn('fill-none', SHAPE_COLOR[s.kind])}
             strokeWidth={2 * scale} strokeOpacity={0.55} />
           {s.kind === 'count'

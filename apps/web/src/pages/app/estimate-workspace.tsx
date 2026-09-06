@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import {
   ChevronRight, ChevronDown, FileText, Send, Copy, AlertTriangle, Truck,
   Layers, Scale, ClipboardList, Ban, HelpCircle, Info, Wrench, Users2,
-  Calculator, Loader2, CheckCircle2,
+  Calculator, Loader2,
 } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -20,8 +20,30 @@ import { cn } from '@/lib/utils';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { usePermissions } from '@/lib/data/session';
+import { PricingOutcomeNotice } from '@/components/pricing-outcome';
+import { EstimateVersionPage } from './estimate-version';
 
+/**
+ * The estimate workspace.
+ *
+ * Two screens behind one route, and the split is deliberate rather than
+ * transitional. With a workspace configured this shows the caller's own
+ * estimate, priced by the engine, with the actions the database will actually
+ * permit. With none configured it shows the sample estimate — which carries a
+ * cut and fill balance, a haul analysis and a full derivation per line, and is
+ * the honest way to show what the engine produces to somebody who has not built
+ * an estimate yet.
+ *
+ * What there is not is a path from a failed live read to the fixture. A screen
+ * that quietly substitutes invented numbers when a query fails is the one thing
+ * this application's data layer exists to prevent.
+ */
 export function EstimateWorkspacePage() {
+  if (isSupabaseConfigured) return <EstimateVersionPage />;
+  return <DemonstrationWorkspace />;
+}
+
+function DemonstrationWorkspace() {
   const e = ESTIMATE;
   const { estimateId } = useParams();
   const { can } = usePermissions();
@@ -78,7 +100,7 @@ export function EstimateWorkspacePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        breadcrumb={<Link to="/app/estimates" className="hover:text-charcoal-900">Estimating</Link>}
+        breadcrumb={<Link to="/app/estimates" className="hover:text-charcoal-900">Estimator</Link>}
         title={e.name}
         description={
           <span className="flex flex-wrap items-center gap-2">
@@ -822,65 +844,5 @@ function DetailRow({ label, value, hint, strong }: { label: string; value: strin
       </dt>
       <dd className={cn('tabular shrink-0 text-right', strong ? 'font-semibold text-charcoal-900' : 'text-charcoal-700')}>{value}</dd>
     </div>
-  );
-}
-
-/**
- * What came back from a pricing run.
- *
- * Four outcomes, and three of them are not errors. An estimate that cannot be
- * priced because a machine has no rate in force is telling the estimator
- * something specific and fixable; collapsing that into "pricing failed" would
- * leave them guessing at a bid they are about to send.
- */
-function PricingOutcomeNotice({ outcome }: { outcome: PricingOutcome }) {
-  if (outcome.status === 'priced') {
-    const r = outcome.result;
-    return (
-      <Alert tone="success" icon={<CheckCircle2 className="size-4" />}
-        title={`Priced at ${money(r.bidPrice)} by engine ${r.engineVersion}`}>
-        {integer(r.lineCount)} lines · direct {money(r.directCost)} · margin{' '}
-        {percent(r.grossMarginPercent)} · confidence {r.weightedConfidence.toFixed(1)}{' '}
-        ({titleCase(r.confidenceBand)}).
-        {r.blockedFromIssue
-          ? ` Still blocked from issue: ${r.executiveDecisionReason}`
-          : ' Ready to issue.'}
-        {r.warnings.length ? ` ${r.warnings.length} warning(s) recorded on the version.` : ''}
-      </Alert>
-    );
-  }
-
-  if (outcome.status === 'incomplete') {
-    return (
-      <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
-        title="The engine needs more before it can price this">
-        <ul className="mt-1 space-y-1">
-          {outcome.problems.map((p, i) => (
-            <li key={`${p.field}-${p.lineId ?? 'version'}-${i}`} className="flex gap-2">
-              <span className="font-mono text-[11px] text-charcoal-500">{p.field}</span>
-              <span>{p.detail}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-2 text-xs text-charcoal-500">
-          Nothing was written. A price computed around a missing rate is a confident
-          number with nothing behind it, which is the one thing this refuses to produce.
-        </p>
-      </Alert>
-    );
-  }
-
-  if (outcome.status === 'frozen') {
-    return (
-      <Alert tone="info" icon={<Ban className="size-4" />} title="This version's price is frozen">
-        {outcome.message}
-      </Alert>
-    );
-  }
-
-  return (
-    <Alert tone="danger" icon={<AlertTriangle className="size-4" />} title="Pricing did not run">
-      {outcome.message}
-    </Alert>
   );
 }

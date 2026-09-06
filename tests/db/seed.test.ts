@@ -57,6 +57,74 @@ describe('global seed library loads into a real database', () => {
     expect(svc!.without_default).toBe(0);
   });
 
+  /*
+   * The property that actually decides whether the shipped library is worth
+   * anything, and the one nothing checked.
+   *
+   * Every seeded service pointed at an assembly and every rate hung off a task,
+   * both asserted above — but `assembly_components` was empty, so no service
+   * reached a single task or a single rate and not one of the 188 could be
+   * priced. Two true statements about the ends of a chain with no middle.
+   */
+  it('lets every service reach the tasks it is made of, and a rate for them', async () => {
+    const [row] = await h.sql<{ services: number; with_tasks: number; with_rates: number }>(
+      `select (select count(*)::int from services
+                where company_id is null and status = 'active') as services,
+              (select count(distinct s.id)::int from services s
+                 join assembly_components ac on ac.assembly_id = s.default_assembly_id
+                  and ac.component_kind = 'task'
+                where s.company_id is null and s.status = 'active') as with_tasks,
+              (select count(distinct s.id)::int from services s
+                 join assembly_components ac on ac.assembly_id = s.default_assembly_id
+                  and ac.component_kind = 'task'
+                 join production_rates pr on pr.task_id = ac.task_id and pr.status = 'active'
+                where s.company_id is null and s.status = 'active') as with_rates`);
+    expect(row!.services).toBe(188);
+    expect(row!.with_tasks, 'a service with no tasks cannot be priced').toBe(row!.services);
+    expect(row!.with_rates, 'a service with no production rate prices at zero').toBe(row!.services);
+  });
+
+  /*
+   * The seed and migration 0089 have to agree about what a service is measured
+   * in, and the agreement is fragile in a specific way: migrations run before
+   * the seed on a fresh database, so 0089 updates rows that do not exist yet
+   * and whatever the seed says is what survives. The correction has been lost
+   * once already, to a regeneration of the seed that did not know about it.
+   */
+  it('measures every service the way migration 0089 says, not the way the catalog does', async () => {
+    const sql = await readFile(
+      join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'migrations',
+           '0089_what_a_service_is_measured_in.sql'), 'utf8');
+    const expected = new Map<string, string>();
+    for (const m of sql.matchAll(/\('(SVC-\d+)',\s*'([A-Z]+)'/g)) expected.set(m[1]!, m[2]!);
+    expect(expected.size).toBe(188);
+
+    const rows = await h.sql<{ code: string; unit: string }>(
+      `select code, default_unit::text as unit from services where company_id is null`);
+    const wrong = rows.filter((r) => expected.get(r.code) !== r.unit);
+    expect(wrong.map((w) => `${w.code}: ${w.unit} should be ${expected.get(w.code)}`)).toEqual([]);
+  });
+
+  it('gives every service a cost code, so a line can be rolled up to a budget', async () => {
+    const [row] = await h.sql<{ codes: number; unlinked: number }>(
+      `select (select count(*)::int from cost_codes where company_id is null) as codes,
+              (select count(*)::int from services
+                where company_id is null and cost_code_id is null) as unlinked`);
+    expect(row!.codes).toBe(188);
+    expect(row!.unlinked).toBe(0);
+  });
+
+  it('lists a task at most once per assembly', async () => {
+    // A duplicate component doubles that task's hours and cost in every
+    // estimate priced from the assembly, and reads as a real line.
+    const [row] = await h.sql<{ dupes: number }>(
+      `select count(*)::int dupes from (
+         select assembly_id, task_id from assembly_components
+          where component_kind = 'task'
+          group by 1, 2 having count(*) > 1) d`);
+    expect(row!.dupes).toBe(0);
+  });
+
   it('gives every equipment item a seed rate at the lowest precedence tier', async () => {
     const rows = await h.sql<{ code: string; source: string; hourly: string }>(
       `select e.code, r.source, r.hourly_rate hourly from equipment e
@@ -163,6 +231,8 @@ describe('the seed can be applied twice', () => {
        union all select 'labor_rates', count(*)::text from labor_rates where company_id is null
        union all select 'production_rates', count(*)::text from production_rates where company_id is null
        union all select 'assemblies', count(*)::text from assemblies where company_id is null
+       union all select 'assembly_components', count(*)::text from assembly_components where company_id is null
+       union all select 'cost_codes', count(*)::text from cost_codes where company_id is null
        union all select 'plans', count(*)::text from plans
        union all select 'ai_agents', count(*)::text from ai_agents
        order by 1`);

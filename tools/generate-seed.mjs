@@ -9,7 +9,7 @@
  *
  * Run: npm run seed:generate
  */
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -68,6 +68,36 @@ const VALID_UNITS = new Set(['LS','EA','LF','SF','SY','CY','TON','HR','DAY','ACR
 const unit = (v, fallback = 'LS') => (VALID_UNITS.has(String(v).trim().toUpperCase()) ? String(v).trim().toUpperCase() : fallback);
 
 const banner = (title) => `\n-- ${'-'.repeat(75)}\n-- ${title}\n-- ${'-'.repeat(75)}\n`;
+
+/**
+ * The per-service unit corrections, read from migration 0089.
+ *
+ * Parsed rather than duplicated. If the migration is ever revised the seed
+ * follows it, and if the migration cannot be found or its shape has changed
+ * this throws instead of quietly emitting a library where every unit is a
+ * lump sum — which is the state 0089 exists to fix.
+ */
+async function readServiceUnitCorrections() {
+  const dir = join(ROOT, 'supabase', 'migrations');
+  const file = (await readdir(dir)).find((f) => /^0089_.*\.sql$/.test(f));
+  if (!file) throw new Error('Migration 0089 (service units) not found; cannot emit a correct seed.');
+  const sql = await readFile(join(dir, file), 'utf8');
+  const map = new Map();
+  const row = /\('(SVC-\d+)',\s*'([A-Z]+)',\s*array\[([^\]]*)\]/g;
+  let m;
+  while ((m = row.exec(sql)) !== null) {
+    map.set(m[1], {
+      unit: unit(m[2]),
+      supported: m[3].split(',').map((u) => unit(u.replace(/['\s]/g, ''))),
+    });
+  }
+  if (map.size === 0) {
+    throw new Error(
+      `${file} carries no service unit rows in the shape this generator reads. `
+      + 'The seed would fall back to the catalog, where every service is a lump sum.');
+  }
+  return map;
+}
 
 // ---------------------------------------------------------------------------
 // Generation
@@ -131,19 +161,62 @@ select null, e.id, 'global_seed', v.hourly, v.daily, v.weekly, v.monthly,
 from (values
 ${equipment.map((r) => `  (${q(r.equipment_id)}, ${n(r.hourly_rate, '0')}::numeric, ${n(r.daily_rate)}::numeric, ${n(r.weekly_rate)}::numeric, ${n(r.monthly_rate)}::numeric)`).join(',\n')}
 ) as v(code, hourly, daily, weekly, monthly)
-join equipment e on e.code = v.code and e.company_id is null and e.enterprise_group_id is null;
+join equipment e on e.code = v.code and e.company_id is null and e.enterprise_group_id is null
+-- RULE from migration 0056: one platform rate per machine, per source, per date.
+on conflict (equipment_id, source, effective_date) where company_id is null do nothing;
 `);
 
   // --- Services ------------------------------------------------------------
   out.push(banner('Service catalog'));
+  /*
+   * The units a service is actually bid in.
+   *
+   * The shipped catalog says 'LS' for all 188 — common excavation a lump sum,
+   * storm sewer a lump sum, asphalt surface course a lump sum. Migration 0089
+   * corrected every one of them, and the correction has to be applied here as
+   * well as there: migrations run before the seed on a fresh database, so 0089
+   * updates rows that do not exist yet and the catalog's 'LS' would win.
+   *
+   * The mapping is read out of the migration rather than copied, so there is
+   * one place a unit is decided and the seed cannot drift from the schema. It
+   * is also how the equipment rate conflict clause and these same units were
+   * lost before: a hand correction to the generated file that the generator
+   * never learned, silently reverted by the next regeneration.
+   */
+  const correctedUnits = await readServiceUnitCorrections();
   const serviceValues = services.map((r) => {
-    const supported = (r.supported_units || 'LS').split(';').map((u) => unit(u)).filter((v, i, a) => a.indexOf(v) === i);
-    const def = unit(r.default_estimate_unit);
+    const fix = correctedUnits.get(r.service_id);
+    const supported = fix
+      ? [...fix.supported]
+      : (r.supported_units || 'LS').split(';').map((u) => unit(u)).filter((v, i, a) => a.indexOf(v) === i);
+    const def = fix ? fix.unit : unit(r.default_estimate_unit);
     if (!supported.includes(def)) supported.unshift(def);
     return `  (${q(r.service_id)}, ${q(r.service_name)}, ${q(r.industry)}, ${q(r.industry_pack_id)}, ${q(r.category)}, ${q(r.subcategory)}, ${q(r.description)}, '${def}', array[${supported.map((u) => `'${u}'`).join(',')}]::app.unit_code[], ${q(r.pricing_method)}, ${q(r.version || '2.0')}, ${q(r.source)})`;
   });
   out.push('insert into services (code, name, industry, industry_pack_id, category, subcategory, description, default_unit, supported_units, pricing_method, version, source) values');
   out.push(serviceValues.join(',\n') + '\non conflict do nothing;\n');
+
+  // --- Cost codes ----------------------------------------------------------
+  // The catalog gives every service a cost code and the generator used to drop
+  // it, which left `services.cost_code_id` null on all 188 rows and the cost
+  // code library empty. A line that cannot name its cost code cannot be rolled
+  // up against a budget, which is the whole point of having one.
+  out.push(banner('Cost code library'));
+  out.push(`insert into cost_codes (code, name, division, status)
+values
+${services.map((r) => `  (${q(r.cost_code_id)}, ${q(r.service_name)}, ${q(r.category)}, 'active')`).join(',\n')}
+on conflict do nothing;
+
+update services s
+set cost_code_id = c.id
+from (values
+${services.map((r) => `  (${q(r.service_id)}, ${q(r.cost_code_id)})`).join(',\n')}
+) as m(service_code, cost_code)
+join cost_codes c on c.code = m.cost_code
+  and c.company_id is null and c.enterprise_group_id is null
+where s.code = m.service_code
+  and s.company_id is null and s.enterprise_group_id is null;
+`);
 
   // --- Tasks ---------------------------------------------------------------
   out.push(banner('Task library'));
@@ -175,6 +248,71 @@ where a.service_id = s.id
   and a.company_id is null and a.enterprise_group_id is null
   and s.default_assembly_id is null;
 `);
+
+  // --- Assembly components -------------------------------------------------
+  /*
+   * The connection that was missing.
+   *
+   * 188 services each pointed at an assembly, 2,783 tasks carried the method
+   * and unit for the work, and 1,452 production rates hung off those tasks —
+   * but no row joined a service to its tasks, so `assembly_components` was
+   * empty and not one service in the shipped library could be priced. The
+   * catalog has no explicit mapping file, so the ordering is the mapping: the
+   * task library is written as one contiguous block per service, in service
+   * order, each block closed by a 'Demobilize' task. That reads as an accident
+   * of formatting until you count — there are exactly 188 'Demobilize' rows for
+   * exactly 188 services, with nothing left over, and the blocks say what the
+   * services say: 'Parking lot paving' gets place aggregate base and fine grade
+   * base, 'Inground pool demolition' gets locate/protect utilities and excavate
+   * or demolish.
+   *
+   * Both halves of that are asserted below rather than assumed, because a
+   * mapping this important being silently off by one would misprice every job
+   * after the mistake.
+   */
+  const taskBlocks = [];
+  {
+    let current = [];
+    for (const t of tasks) {
+      current.push(t);
+      if (t.task_name === 'Demobilize') { taskBlocks.push(current); current = []; }
+    }
+    if (current.length > 0) {
+      throw new Error(
+        `Task library ends with ${current.length} task(s) after the last 'Demobilize' `
+        + `(${current[0].task_id}..). The per-service blocking no longer holds; the `
+        + 'service-to-task mapping must be re-derived before this seed can be trusted.');
+    }
+    if (taskBlocks.length !== services.length) {
+      throw new Error(
+        `Found ${taskBlocks.length} task blocks for ${services.length} services. `
+        + 'Each service needs exactly one block of tasks for its assembly to be priceable.');
+    }
+  }
+
+  out.push(banner('Assembly components — what each service is actually made of'));
+  const componentRows = [];
+  services.forEach((svc, i) => {
+    const assembly = assemblies.find((a) => a.service_id === svc.service_id);
+    if (!assembly) throw new Error(`Service ${svc.service_id} has no assembly.`);
+    taskBlocks[i].forEach((t, j) => {
+      componentRows.push(
+        `  (${q(assembly.assembly_id)}, ${(j + 1) * 10}, ${q(t.task_id)}, '${unit(t.default_unit)}')`);
+    });
+  });
+  for (let i = 0; i < componentRows.length; i += CHUNK) {
+    out.push(`insert into assembly_components (assembly_id, sort_order, component_kind, task_id, quantity_per_unit, unit)
+select a.id, v.sort, 'task', t.id, 1, v.unit::app.unit_code
+from (values
+${componentRows.slice(i, i + CHUNK).join(',\n')}
+) as v(assembly_code, sort, task_code, unit)
+join assemblies a on a.code = v.assembly_code
+  and a.company_id is null and a.enterprise_group_id is null
+join tasks t on t.code = v.task_code
+  and t.company_id is null and t.enterprise_group_id is null
+on conflict do nothing;
+`);
+  }
 
   // --- Production rates ----------------------------------------------------
   out.push(banner('Production rate library'));
@@ -303,6 +441,7 @@ on conflict do nothing;
   console.log(`Generated supabase/seed/0001_global_library.sql`);
   console.log(`  services            ${services.length}`);
   console.log(`  tasks               ${tasks.length}`);
+  console.log(`  assembly components ${componentRows.length}`);
   console.log(`  labor classes       ${labor.length}`);
   console.log(`  equipment           ${equipment.length}`);
   console.log(`  production rates    ${productionRates.length}`);

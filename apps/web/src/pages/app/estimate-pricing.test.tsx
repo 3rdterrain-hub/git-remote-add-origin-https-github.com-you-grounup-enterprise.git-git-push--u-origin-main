@@ -11,6 +11,10 @@
  * machine has no rate in force is telling the estimator something specific and
  * fixable; showing them "pricing failed" instead would leave them guessing at a
  * bid they are about to send.
+ *
+ * With a workspace configured the route renders the live version screen, so
+ * that is what these drive — the screen a paying estimator actually presses the
+ * button on. The version it reads is stubbed; the outcome reporting is not.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
@@ -43,6 +47,35 @@ vi.mock('@/lib/data/pricing', async () => {
     },
   };
 });
+vi.mock('@/lib/data/estimates', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/data/estimates')>(
+    '@/lib/data/estimates');
+  return {
+    ...actual,
+    loadVersion: () => async () => ({
+      id: 'ver-1', estimateId: 'e-1', estimateNumber: 'E-2026-0001',
+      estimateName: 'Maumee Commerce Park', customerName: 'Maumee Development',
+      versionNumber: 1, status: 'draft',
+      directCost: 1_704_746.74, indirectCost: 96_000, totalMarkup: 665_665,
+      totalPrice: 2_466_412.11, bidPrice: 2_466_500,
+      totalLaborHours: 3_420, totalEquipmentHours: 2_800,
+      blockedFromIssue: false, confidence: 88.5, engineVersion: '1.0.0',
+      calculatedAt: '2026-09-01T09:00:00Z', librarySnapshotId: null,
+      approvedAt: null, issuedAt: null,
+      costs: { labor: 900_000, burden: 270_000, equipment: 534_746.74 },
+      lines: [{
+        id: 'l-1', sortOrder: 10, lineNumber: null, description: 'Mass excavation',
+        serviceId: 's-1', serviceName: 'Mass excavation', costCode: 'CC-0006',
+        unit: 'CY', measuredQuantity: 120_000, adjustedQuantity: 120_000,
+        unitCost: 14.2, totalDirectCost: 1_704_746.74, laborHours: 3_420,
+        equipmentHours: 2_800, confidenceBand: 'high', blocksIssue: false,
+        hasProductionRate: true,
+      }],
+    }),
+    loadDrift: () => async () => [],
+    searchServices: () => async () => [],
+  };
+});
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useParams: () => ({ estimateId: 'ver-1' }) };
@@ -63,8 +96,10 @@ const priced = {
   },
 };
 
-const press = async () =>
-  userEvent.click(screen.getByRole('button', { name: /Price with engine/ }));
+const press = async () => {
+  const button = await screen.findByRole('button', { name: /Price with engine/ });
+  await userEvent.click(button);
+};
 
 describe('pricing an estimate from the workspace', () => {
   beforeEach(() => {
@@ -160,7 +195,7 @@ describe('pricing an estimate from the workspace', () => {
   it('disables the button for somebody whose role does not permit pricing', async () => {
     hoisted.canWrite = false;
     renderPage(<EstimateWorkspacePage />);
-    expect(screen.getByRole('button', { name: /Price with engine/ })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: /Price with engine/ })).toBeDisabled();
   });
 
   it('offers no pricing button with no workspace behind it', async () => {

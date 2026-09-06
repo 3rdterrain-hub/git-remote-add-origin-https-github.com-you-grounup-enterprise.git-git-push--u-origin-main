@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors } from 'lucide-react';
+import {
+  Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors, Waves, Plus,
+} from 'lucide-react';
 import type { Point } from '@grounup/engine';
 import { PageHeader } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,7 +13,9 @@ import { Alert } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MeasurementOverlay, MINIMUM_POINTS, type Tool } from '@/components/takeoff/overlay';
 import { SheetCanvas } from '@/components/takeoff/sheet-canvas';
-import { MeasurePanel, tryResolveScale, type ScaleState } from '@/components/takeoff/measure-panel';
+import {
+  MeasurePanel, tryResolveScale, type ScaleState, type Lift,
+} from '@/components/takeoff/measure-panel';
 import { ApplyPanel } from '@/components/takeoff/apply-panel';
 import { useQuery } from '@/lib/data/query';
 import {
@@ -19,7 +23,7 @@ import {
 } from '@/lib/data/takeoff';
 import { DemonstrationNotice, ErrorState } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { measure, ENGINE_VERSION } from '@grounup/engine';
+import { measure, measureBasin, ENGINE_VERSION } from '@grounup/engine';
 import { cn } from '@/lib/utils';
 
 /**
@@ -44,11 +48,15 @@ const TOOLS: { tool: Tool; label: string; icon: typeof Ruler; hint: string }[] =
   { tool: 'linear', label: 'Length', icon: Minus, hint: 'Trace the run. Give it a width for area.' },
   { tool: 'area', label: 'Area', icon: Square, hint: 'Outline the shape.' },
   { tool: 'volume', label: 'Volume', icon: Box, hint: 'Outline the shape and give it a depth.' },
+  { tool: 'basin', label: 'Pond', icon: Waves,
+    hint: 'Outline the top of bank. The sides slope, so the floor is smaller than the top.' },
   { tool: 'deduct', label: 'Deduct', icon: Scissors, hint: 'Outline an opening to subtract.' },
 ];
 
 const UNITS_FOR: Record<string, string[]> = {
   count: ['EA'], linear: ['LF'], area: ['SF', 'SY', 'ACRE'], volume: ['CY'],
+  // A pond is bid by what comes out of it, by what lines it, or by what it holds.
+  basin: ['CY', 'SY', 'SF', 'ACRE', 'GAL'],
 };
 
 export function TakeoffPage() {
@@ -68,6 +76,13 @@ export function TakeoffPage() {
 
   const [tool, setTool] = useState<Tool>('calibrate');
   const [points, setPoints] = useState<Point[]>([]);
+  /*
+   * A pond's cuts, top down. Held here rather than in the panel because the
+   * apply step needs them: they are inputs to the measurement, not a way of
+   * displaying it.
+   */
+  const [lifts, setLifts] = useState<Lift[]>([{ depthFeet: 8, sideSlopeRun: 3 }]);
+  const [freeboardFeet, setFreeboardFeet] = useState('');
   const [deductions, setDeductions] = useState<Point[][]>([]);
   const [sheetSize, setSheetSize] = useState({ width: 1224, height: 792 });
   const [zoom, setZoom] = useState(1);
@@ -135,9 +150,43 @@ export function TakeoffPage() {
   const measured = useMemo(() => {
     if (!scale && tool !== 'count') return null;
     if (tool === 'none' || tool === 'calibrate' || tool === 'deduct') return null;
+    /*
+     * A basin is not a volume with a depth; its sides slope, so its quantity
+     * comes from `measureBasin` and the prismoidal arithmetic behind it. Both
+     * paths return a quantity in the same unit, which is all the apply step
+     * needs — but they are not the same calculation and are not merged.
+     */
+    if (tool === 'basin') {
+      if (!scale || lifts.length === 0) return null;
+      try {
+        const b = measureBasin({
+          points, scale,
+          lifts: lifts.map((l) => ({
+            depthFeet: l.depthFeet, sideSlopeRun: l.sideSlopeRun,
+            ...(l.benchWidthFeet ? { benchWidthFeet: l.benchWidthFeet } : {}),
+          })),
+          ...(num(freeboardFeet) === undefined ? {} : { freeboardFeet: num(freeboardFeet) }),
+          ...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) }),
+        });
+        const quantity =
+          unit === 'CY' ? b.excavationBankCubicYards
+          : unit === 'SF' ? b.slopeFaceAreaSquareFeet
+          : unit === 'SY' ? b.slopeFaceAreaSquareFeet / 9
+          : unit === 'ACRE' ? b.topAreaSquareFeet / 43_560
+          : unit === 'GAL' ? b.storageCubicFeet * 7.48052
+          : b.excavationBankCubicYards;
+        return {
+          quantity,
+          measurementMethod: scale.measurementMethod,
+          derivation: b.derivation,
+          warnings: b.warnings,
+        };
+      } catch { return null; }
+    }
     try {
       return measure({
-        kind: tool, points, unit: unit as Parameters<typeof measure>[0]['unit'],
+        kind: tool as 'count' | 'linear' | 'area' | 'volume',
+        points, unit: unit as Parameters<typeof measure>[0]['unit'],
         scale: scale ?? {
           unitsPerPoint: 1, unit: 'LF', basis: 'stated_scale',
           measurementMethod: 'approximate_scale', derivation: 'not scaled', warnings: [],
@@ -150,7 +199,8 @@ export function TakeoffPage() {
         ...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) }),
       });
     } catch { return null; }
-  }, [tool, points, unit, scale, deductions, widthFeet, depthFeet, pitchRise, countPer, multiplier]);
+  }, [tool, points, unit, scale, deductions, widthFeet, depthFeet, pitchRise, countPer,
+      multiplier, lifts, freeboardFeet]);
 
   async function apply(input: { name: string; trade: string; lineItemId: string }) {
     if (!supabase || !measured || !sheet) return;
@@ -170,11 +220,20 @@ export function TakeoffPage() {
       await applyMeasurement(supabase, {
         companyId: sheet.companyId, sheetId, calibrationId,
         name: input.name, trade: input.trade || null,
-        kind: tool as 'count' | 'linear' | 'area' | 'volume',
-        unit, geometry: points, deductions, isClosed: tool === 'area' || tool === 'volume',
+        kind: tool as 'count' | 'linear' | 'area' | 'volume' | 'basin',
+        unit, geometry: points, deductions,
+        isClosed: tool === 'area' || tool === 'volume' || tool === 'basin',
         pitchRise: num(pitchRise) ?? null, pitchRun: num(pitchRise) === undefined ? null : 12,
         depthFeet: num(depthFeet) ?? null, widthFeet: num(widthFeet) ?? null,
         countPer: num(countPer) ?? 1, multiplier: num(multiplier) ?? 1,
+        ...(tool === 'basin' ? {
+          lifts: lifts.map((l) => ({
+            depth_feet: l.depthFeet,
+            side_slope_run: l.sideSlopeRun,
+            ...(l.benchWidthFeet ? { bench_width_feet: l.benchWidthFeet } : {}),
+          })),
+          freeboardFeet: num(freeboardFeet) ?? null,
+        } : {}),
         lineItemId: input.lineItemId, quantity: measured.quantity,
         engineVersion: ENGINE_VERSION,
       });
@@ -380,6 +439,10 @@ export function TakeoffPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                {tool === 'basin' ? (
+                  <LiftEditor lifts={lifts} onChange={setLifts}
+                    freeboard={freeboardFeet} onFreeboardChange={setFreeboardFeet} />
+                ) : null}
                 {tool === 'linear' ? (
                   <Field id="width" label="Width in feet (optional)" value={widthFeet}
                     onChange={setWidthFeet} hint="A run with a width is a strip: a path, a footing, a trench." />
@@ -427,6 +490,9 @@ export function TakeoffPage() {
             {...(num(pitchRise) === undefined ? {} : { pitch: { rise: num(pitchRise)!, run: 12 } })}
             {...(num(countPer) === undefined ? {} : { countPer: num(countPer) })}
             {...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) })}
+            {...(tool === 'basin' ? { lifts } : {})}
+            {...(tool === 'basin' && num(freeboardFeet) !== undefined
+              ? { freeboardFeet: num(freeboardFeet) } : {})}
           />
         </div>
       </div>
@@ -442,6 +508,94 @@ function Field({ id, label, value, onChange, hint }: {
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} value={value} inputMode="decimal" onChange={(e) => onChange(e.target.value)} />
       {hint ? <p className={cn('text-xs text-charcoal-500')}>{hint}</p> : null}
+    </div>
+  );
+}
+
+/**
+ * The cuts a pond is made of.
+ *
+ * A slope is entered as its run — 3 for 3:1 — because that is what the section
+ * on the drawing says, and asking for a percent or an angle would make an
+ * estimator convert a number they can read directly. Zero is a vertical face,
+ * which some structures have.
+ *
+ * More than one lift is how a bench is cut: 4:1 down to a safety shelf, then
+ * 3:1 below it. The arithmetic is the same one twice, so the editor is a list
+ * rather than a special case.
+ */
+function LiftEditor({ lifts, onChange, freeboard, onFreeboardChange }: {
+  lifts: Lift[];
+  onChange: (l: Lift[]) => void;
+  freeboard: string;
+  onFreeboardChange: (v: string) => void;
+}) {
+  const set = (i: number, patch: Partial<Lift>) =>
+    onChange(lifts.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+  const totalDepth = lifts.reduce((a, l) => a + (l.depthFeet || 0), 0);
+
+  return (
+    <div className="space-y-3 rounded-[--radius-card] border border-charcoal-200 bg-charcoal-50/60 p-3">
+      <p className="text-xs font-medium text-charcoal-700">Cuts, top down</p>
+
+      {lifts.map((lift, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-charcoal-200 bg-white p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-charcoal-600">
+              {lifts.length > 1 ? `Lift ${i + 1}` : 'The cut'}
+            </span>
+            {lifts.length > 1 ? (
+              <Button variant="ghost" size="sm" className="h-6 px-1"
+                onClick={() => onChange(lifts.filter((_, j) => j !== i))}
+                aria-label={`Remove lift ${i + 1}`}>
+                <Trash2 className="size-3.5" />
+              </Button>
+            ) : null}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor={`lift-d-${i}`} className="text-xs">Depth, ft</Label>
+              <Input id={`lift-d-${i}`} className="h-8" inputMode="decimal"
+                value={String(lift.depthFeet)}
+                onChange={(e) => set(i, { depthFeet: Number(e.target.value) || 0 })} />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`lift-s-${i}`} className="text-xs">Slope, run per 1</Label>
+              <Input id={`lift-s-${i}`} className="h-8" inputMode="decimal"
+                value={String(lift.sideSlopeRun)}
+                onChange={(e) => set(i, { sideSlopeRun: Number(e.target.value) || 0 })} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor={`lift-b-${i}`} className="text-xs">Bench below this cut, ft</Label>
+            <Input id={`lift-b-${i}`} className="h-8" inputMode="decimal"
+              value={lift.benchWidthFeet === undefined ? '' : String(lift.benchWidthFeet)}
+              placeholder="none"
+              onChange={(e) => set(i, {
+                benchWidthFeet: e.target.value === '' ? undefined : Number(e.target.value) || 0,
+              })} />
+          </div>
+        </div>
+      ))}
+
+      <Button variant="outline" size="sm" className="w-full"
+        onClick={() => onChange([...lifts, { depthFeet: 4, sideSlopeRun: 3 }])}>
+        <Plus className="size-4" /> Add a lift
+      </Button>
+
+      <div className="space-y-1">
+        <Label htmlFor="freeboard" className="text-xs">Freeboard, ft</Label>
+        <Input id="freeboard" className="h-8" inputMode="decimal" value={freeboard}
+          placeholder="none" onChange={(e) => onFreeboardChange(e.target.value)} />
+        <p className="text-xs text-charcoal-500">
+          Top of bank down to the design water surface. What it holds is measured below that
+          line; what it costs to dig is the whole hole.
+        </p>
+      </div>
+
+      <p className="text-xs text-charcoal-500">
+        {totalDepth > 0 ? `${totalDepth} ft of cut in total.` : 'Give the cut a depth.'}
+      </p>
     </div>
   );
 }

@@ -47,7 +47,11 @@ export interface MeasurementRow {
   calibrationId: string | null;
   name: string;
   trade: string | null;
-  kind: 'count' | 'linear' | 'area' | 'volume';
+  /**
+   * A basin is its own shape, not a volume with a depth: its sides slope, so
+   * the floor is smaller than the top and the arithmetic is prismoidal.
+   */
+  kind: 'count' | 'linear' | 'area' | 'volume' | 'basin';
   unit: string;
   geometry: Point[];
   deductions: Point[][];
@@ -255,6 +259,16 @@ export async function applyMeasurement(
     pitchRise: number | null; pitchRun: number | null;
     depthFeet: number | null; widthFeet: number | null;
     countPer: number; multiplier: number;
+    /**
+     * The cuts a basin is made of, top down. Empty for every other kind — the
+     * schema refuses lifts on a measurement nothing would read them for,
+     * because inputs that look considered and are not are worse than absent.
+     */
+    lifts?: ReadonlyArray<{
+      depth_feet: number; side_slope_run: number;
+      bench_width_feet?: number; label?: string;
+    }>;
+    freeboardFeet?: number | null;
     lineItemId: string; quantity: number; engineVersion: string;
   },
 ): Promise<string> {
@@ -275,6 +289,8 @@ export async function applyMeasurement(
     width_feet: input.widthFeet,
     count_per: input.countPer,
     multiplier: input.multiplier,
+    lifts: input.lifts ?? [],
+    freeboard_feet: input.freeboardFeet ?? null,
   }).select('id').single();
   if (error) throw new Error(error.message);
   const measurementId = String((data as { id: string }).id);

@@ -437,3 +437,135 @@ describe('takeoff', () => {
     expect(rows).toEqual([]);
   });
 });
+/**
+ * Basins.
+ *
+ * The fifth shape, and the one whose absence was costing money: a volume taken
+ * off as area times depth is right for a slab and badly wrong for a pond, and
+ * the schema had no way to say a hole has sloped sides.
+ */
+describe('measuring a basin', () => {
+  let h: Harness;
+  const alice = '11111111-1111-4111-8111-111111111111';
+  let company = '';
+  let sheet = '';
+  let calibration = '';
+
+  const basin = (over: Record<string, unknown> = {}) => ({
+    company_id: company,
+    document_sheet_id: sheet,
+    calibration_id: calibration,
+    name: 'Detention pond A',
+    kind: 'basin',
+    unit: 'CY',
+    geometry: JSON.stringify([
+      { x: 0, y: 0 }, { x: 200, y: 0 }, { x: 200, y: 100 }, { x: 0, y: 100 },
+    ]),
+    is_closed: true,
+    lifts: JSON.stringify([{ depth_feet: 8, side_slope_run: 3 }]),
+    freeboard_feet: 2,
+    ...over,
+  });
+
+  const insert = (b: Record<string, unknown>) =>
+    h.asUser(alice, () => h.sql(
+      `insert into takeoff_measurements
+         (company_id, document_sheet_id, calibration_id, name, kind, unit, geometry,
+          is_closed, lifts, freeboard_feet)
+       values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::jsonb,$10) returning id`,
+      [b.company_id, b.document_sheet_id, b.calibration_id, b.name, b.kind, b.unit,
+       b.geometry, b.is_closed, b.lifts, b.freeboard_feet ?? null]));
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    await h.sql(`insert into auth.users (id, email) values ($1,'a@r.test')`, [alice]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'a@r.test')
+                 on conflict (id) do nothing`, [alice]);
+    company = (await h.asUser(alice, () => h.sql<{ id: string }>(
+      `select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
+
+    const [doc] = await h.asUser(alice, () => h.sql<{ id: string }>(
+      `insert into documents (company_id, name, document_type)
+       values ($1,'Grading plan','plan_set') returning id`, [company]));
+    const [ver] = await h.asUser(alice, () => h.sql<{ id: string }>(
+      `insert into document_versions (company_id, document_id, version_number,
+                                      storage_path, file_name)
+       values ($1,$2,1,'plans/grading-v1.pdf','grading-v1.pdf') returning id`,
+      [company, doc!.id]));
+    sheet = (await h.asUser(alice, () => h.sql<{ id: string }>(
+      `insert into document_sheets (company_id, document_version_id, page_number)
+       values ($1,$2,1) returning id`, [company, ver!.id])))[0]!.id;
+    // One drawing unit to one foot, so the geometry below reads in feet.
+    calibration = (await h.asUser(alice, () => h.sql<{ id: string }>(
+      `insert into takeoff_calibrations
+         (company_id, document_sheet_id, from_x, from_y, to_x, to_y,
+          known_distance_feet, basis, reference)
+       values ($1,$2,0,0,1,0,1,'known_dimension','One unit is one foot')
+       returning id`, [company, sheet])))[0]!.id;
+  }, 240_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('holds the lifts a sloped hole is made of', async () => {
+    const [row] = await insert(basin()) as Array<{ id: string }>;
+    const [saved] = await h.asUser(alice, () => h.sql<{ lifts: unknown; freeboard: string }>(
+      `select lifts, freeboard_feet as freeboard from takeoff_measurements where id = $1`,
+      [row!.id]));
+    expect(saved!.lifts).toEqual([{ depth_feet: 8, side_slope_run: 3 }]);
+    expect(Number(saved!.freeboard)).toBe(2);
+  });
+
+  it('takes a pond cut to a bench as two lifts', async () => {
+    const [row] = await insert(basin({
+      name: 'Pond with a safety bench',
+      lifts: JSON.stringify([
+        { depth_feet: 4, side_slope_run: 4, bench_width_feet: 6, label: 'Upper' },
+        { depth_feet: 4, side_slope_run: 3, label: 'Lower' },
+      ]),
+    })) as Array<{ id: string }>;
+    expect(row!.id).toBeTruthy();
+  });
+
+  it('refuses a basin with no lifts, which would price as a hole with no depth',
+    async () => {
+      await expect(insert(basin({ lifts: JSON.stringify([]) })))
+        .rejects.toThrow(/takeoff_measurements_basin_shape/);
+    });
+
+  it('refuses a lift with no depth', async () => {
+    await expect(insert(basin({ lifts: JSON.stringify([{ side_slope_run: 3 }]) })))
+      .rejects.toThrow(/needs a depth greater than zero/);
+  });
+
+  it('refuses a lift with no side slope rather than assuming one', async () => {
+    // Assuming vertical would be the expensive default: it is the wrong answer
+    // for every pond and the right one for almost nothing.
+    await expect(insert(basin({ lifts: JSON.stringify([{ depth_feet: 8 }]) })))
+      .rejects.toThrow(/needs a side slope; use 0 for a vertical face/);
+  });
+
+  it('refuses a freeboard that swallows the whole basin', async () => {
+    await expect(insert(basin({ freeboard_feet: 8 })))
+      .rejects.toThrow(/would hold nothing/);
+  });
+
+  it('refuses lifts on a measurement that is not a basin', async () => {
+    // Inputs nothing reads, which look like they were taken into account.
+    await expect(insert(basin({
+      kind: 'area', unit: 'SF', freeboard_feet: null,
+      lifts: JSON.stringify([{ depth_feet: 8, side_slope_run: 3 }]),
+    }))).rejects.toThrow(/takeoff_measurements_basin_shape/);
+  });
+
+  it('refuses a basin measured in a unit a hole is not measured in', async () => {
+    await expect(insert(basin({ unit: 'LF' })))
+      .rejects.toThrow(/takeoff_measurements_basin_shape/);
+  });
+
+  it('lets a basin be measured for what lines it, not only what fills it',
+    async () => {
+      // Rip-rap, liner and seed are areas on the same traced shape.
+      const [row] = await insert(basin({ name: 'Pond liner', unit: 'SY' })) as Array<{ id: string }>;
+      expect(row!.id).toBeTruthy();
+    });
+});

@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { ESTIMATE, COMPANY } from '@/data/demo';
 import { money, moneyCompact, percent, unitRate, date, titleCase } from '@/lib/format';
 import { Logo } from '@/components/layout/logo';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { ProposalsLivePage } from './proposals-live';
 
 /**
  * Proposals are generated from a priced estimate version, never typed.
@@ -40,7 +42,18 @@ const STATUS_TONE: Record<string, 'default' | 'info' | 'success' | 'danger'> = {
   draft: 'default', issued: 'info', accepted: 'success', declined: 'danger', expired: 'default', withdrawn: 'default',
 };
 
+/**
+ * With a workspace configured this shows the caller's own proposals, including
+ * the answer their customer gave. With none it shows the sample document, which
+ * is the honest way to show what a proposal looks like to somebody who has not
+ * issued one. There is no path from a failed live read to the fixture.
+ */
 export function ProposalsPage() {
+  if (isSupabaseConfigured) return <ProposalsLivePage />;
+  return <DemonstrationProposals />;
+}
+
+function DemonstrationProposals() {
   const [selected, setSelected] = useState(PROPOSALS[0]!);
   const [showUnitPrices, setShowUnitPrices] = useState(true);
   const [showLineDetail, setShowLineDetail] = useState(false);

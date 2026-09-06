@@ -1,9 +1,12 @@
 import { AlertTriangle, Ruler, CheckCircle2 } from 'lucide-react';
-import { measure, resolveScale, type Point, type ResolvedScale, type ScaleBasis } from '@grounup/engine';
+import {
+  measure, measureBasin, resolveScale,
+  type Point, type ResolvedScale, type ScaleBasis,
+} from '@grounup/engine';
 import { Alert } from '@/components/ui/misc';
 import { Badge } from '@/components/ui/badge';
 import { qty } from '@/lib/format';
-import type { Tool } from './overlay';
+import { MINIMUM_POINTS, type Tool } from './overlay';
 
 /**
  * The live quantity, and how much it deserves to be believed.
@@ -43,6 +46,14 @@ export function tryResolveScale(s: ScaleState | null):
   }
 }
 
+/** One cut of a basin: how deep, and how far the side lies back per foot. */
+export interface Lift {
+  depthFeet: number;
+  sideSlopeRun: number;
+  benchWidthFeet?: number;
+  label?: string;
+}
+
 export interface MeasurePanelProps {
   tool: Tool;
   points: readonly Point[];
@@ -55,12 +66,15 @@ export interface MeasurePanelProps {
   widthFeet?: number;
   countPer?: number;
   multiplier?: number;
+  lifts?: readonly Lift[];
+  freeboardFeet?: number;
 }
 
 export function MeasurePanel(props: MeasurePanelProps) {
   const { tool, points, scale, unit } = props;
 
   if (tool === 'none' || tool === 'calibrate' || tool === 'deduct') return null;
+  if (tool === 'basin') return <BasinPanel {...props} />;
 
   if (!scale && tool !== 'count') {
     return (
@@ -164,6 +178,139 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex items-baseline justify-between gap-3">
       <dt className="text-charcoal-500">{label}</dt>
       <dd className="tabular text-charcoal-800">{value}</dd>
+    </div>
+  );
+}
+
+/**
+ * What a pond comes to.
+ *
+ * A basin answers a different set of questions than a slab does, so it gets its
+ * own panel rather than extra rows on the volume one. Three of those questions
+ * have no other home in the platform:
+ *
+ *   * the **sloped face**, which is what gets lined, rip-rapped or seeded and
+ *     is not the plan area of anything;
+ *   * the **stage-storage table**, which is how a detention pond is designed
+ *     and the thing an estimator checks the civil drawing against;
+ *   * **what area times depth would have said**, stated plainly, because that
+ *     is the mistake this panel exists to prevent and its size is the argument.
+ */
+function BasinPanel(props: MeasurePanelProps) {
+  const { points, scale, unit, lifts = [], freeboardFeet, multiplier } = props;
+
+  if (!scale) {
+    return (
+      <Alert tone="warn" icon={<Ruler className="size-4" />} title="Set the scale first">
+        A traced pond with no calibration is a number of pixels.
+      </Alert>
+    );
+  }
+  if (points.length < MINIMUM_POINTS.basin) {
+    return (
+      <Alert tone="neutral" icon={<Ruler className="size-4" />}>
+        Outline the top of bank — at least three points.
+      </Alert>
+    );
+  }
+  if (lifts.length === 0) {
+    return (
+      <Alert tone="warn" icon={<AlertTriangle className="size-4" />} title="Add a cut">
+        A pond needs at least one lift: how deep, and how far the side lies back per foot
+        of fall. A 3:1 slope is the usual detention pond.
+      </Alert>
+    );
+  }
+
+  let result;
+  try {
+    result = measureBasin({
+      points, scale,
+      lifts: lifts.map((l) => ({
+        depthFeet: l.depthFeet,
+        sideSlopeRun: l.sideSlopeRun,
+        ...(l.benchWidthFeet ? { benchWidthFeet: l.benchWidthFeet } : {}),
+        ...(l.label ? { label: l.label } : {}),
+      })),
+      ...(freeboardFeet === undefined ? {} : { freeboardFeet }),
+      ...(multiplier === undefined ? {} : { multiplier }),
+    });
+  } catch (err) {
+    return (
+      <Alert tone="danger" icon={<AlertTriangle className="size-4" />} title="That shape will not cut">
+        {err instanceof Error ? err.message : 'The basin could not be measured.'}
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-[--radius-card] border border-charcoal-200 bg-white p-4">
+        <p className="text-xs uppercase tracking-wide text-charcoal-500">Excavation</p>
+        <p className="tabular text-2xl font-semibold text-charcoal-900">
+          {qty(result.excavationBankCubicYards)} <span className="text-base text-charcoal-500">BCY</span>
+        </p>
+        <dl className="mt-3 space-y-1 text-sm">
+          <Row label="Top of bank" value={`${qty(result.topAreaSquareFeet)} sf`} />
+          <Row label="Floor" value={`${qty(result.bottomAreaSquareFeet)} sf`} />
+          <Row label="Total cut" value={`${result.totalDepthFeet} ft`} />
+          <Row label="Sloped face" value={`${qty(result.slopeFaceAreaSquareFeet)} sf`} />
+          {result.benchAreaSquareFeet > 0 ? (
+            <Row label="Benches" value={`${qty(result.benchAreaSquareFeet)} sf`} />
+          ) : null}
+          {result.storageCubicFeet > 0 ? (
+            <Row label="Holds"
+              value={`${qty(result.storageAcreFeet)} ac-ft (${qty(result.storageCubicFeet)} cf)`} />
+          ) : null}
+        </dl>
+        <p className="mt-2 text-xs text-charcoal-500">
+          Reported in {unit}. The sloped face is what gets lined, rip-rapped or seeded, and it
+          is larger than the plan area of the same band.
+        </p>
+      </div>
+
+      {result.stageStorage.length > 2 ? (
+        <details className="rounded-[--radius-card] border border-charcoal-200 bg-charcoal-50/60 p-3">
+          <summary className="cursor-pointer text-xs font-medium text-charcoal-700">
+            Stage storage
+          </summary>
+          <table className="mt-2 w-full text-xs">
+            <thead>
+              <tr className="text-charcoal-500">
+                <th className="text-left font-medium">Depth</th>
+                <th className="text-right font-medium">Surface</th>
+                <th className="text-right font-medium">Holds</th>
+              </tr>
+            </thead>
+            <tbody className="tabular text-charcoal-700">
+              {result.stageStorage.map((s) => (
+                <tr key={s.depthFeet}>
+                  <td>{s.depthFeet} ft</td>
+                  <td className="text-right">{qty(s.surfaceAreaSquareFeet)} sf</td>
+                  <td className="text-right">{qty(s.cumulativeAcreFeet)} ac-ft</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-2 text-charcoal-500">
+            Check this against the pond table on the civil drawing. A disagreement means the
+            traced outline, the depth or the slope does not match the design.
+          </p>
+        </details>
+      ) : null}
+
+      {result.warnings.map((w) => (
+        <Alert key={w} tone="warn" icon={<AlertTriangle className="size-4" />}>{w}</Alert>
+      ))}
+
+      <details className="rounded-[--radius-card] border border-charcoal-200 bg-charcoal-50/60 p-3">
+        <summary className="cursor-pointer text-xs font-medium text-charcoal-700">
+          Full derivation
+        </summary>
+        <ol className="mt-2 space-y-1 text-xs text-charcoal-600">
+          {result.derivation.map((d, i) => <li key={i} className="font-mono">{d}</li>)}
+        </ol>
+      </details>
     </div>
   );
 }

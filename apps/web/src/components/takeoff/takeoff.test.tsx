@@ -192,3 +192,83 @@ describe('the live quantity', () => {
     expect(bad && 'error' in bad ? bad.error : '').toMatch(/same point/);
   });
 });
+
+/**
+ * The pond tool.
+ *
+ * The number this replaces was wrong by a third on the largest line in an
+ * earthwork bid, so what is tested is that the panel reports the sloped-side
+ * answer and not the vertical-walled one — and that it says how big the
+ * difference is, because that is the argument for using it.
+ */
+describe('measuring a pond', () => {
+  // One drawing unit to one foot, so the geometry below reads in feet.
+  const resolved = tryResolveScale({
+    from: { x: 0, y: 0 }, to: { x: 1, y: 0 },
+    knownDistanceFeet: 1, basis: 'known_dimension', reference: 'One unit is one foot',
+  });
+  const scale = resolved && 'scale' in resolved ? resolved.scale : null;
+  const ring: Point[] = [
+    { x: 0, y: 0 }, { x: 200, y: 0 }, { x: 200, y: 100 }, { x: 0, y: 100 },
+  ];
+
+  const panel = (props: Record<string, unknown> = {}) =>
+    render(<MeasurePanel tool="basin" points={ring} scale={scale} unit="CY"
+      lifts={[{ depthFeet: 8, sideSlopeRun: 3 }]} {...props} />);
+
+  it('reports what a sloped hole actually holds, not area times depth', () => {
+    panel();
+    // 4,020 BCY by the prismoidal formula. Area times depth would say 5,926.
+    expect(screen.getByText('4,020.15')).toBeInTheDocument();
+    expect(screen.queryByText('5,925.93')).not.toBeInTheDocument();
+  });
+
+  it('names the size of the mistake it is preventing', () => {
+    panel();
+    // <details> renders its content regardless of whether it is open.
+    expect(screen.getByText(/47\.4% high, because the sides slope/)).toBeInTheDocument();
+  });
+
+  it('reports the sloped face, which nothing else measures', () => {
+    panel();
+    // What gets lined, rip-rapped or seeded — larger than the plan area of the
+    // same band, which is 12,096 sf.
+    expect(screen.getByText('Sloped face')).toBeInTheDocument();
+    // Mean perimeter 504 ft times the slope length 8·sqrt(10).
+    expect(screen.getByText(/^12,750\.\d\d sf$/)).toBeInTheDocument();
+  });
+
+  it('tabulates stage storage against the civil drawing', () => {
+    panel({ freeboardFeet: 2 });
+    expect(screen.getByText(/Check this against the pond table/)).toBeInTheDocument();
+    // Four feet above the floor the water surface is 176 x 76.
+    expect(screen.getByText('13,376.00 sf')).toBeInTheDocument();
+  });
+
+  it('says what it holds, which is less than what is dug', () => {
+    panel({ freeboardFeet: 2 });
+    // "Holds" labels the figure and heads the stage table; both are this fact.
+    expect(screen.getAllByText('Holds').length).toBeGreaterThan(0);
+    expect(screen.getByText(/^1\.65 ac-ft \(72,04\d\.\d\d cf\)$/)).toBeInTheDocument();
+  });
+
+  it('asks for a cut instead of assuming one', () => {
+    panel({ lifts: [] });
+    expect(screen.getByText('Add a cut')).toBeInTheDocument();
+    expect(screen.getByText(/A 3:1 slope is the usual detention pond/)).toBeInTheDocument();
+  });
+
+  it('says plainly when the shape will not cut, rather than showing a negative', () => {
+    render(<MeasurePanel tool="basin"
+      points={[{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60, y: 40 }, { x: 0, y: 40 }]}
+      scale={scale} unit="CY" lifts={[{ depthFeet: 12, sideSlopeRun: 3 }]} />);
+    expect(screen.getByText('That shape will not cut')).toBeInTheDocument();
+    expect(screen.getByText(/closes up/)).toBeInTheDocument();
+  });
+
+  it('will not measure a pond that was never scaled', () => {
+    render(<MeasurePanel tool="basin" points={ring} scale={null} unit="CY"
+      lifts={[{ depthFeet: 8, sideSlopeRun: 3 }]} />);
+    expect(screen.getByText('Set the scale first')).toBeInTheDocument();
+  });
+});

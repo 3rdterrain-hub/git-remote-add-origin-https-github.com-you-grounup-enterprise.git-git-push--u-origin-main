@@ -24,7 +24,7 @@ import {
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/app/estimates', label: 'Estimating', icon: Calculator },
+  { to: '/app/estimates', label: 'Estimator', icon: Calculator },
   { to: '/app/takeoff', label: 'Takeoff', icon: Ruler },
   { to: '/app/proposals', label: 'Proposals', icon: FileSignature },
   { to: '/app/plans', label: 'Plans & Specs', icon: FileStack },
