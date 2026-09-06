@@ -111,11 +111,32 @@ export interface MarkupComponent {
   disclosed?: boolean;
 }
 
+/**
+ * Selling below the computed price.
+ *
+ * Not a negative markup component, and the distinction is deliberate: markup is
+ * asserted non-negative because a component that reduced the price would make
+ * "what is this job marked up at" unanswerable. A discount is a commercial
+ * decision to sell for less than the estimate says, taken after the price is
+ * known, and it is reported separately so the margin given away is visible
+ * rather than buried in the markup.
+ */
+export interface Discount {
+  /** Fraction of the marked-up price. 0.05 = five percent off. */
+  percent?: number;
+  /** A flat sum off, applied after any percentage. */
+  amount?: number;
+  /** Why. A discount with no reason is a number nobody can review. */
+  reason?: string;
+}
+
 export interface PricingProfile {
   id: string;
   name: string;
   method: MarkupMethod;
   components: readonly MarkupComponent[];
+  /** A concession on this bid. Never part of the profile's markup. */
+  discount?: Discount;
   region?: string;
   /** Regional cost index. 1.0 = the profile's base region. */
   regionalFactor?: number;
@@ -153,6 +174,12 @@ export interface PriceResult {
   method: MarkupMethod;
   appliedMarkups: readonly AppliedMarkup[];
   totalMarkup: number;
+  /**
+   * Money given away against the marked-up price. Reported separately from
+   * markup so the concession is visible rather than buried in a smaller markup
+   * figure that reads like a cheaper job.
+   */
+  discountAmount: number;
   totalPrice: number;
   /** totalMarkup / adjustedCost — what the markup actually came to. */
   effectiveMarkupPercent: number;
@@ -279,9 +306,46 @@ export function calculatePrice(
 
   for (const m of appliedMarkups) derivation.push(m.derivation);
 
+  const markedUpTotal = runningTotal;
+
+  /*
+   * The concession, after everything else.
+   *
+   * Applied last because a discount is agreed against the price, not against
+   * the cost: five percent off means five percent off the number quoted, and
+   * discounting before markup would silently give away more than that.
+   */
+  const d = profile.discount;
+  const discountPercent = d?.percent ?? 0;
+  const discountFlat = d?.amount ?? 0;
+  assertNonNegative(discountPercent, 'discount percent');
+  assertNonNegative(discountFlat, 'discount amount');
+  const discountAmount = money(markedUpTotal * discountPercent + discountFlat);
+  if (discountAmount > 0) {
+    runningTotal = money(markedUpTotal - discountAmount);
+    derivation.push(
+      `discount: ${markedUpTotal} - ${discountAmount}`
+      + `${discountPercent ? ` (${factor(discountPercent)} of the price` : ' (flat'}`
+      + `${discountFlat && discountPercent ? ` plus ${discountFlat} flat` : ''})`
+      + ` = ${runningTotal}${d?.reason ? ` — ${d.reason}` : ''}`);
+    if (!d?.reason) {
+      warnings.push(
+        'A discount was applied with no reason recorded. Somebody reviewing this bid cannot '
+        + 'tell what was given away or why.');
+    }
+    if (runningTotal < adjustedCost) {
+      warnings.push(
+        `The discount takes the price below cost: ${runningTotal} against ${adjustedCost} of `
+        + 'adjusted cost. This bid loses money at the number quoted.');
+    }
+  }
+
   const totalPrice = runningTotal;
-  const totalMarkup = money(totalPrice - adjustedCost);
-  derivation.push(`total price ${totalPrice} (markup ${totalMarkup})`);
+  const totalMarkup = money(markedUpTotal - adjustedCost);
+  derivation.push(
+    discountAmount > 0
+      ? `total price ${totalPrice} (markup ${totalMarkup}, discount ${discountAmount})`
+      : `total price ${totalPrice} (markup ${totalMarkup})`);
 
   const totalMarkupPercent = components.reduce((a, c) => a + c.percent, 0);
   if (totalMarkupPercent > 1) {
@@ -306,8 +370,12 @@ export function calculatePrice(
     method: profile.method,
     appliedMarkups,
     totalMarkup,
+    /** What was given away against the marked-up price. Zero when none was. */
+    discountAmount,
     totalPrice,
     effectiveMarkupPercent: factor(safeDivide(totalMarkup, adjustedCost)),
+    // Margin against what is actually being charged, so a discount shows up
+    // here as the thinner margin it is.
     grossMarginPercent: factor(safeDivide(totalPrice - adjustedCost, totalPrice)),
     derivation,
     warnings,

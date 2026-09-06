@@ -28,6 +28,7 @@ import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import {
   loadEstimateMarkups, setEstimateMarkup, adoptProfileMarkups, removeEstimateMarkup,
+  loadDiscount, setEstimateDiscount,
   type EstimateMarkup,
 } from '@/lib/data/estimates';
 import { cn } from '@/lib/utils';
@@ -181,7 +182,100 @@ export function MarkupPanel({ versionId, editable }: {
           off falls back to the profile, because an empty panel is not the same as a job with no
           overhead.
         </p>
+
+        <DiscountRow versionId={versionId} editable={editable} />
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Selling for less than the estimate says.
+ *
+ * Kept apart from the adjustments above because it is not one of them: markup
+ * is what the job is sold at over cost, and a discount is a decision to take
+ * less than that. The engine refuses a negative markup component for exactly
+ * this reason — a component that reduced the price would make "what is this
+ * marked up at" unanswerable.
+ */
+function DiscountRow({ versionId, editable }: { versionId: string; editable: boolean }) {
+  const discountQ = useQuery(loadDiscount(versionId), [versionId]);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const d = discountQ.status === 'ready'
+    ? discountQ.data : { percent: 0, amount: 0, reason: null };
+  const on = d.percent > 0 || d.amount > 0;
+
+  const set = async (next: { percent?: number; amount?: number; reason?: string | null }) => {
+    if (!supabase) return;
+    setBusy(true); setError(null);
+    try {
+      await setEstimateDiscount(supabase, {
+        versionId,
+        percent: next.percent ?? d.percent,
+        amount: next.amount ?? d.amount,
+        reason: next.reason === undefined ? d.reason : next.reason,
+      });
+      discountQ.refetch();
+    } catch (err) { setError(messageFor(err)); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className={cn('rounded-[--radius-card] border p-3',
+      on ? 'border-warn-300 bg-warn-50/50' : 'border-charcoal-200 bg-charcoal-50/60')}>
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor="discount-pct" className="text-sm font-medium">Discount</Label>
+        <input type="checkbox" checked={on} disabled={!editable || busy}
+          aria-label="Apply a discount"
+          onChange={(e) => {
+            void set(e.target.checked ? { percent: d.percent || 0.05 } : { percent: 0, amount: 0 });
+          }} />
+      </div>
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+        <Input id="discount-pct" className="h-8 w-24 tabular" inputMode="decimal"
+          disabled={!editable || busy}
+          defaultValue={d.percent ? String(Math.round(d.percent * 1e6) / 1e4) : ''}
+          placeholder="0" aria-label="Discount percent"
+          onBlur={(e) => {
+            const pct = e.target.value.trim() === '' ? 0 : Number(e.target.value);
+            if (!Number.isFinite(pct) || Math.abs(pct / 100 - d.percent) < 1e-9) return;
+            void set({ percent: pct / 100 });
+          }} />
+        <span className="text-sm text-charcoal-500">%</span>
+        <Input className="h-8 w-28 tabular" inputMode="decimal"
+          disabled={!editable || busy}
+          defaultValue={d.amount ? String(d.amount) : ''}
+          placeholder="or a flat sum" aria-label="Discount amount"
+          onBlur={(e) => {
+            const amt = e.target.value.trim() === '' ? 0 : Number(e.target.value);
+            if (!Number.isFinite(amt) || amt === d.amount) return;
+            void set({ amount: amt });
+          }} />
+      </div>
+
+      <Input className="mt-1.5 h-8" disabled={!editable || busy}
+        defaultValue={d.reason ?? ''} placeholder="Why the price was cut"
+        aria-label="Discount reason"
+        onBlur={(e) => {
+          if (e.target.value === (d.reason ?? '')) return;
+          void set({ reason: e.target.value });
+        }} />
+
+      {error ? <ErrorState message={error} /> : null}
+
+      <p className="mt-1 text-xs text-charcoal-500">
+        Taken off the marked-up price, not off cost — five percent off means five percent off the
+        number quoted. The markup is unchanged, so what this job is marked up at is still an
+        answerable question, and the concession shows as the thinner margin it is.
+      </p>
+      {on && !d.reason ? (
+        <p className="mt-1 text-xs text-warn-700">
+          Nobody has recorded why. Somebody reviewing this bid cannot tell what was given away.
+        </p>
+      ) : null}
+    </div>
   );
 }

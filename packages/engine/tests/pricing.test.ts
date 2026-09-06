@@ -227,3 +227,99 @@ describe('pricing helpers', () => {
     expect(p.components.map((c) => c.code)).toEqual(['OH']);
   });
 });
+
+/**
+ * Selling for less than the estimate says.
+ *
+ * A discount is not a negative markup component, and the distinction is
+ * deliberate: markup is asserted non-negative because a component that reduced
+ * the price would make "what is this job marked up at" unanswerable. A
+ * concession is a commercial decision taken after the price is known, and it is
+ * reported separately so the margin given away is visible rather than buried in
+ * a smaller markup figure that reads like a cheaper job.
+ */
+describe('a discount', () => {
+  const profile = (discount?: {
+    percent?: number; amount?: number; reason?: string;
+  }): PricingProfile => ({
+    id: 'pp-1', name: 'Standard', method: 'parallel',
+    components: [
+      { code: 'OH', label: 'Overhead', percent: 0.10, basis: 'profile_default', sequence: 10 },
+      { code: 'PROFIT', label: 'Profit', percent: 0.15, basis: 'profile_default', sequence: 20 },
+    ],
+    ...(discount ? { discount } : {}),
+  });
+
+  it('changes nothing when there is none', () => {
+    const r = calculatePrice(100_000, 0, profile());
+    expect(r.totalPrice).toBe(125_000);
+    expect(r.discountAmount).toBe(0);
+  });
+
+  it('comes off the price, not the cost', () => {
+    /*
+     * Five percent off means five percent off the number quoted. Discounting
+     * before markup would give away more than that: 5% of 100,000 marked up
+     * 25% is 6,250, against 6,250 of price — the same here only because the
+     * markup is parallel, and different the moment anything is stacked or
+     * charged on the marked-up total.
+     */
+    const r = calculatePrice(100_000, 0, profile({ percent: 0.05, reason: 'Repeat customer' }));
+    expect(r.discountAmount).toBe(6_250);
+    expect(r.totalPrice).toBe(118_750);
+    // The markup itself is untouched: this job is still marked up 25%.
+    expect(r.totalMarkup).toBe(25_000);
+  });
+
+  it('takes a flat sum off', () => {
+    const r = calculatePrice(100_000, 0, profile({ amount: 5_000, reason: 'Goodwill' }));
+    expect(r.discountAmount).toBe(5_000);
+    expect(r.totalPrice).toBe(120_000);
+  });
+
+  it('takes the percentage first, then the flat sum', () => {
+    const r = calculatePrice(100_000, 0, profile({
+      percent: 0.05, amount: 1_000, reason: 'Negotiated',
+    }));
+    expect(r.discountAmount).toBe(7_250);
+    expect(r.totalPrice).toBe(117_750);
+  });
+
+  it('reports the thinner margin the concession actually leaves', () => {
+    // Margin against what is being charged, so a discount shows up as the
+    // thinner margin it is rather than staying at the markup figure.
+    const full = calculatePrice(100_000, 0, profile());
+    const cut = calculatePrice(100_000, 0, profile({ percent: 0.10, reason: 'Bid day' }));
+    expect(cut.grossMarginPercent).toBeLessThan(full.grossMarginPercent);
+    expect(cut.grossMarginPercent).toBeCloseTo((112_500 - 100_000) / 112_500, 4);
+  });
+
+  it('says so when nobody recorded why', () => {
+    // Somebody reviewing the bid cannot otherwise tell what was given away.
+    const r = calculatePrice(100_000, 0, profile({ percent: 0.05 }));
+    expect(r.warnings.join(' ')).toMatch(/no reason recorded/);
+  });
+
+  it('keeps quiet when the reason is there', () => {
+    const r = calculatePrice(100_000, 0, profile({ percent: 0.05, reason: 'Repeat customer' }));
+    expect(r.warnings.join(' ')).not.toMatch(/no reason recorded/);
+  });
+
+  it('says plainly when the discount sells the job below cost', () => {
+    const r = calculatePrice(100_000, 0, profile({ percent: 0.30, reason: 'Wanted the work' }));
+    expect(r.totalPrice).toBeLessThan(100_000);
+    expect(r.warnings.join(' ')).toMatch(/loses money at the number quoted/);
+  });
+
+  it('shows the concession in the derivation', () => {
+    const r = calculatePrice(100_000, 0, profile({ percent: 0.05, reason: 'Repeat customer' }));
+    expect(r.derivation.join('\n')).toMatch(/discount: 125000 - 6250/);
+    expect(r.derivation.join('\n')).toMatch(/Repeat customer/);
+    expect(r.derivation.join('\n')).toMatch(/markup 25000, discount 6250/);
+  });
+
+  it('refuses a negative discount rather than quietly raising the price', () => {
+    expect(() => calculatePrice(100_000, 0, profile({ percent: -0.05 })))
+      .toThrow(/discount percent/);
+  });
+});

@@ -449,3 +449,110 @@ describe('adjusting the markup on one bid', () => {
       .rejects.toThrow(/make a new version/);
   });
 });
+
+/**
+ * Selling for less than the estimate says.
+ *
+ * A discount is not a negative markup. The engine asserts every markup
+ * component is non-negative on purpose — one that reduced the price would make
+ * "what is this job marked up at" unanswerable — so a concession lives on the
+ * version, applied after the price is known and reported separately.
+ */
+describe('discounting a bid', () => {
+  let h: Harness;
+  const chief = '11111111-1111-4111-8111-111111111111';
+  const outsider = '22222222-2222-4222-8222-222222222222';
+  let company = '';
+  let version = '';
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    for (const [id, mail] of [[chief, 'c@r.test'], [outsider, 'x@k.test']] as const) {
+      await h.sql(`insert into auth.users (id, email) values ($1,$2)`, [id, mail]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,$2)
+                   on conflict (id) do nothing`, [id, mail]);
+    }
+    company = (await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
+    await h.asUser(outsider, () => h.sql(
+      `select app.provision_company('Kesler','kesler','enterprise')`));
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Cut price', null, null, null, $1) as id`, [company]));
+    version = (await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id])))[0]!.v;
+  }, 240_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('starts with no discount at all', async () => {
+    const [r] = await h.asUser(chief, () => h.sql<{ pct: string; amt: string; by: string | null }>(
+      `select discount_percent as pct, discount_amount as amt,
+              discount_approved_by as by
+         from estimate_versions where id = $1`, [version]));
+    expect(Number(r!.pct)).toBe(0);
+    expect(Number(r!.amt)).toBe(0);
+    expect(r!.by).toBeNull();
+  });
+
+  it('records the cut, the reason and who made it', async () => {
+    await h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, 0.05, 0, 'Repeat customer')`, [version]));
+    const [r] = await h.asUser(chief, () => h.sql<{
+      pct: string; reason: string; by: string;
+    }>(`select discount_percent as pct, discount_reason as reason,
+               discount_approved_by as by
+          from estimate_versions where id = $1`, [version]));
+    expect(Number(r!.pct)).toBe(0.05);
+    expect(r!.reason).toBe('Repeat customer');
+    expect(r!.by).toBe(chief);
+  });
+
+  it('takes a flat sum as well as a percentage', async () => {
+    await h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, 0.05, 2500, 'Negotiated')`, [version]));
+    const [r] = await h.asUser(chief, () => h.sql<{ amt: string }>(
+      `select discount_amount as amt from estimate_versions where id = $1`, [version]));
+    expect(Number(r!.amt)).toBe(2500);
+  });
+
+  it('stops naming an approver once the discount is gone', async () => {
+    // A version showing no concession should not still name somebody as having
+    // approved one.
+    await h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, 0, 0, null)`, [version]));
+    const [r] = await h.asUser(chief, () => h.sql<{ by: string | null; reason: string | null }>(
+      `select discount_approved_by as by, discount_reason as reason
+         from estimate_versions where id = $1`, [version]));
+    expect(r!.by).toBeNull();
+    expect(r!.reason).toBeNull();
+  });
+
+  it('refuses a discount that raises the price', async () => {
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, -0.05, 0, 'Backwards')`, [version])))
+      .rejects.toThrow(/does not raise the price/);
+  });
+
+  it('refuses giving the whole job away', async () => {
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, 1, 0, 'Free')`, [version])))
+      .rejects.toThrow(/not a discount/);
+  });
+
+  it('keeps another company out', async () => {
+    await expect(h.asUser(outsider, () => h.sql(
+      `select app.set_estimate_discount($1, 0.5, 0, 'Theirs')`, [version])))
+      .rejects.toThrow(/permission/i);
+  });
+
+  it('refuses a cut on a version that has gone out', async () => {
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Gone', null, null, null, $1) as id`, [company]));
+    const [v] = await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id]));
+    await h.sql(`update estimate_versions set status = 'lost' where id = $1`, [v!.v]);
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.set_estimate_discount($1, 0.05, 0, 'Too late')`, [v!.v])))
+      .rejects.toThrow(/make a new version/);
+  });
+});

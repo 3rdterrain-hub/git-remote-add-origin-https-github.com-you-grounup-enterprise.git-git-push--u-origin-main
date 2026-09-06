@@ -583,6 +583,46 @@ export const loadEstimateMarkups = (versionId: string): Query<{
   return { markups: shape(fromProfile), fromProfile: true };
 };
 
+/** What this bid is being sold for less than it came to, and why. */
+export interface Discount {
+  percent: number;
+  amount: number;
+  reason: string | null;
+}
+
+export const loadDiscount = (versionId: string): Query<Discount> => async (client) => {
+  const rows = unwrap(await client
+    .from('estimate_versions')
+    .select('discount_percent, discount_amount, discount_reason')
+    .eq('id', versionId)
+    .limit(1)) as Array<Record<string, unknown>>;
+  const v = rows[0];
+  return {
+    percent: num(v?.discount_percent),
+    amount: num(v?.discount_amount),
+    reason: (v?.discount_reason as string | null) ?? null,
+  };
+};
+
+/**
+ * Cut the price.
+ *
+ * Its own call rather than part of the version update, because it is a
+ * different kind of act: the rest of that is how a bid is put together, and
+ * this is a decision to sell it for less than it came to.
+ */
+export async function setEstimateDiscount(
+  client: RpcCapable,
+  input: { versionId: string; percent?: number; amount?: number; reason?: string | null },
+): Promise<void> {
+  await rpc(client, 'set_estimate_discount', {
+    p_version: input.versionId,
+    p_percent: input.percent ?? 0,
+    p_amount: input.amount ?? 0,
+    p_reason: input.reason?.trim() || null,
+  });
+}
+
 export async function setEstimateMarkup(
   client: RpcCapable, versionId: string, code: string, fields: Record<string, unknown>,
 ): Promise<void> {

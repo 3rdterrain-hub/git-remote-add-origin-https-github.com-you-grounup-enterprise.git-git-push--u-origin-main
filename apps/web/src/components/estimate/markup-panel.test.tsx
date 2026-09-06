@@ -19,6 +19,8 @@ const hoisted = vi.hoisted(() => ({
   set: [] as Array<{ code: string; fields: Record<string, unknown> }>,
   removed: [] as string[],
   fail: null as string | null,
+  discount: { percent: 0, amount: 0, reason: null as string | null },
+  discountSet: [] as Array<Record<string, unknown>>,
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -43,6 +45,10 @@ vi.mock('@/lib/data/estimates', async () => {
     removeEstimateMarkup: async (_c: unknown, _v: string, code: string) => {
       hoisted.removed.push(code);
     },
+    loadDiscount: () => async () => hoisted.discount,
+    setEstimateDiscount: async (_c: unknown, input: Record<string, unknown>) => {
+      hoisted.discountSet.push(input);
+    },
   };
 });
 
@@ -61,6 +67,8 @@ describe('markup and adjustments', () => {
     hoisted.configured = true; hoisted.fail = null;
     hoisted.markups = [markup()]; hoisted.fromProfile = true;
     hoisted.adopted = 0; hoisted.set = []; hoisted.removed = [];
+    hoisted.discount = { percent: 0, amount: 0, reason: null };
+    hoisted.discountSet = [];
   });
 
   it('says the numbers are coming from the company profile', async () => {
@@ -177,6 +185,53 @@ describe('markup and adjustments', () => {
     await user.click(screen.getByLabelText('Apply Tax'));
     await waitFor(() =>
       expect(screen.getByText(/make a new version to change it/)).toBeInTheDocument());
+  });
+
+  it('keeps the discount apart from the markup, and says why', async () => {
+    /*
+     * The engine refuses a negative markup component on purpose: one that
+     * reduced the price would make "what is this marked up at" unanswerable.
+     */
+    show();
+    await waitFor(() => expect(screen.getByLabelText('Apply a discount')).toBeInTheDocument());
+    expect(screen.getByText(/five percent off means five percent off the number quoted/))
+      .toBeInTheDocument();
+    expect(screen.getByText(/still an answerable question/)).toBeInTheDocument();
+  });
+
+  it('starts a discount at something rather than zero', async () => {
+    // A switch that turns on and changes nothing looks broken.
+    const user = userEvent.setup();
+    show();
+    await waitFor(() => expect(screen.getByLabelText('Apply a discount')).toBeInTheDocument());
+    await user.click(screen.getByLabelText('Apply a discount'));
+    await waitFor(() => expect(hoisted.discountSet).toHaveLength(1));
+    expect(hoisted.discountSet[0]).toMatchObject({ percent: 0.05 });
+  });
+
+  it('clears both halves when it is switched off', async () => {
+    hoisted.discount = { percent: 0.05, amount: 1000, reason: 'Negotiated' };
+    const user = userEvent.setup();
+    show();
+    await waitFor(() => expect(screen.getByLabelText('Apply a discount')).toBeChecked());
+    await user.click(screen.getByLabelText('Apply a discount'));
+    await waitFor(() => expect(hoisted.discountSet).toHaveLength(1));
+    expect(hoisted.discountSet[0]).toMatchObject({ percent: 0, amount: 0 });
+  });
+
+  it('says when nobody recorded why the price was cut', async () => {
+    hoisted.discount = { percent: 0.05, amount: 0, reason: null };
+    show();
+    await waitFor(() =>
+      expect(screen.getByText(/cannot tell what was given away/)).toBeInTheDocument());
+  });
+
+  it('keeps quiet once there is a reason', async () => {
+    hoisted.discount = { percent: 0.05, amount: 0, reason: 'Repeat customer' };
+    show();
+    await waitFor(() =>
+      expect(screen.getByLabelText('Discount reason')).toHaveValue('Repeat customer'));
+    expect(screen.queryByText(/cannot tell what was given away/)).not.toBeInTheDocument();
   });
 
   it('changes nothing on a frozen version', async () => {

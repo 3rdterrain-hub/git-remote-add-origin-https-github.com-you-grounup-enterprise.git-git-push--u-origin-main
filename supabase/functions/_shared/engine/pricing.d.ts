@@ -51,11 +51,31 @@ export interface MarkupComponent {
     /** Included in the price but shown to the customer as a separate line. */
     disclosed?: boolean;
 }
+/**
+ * Selling below the computed price.
+ *
+ * Not a negative markup component, and the distinction is deliberate: markup is
+ * asserted non-negative because a component that reduced the price would make
+ * "what is this job marked up at" unanswerable. A discount is a commercial
+ * decision to sell for less than the estimate says, taken after the price is
+ * known, and it is reported separately so the margin given away is visible
+ * rather than buried in the markup.
+ */
+export interface Discount {
+    /** Fraction of the marked-up price. 0.05 = five percent off. */
+    percent?: number;
+    /** A flat sum off, applied after any percentage. */
+    amount?: number;
+    /** Why. A discount with no reason is a number nobody can review. */
+    reason?: string;
+}
 export interface PricingProfile {
     id: string;
     name: string;
     method: MarkupMethod;
     components: readonly MarkupComponent[];
+    /** A concession on this bid. Never part of the profile's markup. */
+    discount?: Discount;
     region?: string;
     /** Regional cost index. 1.0 = the profile's base region. */
     regionalFactor?: number;
@@ -91,6 +111,12 @@ export interface PriceResult {
     method: MarkupMethod;
     appliedMarkups: readonly AppliedMarkup[];
     totalMarkup: number;
+    /**
+     * Money given away against the marked-up price. Reported separately from
+     * markup so the concession is visible rather than buried in a smaller markup
+     * figure that reads like a cheaper job.
+     */
+    discountAmount: number;
     totalPrice: number;
     /** totalMarkup / adjustedCost — what the markup actually came to. */
     effectiveMarkupPercent: number;

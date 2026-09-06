@@ -95,6 +95,7 @@ const snapshot = (over: Partial<EstimateSnapshot> = {}): EstimateSnapshot => ({
     bid_rounding_increment: '100',
     contingency_source: 'confidence_band', applied_contingency: '0.12',
     contingency_override_reason: null, contingency_approved_by: null,
+    discount_percent: '0', discount_amount: '0', discount_reason: null,
     pricing_profiles: {
       id: 'pp-1', name: 'Company Default', method: 'parallel', region: 'OH',
       regional_factor: '1.02', escalation_percent: '0', escalation_years: '0',
@@ -540,5 +541,47 @@ describe("a bid's own adjustments", () => {
         sequence: 10, disclosed: true, enabled: true },
     ]), ASOF);
     expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'TAX']);
+  });
+});
+
+
+/**
+ * A concession carried to the engine.
+ *
+ * A discount is not a negative markup component — the engine refuses those on
+ * purpose — so it travels on the profile handed to the engine rather than on
+ * the profile record, because writing it to the record would discount every
+ * open estimate.
+ */
+describe('a discount on one bid', () => {
+  const discounted = (over: Record<string, unknown>) => {
+    const s = snapshot();
+    return { ...s, version: { ...s.version, ...over } } as EstimateSnapshot;
+  };
+
+  it('carries nothing when the bid is not discounted', () => {
+    const input = buildEstimateInput(snapshot(), ASOF);
+    expect(input.input.pricingProfile.discount).toBeUndefined();
+  });
+
+  it('carries the percentage and the reason', () => {
+    const input = buildEstimateInput(discounted({
+      discount_percent: '0.05', discount_reason: 'Repeat customer',
+    }), ASOF);
+    expect(input.input.pricingProfile.discount).toEqual({
+      percent: 0.05, amount: 0, reason: 'Repeat customer',
+    });
+  });
+
+  it('carries a flat sum', () => {
+    const input = buildEstimateInput(discounted({ discount_amount: '5000' }), ASOF);
+    expect(input.input.pricingProfile.discount).toMatchObject({ amount: 5000 });
+  });
+
+  it('leaves the markup components alone', () => {
+    // The concession is applied after the price is known; it is not a sixth
+    // component and it does not change what the job is marked up at.
+    const input = buildEstimateInput(discounted({ discount_percent: '0.10' }), ASOF);
+    expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'PROFIT']);
   });
 });

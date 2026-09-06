@@ -38,6 +38,7 @@ const VERSION_SELECT =
   'id, version_number, status, shift_hours, calendar_efficiency, fuel_price_per_gallon, ' +
   'def_price_per_gallon, bid_rounding_increment, contingency_source, applied_contingency, ' +
   'contingency_override_reason, contingency_approved_by, estimate_id, company_id, ' +
+  'discount_percent, discount_amount, discount_reason, ' +
   'pricing_profiles(id, name, method, region, regional_factor, escalation_percent, ' +
   'escalation_years, markup_components(code, label, percent, basis, sequence, disclosed)), ' +
   // This bid's own adjustments. When it carries any they are the markup; when

@@ -4,16 +4,16 @@
 
 | Area | Files | Lines |
 |---|---:|---:|
-| Estimating engine (source + tests) | 45 | ~13,500 |
+| Estimating engine (source + tests) | 45 | ~13,600 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (109 files, 163 tables, 64 views) | 109 | ~26,700 |
-| Edge Functions + shared modules | 59 | ~9,200 |
-| Database & function tests | 79 | ~20,500 |
+| Database migrations (110 files, 163 tables, 64 views) | 110 | ~26,800 |
+| Edge Functions + shared modules | 59 | ~9,300 |
+| Database & function tests | 79 | ~20,700 |
 | Governance & traceability tests | 6 | ~2,800 |
-| Web application (48 routes, 29 app screens) | 163 | ~37,300 |
+| Web application (48 routes, 29 app screens) | 163 | ~37,500 |
 | Documentation | 14 | ~5,300 |
 | Seed & tooling | 8 | ~2,100 |
-| **Total hand-written** | **491** | **~119,200** |
+| **Total hand-written** | **492** | **~119,800** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 2,984 tests, production build —
+drift checks, 3,011 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
-Engine        622 tests   estimating, surfaces, calendars, critical path
+Engine        632 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database    1,379 tests   against real PostgreSQL 18 (PGlite)
-Functions     264 tests   billing, plan versioning, AI governance, API, observability
+Database    1,387 tests   against real PostgreSQL 18 (PGlite)
+Functions     268 tests   billing, plan versioning, AI governance, API, observability
 Governance    258 tests   the five-category rule, traceability, verification, spelling, pipeline
-Web           404 tests   jsdom + Testing Library
+Web           409 tests   jsdom + Testing Library
             ───────────
-            2,984 tests
+            3,011 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

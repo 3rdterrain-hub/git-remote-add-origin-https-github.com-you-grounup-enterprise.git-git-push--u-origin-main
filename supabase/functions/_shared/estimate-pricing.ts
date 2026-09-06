@@ -181,6 +181,9 @@ export interface VersionRow {
   applied_contingency: Num;
   contingency_override_reason: string | null;
   contingency_approved_by: string | null;
+  discount_percent: Num;
+  discount_amount: Num;
+  discount_reason: string | null;
   pricing_profiles: ProfileRow | null;
   /** This bid's own adjustments. Empty means the profile's stand. */
   estimate_version_markups?: VersionMarkupRow[] | null;
@@ -242,6 +245,7 @@ export interface PricingProblem {
  */
 function toPricingProfile(
   p: ProfileRow, own?: VersionMarkupRow[] | null,
+  discount?: { percent: number; amount: number; reason?: string },
 ): PricingProfile {
   const enabled = (own ?? []).filter((m) => m.enabled !== false);
   const source = enabled.length > 0
@@ -267,6 +271,11 @@ function toPricingProfile(
     ...(maybe(p.regional_factor) === undefined ? {} : { regionalFactor: n(p.regional_factor) }),
     ...(maybe(p.escalation_percent) === undefined ? {} : { escalationPercent: n(p.escalation_percent) }),
     ...(maybe(p.escalation_years) === undefined ? {} : { escalationYears: n(p.escalation_years) }),
+    // Carried on the profile the engine is handed rather than on the profile
+    // record: a concession belongs to this bid, and writing it to the company
+    // profile would discount every open estimate.
+    ...(discount && (discount.percent > 0 || discount.amount > 0)
+      ? { discount } : {}),
   };
 }
 
@@ -710,7 +719,10 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
     // one applies no markup — and the problem above says so plainly, so the
     // handler refuses rather than writing a cost-only price.
     pricingProfile: profileRow
-      ? toPricingProfile(profileRow, v.estimate_version_markups)
+      ? toPricingProfile(profileRow, v.estimate_version_markups, {
+          percent: n(v.discount_percent), amount: n(v.discount_amount),
+          ...(v.discount_reason ? { reason: v.discount_reason } : {}),
+        })
       : { id: 'none', name: 'No pricing profile', method: 'parallel', components: [] },
     ...(maybe(v.bid_rounding_increment) === undefined
       ? {} : { bidRoundingIncrement: n(v.bid_rounding_increment) }),
