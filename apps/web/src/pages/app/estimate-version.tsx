@@ -280,7 +280,8 @@ export function EstimateVersionPage() {
         </div>
       </div>
 
-      <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')} />
+      <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
+        directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice} />
 
       <AddLineDialog open={adding} onOpenChange={setAdding} versionId={v.id}
         onAdded={() => { setAdding(false); version.refetch(); }} />

@@ -59,8 +59,13 @@ const markup = (over: Partial<EstimateMarkup> = {}): EstimateMarkup => ({
   sequence: 10, disclosed: false, enabled: true, ...over,
 });
 
-const show = (editable = true) =>
-  render(<MarkupPanel versionId="v-1" editable={editable} />);
+const show = (editable = true, cost?: {
+  directCost?: number; indirectCost?: number; storedPrice?: number;
+}) =>
+  render(<MarkupPanel versionId="v-1" editable={editable}
+    directCost={cost?.directCost ?? 0}
+    indirectCost={cost?.indirectCost ?? 0}
+    storedPrice={cost?.storedPrice ?? 0} />);
 
 describe('markup and adjustments', () => {
   beforeEach(() => {
@@ -232,6 +237,49 @@ describe('markup and adjustments', () => {
     await waitFor(() =>
       expect(screen.getByLabelText('Discount reason')).toHaveValue('Repeat customer'));
     expect(screen.queryByText(/cannot tell what was given away/)).not.toBeInTheDocument();
+  });
+
+  it('moves the total as the adjustments change, without waiting on the engine', async () => {
+    /*
+     * Bid day. `calculatePrice` here is the same module the pricing Edge
+     * Function runs — vendored with a fingerprint the build refuses to let
+     * drift — so this is the first implementation called from the other side
+     * rather than a second opinion about the arithmetic.
+     */
+    hoisted.markups = [
+      markup({ percent: 0.10 }),
+      markup({ code: 'PROFIT', label: 'Profit', percent: 0.15, sequence: 20 }),
+    ];
+    show(true, { directCost: 100_000, storedPrice: 125_000 });
+    await waitFor(() => expect(screen.getByText('$125,000.00')).toBeInTheDocument());
+    expect(screen.getByText('Total price')).toBeInTheDocument();
+    expect(screen.getByText(/same engine that writes the price/)).toBeInTheDocument();
+  });
+
+  it('says when the preview has drifted from what is recorded', async () => {
+    // A preview read as the bid is worse than no preview at all.
+    hoisted.markups = [markup({ percent: 0.30 })];
+    show(true, { directCost: 100_000, storedPrice: 125_000 });
+    await waitFor(() =>
+      expect(screen.getByText('With these adjustments')).toBeInTheDocument());
+    expect(screen.getByText(/still recorded at \$125,000\.00/)).toBeInTheDocument();
+    expect(screen.getByText(/a preview, not the bid/)).toBeInTheDocument();
+  });
+
+  it('previews nothing at all on an estimate that was never priced', async () => {
+    // Markup on zero would put a confident total in front of somebody who has
+    // not priced anything.
+    show(true, { directCost: 0 });
+    await waitFor(() => expect(
+      screen.getByText(/Price the estimate and the total will move/)).toBeInTheDocument());
+  });
+
+  it('shows the engine\'s own warning about selling below cost', async () => {
+    hoisted.markups = [markup({ percent: 0.10 })];
+    hoisted.discount = { percent: 0.30, amount: 0, reason: 'Wanted the work' };
+    show(true, { directCost: 100_000, storedPrice: 110_000 });
+    await waitFor(() =>
+      expect(screen.getByText(/loses money at the number quoted/)).toBeInTheDocument());
   });
 
   it('changes nothing on a frozen version', async () => {

@@ -547,3 +547,115 @@ export async function createMaterial(client: Writer, input: MaterialInput): Prom
   if (error) throw new Error(error.message);
   return String((data as { id: string }).id);
 }
+
+/**
+ * A crew somebody put together and kept.
+ *
+ * `crews` and `crew_members` have been in the schema since migration 0004 and
+ * no screen has ever read one, so a company that set up its standard three-man
+ * pipe crew had nowhere to use it. This is the read the estimator needs: the
+ * composition, with each member's classification and what it costs loaded.
+ */
+export interface CrewPresetMember {
+  laborRateId: string;
+  classification: string;
+  headcount: number;
+  baseWagePerHour: number;
+  burdenPercent: number;
+  /** Wage plus burden, as it reads on a rate sheet. */
+  burdenedCostPerHour: number;
+}
+
+export interface CrewPreset {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  shiftHours: number;
+  members: CrewPresetMember[];
+  scope: Scope;
+}
+
+export const loadCrews: Query<CrewPreset[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('crews')
+    .select('id, code, name, description, shift_hours, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
+    .eq('status', 'active')
+    .order('name')
+    .limit(300)) as Array<Record<string, unknown>>;
+
+  return rows.map((c) => ({
+    id: String(c.id),
+    code: String(c.code),
+    name: String(c.name),
+    description: (c.description as string | null) ?? null,
+    shiftHours: Number(c.shift_hours ?? 8),
+    scope: scopeOf(c.company_id, c.enterprise_group_id),
+    members: ((c.crew_members ?? []) as Array<Record<string, unknown>>).map((m) => {
+      const rate = (Array.isArray(m.labor_rates) ? m.labor_rates[0] : m.labor_rates) as
+        Record<string, unknown> | null;
+      return {
+        laborRateId: String(m.labor_rate_id),
+        classification: String(rate?.classification ?? 'Labor'),
+        headcount: Number(m.headcount ?? 1),
+        baseWagePerHour: Number(rate?.base_wage_per_hour ?? 0),
+        burdenPercent: Number(rate?.burden_percent ?? 0),
+        burdenedCostPerHour: Number(rate?.burdened_cost_per_hour ?? 0),
+      };
+    }),
+  }));
+};
+
+/**
+ * The machines themselves, with whichever rate is in force.
+ *
+ * `loadEquipmentRates` returns rates; this returns the machine an estimator
+ * actually picks, carrying the best rate on it so the row can be filled in
+ * without a second read.
+ */
+export interface EquipmentOption {
+  id: string;
+  name: string;
+  equipmentClass: string;
+  hourlyRate: number;
+  dailyRate: number | null;
+  weeklyRate: number | null;
+  monthlyRate: number | null;
+  fuelGallonsPerHour: number;
+  mobilizationCost: number;
+  scope: Scope;
+}
+
+export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('equipment')
+    .select('id, name, equipment_class, fuel_gallons_per_hour, mobilization_cost, company_id, enterprise_group_id, equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, effective_date)')
+    .eq('status', 'active')
+    .order('name')
+    .limit(500)) as Array<Record<string, unknown>>;
+
+  return rows.map((e) => {
+    /*
+     * The most specific rate the machine carries. RULE-003's full precedence
+     * is the engine's to apply at pricing time; this only needs to put a
+     * sensible number in front of the estimator, and a company rate is the
+     * one they mean when they pick a machine off their own list.
+     */
+    const rates = (e.equipment_rates ?? []) as Array<Record<string, unknown>>;
+    const best = rates.find((r) => r.source === 'company_owned')
+      ?? rates.find((r) => r.source === 'tenant_approved')
+      ?? rates[0];
+    return {
+      id: String(e.id),
+      name: String(e.name),
+      equipmentClass: String(e.equipment_class ?? 'General'),
+      hourlyRate: Number(best?.hourly_rate ?? 0),
+      dailyRate: best?.daily_rate == null ? null : Number(best.daily_rate),
+      weeklyRate: best?.weekly_rate == null ? null : Number(best.weekly_rate),
+      monthlyRate: best?.monthly_rate == null ? null : Number(best.monthly_rate),
+      fuelGallonsPerHour: Number(e.fuel_gallons_per_hour ?? 0),
+      mobilizationCost: Number(e.mobilization_cost ?? 0),
+      scope: scopeOf(e.company_id, e.enterprise_group_id),
+    };
+  });
+};

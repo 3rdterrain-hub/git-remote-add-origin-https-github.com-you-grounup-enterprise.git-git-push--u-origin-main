@@ -31,6 +31,8 @@ import {
   loadDiscount, setEstimateDiscount,
   type EstimateMarkup,
 } from '@/lib/data/estimates';
+import { previewPrice, previewDiffersFromStored } from '@/lib/data/price-preview';
+import { money } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 /**
@@ -56,12 +58,23 @@ const STANDARD: Array<{
     hint: 'On the marked-up total, in a second pass.' },
 ];
 
-export function MarkupPanel({ versionId, editable }: {
-  versionId: string; editable: boolean;
+export function MarkupPanel({ versionId, editable, directCost, indirectCost, storedPrice }: {
+  versionId: string;
+  editable: boolean;
+  /**
+   * The engine's own figures from the last run. Not recomputed here — moving a
+   * markup does not change what the work costs, which is what makes the
+   * preview exact rather than an approximation.
+   */
+  directCost?: number;
+  indirectCost?: number;
+  storedPrice?: number;
 }) {
   const markupsQ = useQuery(loadEstimateMarkups(versionId), [versionId]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Bumped when the discount is saved, so the live total re-reads it.
+  const [discountNonce, setDiscountNonce] = useState(0);
 
   const state = markupsQ.status === 'ready'
     ? markupsQ.data : { markups: [] as EstimateMarkup[], fromProfile: true };
@@ -183,9 +196,110 @@ export function MarkupPanel({ versionId, editable }: {
           overhead.
         </p>
 
-        <DiscountRow versionId={versionId} editable={editable} />
+        <DiscountRow versionId={versionId} editable={editable}
+          onChanged={() => setDiscountNonce((n) => n + 1)} />
+
+        <LivePrice
+          versionId={versionId}
+          markups={state.markups}
+          discountNonce={discountNonce}
+          directCost={directCost ?? 0}
+          indirectCost={indirectCost ?? 0}
+          storedPrice={storedPrice ?? 0}
+        />
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * The total, moving while somebody types.
+ *
+ * Computed by `calculatePrice` from `@grounup/engine` — the same module the
+ * pricing Edge Function runs, vendored with a fingerprint the build refuses to
+ * let drift. Not a second opinion about the arithmetic: the first one, called
+ * from the browser side so bid day does not wait on a round trip.
+ *
+ * It says plainly when it has drifted from the recorded price, because a
+ * preview read as the bid is worse than no preview at all.
+ */
+function LivePrice({
+  versionId, markups, discountNonce, directCost, indirectCost, storedPrice,
+}: {
+  versionId: string;
+  markups: readonly EstimateMarkup[];
+  discountNonce: number;
+  directCost: number;
+  indirectCost: number;
+  storedPrice: number;
+}) {
+  const discountQ = useQuery(loadDiscount(versionId), [versionId, discountNonce]);
+  const discount = discountQ.status === 'ready'
+    ? discountQ.data : { percent: 0, amount: 0, reason: null };
+
+  const preview = previewPrice({ directCost, indirectCost, markups, discount });
+  if (!preview) {
+    return (
+      <p className="text-xs text-charcoal-500">
+        {directCost > 0
+          ? 'Those numbers cannot be priced as they stand.'
+          : 'Price the estimate and the total will move with these as you change them.'}
+      </p>
+    );
+  }
+
+  const drifted = storedPrice > 0 && previewDiffersFromStored(preview.totalPrice, storedPrice);
+
+  return (
+    <div className={cn('rounded-[--radius-card] border p-3',
+      drifted ? 'border-warn-300 bg-warn-50/50' : 'border-charcoal-200 bg-white')}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <span className="text-sm font-medium text-charcoal-700">
+          {drifted ? 'With these adjustments' : 'Total price'}
+        </span>
+        <span className="tabular text-xl font-semibold text-charcoal-900">
+          {money(preview.totalPrice)}
+        </span>
+      </div>
+      <dl className="mt-1.5 space-y-0.5 text-xs">
+        {preview.components.map((c) => (
+          <div key={c.code} className="flex items-baseline justify-between gap-3">
+            <dt className="text-charcoal-500">{c.label}</dt>
+            <dd className="tabular text-charcoal-700">{money(c.amount)}</dd>
+          </div>
+        ))}
+        {preview.discountAmount > 0 ? (
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-warn-700">Discount</dt>
+            <dd className="tabular text-warn-700">−{money(preview.discountAmount)}</dd>
+          </div>
+        ) : null}
+        <div className="flex items-baseline justify-between gap-3 border-t
+                        border-charcoal-200 pt-1">
+          <dt className="text-charcoal-600">Gross margin</dt>
+          <dd className="tabular text-charcoal-800">
+            {Math.round(preview.grossMarginPercent * 1000) / 10}%
+          </dd>
+        </div>
+      </dl>
+
+      {preview.warnings.map((w) => (
+        <p key={w} className="mt-1.5 text-xs text-warn-700">{w}</p>
+      ))}
+
+      {drifted ? (
+        <p className="mt-1.5 text-xs text-warn-700">
+          The estimate is still recorded at {money(storedPrice)}. Price it again to make this
+          the number the platform stands behind — until then this is a preview, not the bid.
+        </p>
+      ) : (
+        <p className="mt-1.5 text-xs text-charcoal-500">
+          Computed here by the same engine that writes the price, so this is what pricing will
+          produce. What the work costs is not recomputed — changing a quantity or a crew still
+          needs the engine, because those rates come from the library.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -198,7 +312,9 @@ export function MarkupPanel({ versionId, editable }: {
  * this reason — a component that reduced the price would make "what is this
  * marked up at" unanswerable.
  */
-function DiscountRow({ versionId, editable }: { versionId: string; editable: boolean }) {
+function DiscountRow({ versionId, editable, onChanged }: {
+  versionId: string; editable: boolean; onChanged: () => void;
+}) {
   const discountQ = useQuery(loadDiscount(versionId), [versionId]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -218,6 +334,7 @@ function DiscountRow({ versionId, editable }: { versionId: string; editable: boo
         reason: next.reason === undefined ? d.reason : next.reason,
       });
       discountQ.refetch();
+      onChanged();
     } catch (err) { setError(messageFor(err)); }
     finally { setBusy(false); }
   };

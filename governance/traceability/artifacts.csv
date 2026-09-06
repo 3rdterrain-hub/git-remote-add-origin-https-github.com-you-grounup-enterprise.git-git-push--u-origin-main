@@ -356,6 +356,7 @@ TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.t
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
+TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE

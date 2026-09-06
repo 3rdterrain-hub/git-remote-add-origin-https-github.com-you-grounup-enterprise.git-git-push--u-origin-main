@@ -35,6 +35,7 @@ import {
   type LineResource, type LineRow,
 } from '@/lib/data/estimates';
 import { UnitSelect } from '@/components/ui/unit-select';
+import { FromLibrary } from '@/components/estimate/from-library';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -301,9 +302,32 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
         </table>
       )}
       {editable ? (
-        <AddRow label="Add crew member" disabled={busy}
-          onAdd={() => { void onSave('labor',
-            { role: 'Operator', headcount: 1, base_rate: 0, burden_rate: 0 }); }} />
+        <div className="flex flex-wrap items-center gap-2">
+          <AddRow label="Add crew member" disabled={busy}
+            onAdd={() => { void onSave('labor',
+              { role: 'Operator', headcount: 1, base_rate: 0, burden_rate: 0 }); }} />
+          <FromLibrary kind="labor" disabled={busy} label="From labor rates"
+            onPick={(f) => { void onSave('labor', f); }} />
+          <FromLibrary kind="crew" disabled={busy} label="From a crew preset"
+            onPickCrew={(members) => {
+              /*
+               * A crew is a composition, so every member comes across at once
+               * — picking one and then adding the rest by hand would defeat
+               * the point of having saved it.
+               */
+              for (const m of members) {
+                void onSave('labor', {
+                  labor_rate_id: m.laborRateId,
+                  description: m.classification,
+                  role: m.classification,
+                  headcount: m.headcount,
+                  base_rate: m.baseWagePerHour,
+                  burden_rate:
+                    Math.round(m.baseWagePerHour * m.burdenPercent * 100) / 100,
+                });
+              }
+            }} />
+        </div>
       ) : null}
       <p className="mt-2 text-xs text-charcoal-500">
         The wage and the burden are kept apart so the loaded rate is derived rather than a third
@@ -405,10 +429,14 @@ function EquipmentTab({ rows, editable, busy, hours, onSave, onRemove }: {
         );
       })}
       {editable ? (
-        <AddRow label="Add equipment" disabled={busy}
-          onAdd={() => {
-            void onSave('equipment', { description: '', rate_basis: 'hour', quantity: 1 });
-          }} />
+        <div className="flex flex-wrap items-center gap-2">
+          <AddRow label="Add equipment" disabled={busy}
+            onAdd={() => {
+              void onSave('equipment', { description: '', rate_basis: 'hour', quantity: 1 });
+            }} />
+          <FromLibrary kind="equipment" disabled={busy} label="From your fleet"
+            onPick={(f) => { void onSave('equipment', { quantity: 1, ...f }); }} />
+        </div>
       ) : null}
       <p className="text-xs text-charcoal-500">
         Production hours convert to the basis the machine is rented at and round up to whole
@@ -454,8 +482,14 @@ function MaterialTab({ rows, editable, busy, onSave, onRemove }: {
         </div>
       ))}
       {editable ? (
-        <AddRow label="Add material" disabled={busy}
-          onAdd={() => { void onSave('material', { description: '', quantity: 0, unit_rate: 0 }); }} />
+        <div className="flex flex-wrap items-center gap-2">
+          <AddRow label="Add material" disabled={busy}
+            onAdd={() => {
+              void onSave('material', { description: '', quantity: 0, unit_rate: 0 });
+            }} />
+          <FromLibrary kind="material" disabled={busy}
+            onPick={(f) => { void onSave('material', { quantity: 0, ...f }); }} />
+        </div>
       ) : null}
     </div>
   );
@@ -567,10 +601,14 @@ function HaulTab({ rows, editable, busy, onSave, onRemove }: {
         );
       })}
       {editable ? (
-        <AddRow label="Add hauling" disabled={busy}
-          onAdd={() => {
-            void onSave('trucking', { description: '', haul_mode: 'hours', quantity: 1 });
-          }} />
+        <div className="flex flex-wrap items-center gap-2">
+          <AddRow label="Add hauling" disabled={busy}
+            onAdd={() => {
+              void onSave('trucking', { description: '', haul_mode: 'hours', quantity: 1 });
+            }} />
+          <FromLibrary kind="trucking" disabled={busy} label="From a haul profile"
+            onPick={(f) => { void onSave('trucking', { quantity: 1, ...f }); }} />
+        </div>
       ) : null}
     </div>
   );
