@@ -203,4 +203,101 @@ describe('a line where you are looking', () => {
         .rejects.toThrow(/make a new version/i);
     });
   });
+
+  describe('adding several at once', () => {
+    let anchor = '';
+
+    beforeAll(async () => {
+      await h.asUser(chief, () => h.sql(
+        `delete from estimate_line_items where estimate_version_id = $1`, [version]));
+      anchor = await add('Anchor');
+      await add('Tail');
+    });
+
+    it('adds them in the order they were given', async () => {
+      await asChief(
+        `select app.add_estimate_lines($1, $2::jsonb, $3)`,
+        [version, JSON.stringify([
+          { description: 'One', unit: 'CY', quantity: 1 },
+          { description: 'Two', unit: 'CY', quantity: 2 },
+          { description: 'Three', unit: 'CY', quantity: 3 },
+        ]), anchor]);
+      expect(await order()).toEqual(['Anchor', 'One', 'Two', 'Three', 'Tail']);
+    });
+
+    it('hands back the ids in the same order, so a caller can match its own list', async () => {
+      const [r] = await asChief<{ ids: string[] }>(
+        `select app.add_estimate_lines($1, $2::jsonb, null) as ids`,
+        [version, JSON.stringify([
+          { description: 'Alpha', unit: 'CY' },
+          { description: 'Beta', unit: 'CY' },
+        ])]);
+      expect(r!.ids).toHaveLength(2);
+      const rows = await asChief<{ description: string }>(
+        `select description from estimate_line_items where id = any($1)
+          order by array_position($1, id)`, [r!.ids]);
+      expect(rows.map((x) => x.description)).toEqual(['Alpha', 'Beta']);
+    });
+
+    it('takes the library exactly as a single addition does', async () => {
+      const [r] = await asChief<{ ids: string[] }>(
+        `select app.add_estimate_lines($1, $2::jsonb, null) as ids`,
+        [version, JSON.stringify([{ service_id: service, quantity: 500 }])]);
+      const [line] = await asChief<{ service_id: string; unit: string;
+                                    production_rate_id: string | null; description: string }>(
+        `select service_id, unit, production_rate_id, description
+           from estimate_line_items where id = $1`, [r!.ids[0]]);
+      expect(line!.service_id).toBe(service);
+      expect(line!.unit).toBe('CY');
+      expect(line!.production_rate_id).not.toBeNull();
+      expect(line!.description.length).toBeGreaterThan(0);
+    });
+
+    it('adds none of them when one is impossible', async () => {
+      /*
+       * One transaction, so a selection is added completely or not at all. Half
+       * an addition is worse than none: it looks like a whole one.
+       */
+      const before = (await order()).length;
+      await expect(asChief(
+        `select app.add_estimate_lines($1, $2::jsonb, null)`,
+        [version, JSON.stringify([
+          { description: 'Good one', unit: 'CY' },
+          { service_id: '00000000-0000-4000-8000-00000000dead' },
+        ])])).rejects.toThrow(/not in your library/i);
+      expect((await order()).length).toBe(before);
+    });
+
+    it('accepts an empty list without inventing anything', async () => {
+      const before = (await order()).length;
+      const [r] = await asChief<{ ids: string[] }>(
+        `select app.add_estimate_lines($1, '[]'::jsonb, null) as ids`, [version]);
+      expect(r!.ids).toEqual([]);
+      expect((await order()).length).toBe(before);
+    });
+
+    it('refuses a list that is not a list', async () => {
+      await expect(asChief(
+        `select app.add_estimate_lines($1, '"nope"'::jsonb, null)`, [version]))
+        .rejects.toThrow(/as a list/i);
+    });
+
+    it('refuses more than one addition should carry', async () => {
+      const many = JSON.stringify(
+        Array.from({ length: 201 }, (_, i) => ({ description: `L${i}`, unit: 'CY' })));
+      await expect(asChief(
+        `select app.add_estimate_lines($1, $2::jsonb, null)`, [version, many]))
+        .rejects.toThrow(/more lines than one addition/i);
+    });
+
+    it('leaves the order in tens afterwards', async () => {
+      const rows = await asChief<{ sort_order: number }>(
+        `select sort_order from estimate_line_items
+          where estimate_version_id = $1 and parent_line_id is null order by sort_order`,
+        [version]);
+      expect(rows.map((r) => Number(r.sort_order)))
+        .toEqual(rows.map((_, i) => (i + 1) * 10));
+    });
+  });
+
 });

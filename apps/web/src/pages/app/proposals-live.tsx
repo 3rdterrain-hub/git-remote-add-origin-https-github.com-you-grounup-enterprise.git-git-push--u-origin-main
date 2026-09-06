@@ -77,22 +77,87 @@ export function ProposalsLivePage() {
 
       {proposals.status === 'ready' ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {/*
+            * Each of these opens what it is made of. A rate with no denominator
+            * on screen is a number nobody can check, and "excluding drafts" is
+            * the kind of qualifier that belongs beside the figure it qualifies.
+            */}
           <StatTile label="Proposals" value={rows.length} icon={<FileText className="size-4" />}
-            hint={`${issued.length} issued`} />
+            hint={`${issued.length} issued`}
+            detail={
+              <dl className="space-y-1">
+                <Behind term="Issued" value={`${issued.length}`} />
+                <Behind term="Accepted" value={`${accepted.length}`} />
+                <Behind term="Declined" value={`${rows.filter((p) => p.declinedAt).length}`} />
+                <Behind term="Draft, never sent"
+                  value={`${rows.length - issued.length}`} />
+                <p className="pt-1 text-charcoal-500">
+                  A proposal is issued when it goes to the customer. Drafts are counted here and
+                  nowhere else, because they are not yet a claim on anything.
+                </p>
+              </dl>
+            } />
           <StatTile label="Issued value"
             value={moneyCompact(issued.reduce((a, p) => a + p.totalPrice, 0))}
-            hint="excluding drafts" />
+            hint="excluding drafts"
+            detail={
+              <dl className="space-y-1">
+                <Behind term="Out and unanswered"
+                  value={moneyCompact(issued
+                    .filter((p) => !p.acceptedAt && !p.declinedAt)
+                    .reduce((a, p) => a + p.totalPrice, 0))} />
+                <Behind term="Accepted"
+                  value={moneyCompact(accepted.reduce((a, p) => a + p.totalPrice, 0))} />
+                <Behind term="Declined"
+                  value={moneyCompact(rows.filter((p) => p.declinedAt)
+                    .reduce((a, p) => a + p.totalPrice, 0))} />
+                <p className="pt-1 text-charcoal-500">
+                  Each figure is the price frozen when the proposal was issued, not what the
+                  estimate says today — that is the number the customer was given.
+                </p>
+              </dl>
+            } />
           <StatTile label="Accepted"
             value={moneyCompact(accepted.reduce((a, p) => a + p.totalPrice, 0))} tone="success"
             icon={<CheckCircle2 className="size-4" />}
-            hint={`${accepted.length} of ${issued.length} issued`} />
+            hint={`${accepted.length} of ${issued.length} issued`}
+            detail={
+              accepted.length === 0 ? (
+                <p>Nothing has been accepted yet.</p>
+              ) : (
+                <ul className="space-y-1">
+                  {accepted.slice(0, 6).map((p) => (
+                    <li key={p.id} className="flex items-baseline justify-between gap-3">
+                      <span className="truncate">{p.title || p.number}</span>
+                      <span className="tabular shrink-0">{money(p.totalPrice)}</span>
+                    </li>
+                  ))}
+                  {accepted.length > 6 ? (
+                    <li className="text-charcoal-400">and {accepted.length - 6} more</li>
+                  ) : null}
+                </ul>
+              )
+            } />
           <StatTile label="Acceptance rate"
             value={answered.length > 0
               ? `${Math.round((accepted.length / answered.length) * 100)}%` : '—'}
             tone={answered.length > 0 ? 'success' : undefined}
             hint={answered.length > 0
               ? `by count, across ${answered.length} answered`
-              : 'nothing answered yet'} />
+              : 'nothing answered yet'}
+            detail={
+              <dl className="space-y-1">
+                <Behind term="Accepted" value={`${accepted.length}`} />
+                <Behind term="Declined" value={`${rows.filter((p) => p.declinedAt).length}`} />
+                <Behind term="Still out, not counted"
+                  value={`${issued.length - answered.length}`} />
+                <p className="pt-1 text-charcoal-500">
+                  Counted by proposal, not by value, and only over the ones that were answered.
+                  A proposal still sitting with a customer has not been accepted or declined, and
+                  counting it either way would move this figure for the wrong reason.
+                </p>
+              </dl>
+            } />
         </div>
       ) : null}
 
@@ -384,5 +449,15 @@ function AnswerDialog({ proposal, outcome, onClose, onRecorded }: {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** One line of a tile's breakdown: what it is, and how much of it there is. */
+function Behind({ term, value }: { term: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="text-charcoal-600">{term}</dt>
+      <dd className="tabular text-charcoal-900">{value}</dd>
+    </div>
   );
 }

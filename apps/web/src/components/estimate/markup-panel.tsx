@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { LoadingState, ErrorState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
@@ -107,20 +107,24 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
     });
   });
 
+  const enabled = state.markups.filter((m) => m.enabled);
+  const summary = enabled.length === 0
+    ? 'none on this bid'
+    : enabled.map((m) => `${m.code} ${Math.round(m.percent * 1000) / 10}%`).join(' · ');
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Percent className="size-4 text-charcoal-500" /> Markup and adjustments
-        </CardTitle>
-        <CardDescription>
-          {state.fromProfile
-            ? 'Coming from your pricing profile. Changing one here copies the set onto this bid'
-              + ' first, so the change affects this estimate and not every open one.'
-            : 'This bid carries its own. Your pricing profile is unchanged.'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <CollapsibleCard
+      title={<span className="flex items-center gap-2">
+        <Percent className="size-4 text-charcoal-500" /> Markup and adjustments
+      </span>}
+      description={state.fromProfile
+        ? 'Coming from your pricing profile. Changing one here copies the set onto this bid'
+          + ' first, so the change affects this estimate and not every open one.'
+        : 'This bid carries its own. Your pricing profile is unchanged.'}
+      summary={summary}
+      defaultOpen={false}
+    >
+      <div className="space-y-3">
         {markupsQ.status === 'loading' ? <LoadingState label="Loading the markup" /> : null}
         {markupsQ.status === 'error'
           ? <ErrorState message={markupsQ.message} onRetry={markupsQ.refetch} /> : null}
@@ -207,8 +211,8 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
           indirectCost={indirectCost ?? 0}
           storedPrice={storedPrice ?? 0}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }
 

@@ -40,9 +40,14 @@ export function UnitSelect({
   onChange: (unit: string) => void;
   disabled?: boolean;
   /**
-   * Narrow the list. A service says which units it can be bid in, and offering
-   * one it cannot is a choice the database will refuse after the estimator has
-   * already made it.
+   * The units a service says it is normally measured in.
+   *
+   * A recommendation, not a wall. Migration 0117 stopped refusing anything
+   * else, because a company that bids topsoil by the load rather than the cubic
+   * yard is not making a mistake — the catalog's list is GrounUp's opinion
+   * about how a trade is usually measured, and how a contractor sells their own
+   * work outranks it. So these are offered first, under a heading that says so,
+   * and every other unit stays available beneath.
    */
   allowed?: readonly string[];
   allowEmpty?: boolean;
@@ -51,20 +56,23 @@ export function UnitSelect({
   /** For the accessible name when there is no visible label beside it. */
   label?: string;
 }) {
-  const permitted = allowed && allowed.length > 0
+  const recommended = allowed && allowed.length > 0
     ? UNITS.filter((u) => allowed.includes(u))
+    : [];
+  const rest = recommended.length > 0
+    ? UNITS.filter((u) => !allowed!.includes(u))
     : UNITS;
 
   /*
-   * A value that is no longer permitted is still offered, marked, rather than
-   * silently vanishing from the field: a line already measured in TON on a
-   * service that has since dropped TON should show what it says, so somebody
-   * can see the mismatch and fix it.
+   * Off the service's list is not an error any more, but it is worth seeing:
+   * an estimator who picked TON on a service the catalog measures in CY should
+   * be able to tell at a glance that they are off the recommendation.
    */
-  const stale = value && !permitted.includes(value as Unit);
+  const offList = Boolean(value && recommended.length > 0
+    && !recommended.includes(value as Unit));
 
   const grouped = DIMENSION_ORDER
-    .map((d) => [d, permitted.filter((u) => UNIT_DIMENSION[u] === d)] as const)
+    .map((d) => [d, rest.filter((u) => UNIT_DIMENSION[u] === d)] as const)
     .filter(([, us]) => us.length > 0);
 
   return (
@@ -77,16 +85,23 @@ export function UnitSelect({
       className={cn(
         'h-8 rounded-md border border-charcoal-200 bg-white px-2 text-sm',
         'focus:border-yellow-500 focus:outline-none disabled:opacity-60',
-        stale && 'border-warn-400',
+        offList && 'border-warn-400',
         className,
       )}
     >
       {allowEmpty ? <option value="">—</option> : null}
-      {stale ? (
-        <option value={value as string}>{value} (not offered here)</option>
+      {recommended.length > 0 ? (
+        <optgroup label="Usually measured in">
+          {recommended.map((u) => (
+            <option key={u} value={u}>{u} — {UNIT_LABEL[u]}</option>
+          ))}
+        </optgroup>
       ) : null}
       {grouped.map(([dimension, units]) => (
-        <optgroup key={dimension} label={DIMENSION_LABEL[dimension] ?? dimension}>
+        <optgroup key={dimension}
+          label={recommended.length > 0
+            ? `Other · ${DIMENSION_LABEL[dimension] ?? dimension}`
+            : (DIMENSION_LABEL[dimension] ?? dimension)}>
           {units.map((u) => (
             <option key={u} value={u}>{u} — {UNIT_LABEL[u]}</option>
           ))}

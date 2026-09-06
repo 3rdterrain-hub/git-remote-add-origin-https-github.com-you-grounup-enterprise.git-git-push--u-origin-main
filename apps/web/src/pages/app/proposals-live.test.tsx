@@ -116,9 +116,16 @@ describe('the proposals screen', () => {
 
   it('offers the two answers a customer can give on an issued proposal', async () => {
     renderPage(<ProposalsLivePage />);
+    /*
+     * Exact names, because the Accepted tile above the table is also a button
+     * now — one that opens what the figure is made of rather than recording an
+     * answer, and the two must not be confused for each other.
+     */
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /accepted/i })).toBeInTheDocument());
-    expect(screen.getByRole('button', { name: /declined/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Accepted' })).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Declined' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /what is behind accepted/i }))
+      .toBeInTheDocument();
   });
 
   it('offers no answer to somebody who cannot issue', async () => {

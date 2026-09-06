@@ -90,23 +90,98 @@ export function CrmLivePage() {
       {customersQ.status === 'loading' ? <LoadingState label="Loading customers" /> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/*
+          * Four figures that used to sit unexplained. Two of them — pipeline and
+          * win rate — are the kind a person quotes in a meeting, so what they
+          * count and what they leave out belongs one click away rather than in
+          * somebody's memory.
+          */}
         <StatTile label="Customers" value={customers.length}
           icon={<Building2 className="size-4" />}
-          hint={`${moneyCompact(lifetime)} awarded to date`} />
+          hint={`${moneyCompact(lifetime)} awarded to date`}
+          detail={
+            customers.length === 0 ? <p>No customers yet.</p> : (
+              <ul className="space-y-1">
+                {[...customers]
+                  .sort((a, b) => b.awardedValue - a.awardedValue)
+                  .slice(0, 6)
+                  .map((c) => (
+                    <li key={c.id} className="flex items-baseline justify-between gap-3">
+                      <span className="truncate">{c.name}</span>
+                      <span className="tabular shrink-0">{moneyCompact(c.awardedValue)}</span>
+                    </li>
+                  ))}
+                {customers.length > 6 ? (
+                  <li className="text-charcoal-400">and {customers.length - 6} more</li>
+                ) : null}
+                <li className="pt-1 text-charcoal-500">
+                  Awarded to date is every estimate that reached awarded, at the price it was
+                  awarded at.
+                </li>
+              </ul>
+            )
+          } />
         <StatTile label="Out with customers" value={moneyCompact(outWithCustomers)}
           icon={<TrendingUp className="size-4" />}
-          hint={`${plural(customers.reduce((a, c) => a + c.openCount, 0), 'live estimate')}`} />
+          hint={`${plural(customers.reduce((a, c) => a + c.openCount, 0), 'live estimate')}`}
+          detail={
+            <p>
+              Every estimate at draft, in review, approved or issued, at the engine's bid price.
+              An estimate that was awarded or lost has stopped being out, and an archived one was
+              never out — neither is counted here.
+            </p>
+          } />
         <StatTile label="Open pipeline" value={moneyCompact(pipeline)}
           hint={openOpps.length
             ? `${moneyCompact(weighted)} weighted by probability`
-            : 'no opportunities logged'} />
+            : 'no opportunities logged'}
+          detail={
+            openOpps.length === 0 ? (
+              <p>
+                No opportunities are open. This counts opportunities, which are logged before
+                there is an estimate — it is what you expect to bid, not what you have bid.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-charcoal-600">At full value</span>
+                  <span className="tabular">{money(pipeline)}</span>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-charcoal-600">Weighted by probability</span>
+                  <span className="tabular">{money(weighted)}</span>
+                </div>
+                <p className="pt-1 text-charcoal-500">
+                  Weighted multiplies each opportunity by the probability recorded on it. Neither
+                  figure is a forecast — they are what has been logged.
+                </p>
+              </div>
+            )
+          } />
         <StatTile label="Win rate"
           value={decided > 0 ? `${Math.round((won.length / decided) * 100)}%` : '—'}
           tone={decided > 0 && won.length / decided >= 0.5 ? 'success' : undefined}
           icon={<Trophy className="size-4" />}
           hint={decided > 0
             ? `${won.length} won, ${lost.length} lost`
-            : 'nothing decided yet'} />
+            : 'nothing decided yet'}
+          detail={
+            <div className="space-y-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-charcoal-600">Won</span>
+                <span className="tabular">{won.length}</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-charcoal-600">Lost</span>
+                <span className="tabular">{lost.length}</span>
+              </div>
+              <p className="pt-1 text-charcoal-500">
+                Counted over opportunities that were decided. One still open is neither won nor
+                lost, and counting it either way would move this figure without anything having
+                happened.
+              </p>
+            </div>
+          } />
       </div>
 
       <Tabs defaultValue="customers">

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /** Standard page header: title, one line of context, and the page's actions. */
@@ -22,19 +23,24 @@ export function PageHeader({
 /**
  * KPI tile. `hint` explains what the number means, so nothing is a mystery metric.
  *
- * A tile that counts something the screen below can show is a question with an
- * answer already on the page, and until now there was no way to ask it: every
- * tile in this application was a `div`. "Blocked from issue: 3" told an
- * estimator there were three and left them to find which.
+ * Every tile in this application was a `div`. "Blocked from issue: 3" told an
+ * estimator there were three and left them to find which — with the answer
+ * already on the same page.
  *
- * So a tile with an `onClick` renders as a real button — focusable, reachable
- * from the keyboard, and announced as pressed while its filter is the one in
- * force. A tile with nothing to show stays a `div` rather than becoming a
- * button that does nothing, because a control that does not respond is worse
- * than a number that never offered.
+ * A tile can now do one of two things when it is clicked, and which one depends
+ * on whether the answer is somewhere else or nowhere yet:
+ *
+ *   * `onClick` — the answer is elsewhere on the page. Filter the list, or open
+ *     the section that accounts for the number, and mark the tile pressed while
+ *     that is what the screen is showing.
+ *   * `detail` — the answer is nowhere else. It opens underneath the tile: what
+ *     the figure is made of, how it was counted, what it excludes.
+ *
+ * A tile with neither stays a `div`, because a control that does not respond is
+ * worse than a number that never offered.
  */
 export function StatTile({
-  label, value, hint, tone = 'neutral', icon, onClick, active = false, actionLabel,
+  label, value, hint, tone = 'neutral', icon, onClick, active = false, actionLabel, detail,
 }: {
   label: string; value: ReactNode; hint?: ReactNode;
   tone?: 'neutral' | 'success' | 'warn' | 'danger' | 'accent'; icon?: ReactNode;
@@ -44,7 +50,14 @@ export function StatTile({
   active?: boolean;
   /** Overrides the button's accessible name where the label alone is not enough. */
   actionLabel?: string;
+  /**
+   * What is behind the number, revealed under the tile. Use where the figure
+   * has no list to filter and no section that accounts for it — which is most
+   * tiles on most screens.
+   */
+  detail?: ReactNode;
 }) {
+  const [showing, setShowing] = useState(false);
   const accents = {
     neutral: 'text-charcoal-900',
     success: 'text-success-700',
@@ -65,9 +78,41 @@ export function StatTile({
   );
 
   const shell = 'rounded-[--radius-card] border bg-white p-4 text-left shadow-sm';
+  const interactive =
+    'w-full transition-colors focus-visible:outline-none focus-visible:ring-2 '
+    + 'focus-visible:ring-yellow-500 focus-visible:ring-offset-2';
 
-  if (!onClick) {
+  if (!onClick && !detail) {
     return <div className={cn(shell, 'border-charcoal-200')}>{body}</div>;
+  }
+
+  /*
+   * `detail` opens in place, so the tile is its own disclosure and the answer
+   * arrives without the reader losing the number it belongs to.
+   */
+  if (detail && !onClick) {
+    return (
+      <div className={cn(shell, showing ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-charcoal-200')}>
+        <button
+          type="button"
+          onClick={() => setShowing((v) => !v)}
+          aria-expanded={showing}
+          aria-label={actionLabel ?? `What is behind ${label}`}
+          className={cn(interactive, 'text-left')}
+        >
+          {body}
+          <span className="mt-1 flex items-center gap-1 text-xs font-medium text-charcoal-500">
+            {showing ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+            {showing ? 'Hide' : "What's behind this"}
+          </span>
+        </button>
+        {showing ? (
+          <div className="mt-3 border-t border-charcoal-200 pt-3 text-xs text-charcoal-600">
+            {detail}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   return (
@@ -78,8 +123,7 @@ export function StatTile({
       aria-label={actionLabel}
       className={cn(
         shell,
-        'w-full transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2',
+        interactive,
         active
           ? 'border-yellow-500 ring-1 ring-yellow-500'
           : 'border-charcoal-200 hover:border-charcoal-400 hover:bg-charcoal-50',

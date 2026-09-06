@@ -28,6 +28,7 @@ const hoisted = vi.hoisted(() => ({
   inserted: [] as Array<Record<string, unknown>>,
   services: [] as Array<Record<string, unknown>>,
   added: [] as Array<Record<string, unknown>>,
+  batches: [] as Array<Record<string, unknown>>,
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -63,6 +64,10 @@ vi.mock('@/lib/data/estimates', async () => {
     addLine: async (_c: unknown, input: Record<string, unknown>) => {
       hoisted.added.push(input);
       return 'l-new';
+    },
+    addLines: async (_c: unknown, input: Record<string, unknown>) => {
+      hoisted.batches.push(input);
+      return ['l-a', 'l-b'];
     },
     updateVersion: async (_c: unknown, _v: string, fields: Record<string, unknown>) => {
       hoisted.updated.push(fields);
@@ -122,7 +127,7 @@ describe('the estimate workspace', () => {
     hoisted.version = version();
     hoisted.updated = []; hoisted.revised = []; hoisted.navigated = [];
     hoisted.moved = []; hoisted.inserted = [];
-    hoisted.services = []; hoisted.added = [];
+    hoisted.services = []; hoisted.added = []; hoisted.batches = [];
   });
 
   it('shows the engine result and says which build produced it', async () => {
@@ -321,12 +326,18 @@ describe('the estimate workspace', () => {
         ],
       });
       renderPage(<EstimateVersionPage />);
-      await waitFor(() => expect(screen.getByText('Strip and stockpile topsoil')).toBeInTheDocument());
+      /*
+       * Anchored on the row's own controls: the hours card lower down lists the
+       * same descriptions, so the text alone no longer identifies a row.
+       */
+      const row = (d: string) => screen.queryByRole('button',
+        { name: new RegExp(`crew, equipment, material and haul on ${d}`, 'i') });
+      await waitFor(() => expect(row('Strip and stockpile topsoil')).toBeInTheDocument());
 
       await userEvent.click(screen.getByRole('button',
         { name: /show only the lines that are blocking this bid/i }));
-      await waitFor(() => expect(screen.queryByText('Strip and stockpile topsoil')).not.toBeInTheDocument());
-      expect(screen.getByText('Rock removal')).toBeInTheDocument();
+      await waitFor(() => expect(row('Strip and stockpile topsoil')).not.toBeInTheDocument());
+      expect(row('Rock removal')).toBeInTheDocument();
     });
 
     it('says the table is filtered, and that the total still covers everything', async () => {
@@ -357,20 +368,21 @@ describe('the estimate workspace', () => {
   describe('working on a line from the row it is on', () => {
     const twoLines = () => version({
       lines: [
-        line({ id: 'l-1', description: 'Strip topsoil' }),
-        line({ id: 'l-2', description: 'Mass excavation' }),
+        line({ id: 'l-1', description: 'Strip and stockpile topsoil', serviceName: 'Topsoil' }),
+        line({ id: 'l-2', description: 'Rock removal', serviceName: 'Rock' }),
       ],
     });
 
     it('keeps the build-up behind one click rather than on the row', async () => {
       hoisted.version = twoLines();
       renderPage(<EstimateVersionPage />);
-      await waitFor(() => expect(screen.getByText('Strip topsoil')).toBeInTheDocument());
-      /* Nothing of the crew or the machines is on screen until it is asked for. */
+      await waitFor(() => expect(
+        screen.getByRole('button', { name: /drag to reorder Strip and stockpile topsoil/i }))
+        .toBeInTheDocument());
       expect(screen.queryByRole('tab', { name: /crew/i })).not.toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('button',
-        { name: /crew, equipment, material and haul on Strip topsoil/i }));
+        { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i }));
       expect(await screen.findByRole('tab', { name: /crew/i })).toBeInTheDocument();
     });
 
@@ -378,32 +390,16 @@ describe('the estimate workspace', () => {
       hoisted.version = twoLines();
       renderPage(<EstimateVersionPage />);
       expect(await screen.findByRole('button',
-        { name: /crew, equipment, material and haul on Mass excavation/i })).toBeInTheDocument();
-    });
-
-    it('adds a line under the one whose plus was pressed', async () => {
-      hoisted.version = twoLines();
-      renderPage(<EstimateVersionPage />);
-      await userEvent.click(await screen.findByRole('button',
-        { name: /add a line under Strip topsoil/i }));
-
-      const dialog = await screen.findByRole('dialog');
-      expect(within(dialog).getByText(/directly under "Strip topsoil"/)).toBeInTheDocument();
-      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'Haul off');
-      await userEvent.click(within(dialog).getByRole('button', { name: /^add line$/i }));
-
-      await waitFor(() => expect(hoisted.inserted).toHaveLength(1));
-      expect(hoisted.inserted[0]!.afterLineId).toBe('l-1');
+        { name: /crew, equipment, material and haul on Rock removal/i })).toBeInTheDocument();
     });
 
     it('moves a line to sit after the row it was dropped on', async () => {
       hoisted.version = twoLines();
       renderPage(<EstimateVersionPage />);
-      const grip = await screen.findByRole('button', { name: /drag to reorder Strip topsoil/i });
-      /* The service name repeats the description in the fixture, so anchor on
-         the row's own controls rather than on its text. */
+      const grip = await screen.findByRole('button',
+        { name: /drag to reorder Strip and stockpile topsoil/i });
       const target = screen
-        .getByRole('button', { name: /drag to reorder Mass excavation/i })
+        .getByRole('button', { name: /drag to reorder Rock removal/i })
         .closest('tr')!;
 
       fireEvent.dragStart(grip);
@@ -416,8 +412,7 @@ describe('the estimate workspace', () => {
     it('offers a way to drop a line into first place', async () => {
       hoisted.version = twoLines();
       renderPage(<EstimateVersionPage />);
-      const grip = await screen.findByRole('button', { name: /drag to reorder Mass excavation/i });
-      /* The strip only exists while something is being dragged. */
+      const grip = await screen.findByRole('button', { name: /drag to reorder Rock removal/i });
       expect(screen.queryByText(/drop here to put it first/i)).not.toBeInTheDocument();
 
       fireEvent.dragStart(grip);
@@ -431,93 +426,145 @@ describe('the estimate workspace', () => {
     it('offers neither drag nor plus on a version that is frozen', async () => {
       hoisted.version = version({
         status: 'approved', approvedAt: '2026-09-02T00:00:00Z',
-        lines: [line({ id: 'l-1', description: 'Strip topsoil' })],
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
       });
       renderPage(<EstimateVersionPage />);
-      await waitFor(() => expect(screen.getByText('Strip topsoil')).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByRole('button',
+        { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i }))
+        .toBeInTheDocument());
       expect(screen.queryByRole('button', { name: /drag to reorder/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /add a line under/i })).not.toBeInTheDocument();
-      /* The wrench stays: reading what a line is made of is not editing it. */
-      expect(screen.getByRole('button',
-        { name: /crew, equipment, material and haul on Strip topsoil/i })).toBeInTheDocument();
     });
   });
 
-
   // -------------------------------------------------------------------------
-  describe('one field that searches and accepts', () => {
+  describe('a blank line, right where you are looking', () => {
     /*
-     * This dialog used to have two boxes, and only one of them suggested
-     * anything. Typing the item's name in the field that looked like where a
-     * name goes produced nothing at all.
+     * The fast path. A dialog is a mode, and a mode costs a click to enter and
+     * a click to leave on every one of thirty lines.
      */
-    const openAddLine = async () => {
+    const oneLine = () => version({
+      lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+    });
+
+    it('opens in the table rather than over it', async () => {
+      hoisted.version = oneLine();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /add a line under Strip and stockpile topsoil/i }));
+      expect(await screen.findByLabelText('What is this line?')).toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('suggests from the library as it is typed', async () => {
+      hoisted.version = oneLine();
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+      ];
       renderPage(<EstimateVersionPage />);
       await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
-      return screen.findByRole('dialog');
-    };
-
-    it('suggests from the library as the description is typed', async () => {
-      hoisted.services = [
-        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
-          defaultUnit: 'CY', supportedUnits: ['CY', 'TON'], isOwn: false },
-      ];
-      const dialog = await openAddLine();
-      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
-      expect(await within(dialog).findByRole('option', { name: /Mass excavation/ }))
-        .toBeInTheDocument();
+      await userEvent.type(await screen.findByLabelText('What is this line?'), 'mass');
+      expect(await screen.findByRole('option', { name: /Mass excavation/ })).toBeInTheDocument();
     });
 
-    it('takes the unit from the service that was picked', async () => {
+    it('takes the unit from the service picked with the keyboard', async () => {
+      hoisted.version = oneLine();
       hoisted.services = [
         { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
           defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
       ];
-      const dialog = await openAddLine();
-      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
-      await userEvent.click(await within(dialog).findByRole('option', { name: /Mass excavation/ }));
-      expect(within(dialog).getByLabelText(/unit for this line/i)).toHaveValue('CY');
-      expect(within(dialog).getByText(/From the library: Mass excavation/)).toBeInTheDocument();
-    });
-
-    it('is navigable from the keyboard, since that is how a list gets typed into', async () => {
-      hoisted.services = [
-        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
-          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
-      ];
-      const dialog = await openAddLine();
-      const field = within(dialog).getByLabelText(/what is this line/i);
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
+      const field = await screen.findByLabelText('What is this line?');
       await userEvent.type(field, 'mass');
-      await within(dialog).findByRole('option', { name: /Mass excavation/ });
+      await screen.findByRole('option', { name: /Mass excavation/ });
       await userEvent.keyboard('{ArrowDown}{Enter}');
-      expect(within(dialog).getByText(/From the library: Mass excavation/)).toBeInTheDocument();
+      expect(screen.getByLabelText('Unit for this line')).toHaveValue('CY');
+      expect(screen.getByText(/From the library: SVC-0006/)).toBeInTheDocument();
     });
 
     it('keeps the typed words when nothing in the library matches', async () => {
+      hoisted.version = oneLine();
       hoisted.services = [];
-      const dialog = await openAddLine();
-      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'Mobilization');
-      expect(await within(dialog).findByText(/Nothing in the library matches/)).toBeInTheDocument();
-      await userEvent.click(within(dialog).getByRole('button', { name: /^add line$/i }));
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
+      await userEvent.type(await screen.findByLabelText('What is this line?'), 'Mobilization');
+      await userEvent.click(screen.getByRole('button', { name: /add this line/i }));
       await waitFor(() => expect(hoisted.added).toHaveLength(1));
       expect(hoisted.added[0]).toMatchObject({ description: 'Mobilization', serviceId: null });
     });
 
-    it('will not add a line with nothing in the field', async () => {
-      const dialog = await openAddLine();
-      expect(within(dialog).getByRole('button', { name: /^add line$/i })).toBeDisabled();
+    it('adds under the row whose plus was pressed', async () => {
+      hoisted.version = oneLine();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /add a line under Strip and stockpile topsoil/i }));
+      await userEvent.type(await screen.findByLabelText('What is this line?'), 'Haul off');
+      await userEvent.click(screen.getByRole('button', { name: /add this line/i }));
+      await waitFor(() => expect(hoisted.inserted).toHaveLength(1));
+      expect(hoisted.inserted[0]!.afterLineId).toBe('l-1');
     });
 
-    it('goes back to your own words after a library pick', async () => {
+    it('will not write a line with nothing in it', async () => {
+      hoisted.version = oneLine();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
+      await screen.findByLabelText('What is this line?');
+      expect(screen.getByRole('button', { name: /add this line/i })).toBeDisabled();
+    });
+
+    it('closes on Escape without writing anything', async () => {
+      hoisted.version = oneLine();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /^add line$/i }));
+      const field = await screen.findByLabelText('What is this line?');
+      await userEvent.type(field, 'Never mind{Escape}');
+      await waitFor(() =>
+        expect(screen.queryByLabelText('What is this line?')).not.toBeInTheDocument());
+      expect(hoisted.added).toEqual([]);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  describe('shopping the library for several at once', () => {
+    it('adds everything ticked in one call', async () => {
+      hoisted.version = version({ lines: [line({ id: 'l-1', description: 'Only line' })] });
       hoisted.services = [
-        { id: 's-9', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
+        { id: 's-1', code: 'SVC-0006', name: 'Mass excavation', category: 'Earthwork',
           defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+        { id: 's-2', code: 'SVC-0050', name: 'Storm sewer installation', category: 'Utilities',
+          defaultUnit: 'LF', supportedUnits: ['LF'], isOwn: false },
       ];
-      const dialog = await openAddLine();
-      await userEvent.type(within(dialog).getByLabelText(/what is this line/i), 'mass');
-      await userEvent.click(await within(dialog).findByRole('option', { name: /Mass excavation/ }));
-      await userEvent.click(within(dialog).getByRole('button', { name: /use my own words/i }));
-      expect(within(dialog).queryByText(/From the library:/)).not.toBeInTheDocument();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
+      const dialog = await screen.findByRole('dialog');
+
+      await userEvent.click(await within(dialog).findByLabelText('Add Mass excavation'));
+      await userEvent.click(within(dialog).getByLabelText('Add Storm sewer installation'));
+      expect(within(dialog).getByRole('button', { name: /add 2 lines/i })).toBeInTheDocument();
+
+      await userEvent.click(within(dialog).getByRole('button', { name: /add 2 lines/i }));
+      await waitFor(() => expect(hoisted.batches).toHaveLength(1));
+      expect(hoisted.batches[0]!.lines).toEqual([
+        { serviceId: 's-1', unit: 'CY' },
+        { serviceId: 's-2', unit: 'LF' },
+      ]);
+    });
+
+    it('will not add an empty selection', async () => {
+      hoisted.version = version({ lines: [line()] });
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByRole('button', { name: /add lines/i })).toBeDisabled();
+    });
+
+    it('says quantities start at zero, because nobody has measured them', async () => {
+      hoisted.version = version({ lines: [line()] });
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /from library/i }));
+      expect(await screen.findByText(/quantities start at zero/i)).toBeInTheDocument();
     });
   });
 

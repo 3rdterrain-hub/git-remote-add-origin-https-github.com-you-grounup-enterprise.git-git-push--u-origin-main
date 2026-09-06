@@ -843,6 +843,35 @@ export async function insertLineAfter(
   });
 }
 
+/**
+ * Add several lines in one call.
+ *
+ * One transaction, so a selection of eight is added completely or not at all.
+ * Eight separate calls would leave the estimator with five lines and an error,
+ * and no way to know which three were missing.
+ */
+export async function addLines(
+  client: RpcCapable,
+  input: {
+    versionId: string;
+    afterLineId?: string | null;
+    lines: Array<{ serviceId?: string | null; description?: string | null;
+                   quantity?: number; unit?: string | null }>;
+  },
+): Promise<string[]> {
+  const rows = input.lines.map((l) => ({
+    service_id: l.serviceId ?? null,
+    description: l.description?.trim() || null,
+    quantity: l.quantity ?? 0,
+    unit: l.unit || null,
+  }));
+  return rpc<string[]>(client, 'add_estimate_lines', {
+    p_version: input.versionId,
+    p_lines: rows,
+    p_after: input.afterLineId ?? null,
+  });
+}
+
 /** Move a line among the lines it sits beside. Null puts it first. */
 export async function moveLine(
   client: RpcCapable, lineId: string, afterLineId: string | null,

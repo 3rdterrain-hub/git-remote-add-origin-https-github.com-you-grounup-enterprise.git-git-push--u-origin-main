@@ -151,14 +151,41 @@ describe('building an estimate', () => {
       expect(Number(row!.total_direct_cost)).toBe(0);
     });
 
-    it('refuses a unit the service is not measured in', async () => {
+    it('takes a unit the catalog did not anticipate, and says what it costs', async () => {
+      /*
+       * This used to be refused. The reasoning was sound and the rule was
+       * wrong: a company that bids topsoil by the load rather than the cubic
+       * yard is not making a mistake, and the catalog's list is GrounUp's
+       * opinion about how a trade is usually measured, not the contractor's.
+       *
+       * What is kept is the consequence. No production rate in the library is
+       * measured that way, so the line takes none — and says so, rather than
+       * carrying a rate whose number means something else.
+       */
       const [bad] = await h.sql<{ unit: string }>(
         `select u.unit::text as unit from unnest(enum_range(null::app.unit_code)) u(unit)
           where u.unit <> all (select unnest(supported_units) from services where id = $1)
           limit 1`, [service]);
-      await expect(h.asUser(SENIOR, () => h.sql(
-        `select app.add_estimate_line($1,$2,null,5,$3)`, [version, service, bad!.unit])))
-        .rejects.toThrow(/not measured in/i);
+      const id = (await h.asUser(SENIOR, () => h.sql<{ id: string }>(
+        `select app.add_estimate_line($1,$2,null,5,$3) as id`,
+        [version, service, bad!.unit])))[0]!.id;
+
+      const [row] = await h.asUser(SENIOR, () => h.sql<{
+        unit: string; production_rate_id: string | null; note: string | null }>(
+        `select unit::text, production_rate_id, app.line_unit_note(id) as note
+           from estimate_line_items where id = $1`, [id]));
+      expect(row!.unit).toBe(bad!.unit);
+      expect(row!.production_rate_id).toBeNull();
+      expect(row!.note).toMatch(/normally measured in/i);
+      expect(row!.note).toMatch(/your call/i);
+    });
+
+    it('says nothing about the unit when it is one the service lists', async () => {
+      const id = (await h.asUser(SENIOR, () => h.sql<{ id: string }>(
+        `select app.add_estimate_line($1,$2,null,5) as id`, [version, service])))[0]!.id;
+      const [row] = await h.asUser(SENIOR, () => h.sql<{ note: string | null }>(
+        `select app.line_unit_note(id) as note from estimate_line_items where id = $1`, [id]));
+      expect(row!.note).toBeNull();
     });
 
     it('refuses a service from another company\'s library', async () => {
@@ -176,10 +203,23 @@ describe('building an estimate', () => {
       const line = (await h.asUser(SENIOR, () => h.sql<{ id: string }>(
         `select app.add_estimate_line($1, null, 'Mobilization', 1, 'LS') as id`,
         [version])))[0]!.id;
-      const [row] = await h.asUser(SENIOR, () => h.sql<{ description: string; sort: number }>(
-        `select description, sort_order as sort from estimate_line_items where id = $1`, [line]));
+      const [row] = await h.asUser(SENIOR, () => h.sql<{ description: string; sort: number;
+                                                          behind: number }>(
+        `select l.description, l.sort_order as sort,
+                (select count(*) from estimate_line_items o
+                  where o.estimate_version_id = l.estimate_version_id
+                    and o.sort_order < l.sort_order) as behind
+           from estimate_line_items l where l.id = $1`, [line]));
       expect(row!.description).toBe('Mobilization');
-      expect(row!.sort).toBe(20);          // lands after the first
+      /*
+       * Stated as a property rather than a number: it lands at the end, after
+       * every line already there. A literal 20 only held while this test was
+       * the second one to add a line.
+       */
+      const [total] = await h.asUser(SENIOR, () => h.sql<{ n: string }>(
+        `select count(*) as n from estimate_line_items where estimate_version_id = $1`,
+        [version]));
+      expect(Number(row!.behind)).toBe(Number(total!.n) - 1);
     });
 
     it('refuses a line with neither a service nor a description', async () => {

@@ -20,14 +20,15 @@
  *     rules live in `app.set_estimate_status` and are enforced there; the
  *     screen states them in advance so nobody discovers one by being refused.
  */
-import { Fragment, useState, type KeyboardEvent } from 'react';
+import { Fragment, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertTriangle, ArrowLeft, Calculator, CheckCircle2,
-  Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck, Trash2,
+  Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck,
   BookmarkPlus, GitBranch, GripVertical, Wrench,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,12 +48,12 @@ import { usePermissions } from '@/lib/data/session';
 import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
-  loadVersion, loadDrift, searchServices, addLine, setLineQuantity, setEstimateStatus,
-  issueProposal, updateLine, updateVersion, reviseVersion, insertLineAfter, moveLine,
+  loadVersion, loadDrift, searchServices, setLineQuantity, setEstimateStatus,
+  issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
-import { UnitSelect } from '@/components/ui/unit-select';
+import { NewLineRow } from '@/components/estimate/new-line-row';
 import { CategorySelect } from '@/components/ui/category-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import {
@@ -80,15 +81,34 @@ export function EstimateVersionPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'bad'; text: string } | null>(null);
   const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
-  const [adding, setAdding] = useState(false);
-  /** When set, the new line goes directly under this one rather than at the end. */
-  const [addAfter, setAddAfter] = useState<string | null>(null);
+  /** The browse-and-tick panel. */
+  const [browsing, setBrowsing] = useState(false);
+  /*
+   * Where a blank row is open: a line id to sit under, '' for the end of the
+   * table, null for none. Distinguishing '' from null is what lets the button
+   * at the top and the plus on a row use the same row component.
+   */
+  const [blankAfter, setBlankAfter] = useState<string | null>(null);
   const [issuing, setIssuing] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
   const [applied, setApplied] = useState<ApplyResult | null>(null);
   const [revising, setRevising] = useState(false);
   const [onlyBlocking, setOnlyBlocking] = useState(false);
+  /*
+   * Which explanation a figure at the top has been asked for. Every number on
+   * those four tiles is already explained further down the page, and until now
+   * a reader had to know that. Clicking one opens the section that accounts for
+   * it and takes them there.
+   */
+  const [showing, setShowing] = useState<'buckets' | 'ladder' | 'hours' | null>(null);
+  const explain = (which: 'buckets' | 'ladder' | 'hours') => {
+    setShowing(which);
+    requestAnimationFrame(() => {
+      document.getElementById(`explain-${which}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  };
 
   const v: VersionDetail | null = version.status === 'ready' ? version.data : null;
 
@@ -234,11 +254,22 @@ export function EstimateVersionPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Bid price" value={priced ? money(v.bidPrice) : '—'}
-          hint={priced ? 'what the engine computed' : 'not priced'} />
+          hint={priced ? 'how cost became price' : 'not priced'}
+          active={showing === 'ladder'}
+          actionLabel="Show how the cost became this price"
+          onClick={priced ? () => explain('ladder') : undefined} />
         <StatTile label="Direct cost" value={priced ? money(v.directCost) : '—'}
-          hint={`${v.lines.length} line${v.lines.length === 1 ? '' : 's'}`} />
+          hint={priced
+            ? `${v.lines.length} line${v.lines.length === 1 ? '' : 's'} · what it is made of`
+            : `${v.lines.length} line${v.lines.length === 1 ? '' : 's'}`}
+          active={showing === 'buckets'}
+          actionLabel="Show what the direct cost is made of"
+          onClick={priced ? () => explain('buckets') : undefined} />
         <StatTile label="Labor hours" value={priced ? integer(v.totalLaborHours) : '—'}
-          hint={priced ? `${integer(v.totalEquipmentHours)} equipment hours` : 'not priced'} />
+          hint={priced ? `${integer(v.totalEquipmentHours)} equipment hours · by line` : 'not priced'}
+          active={showing === 'hours'}
+          actionLabel="Show the hours line by line"
+          onClick={priced ? () => explain('hours') : undefined} />
         {/*
           * The only one of these four with an answer further down the page:
           * blocked means specific lines are blocking, and this shows which.
@@ -270,7 +301,15 @@ export function EstimateVersionPage() {
                 <Button size="sm" variant="outline" onClick={() => setApplyingTemplate(true)}>
                   <LayoutTemplate className="size-4" /> From template
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
+                {/*
+                  * Two ways in, because they are two jobs. Browsing the library
+                  * and ticking eight things needs room; typing a line as you
+                  * think of it should never leave the table.
+                  */}
+                <Button size="sm" variant="outline" onClick={() => setBrowsing(true)}>
+                  <Search className="size-4" /> From library
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setBlankAfter('')}>
                   <Plus className="size-4" /> Add line
                 </Button>
               </div>
@@ -280,35 +319,60 @@ export function EstimateVersionPage() {
             {v.lines.length === 0 ? (
               <div className="p-6">
                 <EmptyState title="Nothing on this estimate yet"
-                  hint="Add a service from the master library, or a line of your own." />
+                  hint={editable && can('estimates.write') ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setBrowsing(true)}>
+                        <Search className="size-4" /> From library
+                      </Button>
+                      <Button size="sm" onClick={() => setBlankAfter('')}>
+                        <Plus className="size-4" /> Add a line
+                      </Button>
+                    </span>
+                  ) : 'Add a service from the master library, or a line of your own.'} />
               </div>
             ) : (
               <LineTable version={v} editable={editable && can('estimates.write')}
                 onlyBlocking={onlyBlocking}
-                onAddAfter={(id) => { setAddAfter(id); setAdding(true); }}
+                versionId={v.id}
+                blankAfter={blankAfter}
+                onAddAfter={setBlankAfter}
+                onBlankDone={() => { setBlankAfter(''); version.refetch(); }}
+                onBlankCancel={() => setBlankAfter(null)}
                 onChanged={version.refetch} />
             )}
           </CardContent>
         </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Where the cost is</CardTitle>
-              <CardDescription>
-                RULE-001: the buckets stay separately visible and are never rolled into one number.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {priced ? <CostBuckets costs={v.costs} total={v.directCost} />
-                : <p className="text-sm text-charcoal-500">Nothing has been priced yet.</p>}
-            </CardContent>
-          </Card>
+          {/*
+            * Named for what it answers. "Where the cost is" described the card's
+            * purpose to whoever wrote it; "What the cost is made of" says what a
+            * reader will find inside, which is the ten buckets RULE-001 keeps
+            * apart — labor and its burden, equipment and its mobilization, fuel,
+            * material, trucking, disposal, subcontract and everything else.
+            */}
+          <CollapsibleCard
+            id="explain-buckets"
+            title="What the cost is made of"
+            description="Labor, burden, equipment, mobilization, fuel, material, trucking, disposal and subcontract, kept apart. RULE-001: they are never rolled into one number, because a single figure hides which one moved."
+            summary={priced ? money(v.directCost) : 'not priced'}
+            open={showing === 'buckets' ? true : undefined}
+            onOpenChange={(o) => setShowing(o ? 'buckets' : null)}
+          >
+            {priced ? <CostBuckets costs={v.costs} total={v.directCost} />
+              : <p className="text-sm text-charcoal-500">Nothing has been priced yet.</p>}
+          </CollapsibleCard>
 
           {priced ? (
-            <Card>
-              <CardHeader><CardTitle>From cost to price</CardTitle></CardHeader>
-              <CardContent className="space-y-2 text-sm">
+            <CollapsibleCard
+              id="explain-ladder"
+              title="From cost to price"
+              description="Every step between what the work costs and what the customer is asked for. Nothing here was typed — the engine wrote each figure and this is the order it wrote them in."
+              summary={money(v.bidPrice)}
+              open={showing === 'ladder' ? true : undefined}
+              onOpenChange={(o) => setShowing(o ? 'ladder' : null)}
+            >
+              <div className="space-y-2 text-sm">
                 {([['Direct cost', v.directCost], ['Indirect cost', v.indirectCost],
                    ['Markup', v.totalMarkup], ['Total price', v.totalPrice],
                    ['Bid price', v.bidPrice]] as [string, number][]).map(([label, value], i, a) => (
@@ -318,8 +382,44 @@ export function EstimateVersionPage() {
                     <span className="tabular text-charcoal-900">{money(value)}</span>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </CollapsibleCard>
+          ) : null}
+
+          {/*
+            * Labor hours had no explanation anywhere on the page: a total with
+            * nothing behind it. These are the lines it is the sum of.
+            */}
+          {priced ? (
+            <CollapsibleCard
+              id="explain-hours"
+              title="Where the hours are"
+              description="Labor and equipment hours per line, as the engine computed them from each line's quantity and production rate."
+              summary={`${integer(v.totalLaborHours)} labor · ${integer(v.totalEquipmentHours)} equipment`}
+              open={showing === 'hours' ? true : undefined}
+              onOpenChange={(o) => setShowing(o ? 'hours' : null)}
+              defaultOpen={false}
+            >
+              <div className="space-y-1.5 text-sm">
+                {v.lines.filter((l) => l.laborHours > 0 || l.equipmentHours > 0).length === 0 ? (
+                  <p className="text-charcoal-500">
+                    No line has hours yet. Hours come from a quantity and a production rate, or
+                    from a crew and machines that drive them.
+                  </p>
+                ) : v.lines
+                  .filter((l) => l.laborHours > 0 || l.equipmentHours > 0)
+                  .map((l) => (
+                    <div key={l.id} className="flex items-baseline justify-between gap-3">
+                      <span className="min-w-0 truncate text-charcoal-600">{l.description}</span>
+                      <span className="tabular shrink-0 text-charcoal-900">
+                        {integer(l.laborHours)} lab
+                        <span className="text-charcoal-400"> · </span>
+                        {integer(l.equipmentHours)} eq
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </CollapsibleCard>
           ) : null}
 
           {priced ? (
@@ -337,11 +437,12 @@ export function EstimateVersionPage() {
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
         directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice} />
 
-      <AddLineDialog open={adding}
-        onOpenChange={(o) => { setAdding(o); if (!o) setAddAfter(null); }}
-        versionId={v.id} afterLineId={addAfter}
-        afterDescription={v.lines.find((l) => l.id === addAfter)?.description ?? null}
-        onAdded={() => { setAdding(false); setAddAfter(null); version.refetch(); }} />
+      <AddLinesDialog open={browsing} onOpenChange={setBrowsing} versionId={v.id}
+        onAdded={(n) => {
+          setBrowsing(false);
+          setNotice({ tone: 'ok', text: `Added ${n} line${n === 1 ? '' : 's'} from the library.` });
+          version.refetch();
+        }} />
       <IssueDialog open={issuing} onOpenChange={setIssuing} version={v}
         onIssued={() => { setIssuing(false); version.refetch(); }} />
       <ReviseDialog open={revising} onOpenChange={setRevising} version={v}
@@ -407,10 +508,18 @@ function CostBuckets({ costs, total }: { costs: Record<string, number>; total: n
  * rows to the database, and a version's `updated_at` should mean somebody
  * changed something.
  */
-function LineTable({ version, editable, onlyBlocking = false, onAddAfter, onChanged }: {
+function LineTable({
+  version, editable, onlyBlocking = false, versionId, blankAfter = null,
+  onAddAfter, onBlankDone, onBlankCancel, onChanged,
+}: {
   version: VersionDetail; editable: boolean; onlyBlocking?: boolean;
-  /** The plus on a row: add a line directly beneath this one. */
+  versionId?: string;
+  /** Where a blank row is open: a line id, '' for the end, null for none. */
+  blankAfter?: string | null;
+  /** The plus on a row: open a blank row directly beneath this one. */
   onAddAfter?: (lineId: string) => void;
+  onBlankDone?: () => void;
+  onBlankCancel?: () => void;
   onChanged: () => void;
 }) {
   const [saving, setSaving] = useState<string | null>(null);
@@ -643,9 +752,19 @@ function LineTable({ version, editable, onlyBlocking = false, onAddAfter, onChan
                     </TableCell>
                   </TableRow>
                 ) : null}
+
+                {blankAfter === l.id && versionId ? (
+                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={9}
+                    onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
+                ) : null}
               </Fragment>
             );
           })}
+
+          {blankAfter === '' && versionId ? (
+            <NewLineRow versionId={versionId} afterLineId={null} columns={9}
+              onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
+          ) : null}
         </TableBody>
         <TableFooter>
           <TableRow>
@@ -669,222 +788,142 @@ function LineTable({ version, editable, onlyBlocking = false, onAddAfter, onChan
 }
 
 /**
- * Adding a line: one field that searches and accepts.
+ * Shopping the library: browse, tick several, add them together.
  *
- * This dialog used to have two boxes — "Search the library", which suggested as
- * you typed, and "Or a line of your own", which did not. So typing the name of
- * the item in the field that looks like where a name goes produced no
- * suggestions at all, and the library only helped somebody who had already
- * guessed which box was which.
+ * This is the bulk path, and it is deliberately not the same control as the
+ * blank row in the table. An estimator adding a line as they think of it is
+ * typing; an estimator pulling eight things out of a trade is browsing, and
+ * browsing needs room to see what has been ticked. One gesture forced to serve
+ * both would be worse at each.
  *
- * There is one field now. What you type searches; what matches drops down; what
- * you pick brings its unit, cost code and production rate; and if nothing
- * matches, the words you typed are the line. That is the same keystroke either
- * way, which is the point — the library should not be a mode you enter.
+ * The whole selection goes in one call, so eight lines are added completely or
+ * not at all — five lines and an error is the worst outcome available, because
+ * it looks like a complete addition.
  */
-function AddLineDialog({
+function AddLinesDialog({
   open, onOpenChange, versionId, afterLineId = null, afterDescription = null, onAdded,
 }: {
   open: boolean; onOpenChange: (v: boolean) => void; versionId: string;
-  /** Set by the plus on a row: the new line goes directly under this one. */
   afterLineId?: string | null;
   afterDescription?: string | null;
-  onAdded: () => void;
+  onAdded: (count: number) => void;
 }) {
   const [term, setTerm] = useState('');
   const [category, setCategory] = useState('');
-  const [chosen, setChosen] = useState<LibraryService | null>(null);
-  const [unit, setUnit] = useState<string>('LS');
-  const [quantity, setQuantity] = useState('0');
-  /** Which suggestion the arrow keys are on. -1 is "none, keep what I typed". */
-  const [cursor, setCursor] = useState(-1);
+  /** Ticked services, kept as a map so the order of ticking is the order added. */
+  const [picked, setPicked] = useState<LibraryService[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const services = useQuery(searchServices(term, category || null), [term, category, open]);
   const results = services.status === 'ready' ? services.data : [];
-  /*
-   * Suggestions are for choosing. Once something is chosen they would be a list
-   * of alternatives to a decision already made, so they go away until the
-   * estimator types again.
-   */
-  const suggesting = !chosen && (term.trim().length > 0 || category !== '');
+  const isPicked = (id: string) => picked.some((p) => p.id === id);
 
-  const choose = (s: LibraryService) => {
-    setChosen(s);
-    setTerm(s.name);
-    setUnit(s.defaultUnit);
-    setCursor(-1);
+  const toggle = (s: LibraryService) => {
+    setPicked((p) => isPicked(s.id) ? p.filter((x) => x.id !== s.id) : [...p, s]);
   };
 
-  const clear = () => { setChosen(null); setCursor(-1); };
-
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (!suggesting || results.length === 0) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setCursor((c) => Math.min(c + 1, results.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setCursor((c) => Math.max(c - 1, -1));
-    } else if (e.key === 'Enter' && cursor >= 0) {
-      e.preventDefault();
-      choose(results[cursor]!);
-    } else if (e.key === 'Escape' && cursor >= 0) {
-      e.preventDefault();
-      setCursor(-1);
-    }
-  };
+  const reset = () => { setPicked([]); setTerm(''); setCategory(''); setError(null); };
 
   const submit = async () => {
-    if (!supabase) return;
+    if (!supabase || picked.length === 0) return;
     setBusy(true); setError(null);
     try {
-      /*
-       * The same library lookup either way — `insert_estimate_line_after` calls
-       * `add_estimate_line` underneath rather than repeating it, so the plus on
-       * a row cannot behave differently from the button at the top.
-       */
-      const fields = {
-        serviceId: chosen?.id ?? null,
-        description: chosen ? null : term.trim(),
-        quantity: Number(quantity) || 0,
-        unit: unit || 'LS',
-      };
-      if (afterLineId) {
-        await insertLineAfter(supabase, { afterLineId, ...fields });
-      } else {
-        await addLine(supabase, { versionId, ...fields });
-      }
-      setChosen(null); setTerm(''); setQuantity('0'); setUnit('LS'); setCategory('');
-      setCursor(-1);
-      onAdded();
+      await addLines(supabase, {
+        versionId,
+        afterLineId,
+        /*
+         * Quantities are left at zero on purpose. Somebody ticking eight
+         * services is choosing scope, not measuring — and a quantity invented
+         * here is one nobody entered that would still price.
+         */
+        lines: picked.map((p) => ({ serviceId: p.id, unit: p.defaultUnit })),
+      });
+      const n = picked.length;
+      reset();
+      onAdded(n);
     } catch (err) { setError(messageFor(err)); }
     finally { setBusy(false); }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{afterDescription ? 'Add a line here' : 'Add a line'}</DialogTitle>
+          <DialogTitle>Add from the library</DialogTitle>
           <DialogDescription>
-            {afterDescription ? `It goes directly under "${afterDescription}". ` : ''}
-            Type what the line is. A match from the library brings its unit, cost code and the
-            production rate somebody measured; anything else becomes a line of your own. The cost
-            is not set here — the engine computes it when the estimate is priced.
+            {afterDescription ? `They go directly under "${afterDescription}". ` : ''}
+            Tick everything this bid needs and add it in one go. Each line brings its unit, cost
+            code and production rate; quantities start at zero, because nobody has measured them
+            yet.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-[1fr_14rem]">
             <div className="space-y-1.5">
-              <Label htmlFor="line-what">What is this line?</Label>
+              <Label htmlFor="lib-search">Search the library</Label>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-                <Input
-                  id="line-what"
-                  className="pl-9"
-                  value={term}
-                  autoComplete="off"
-                  role="combobox"
-                  aria-expanded={suggesting && results.length > 0}
-                  aria-controls="line-suggestions"
-                  aria-autocomplete="list"
-                  placeholder="Mass excavation, mobilization, storm sewer…"
-                  onChange={(e) => { setTerm(e.target.value); clear(); }}
-                  onKeyDown={onKeyDown}
-                />
+                <Input id="lib-search" className="pl-9" value={term}
+                  placeholder="Excavation, paving, storm sewer…"
+                  onChange={(e) => setTerm(e.target.value)} />
               </div>
             </div>
-            {/*
-              * With 860 services across 82 categories, words alone make an
-              * estimator read a list to find the trade they are on. The list
-              * comes from the same governed set the services were filed under,
-              * so it cannot offer a category nothing carries.
-              */}
             <div className="space-y-1.5">
-              <Label htmlFor="svc-cat-filter">Category</Label>
-              <CategorySelect id="svc-cat-filter" kind="service_category"
+              <Label htmlFor="lib-cat">Category</Label>
+              <CategorySelect id="lib-cat" kind="service_category"
                 label="category to search within" canAdd={false}
-                value={category}
-                onChange={(x) => { setCategory(x); clear(); }} />
+                value={category} onChange={setCategory} />
             </div>
           </div>
 
-          {suggesting ? (
-            <div id="line-suggestions" role="listbox" aria-label="Matching library services"
-              className="max-h-56 overflow-y-auto rounded-lg border border-charcoal-200">
-              {services.status === 'loading' ? (
-                <div className="p-4"><LoadingState label="Searching the library" /></div>
-              ) : results.length === 0 ? (
-                <div className="p-3 text-sm text-charcoal-500">
-                  Nothing in the library matches. Adding it will make a line of your own,
-                  which the engine prices from whatever crew and equipment you put on it.
-                </div>
-              ) : results.map((s, i) => (
-                <button key={s.id} type="button" role="option" aria-selected={i === cursor}
-                  className={cn(
-                    'flex w-full items-center justify-between gap-3 border-b border-charcoal-100 px-3 py-2 text-left last:border-0',
-                    i === cursor ? 'bg-yellow-50' : 'hover:bg-charcoal-50',
-                  )}
-                  onMouseEnter={() => setCursor(i)}
-                  onClick={() => choose(s)}>
-                  <span>
-                    <span className="block text-sm font-medium text-charcoal-900">{s.name}</span>
-                    <span className="block text-xs text-charcoal-500">
-                      {s.code}{s.category ? ` · ${s.category}` : ''}
-                    </span>
+          <div className="max-h-64 overflow-y-auto rounded-lg border border-charcoal-200">
+            {services.status === 'loading' ? (
+              <div className="p-4"><LoadingState label="Searching the library" /></div>
+            ) : results.length === 0 ? (
+              <p className="p-3 text-sm text-charcoal-500">
+                Nothing matched. Narrow the category, or add a line of your own from the table.
+              </p>
+            ) : results.map((s) => (
+              <label key={s.id}
+                className={cn(
+                  'flex w-full cursor-pointer items-center gap-3 border-b border-charcoal-100 px-3 py-2 last:border-0',
+                  isPicked(s.id) ? 'bg-yellow-50' : 'hover:bg-charcoal-50',
+                )}>
+                <input type="checkbox" checked={isPicked(s.id)} onChange={() => toggle(s)}
+                  aria-label={`Add ${s.name}`}
+                  className="size-4 shrink-0 accent-yellow-500" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-charcoal-900">{s.name}</span>
+                  <span className="block text-xs text-charcoal-500">
+                    {s.code}{s.category ? ` · ${s.category}` : ''}
                   </span>
-                  <Badge variant={s.isOwn ? 'info' : 'default'}>
-                    {s.isOwn ? 'yours' : s.defaultUnit}
-                  </Badge>
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          {chosen ? (
-            <div className="flex items-start justify-between gap-3 rounded-lg border border-charcoal-200 bg-charcoal-50 p-3">
-              <div>
-                <p className="text-sm font-medium text-charcoal-900">
-                  From the library: {chosen.name}
-                </p>
-                <p className="text-xs text-charcoal-500">
-                  {chosen.code}{chosen.category ? ` · ${chosen.category}` : ''}
-                  {chosen.isOwn ? ' · your library' : ' · platform catalog'}
-                </p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={clear}>
-                <Trash2 className="size-4" /> Use my own words
-              </Button>
-            </div>
-          ) : null}
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="line-unit">Unit</Label>
-              {/* Narrowed to what the service can actually be bid in: the
-                  database refuses the rest, and offering one is a choice
-                  somebody makes before being told they cannot. */}
-              <UnitSelect id="line-unit" value={unit} onChange={setUnit}
-                allowed={chosen?.supportedUnits}
-                label="Unit for this line" className="w-full" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="line-qty">Quantity</Label>
-              <Input id="line-qty" type="number" min={0} step="any" value={quantity}
-                onChange={(e) => setQuantity(e.target.value)} />
-            </div>
+                </span>
+                <Badge variant={s.isOwn ? 'info' : 'default'}>
+                  {s.isOwn ? 'yours' : s.defaultUnit}
+                </Badge>
+              </label>
+            ))}
           </div>
+
+          {picked.length > 0 ? (
+            <p className="text-xs text-charcoal-600">
+              {picked.length} ticked. They keep the order you ticked them in, and a search that
+              changes does not lose the ones already chosen.
+            </p>
+          ) : null}
 
           {error ? <ErrorState message={error} /> : null}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
-          <Button onClick={submit} disabled={busy || term.trim().length === 0}>
-            <Plus className="size-4" /> {busy ? 'Adding…' : 'Add line'}
+          <Button onClick={submit} disabled={busy || picked.length === 0}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            {busy ? 'Adding…'
+              : picked.length === 0 ? 'Add lines'
+              : `Add ${picked.length} line${picked.length === 1 ? '' : 's'}`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1051,15 +1090,13 @@ function ClientAndInternal({ version: v, editable, onChanged }: {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>What the customer sees</CardTitle>
-        <CardDescription>
-          These switch what the proposal itemizes, not what the estimate costs. Turning off labor
-          does not make the job cheaper — it stops the document breaking out what the crew costs.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <CollapsibleCard
+      title="What the customer sees"
+      description="These switch what the proposal itemizes, not what the estimate costs. Turning off labor does not make the job cheaper — it stops the document breaking out what the crew costs."
+      summary={`${hidden.length} line${hidden.length === 1 ? '' : 's'} hidden from the proposal`}
+      defaultOpen={false}
+    >
+      <div className="space-y-4">
         <div className="flex flex-wrap gap-2">
           {SWITCHES.map(([key, label, column]) => (
             <button key={key} type="button" disabled={!editable}
@@ -1114,8 +1151,8 @@ function ClientAndInternal({ version: v, editable, onChanged }: {
             still priced, still in the internal total, and still what the company is deciding on.
           </p>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }
 
@@ -1245,15 +1282,13 @@ function AssumptionsCard({ version: v, editable, onChanged }: {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>This bid's assumptions</CardTitle>
-        <CardDescription>
-          The engine reads these off this version. They are facts about this job, not the
-          company — changing one re-prices this estimate and nothing else.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <CollapsibleCard
+      title="This bid's assumptions"
+      description="The engine reads these off this version. They are facts about this job, not the company — changing one re-prices this estimate and nothing else."
+      summary={`${a.shiftHours} hr shift · diesel ${money(a.fuelPricePerGallon)} · swell ${Math.round(a.swellPercent * 100)}%`}
+      defaultOpen={false}
+    >
+      <div className="space-y-3">
         {FIELDS.map(([label, column, value, step, hint]) => (
           <div key={column} className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -1274,7 +1309,7 @@ function AssumptionsCard({ version: v, editable, onChanged }: {
             because the engine is the only thing permitted to write a cost.
           </p>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }
