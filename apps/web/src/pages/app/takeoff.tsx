@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors, Waves, Plus,
 } from 'lucide-react';
@@ -60,6 +61,15 @@ const UNITS_FOR: Record<string, string[]> = {
 };
 
 export function TakeoffPage() {
+  /*
+   * The line this measurement is for, when somebody arrived from the estimate.
+   * Carried in the address so the trip back is a browser button and the tab is
+   * shareable — an estimator who wants a colleague to trace one line sends
+   * them the link.
+   */
+  const [params] = useSearchParams();
+  const forLine = params.get('line');
+
   const sheetsQ = useQuery(loadSheets, []);
   const linesQ = useQuery(loadOpenEstimateLines, []);
   const demonstration = sheetsQ.status === 'demonstration';
@@ -478,6 +488,7 @@ export function TakeoffPage() {
             <ApplyPanel
               quantity={measured.quantity} unit={unit}
               measurementMethod={measured.measurementMethod}
+              {...(forLine ? { defaultLineItemId: forLine } : {})}
               lines={lines} linesLoading={linesQ.status === 'loading'}
               busy={applying} onApply={apply} applied={applied} error={applyError} />
           ) : null}

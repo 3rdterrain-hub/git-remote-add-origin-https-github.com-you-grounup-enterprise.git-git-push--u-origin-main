@@ -556,3 +556,131 @@ describe('discounting a bid', () => {
       .rejects.toThrow(/make a new version/);
   });
 });
+
+/**
+ * A signed estimate is signed all the way down.
+ *
+ * RULE-009 froze the version row by trigger from migration 0006, and its
+ * children only by convention: every governed function checked the status
+ * because somebody remembered to write the check. Two paths never did — the
+ * takeoff apply, which has no status check at all, and a direct update through
+ * PostgREST, which is exactly what the estimating screen does when somebody
+ * edits a quantity. It hides the field on a frozen version, and hiding a field
+ * is a decision made by display code.
+ */
+describe('nothing under a frozen version can change', () => {
+  let h: Harness;
+  const chief = '11111111-1111-4111-8111-111111111111';
+  let company = '';
+  let version = '';
+  let line = '';
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    await h.sql(`insert into auth.users (id, email) values ($1,'c@r.test')`, [chief]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'c@r.test')
+                 on conflict (id) do nothing`, [chief]);
+    company = (await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
+
+    const [s] = await h.sql<{ id: string }>(
+      `select s.id from services s
+        join assembly_components ac on ac.assembly_id = s.default_assembly_id
+       where s.company_id is null and s.status = 'active'
+       group by s.id limit 1`);
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Signed off', null, null, null, $1) as id`, [company]));
+    version = (await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id])))[0]!.v;
+    line = (await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.add_estimate_line($1,$2,null,100) as id`, [version, s!.id])))[0]!.id;
+
+    // Priced, approved, and therefore frozen.
+    await h.asService(() => h.sql(
+      `select app.record_engine_result($1,'test-1.0.0',
+         jsonb_build_object('total_price', 50000, 'bid_price', 50000,
+                            'blocked_from_issue', false), $2::jsonb)`,
+      [version, JSON.stringify([{ id: line, total_direct_cost: 500, blocks_issue: false }])]));
+    await h.asUser(chief, () => h.sql(
+      `select app.set_estimate_status($1,'approved')`, [version]));
+  }, 240_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('is actually frozen', async () => {
+    const [v] = await h.asUser(chief, () => h.sql<{ s: string }>(
+      `select status::text as s from estimate_versions where id = $1`, [version]));
+    expect(v!.s).toBe('approved');
+  });
+
+  it('refuses a quantity written straight at the table', async () => {
+    /*
+     * The hole the screen went through. `measured_quantity` is not an engine
+     * output, so row level security let a member write it through PostgREST;
+     * only the browser's own decision to hide the field stood in the way.
+     */
+    await expect(h.asUser(chief, () => h.sql(
+      `update estimate_line_items set measured_quantity = 999 where id = $1`, [line])))
+      .rejects.toThrow(/RULE-009/);
+  });
+
+  it('refuses a measurement landing on a signed line, and says why', async () => {
+    // The takeoff apply had no status check of any kind.
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.assert_line_open($1)`, [line])))
+      .rejects.toThrow(/signed off/);
+  });
+
+  it('refuses a machine added straight at the table', async () => {
+    await expect(h.asUser(chief, () => h.sql(
+      `insert into estimate_line_resources (company_id, line_item_id, resource_kind,
+                                            description, unit_rate)
+       values ($1,$2,'equipment','Sneaked in',500)`, [company, line])))
+      .rejects.toThrow(/RULE-009/);
+  });
+
+  it('refuses a condition modifier added straight at the table', async () => {
+    const [m] = await h.sql<{ id: string }>(
+      `select id from condition_modifiers where company_id is null limit 1`);
+    await expect(h.asUser(chief, () => h.sql(
+      `insert into estimate_line_modifiers (company_id, line_item_id, condition_modifier_id,
+                                            justification)
+       values ($1,$2,$3,'Trying it on after approval')`, [company, line, m!.id])))
+      .rejects.toThrow(/RULE-009/);
+  });
+
+  it('refuses a new line on a signed version', async () => {
+    await expect(h.asUser(chief, () => h.sql(
+      `insert into estimate_line_items (company_id, estimate_version_id, description, unit)
+       values ($1,$2,'Extra scope','LS')`, [company, version])))
+      .rejects.toThrow(/RULE-009/);
+  });
+
+  it('still lets a draft be worked on', async () => {
+    // The guard has to refuse the frozen case without making the ordinary one
+    // harder, which is the only thing that would make it worse than nothing.
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Still open', null, null, null, $1) as id`, [company]));
+    const [v] = await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id]));
+    const [l] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.add_estimate_line($1,null,'Mobilization',1,'LS') as id`, [v!.v]));
+    await h.asUser(chief, () => h.sql(
+      `update estimate_line_items set measured_quantity = 5 where id = $1`, [l!.id]));
+    await h.asUser(chief, () => h.sql(`select app.assert_line_open($1)`, [l!.id]));
+    const [row] = await h.asUser(chief, () => h.sql<{ q: string }>(
+      `select measured_quantity as q from estimate_line_items where id = $1`, [l!.id]));
+    expect(Number(row!.q)).toBe(5);
+  });
+
+  it('lets the whole estimate still be deleted', async () => {
+    // Freezing content is not the same as trapping a company with an estimate
+    // they abandoned, so the cascade still runs.
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Abandoned', null, null, null, $1) as id`, [company]));
+    await h.asUser(chief, () => h.sql(`delete from estimates where id = $1`, [e!.id]));
+    const rows = await h.asUser(chief, () => h.sql(
+      `select id from estimates where id = $1`, [e!.id]));
+    expect(rows).toHaveLength(0);
+  });
+});

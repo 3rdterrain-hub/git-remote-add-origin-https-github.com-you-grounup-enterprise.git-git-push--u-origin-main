@@ -18,8 +18,9 @@
  *     The fields are read-only here, and the database refuses them anyway.
  */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Package, Plus, ShoppingCart, Trash2, Truck, Users2, Wrench,
+  Package, Plus, Ruler, ShoppingCart, Trash2, Truck, Users2, Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ import {
   loadLineResources, saveLineResource, deleteLineResource, updateLine,
   type LineResource, type LineRow,
 } from '@/lib/data/estimates';
+import { UnitSelect } from '@/components/ui/unit-select';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -433,8 +435,12 @@ function MaterialTab({ rows, editable, busy, onSave, onRemove }: {
             onCommit={(v) => { void onSave('material', { description: v }, r.id); }} />
           <Num label="Quantity" value={r.quantity || null} disabled={!editable} width="w-24"
             onCommit={(v) => { void onSave('material', { quantity: v ?? 0 }, r.id); }} />
-          <Text label="Unit" value={r.unit} disabled={!editable} width="w-20" placeholder="TON"
-            onCommit={(v) => { void onSave('material', { unit: v.toUpperCase() }, r.id); }} />
+          <div className="space-y-1">
+            <Label className="text-xs text-charcoal-500">Unit</Label>
+            <UnitSelect value={r.unit} disabled={!editable} allowEmpty
+              label={`Unit for ${r.description ?? 'this material'}`}
+              onChange={(u) => { void onSave('material', { unit: u }, r.id); }} />
+          </div>
           <Num label="Unit cost" value={r.unitRate || null} disabled={!editable} width="w-24"
             onCommit={(v) => { void onSave('material', { unit_rate: v ?? 0 }, r.id); }} />
           <span className="tabular ml-auto pb-2 font-medium"><Cost value={r.extendedCost} /></span>
@@ -631,6 +637,18 @@ function LineSettings({ line, onSaved }: { line: LineRow; onSaved: () => void })
 
   return (
     <div className="flex flex-wrap items-end gap-4 border-t border-charcoal-200 pt-3">
+      {/*
+        * The way to a quantity. Takeoff could apply a measurement to a line
+        * from the moment it was built; nothing went the other way, so an
+        * estimator looking at an empty quantity had to leave the estimate,
+        * find the drawing, trace it, and then hunt for the line again in a
+        * dropdown. The line travels with them now.
+        */}
+      <Button variant="outline" size="sm" className="mb-1" asChild>
+        <Link to={`/app/takeoff?line=${line.id}`}>
+          <Ruler className="size-4" /> Measure on a drawing
+        </Link>
+      </Button>
       <label className="flex items-center gap-2 pb-2 text-sm text-charcoal-700">
         <input type="checkbox" checked={line.clientVisible}
           aria-label="Show this line to the customer"

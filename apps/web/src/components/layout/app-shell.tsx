@@ -34,32 +34,61 @@ import { loadBlockedCount } from '@/lib/data/dashboard';
  * be a second name for one thing and would drift from the route the first time
  * somebody moved a page.
  */
-const NAV = [
-  { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/app/estimates', label: 'Estimator', icon: Calculator },
-  { to: '/app/takeoff', label: 'Takeoff', icon: Ruler },
-  { to: '/app/proposals', label: 'Proposals', icon: FileSignature },
-  { to: '/app/plans', label: 'Plans & Specs', icon: FileStack },
-  { to: '/app/projects', label: 'Projects', icon: HardHat },
-  { to: '/app/schedule', label: 'Schedule', icon: CalendarDays },
-  { to: '/app/fleet', label: 'Fleet', icon: Truck },
-  { to: '/app/workforce', label: 'Workforce', icon: Users2 },
-  { to: '/app/procurement', label: 'Procurement', icon: ShoppingCart },
-  { to: '/app/finance', label: 'Finance', icon: Banknote },
-  { to: '/app/safety', label: 'Safety & Quality', icon: ShieldAlert },
-  { to: '/app/survey', label: 'Survey & Grade', icon: Mountain },
-  { to: '/app/claims', label: 'Claims', icon: Gavel },
-  { to: '/app/crm', label: 'CRM', icon: Users },
-  { to: '/app/libraries', label: 'Master Libraries', icon: Library },
-  { to: '/app/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/app/network', label: 'GrounUp Network', icon: Network },
-] as const;
+/**
+ * The order the groups read in: the work of winning a job, then doing it, then
+ * being paid for it, then the records all three draw on.
+ */
+const GROUPS = ['', 'Winning work', 'Doing the work', 'Getting paid', 'Reference',
+                'Administration'] as const;
+type Group = (typeof GROUPS)[number];
 
-const ADMIN_NAV = [
-  { to: '/app/settings', label: 'Company Settings', icon: Settings },
-  { to: '/app/billing', label: 'Billing', icon: CreditCard },
-  { to: '/app/api', label: 'API Access', icon: KeyRound },
-] as const;
+/**
+ * Every screen, and which part of the job it belongs to.
+ *
+ * Grouped because twenty-one items in one column is a list nobody reads — the
+ * operator console has been grouped since it was built and is markedly easier
+ * to find anything in. Takeoff sits beside the Estimator because it is a phase
+ * of estimating rather than a department: a measurement exists to become a
+ * quantity on a line.
+ *
+ * What it is *not* is a sub-screen of the Estimator. A measurement belongs to a
+ * drawing, not to an estimate — `applied_line_item_id` is nullable — so it can
+ * be traced before any estimate exists and can feed several.
+ */
+const NAV: ReadonlyArray<{
+  to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; group: Group;
+}> = [
+  { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true, group: '' },
+
+  { to: '/app/estimates', label: 'Estimator', icon: Calculator, group: 'Winning work' },
+  { to: '/app/takeoff', label: 'Takeoff', icon: Ruler, group: 'Winning work' },
+  { to: '/app/plans', label: 'Plans & Specs', icon: FileStack, group: 'Winning work' },
+  { to: '/app/proposals', label: 'Proposals', icon: FileSignature, group: 'Winning work' },
+  { to: '/app/crm', label: 'Customers', icon: Users, group: 'Winning work' },
+
+  { to: '/app/projects', label: 'Projects', icon: HardHat, group: 'Doing the work' },
+  { to: '/app/schedule', label: 'Schedule', icon: CalendarDays, group: 'Doing the work' },
+  { to: '/app/fleet', label: 'Fleet', icon: Truck, group: 'Doing the work' },
+  { to: '/app/workforce', label: 'Workforce', icon: Users2, group: 'Doing the work' },
+  { to: '/app/procurement', label: 'Procurement', icon: ShoppingCart, group: 'Doing the work' },
+  { to: '/app/safety', label: 'Safety & Quality', icon: ShieldAlert, group: 'Doing the work' },
+  { to: '/app/survey', label: 'Survey & Grade', icon: Mountain, group: 'Doing the work' },
+
+  { to: '/app/finance', label: 'Finance', icon: Banknote, group: 'Getting paid' },
+  { to: '/app/claims', label: 'Claims', icon: Gavel, group: 'Getting paid' },
+
+  { to: '/app/libraries', label: 'Master Libraries', icon: Library, group: 'Reference' },
+  { to: '/app/reports', label: 'Reports', icon: BarChart3, group: 'Reference' },
+  { to: '/app/network', label: 'GrounUp Network', icon: Network, group: 'Reference' },
+];
+
+const ADMIN_NAV: ReadonlyArray<{
+  to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; group: Group;
+}> = [
+  { to: '/app/settings', label: 'Company Settings', icon: Settings, group: 'Administration' },
+  { to: '/app/billing', label: 'Billing', icon: CreditCard, group: 'Administration' },
+  { to: '/app/api', label: 'API Access', icon: KeyRound, group: 'Administration' },
+];
 
 export function AppShell() {
   /*
@@ -106,13 +135,19 @@ export function AppShell() {
   const navPref = navOverride
     ?? (navPrefQ.status === 'ready' ? navPrefQ.data : DEFAULT_NAV);
 
-  const withKeys = (items: readonly { to: string; label: string; icon: typeof LayoutDashboard;
-                                      end?: boolean }[]) =>
+  const withKeys = <T extends { to: string }>(items: readonly T[]) =>
     items.map((i) => ({ ...i, key: i.to }));
-  const mainNav = applyNavOrder(withKeys(NAV), navPref);
-  const adminNav = applyNavOrder(withKeys(ADMIN_NAV), navPref);
+  const ordered = applyNavOrder([...withKeys(NAV), ...withKeys(ADMIN_NAV)], navPref);
+  /*
+   * Bucketed after ordering, so a person's arrangement holds inside each group
+   * and the groups themselves stay put. Reordering across a boundary would
+   * scatter the headings, which is why the arrange dialog moves within a group.
+   */
+  const sections = GROUPS
+    .map((g) => [g, ordered.filter((i) => i.group === g)] as const)
+    .filter(([, items]) => items.length > 0);
   const choices: NavChoice[] = [...withKeys(NAV), ...withKeys(ADMIN_NAV)]
-    .map(({ key, label, icon }) => ({ key, label, icon }));
+    .map(({ key, label, icon, group }) => ({ key, label, icon, group }));
   const onTop = navPref.placement === 'top';
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<SearchHit[]>([]);
@@ -233,17 +268,20 @@ export function AppShell() {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {mainNav.map(({ key, ...item }) => (
-            <NavItem key={key} {...item} onNavigate={() => setOpen(false)}
-              badge={item.label === 'Plans & Specs' && pendingFindings ? pendingFindings : undefined} />
-          ))}
-          {adminNav.length > 0 ? (
-            <p className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal-500">
-              Administration
-            </p>
-          ) : null}
-          {adminNav.map(({ key, ...item }) => (
-            <NavItem key={key} {...item} onNavigate={() => setOpen(false)} />
+          {sections.map(([group, items]) => (
+            <div key={group || 'top'}>
+              {group ? (
+                <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase
+                              tracking-[0.14em] text-charcoal-500">
+                  {group}
+                </p>
+              ) : null}
+              {items.map(({ key, group: _g, ...item }) => (
+                <NavItem key={key} {...item} onNavigate={() => setOpen(false)}
+                  badge={item.label === 'Plans & Specs' && pendingFindings
+                    ? pendingFindings : undefined} />
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -435,10 +473,19 @@ export function AppShell() {
         {onTop ? (
           <nav className="sticky top-16 z-10 hidden shrink-0 items-center gap-1 overflow-x-auto
                           border-b border-charcoal-200 bg-charcoal-900 px-3 py-1.5 lg:flex">
-            {[...mainNav, ...adminNav].map(({ key, ...item }) => (
-              <TopNavItem key={key} {...item}
-                badge={item.label === 'Plans & Specs' && pendingFindings ? pendingFindings : undefined} />
-            ))}
+            {sections.flatMap(([group, items], i) => [
+              // A divider rather than a heading: a bar running across has no
+              // room for five labels, and the grouping is still worth seeing.
+              ...(i > 0 && group
+                ? [<span key={`sep-${group}`} aria-hidden="true"
+                    className="mx-1 h-5 w-px shrink-0 bg-charcoal-700" />]
+                : []),
+              ...items.map(({ key, group: _g, ...item }) => (
+                <TopNavItem key={key} {...item}
+                  badge={item.label === 'Plans & Specs' && pendingFindings
+                    ? pendingFindings : undefined} />
+              )),
+            ])}
             <button onClick={() => setCustomizing(true)}
               className="ml-auto flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5
                          text-sm font-medium text-charcoal-400 transition-colors

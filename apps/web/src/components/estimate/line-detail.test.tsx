@@ -12,8 +12,9 @@
  * rather than showing a zero that reads like a free machine.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderPage } from '@/test/render';
 import type { LineResource, LineRow } from '@/lib/data/estimates';
 
 const hoisted = vi.hoisted(() => ({
@@ -76,9 +77,10 @@ const line = (over: Partial<LineRow> = {}): LineRow => ({
   ...over,
 });
 
+// Rendered with the router, because a line now offers the way to a drawing.
 const show = (rows: LineResource[], over: Partial<LineRow> = {}) => {
   hoisted.resources = rows;
-  return render(<LineDetail line={line(over)} editable onChanged={vi.fn()} />);
+  return renderPage(<LineDetail line={line(over)} editable onChanged={vi.fn()} />);
 };
 
 /**
@@ -265,7 +267,7 @@ describe('the build-up behind a line', () => {
 
   it('offers nothing to edit on a frozen version', async () => {
     hoisted.resources = [resource()];
-    render(<LineDetail line={line()} editable={false} onChanged={vi.fn()} />);
+    renderPage(<LineDetail line={line()} editable={false} onChanged={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('$55.00')).toBeInTheDocument());
     expect(screen.queryByRole('button', { name: /Add crew member/ })).not.toBeInTheDocument();
     expect(screen.getByDisplayValue('40')).toBeDisabled();
@@ -285,6 +287,18 @@ describe('the build-up behind a line', () => {
     await waitFor(() => expect(hoisted.lineUpdates).toHaveLength(1));
     // Cleared means "use the profile", which is a value somebody chooses.
     expect(hoisted.lineUpdates[0]).toEqual({ markup_override: null });
+  });
+
+  it('offers the way to a drawing, carrying the line', async () => {
+    /*
+     * Takeoff could apply a measurement to a line from the moment it was built;
+     * nothing went the other way. An estimator looking at an empty quantity had
+     * to leave the estimate, find the drawing, and hunt for the line again.
+     */
+    show([resource()]);
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: /Measure on a drawing/ }))
+        .toHaveAttribute('href', '/app/takeoff?line=l-1'));
   });
 
   it('hides a line from the proposal without taking it out of the estimate', async () => {

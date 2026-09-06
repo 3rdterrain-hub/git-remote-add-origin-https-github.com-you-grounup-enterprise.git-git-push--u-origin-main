@@ -415,6 +415,14 @@ describe('row level security', () => {
     it('allows edits while the version is a draft', async () => {
       // An estimator's own input, which is theirs to change on a draft. The
       // cost columns beside it are not: migration 0058 made those the engine's.
+      await h.asUser(alice, async () => {
+        // Added here rather than later in the sequence: migration 0111 refuses
+        // a line on a version that has been signed off, so a draft is the only
+        // moment one can be put there.
+        await h.sql(`insert into estimate_line_items (company_id, estimate_version_id, description, measured_quantity, unit, sort_order)
+                     values ($1,$2,'Mass excavation',10000,'CY',1)`,
+          [ridgeline, ridgelineVersion]);
+      });
       await h.asUser(alice, () =>
         h.sql(`update estimate_versions set shift_hours = 10 where id = $1`, [ridgelineVersion]));
       const [v] = await h.sql<{ shift_hours: string }>(
@@ -478,11 +486,20 @@ describe('row level security', () => {
       ).rejects.toThrow(/cannot move from/);
     });
 
+    it('refuses a new line on the version that was signed off', async () => {
+      /*
+       * RULE-009 froze the version row from migration 0006 and its lines only
+       * by convention — every governed function checked the status because
+       * somebody remembered to, and the takeoff apply never did. 0111 moved the
+       * rule to where every path meets.
+       */
+      await expect(h.asUser(alice, () =>
+        h.sql(`insert into estimate_line_items (company_id, estimate_version_id, description, measured_quantity, unit, sort_order)
+               values ($1,$2,'Extra scope',1,'LS',9)`, [ridgeline, ridgelineVersion])))
+        .rejects.toThrow(/RULE-009/);
+    });
+
     it('creates a new version instead, carrying the lines across', async () => {
-      await h.asUser(alice, async () => {
-        await h.sql(`insert into estimate_line_items (company_id, estimate_version_id, description, measured_quantity, unit, sort_order)
-                     values ($1,$2,'Mass excavation',10000,'CY',1)`, [ridgeline, ridgelineVersion]);
-      });
       const [rev] = await h.asUser(alice, () =>
         h.sql<{ id: string }>(`select app.revise_estimate_version($1, 'Addendum 2 changed the grading limits') as id`,
           [ridgelineVersion]));

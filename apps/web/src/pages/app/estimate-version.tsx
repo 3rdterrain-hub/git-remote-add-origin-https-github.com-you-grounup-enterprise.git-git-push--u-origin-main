@@ -37,9 +37,6 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import {
   Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
@@ -54,6 +51,7 @@ import {
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
+import { UnitSelect } from '@/components/ui/unit-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import { money, qty, integer, unitRate, date, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -561,14 +559,11 @@ function AddLineDialog({ open, onOpenChange, versionId, onAdded }: {
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="line-unit">Unit</Label>
-                  <Select value={unit} onValueChange={setUnit}>
-                    <SelectTrigger id="line-unit"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {chosen.supportedUnits.map((u) => (
-                        <SelectItem key={u} value={u}>{u}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* Narrowed to what the service can actually be bid in: the
+                      database refuses the rest, and offering one is a choice
+                      somebody makes before being told they cannot. */}
+                  <UnitSelect id="line-unit" value={unit} onChange={setUnit}
+                    allowed={chosen.supportedUnits} label="Unit for this line" />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="line-qty">Quantity</Label>
@@ -612,8 +607,8 @@ function AddLineDialog({ open, onOpenChange, versionId, onAdded }: {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="line-unit-free">Unit</Label>
-                <Input id="line-unit-free" value={unit} placeholder="LS"
-                  onChange={(e) => setUnit(e.target.value.toUpperCase())} />
+                <UnitSelect id="line-unit-free" value={unit || 'LS'}
+                  onChange={setUnit} label="Unit for this line" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="line-qty-free">Quantity</Label>

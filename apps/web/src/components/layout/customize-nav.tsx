@@ -11,7 +11,7 @@
  * accessible way to do it, they work on a phone, and they are how somebody
  * moves an item eleven places without holding the mouse down for eleven rows.
  */
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, PanelLeft, PanelTop, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -30,6 +30,8 @@ export interface NavChoice {
   key: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Which part of the job it belongs to. Moving is within a group. */
+  group?: string;
 }
 
 export function CustomizeNavDialog({
@@ -66,22 +68,38 @@ export function CustomizeNavDialog({
     return out;
   })();
 
+  /*
+   * Moving happens inside a group. Letting an item cross a heading would
+   * scatter the grouping the sidebar renders, and the person moving it would
+   * watch their arrangement come apart rather than tighten up.
+   */
   const move = (key: string, by: number) => {
+    const item = ordered.find((i) => i.key === key);
+    if (!item) return;
+    const siblings = ordered.filter((i) => i.group === item.group);
+    const at = siblings.findIndex((i) => i.key === key);
+    const swapWith = siblings[at + by];
+    if (!swapWith) return;
+
     const keys = ordered.map((i) => i.key);
-    const from = keys.indexOf(key);
-    const to = from + by;
-    if (from < 0 || to < 0 || to >= keys.length) return;
-    keys.splice(to, 0, keys.splice(from, 1)[0]!);
+    const a = keys.indexOf(key);
+    const b = keys.indexOf(swapWith.key);
+    [keys[a], keys[b]] = [keys[b]!, keys[a]!];
     setDraft({ ...draft, order: keys });
   };
 
   const dropOn = (key: string) => {
     if (!dragging || dragging === key) return;
+    const from = ordered.find((i) => i.key === dragging);
+    const onto = ordered.find((i) => i.key === key);
+    // Same reason as the buttons: a drag across a heading would break the
+    // grouping rather than rearrange it.
+    if (!from || !onto || from.group !== onto.group) { setDragging(null); return; }
+
     const keys = ordered.map((i) => i.key);
-    const from = keys.indexOf(dragging);
-    const to = keys.indexOf(key);
-    if (from < 0 || to < 0) return;
-    keys.splice(to, 0, keys.splice(from, 1)[0]!);
+    const a = keys.indexOf(dragging);
+    const b = keys.indexOf(key);
+    keys.splice(b, 0, keys.splice(a, 1)[0]!);
     setDraft({ ...draft, order: keys });
     setDragging(null);
   };
@@ -161,8 +179,19 @@ export function CustomizeNavDialog({
               {ordered.map((item, i) => {
                 const hidden = draft.hidden.includes(item.key);
                 const Icon = item.icon;
+                const siblings = ordered.filter((s) => s.group === item.group);
+                const first = siblings[0]?.key === item.key;
+                const last = siblings[siblings.length - 1]?.key === item.key;
+                const opensGroup = i === 0 || ordered[i - 1]!.group !== item.group;
                 return (
-                  <li key={item.key}
+                  <Fragment key={item.key}>
+                  {opensGroup && item.group ? (
+                    <li className="px-2 pb-0.5 pt-2 text-[10px] font-semibold uppercase
+                                   tracking-[0.14em] text-charcoal-500">
+                      {item.group}
+                    </li>
+                  ) : null}
+                  <li
                     draggable
                     onDragStart={() => setDragging(item.key)}
                     onDragEnd={() => setDragging(null)}
@@ -180,12 +209,12 @@ export function CustomizeNavDialog({
                       {item.label}
                     </span>
                     <Button variant="ghost" size="icon" className="size-7"
-                      onClick={() => move(item.key, -1)} disabled={i === 0}
+                      onClick={() => move(item.key, -1)} disabled={first}
                       aria-label={`Move ${item.label} up`}>
                       <ChevronUp className="size-3.5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="size-7"
-                      onClick={() => move(item.key, 1)} disabled={i === ordered.length - 1}
+                      onClick={() => move(item.key, 1)} disabled={last}
                       aria-label={`Move ${item.label} down`}>
                       <ChevronDown className="size-3.5" />
                     </Button>
@@ -195,12 +224,14 @@ export function CustomizeNavDialog({
                       {hidden ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                     </Button>
                   </li>
+                  </Fragment>
                 );
               })}
             </ul>
             <p className="text-xs text-charcoal-500">
-              Hiding a screen only takes it off your bar. It does not change what you are
-              permitted to open, and search still reaches it.
+              Items move within their group: crossing a heading would scatter the grouping rather
+              than rearrange it. Hiding a screen only takes it off your bar — it does not change
+              what you are permitted to open, and search still reaches it.
             </p>
           </div>
 
