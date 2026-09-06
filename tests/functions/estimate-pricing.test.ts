@@ -466,3 +466,79 @@ describe('resources an estimator typed rather than picked', () => {
     expect(input.problems.some((p) => p.field === 'resources')).toBe(false);
   });
 });
+
+
+/**
+ * Markup on this bid rather than on the company.
+ *
+ * `markup_components` hangs off a pricing profile, which is right for a
+ * standard and wrong for a bond that applies to one job. An estimator had two
+ * options and both were bad: edit the company profile and move every other
+ * open estimate, or make a profile per bid.
+ */
+describe("a bid's own adjustments", () => {
+  const withMarkups = (rows: unknown[]) => {
+    const s = snapshot();
+    return {
+      ...s,
+      version: { ...s.version, estimate_version_markups: rows },
+    } as EstimateSnapshot;
+  };
+
+  it('uses the profile when the bid carries none', () => {
+    // An estimate nobody has adjusted prices exactly as it did before.
+    const input = buildEstimateInput(snapshot(), ASOF);
+    expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'PROFIT']);
+  });
+
+  it('uses the bid\'s own when it carries any', () => {
+    const input = buildEstimateInput(withMarkups([
+      { code: 'OH', label: 'Overhead', percent: '0.20', basis: 'adjusted_cost',
+        sequence: 10, disclosed: true, enabled: true },
+      { code: 'BOND', label: 'Bond', percent: '0.05', basis: 'marked_up_total',
+        sequence: 40, disclosed: true, enabled: true },
+    ]), ASOF);
+    const codes = input.input.pricingProfile.components.map((c) => c.code);
+    expect(codes).toEqual(['OH', 'BOND']);
+    expect(input.input.pricingProfile.components[0]!.percent).toBe(0.20);
+    // Bond is charged on the marked-up total, so it applies in a second pass
+    // rather than beside overhead. Getting that wrong is a few percent on every
+    // bonded bid.
+    expect(input.input.pricingProfile.components[1]!.basis).toBe('marked_up_total');
+  });
+
+  it('leaves a switched-off adjustment out rather than sending it as zero', () => {
+    /*
+     * A zero percent bond would still appear on the breakdown as a line the
+     * customer was charged nothing for, which reads as a mistake.
+     */
+    const input = buildEstimateInput(withMarkups([
+      { code: 'OH', label: 'Overhead', percent: '0.20', basis: 'adjusted_cost',
+        sequence: 10, disclosed: true, enabled: true },
+      { code: 'BOND', label: 'Bond', percent: '0.05', basis: 'marked_up_total',
+        sequence: 40, disclosed: true, enabled: false },
+    ]), ASOF);
+    expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH']);
+  });
+
+  it('falls back to the profile when every adjustment is switched off', () => {
+    // Switching all of them off is not the same as saying the job carries no
+    // overhead at all, and pricing it at cost would be a very expensive
+    // reading of an empty panel.
+    const input = buildEstimateInput(withMarkups([
+      { code: 'OH', label: 'Overhead', percent: '0.20', basis: 'adjusted_cost',
+        sequence: 10, disclosed: true, enabled: false },
+    ]), ASOF);
+    expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'PROFIT']);
+  });
+
+  it('applies them in sequence, not in the order they came back', () => {
+    const input = buildEstimateInput(withMarkups([
+      { code: 'TAX', label: 'Tax', percent: '0.073', basis: 'marked_up_total',
+        sequence: 50, disclosed: true, enabled: true },
+      { code: 'OH', label: 'Overhead', percent: '0.20', basis: 'adjusted_cost',
+        sequence: 10, disclosed: true, enabled: true },
+    ]), ASOF);
+    expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'TAX']);
+  });
+});

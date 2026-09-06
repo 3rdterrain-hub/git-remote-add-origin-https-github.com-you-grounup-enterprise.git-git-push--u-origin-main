@@ -58,7 +58,9 @@ const line = (over: Record<string, unknown> = {}) => ({
   serviceId: 's-1', serviceName: 'Mass excavation', costCode: 'CC-0006',
   unit: 'CY', measuredQuantity: 12_000, adjustedQuantity: 12_000,
   unitCost: 4.25, totalDirectCost: 51_000, laborHours: 180, equipmentHours: 210,
-  confidenceBand: 'high', blocksIssue: false, hasProductionRate: true, ...over,
+  confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
+  clientVisible: true, markupOverride: null, wastePercent: 0, productionModifier: 1,
+  ...over,
 });
 
 const version = (over: Record<string, unknown> = {}) => ({
@@ -72,7 +74,10 @@ const version = (over: Record<string, unknown> = {}) => ({
   approvedAt: null, issuedAt: null,
   costs: { labor: 30_000, burden: 9_000, equipment: 12_000, fuel: 0, material: 0,
            mobilization: 0, trucking: 0, disposal: 0, subcontract: 0, other: 0 },
-  lines: [line()], ...over,
+  lines: [line()],
+  show: { labor: false, equipment: false, materials: true, hauling: true,
+          subcontract: true },
+  ...over,
 });
 
 describe('the estimate workspace', () => {

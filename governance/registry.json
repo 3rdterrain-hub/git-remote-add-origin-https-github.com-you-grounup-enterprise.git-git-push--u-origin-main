@@ -68,6 +68,7 @@
     "estimate_line_items": "ENTITY",
     "estimate_line_modifiers": "ENTITY",
     "estimate_line_resources": "ENTITY",
+    "estimate_version_markups": "ENTITY",
     "estimate_versions": "ENTITY",
     "estimates": "ENTITY",
     "feature_catalog": "LIBRARY",

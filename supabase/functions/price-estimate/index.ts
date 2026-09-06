@@ -39,7 +39,11 @@ const VERSION_SELECT =
   'def_price_per_gallon, bid_rounding_increment, contingency_source, applied_contingency, ' +
   'contingency_override_reason, contingency_approved_by, estimate_id, company_id, ' +
   'pricing_profiles(id, name, method, region, regional_factor, escalation_percent, ' +
-  'escalation_years, markup_components(code, label, percent, basis, sequence, disclosed))';
+  'escalation_years, markup_components(code, label, percent, basis, sequence, disclosed)), ' +
+  // This bid's own adjustments. When it carries any they are the markup; when
+  // it carries none the profile's stand, so an untouched estimate prices as it
+  // always did.
+  'estimate_version_markups(code, label, percent, basis, sequence, disclosed, enabled)';
 
 const LINE_SELECT =
   'id, description, sort_order, service_id, assembly_id, discipline, measured_quantity, unit, ' +

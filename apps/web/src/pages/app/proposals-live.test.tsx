@@ -64,13 +64,17 @@ const version = {
       serviceId: 's-1', serviceName: 'Mass excavation', costCode: 'CC-0006', unit: 'CY',
       measuredQuantity: 12_000, adjustedQuantity: 12_000, unitCost: 12.5,
       totalDirectCost: 150_000, laborHours: 60, equipmentHours: 60,
-      confidenceBand: 'high', blocksIssue: false, hasProductionRate: true },
+      confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
+      clientVisible: true, markupOverride: null, wastePercent: 0, productionModifier: 1 },
     { id: 'l-2', sortOrder: 20, lineNumber: null, description: 'Aggregate base',
       serviceId: 's-2', serviceName: 'Aggregate base', costCode: 'CC-0031', unit: 'TON',
       measuredQuantity: 2_000, adjustedQuantity: 2_000, unitCost: 25,
       totalDirectCost: 50_000, laborHours: 40, equipmentHours: 40,
-      confidenceBand: 'high', blocksIssue: false, hasProductionRate: true },
+      confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
+      clientVisible: true, markupOverride: null, wastePercent: 0, productionModifier: 1 },
   ],
+  show: { labor: false, equipment: false, materials: true, hauling: true,
+          subcontract: true },
 };
 
 describe('the proposals screen', () => {

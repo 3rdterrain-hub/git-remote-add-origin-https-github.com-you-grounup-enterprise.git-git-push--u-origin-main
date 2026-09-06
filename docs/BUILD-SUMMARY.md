@@ -6,14 +6,14 @@
 |---|---:|---:|
 | Estimating engine (source + tests) | 45 | ~13,500 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (106 files, 162 tables, 64 views) | 106 | ~26,000 |
-| Edge Functions + shared modules | 59 | ~9,100 |
-| Database & function tests | 78 | ~19,800 |
+| Database migrations (109 files, 163 tables, 64 views) | 109 | ~26,700 |
+| Edge Functions + shared modules | 59 | ~9,200 |
+| Database & function tests | 79 | ~20,500 |
 | Governance & traceability tests | 6 | ~2,800 |
-| Web application (48 routes, 29 app screens) | 159 | ~35,500 |
+| Web application (48 routes, 29 app screens) | 163 | ~37,300 |
 | Documentation | 14 | ~5,300 |
 | Seed & tooling | 8 | ~2,100 |
-| **Total hand-written** | **483** | **~115,800** |
+| **Total hand-written** | **491** | **~119,200** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 2,912 tests, production build —
+drift checks, 2,984 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
 Engine        622 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database    1,352 tests   against real PostgreSQL 18 (PGlite)
-Functions     249 tests   billing, plan versioning, AI governance, API, observability
+Database    1,379 tests   against real PostgreSQL 18 (PGlite)
+Functions     264 tests   billing, plan versioning, AI governance, API, observability
 Governance    258 tests   the five-category rule, traceability, verification, spelling, pipeline
-Web           374 tests   jsdom + Testing Library
+Web           404 tests   jsdom + Testing Library
             ───────────
-            2,912 tests
+            2,984 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

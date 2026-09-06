@@ -166,6 +166,12 @@ export interface ProfileRow {
   markup_components: MarkupRow[] | null;
 }
 
+/** One adjustment carried by a bid rather than by the company profile. */
+export interface VersionMarkupRow {
+  code: string; label: string; percent: Num; basis: string;
+  sequence: number; disclosed: boolean | null; enabled: boolean | null;
+}
+
 export interface VersionRow {
   id: string; version_number: number; status: string;
   shift_hours: Num; calendar_efficiency: Num;
@@ -176,6 +182,8 @@ export interface VersionRow {
   contingency_override_reason: string | null;
   contingency_approved_by: string | null;
   pricing_profiles: ProfileRow | null;
+  /** This bid's own adjustments. Empty means the profile's stand. */
+  estimate_version_markups?: VersionMarkupRow[] | null;
 }
 
 export interface EstimateSnapshot {
@@ -223,12 +231,28 @@ export interface PricingProblem {
 // ---------------------------------------------------------------------------
 // Mapping
 // ---------------------------------------------------------------------------
-function toPricingProfile(p: ProfileRow): PricingProfile {
+/**
+ * The markup this bid is priced at.
+ *
+ * A version carrying its own adjustments uses them; one carrying none uses the
+ * company profile's, so an estimate nobody has touched prices exactly as it did
+ * before migration 0109. A disabled row is left out rather than sent as zero —
+ * a zero percent bond would still appear on the breakdown as a line the
+ * customer was charged nothing for, which reads as a mistake.
+ */
+function toPricingProfile(
+  p: ProfileRow, own?: VersionMarkupRow[] | null,
+): PricingProfile {
+  const enabled = (own ?? []).filter((m) => m.enabled !== false);
+  const source = enabled.length > 0
+    ? enabled
+    : (p.markup_components ?? []).map((c) => ({ ...c, enabled: true } as VersionMarkupRow));
+
   return {
     id: p.id,
     name: p.name,
     method: p.method === 'stacked' ? 'stacked' : 'parallel',
-    components: (p.markup_components ?? [])
+    components: source
       .slice()
       .sort((a, b) => a.sequence - b.sequence)
       .map((c) => ({
@@ -686,7 +710,7 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
     // one applies no markup — and the problem above says so plainly, so the
     // handler refuses rather than writing a cost-only price.
     pricingProfile: profileRow
-      ? toPricingProfile(profileRow)
+      ? toPricingProfile(profileRow, v.estimate_version_markups)
       : { id: 'none', name: 'No pricing profile', method: 'parallel', components: [] },
     ...(maybe(v.bid_rounding_increment) === undefined
       ? {} : { bidRoundingIncrement: n(v.bid_rounding_increment) }),

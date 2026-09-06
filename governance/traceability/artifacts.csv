@@ -97,6 +97,7 @@ TBL-estimate_indirects,table,estimate_indirects,supabase/migrations (table estim
 TBL-estimate_line_items,table,estimate_line_items,supabase/migrations (table estimate_line_items),ENTITY
 TBL-estimate_line_modifiers,table,estimate_line_modifiers,supabase/migrations (table estimate_line_modifiers),ENTITY
 TBL-estimate_line_resources,table,estimate_line_resources,supabase/migrations (table estimate_line_resources),ENTITY
+TBL-estimate_version_markups,table,estimate_version_markups,supabase/migrations (table estimate_version_markups),ENTITY
 TBL-estimate_versions,table,estimate_versions,supabase/migrations (table estimate_versions),ENTITY
 TBL-estimates,table,estimates,supabase/migrations (table estimates),ENTITY
 TBL-feature_catalog,table,feature_catalog,supabase/migrations (table feature_catalog),LIBRARY
@@ -265,6 +266,7 @@ TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.t
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
+TST-db-building-a-line,test,db/building-a-line.test.ts,tests/db/building-a-line.test.ts,ENGINE
 TST-db-building-an-estimate,test,db/building-an-estimate.test.ts,tests/db/building-an-estimate.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
 TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
@@ -341,6 +343,8 @@ TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENG
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
+TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
+TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE

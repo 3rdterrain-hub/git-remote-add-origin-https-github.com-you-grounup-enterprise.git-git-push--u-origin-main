@@ -19,7 +19,7 @@
 --
 --   * **What a single line is marked up at.** A profile carries the company's
 --     standard markup; a line sometimes differs, and the difference is the
---     estimator's judgement about that scope rather than a new profile.
+--     estimator's judgment about that scope rather than a new profile.
 --
 --   * **A resource's own place in the line.** Which rows drive the hours, and
 --     what order they read in. `estimate_line_resources` has no sort order at
@@ -45,7 +45,7 @@ comment on column estimate_line_items.client_visible is
   'Whether this line appears on the proposal. A hidden line is still priced and still counted internally — an estimator shows a client a lump sum for excavation and keeps the build-up to themselves.';
 
 comment on column estimate_line_items.markup_override is
-  'This line''s own markup as a fraction, or null to use the pricing profile. A line that differs from the company standard is the estimator''s judgement about that scope, not a reason to make a new profile.';
+  'This line''s own markup as a fraction, or null to use the pricing profile. A line that differs from the company standard is the estimator''s judgment about that scope, not a reason to make a new profile.';
 
 create index eli_client_visible_idx on estimate_line_items(estimate_version_id)
   where not client_visible;

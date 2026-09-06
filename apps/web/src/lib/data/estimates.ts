@@ -66,6 +66,57 @@ export interface LineRow {
   confidenceBand: string;
   blocksIssue: boolean;
   hasProductionRate: boolean;
+  /** Whether the customer sees this line at all. It is priced either way. */
+  clientVisible: boolean;
+  /** This line's own markup as a fraction, or null to use the profile. */
+  markupOverride: number | null;
+  wastePercent: number;
+  productionModifier: number;
+}
+
+/** One crew member, machine, material, truck or subcontract behind a line. */
+export interface LineResource {
+  id: string;
+  kind: 'labor' | 'equipment' | 'material' | 'trucking' | 'disposal' | 'subcontract';
+  sortOrder: number;
+  description: string | null;
+  role: string | null;
+  notes: string | null;
+
+  quantity: number;
+  unit: string | null;
+  unitRate: number;
+  hours: number;
+  headcount: number | null;
+
+  /** Labor: the wage and the burden separately, so the loaded rate is derived. */
+  baseRate: number | null;
+  burdenRate: number | null;
+
+  /** Whether this row's production governs the line's hours, and at what rate. */
+  drivesHours: boolean;
+  productionPerHour: number | null;
+
+  /** Equipment: how it is billed, and what it costs to get there and sit idle. */
+  rateBasis: 'hour' | 'day' | 'week' | 'month' | 'unit' | 'lump';
+  mobilizationCost: number;
+  standbyDays: number;
+  minimumHours: number | null;
+  isOwned: boolean;
+
+  /** Trucking: hours somebody entered, or a route to compute a cycle from. */
+  haulMode: 'hours' | 'trip';
+  roundTripMiles: number | null;
+  averageSpeedMph: number | null;
+  truckCapacity: number | null;
+  tonsPerLoad: number | null;
+  loadMinutes: number | null;
+  dumpMinutes: number | null;
+  queueMinutes: number | null;
+  includesDisposal: boolean;
+
+  /** The engine's, never sent. Zero until the estimate has been priced. */
+  extendedCost: number;
 }
 
 export interface VersionDetail {
@@ -96,6 +147,11 @@ export interface VersionDetail {
   issuedAt: string | null;
   costs: Record<string, number>;
   lines: LineRow[];
+  /** What the proposal discloses of the build-up, per cost category. */
+  show: {
+    labor: boolean; equipment: boolean; materials: boolean;
+    hauling: boolean; subcontract: boolean;
+  };
 }
 
 /** A service the caller may put on a line, from their library and the platform's. */
@@ -196,7 +252,7 @@ export const loadEstimates: Query<EstimateRow[]> = async (client) => {
 export const loadVersion = (versionId: string): Query<VersionDetail | null> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_versions')
-    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, estimates(number, name, expires_at, created_at, customers(name))')
+    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, estimates(number, name, expires_at, created_at, customers(name))')
     .eq('id', versionId)
     .limit(1)) as Array<Record<string, unknown>>;
   const v = rows[0];
@@ -206,7 +262,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
                    created_at: string; customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
-    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, services(name), cost_codes(code)')
+    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, production_modifier, services(name), cost_codes(code)')
     .eq('estimate_version_id', versionId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -263,7 +319,18 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       // A line with no rate cannot be priced from production, and the screen
       // should say so before somebody wonders why the number is zero.
       hasProductionRate: l.production_rate_id != null,
+      clientVisible: l.client_visible !== false,
+      markupOverride: l.markup_override == null ? null : Number(l.markup_override),
+      wastePercent: num(l.waste_percent),
+      productionModifier: l.production_modifier == null ? 1 : Number(l.production_modifier),
     })),
+    show: {
+      labor: Boolean(v.show_labor),
+      equipment: Boolean(v.show_equipment),
+      materials: v.show_materials !== false,
+      hauling: v.show_hauling !== false,
+      subcontract: v.show_subcontract !== false,
+    },
   };
 };
 
@@ -368,6 +435,173 @@ export async function recordProposalOutcome(
     p_by_name: input.byName?.trim() || null,
     p_reason: input.reason?.trim() || null,
   });
+}
+
+/**
+ * Everything behind one line.
+ *
+ * Read separately from the line rather than embedded, because a workspace shows
+ * eight lines and opens one: fetching every crew member on every line to render
+ * a table nobody has expanded is work for nothing.
+ */
+export const loadLineResources = (lineId: string): Query<LineResource[]> => async (client) => {
+  const rows = unwrap(await client
+    .from('estimate_line_resources')
+    .select('id, resource_kind, sort_order, description, role, notes, quantity, unit, unit_rate, hours, headcount, base_rate, burden_rate, drives_hours, production_per_hour, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, haul_mode, round_trip_miles, average_speed_mph, truck_capacity, tons_per_load, load_minutes, dump_minutes, queue_minutes, includes_disposal, extended_cost')
+    .eq('line_item_id', lineId)
+    .order('sort_order')) as Array<Record<string, unknown>>;
+
+  const maybeNum = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+
+  return rows.map((r) => ({
+    id: String(r.id),
+    kind: r.resource_kind as LineResource['kind'],
+    sortOrder: Number(r.sort_order ?? 0),
+    description: (r.description as string | null) ?? null,
+    role: (r.role as string | null) ?? null,
+    notes: (r.notes as string | null) ?? null,
+    quantity: num(r.quantity),
+    unit: (r.unit as string | null) ?? null,
+    unitRate: num(r.unit_rate),
+    hours: num(r.hours),
+    headcount: maybeNum(r.headcount),
+    baseRate: maybeNum(r.base_rate),
+    burdenRate: maybeNum(r.burden_rate),
+    drivesHours: Boolean(r.drives_hours),
+    productionPerHour: maybeNum(r.production_per_hour),
+    rateBasis: (r.rate_basis as LineResource['rateBasis']) ?? 'hour',
+    mobilizationCost: num(r.mobilization_cost),
+    standbyDays: num(r.standby_days),
+    minimumHours: maybeNum(r.minimum_hours),
+    isOwned: r.is_owned !== false,
+    haulMode: (r.haul_mode as LineResource['haulMode']) ?? 'hours',
+    roundTripMiles: maybeNum(r.round_trip_miles),
+    averageSpeedMph: maybeNum(r.average_speed_mph),
+    truckCapacity: maybeNum(r.truck_capacity),
+    tonsPerLoad: maybeNum(r.tons_per_load),
+    loadMinutes: maybeNum(r.load_minutes),
+    dumpMinutes: maybeNum(r.dump_minutes),
+    queueMinutes: maybeNum(r.queue_minutes),
+    includesDisposal: Boolean(r.includes_disposal),
+    extendedCost: num(r.extended_cost),
+  }));
+};
+
+/**
+ * Add or change one resource.
+ *
+ * Sends only the fields that changed. A cost is never among them: migration
+ * 0058's guard resets a hand-written engine output on insert rather than
+ * refusing it, so a number sent here would vanish without an error — and
+ * `app.save_line_resource` does not offer the chance.
+ */
+export async function saveLineResource(
+  client: RpcCapable,
+  input: { lineId: string; kind: LineResource['kind'];
+           fields: Record<string, unknown>; resourceId?: string | null },
+): Promise<string> {
+  return rpc<string>(client, 'save_line_resource', {
+    p_line: input.lineId,
+    p_kind: input.kind,
+    p_fields: input.fields,
+    p_resource: input.resourceId ?? null,
+  });
+}
+
+export async function deleteLineResource(client: RpcCapable, id: string): Promise<void> {
+  await rpc(client, 'delete_line_resource', { p_resource: id });
+}
+
+/** The estimator's own fields on a line. Never a cost — those are the engine's. */
+export async function updateLine(
+  client: RpcCapable, lineId: string, fields: Record<string, unknown>,
+): Promise<void> {
+  await rpc(client, 'update_estimate_line', { p_line: lineId, p_fields: fields });
+}
+
+/** What the proposal discloses, and the version's own settings. */
+export async function updateVersion(
+  client: RpcCapable, versionId: string, fields: Record<string, unknown>,
+): Promise<void> {
+  await rpc(client, 'update_estimate_version', { p_version: versionId, p_fields: fields });
+}
+
+/** One adjustment on a bid: overhead, profit, contingency, bond, tax, discount. */
+export interface EstimateMarkup {
+  code: string;
+  label: string;
+  /** A fraction, as every other rate in the schema is. */
+  percent: number;
+  basis: 'profile_default' | 'direct_cost' | 'direct_plus_indirect'
+       | 'running_total' | 'marked_up_total';
+  sequence: number;
+  disclosed: boolean;
+  enabled: boolean;
+}
+
+/**
+ * The adjustments on this bid, or the company profile's when it has none.
+ *
+ * Both are returned as the same shape with `fromProfile` saying which, because
+ * the screen needs to show the numbers either way and needs to say whether
+ * changing one changes this bid or every open estimate.
+ */
+export const loadEstimateMarkups = (versionId: string): Query<{
+  markups: EstimateMarkup[]; fromProfile: boolean;
+}> => async (client) => {
+  const own = unwrap(await client
+    .from('estimate_version_markups')
+    .select('code, label, percent, basis, sequence, disclosed, enabled')
+    .eq('estimate_version_id', versionId)
+    .order('sequence')) as Array<Record<string, unknown>>;
+
+  const shape = (rows: Array<Record<string, unknown>>): EstimateMarkup[] => rows.map((m) => ({
+    code: String(m.code),
+    label: String(m.label),
+    percent: num(m.percent),
+    basis: (m.basis as EstimateMarkup['basis']) ?? 'profile_default',
+    sequence: Number(m.sequence ?? 10),
+    disclosed: Boolean(m.disclosed),
+    enabled: m.enabled !== false,
+  }));
+
+  if (own.length > 0) return { markups: shape(own), fromProfile: false };
+
+  const version = unwrap(await client
+    .from('estimate_versions')
+    .select('pricing_profile_id')
+    .eq('id', versionId)
+    .limit(1)) as Array<{ pricing_profile_id: string | null }>;
+  const profileId = version[0]?.pricing_profile_id;
+  if (!profileId) return { markups: [], fromProfile: true };
+
+  const fromProfile = unwrap(await client
+    .from('markup_components')
+    .select('code, label, percent, basis, sequence, disclosed')
+    .eq('pricing_profile_id', profileId)
+    .order('sequence')) as Array<Record<string, unknown>>;
+  return { markups: shape(fromProfile), fromProfile: true };
+};
+
+export async function setEstimateMarkup(
+  client: RpcCapable, versionId: string, code: string, fields: Record<string, unknown>,
+): Promise<void> {
+  await rpc(client, 'set_estimate_markup', {
+    p_version: versionId, p_code: code, p_fields: fields,
+  });
+}
+
+/** Copy the company standard onto this bid so there is something to adjust. */
+export async function adoptProfileMarkups(
+  client: RpcCapable, versionId: string,
+): Promise<number> {
+  return rpc<number>(client, 'adopt_profile_markups', { p_version: versionId });
+}
+
+export async function removeEstimateMarkup(
+  client: RpcCapable, versionId: string, code: string,
+): Promise<void> {
+  await rpc(client, 'remove_estimate_markup', { p_version: versionId, p_code: code });
 }
 
 /** What has moved in the library since this version was priced. */

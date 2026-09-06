@@ -20,11 +20,11 @@
  *     rules live in `app.set_estimate_status` and are enforced there; the
  *     screen states them in advance so nobody discovers one by being refused.
  */
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowLeft, Calculator, CheckCircle2, Loader2, Lock, Plus,
-  Search, Send, ShieldCheck, Trash2,
+  AlertTriangle, ArrowLeft, Calculator, CheckCircle2, ChevronDown, ChevronRight,
+  Eye, EyeOff, Loader2, Lock, Plus, Search, Send, ShieldCheck, Trash2,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,9 +50,13 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, loadDrift, searchServices, addLine, setLineQuantity, setEstimateStatus,
-  issueProposal, type VersionDetail, type LibraryService,
+  issueProposal, updateLine, updateVersion,
+  type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
+import { LineDetail } from '@/components/estimate/line-detail';
+import { MarkupPanel } from '@/components/estimate/markup-panel';
 import { money, qty, integer, unitRate, date, titleCase } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
 /** A version at or past approval is frozen by RULE-009 and cannot be edited. */
 const EDITABLE = ['draft', 'in_review'];
@@ -269,9 +273,16 @@ export function EstimateVersionPage() {
             </Card>
           ) : null}
 
+          {priced ? (
+            <ClientAndInternal version={v} editable={editable && can('estimates.write')}
+              onChanged={version.refetch} />
+          ) : null}
+
           {v.librarySnapshotId ? <DriftCard versionId={v.id} /> : null}
         </div>
       </div>
+
+      <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')} />
 
       <AddLineDialog open={adding} onOpenChange={setAdding} versionId={v.id}
         onAdded={() => { setAdding(false); version.refetch(); }} />
@@ -323,6 +334,7 @@ function LineTable({ version, editable, onChanged }: {
 }) {
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState<string[]>([]);
 
   const commit = async (lineId: string, raw: string, was: number) => {
     const next = Number(raw);
@@ -333,88 +345,142 @@ function LineTable({ version, editable, onChanged }: {
     finally { setSaving(null); }
   };
 
+  const toggleVisible = async (line: LineRow) => {
+    if (!supabase) return;
+    setError(null);
+    try {
+      await updateLine(supabase, line.id, { client_visible: !line.clientVisible });
+      onChanged();
+    } catch (err) { setError(messageFor(err)); }
+  };
+
   return (
     <>
       {error ? <div className="px-4 pt-4"><ErrorState message={error} /></div> : null}
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-8" />
             <TableHead>Line</TableHead>
             <TableHead>Cost code</TableHead>
             <TableHead className="text-right">Quantity</TableHead>
             <TableHead>Unit</TableHead>
             <TableHead className="text-right">Unit cost</TableHead>
+            <TableHead className="text-right">Markup</TableHead>
             <TableHead className="text-right">Total</TableHead>
-            <TableHead className="text-right">Hours</TableHead>
             <TableHead>Confidence</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {version.lines.map((l) => (
-            <TableRow key={l.id}>
-              <TableCell>
-                <div className="flex items-start gap-1.5">
-                  {l.blocksIssue ? (
-                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-danger-600"
-                      aria-label="This line blocks issue" />
-                  ) : null}
-                  <div>
-                    <p className="font-medium text-charcoal-900">{l.description}</p>
-                    <p className="text-xs text-charcoal-400">
-                      {l.serviceName ?? 'Entered by hand'}
-                      {!l.hasProductionRate && l.serviceId
-                        ? ' · no production rate, so it cannot be priced from production'
-                        : ''}
-                    </p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="text-xs text-charcoal-600">
-                {l.costCode ?? <span className="text-charcoal-400">—</span>}
-              </TableCell>
-              <TableCell className="text-right">
-                {editable ? (
-                  <div className="flex items-center justify-end gap-1.5">
-                    {saving === l.id ? <Loader2 className="size-3.5 animate-spin text-charcoal-400" /> : null}
-                    <Input
-                      className="h-8 w-28 text-right tabular"
-                      type="number" min={0} step="any"
-                      defaultValue={l.measuredQuantity}
-                      aria-label={`Quantity for ${l.description}`}
-                      onBlur={(e) => commit(l.id, e.target.value, l.measuredQuantity)} />
-                  </div>
-                ) : <span className="tabular">{qty(l.measuredQuantity)}</span>}
-                {l.adjustedQuantity !== l.measuredQuantity ? (
-                  <p className="mt-0.5 text-xs text-charcoal-400">
-                    {qty(l.adjustedQuantity)} after waste and loss
-                  </p>
+          {version.lines.map((l) => {
+            const expanded = open.includes(l.id);
+            return (
+              <Fragment key={l.id}>
+                <TableRow className={cn(!l.clientVisible && 'bg-charcoal-50/70')}>
+                  <TableCell className="align-top">
+                    <button
+                      onClick={() => setOpen((o) =>
+                        o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
+                      aria-label={expanded
+                        ? `Hide what ${l.description} is made of`
+                        : `Show what ${l.description} is made of`}
+                      aria-expanded={expanded}
+                      className="rounded p-1 text-charcoal-500 hover:bg-charcoal-100
+                                 hover:text-charcoal-900">
+                      {expanded ? <ChevronDown className="size-4" />
+                                : <ChevronRight className="size-4" />}
+                    </button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-start gap-1.5">
+                      {l.blocksIssue ? (
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-danger-600"
+                          aria-label="This line blocks issue" />
+                      ) : null}
+                      <div>
+                        <p className="font-medium text-charcoal-900">{l.description}</p>
+                        <p className="text-xs text-charcoal-400">
+                          {l.serviceName ?? 'Entered by hand'}
+                          {!l.hasProductionRate && l.serviceId
+                            ? ' · no production rate, so it cannot be priced from production'
+                            : ''}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs text-charcoal-600">
+                    {l.costCode ?? <span className="text-charcoal-400">—</span>}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {editable ? (
+                      <div className="flex items-center justify-end gap-1.5">
+                        {saving === l.id
+                          ? <Loader2 className="size-3.5 animate-spin text-charcoal-400" /> : null}
+                        <Input
+                          className="h-8 w-28 text-right tabular"
+                          type="number" min={0} step="any"
+                          defaultValue={l.measuredQuantity}
+                          aria-label={`Quantity for ${l.description}`}
+                          onBlur={(e) => commit(l.id, e.target.value, l.measuredQuantity)} />
+                      </div>
+                    ) : <span className="tabular">{qty(l.measuredQuantity)}</span>}
+                    {l.adjustedQuantity !== l.measuredQuantity ? (
+                      <p className="mt-0.5 text-xs text-charcoal-400">
+                        {qty(l.adjustedQuantity)} after waste and loss
+                      </p>
+                    ) : null}
+                  </TableCell>
+                  <TableCell className="text-xs text-charcoal-600">{l.unit}</TableCell>
+                  <TableCell className="tabular text-right">
+                    {l.unitCost ? unitRate(l.unitCost) : <span className="text-charcoal-400">—</span>}
+                  </TableCell>
+                  <TableCell className="tabular text-right text-xs text-charcoal-600">
+                    {l.markupOverride == null
+                      ? <span className="text-charcoal-400">profile</span>
+                      : `${Math.round(l.markupOverride * 100)}%`}
+                  </TableCell>
+                  <TableCell className="tabular text-right font-medium">
+                    {l.totalDirectCost ? money(l.totalDirectCost)
+                      : <span className="text-charcoal-400">not priced</span>}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant={l.confidenceBand === 'do_not_price' ? 'danger'
+                        : l.confidenceBand === 'high' ? 'success' : 'warn'}>
+                        {titleCase(l.confidenceBand)}
+                      </Badge>
+                      {editable ? (
+                        <button onClick={() => toggleVisible(l)}
+                          aria-label={l.clientVisible
+                            ? `Hide ${l.description} from the proposal`
+                            : `Show ${l.description} on the proposal`}
+                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
+                                     hover:text-charcoal-900">
+                          {l.clientVisible ? <Eye className="size-3.5" />
+                                           : <EyeOff className="size-3.5" />}
+                        </button>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                </TableRow>
+
+                {expanded ? (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={9} className="p-0">
+                      <LineDetail line={l} editable={editable} onChanged={onChanged} />
+                    </TableCell>
+                  </TableRow>
                 ) : null}
-              </TableCell>
-              <TableCell className="text-xs text-charcoal-600">{l.unit}</TableCell>
-              <TableCell className="tabular text-right">
-                {l.unitCost ? unitRate(l.unitCost) : <span className="text-charcoal-400">—</span>}
-              </TableCell>
-              <TableCell className="tabular text-right font-medium">
-                {l.totalDirectCost ? money(l.totalDirectCost)
-                  : <span className="text-charcoal-400">not priced</span>}
-              </TableCell>
-              <TableCell className="tabular text-right text-xs text-charcoal-600">
-                {l.laborHours ? integer(l.laborHours) : '—'}
-              </TableCell>
-              <TableCell>
-                <Badge variant={l.confidenceBand === 'do_not_price' ? 'danger'
-                  : l.confidenceBand === 'high' ? 'success' : 'warn'}>
-                  {titleCase(l.confidenceBand)}
-                </Badge>
-              </TableCell>
-            </TableRow>
-          ))}
+              </Fragment>
+            );
+          })}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={5} className="font-medium">Direct cost</TableCell>
-            <TableCell className="tabular text-right font-medium">{money(version.directCost)}</TableCell>
-            <TableCell className="tabular text-right text-xs">{integer(version.totalLaborHours)}</TableCell>
+            <TableCell colSpan={7} className="font-medium">Direct cost</TableCell>
+            <TableCell className="tabular text-right font-medium">
+              {money(version.directCost)}
+            </TableCell>
             <TableCell />
           </TableRow>
         </TableFooter>
@@ -682,5 +748,128 @@ function DriftCard({ versionId }: { versionId: string }) {
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+
+/**
+ * What the customer is shown, beside what the company knows.
+ *
+ * Two columns because they are genuinely two numbers. The client total is the
+ * lines the customer sees; the internal total is every line, including the ones
+ * left off the document, and it is the figure a company decides by.
+ *
+ * The switches control disclosure of the build-up, not the price. Turning off
+ * labor does not make the estimate cheaper — it stops the proposal itemizing
+ * what the crew costs, which is a presentation choice and not an arithmetic
+ * one. Saying so here matters, because a switch that looked like it changed
+ * the number would be the most expensive misunderstanding on the screen.
+ */
+function ClientAndInternal({ version: v, editable, onChanged }: {
+  version: VersionDetail; editable: boolean; onChanged: () => void;
+}) {
+  const [error, setError] = useState<string | null>(null);
+
+  const set = async (fields: Record<string, unknown>) => {
+    if (!supabase) return;
+    setError(null);
+    try { await updateVersion(supabase, v.id, fields); onChanged(); }
+    catch (err) { setError(messageFor(err)); }
+  };
+
+  const hidden = v.lines.filter((l) => !l.clientVisible);
+  const hiddenCost = hidden.reduce((a, l) => a + l.totalDirectCost, 0);
+  /*
+   * Scaled by the one ratio the engine produced, so the client figure and the
+   * internal figure differ by exactly the hidden lines and not by a rounding
+   * of two separate calculations.
+   */
+  const factor = v.directCost > 0 ? v.totalPrice / v.directCost : 0;
+  const clientTotal = v.totalPrice - hiddenCost * factor;
+
+  const SWITCHES: Array<[keyof VersionDetail['show'], string, string]> = [
+    ['labor', 'Labor', 'show_labor'],
+    ['equipment', 'Equipment', 'show_equipment'],
+    ['hauling', 'Hauling', 'show_hauling'],
+    ['materials', 'Materials', 'show_materials'],
+    ['subcontract', 'Subs', 'show_subcontract'],
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>What the customer sees</CardTitle>
+        <CardDescription>
+          These switch what the proposal itemizes, not what the estimate costs. Turning off labor
+          does not make the job cheaper — it stops the document breaking out what the crew costs.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {SWITCHES.map(([key, label, column]) => (
+            <button key={key} type="button" disabled={!editable}
+              aria-pressed={v.show[key]}
+              onClick={() => set({ [column]: !v.show[key] })}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium',
+                v.show[key]
+                  ? 'border-charcoal-300 bg-white text-charcoal-800'
+                  : 'border-charcoal-200 bg-charcoal-100 text-charcoal-400',
+                editable ? 'hover:border-charcoal-400' : 'cursor-default',
+              )}>
+              {v.show[key] ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {error ? <ErrorState message={error} /> : null}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-[--radius-card] border border-yellow-400 bg-yellow-50/40 p-3">
+            <p className="text-sm font-semibold text-charcoal-900">Client estimate</p>
+            <p className="text-xs text-charcoal-500">
+              {hidden.length > 0
+                ? `${hidden.length} line${hidden.length === 1 ? '' : 's'} left off the document.`
+                : 'Every line appears on the document.'}
+            </p>
+            <dl className="mt-2 space-y-1 text-sm">
+              <Line label="Subtotal" value={money(clientTotal)} />
+              <Line label="Client total" value={money(clientTotal)} strong />
+            </dl>
+          </div>
+
+          <div className="rounded-[--radius-card] border border-charcoal-200 p-3">
+            <p className="text-sm font-semibold text-charcoal-900">Internal reference</p>
+            <p className="text-xs text-charcoal-500">
+              Every line, including the ones the customer does not see.
+            </p>
+            <dl className="mt-2 space-y-1 text-sm">
+              <Line label="Direct cost" value={money(v.directCost)} />
+              <Line label="Indirect cost" value={money(v.indirectCost)} />
+              <Line label="Markup" value={money(v.totalMarkup)} />
+              <Line label="Internal total" value={money(v.totalPrice)} strong />
+            </dl>
+          </div>
+        </div>
+
+        {hidden.length > 0 ? (
+          <p className="text-xs text-charcoal-500">
+            The two differ by {money(hiddenCost * factor)} — the lines marked hidden. They are
+            still priced, still in the internal total, and still what the company is deciding on.
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className={cn('flex items-baseline justify-between gap-3',
+      strong && 'border-t border-charcoal-200 pt-1 font-medium')}>
+      <dt className="text-charcoal-600">{label}</dt>
+      <dd className="tabular text-charcoal-900">{value}</dd>
+    </div>
   );
 }

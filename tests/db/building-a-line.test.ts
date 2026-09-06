@@ -291,3 +291,161 @@ describe('building a line the way an estimator does', () => {
       .rejects.toThrow(/make a new version/);
   });
 });
+
+/**
+ * Markup on this bid rather than on the company.
+ *
+ * `markup_components` hangs off a pricing profile, which is right for a
+ * standard and wrong for a bond that applies to one job. An estimator had two
+ * options and both were bad: edit the company profile and move every other open
+ * estimate, or make a profile per bid.
+ */
+describe('adjusting the markup on one bid', () => {
+  let h: Harness;
+  const chief = '11111111-1111-4111-8111-111111111111';
+  const outsider = '22222222-2222-4222-8222-222222222222';
+  let company = '';
+  let version = '';
+
+  const set = (code: string, fields: Record<string, unknown>) =>
+    h.asUser(chief, () => h.sql(
+      `select app.set_estimate_markup($1,$2,$3::jsonb)`,
+      [version, code, JSON.stringify(fields)]));
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    for (const [id, mail] of [[chief, 'c@r.test'], [outsider, 'x@k.test']] as const) {
+      await h.sql(`insert into auth.users (id, email) values ($1,$2)`, [id, mail]);
+      await h.sql(`insert into user_profiles (id, email) values ($1,$2)
+                   on conflict (id) do nothing`, [id, mail]);
+    }
+    company = (await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.provision_company('Ridgeline','ridgeline','enterprise') as id`)))[0]!.id;
+    await h.asUser(outsider, () => h.sql(
+      `select app.provision_company('Kesler','kesler','enterprise')`));
+
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Bonded job', null, null, null, $1) as id`, [company]));
+    version = (await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id])))[0]!.v;
+  }, 240_000);
+
+  afterAll(async () => { await h?.db.close(); });
+
+  it('starts a bid from the company standard', async () => {
+    const [n] = await h.asUser(chief, () => h.sql<{ n: number }>(
+      `select app.adopt_profile_markups($1) as n`, [version]));
+    // 0011 seeds overhead, profit and contingency on a new company's profile.
+    expect(n!.n).toBe(3);
+    const rows = await h.asUser(chief, () => h.sql<{ code: string }>(
+      `select code from estimate_version_markups where estimate_version_id = $1
+        order by sequence`, [version]));
+    expect(rows.map((r) => r.code)).toEqual(['OH', 'PROFIT', 'CONT']);
+  });
+
+  it('refuses to copy over adjustments somebody already made', async () => {
+    // Overwriting an estimator's work with the defaults is the worst thing
+    // this could do.
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.adopt_profile_markups($1)`, [version])))
+      .rejects.toThrow(/already has its own adjustments/);
+  });
+
+  it('adds a bond charged on the marked-up total', async () => {
+    /*
+     * Bond and tax are charged on the marked-up total and apply in a second
+     * pass; overhead and profit apply together against cost. Getting that
+     * backwards is a few percent on every bonded bid.
+     */
+    await set('BOND', { label: 'Bond', percent: 0.05, basis: 'marked_up_total', sequence: 40 });
+    const [r] = await h.asUser(chief, () => h.sql<{ basis: string; pct: string }>(
+      `select basis, percent as pct from estimate_version_markups
+        where estimate_version_id = $1 and code = 'BOND'`, [version]));
+    expect(r!.basis).toBe('marked_up_total');
+    expect(Number(r!.pct)).toBe(0.05);
+  });
+
+  it('changes a rate rather than adding a second one', async () => {
+    // A second TAX row would be applied twice, which only shows up on the
+    // invoice.
+    await set('TAX', { percent: 0.073, basis: 'marked_up_total', sequence: 50 });
+    await set('TAX', { percent: 0.065 });
+    const rows = await h.asUser(chief, () => h.sql<{ pct: string }>(
+      `select percent as pct from estimate_version_markups
+        where estimate_version_id = $1 and code = 'TAX'`, [version]));
+    expect(rows).toHaveLength(1);
+    expect(Number(rows[0]!.pct)).toBe(0.065);
+    // And the untouched fields survive a partial change.
+    const [r] = await h.asUser(chief, () => h.sql<{ basis: string }>(
+      `select basis from estimate_version_markups
+        where estimate_version_id = $1 and code = 'TAX'`, [version]));
+    expect(r!.basis).toBe('marked_up_total');
+  });
+
+  it('switches one off without losing the rate', async () => {
+    await set('BOND', { enabled: false });
+    const [r] = await h.asUser(chief, () => h.sql<{ enabled: boolean; pct: string }>(
+      `select enabled, percent as pct from estimate_version_markups
+        where estimate_version_id = $1 and code = 'BOND'`, [version]));
+    expect(r!.enabled).toBe(false);
+    // Off, not gone: switching it back on during a negotiation should not lose
+    // the rate somebody looked up.
+    expect(Number(r!.pct)).toBe(0.05);
+  });
+
+  it('leaves the company profile alone', async () => {
+    /*
+     * The whole point. Adjusting this bid must not move every other open
+     * estimate, which is what editing the profile would have done.
+     */
+    const rows = await h.asUser(chief, () => h.sql<{ code: string; pct: string }>(
+      `select m.code, m.percent as pct from markup_components m
+         join pricing_profiles p on p.id = m.pricing_profile_id
+        where p.company_id = $1 order by m.sequence`, [company]));
+    expect(rows.map((r) => r.code)).toEqual(['OH', 'PROFIT', 'CONT']);
+    expect(rows.every((r) => r.code !== 'BOND' && r.code !== 'TAX')).toBe(true);
+  });
+
+  it('normalizes the code, so tax and TAX are the same adjustment', async () => {
+    await set('tax', { percent: 0.06 });
+    const rows = await h.asUser(chief, () => h.sql(
+      `select code from estimate_version_markups
+        where estimate_version_id = $1 and code = 'TAX'`, [version]));
+    expect(rows).toHaveLength(1);
+  });
+
+  it('refuses a rate nobody could mean', async () => {
+    await expect(set('OH', { percent: 9 })).rejects.toThrow();
+  });
+
+  it('removes one', async () => {
+    await h.asUser(chief, () => h.sql(
+      `select app.remove_estimate_markup($1,'BOND')`, [version]));
+    const rows = await h.asUser(chief, () => h.sql(
+      `select code from estimate_version_markups
+        where estimate_version_id = $1 and code = 'BOND'`, [version]));
+    expect(rows).toHaveLength(0);
+  });
+
+  it('keeps another company out', async () => {
+    await expect(h.asUser(outsider, () => h.sql(
+      `select app.set_estimate_markup($1,'OH','{"percent":0.5}'::jsonb)`, [version])))
+      .rejects.toThrow(/permission/i);
+  });
+
+  it('refuses an adjustment on a version that has gone out', async () => {
+    const [e] = await h.asUser(chief, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Frozen', null, null, null, $1) as id`, [company]));
+    const [v] = await h.asUser(chief, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [e!.id]));
+    /*
+     * A bid that was lost, rather than an approved one: 0026 refuses to mark a
+     * version approved without a library snapshot, and faking one to test a
+     * different rule would be working around a guard that is doing its job.
+     */
+    await h.sql(`update estimate_versions set status = 'lost' where id = $1`, [v!.v]);
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.set_estimate_markup($1,'TAX','{"percent":0.05}'::jsonb)`, [v!.v])))
+      .rejects.toThrow(/make a new version/);
+  });
+});
