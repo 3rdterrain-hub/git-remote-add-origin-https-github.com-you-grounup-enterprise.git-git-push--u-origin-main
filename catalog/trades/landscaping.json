@@ -1,0 +1,71 @@
+{
+  "trade": "Landscaping and Irrigation",
+  "code": "LS",
+  "tasks": ["Review documents and stake", "Mobilize", "Prepare subgrade", "Install",
+            "Water and establish", "Inspect and punch", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Planting", "services": [
+      { "name": "Shade tree, 2 inch caliper", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Shade tree, 4 inch caliper", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Evergreen tree, 8 foot", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+      { "name": "Ornamental tree, multi-stem", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Shrub, 5 gallon", "unit": "EA", "units": ["EA"], "rate": 12 },
+      { "name": "Shrub, 15 gallon", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Perennial and ornamental grass", "unit": "EA", "units": ["EA"], "rate": 40 },
+      { "name": "Groundcover planting", "unit": "SF", "units": ["SF", "EA"], "rate": 200 },
+      { "name": "Annual bed planting", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Tree staking and guying", "unit": "EA", "units": ["EA"], "rate": 8 },
+      { "name": "Root barrier", "unit": "LF", "units": ["LF"], "rate": 120 },
+      { "name": "Tree pit and structural soil", "unit": "CY", "units": ["CY", "EA"], "rate": 14 }
+    ]},
+    { "name": "Turf and soil", "services": [
+      { "name": "Sod, cool season", "unit": "SY", "units": ["SY", "SF"], "rate": 90 },
+      { "name": "Sod, warm season", "unit": "SY", "units": ["SY", "SF"], "rate": 85 },
+      { "name": "Hydroseed", "unit": "SY", "units": ["SY", "ACRE"], "rate": 900 },
+      { "name": "Broadcast seed and straw", "unit": "SY", "units": ["SY", "ACRE"], "rate": 1200 },
+      { "name": "Topsoil placement, 6 inch", "unit": "CY", "units": ["CY", "SY"], "rate": 40 },
+      { "name": "Soil amendment and tilling", "unit": "SY", "units": ["SY"], "rate": 400 },
+      { "name": "Fine grading for landscape", "unit": "SY", "units": ["SY"], "rate": 350 },
+      { "name": "Mulch, shredded hardwood", "unit": "CY", "units": ["CY", "SF"], "rate": 18 },
+      { "name": "Decorative rock and cobble", "unit": "TON", "units": ["TON", "SF"], "rate": 12 },
+      { "name": "Landscape edging, steel", "unit": "LF", "units": ["LF"], "rate": 150 },
+      { "name": "Weed barrier fabric", "unit": "SF", "units": ["SF"], "rate": 900 }
+    ]},
+    { "name": "Irrigation", "services": [
+      { "name": "Irrigation mainline, PVC", "unit": "LF", "units": ["LF"], "rate": 200 },
+      { "name": "Irrigation lateral line", "unit": "LF", "units": ["LF"], "rate": 300 },
+      { "name": "Spray head with swing joint", "unit": "EA", "units": ["EA"], "rate": 20 },
+      { "name": "Rotor head", "unit": "EA", "units": ["EA"], "rate": 14 },
+      { "name": "Drip zone with emitters", "unit": "SF", "units": ["SF", "LF"], "rate": 400 },
+      { "name": "Remote control valve and box", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Irrigation controller", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "Rain and flow sensor", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Backflow preventer for irrigation", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Quick coupler valve", "unit": "EA", "units": ["EA"], "rate": 8 },
+      { "name": "Irrigation sleeve under pavement", "unit": "LF", "units": ["LF"], "rate": 100 },
+      { "name": "System startup and winterization", "unit": "EA", "units": ["EA", "LS"], "rate": 1 }
+    ]},
+    { "name": "Hardscape and site amenities", "services": [
+      { "name": "Paver walkway, concrete unit", "unit": "SF", "units": ["SF"], "rate": 120 },
+      { "name": "Permeable paver system", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Segmental retaining wall", "unit": "SF", "units": ["SF"], "rate": 60 },
+      { "name": "Boulder placement", "unit": "EA", "units": ["EA", "TON"], "rate": 4 },
+      { "name": "Timber or composite deck", "unit": "SF", "units": ["SF"], "rate": 80 },
+      { "name": "Site bench and trash receptacle", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Bike rack", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Playground surfacing, poured", "unit": "SF", "units": ["SF"], "rate": 150 },
+      { "name": "Ornamental fence, aluminum", "unit": "LF", "units": ["LF"], "rate": 45 },
+      { "name": "Chain link fence and gate", "unit": "LF", "units": ["LF"], "rate": 80 },
+      { "name": "Water feature and pump", "unit": "EA", "units": ["EA"], "rate": 0.1 },
+      { "name": "Landscape lighting fixture", "unit": "EA", "units": ["EA"], "rate": 6 }
+    ]},
+    { "name": "Maintenance and establishment", "services": [
+      { "name": "Landscape maintenance, monthly", "unit": "MO", "units": ["MO", "ACRE"], "rate": 0.05 },
+      { "name": "Mowing and edging", "unit": "ACRE", "units": ["ACRE", "SY"], "rate": 1.5 },
+      { "name": "Plant establishment period", "unit": "MO", "units": ["MO"], "rate": 0.04 },
+      { "name": "Tree pruning and removal", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Fertilization and weed control", "unit": "ACRE", "units": ["ACRE", "SY"], "rate": 3 }
+    ]}
+  ]
+}

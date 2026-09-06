@@ -221,7 +221,7 @@ export interface LineOption {
 export const loadOpenEstimateLines: Query<LineOption[]> = async (client) => {
   const rows = unwrap(await client
     .from('estimate_line_items')
-    .select('id, description, unit, measured_quantity, estimate_versions!inner(version_number, status, estimates(number))')
+    .select('id, description, unit, measured_quantity, estimate_versions!inner(version_number, status, estimates!estimate_versions_estimate_id_fkey(number))')
     // Only a draft can take a quantity: an issued version is frozen by RULE-009
     // and offering it would produce a refusal the estimator cannot act on.
     .eq('estimate_versions.status', 'draft')

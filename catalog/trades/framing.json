@@ -1,0 +1,51 @@
+{
+  "trade": "Rough Carpentry",
+  "code": "FR",
+  "tasks": ["Review documents and layout", "Mobilize", "Lay out and plate", "Frame",
+            "Sheathe", "Inspect and correct", "Cleanup", "Demobilize"],
+  "productionTask": "Frame",
+  "categories": [
+    { "name": "Wood framing", "services": [
+      { "name": "Wood stud wall, 2x4, 16 inch on center", "unit": "SF", "units": ["SF", "LF"], "rate": 120 },
+      { "name": "Wood stud wall, 2x6, 16 inch on center", "unit": "SF", "units": ["SF", "LF"], "rate": 100 },
+      { "name": "Interior partition framing", "unit": "SF", "units": ["SF", "LF"], "rate": 140 },
+      { "name": "Floor joist framing, dimensional", "unit": "SF", "units": ["SF"], "rate": 110 },
+      { "name": "Engineered I-joist floor system", "unit": "SF", "units": ["SF"], "rate": 130 },
+      { "name": "Roof truss setting", "unit": "EA", "units": ["EA", "SF"], "rate": 8 },
+      { "name": "Rafter and ridge framing", "unit": "SF", "units": ["SF"], "rate": 85 },
+      { "name": "Glulam beam setting", "unit": "LF", "units": ["LF", "EA"], "rate": 18 },
+      { "name": "LVL header and beam", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Stair framing, wood", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+      { "name": "Blocking and backing", "unit": "LF", "units": ["LF"], "rate": 90 },
+      { "name": "Wall sheathing, OSB", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Roof sheathing, plywood", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Subfloor, tongue and groove", "unit": "SF", "units": ["SF"], "rate": 320 },
+      { "name": "Furring and strapping", "unit": "SF", "units": ["SF", "LF"], "rate": 260 }
+    ]},
+    { "name": "Cold-formed metal framing", "services": [
+      { "name": "Metal stud partition, 3-5/8 inch", "unit": "SF", "units": ["SF", "LF"], "rate": 140 },
+      { "name": "Metal stud partition, 6 inch", "unit": "SF", "units": ["SF", "LF"], "rate": 120 },
+      { "name": "Shaft wall assembly", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Metal stud exterior backup wall", "unit": "SF", "units": ["SF"], "rate": 100 },
+      { "name": "Suspended ceiling framing, metal", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Metal joist and deck framing", "unit": "SF", "units": ["SF"], "rate": 150 },
+      { "name": "Slip track and deflection detail", "unit": "LF", "units": ["LF"], "rate": 110 }
+    ]},
+    { "name": "Finish carpentry and millwork", "services": [
+      { "name": "Base trim, painted", "unit": "LF", "units": ["LF"], "rate": 80 },
+      { "name": "Door and window casing", "unit": "LF", "units": ["LF", "EA"], "rate": 70 },
+      { "name": "Crown molding", "unit": "LF", "units": ["LF"], "rate": 55 },
+      { "name": "Wood handrail and guardrail", "unit": "LF", "units": ["LF"], "rate": 25 },
+      { "name": "Plastic laminate casework", "unit": "LF", "units": ["LF", "EA"], "rate": 8 },
+      { "name": "Solid surface countertop", "unit": "LF", "units": ["LF", "SF"], "rate": 12 },
+      { "name": "Wood veneer paneling", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Shelving and closet system", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Reception desk, custom", "unit": "EA", "units": ["EA", "LF"], "rate": 0.1 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Selective framing demolition", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Remove existing millwork", "unit": "LF", "units": ["LF"], "rate": 120 },
+      { "name": "Shore existing structure", "unit": "EA", "units": ["EA", "LS"], "rate": 0.5 }
+    ]}
+  ]
+}

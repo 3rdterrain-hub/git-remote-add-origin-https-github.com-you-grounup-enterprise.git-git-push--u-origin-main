@@ -1,0 +1,123 @@
+{
+  "trade": "Electrical",
+  "code": "EL",
+  "tasks": [
+    "Review documents and coordinate",
+    "Lay out and mark",
+    "Mobilize",
+    "Install",
+    "Terminate and test",
+    "Label and document",
+    "Cleanup",
+    "Demobilize"
+  ],
+  "productionTask": "Install",
+  "categories": [
+    {
+      "name": "Branch wiring",
+      "services": [
+        { "name": "Branch circuit, 12 AWG in EMT", "unit": "LF", "units": ["LF", "EA"], "rate": 45 },
+        { "name": "Branch circuit, 10 AWG in EMT", "unit": "LF", "units": ["LF"], "rate": 38 },
+        { "name": "Branch circuit, MC cable", "unit": "LF", "units": ["LF"], "rate": 70 },
+        { "name": "Branch circuit, NM cable in wood framing", "unit": "LF", "units": ["LF"], "rate": 90 },
+        { "name": "Home run to panel", "unit": "EA", "units": ["EA", "LF"], "rate": 1.5 },
+        { "name": "Duplex receptacle, rough and trim", "unit": "EA", "units": ["EA"], "rate": 3 },
+        { "name": "GFCI receptacle, rough and trim", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+        { "name": "Single-pole switch, rough and trim", "unit": "EA", "units": ["EA"], "rate": 3.5 },
+        { "name": "Three-way switch, rough and trim", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+        { "name": "Occupancy sensor switch", "unit": "EA", "units": ["EA"], "rate": 2 },
+        { "name": "Dimmer switch", "unit": "EA", "units": ["EA"], "rate": 3 },
+        { "name": "Floor box, poke-through", "unit": "EA", "units": ["EA"], "rate": 1.2 },
+        { "name": "Weatherproof receptacle, in-use cover", "unit": "EA", "units": ["EA"], "rate": 2 }
+      ]
+    },
+    {
+      "name": "Raceway and conduit",
+      "services": [
+        { "name": "EMT conduit, 1/2 inch", "unit": "LF", "units": ["LF"], "rate": 55 },
+        { "name": "EMT conduit, 3/4 inch", "unit": "LF", "units": ["LF"], "rate": 48 },
+        { "name": "EMT conduit, 1 inch", "unit": "LF", "units": ["LF"], "rate": 40 },
+        { "name": "EMT conduit, 2 inch", "unit": "LF", "units": ["LF"], "rate": 26 },
+        { "name": "Rigid galvanized conduit, 2 inch", "unit": "LF", "units": ["LF"], "rate": 16 },
+        { "name": "PVC conduit in trench, 2 inch", "unit": "LF", "units": ["LF"], "rate": 70 },
+        { "name": "PVC conduit in trench, 4 inch", "unit": "LF", "units": ["LF"], "rate": 55 },
+        { "name": "Flexible metal conduit whip", "unit": "EA", "units": ["EA", "LF"], "rate": 8 },
+        { "name": "Cable tray, ladder type", "unit": "LF", "units": ["LF"], "rate": 22 },
+        { "name": "Wireway, surface mounted", "unit": "LF", "units": ["LF"], "rate": 18 },
+        { "name": "Underground duct bank, concrete encased", "unit": "LF", "units": ["LF"], "rate": 12 }
+      ]
+    },
+    {
+      "name": "Feeders and distribution",
+      "services": [
+        { "name": "Feeder conductor, 4/0 copper", "unit": "LF", "units": ["LF"], "rate": 30 },
+        { "name": "Feeder conductor, 500 kcmil", "unit": "LF", "units": ["LF"], "rate": 20 },
+        { "name": "Panelboard, 42 circuit, 208Y/120V", "unit": "EA", "units": ["EA"], "rate": 0.2 },
+        { "name": "Panelboard, 42 circuit, 480Y/277V", "unit": "EA", "units": ["EA"], "rate": 0.16 },
+        { "name": "Distribution switchboard", "unit": "EA", "units": ["EA"], "rate": 0.06 },
+        { "name": "Dry-type transformer, 75 kVA", "unit": "EA", "units": ["EA"], "rate": 0.15 },
+        { "name": "Dry-type transformer, 150 kVA", "unit": "EA", "units": ["EA"], "rate": 0.1 },
+        { "name": "Safety disconnect switch, fused", "unit": "EA", "units": ["EA"], "rate": 1.2 },
+        { "name": "Motor starter and disconnect", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+        { "name": "Automatic transfer switch", "unit": "EA", "units": ["EA"], "rate": 0.1 },
+        { "name": "Service entrance, 800 amp", "unit": "EA", "units": ["EA"], "rate": 0.04 },
+        { "name": "Busway, 800 amp", "unit": "LF", "units": ["LF"], "rate": 8 }
+      ]
+    },
+    {
+      "name": "Lighting",
+      "services": [
+        { "name": "Recessed LED downlight", "unit": "EA", "units": ["EA"], "rate": 4 },
+        { "name": "LED troffer, 2x4 lay-in", "unit": "EA", "units": ["EA"], "rate": 3.5 },
+        { "name": "LED strip light, suspended", "unit": "EA", "units": ["EA", "LF"], "rate": 3 },
+        { "name": "High bay LED fixture", "unit": "EA", "units": ["EA"], "rate": 2 },
+        { "name": "Wall pack, exterior LED", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+        { "name": "Emergency light with battery", "unit": "EA", "units": ["EA"], "rate": 3 },
+        { "name": "Exit sign, LED", "unit": "EA", "units": ["EA"], "rate": 4 },
+        { "name": "Pole-mounted site light, 25 foot", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+        { "name": "Light pole base, drilled and formed", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+        { "name": "Lighting control panel", "unit": "EA", "units": ["EA"], "rate": 0.3 },
+        { "name": "Under-cabinet lighting", "unit": "LF", "units": ["LF", "EA"], "rate": 12 }
+      ]
+    },
+    {
+      "name": "Low voltage and systems",
+      "services": [
+        { "name": "Data outlet, Cat 6", "unit": "EA", "units": ["EA"], "rate": 4 },
+        { "name": "Data outlet, Cat 6A shielded", "unit": "EA", "units": ["EA"], "rate": 3 },
+        { "name": "Fiber backbone, terminated", "unit": "LF", "units": ["LF", "EA"], "rate": 60 },
+        { "name": "Equipment rack and ladder rack", "unit": "EA", "units": ["EA"], "rate": 0.3 },
+        { "name": "Fire alarm device, addressable", "unit": "EA", "units": ["EA"], "rate": 3 },
+        { "name": "Fire alarm control panel", "unit": "EA", "units": ["EA"], "rate": 0.15 },
+        { "name": "Access control door, card reader", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+        { "name": "Security camera, IP", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+        { "name": "Intercom station", "unit": "EA", "units": ["EA"], "rate": 2 },
+        { "name": "Paging speaker, ceiling", "unit": "EA", "units": ["EA"], "rate": 4 },
+        { "name": "Nurse call station", "unit": "EA", "units": ["EA"], "rate": 2 }
+      ]
+    },
+    {
+      "name": "Grounding and power quality",
+      "services": [
+        { "name": "Ground rod and clamp", "unit": "EA", "units": ["EA"], "rate": 4 },
+        { "name": "Ground ring, bare copper", "unit": "LF", "units": ["LF"], "rate": 60 },
+        { "name": "Equipment grounding conductor", "unit": "LF", "units": ["LF"], "rate": 90 },
+        { "name": "Lightning protection, air terminal", "unit": "EA", "units": ["EA"], "rate": 5 },
+        { "name": "Surge protective device", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+        { "name": "Generator, pad mounted", "unit": "EA", "units": ["EA"], "rate": 0.05 },
+        { "name": "Generator docking station", "unit": "EA", "units": ["EA"], "rate": 0.2 },
+        { "name": "Arc flash study and labeling", "unit": "EA", "units": ["EA", "LS"], "rate": 0.1 }
+      ]
+    },
+    {
+      "name": "Demolition and temporary",
+      "services": [
+        { "name": "Demolish existing wiring and devices", "unit": "SF", "units": ["SF", "LS"], "rate": 400 },
+        { "name": "Remove and salvage light fixtures", "unit": "EA", "units": ["EA"], "rate": 12 },
+        { "name": "Temporary power distribution", "unit": "MO", "units": ["MO", "LS"], "rate": 0.02 },
+        { "name": "Temporary lighting, string", "unit": "LF", "units": ["LF"], "rate": 120 },
+        { "name": "Safe-off and lockout for demolition", "unit": "EA", "units": ["EA", "LS"], "rate": 2 }
+      ]
+    }
+  ]
+}

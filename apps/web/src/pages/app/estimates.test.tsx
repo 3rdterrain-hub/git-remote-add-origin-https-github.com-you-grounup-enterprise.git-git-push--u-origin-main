@@ -8,6 +8,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderPage } from '@/test/render';
 
 const hoisted = vi.hoisted(() => ({
@@ -24,6 +25,11 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/data/session', () => ({
   usePermissions: () => ({ can: (p: string) => hoisted.permissions.includes(p), loading: false }),
+}));
+
+vi.mock('@/lib/data/templates', () => ({
+  loadTemplates: async () => [],
+  loadTemplateLines: () => async () => [],
 }));
 
 vi.mock('@/lib/data/estimates', async () => {
@@ -151,4 +157,73 @@ describe('the estimating screen', () => {
     renderPage(<EstimatesPage />);
     await waitFor(() => expect(screen.getByText(/demonstration/i)).toBeInTheDocument());
   });
+
+  // -------------------------------------------------------------------------
+  describe('the boxes across the top', () => {
+    /*
+     * Every tile in this application was a `div`. "Blocked from issue: 2" told
+     * an estimator there were two and gave them no way to see which — the
+     * answer was on the same page, behind a control that did not exist.
+     */
+    beforeEach(() => {
+      hoisted.rows = [
+        estimate({ id: 'e-1', number: 'E-2026-0001', status: 'issued' }),
+        estimate({ id: 'e-2', number: 'E-2026-0002', status: 'draft',
+                   blockedFromIssue: true, pricedAt: null, bidPrice: 0 }),
+        estimate({ id: 'e-3', number: 'E-2026-0003', status: 'awarded' }),
+        estimate({ id: 'e-4', number: 'E-2026-0004', status: 'lost', bidPrice: 100_000 }),
+      ];
+    });
+
+    it('shows the estimates a tile counts when the tile is clicked', async () => {
+      renderPage(<EstimatesPage />);
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+
+      await userEvent.click(screen.getByRole('button',
+        { name: /show the estimates the engine has blocked/i }));
+      await waitFor(() => expect(screen.queryByText('E-2026-0001')).not.toBeInTheDocument());
+      expect(screen.getByText('E-2026-0002')).toBeInTheDocument();
+    });
+
+    it('says which tile the list is showing', async () => {
+      renderPage(<EstimatesPage />);
+      const tile = await screen.findByRole('button',
+        { name: /show the estimates the engine has blocked/i });
+      expect(tile).toHaveAttribute('aria-pressed', 'false');
+      await userEvent.click(tile);
+      await waitFor(() => expect(tile).toHaveAttribute('aria-pressed', 'true'));
+    });
+
+    it('shows the bids that were decided, from the win-rate tile', async () => {
+      renderPage(<EstimatesPage />);
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button',
+        { name: /show the bids that were won or lost/i }));
+      await waitFor(() => expect(screen.queryByText('E-2026-0002')).not.toBeInTheDocument());
+      expect(screen.getByText('E-2026-0003')).toBeInTheDocument();
+      expect(screen.getByText('E-2026-0004')).toBeInTheDocument();
+    });
+
+    it('gets back to everything from the first tile', async () => {
+      renderPage(<EstimatesPage />);
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button',
+        { name: /show the estimates the engine has blocked/i }));
+      await waitFor(() => expect(screen.queryByText('E-2026-0001')).not.toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button', { name: /show every estimate/i }));
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+    });
+
+    it('leaves a tile counting nothing inert rather than filtering to an empty table', async () => {
+      hoisted.rows = [estimate()];
+      renderPage(<EstimatesPage />);
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+      /* Nothing is blocked and nothing has expired, so neither offers a click. */
+      expect(screen.queryByRole('button',
+        { name: /show the estimates the engine has blocked/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button',
+        { name: /show the estimates whose price has expired/i })).not.toBeInTheDocument();
+    });
+  });
+
 });

@@ -1,0 +1,76 @@
+{
+  "trade": "Concrete",
+  "code": "CN",
+  "tasks": ["Review documents and layout", "Mobilize", "Form and set", "Place",
+            "Finish", "Cure and strip", "Cleanup", "Demobilize"],
+  "productionTask": "Place",
+  "categories": [
+    { "name": "Foundations", "services": [
+      { "name": "Continuous wall footing", "unit": "CY", "units": ["CY", "LF"], "rate": 14 },
+      { "name": "Spread footing, isolated", "unit": "CY", "units": ["CY", "EA"], "rate": 10 },
+      { "name": "Grade beam", "unit": "CY", "units": ["CY", "LF"], "rate": 12 },
+      { "name": "Pile cap", "unit": "CY", "units": ["CY", "EA"], "rate": 9 },
+      { "name": "Foundation wall, formed both sides", "unit": "CY", "units": ["CY", "SF"], "rate": 11 },
+      { "name": "Thickened slab edge", "unit": "LF", "units": ["LF", "CY"], "rate": 60 },
+      { "name": "Equipment foundation, reinforced", "unit": "CY", "units": ["CY"], "rate": 7 },
+      { "name": "Elevator pit", "unit": "EA", "units": ["EA", "CY"], "rate": 0.15 }
+    ]},
+    { "name": "Slabs", "services": [
+      { "name": "Slab on grade, 4 inch", "unit": "SF", "units": ["SF", "CY"], "rate": 500 },
+      { "name": "Slab on grade, 6 inch reinforced", "unit": "SF", "units": ["SF", "CY"], "rate": 420 },
+      { "name": "Slab on grade, 8 inch industrial", "unit": "SF", "units": ["SF", "CY"], "rate": 350 },
+      { "name": "Elevated slab on metal deck", "unit": "SF", "units": ["SF", "CY"], "rate": 300 },
+      { "name": "Post-tensioned slab", "unit": "SF", "units": ["SF"], "rate": 260 },
+      { "name": "Topping slab", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Vapor barrier under slab", "unit": "SF", "units": ["SF"], "rate": 1200 },
+      { "name": "Slab saw cutting, control joints", "unit": "LF", "units": ["LF"], "rate": 200 },
+      { "name": "Joint filler and sealant", "unit": "LF", "units": ["LF"], "rate": 160 }
+    ]},
+    { "name": "Vertical concrete", "services": [
+      { "name": "Concrete column, formed", "unit": "CY", "units": ["CY", "EA"], "rate": 6 },
+      { "name": "Concrete shear wall", "unit": "CY", "units": ["CY", "SF"], "rate": 9 },
+      { "name": "Retaining wall, cast in place", "unit": "CY", "units": ["CY", "SF"], "rate": 8 },
+      { "name": "Concrete beam", "unit": "CY", "units": ["CY", "LF"], "rate": 7 },
+      { "name": "Stair, cast in place", "unit": "EA", "units": ["EA", "CY"], "rate": 0.3 },
+      { "name": "Tilt-up panel, cast and erect", "unit": "SF", "units": ["SF", "EA"], "rate": 180 },
+      { "name": "Loading dock and pit", "unit": "EA", "units": ["EA"], "rate": 0.2 }
+    ]},
+    { "name": "Reinforcing and embeds", "services": [
+      { "name": "Reinforcing steel, placed and tied", "unit": "TON", "units": ["TON", "LB"], "rate": 0.4 },
+      { "name": "Welded wire reinforcement", "unit": "SF", "units": ["SF"], "rate": 900 },
+      { "name": "Fiber reinforcement, added at plant", "unit": "CY", "units": ["CY"], "rate": 60 },
+      { "name": "Dowel bar and basket", "unit": "EA", "units": ["EA"], "rate": 40 },
+      { "name": "Anchor bolt setting", "unit": "EA", "units": ["EA"], "rate": 20 },
+      { "name": "Embed plate", "unit": "EA", "units": ["EA"], "rate": 12 },
+      { "name": "Post-installed anchor, epoxy", "unit": "EA", "units": ["EA"], "rate": 16 }
+    ]},
+    { "name": "Finishing and treatment", "services": [
+      { "name": "Broom finish", "unit": "SF", "units": ["SF"], "rate": 1400 },
+      { "name": "Steel trowel finish", "unit": "SF", "units": ["SF"], "rate": 900 },
+      { "name": "Burnished and polished finish", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Exposed aggregate finish", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Stamped and colored concrete", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Dry shake hardener", "unit": "SF", "units": ["SF"], "rate": 1000 },
+      { "name": "Curing compound", "unit": "SF", "units": ["SF"], "rate": 2000 },
+      { "name": "Concrete sealer", "unit": "SF", "units": ["SF"], "rate": 1600 },
+      { "name": "Grinding and floor flatness correction", "unit": "SF", "units": ["SF"], "rate": 250 }
+    ]},
+    { "name": "Site concrete", "services": [
+      { "name": "Sidewalk, 4 inch", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Curb and gutter, cast in place", "unit": "LF", "units": ["LF"], "rate": 90 },
+      { "name": "Concrete pavement, 8 inch", "unit": "SY", "units": ["SY", "CY"], "rate": 60 },
+      { "name": "Concrete apron and dock", "unit": "SF", "units": ["SF"], "rate": 320 },
+      { "name": "Wheel stop and bollard", "unit": "EA", "units": ["EA"], "rate": 10 },
+      { "name": "Detectable warning surface", "unit": "SF", "units": ["SF", "EA"], "rate": 90 },
+      { "name": "Concrete stair and landing, exterior", "unit": "EA", "units": ["EA"], "rate": 0.25 }
+    ]},
+    { "name": "Repair and demolition", "services": [
+      { "name": "Concrete demolition, slab", "unit": "SF", "units": ["SF", "CY"], "rate": 300 },
+      { "name": "Concrete demolition, wall", "unit": "CY", "units": ["CY", "SF"], "rate": 6 },
+      { "name": "Core drilling", "unit": "EA", "units": ["EA", "LF"], "rate": 8 },
+      { "name": "Concrete patching and spall repair", "unit": "SF", "units": ["SF"], "rate": 60 },
+      { "name": "Crack injection, epoxy", "unit": "LF", "units": ["LF"], "rate": 50 },
+      { "name": "Carbon fiber strengthening", "unit": "SF", "units": ["SF"], "rate": 40 }
+    ]}
+  ]
+}

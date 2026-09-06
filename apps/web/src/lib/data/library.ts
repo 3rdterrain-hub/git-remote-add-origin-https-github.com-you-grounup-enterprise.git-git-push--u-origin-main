@@ -32,7 +32,6 @@ export interface ServiceRow {
   scope: Scope;
   /** Only a company's own rows may be changed. */
   editable: boolean;
-  taskCount: number;
 }
 
 export interface TaskRow {
@@ -61,12 +60,18 @@ const scopeOf = (companyId: unknown, groupId: unknown): Scope =>
 export const loadServices: Query<ServiceRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('services')
-    .select('id, code, name, description, category, subcategory, industry, default_unit, supported_units, pricing_method, status, version, company_id, enterprise_group_id, tasks(count)')
+    .select('id, code, name, description, category, subcategory, industry, default_unit, supported_units, pricing_method, status, version, company_id, enterprise_group_id')
     .order('code')
     .limit(2000)) as Array<Record<string, unknown>>;
+  /*
+   * `tasks(count)` used to be asked for here and there is no relationship to
+   * count over: a service points at an assembly, the assembly lists the tasks.
+   * PostgREST rejected the whole request, so the services list on the Master
+   * Libraries screen returned an error rather than a library — and the count it
+   * was for was never rendered by anything.
+   */
   return rows.map((s) => {
     const scope = scopeOf(s.company_id, s.enterprise_group_id);
-    const counted = s.tasks as Array<{ count: number }> | null;
     return {
       id: String(s.id),
       code: String(s.code),
@@ -82,7 +87,6 @@ export const loadServices: Query<ServiceRow[]> = async (client) => {
       version: String(s.version),
       scope,
       editable: scope === 'company',
-      taskCount: counted?.[0]?.count ?? 0,
     };
   });
 };

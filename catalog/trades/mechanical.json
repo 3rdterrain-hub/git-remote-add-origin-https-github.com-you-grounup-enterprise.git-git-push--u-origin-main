@@ -1,0 +1,79 @@
+{
+  "trade": "Mechanical",
+  "code": "ME",
+  "tasks": ["Review documents and coordinate", "Lay out and mark", "Mobilize", "Install",
+            "Connect and start up", "Test and balance", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Ductwork", "services": [
+      { "name": "Rectangular sheet metal duct, galvanized", "unit": "LB", "units": ["LB", "SF"], "rate": 22 },
+      { "name": "Round spiral duct, 8 inch", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Round spiral duct, 14 inch", "unit": "LF", "units": ["LF"], "rate": 22 },
+      { "name": "Round spiral duct, 24 inch", "unit": "LF", "units": ["LF"], "rate": 14 },
+      { "name": "Flexible duct runout, insulated", "unit": "LF", "units": ["LF"], "rate": 45 },
+      { "name": "Duct insulation, external wrap", "unit": "SF", "units": ["SF"], "rate": 110 },
+      { "name": "Duct liner, internal", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Fire damper in rated assembly", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Volume damper, manual", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Supply diffuser, lay-in", "unit": "EA", "units": ["EA"], "rate": 5 },
+      { "name": "Return grille", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Linear slot diffuser", "unit": "LF", "units": ["LF", "EA"], "rate": 14 },
+      { "name": "Louver, exterior wall", "unit": "SF", "units": ["SF", "EA"], "rate": 12 },
+      { "name": "Duct cleaning and sealing", "unit": "LF", "units": ["LF"], "rate": 60 }
+    ]},
+    { "name": "Air handling", "services": [
+      { "name": "Rooftop unit, 5 ton", "unit": "EA", "units": ["EA"], "rate": 0.2 },
+      { "name": "Rooftop unit, 20 ton", "unit": "EA", "units": ["EA"], "rate": 0.1 },
+      { "name": "Air handling unit, indoor", "unit": "EA", "units": ["EA"], "rate": 0.08 },
+      { "name": "Energy recovery ventilator", "unit": "EA", "units": ["EA"], "rate": 0.15 },
+      { "name": "Fan coil unit, ducted", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "VAV terminal box with reheat", "unit": "EA", "units": ["EA"], "rate": 1.2 },
+      { "name": "Exhaust fan, inline", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Exhaust fan, roof mounted", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Makeup air unit", "unit": "EA", "units": ["EA"], "rate": 0.12 },
+      { "name": "Kitchen hood and exhaust", "unit": "EA", "units": ["EA"], "rate": 0.08 },
+      { "name": "Dust collection system", "unit": "EA", "units": ["EA"], "rate": 0.06 },
+      { "name": "Curb and roof penetration for unit", "unit": "EA", "units": ["EA"], "rate": 0.6 }
+    ]},
+    { "name": "Hydronic and refrigerant piping", "services": [
+      { "name": "Copper hydronic pipe, 1 inch", "unit": "LF", "units": ["LF"], "rate": 26 },
+      { "name": "Copper hydronic pipe, 2 inch", "unit": "LF", "units": ["LF"], "rate": 18 },
+      { "name": "Steel hydronic pipe, 4 inch welded", "unit": "LF", "units": ["LF"], "rate": 8 },
+      { "name": "Refrigerant line set, insulated", "unit": "LF", "units": ["LF"], "rate": 24 },
+      { "name": "Pipe insulation, fiberglass with jacket", "unit": "LF", "units": ["LF"], "rate": 40 },
+      { "name": "Circulating pump, inline", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "Balancing valve", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Control valve, two-way", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Expansion tank", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Air separator and strainer", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Pipe hanger and support", "unit": "EA", "units": ["EA"], "rate": 12 }
+    ]},
+    { "name": "Heating and cooling plant", "services": [
+      { "name": "Air-cooled chiller, 100 ton", "unit": "EA", "units": ["EA"], "rate": 0.03 },
+      { "name": "Cooling tower", "unit": "EA", "units": ["EA"], "rate": 0.04 },
+      { "name": "Condensing boiler, 1000 MBH", "unit": "EA", "units": ["EA"], "rate": 0.06 },
+      { "name": "Unit heater, gas fired", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "Radiant floor heating loop", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Baseboard radiation", "unit": "LF", "units": ["LF"], "rate": 20 },
+      { "name": "Split system condenser", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "Ductless mini-split head", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "VRF branch controller", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+      { "name": "Equipment pad, housekeeping", "unit": "EA", "units": ["EA"], "rate": 1.5 }
+    ]},
+    { "name": "Controls and commissioning", "services": [
+      { "name": "Building automation controller", "unit": "EA", "units": ["EA"], "rate": 0.3 },
+      { "name": "Thermostat and sensor", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Control wiring", "unit": "LF", "units": ["LF"], "rate": 80 },
+      { "name": "Test, adjust and balance air", "unit": "EA", "units": ["EA", "LS"], "rate": 6 },
+      { "name": "Test, adjust and balance water", "unit": "EA", "units": ["EA", "LS"], "rate": 5 },
+      { "name": "Commissioning support", "unit": "DAY", "units": ["DAY", "LS"], "rate": 0.12 },
+      { "name": "Refrigerant charge and leak test", "unit": "EA", "units": ["EA"], "rate": 1 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Remove existing ductwork", "unit": "LF", "units": ["LF"], "rate": 90 },
+      { "name": "Remove and dispose rooftop unit", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+      { "name": "Remove existing piping", "unit": "LF", "units": ["LF"], "rate": 70 },
+      { "name": "Refrigerant recovery and disposal", "unit": "EA", "units": ["EA"], "rate": 1.5 }
+    ]}
+  ]
+}

@@ -99,6 +99,115 @@ async function readServiceUnitCorrections() {
   return map;
 }
 
+/**
+ * The trade packs, from the repository rather than the external catalog.
+ *
+ * The shipped catalog is heavy civil and nothing else, so a contractor outside
+ * those trades opens the library and finds nothing for their work. These are
+ * the rest: written here, reviewed here, versioned with the code that reads
+ * them.
+ *
+ * Every service they produce is structurally complete — a unit its trade bids
+ * in, an assembly, the tasks it is made of, and a production rate so it prices
+ * rather than returning zero. Every rate they produce is an unsourced
+ * benchmark, and says so three times over: `seed_benchmark` as the source type,
+ * which the engine warns about by name; `pending` approval, so the engine says
+ * to approve it or substitute a company actual before issuing; and a confidence
+ * score below what the sourced heavy-civil rates carry.
+ */
+async function readTradePacks() {
+  const dir = join(ROOT, 'catalog', 'trades');
+  let names;
+  try {
+    names = (await readdir(dir)).filter((f) => f.endsWith('.json')).sort();
+  } catch {
+    return [];
+  }
+  const packs = [];
+  for (const name of names) {
+    const pack = JSON.parse(await readFile(join(dir, name), 'utf8'));
+    if (!pack.code || !Array.isArray(pack.categories)) {
+      throw new Error(`${name} is not a trade pack: it needs a code and categories.`);
+    }
+    if (!Array.isArray(pack.tasks) || pack.tasks.length === 0) {
+      throw new Error(`${name} has no tasks, so its services would price as nothing.`);
+    }
+    if (!pack.tasks.includes(pack.productionTask)) {
+      throw new Error(
+        `${name} names "${pack.productionTask}" as the task the rate hangs off, and it is not `
+        + 'in the task list. The rate would attach to nothing and every service would price at zero.');
+    }
+    packs.push({ ...pack, source: name });
+  }
+  return packs;
+}
+
+/** Flatten a pack into the rows the seed needs, with codes that cannot collide. */
+function expandTradePack(pack) {
+  const services = [];
+  const tasks = [];
+  const assemblies = [];
+  const components = [];
+  const rates = [];
+  const costCodes = [];
+
+  let n = 0;
+  for (const category of pack.categories) {
+    for (const svc of category.services) {
+      n += 1;
+      const seq = String(n).padStart(4, '0');
+      /*
+       * Prefixed by trade rather than continuing the catalog's numbering, so
+       * where a row came from is legible in the data and a future catalog
+       * update cannot collide with one of ours.
+       */
+      const serviceCode = `SVC-${pack.code}-${seq}`;
+      const assemblyCode = `ASM-${pack.code}-${seq}`;
+      const costCode = `CC-${pack.code}-${seq}`;
+      const supported = (svc.units && svc.units.length ? svc.units : [svc.unit])
+        .map((u) => unit(u))
+        .filter((v, i, a) => a.indexOf(v) === i);
+      const def = unit(svc.unit);
+      if (!supported.includes(def)) supported.unshift(def);
+
+      services.push({
+        code: serviceCode, name: svc.name, industry: pack.trade,
+        industryPack: `IND-${pack.code}`, category: pack.trade,
+        subcategory: category.name,
+        description: svc.description
+          ?? `Provide complete ${svc.name.toLowerCase()} including labor, equipment, `
+             + 'materials, controls, documentation and closeout as applicable.',
+        unit: def, supported, costCode,
+      });
+      costCodes.push({ code: costCode, name: svc.name, division: pack.trade });
+      assemblies.push({
+        code: assemblyCode, name: `${svc.name} — Standard Assembly`,
+        serviceCode, unit: def,
+      });
+
+      pack.tasks.forEach((taskName, i) => {
+        const taskCode = `TSK-${pack.code}-${seq}-${String(i + 1).padStart(2, '0')}`;
+        const isProduction = taskName === pack.productionTask;
+        tasks.push({
+          code: taskCode, name: taskName,
+          category: isProduction ? 'Production' : 'Support',
+          unit: isProduction ? def : 'HR',
+          method: `MTH-${pack.code}-${seq}-${String(i + 1).padStart(2, '0')}`,
+        });
+        components.push({ assemblyCode, taskCode, sort: (i + 1) * 10, unit: isProduction ? def : 'HR' });
+        if (isProduction) {
+          rates.push({
+            code: `PR-${pack.code}-${seq}`, taskCode,
+            method: `MTH-${pack.code}-${seq}-${String(i + 1).padStart(2, '0')}`,
+            rate: svc.rate, unit: def,
+          });
+        }
+      });
+    }
+  }
+  return { services, tasks, assemblies, components, rates, costCodes };
+}
+
 // ---------------------------------------------------------------------------
 // Generation
 // ---------------------------------------------------------------------------
@@ -183,7 +292,23 @@ on conflict (equipment_id, source, effective_date) where company_id is null do n
    * lost before: a hand correction to the generated file that the generator
    * never learned, silently reverted by the next regeneration.
    */
+  /** Rows per insert statement. Large enough to be few, small enough to read. */
+  const CHUNK = 500;
+
   const correctedUnits = await readServiceUnitCorrections();
+  /*
+   * The trades the shipped catalog does not cover. Expanded here so every
+   * emitter below writes the catalog's rows and the packs' rows together, and
+   * a service is a service whichever it came from.
+   */
+  const packs = await readTradePacks();
+  const trade = packs.map(expandTradePack);
+  const tradeServices = trade.flatMap((t) => t.services);
+  const tradeTasks = trade.flatMap((t) => t.tasks);
+  const tradeAssemblies = trade.flatMap((t) => t.assemblies);
+  const tradeComponents = trade.flatMap((t) => t.components);
+  const tradeRates = trade.flatMap((t) => t.rates);
+  const tradeCostCodes = trade.flatMap((t) => t.costCodes);
   const serviceValues = services.map((r) => {
     const fix = correctedUnits.get(r.service_id);
     const supported = fix
@@ -196,6 +321,19 @@ on conflict (equipment_id, source, effective_date) where company_id is null do n
   out.push('insert into services (code, name, industry, industry_pack_id, category, subcategory, description, default_unit, supported_units, pricing_method, version, source) values');
   out.push(serviceValues.join(',\n') + '\non conflict do nothing;\n');
 
+  if (tradeServices.length > 0) {
+    out.push(banner('Trade packs — the work the shipped catalog does not cover'));
+    for (let i = 0; i < tradeServices.length; i += CHUNK) {
+      out.push('insert into services (code, name, industry, industry_pack_id, category, subcategory, description, default_unit, supported_units, pricing_method, version, source) values');
+      out.push(tradeServices.slice(i, i + CHUNK).map((r) =>
+        `  (${q(r.code)}, ${q(r.name)}, ${q(r.industry)}, ${q(r.industryPack)}, `
+        + `${q(r.category)}, ${q(r.subcategory)}, ${q(r.description)}, '${r.unit}', `
+        + `array[${r.supported.map((u) => `'${u}'`).join(',')}]::app.unit_code[], `
+        + `'Assembly/Task Rollup', '1.0', 'GrounUp trade pack')`).join(',\n')
+        + '\non conflict do nothing;\n');
+    }
+  }
+
   // --- Cost codes ----------------------------------------------------------
   // The catalog gives every service a cost code and the generator used to drop
   // it, which left `services.cost_code_id` null on all 188 rows and the cost
@@ -204,13 +342,15 @@ on conflict (equipment_id, source, effective_date) where company_id is null do n
   out.push(banner('Cost code library'));
   out.push(`insert into cost_codes (code, name, division, status)
 values
-${services.map((r) => `  (${q(r.cost_code_id)}, ${q(r.service_name)}, ${q(r.category)}, 'active')`).join(',\n')}
+${[...services.map((r) => `  (${q(r.cost_code_id)}, ${q(r.service_name)}, ${q(r.category)}, 'active')`),
+   ...tradeCostCodes.map((c) => `  (${q(c.code)}, ${q(c.name)}, ${q(c.division)}, 'active')`)].join(',\n')}
 on conflict do nothing;
 
 update services s
 set cost_code_id = c.id
 from (values
-${services.map((r) => `  (${q(r.service_id)}, ${q(r.cost_code_id)})`).join(',\n')}
+${[...services.map((r) => `  (${q(r.service_id)}, ${q(r.cost_code_id)})`),
+   ...tradeCostCodes.map((c, i) => `  (${q(tradeServices[i].code)}, ${q(c.code)})`)].join(',\n')}
 ) as m(service_code, cost_code)
 join cost_codes c on c.code = m.cost_code
   and c.company_id is null and c.enterprise_group_id is null
@@ -220,13 +360,20 @@ where s.code = m.service_code
 
   // --- Tasks ---------------------------------------------------------------
   out.push(banner('Task library'));
-  const CHUNK = 500;
   for (let i = 0; i < tasks.length; i += CHUNK) {
     const chunk = tasks.slice(i, i + CHUNK);
     out.push('insert into tasks (code, name, category, default_unit, default_method_code, production_required, crew_required, equipment_required, material_required, safety_review_required, quality_review_required, version) values');
     out.push(chunk.map((r) =>
       `  (${q(r.task_id)}, ${q(r.task_name)}, ${q(r.task_category)}, '${unit(r.default_unit)}', ${q(r.default_method_id)}, ${bool(r.production_required)}, ${bool(r.crew_required)}, ${bool(r.equipment_required)}, ${bool(r.material_required)}, ${bool(r.safety_review_required)}, ${bool(r.quality_review_required)}, ${q(r.version || '2.0')})`,
     ).join(',\n') + '\non conflict do nothing;\n');
+  }
+
+  for (let i = 0; i < tradeTasks.length; i += CHUNK) {
+    out.push('insert into tasks (code, name, category, default_unit, default_method_code, production_required, crew_required, equipment_required, material_required, safety_review_required, quality_review_required, version) values');
+    out.push(tradeTasks.slice(i, i + CHUNK).map((t) =>
+      `  (${q(t.code)}, ${q(t.name)}, ${q(t.category)}, '${unit(t.unit)}', ${q(t.method)}, `
+      + `${t.category === 'Production' ? 'true' : 'false'}, true, true, false, true, false, '1.0')`)
+      .join(',\n') + '\non conflict do nothing;\n');
   }
 
   // --- Assemblies ----------------------------------------------------------
@@ -248,6 +395,30 @@ where a.service_id = s.id
   and a.company_id is null and a.enterprise_group_id is null
   and s.default_assembly_id is null;
 `);
+
+  if (tradeAssemblies.length > 0) {
+    for (let i = 0; i < tradeAssemblies.length; i += CHUNK) {
+      out.push(`insert into assemblies (code, name, service_id, assembly_type, quantity_unit, description, supports_nested, supports_options, version, status)
+select v.code, v.name, s.id, 'Standard', v.qunit::app.unit_code,
+       'Reusable task and resource rollup.', true, true, '1.0', 'active'
+from (values
+${tradeAssemblies.slice(i, i + CHUNK).map((a) =>
+  `  (${q(a.code)}, ${q(a.name)}, ${q(a.serviceCode)}, '${a.unit}')`).join(',\n')}
+) as v(code, name, service_code, qunit)
+left join services s on s.code = v.service_code and s.company_id is null
+  and s.enterprise_group_id is null
+on conflict do nothing;
+`);
+    }
+    out.push(`update services s
+set default_assembly_id = a.id
+from assemblies a
+where a.service_id = s.id
+  and s.company_id is null and s.enterprise_group_id is null
+  and a.company_id is null and a.enterprise_group_id is null
+  and s.default_assembly_id is null;
+`);
+  }
 
   // --- Assembly components -------------------------------------------------
   /*
@@ -314,6 +485,21 @@ on conflict do nothing;
 `);
   }
 
+  for (let i = 0; i < tradeComponents.length; i += CHUNK) {
+    out.push(`insert into assembly_components (assembly_id, sort_order, component_kind, task_id, quantity_per_unit, unit)
+select a.id, v.sort, 'task', t.id, 1, v.unit::app.unit_code
+from (values
+${tradeComponents.slice(i, i + CHUNK).map((c) =>
+  `  (${q(c.assemblyCode)}, ${c.sort}, ${q(c.taskCode)}, '${unit(c.unit)}')`).join(',\n')}
+) as v(assembly_code, sort, task_code, unit)
+join assemblies a on a.code = v.assembly_code
+  and a.company_id is null and a.enterprise_group_id is null
+join tasks t on t.code = v.task_code
+  and t.company_id is null and t.enterprise_group_id is null
+on conflict do nothing;
+`);
+  }
+
   // --- Production rates ----------------------------------------------------
   out.push(banner('Production rate library'));
   out.push(`-- rate_unit in the source catalog is written "CY/HR"; the numerator is the
@@ -336,6 +522,34 @@ ${chunk.map((r) => {
 left join tasks t on t.code = v.task_code and t.company_id is null and t.enterprise_group_id is null
 on conflict do nothing;
 `);
+  }
+
+  /*
+   * The packs' rates, marked three times over as unsourced.
+   *
+   * `seed_benchmark` is warned about by name by the engine; `pending` makes it
+   * a draft catalog rate, which the engine says to approve or replace with a
+   * company actual before issuing; and a confidence of 0.30 sits below the
+   * 0.45 the sourced heavy-civil rates carry, so an estimate built on these
+   * scores for what it is. A rate nobody can source is the same defect as a
+   * typed price — the difference is whether the platform says which it is.
+   */
+  if (tradeRates.length > 0) {
+    for (let i = 0; i < tradeRates.length; i += CHUNK) {
+      out.push(`insert into production_rates (code, task_id, method_code, rate_per_hour, rate_unit, utilization_factor, shift_hours, equipment_spread, controlling_resource, region, source_type, confidence_score, sample_size, approval_state, status, effective_date)
+select v.code, t.id, v.method, v.rate::numeric, v.runit::app.unit_code, 0.83, 8,
+       'Trade-dependent spread', 'Primary crew', 'Unsourced benchmark',
+       'seed_benchmark', 0.30, 0, 'pending', 'active', date '2026-01-01'
+from (values
+${tradeRates.slice(i, i + CHUNK).map((r) =>
+  `  (${q(r.code)}, ${q(r.taskCode)}, ${q(r.method)}, ${n(r.rate, '1')}, ${q(unit(r.unit))})`)
+  .join(',\n')}
+) as v(code, task_code, method, rate, runit)
+join tasks t on t.code = v.task_code
+  and t.company_id is null and t.enterprise_group_id is null
+on conflict do nothing;
+`);
+    }
   }
 
   // --- Condition modifiers -------------------------------------------------
@@ -442,6 +656,12 @@ on conflict do nothing;
   console.log(`  services            ${services.length}`);
   console.log(`  tasks               ${tasks.length}`);
   console.log(`  assembly components ${componentRows.length}`);
+  if (packs.length > 0) {
+    console.log(`  trade packs         ${packs.length} (${packs.map((p) => p.trade).join(', ')})`);
+    console.log(`  trade services      ${tradeServices.length}`);
+    console.log(`  trade tasks         ${tradeTasks.length}`);
+    console.log(`  trade rates         ${tradeRates.length} (unsourced benchmarks)`);
+  }
   console.log(`  labor classes       ${labor.length}`);
   console.log(`  equipment           ${equipment.length}`);
   console.log(`  production rates    ${productionRates.length}`);

@@ -152,6 +152,21 @@ export interface VersionDetail {
     labor: boolean; equipment: boolean; materials: boolean;
     hauling: boolean; subcontract: boolean;
   };
+  /**
+   * The estimator's inputs the engine reads off the version. Every one of these
+   * changes what the job costs, which is why they belong on the bid rather than
+   * on the company: a coastal job in sand does not swell like an inland one in
+   * clay, and last quarter's diesel is not this quarter's.
+   */
+  assumptions: {
+    shiftHours: number;
+    calendarEfficiency: number;
+    fuelPricePerGallon: number;
+    defPricePerGallon: number;
+    swellPercent: number;
+    shrinkPercent: number;
+    bidRoundingIncrement: number;
+  };
 }
 
 /** A service the caller may put on a line, from their library and the platform's. */
@@ -252,7 +267,7 @@ export const loadEstimates: Query<EstimateRow[]> = async (client) => {
 export const loadVersion = (versionId: string): Query<VersionDetail | null> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_versions')
-    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, estimates(number, name, expires_at, created_at, customers(name))')
+    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, customers(name))')
     .eq('id', versionId)
     .limit(1)) as Array<Record<string, unknown>>;
   const v = rows[0];
@@ -331,6 +346,15 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       hauling: v.show_hauling !== false,
       subcontract: v.show_subcontract !== false,
     },
+    assumptions: {
+      shiftHours: num(v.shift_hours),
+      calendarEfficiency: num(v.calendar_efficiency),
+      fuelPricePerGallon: num(v.fuel_price_per_gallon),
+      defPricePerGallon: num(v.def_price_per_gallon),
+      swellPercent: num(v.swell_percent),
+      shrinkPercent: num(v.shrink_percent),
+      bidRoundingIncrement: num(v.bid_rounding_increment),
+    },
   };
 };
 
@@ -386,7 +410,7 @@ export interface ProposalRow {
 export const loadProposals: Query<ProposalRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('proposals')
-    .select('id, number, title, status, total_price, validity_days, cover_letter, payment_terms, show_line_detail, show_unit_prices, issued_at, viewed_at, accepted_at, accepted_by_name, declined_at, estimate_version_id, customers(name), estimate_versions(version_number, estimates(number))')
+    .select('id, number, title, status, total_price, validity_days, cover_letter, payment_terms, show_line_detail, show_unit_prices, issued_at, viewed_at, accepted_at, accepted_by_name, declined_at, estimate_version_id, customers(name), estimate_versions(version_number, estimates!estimate_versions_estimate_id_fkey(number))')
     .order('created_at', { ascending: false })
     .limit(200)) as Array<Record<string, unknown>>;
 
@@ -795,6 +819,21 @@ export async function setEstimateStatus(
 ): Promise<void> {
   await rpc(client, 'set_estimate_status', {
     p_version: versionId, p_status: status, p_reason: reason?.trim() || null,
+  });
+}
+
+/**
+ * Copy a frozen version forward as the next one.
+ *
+ * The only sanctioned way to change an issued estimate. Every refusal that
+ * names it says why it exists — the number a bid went out at stays recoverable
+ * because the version it went out from is never edited.
+ */
+export async function reviseVersion(
+  client: RpcCapable, versionId: string, reason: string,
+): Promise<string> {
+  return rpc<string>(client, 'revise_estimate_version', {
+    p_version_id: versionId, p_reason: reason.trim(),
   });
 }
 

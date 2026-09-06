@@ -1,0 +1,83 @@
+{
+  "trade": "Plumbing",
+  "code": "PL",
+  "tasks": ["Review documents and coordinate", "Lay out and mark", "Mobilize", "Install",
+            "Connect and pressure test", "Inspect and document", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Domestic water", "services": [
+      { "name": "Copper water pipe, 1/2 inch", "unit": "LF", "units": ["LF"], "rate": 32 },
+      { "name": "Copper water pipe, 1 inch", "unit": "LF", "units": ["LF"], "rate": 26 },
+      { "name": "Copper water pipe, 2 inch", "unit": "LF", "units": ["LF"], "rate": 16 },
+      { "name": "PEX water pipe, 3/4 inch", "unit": "LF", "units": ["LF"], "rate": 60 },
+      { "name": "CPVC water pipe, 1 inch", "unit": "LF", "units": ["LF"], "rate": 45 },
+      { "name": "Water pipe insulation", "unit": "LF", "units": ["LF"], "rate": 70 },
+      { "name": "Water hammer arrestor", "unit": "EA", "units": ["EA"], "rate": 8 },
+      { "name": "Isolation valve, ball", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Backflow preventer, reduced pressure", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Pressure reducing valve station", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "Water meter and vault", "unit": "EA", "units": ["EA"], "rate": 0.3 },
+      { "name": "Domestic booster pump package", "unit": "EA", "units": ["EA"], "rate": 0.15 }
+    ]},
+    { "name": "Sanitary waste and vent", "services": [
+      { "name": "PVC waste pipe, 2 inch", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "PVC waste pipe, 4 inch", "unit": "LF", "units": ["LF"], "rate": 22 },
+      { "name": "Cast iron waste pipe, 4 inch, no-hub", "unit": "LF", "units": ["LF"], "rate": 14 },
+      { "name": "Vent pipe through roof", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Floor drain with trap primer", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+      { "name": "Floor sink", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Cleanout, floor or wall", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Grease interceptor, in-ground", "unit": "EA", "units": ["EA"], "rate": 0.2 },
+      { "name": "Sewage ejector pump basin", "unit": "EA", "units": ["EA"], "rate": 0.2 },
+      { "name": "Sanitary sewer connection to main", "unit": "EA", "units": ["EA"], "rate": 0.25 }
+    ]},
+    { "name": "Fixtures", "services": [
+      { "name": "Water closet, floor mounted", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Water closet, wall hung with carrier", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Urinal with carrier", "unit": "EA", "units": ["EA"], "rate": 1.2 },
+      { "name": "Lavatory, wall hung", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Lavatory, counter mounted", "unit": "EA", "units": ["EA"], "rate": 1.8 },
+      { "name": "Kitchen sink and faucet", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Mop sink", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Shower valve and trim", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Bathtub with surround", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "Drinking fountain, bi-level", "unit": "EA", "units": ["EA"], "rate": 1.2 },
+      { "name": "Emergency eyewash and shower", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Hose bibb, frost proof", "unit": "EA", "units": ["EA"], "rate": 4 }
+    ]},
+    { "name": "Water heating and gas", "services": [
+      { "name": "Water heater, gas, 75 gallon", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "Water heater, electric, 50 gallon", "unit": "EA", "units": ["EA"], "rate": 0.6 },
+      { "name": "Tankless water heater", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+      { "name": "Recirculation pump and line", "unit": "EA", "units": ["EA"], "rate": 0.8 },
+      { "name": "Mixing valve, thermostatic", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Natural gas pipe, black iron, 1 inch", "unit": "LF", "units": ["LF"], "rate": 20 },
+      { "name": "Natural gas pipe, 2 inch", "unit": "LF", "units": ["LF"], "rate": 14 },
+      { "name": "Gas meter and regulator set", "unit": "EA", "units": ["EA"], "rate": 0.4 },
+      { "name": "Gas shutoff and seismic valve", "unit": "EA", "units": ["EA"], "rate": 2 }
+    ]},
+    { "name": "Storm and site plumbing", "services": [
+      { "name": "Roof drain and sump", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Overflow drain", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Storm leader, interior", "unit": "LF", "units": ["LF"], "rate": 24 },
+      { "name": "Trench drain with grate", "unit": "LF", "units": ["LF"], "rate": 18 },
+      { "name": "Oil water separator", "unit": "EA", "units": ["EA"], "rate": 0.15 }
+    ]},
+    { "name": "Fire protection", "services": [
+      { "name": "Sprinkler main, 4 inch", "unit": "LF", "units": ["LF"], "rate": 14 },
+      { "name": "Sprinkler branch line, 1 inch", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Sprinkler head, pendent", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Sprinkler head, concealed", "unit": "EA", "units": ["EA"], "rate": 5 },
+      { "name": "Fire department connection", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "Riser and check valve assembly", "unit": "EA", "units": ["EA"], "rate": 0.25 },
+      { "name": "Fire pump and controller", "unit": "EA", "units": ["EA"], "rate": 0.05 },
+      { "name": "Standpipe and hose valve", "unit": "EA", "units": ["EA"], "rate": 0.6 },
+      { "name": "Hydrostatic test and certification", "unit": "EA", "units": ["EA", "LS"], "rate": 1 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Remove existing plumbing fixtures", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Remove existing waste and vent piping", "unit": "LF", "units": ["LF"], "rate": 60 },
+      { "name": "Cap and abandon existing services", "unit": "EA", "units": ["EA"], "rate": 4 }
+    ]}
+  ]
+}

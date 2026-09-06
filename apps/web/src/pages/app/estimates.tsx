@@ -16,6 +16,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calculator, Search, Filter, ArrowUpDown, AlertTriangle, Plus, CalendarClock, UserPlus,
+  LayoutTemplate,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,8 +36,10 @@ import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import {
   loadEstimates, createEstimate, loadCustomers, createCustomer, loadMyCompanyId,
-  demonstrationEstimates, type EstimateRow, type CustomerOption,
+  setEstimateExpiry, demonstrationEstimates, type EstimateRow, type CustomerOption,
 } from '@/lib/data/estimates';
+import { TemplatePicker, ApplyWarnings, TemplateShelf } from '@/components/estimate/templates';
+import { createEstimateFromTemplate, type ApplyResult } from '@/lib/data/templates';
 import { money, moneyCompact, date, dateTime, titleCase } from '@/lib/format';
 
 const STATUS_TONE: Record<string, 'default' | 'success' | 'warn' | 'danger' | 'info'> = {
@@ -65,6 +68,16 @@ export function EstimatesPage() {
     return all
       .filter((e) => status === 'all' ? true
         : status === 'expired' ? e.expired
+        /*
+         * The three sets the tiles above count. They are filters rather than
+         * statuses because that is what they are — "blocked" is the engine's
+         * verdict on an estimate of any status, and "live" is four statuses at
+         * once. Naming them here is what lets a tile and the dropdown agree
+         * about what they mean.
+         */
+        : status === 'live' ? LIVE_STATUSES.includes(e.status)
+        : status === 'blocked' ? e.blockedFromIssue && e.status !== 'archived'
+        : status === 'decided' ? e.status === 'awarded' || e.status === 'lost'
         : e.status === status)
       .filter((e) => !q || `${e.number} ${e.name} ${e.customerName ?? ''}`.toLowerCase().includes(q))
       .sort((a, b) =>
@@ -111,23 +124,38 @@ export function EstimatesPage() {
 
       {all ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatTile label="Estimates" value={all.length} hint="all statuses" />
+          {/*
+            * Each tile shows what it counts. A tile counting nothing is left
+            * inert rather than made into a button that would filter the list
+            * down to an empty table.
+            */}
+          <StatTile label="Estimates" value={all.length} hint="all statuses"
+            active={status === 'all'} actionLabel="Show every estimate"
+            onClick={all.length ? () => setStatus('all') : undefined} />
           <StatTile label="Live value" value={moneyCompact(liveValue)}
-            hint="draft, in review, approved and issued" />
+            hint="draft, in review, approved and issued"
+            active={status === 'live'} actionLabel="Show the estimates still in play"
+            onClick={liveValue > 0 ? () => setStatus('live') : undefined} />
           <StatTile label="Blocked from issue" value={blocked} tone={blocked ? 'danger' : 'success'}
-            hint="the engine has not cleared these to bid" />
+            hint="the engine has not cleared these to bid"
+            active={status === 'blocked'} actionLabel="Show the estimates the engine has blocked"
+            onClick={blocked ? () => setStatus('blocked') : undefined} />
           <StatTile label="Expired" value={expired} tone={expired ? 'danger' : undefined}
             icon={<CalendarClock className="size-4" />}
             hint={expiringSoon > 0
               ? `${expiringSoon} more within a week`
-              : 'prices that have stopped being good'} />
+              : 'prices that have stopped being good'}
+            active={status === 'expired'} actionLabel="Show the estimates whose price has expired"
+            onClick={expired ? () => setStatus('expired') : undefined} />
           <StatTile
             label="Win rate"
             value={decidedValue > 0 ? `${Math.round((wonValue / decidedValue) * 100)}%` : '—'}
             tone={decidedValue > 0 && wonValue / decidedValue >= 0.5 ? 'success' : undefined}
             hint={decidedValue > 0
               ? `by value, across ${decided.length} decided ${decided.length === 1 ? 'bid' : 'bids'}`
-              : 'nothing awarded or lost yet'} />
+              : 'nothing awarded or lost yet'}
+            active={status === 'decided'} actionLabel="Show the bids that were won or lost"
+            onClick={decided.length ? () => setStatus('decided') : undefined} />
         </div>
       ) : null}
 
@@ -151,6 +179,9 @@ export function EstimatesPage() {
                 <SelectTrigger className="w-full sm:w-44"><Filter className="size-4 text-charcoal-400" /><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="live">Still in play</SelectItem>
+                  <SelectItem value="blocked">Blocked from issue</SelectItem>
+                  <SelectItem value="decided">Won or lost</SelectItem>
                   <SelectItem value="expired">Expired</SelectItem>
                   {['draft', 'in_review', 'approved', 'issued', 'awarded', 'lost'].map((s) => (
                     <SelectItem key={s} value={s}>{titleCase(s)}</SelectItem>
@@ -242,6 +273,8 @@ export function EstimatesPage() {
         </Card>
       ) : null}
 
+      {!demo ? <TemplateShelf canEdit={can('estimates.write')} /> : null}
+
       <NewEstimateDialog
         open={creating}
         onOpenChange={setCreating}
@@ -272,6 +305,8 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
   const [bidDueAt, setBidDueAt] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [description, setDescription] = useState('');
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [applied, setApplied] = useState<ApplyResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -297,16 +332,42 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
         }
         client = await createCustomer(supabase, { companyId, name: newClient });
       }
-      const id = await createEstimate(supabase, {
-        name: name.trim(),
-        customerId: client,
-        number: number.trim() || null,
-        bidDueAt: bidDueAt ? new Date(bidDueAt).toISOString() : null,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
-        description: description.trim() || null,
-      });
+      /*
+       * Starting from a template is one call rather than two, so a template
+       * that cannot be applied does not leave an empty estimate behind with a
+       * number burned on it. The expiry and the scope note are set after, since
+       * that path takes neither.
+       */
+      let id: string;
+      if (templateId) {
+        const result = await createEstimateFromTemplate(supabase, {
+          templateId,
+          name: name.trim(),
+          customerId: client,
+          number: number.trim() || null,
+          bidDueAt: bidDueAt ? new Date(bidDueAt).toISOString() : null,
+        });
+        id = result.estimateId;
+        setApplied(result.warnings.length > 0 ? result : null);
+        if (expiresAt) {
+          await setEstimateExpiry(supabase, id, new Date(expiresAt).toISOString());
+        }
+        if (result.warnings.length > 0) {
+          setBusy(false);
+          return;
+        }
+      } else {
+        id = await createEstimate(supabase, {
+          name: name.trim(),
+          customerId: client,
+          number: number.trim() || null,
+          bidDueAt: bidDueAt ? new Date(bidDueAt).toISOString() : null,
+          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+          description: description.trim() || null,
+        });
+      }
       setName(''); setNumber(''); setBidDueAt(''); setExpiresAt('');
-      setCustomerId(''); setNewClient(''); setDescription('');
+      setCustomerId(''); setNewClient(''); setDescription(''); setTemplateId(null);
       onCreated(id);
     } catch (err) {
       setError(messageFor(err));
@@ -327,6 +388,23 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
         </DialogHeader>
 
         <div className="space-y-4">
+          <div className="space-y-2 rounded-lg border border-charcoal-200 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-charcoal-900">
+                <LayoutTemplate className="size-4 text-charcoal-400" /> Start from a template
+              </p>
+              {templateId ? (
+                <Button variant="ghost" size="sm" onClick={() => setTemplateId(null)}>
+                  Start empty instead
+                </Button>
+              ) : null}
+            </div>
+            <TemplatePicker value={templateId} onChange={(id) => setTemplateId(id)}
+              refreshKey={open} />
+          </div>
+
+          <ApplyWarnings result={applied} />
+
           <div className="space-y-1.5">
             <Label htmlFor="est-name">Project name</Label>
             <Input id="est-name" value={name} onChange={(e) => setName(e.target.value)}
@@ -358,11 +436,13 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
             ) : null}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="est-desc">Scope note</Label>
-            <Input id="est-desc" value={description} placeholder="What this bid covers"
-              onChange={(e) => setDescription(e.target.value)} />
-          </div>
+          {!templateId ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="est-desc">Scope note</Label>
+              <Input id="est-desc" value={description} placeholder="What this bid covers"
+                onChange={(e) => setDescription(e.target.value)} />
+            </div>
+          ) : null}
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
@@ -393,7 +473,8 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
           <Button onClick={submit} disabled={busy || name.trim().length < 2}>
-            <Plus className="size-4" /> {busy ? 'Creating…' : 'Create estimate'}
+            <Plus className="size-4" />
+            {busy ? 'Creating…' : templateId ? 'Create from template' : 'Create estimate'}
           </Button>
         </DialogFooter>
       </DialogContent>

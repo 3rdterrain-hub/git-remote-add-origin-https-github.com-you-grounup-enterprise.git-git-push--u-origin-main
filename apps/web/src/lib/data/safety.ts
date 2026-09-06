@@ -147,6 +147,14 @@ export interface DeficiencyRow {
 }
 
 /** A person's name from an embedded profile, however the client shaped it. */
+/*
+ * The person is an `employees` row, not a `user_profiles` one. Both carry a
+ * `full_name`, so naming the wrong one read perfectly — but `observer_id` and
+ * `presenter_id` point at `employees`, and PostgREST refuses an embed whose
+ * named constraint does not lead to the table asked for. The screen showed a
+ * database error where the observer's name belongs. A person doing the work is
+ * not necessarily a person with a login, which is why it is `employees`.
+ */
 const nameOf = (row: Record<string, unknown>, key: string): string => {
   const p = row[key] as { full_name?: string; email?: string } | { full_name?: string; email?: string }[] | null;
   const one = Array.isArray(p) ? p[0] : p;
@@ -156,12 +164,12 @@ const nameOf = (row: Record<string, unknown>, key: string): string => {
 export const loadObservations: Query<ObservationRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('safety_observations')
-    .select('id, observed_at, category, is_positive, description, corrected_on_site, corrective_action, projects(number), user_profiles!safety_observations_observer_id_fkey(full_name, email)')
+    .select('id, observed_at, category, is_positive, description, corrected_on_site, corrective_action, projects(number), employees!safety_observations_observer_id_fkey(full_name, email)')
     .order('observed_at', { ascending: false })) as Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
     observedAt: String(r.observed_at),
-    observer: nameOf(r, 'user_profiles'),
+    observer: nameOf(r, 'employees'),
     project: projectOf(r),
     category: String(r.category),
     isPositive: Boolean(r.is_positive),
@@ -174,13 +182,13 @@ export const loadObservations: Query<ObservationRow[]> = async (client) => {
 export const loadToolboxTalks: Query<TalkRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('toolbox_talks')
-    .select('id, held_on, topic, attendee_count, projects(number), user_profiles!toolbox_talks_presenter_id_fkey(full_name, email)')
+    .select('id, held_on, topic, attendee_count, projects(number), employees!toolbox_talks_presenter_id_fkey(full_name, email)')
     .order('held_on', { ascending: false })) as Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
     heldOn: String(r.held_on),
     topic: String(r.topic),
-    presenter: nameOf(r, 'user_profiles'),
+    presenter: nameOf(r, 'employees'),
     project: projectOf(r),
     attendees: Number(r.attendee_count ?? 0),
   }));

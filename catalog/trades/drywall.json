@@ -1,0 +1,55 @@
+{
+  "trade": "Drywall and Plaster",
+  "code": "DW",
+  "tasks": ["Review documents and layout", "Mobilize", "Hang", "Tape and finish",
+            "Sand and inspect", "Touch up", "Cleanup", "Demobilize"],
+  "productionTask": "Hang",
+  "categories": [
+    { "name": "Gypsum board", "services": [
+      { "name": "Gypsum board, 5/8 inch, one side", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Gypsum board, 5/8 inch, both sides", "unit": "SF", "units": ["SF"], "rate": 130 },
+      { "name": "Gypsum board, 1/2 inch ceiling", "unit": "SF", "units": ["SF"], "rate": 160 },
+      { "name": "Moisture resistant board", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Cement board, tile substrate", "unit": "SF", "units": ["SF"], "rate": 140 },
+      { "name": "Abuse resistant board", "unit": "SF", "units": ["SF"], "rate": 190 },
+      { "name": "Type X board, rated assembly", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Shaft liner panel", "unit": "SF", "units": ["SF"], "rate": 150 },
+      { "name": "Sound attenuation batt in wall", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Resilient channel", "unit": "SF", "units": ["SF", "LF"], "rate": 300 }
+    ]},
+    { "name": "Finishing", "services": [
+      { "name": "Tape and finish, level 4", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Tape and finish, level 5", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Skim coat, full surface", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Corner bead and trim", "unit": "LF", "units": ["LF"], "rate": 200 },
+      { "name": "Control joint", "unit": "LF", "units": ["LF"], "rate": 160 },
+      { "name": "Texture, orange peel", "unit": "SF", "units": ["SF"], "rate": 600 },
+      { "name": "Texture, knockdown", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Firestopping at penetrations", "unit": "EA", "units": ["EA", "LF"], "rate": 20 },
+      { "name": "Acoustical sealant at joints", "unit": "LF", "units": ["LF"], "rate": 240 }
+    ]},
+    { "name": "Ceilings", "services": [
+      { "name": "Acoustical ceiling tile, 2x2", "unit": "SF", "units": ["SF"], "rate": 320 },
+      { "name": "Acoustical ceiling tile, 2x4", "unit": "SF", "units": ["SF"], "rate": 380 },
+      { "name": "Suspension grid, exposed tee", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Gypsum board ceiling, suspended", "unit": "SF", "units": ["SF"], "rate": 140 },
+      { "name": "Wood slat ceiling", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Metal panel ceiling", "unit": "SF", "units": ["SF"], "rate": 120 },
+      { "name": "Acoustic cloud or baffle", "unit": "EA", "units": ["EA", "SF"], "rate": 6 },
+      { "name": "Ceiling access panel", "unit": "EA", "units": ["EA"], "rate": 8 }
+    ]},
+    { "name": "Plaster and stucco", "services": [
+      { "name": "Three-coat stucco on lath", "unit": "SF", "units": ["SF", "SY"], "rate": 90 },
+      { "name": "One-coat stucco system", "unit": "SF", "units": ["SF"], "rate": 130 },
+      { "name": "EIFS with insulation", "unit": "SF", "units": ["SF"], "rate": 100 },
+      { "name": "Veneer plaster", "unit": "SF", "units": ["SF"], "rate": 160 },
+      { "name": "Metal lath and accessories", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Stucco repair and patching", "unit": "SF", "units": ["SF"], "rate": 60 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Drywall demolition", "unit": "SF", "units": ["SF"], "rate": 600 },
+      { "name": "Ceiling tile and grid demolition", "unit": "SF", "units": ["SF"], "rate": 700 },
+      { "name": "Plaster demolition", "unit": "SF", "units": ["SF"], "rate": 350 }
+    ]}
+  ]
+}

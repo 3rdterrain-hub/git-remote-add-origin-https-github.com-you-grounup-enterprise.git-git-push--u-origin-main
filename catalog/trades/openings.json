@@ -1,0 +1,45 @@
+{
+  "trade": "Doors, Windows and Glazing",
+  "code": "OP",
+  "tasks": ["Review documents and field verify", "Mobilize", "Set frames", "Install",
+            "Adjust and hardware", "Seal and inspect", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Doors and frames", "services": [
+      { "name": "Hollow metal frame, welded", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Hollow metal door", "unit": "EA", "units": ["EA"], "rate": 3.5 },
+      { "name": "Solid core wood door", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Fire rated door assembly", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+      { "name": "Aluminum storefront door", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Overhead coiling door", "unit": "EA", "units": ["EA"], "rate": 0.5 },
+      { "name": "Sectional overhead door", "unit": "EA", "units": ["EA"], "rate": 0.6 },
+      { "name": "High-speed roll-up door", "unit": "EA", "units": ["EA"], "rate": 0.3 },
+      { "name": "Automatic sliding entrance", "unit": "EA", "units": ["EA"], "rate": 0.25 },
+      { "name": "Revolving door", "unit": "EA", "units": ["EA"], "rate": 0.1 },
+      { "name": "Access door and panel", "unit": "EA", "units": ["EA"], "rate": 8 },
+      { "name": "Door hardware set", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Electrified hardware and tie-in", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Door closer and operator", "unit": "EA", "units": ["EA"], "rate": 4 }
+    ]},
+    { "name": "Windows and curtain wall", "services": [
+      { "name": "Aluminum storefront framing", "unit": "SF", "units": ["SF", "LF"], "rate": 45 },
+      { "name": "Curtain wall, stick built", "unit": "SF", "units": ["SF"], "rate": 30 },
+      { "name": "Curtain wall, unitized", "unit": "SF", "units": ["SF"], "rate": 55 },
+      { "name": "Punched aluminum window", "unit": "EA", "units": ["EA", "SF"], "rate": 2 },
+      { "name": "Vinyl window, residential", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Wood clad window", "unit": "EA", "units": ["EA"], "rate": 2.5 },
+      { "name": "Insulated glass unit", "unit": "SF", "units": ["SF", "EA"], "rate": 60 },
+      { "name": "Spandrel glass panel", "unit": "SF", "units": ["SF"], "rate": 70 },
+      { "name": "Interior glazed partition", "unit": "SF", "units": ["SF"], "rate": 50 },
+      { "name": "Glass railing system", "unit": "LF", "units": ["LF"], "rate": 14 },
+      { "name": "Skylight, structural", "unit": "SF", "units": ["SF", "EA"], "rate": 25 },
+      { "name": "Window film and safety glazing", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Perimeter sealant at openings", "unit": "LF", "units": ["LF"], "rate": 150 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Remove existing doors and frames", "unit": "EA", "units": ["EA"], "rate": 8 },
+      { "name": "Remove existing windows", "unit": "EA", "units": ["EA", "SF"], "rate": 5 },
+      { "name": "Remove storefront and curtain wall", "unit": "SF", "units": ["SF"], "rate": 90 }
+    ]}
+  ]
+}

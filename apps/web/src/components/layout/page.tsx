@@ -19,12 +19,31 @@ export function PageHeader({
   );
 }
 
-/** KPI tile. `hint` explains what the number means, so nothing is a mystery metric. */
+/**
+ * KPI tile. `hint` explains what the number means, so nothing is a mystery metric.
+ *
+ * A tile that counts something the screen below can show is a question with an
+ * answer already on the page, and until now there was no way to ask it: every
+ * tile in this application was a `div`. "Blocked from issue: 3" told an
+ * estimator there were three and left them to find which.
+ *
+ * So a tile with an `onClick` renders as a real button — focusable, reachable
+ * from the keyboard, and announced as pressed while its filter is the one in
+ * force. A tile with nothing to show stays a `div` rather than becoming a
+ * button that does nothing, because a control that does not respond is worse
+ * than a number that never offered.
+ */
 export function StatTile({
-  label, value, hint, tone = 'neutral', icon,
+  label, value, hint, tone = 'neutral', icon, onClick, active = false, actionLabel,
 }: {
   label: string; value: ReactNode; hint?: ReactNode;
   tone?: 'neutral' | 'success' | 'warn' | 'danger' | 'accent'; icon?: ReactNode;
+  /** What this tile shows when clicked. Omit and it stays a plain tile. */
+  onClick?: () => void;
+  /** Whether what this tile shows is what the screen is showing now. */
+  active?: boolean;
+  /** Overrides the button's accessible name where the label alone is not enough. */
+  actionLabel?: string;
 }) {
   const accents = {
     neutral: 'text-charcoal-900',
@@ -33,15 +52,41 @@ export function StatTile({
     danger: 'text-danger-700',
     accent: 'text-charcoal-900',
   } as const;
-  return (
-    <div className="rounded-[--radius-card] border border-charcoal-200 bg-white p-4 shadow-sm">
+
+  const body = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">{label}</p>
         {icon ? <span className="text-charcoal-300">{icon}</span> : null}
       </div>
       <p className={cn('tabular mt-2 text-2xl font-bold tracking-tight', accents[tone])}>{value}</p>
       {hint ? <p className="mt-1 text-xs text-charcoal-500">{hint}</p> : null}
-    </div>
+    </>
+  );
+
+  const shell = 'rounded-[--radius-card] border bg-white p-4 text-left shadow-sm';
+
+  if (!onClick) {
+    return <div className={cn(shell, 'border-charcoal-200')}>{body}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      aria-label={actionLabel}
+      className={cn(
+        shell,
+        'w-full transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2',
+        active
+          ? 'border-yellow-500 ring-1 ring-yellow-500'
+          : 'border-charcoal-200 hover:border-charcoal-400 hover:bg-charcoal-50',
+      )}
+    >
+      {body}
+    </button>
   );
 }
 

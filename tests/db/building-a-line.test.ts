@@ -254,6 +254,40 @@ describe('building a line the way an estimator does', () => {
     expect(r!.mat).toBe(true);
   });
 
+  it('sets the estimating assumptions the engine reads, which nothing could set', async () => {
+    /*
+     * Calendar efficiency, the fuel and DEF prices, swell, shrink and the bid
+     * rounding increment are engine inputs that arrived with defaults in 0006
+     * and no write path at all — a company bidding at $4.10 diesel had no way
+     * to say so. Migration 0112 opened the same door the shift length uses.
+     */
+    await h.asUser(chief, () => h.sql(
+      `select app.update_estimate_version($1,$2::jsonb)`,
+      [version, JSON.stringify({
+        calendar_efficiency: 0.82, fuel_price_per_gallon: 4.10,
+        def_price_per_gallon: 12.5, swell_percent: 0.32, shrink_percent: 0.14,
+        bid_rounding_increment: 500 })]));
+    const [r] = await h.asUser(chief, () => h.sql<Record<string, string>>(
+      `select calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon,
+              swell_percent, shrink_percent, bid_rounding_increment
+         from estimate_versions where id = $1`, [version]));
+    expect(Number(r!.calendar_efficiency)).toBe(0.82);
+    expect(Number(r!.fuel_price_per_gallon)).toBe(4.10);
+    expect(Number(r!.def_price_per_gallon)).toBe(12.5);
+    expect(Number(r!.swell_percent)).toBe(0.32);
+    expect(Number(r!.shrink_percent)).toBe(0.14);
+    expect(Number(r!.bid_rounding_increment)).toBe(500);
+  });
+
+  it('says what is wrong with an impossible assumption, not which constraint it broke', async () => {
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.update_estimate_version($1,'{"calendar_efficiency":1.4}'::jsonb)`, [version])))
+      .rejects.toThrow(/share of the working day/i);
+    await expect(h.asUser(chief, () => h.sql(
+      `select app.update_estimate_version($1,'{"shrink_percent":1}'::jsonb)`, [version])))
+      .rejects.toThrow(/no compacted volume/i);
+  });
+
   // ------------------------------------------------------------- refusals
   it('keeps another company out of the line entirely', async () => {
     await expect(h.asUser(outsider, () => h.sql(

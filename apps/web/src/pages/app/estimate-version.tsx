@@ -21,10 +21,11 @@
  *     screen states them in advance so nobody discovers one by being refused.
  */
 import { Fragment, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertTriangle, ArrowLeft, Calculator, CheckCircle2, ChevronDown, ChevronRight,
-  Eye, EyeOff, Loader2, Lock, Plus, Search, Send, ShieldCheck, Trash2,
+  Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck, Trash2,
+  BookmarkPlus, GitBranch,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,12 +48,16 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, loadDrift, searchServices, addLine, setLineQuantity, setEstimateStatus,
-  issueProposal, updateLine, updateVersion,
+  issueProposal, updateLine, updateVersion, reviseVersion,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
+import {
+  ApplyTemplateDialog, ApplyWarnings, SaveTemplateDialog,
+} from '@/components/estimate/templates';
+import type { ApplyResult } from '@/lib/data/templates';
 import { money, qty, integer, unitRate, date, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -67,6 +72,7 @@ const COST_LABELS: Record<string, string> = {
 
 export function EstimateVersionPage() {
   const { estimateId: versionId } = useParams();
+  const navigate = useNavigate();
   const { can } = usePermissions();
   const version = useQuery(loadVersion(versionId ?? ''), [versionId]);
 
@@ -75,6 +81,11 @@ export function EstimateVersionPage() {
   const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
   const [adding, setAdding] = useState(false);
   const [issuing, setIssuing] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [applyingTemplate, setApplyingTemplate] = useState(false);
+  const [applied, setApplied] = useState<ApplyResult | null>(null);
+  const [revising, setRevising] = useState(false);
+  const [onlyBlocking, setOnlyBlocking] = useState(false);
 
   const v: VersionDetail | null = version.status === 'ready' ? version.data : null;
 
@@ -174,6 +185,22 @@ export function EstimateVersionPage() {
                 <Send className="size-4" /> Issue proposal
               </Button>
             ) : null}
+            {!editable && can('estimates.write') ? (
+              <Button variant="outline" onClick={() => setRevising(true)} disabled={busy != null}>
+                <GitBranch className="size-4" /> Create revision
+              </Button>
+            ) : null}
+            {/*
+              * Saving a template reads the version; it never edits one, so it
+              * is offered on a frozen version too — the templates worth having
+              * come from bids that were awarded.
+              */}
+            {can('estimates.write') && v.lines.length > 0 ? (
+              <Button variant="outline" onClick={() => setSavingTemplate(true)}
+                disabled={busy != null}>
+                <BookmarkPlus className="size-4" /> Save as template
+              </Button>
+            ) : null}
           </div>
         }
       />
@@ -187,14 +214,17 @@ export function EstimateVersionPage() {
 
       {outcome ? <PricingOutcomeNotice outcome={outcome} /> : null}
 
+      <ApplyWarnings result={applied} />
+
       {approvalBlocker && editable ? (
         <Alert tone="warn" title="Not ready to approve">{approvalBlocker}</Alert>
       ) : null}
 
       {!editable ? (
         <Alert tone="info" title={`This version is ${titleCase(v.status)} and frozen`}>
-          RULE-009: its content cannot change. A revision copies it forward as the next version
-          with a stated reason, so the number this bid went out at stays recoverable.
+          RULE-009: its content cannot change. Create revision copies it forward as the next
+          version — every line, and the crew, equipment, material, haul, modifiers and markups
+          on each — with a stated reason, so the number this bid went out at stays recoverable.
           {v.librarySnapshotId ? ' The library rows that priced it are held with it.' : null}
         </Alert>
       ) : null}
@@ -206,9 +236,20 @@ export function EstimateVersionPage() {
           hint={`${v.lines.length} line${v.lines.length === 1 ? '' : 's'}`} />
         <StatTile label="Labor hours" value={priced ? integer(v.totalLaborHours) : '—'}
           hint={priced ? `${integer(v.totalEquipmentHours)} equipment hours` : 'not priced'} />
+        {/*
+          * The only one of these four with an answer further down the page:
+          * blocked means specific lines are blocking, and this shows which.
+          */}
         <StatTile label="Cleared to issue" value={v.blockedFromIssue ? 'No' : 'Yes'}
           tone={v.blockedFromIssue ? 'danger' : 'success'}
-          hint={v.blockedFromIssue ? 'the engine has blocked this' : 'the engine has cleared this'} />
+          hint={v.blockedFromIssue
+            ? `${blockingLines.length} line${blockingLines.length === 1 ? '' : 's'} blocking`
+            : 'the engine has cleared this'}
+          active={onlyBlocking}
+          actionLabel="Show only the lines that are blocking this bid"
+          onClick={blockingLines.length
+            ? () => setOnlyBlocking((n) => !n)
+            : undefined} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -222,9 +263,14 @@ export function EstimateVersionPage() {
               </CardDescription>
             </div>
             {editable && can('estimates.write') ? (
-              <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
-                <Plus className="size-4" /> Add line
-              </Button>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => setApplyingTemplate(true)}>
+                  <LayoutTemplate className="size-4" /> From template
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
+                  <Plus className="size-4" /> Add line
+                </Button>
+              </div>
             ) : null}
           </CardHeader>
           <CardContent className="p-0">
@@ -235,7 +281,7 @@ export function EstimateVersionPage() {
               </div>
             ) : (
               <LineTable version={v} editable={editable && can('estimates.write')}
-                onChanged={version.refetch} />
+                onlyBlocking={onlyBlocking} onChanged={version.refetch} />
             )}
           </CardContent>
         </Card>
@@ -276,6 +322,9 @@ export function EstimateVersionPage() {
               onChanged={version.refetch} />
           ) : null}
 
+          <AssumptionsCard version={v} editable={editable && can('estimates.write')}
+            onChanged={version.refetch} />
+
           {v.librarySnapshotId ? <DriftCard versionId={v.id} /> : null}
         </div>
       </div>
@@ -287,6 +336,28 @@ export function EstimateVersionPage() {
         onAdded={() => { setAdding(false); version.refetch(); }} />
       <IssueDialog open={issuing} onOpenChange={setIssuing} version={v}
         onIssued={() => { setIssuing(false); version.refetch(); }} />
+      <ReviseDialog open={revising} onOpenChange={setRevising} version={v}
+        onRevised={(id) => { setRevising(false); navigate(`/app/estimates/${id}`); }} />
+      <SaveTemplateDialog open={savingTemplate} onOpenChange={setSavingTemplate}
+        versionId={v.id} lineCount={v.lines.length}
+        onSaved={() => {
+          setSavingTemplate(false);
+          setNotice({ tone: 'ok', text: 'Saved. New estimates can start from it.' });
+        }} />
+      <ApplyTemplateDialog open={applyingTemplate} onOpenChange={setApplyingTemplate}
+        versionId={v.id}
+        onApplied={(result) => {
+          setApplyingTemplate(false);
+          setApplied(result);
+          setNotice({
+            tone: 'ok',
+            text: `Added ${result.linesAdded} line${result.linesAdded === 1 ? '' : 's'}`
+              + (result.carriesQuantities
+                ? ' with the quantities the template was saved with. Check them against this job.'
+                : '. Enter the quantities for this job, then price.'),
+          });
+          version.refetch();
+        }} />
     </div>
   );
 }
@@ -328,8 +399,9 @@ function CostBuckets({ costs, total }: { costs: Record<string, number>; total: n
  * rows to the database, and a version's `updated_at` should mean somebody
  * changed something.
  */
-function LineTable({ version, editable, onChanged }: {
-  version: VersionDetail; editable: boolean; onChanged: () => void;
+function LineTable({ version, editable, onlyBlocking = false, onChanged }: {
+  version: VersionDetail; editable: boolean; onlyBlocking?: boolean;
+  onChanged: () => void;
 }) {
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -344,6 +416,9 @@ function LineTable({ version, editable, onChanged }: {
     finally { setSaving(null); }
   };
 
+  const shown = version.lines.filter((l) => !onlyBlocking || l.blocksIssue);
+  const hiddenByFilter = version.lines.length - shown.length;
+
   const toggleVisible = async (line: LineRow) => {
     if (!supabase) return;
     setError(null);
@@ -356,6 +431,14 @@ function LineTable({ version, editable, onChanged }: {
   return (
     <>
       {error ? <div className="px-4 pt-4"><ErrorState message={error} /></div> : null}
+      {hiddenByFilter > 0 ? (
+        <p className="border-b border-charcoal-200 bg-warn-50 px-4 py-2 text-xs text-warn-800">
+          {`Showing the ${shown.length} line${shown.length === 1 ? '' : 's'} the engine is `
+            + `blocking. ${hiddenByFilter} other`
+            + `${hiddenByFilter === 1 ? ' is' : 's are'} hidden — click Cleared to issue `
+            + 'again to see them.'}
+        </p>
+      ) : null}
       <Table>
         <TableHeader>
           <TableRow>
@@ -371,7 +454,7 @@ function LineTable({ version, editable, onChanged }: {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {version.lines.map((l) => {
+          {shown.map((l) => {
             const expanded = open.includes(l.id);
             return (
               <Fragment key={l.id}>
@@ -476,7 +559,14 @@ function LineTable({ version, editable, onChanged }: {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={7} className="font-medium">Direct cost</TableCell>
+            <TableCell colSpan={7} className="font-medium">
+              Direct cost
+              {hiddenByFilter > 0 ? (
+                <span className="ml-1.5 font-normal text-charcoal-500">
+                  — the whole estimate, not the {shown.length} shown
+                </span>
+              ) : null}
+            </TableCell>
             <TableCell className="tabular text-right font-medium">
               {money(version.directCost)}
             </TableCell>
@@ -867,5 +957,155 @@ function Line({ label, value, strong }: { label: string; value: string; strong?:
       <dt className="text-charcoal-600">{label}</dt>
       <dd className="tabular text-charcoal-900">{value}</dd>
     </div>
+  );
+}
+
+/**
+ * Copying a frozen version forward.
+ *
+ * The reason is not ceremony. A version history where every entry says
+ * "revision" explains nothing six months later, when somebody is asking why
+ * the price moved; the database refuses one shorter than five characters and
+ * this says so before the refusal rather than after it.
+ */
+function ReviseDialog({ open, onOpenChange, version, onRevised }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  version: VersionDetail;
+  onRevised: (newVersionId: string) => void;
+}) {
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!supabase || reason.trim().length < 5) return;
+    setBusy(true); setError(null);
+    try {
+      const id = await reviseVersion(supabase, version.id, reason);
+      setReason('');
+      onRevised(id);
+    } catch (err) {
+      setError(messageFor(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Create revision</DialogTitle>
+          <DialogDescription>
+            Version {version.versionNumber} stays exactly as it is. Version {version.versionNumber + 1}
+            {' '}starts as a copy of it — every line, with the crew, equipment, material, haul,
+            modifiers and markups on each — unpriced, so the engine prices it against today's
+            rates.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="rev-reason">Why this revision exists</Label>
+            <Input id="rev-reason" value={reason} autoFocus
+              placeholder="Owner moved the pond outlet"
+              onChange={(e) => setReason(e.target.value)} />
+            <p className="text-xs text-charcoal-500">
+              This is what the history will say. A reason under five characters is refused.
+            </p>
+          </div>
+          {error ? <ErrorState message={error} /> : null}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
+          <Button onClick={submit} disabled={busy || reason.trim().length < 5}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <GitBranch className="size-4" />}
+            {busy ? 'Copying…' : 'Create revision'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * The estimator's own assumptions for this bid.
+ *
+ * Every field here changes what the job costs, and every one of them arrived in
+ * migration 0006 with a default and no way to set it. So until now a company
+ * bidding at $4.10 diesel priced its fuel at zero, and a coastal job in sand
+ * swelled like inland clay, because 0.25 was the number the column happened to
+ * default to.
+ *
+ * Held on the version rather than the company on purpose: these are facts about
+ * *this* job. Changing them re-prices this estimate and nothing else.
+ */
+function AssumptionsCard({ version: v, editable, onChanged }: {
+  version: VersionDetail; editable: boolean; onChanged: () => void;
+}) {
+  const [error, setError] = useState<string | null>(null);
+  const a = v.assumptions;
+
+  const commit = async (column: string, raw: string, current: number) => {
+    if (!supabase) return;
+    const next = Number(raw);
+    if (!Number.isFinite(next) || next === current) return;
+    setError(null);
+    try { await updateVersion(supabase, v.id, { [column]: next }); onChanged(); }
+    catch (err) { setError(messageFor(err)); }
+  };
+
+  /* label, column, current value, step, and what it does to the price. */
+  const FIELDS: Array<[string, string, number, string, string]> = [
+    ['Shift hours', 'shift_hours', a.shiftHours, '0.5',
+     'The working day a production rate is spread over.'],
+    ['Calendar efficiency', 'calendar_efficiency', a.calendarEfficiency, '0.01',
+     'The share of the shift that is production. 0.8 means eight hours in ten.'],
+    ['Diesel, $/gal', 'fuel_price_per_gallon', a.fuelPricePerGallon, '0.01',
+     'Zero prices the fuel at nothing, which is what it did before this field existed.'],
+    ['DEF, $/gal', 'def_price_per_gallon', a.defPricePerGallon, '0.01',
+     'Priced alongside diesel on the machines that burn it.'],
+    ['Swell', 'swell_percent', a.swellPercent, '0.01',
+     'Bank to loose. Sand does not swell like clay.'],
+    ['Shrink', 'shrink_percent', a.shrinkPercent, '0.01',
+     'Loose to compacted, for fill.'],
+    ['Bid rounding', 'bid_rounding_increment', a.bidRoundingIncrement, '100',
+     'Rounds the bid price up to this increment. Zero leaves it exact.'],
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>This bid's assumptions</CardTitle>
+        <CardDescription>
+          The engine reads these off this version. They are facts about this job, not the
+          company — changing one re-prices this estimate and nothing else.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {FIELDS.map(([label, column, value, step, hint]) => (
+          <div key={column} className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <Label htmlFor={`asm-${column}`} className="text-charcoal-800">{label}</Label>
+              <p className="text-xs text-charcoal-500">{hint}</p>
+            </div>
+            <Input id={`asm-${column}`} type="number" step={step} min="0"
+              defaultValue={value} disabled={!editable}
+              className="tabular w-28 shrink-0 text-right"
+              onBlur={(e) => commit(column, e.target.value, value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
+          </div>
+        ))}
+        {error ? <ErrorState message={error} /> : null}
+        {editable ? (
+          <p className="text-xs text-charcoal-500">
+            Price the estimate again after changing one; nothing recalculates on its own,
+            because the engine is the only thing permitted to write a cost.
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

@@ -12,7 +12,8 @@
  *     here, which is the gate migration 0097 added and nothing had before.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderPage } from '@/test/render';
 
 const hoisted = vi.hoisted(() => ({
@@ -20,6 +21,9 @@ const hoisted = vi.hoisted(() => ({
   version: null as unknown,
   fail: null as string | null,
   permissions: ['estimates.read', 'estimates.write', 'estimates.approve', 'estimates.issue'] as string[],
+  updated: [] as Array<Record<string, unknown>>,
+  revised: [] as Array<{ id: string; reason: string }>,
+  navigated: [] as string[],
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -34,7 +38,11 @@ vi.mock('@/lib/data/session', () => ({
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
-  return { ...actual, useParams: () => ({ estimateId: 'v-1' }) };
+  return {
+    ...actual,
+    useParams: () => ({ estimateId: 'v-1' }),
+    useNavigate: () => (to: string) => { hoisted.navigated.push(to); },
+  };
 });
 
 vi.mock('@/lib/data/estimates', async () => {
@@ -48,6 +56,13 @@ vi.mock('@/lib/data/estimates', async () => {
     },
     loadDrift: () => async () => [],
     searchServices: () => async () => [],
+    updateVersion: async (_c: unknown, _v: string, fields: Record<string, unknown>) => {
+      hoisted.updated.push(fields);
+    },
+    reviseVersion: async (_c: unknown, id: string, reason: string) => {
+      hoisted.revised.push({ id, reason });
+      return 'v-2';
+    },
   };
 });
 
@@ -77,6 +92,11 @@ const version = (over: Record<string, unknown> = {}) => ({
   lines: [line()],
   show: { labor: false, equipment: false, materials: true, hauling: true,
           subcontract: true },
+  assumptions: {
+    shiftHours: 10, calendarEfficiency: 0.85, fuelPricePerGallon: 4.1,
+    defPricePerGallon: 12.5, swellPercent: 0.25, shrinkPercent: 0.1,
+    bidRoundingIncrement: 0,
+  },
   ...over,
 });
 
@@ -85,6 +105,7 @@ describe('the estimate workspace', () => {
     hoisted.configured = true; hoisted.fail = null;
     hoisted.permissions = ['estimates.read', 'estimates.write', 'estimates.approve', 'estimates.issue'];
     hoisted.version = version();
+    hoisted.updated = []; hoisted.revised = []; hoisted.navigated = [];
   });
 
   it('shows the engine result and says which build produced it', async () => {
@@ -187,6 +208,131 @@ describe('the estimate workspace', () => {
     hoisted.fail = 'JWT expired';
     renderPage(<EstimateVersionPage />);
     await waitFor(() => expect(screen.getByText('JWT expired')).toBeInTheDocument());
-    expect(screen.queryByText('Mass excavation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Strip and stockpile topsoil')).not.toBeInTheDocument();
   });
+
+  // -------------------------------------------------------------------------
+  describe("this bid's assumptions", () => {
+    it('shows the numbers the engine actually reads off the version', async () => {
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByLabelText('Diesel, $/gal')).toBeInTheDocument());
+      expect(screen.getByLabelText('Diesel, $/gal')).toHaveValue(4.1);
+      expect(screen.getByLabelText('Swell')).toHaveValue(0.25);
+    });
+
+    it('saves one when it changes, and only when it changes', async () => {
+      renderPage(<EstimateVersionPage />);
+      const field = await screen.findByLabelText('Diesel, $/gal');
+      await userEvent.clear(field);
+      await userEvent.type(field, '4.55');
+      await userEvent.tab();
+      await waitFor(() => expect(hoisted.updated).toHaveLength(1));
+      expect(hoisted.updated[0]).toEqual({ fuel_price_per_gallon: 4.55 });
+
+      /* Blurring an untouched field is not an edit and must not write one. */
+      const swell = screen.getByLabelText('Swell');
+      swell.focus();
+      await userEvent.tab();
+      expect(hoisted.updated).toHaveLength(1);
+    });
+
+    it('is read-only once the version is frozen', async () => {
+      hoisted.version = version({ status: 'approved', approvedAt: '2026-09-02T00:00:00Z' });
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByLabelText('Swell')).toBeDisabled());
+    });
+
+    it('says the price does not follow on its own', async () => {
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByText(/nothing recalculates on its own/i)).toBeInTheDocument();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  describe('creating a revision', () => {
+    it('is offered exactly when the version is frozen', async () => {
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByText(/E-2026-0001/)).toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: /create revision/i })).not.toBeInTheDocument();
+
+      hoisted.version = version({ status: 'issued', issuedAt: '2026-09-02T00:00:00Z' });
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByRole('button', { name: /create revision/i })).toBeInTheDocument();
+    });
+
+    it('will not send a reason too short to explain anything', async () => {
+      hoisted.version = version({ status: 'issued', issuedAt: '2026-09-02T00:00:00Z' });
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /create revision/i }));
+      const dialog = await screen.findByRole('dialog');
+      const submit = within(dialog).getByRole('button', { name: /create revision/i });
+      expect(submit).toBeDisabled();
+      await userEvent.type(within(dialog).getByLabelText(/why this revision exists/i), 'oops');
+      expect(submit).toBeDisabled();
+    });
+
+    it('copies it forward with the reason, and opens the new version', async () => {
+      hoisted.version = version({ status: 'issued', issuedAt: '2026-09-02T00:00:00Z' });
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button', { name: /create revision/i }));
+      const dialog = await screen.findByRole('dialog');
+      await userEvent.type(within(dialog).getByLabelText(/why this revision exists/i),
+        'Owner moved the pond outlet');
+      await userEvent.click(within(dialog).getByRole('button', { name: /create revision/i }));
+      await waitFor(() => expect(hoisted.revised).toHaveLength(1));
+      expect(hoisted.revised[0]).toEqual({ id: 'v-1', reason: 'Owner moved the pond outlet' });
+      await waitFor(() => expect(hoisted.navigated).toEqual(['/app/estimates/v-2']));
+    });
+
+    it('says what a revision carries, so nobody expects to lose the crew', async () => {
+      hoisted.version = version({ status: 'issued', issuedAt: '2026-09-02T00:00:00Z' });
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByText(/crew, equipment, material, haul, modifiers and markups/))
+        .toBeInTheDocument();
+    });
+  });
+
+
+  // -------------------------------------------------------------------------
+  describe('the boxes across the top', () => {
+    it('shows only the blocking lines when the blocked tile is clicked', async () => {
+      hoisted.version = version({
+        blockedFromIssue: true,
+        lines: [
+          line({ id: 'l-1', description: 'Strip and stockpile topsoil', blocksIssue: false }),
+          line({ id: 'l-2', description: 'Rock removal', blocksIssue: true }),
+        ],
+      });
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByText('Strip and stockpile topsoil')).toBeInTheDocument());
+
+      await userEvent.click(screen.getByRole('button',
+        { name: /show only the lines that are blocking this bid/i }));
+      await waitFor(() => expect(screen.queryByText('Strip and stockpile topsoil')).not.toBeInTheDocument());
+      expect(screen.getByText('Rock removal')).toBeInTheDocument();
+    });
+
+    it('says the table is filtered, and that the total still covers everything', async () => {
+      hoisted.version = version({
+        blockedFromIssue: true,
+        lines: [
+          line({ id: 'l-1', description: 'Strip and stockpile topsoil', blocksIssue: false }),
+          line({ id: 'l-2', description: 'Rock removal', blocksIssue: true }),
+        ],
+      });
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(await screen.findByRole('button',
+        { name: /show only the lines that are blocking this bid/i }));
+      expect(await screen.findByText(/1 other is hidden/i)).toBeInTheDocument();
+      expect(screen.getByText(/the whole estimate, not the 1 shown/i)).toBeInTheDocument();
+    });
+
+    it('offers no filter on an estimate the engine has cleared', async () => {
+      renderPage(<EstimateVersionPage />);
+      await waitFor(() => expect(screen.getByText(/E-2026-0001/)).toBeInTheDocument());
+      expect(screen.queryByRole('button',
+        { name: /show only the lines that are blocking this bid/i })).not.toBeInTheDocument();
+    });
+  });
+
 });

@@ -1,0 +1,50 @@
+{
+  "trade": "Masonry and Structural Steel",
+  "code": "MS",
+  "tasks": ["Review documents and layout", "Mobilize", "Set and erect", "Install",
+            "Grout, weld or point", "Inspect and test", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Unit masonry", "services": [
+      { "name": "Concrete block wall, 8 inch", "unit": "SF", "units": ["SF", "EA"], "rate": 60 },
+      { "name": "Concrete block wall, 12 inch", "unit": "SF", "units": ["SF"], "rate": 45 },
+      { "name": "Reinforced and grouted block wall", "unit": "SF", "units": ["SF"], "rate": 40 },
+      { "name": "Brick veneer", "unit": "SF", "units": ["SF"], "rate": 35 },
+      { "name": "Thin brick and adhered veneer", "unit": "SF", "units": ["SF"], "rate": 45 },
+      { "name": "Cast stone trim and sill", "unit": "LF", "units": ["LF", "EA"], "rate": 20 },
+      { "name": "Natural stone veneer", "unit": "SF", "units": ["SF"], "rate": 28 },
+      { "name": "Glass block", "unit": "SF", "units": ["SF"], "rate": 25 },
+      { "name": "Masonry lintel and bond beam", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Masonry reinforcement and ties", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Cavity wall insulation and flashing", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Masonry cleaning and sealing", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Tuckpointing and repointing", "unit": "SF", "units": ["SF"], "rate": 60 },
+      { "name": "Masonry demolition", "unit": "SF", "units": ["SF"], "rate": 120 }
+    ]},
+    { "name": "Structural steel", "services": [
+      { "name": "Structural steel erection, columns and beams", "unit": "TON", "units": ["TON"], "rate": 0.6 },
+      { "name": "Steel joist erection", "unit": "EA", "units": ["EA", "TON"], "rate": 6 },
+      { "name": "Metal roof deck", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Composite floor deck", "unit": "SF", "units": ["SF"], "rate": 420 },
+      { "name": "Shear stud welding", "unit": "EA", "units": ["EA"], "rate": 90 },
+      { "name": "Field bolting and connections", "unit": "EA", "units": ["EA"], "rate": 40 },
+      { "name": "Field welding, structural", "unit": "LF", "units": ["LF"], "rate": 12 },
+      { "name": "Steel stair and landing", "unit": "EA", "units": ["EA", "LF"], "rate": 0.5 },
+      { "name": "Steel handrail and guardrail", "unit": "LF", "units": ["LF"], "rate": 25 },
+      { "name": "Miscellaneous metal fabrication", "unit": "LB", "units": ["LB", "TON"], "rate": 90 },
+      { "name": "Steel lintel setting", "unit": "EA", "units": ["EA", "LF"], "rate": 12 },
+      { "name": "Bollard, pipe filled", "unit": "EA", "units": ["EA"], "rate": 5 },
+      { "name": "Ladder and roof access", "unit": "EA", "units": ["EA", "LF"], "rate": 1.5 },
+      { "name": "Grating and floor plate", "unit": "SF", "units": ["SF"], "rate": 120 },
+      { "name": "Spray applied fireproofing", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Shop primer touch-up and field paint", "unit": "SF", "units": ["SF"], "rate": 250 }
+    ]},
+    { "name": "Pre-engineered and metal building", "services": [
+      { "name": "Pre-engineered metal building frame", "unit": "SF", "units": ["SF", "TON"], "rate": 180 },
+      { "name": "Metal wall panel", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Insulated metal panel", "unit": "SF", "units": ["SF"], "rate": 160 },
+      { "name": "Girt and purlin installation", "unit": "LF", "units": ["LF"], "rate": 90 },
+      { "name": "Translucent wall panel", "unit": "SF", "units": ["SF"], "rate": 140 }
+    ]}
+  ]
+}

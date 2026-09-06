@@ -274,8 +274,14 @@ describe('row level security', () => {
     it('lets every tenant read the GrounUp global seed', async () => {
       const a = await h.asUser(alice, () => h.sql<{ c: number }>(`select count(*)::int c from services where company_id is null`));
       const b = await h.asUser(bob, () => h.sql<{ c: number }>(`select count(*)::int c from services where company_id is null`));
-      expect(a[0]!.c).toBe(188);
-      expect(b[0]!.c).toBe(188);
+      /*
+       * Stated as a property rather than a fixed number. The shipped library
+       * grows every time a trade pack is added, and what this test is about is
+       * that both tenants see the same global rows — a hard-coded count would
+       * only be re-typed on every catalog change and prove nothing more.
+       */
+      expect(a[0]!.c).toBe(b[0]!.c);
+      expect(a[0]!.c).toBeGreaterThanOrEqual(188);
     });
 
     it('stops a tenant from editing the global seed', async () => {

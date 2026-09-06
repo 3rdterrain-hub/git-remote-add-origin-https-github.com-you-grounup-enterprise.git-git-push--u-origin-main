@@ -1,0 +1,68 @@
+{
+  "trade": "Roofing and Waterproofing",
+  "code": "RF",
+  "tasks": ["Review documents and survey", "Mobilize", "Prepare substrate", "Install",
+            "Flash and detail", "Inspect and water test", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Low-slope roofing", "services": [
+      { "name": "TPO single ply, mechanically attached", "unit": "SF", "units": ["SF", "SY"], "rate": 220 },
+      { "name": "TPO single ply, fully adhered", "unit": "SF", "units": ["SF"], "rate": 160 },
+      { "name": "EPDM single ply, ballasted", "unit": "SF", "units": ["SF"], "rate": 260 },
+      { "name": "PVC single ply membrane", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Modified bitumen, two ply", "unit": "SF", "units": ["SF"], "rate": 140 },
+      { "name": "Built-up roof, four ply", "unit": "SF", "units": ["SF"], "rate": 110 },
+      { "name": "Liquid applied membrane", "unit": "SF", "units": ["SF"], "rate": 130 },
+      { "name": "Roof insulation, polyiso", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Tapered insulation system", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Cover board", "unit": "SF", "units": ["SF"], "rate": 450 },
+      { "name": "Vapor retarder", "unit": "SF", "units": ["SF"], "rate": 600 }
+    ]},
+    { "name": "Steep-slope roofing", "services": [
+      { "name": "Asphalt shingle, architectural", "unit": "SF", "units": ["SF", "SY"], "rate": 250 },
+      { "name": "Standing seam metal roof", "unit": "SF", "units": ["SF"], "rate": 140 },
+      { "name": "Metal panel roof, exposed fastener", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Clay or concrete tile roof", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Slate roof", "unit": "SF", "units": ["SF"], "rate": 55 },
+      { "name": "Cedar shake roof", "unit": "SF", "units": ["SF"], "rate": 110 },
+      { "name": "Underlayment, synthetic", "unit": "SF", "units": ["SF"], "rate": 800 },
+      { "name": "Ice and water shield", "unit": "SF", "units": ["SF"], "rate": 600 },
+      { "name": "Ridge vent", "unit": "LF", "units": ["LF"], "rate": 90 }
+    ]},
+    { "name": "Flashing and accessories", "services": [
+      { "name": "Perimeter edge metal", "unit": "LF", "units": ["LF"], "rate": 70 },
+      { "name": "Coping cap, metal", "unit": "LF", "units": ["LF"], "rate": 55 },
+      { "name": "Base flashing at wall", "unit": "LF", "units": ["LF"], "rate": 45 },
+      { "name": "Counterflashing, reglet set", "unit": "LF", "units": ["LF"], "rate": 50 },
+      { "name": "Pipe penetration flashing", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Curb flashing at equipment", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Expansion joint cover, roof", "unit": "LF", "units": ["LF"], "rate": 25 },
+      { "name": "Gutter, seamless", "unit": "LF", "units": ["LF"], "rate": 70 },
+      { "name": "Downspout and boot", "unit": "LF", "units": ["LF", "EA"], "rate": 80 },
+      { "name": "Snow guard", "unit": "LF", "units": ["LF", "EA"], "rate": 60 },
+      { "name": "Roof hatch", "unit": "EA", "units": ["EA"], "rate": 1 },
+      { "name": "Skylight, curb mounted", "unit": "EA", "units": ["EA"], "rate": 1.5 },
+      { "name": "Walkway pad", "unit": "SF", "units": ["SF", "LF"], "rate": 300 },
+      { "name": "Fall protection anchor", "unit": "EA", "units": ["EA"], "rate": 3 }
+    ]},
+    { "name": "Waterproofing and dampproofing", "services": [
+      { "name": "Below-grade waterproofing membrane", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Bentonite waterproofing", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Foundation dampproofing", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Drainage board and protection", "unit": "SF", "units": ["SF"], "rate": 450 },
+      { "name": "Traffic coating, vehicular deck", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Plaza deck waterproofing", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Air and vapor barrier, fluid applied", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Through-wall flashing", "unit": "LF", "units": ["LF"], "rate": 60 },
+      { "name": "Joint sealant, exterior", "unit": "LF", "units": ["LF"], "rate": 180 },
+      { "name": "Below-grade drainage tile", "unit": "LF", "units": ["LF"], "rate": 120 }
+    ]},
+    { "name": "Repair and demolition", "services": [
+      { "name": "Roof tear-off, single ply", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Roof tear-off, built-up to deck", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Roof leak repair", "unit": "EA", "units": ["EA", "SF"], "rate": 2 },
+      { "name": "Deck repair and replacement", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Infrared moisture survey", "unit": "SF", "units": ["SF", "LS"], "rate": 3000 }
+    ]}
+  ]
+}

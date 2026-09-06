@@ -97,6 +97,7 @@ TBL-estimate_indirects,table,estimate_indirects,supabase/migrations (table estim
 TBL-estimate_line_items,table,estimate_line_items,supabase/migrations (table estimate_line_items),ENTITY
 TBL-estimate_line_modifiers,table,estimate_line_modifiers,supabase/migrations (table estimate_line_modifiers),ENTITY
 TBL-estimate_line_resources,table,estimate_line_resources,supabase/migrations (table estimate_line_resources),ENTITY
+TBL-estimate_templates,table,estimate_templates,supabase/migrations (table estimate_templates),ENTITY
 TBL-estimate_version_markups,table,estimate_version_markups,supabase/migrations (table estimate_version_markups),ENTITY
 TBL-estimate_versions,table,estimate_versions,supabase/migrations (table estimate_versions),ENTITY
 TBL-estimates,table,estimates,supabase/migrations (table estimates),ENTITY
@@ -266,6 +267,7 @@ TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.t
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
+TST-db-browser-embeds,test,db/browser-embeds.test.ts,tests/db/browser-embeds.test.ts,ENGINE
 TST-db-building-a-line,test,db/building-a-line.test.ts,tests/db/building-a-line.test.ts,ENGINE
 TST-db-building-an-estimate,test,db/building-an-estimate.test.ts,tests/db/building-an-estimate.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
@@ -327,6 +329,7 @@ TST-db-support-sessions,test,db/support-sessions.test.ts,tests/db/support-sessio
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
 TST-db-suspension,test,db/suspension.test.ts,tests/db/suspension.test.ts,ENGINE
 TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
+TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
@@ -345,6 +348,7 @@ TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
 TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
+TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE

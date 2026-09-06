@@ -74,6 +74,11 @@ vi.mock('@/lib/data/estimates', async () => {
       }],
       show: { labor: false, equipment: false, materials: true, hauling: true,
               subcontract: true },
+      assumptions: {
+        shiftHours: 10, calendarEfficiency: 0.85, fuelPricePerGallon: 4.1,
+        defPricePerGallon: 12.5, swellPercent: 0.25, shrinkPercent: 0.1,
+        bidRoundingIncrement: 0,
+      },
     }),
     loadDrift: () => async () => [],
     searchServices: () => async () => [],

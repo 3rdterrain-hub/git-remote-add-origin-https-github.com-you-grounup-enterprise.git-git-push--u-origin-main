@@ -10,13 +10,26 @@ describe('global seed library loads into a real database', () => {
   afterAll(async () => { await h?.db.close(); });
 
   it('loads every catalog record from the governed v2.0 package', async () => {
+    /*
+     * The catalog rows specifically, not the whole library. The trade packs
+     * add hundreds more and are counted separately — this test is about the
+     * governed v2.0 package arriving intact, and folding the two together
+     * would mean neither number said anything.
+     *
+     * Catalog codes are `SVC-0001`-shaped; a pack's carry its trade,
+     * `SVC-EL-0001`, which is why the prefixes were chosen that way.
+     */
     const counts = await h.sql<{ t: string; c: number }>(`
-      select 'services' t, count(*)::int c from services where company_id is null
-      union all select 'tasks', count(*)::int from tasks where company_id is null
+      select 'services' t, count(*)::int c from services
+        where company_id is null and code ~ '^SVC-[0-9]+$'
+      union all select 'tasks', count(*)::int from tasks
+        where company_id is null and code ~ '^TSK-[0-9]+$'
       union all select 'labor_rates', count(*)::int from labor_rates where company_id is null
       union all select 'equipment', count(*)::int from equipment where company_id is null
-      union all select 'production_rates', count(*)::int from production_rates where company_id is null
-      union all select 'assemblies', count(*)::int from assemblies where company_id is null
+      union all select 'production_rates', count(*)::int from production_rates
+        where company_id is null and code ~ '^PR-[0-9]+$'
+      union all select 'assemblies', count(*)::int from assemblies
+        where company_id is null and code ~ '^ASM-[0-9]+$'
       union all select 'condition_modifiers', count(*)::int from condition_modifiers where company_id is null
       union all select 'pricing_profiles', count(*)::int from pricing_profiles where company_id is null
       union all select 'crews', count(*)::int from crews where company_id is null
@@ -67,6 +80,12 @@ describe('global seed library loads into a real database', () => {
    * priced. Two true statements about the ends of a chain with no middle.
    */
   it('lets every service reach the tasks it is made of, and a rate for them', async () => {
+    /*
+     * Stated as a property rather than a count, because the count changes every
+     * time a trade pack is added and the property must not. A service that
+     * cannot reach a rate prices at zero, and one that prices at zero on a bid
+     * is the most expensive kind of silence.
+     */
     const [row] = await h.sql<{ services: number; with_tasks: number; with_rates: number }>(
       `select (select count(*)::int from services
                 where company_id is null and status = 'active') as services,
@@ -79,9 +98,66 @@ describe('global seed library loads into a real database', () => {
                   and ac.component_kind = 'task'
                  join production_rates pr on pr.task_id = ac.task_id and pr.status = 'active'
                 where s.company_id is null and s.status = 'active') as with_rates`);
-    expect(row!.services).toBe(188);
+    expect(row!.services).toBeGreaterThanOrEqual(188);
     expect(row!.with_tasks, 'a service with no tasks cannot be priced').toBe(row!.services);
     expect(row!.with_rates, 'a service with no production rate prices at zero').toBe(row!.services);
+  });
+
+  /*
+   * The shipped catalog is heavy civil and nothing else, so a contractor
+   * outside those trades opened the library and found nothing for their work.
+   * The trade packs are the rest, kept in the repository because they are ours.
+   */
+  it('covers the trades a contractor outside heavy civil actually works in', async () => {
+    const rows = await h.sql<{ industry: string }>(
+      `select distinct industry from services where company_id is null`);
+    const trades = rows.map((r) => r.industry);
+    for (const needed of [
+      'Electrical', 'Mechanical', 'Plumbing', 'Concrete', 'Rough Carpentry',
+      'Roofing and Waterproofing', 'Drywall and Plaster', 'Finishes',
+      'Doors, Windows and Glazing', 'Masonry and Structural Steel',
+      'Thermal and Moisture Protection', 'Landscaping and Irrigation',
+      'Survey and Aerial Services',
+    ]) {
+      expect(trades, `no services for ${needed}`).toContain(needed);
+    }
+  });
+
+  it('says which rates nobody has sourced, three separate ways', async () => {
+    /*
+     * A rate nobody can source is the same defect as a typed price. The
+     * difference between a defect and an honest starting point is whether the
+     * platform tells you which one you are looking at — so a pack rate carries
+     * `seed_benchmark`, which the engine warns about by name; `pending`
+     * approval, so the engine says to approve it or substitute a company
+     * actual before issuing; and a confidence below what the sourced rates
+     * carry, so an estimate built on them scores for what it is.
+     */
+    const rows = await h.sql<{ st: string; cs: string; c: number }>(
+      `select approval_state::text st, confidence_score::text cs, count(*)::int c
+         from production_rates where company_id is null
+        group by 1, 2 order by 3 desc`);
+    const unsourced = rows.find((r) => r.st === 'pending');
+    expect(unsourced, 'the trade packs should carry pending rates').toBeDefined();
+    expect(Number(unsourced!.cs)).toBeLessThan(0.45);
+
+    // And every one of them is a seed benchmark, which the engine warns on.
+    const [wrong] = await h.sql<{ c: number }>(
+      `select count(*)::int c from production_rates
+        where company_id is null and approval_state = 'pending'
+          and source_type <> 'seed_benchmark'`);
+    expect(wrong!.c).toBe(0);
+  });
+
+  it('keeps the sourced heavy-civil rates distinguishable from the packs', async () => {
+    // A company measuring its own production replaces the packs first; the
+    // catalog rates were sourced and should not be swept up with them.
+    const [row] = await h.sql<{ sourced: number; unsourced: number }>(
+      `select count(*) filter (where approval_state = 'not_required')::int sourced,
+              count(*) filter (where approval_state = 'pending')::int unsourced
+         from production_rates where company_id is null`);
+    expect(row!.sourced).toBeGreaterThan(0);
+    expect(row!.unsourced).toBeGreaterThan(0);
   });
 
   /*
@@ -99,8 +175,14 @@ describe('global seed library loads into a real database', () => {
     for (const m of sql.matchAll(/\('(SVC-\d+)',\s*'([A-Z]+)'/g)) expected.set(m[1]!, m[2]!);
     expect(expected.size).toBe(188);
 
+    /*
+     * The catalog's services. A trade pack states its own units in its own
+     * file and is not in 0089's table, which is the correction to a catalog
+     * that shipped every service as a lump sum.
+     */
     const rows = await h.sql<{ code: string; unit: string }>(
-      `select code, default_unit::text as unit from services where company_id is null`);
+      `select code, default_unit::text as unit from services
+        where company_id is null and code ~ '^SVC-[0-9]+$'`);
     const wrong = rows.filter((r) => expected.get(r.code) !== r.unit);
     expect(wrong.map((w) => `${w.code}: ${w.unit} should be ${expected.get(w.code)}`)).toEqual([]);
   });
@@ -110,7 +192,9 @@ describe('global seed library loads into a real database', () => {
       `select (select count(*)::int from cost_codes where company_id is null) as codes,
               (select count(*)::int from services
                 where company_id is null and cost_code_id is null) as unlinked`);
-    expect(row!.codes).toBe(188);
+    expect(row!.codes).toBeGreaterThanOrEqual(188);
+    // The one that matters: a line with no cost code cannot be rolled up
+    // against a budget, whichever trade it came from.
     expect(row!.unlinked).toBe(0);
   });
 

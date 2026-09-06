@@ -1,0 +1,37 @@
+{
+  "trade": "Thermal and Moisture Protection",
+  "code": "TH",
+  "tasks": ["Review documents and inspect substrate", "Mobilize", "Prepare", "Install",
+            "Seal and detail", "Inspect", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Insulation", "services": [
+      { "name": "Batt insulation in wall cavity", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Batt insulation in ceiling", "unit": "SF", "units": ["SF"], "rate": 450 },
+      { "name": "Blown-in cellulose, attic", "unit": "SF", "units": ["SF"], "rate": 900 },
+      { "name": "Closed-cell spray foam, 2 inch", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Open-cell spray foam", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Rigid board insulation, exterior", "unit": "SF", "units": ["SF"], "rate": 420 },
+      { "name": "Perimeter and under-slab insulation", "unit": "SF", "units": ["SF"], "rate": 600 },
+      { "name": "Mineral wool, fire and acoustic", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Pipe and duct insulation, mechanical", "unit": "LF", "units": ["LF"], "rate": 70 },
+      { "name": "Reflective radiant barrier", "unit": "SF", "units": ["SF"], "rate": 700 }
+    ]},
+    { "name": "Air and weather barrier", "services": [
+      { "name": "Self-adhered air barrier membrane", "unit": "SF", "units": ["SF"], "rate": 380 },
+      { "name": "Building wrap, mechanically fastened", "unit": "SF", "units": ["SF"], "rate": 900 },
+      { "name": "Transition membrane at openings", "unit": "LF", "units": ["LF"], "rate": 120 },
+      { "name": "Air barrier detailing and inspection", "unit": "SF", "units": ["SF", "LS"], "rate": 1200 },
+      { "name": "Blower door and air leakage test", "unit": "EA", "units": ["EA", "LS"], "rate": 0.5 }
+    ]},
+    { "name": "Firestopping and joint protection", "services": [
+      { "name": "Firestop, pipe penetration", "unit": "EA", "units": ["EA"], "rate": 12 },
+      { "name": "Firestop, cable and conduit", "unit": "EA", "units": ["EA"], "rate": 16 },
+      { "name": "Head of wall firestop", "unit": "LF", "units": ["LF"], "rate": 100 },
+      { "name": "Fire rated joint spray", "unit": "LF", "units": ["LF"], "rate": 120 },
+      { "name": "Expansion joint cover, interior", "unit": "LF", "units": ["LF"], "rate": 30 },
+      { "name": "Exterior expansion joint system", "unit": "LF", "units": ["LF"], "rate": 20 },
+      { "name": "Acoustic and smoke seal", "unit": "LF", "units": ["LF"], "rate": 200 }
+    ]}
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "trade": "Finishes",
+  "code": "FN",
+  "tasks": ["Review documents and verify substrate", "Mobilize", "Prepare surface", "Install",
+            "Detail and trim", "Inspect and touch up", "Cleanup", "Demobilize"],
+  "productionTask": "Install",
+  "categories": [
+    { "name": "Painting and coating", "services": [
+      { "name": "Paint gypsum walls, two coats", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Paint ceilings, two coats", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Prime and seal new drywall", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Paint doors and frames", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Paint exposed structure and deck", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Epoxy floor coating", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Urethane floor coating", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Intumescent fireproofing paint", "unit": "SF", "units": ["SF"], "rate": 120 },
+      { "name": "Exterior paint, masonry", "unit": "SF", "units": ["SF"], "rate": 280 },
+      { "name": "Elastomeric wall coating", "unit": "SF", "units": ["SF"], "rate": 240 },
+      { "name": "Stain and clear finish, wood", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Line striping, interior floor", "unit": "LF", "units": ["LF"], "rate": 300 },
+      { "name": "Wall covering, vinyl", "unit": "SF", "units": ["SF"], "rate": 160 },
+      { "name": "Acoustic wall panel", "unit": "SF", "units": ["SF", "EA"], "rate": 90 }
+    ]},
+    { "name": "Flooring", "services": [
+      { "name": "Carpet tile", "unit": "SF", "units": ["SF", "SY"], "rate": 300 },
+      { "name": "Broadloom carpet", "unit": "SY", "units": ["SY", "SF"], "rate": 40 },
+      { "name": "Luxury vinyl tile", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Sheet vinyl with welded seams", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Vinyl composition tile", "unit": "SF", "units": ["SF"], "rate": 280 },
+      { "name": "Rubber flooring", "unit": "SF", "units": ["SF"], "rate": 220 },
+      { "name": "Hardwood flooring, nail down", "unit": "SF", "units": ["SF"], "rate": 150 },
+      { "name": "Engineered wood, floating", "unit": "SF", "units": ["SF"], "rate": 200 },
+      { "name": "Polished concrete finish", "unit": "SF", "units": ["SF"], "rate": 260 },
+      { "name": "Static dissipative flooring", "unit": "SF", "units": ["SF"], "rate": 180 },
+      { "name": "Resilient base, 4 inch", "unit": "LF", "units": ["LF"], "rate": 220 },
+      { "name": "Transition strip and reducer", "unit": "LF", "units": ["LF"], "rate": 160 },
+      { "name": "Floor preparation and leveling", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Moisture mitigation coating", "unit": "SF", "units": ["SF"], "rate": 350 },
+      { "name": "Entrance mat, recessed", "unit": "SF", "units": ["SF", "EA"], "rate": 60 }
+    ]},
+    { "name": "Tile and stone", "services": [
+      { "name": "Ceramic wall tile", "unit": "SF", "units": ["SF"], "rate": 80 },
+      { "name": "Porcelain floor tile", "unit": "SF", "units": ["SF"], "rate": 90 },
+      { "name": "Large format porcelain panel", "unit": "SF", "units": ["SF"], "rate": 55 },
+      { "name": "Mosaic tile", "unit": "SF", "units": ["SF"], "rate": 45 },
+      { "name": "Quarry tile with epoxy grout", "unit": "SF", "units": ["SF"], "rate": 70 },
+      { "name": "Natural stone floor", "unit": "SF", "units": ["SF"], "rate": 60 },
+      { "name": "Stone countertop and sill", "unit": "SF", "units": ["SF", "LF"], "rate": 35 },
+      { "name": "Waterproof membrane under tile", "unit": "SF", "units": ["SF"], "rate": 300 },
+      { "name": "Schluter edge and trim", "unit": "LF", "units": ["LF"], "rate": 120 },
+      { "name": "Tile base", "unit": "LF", "units": ["LF"], "rate": 100 }
+    ]},
+    { "name": "Specialties", "services": [
+      { "name": "Toilet partition, floor mounted", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Toilet accessories package", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Lockers, metal", "unit": "EA", "units": ["EA"], "rate": 6 },
+      { "name": "Fire extinguisher and cabinet", "unit": "EA", "units": ["EA"], "rate": 5 },
+      { "name": "Corner guard and wall protection", "unit": "LF", "units": ["LF"], "rate": 90 },
+      { "name": "Signage, room identification", "unit": "EA", "units": ["EA"], "rate": 10 },
+      { "name": "Window treatment, roller shade", "unit": "EA", "units": ["EA", "SF"], "rate": 6 },
+      { "name": "Operable partition", "unit": "SF", "units": ["SF", "EA"], "rate": 20 },
+      { "name": "Projection screen and mount", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Appliance setting and connection", "unit": "EA", "units": ["EA"], "rate": 3 }
+    ]},
+    { "name": "Demolition", "services": [
+      { "name": "Flooring demolition", "unit": "SF", "units": ["SF"], "rate": 500 },
+      { "name": "Tile demolition", "unit": "SF", "units": ["SF"], "rate": 250 },
+      { "name": "Wall covering removal", "unit": "SF", "units": ["SF"], "rate": 400 },
+      { "name": "Paint removal and abatement prep", "unit": "SF", "units": ["SF"], "rate": 150 }
+    ]}
+  ]
+}

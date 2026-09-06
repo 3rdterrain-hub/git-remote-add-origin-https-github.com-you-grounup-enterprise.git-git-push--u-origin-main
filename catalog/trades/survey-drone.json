@@ -1,0 +1,42 @@
+{
+  "trade": "Survey and Aerial Services",
+  "code": "SV",
+  "tasks": ["Review scope and airspace", "Mobilize", "Establish control", "Collect",
+            "Process and QC", "Deliver and document", "Cleanup", "Demobilize"],
+  "productionTask": "Collect",
+  "categories": [
+    { "name": "Aerial and drone", "services": [
+      { "name": "Drone photogrammetry survey", "unit": "ACRE", "units": ["ACRE", "DAY"], "rate": 12 },
+      { "name": "Drone LiDAR survey", "unit": "ACRE", "units": ["ACRE", "DAY"], "rate": 6 },
+      { "name": "Drone progress photography", "unit": "EA", "units": ["EA", "DAY"], "rate": 4 },
+      { "name": "Aerial video and marketing flyover", "unit": "EA", "units": ["EA", "DAY"], "rate": 2 },
+      { "name": "Thermal roof inspection by drone", "unit": "SF", "units": ["SF", "ACRE"], "rate": 20000 },
+      { "name": "Stockpile volume flight", "unit": "EA", "units": ["EA"], "rate": 3 },
+      { "name": "Monthly earthwork quantity flight", "unit": "MO", "units": ["MO", "ACRE"], "rate": 0.15 },
+      { "name": "Facade and structure inspection", "unit": "SF", "units": ["SF"], "rate": 5000 },
+      { "name": "Airspace authorization and flight plan", "unit": "EA", "units": ["EA", "LS"], "rate": 1 }
+    ]},
+    { "name": "Ground survey", "services": [
+      { "name": "Boundary survey", "unit": "ACRE", "units": ["ACRE", "DAY"], "rate": 3 },
+      { "name": "Topographic survey", "unit": "ACRE", "units": ["ACRE", "DAY"], "rate": 2.5 },
+      { "name": "ALTA/NSPS land title survey", "unit": "ACRE", "units": ["ACRE"], "rate": 1.5 },
+      { "name": "Construction staking, building", "unit": "EA", "units": ["EA", "DAY"], "rate": 2 },
+      { "name": "Construction staking, utilities", "unit": "LF", "units": ["LF", "DAY"], "rate": 600 },
+      { "name": "Grade staking, roadway", "unit": "LF", "units": ["LF"], "rate": 800 },
+      { "name": "As-built survey", "unit": "ACRE", "units": ["ACRE", "DAY"], "rate": 3 },
+      { "name": "Utility locate and designation", "unit": "LF", "units": ["LF"], "rate": 900 },
+      { "name": "Control network and benchmarks", "unit": "EA", "units": ["EA"], "rate": 4 },
+      { "name": "Settlement and deformation monitoring", "unit": "EA", "units": ["EA", "MO"], "rate": 6 }
+    ]},
+    { "name": "Scanning and modeling", "services": [
+      { "name": "Terrestrial laser scan, interior", "unit": "SF", "units": ["SF", "DAY"], "rate": 4000 },
+      { "name": "Terrestrial laser scan, exterior", "unit": "SF", "units": ["SF"], "rate": 6000 },
+      { "name": "Point cloud registration and cleanup", "unit": "EA", "units": ["EA", "DAY"], "rate": 1.5 },
+      { "name": "Surface model from point cloud", "unit": "ACRE", "units": ["ACRE"], "rate": 4 },
+      { "name": "Existing conditions model", "unit": "SF", "units": ["SF"], "rate": 2000 },
+      { "name": "Cut and fill quantity report", "unit": "EA", "units": ["EA"], "rate": 2 },
+      { "name": "Machine control model preparation", "unit": "ACRE", "units": ["ACRE"], "rate": 5 },
+      { "name": "LandXML surface delivery", "unit": "EA", "units": ["EA"], "rate": 3 }
+    ]}
+  ]
+}
