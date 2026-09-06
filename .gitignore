@@ -10,3 +10,7 @@ coverage/
 supabase/.temp/
 supabase/seed/0003_plan_prices.sql
 .test-results/
+
+# TypeScript incremental build state. Regenerated on every build, so tracking
+# it means a diff on every run that says nothing about the source.
+*.tsbuildinfo
