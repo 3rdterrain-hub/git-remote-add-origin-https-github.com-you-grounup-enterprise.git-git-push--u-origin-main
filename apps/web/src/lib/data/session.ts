@@ -317,3 +317,84 @@ export async function setNotificationPreference(
   });
   if (error) throw new Error(error.message);
 }
+
+
+/**
+ * The caller's own notifications.
+ *
+ * The bell has read a fixture since it was built — "3 unread" in every
+ * signed-in person's header, and five sample notices behind it, regardless of
+ * whose workspace it was. That is the platform asserting something about their
+ * data that came from a file, which is the one thing this data layer exists to
+ * prevent, and it was doing it in the chrome on every screen.
+ *
+ * A null `user_id` is a company-wide notice every member sees; row level
+ * security returns the caller's own and their company's, so no filter for that
+ * is written here.
+ */
+export interface NotificationRow {
+  id: string;
+  category: string;
+  severity: 'info' | 'success' | 'warning' | 'critical';
+  title: string;
+  body: string | null;
+  actionPath: string | null;
+  actionLabel: string | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export const loadMyNotifications: Query<NotificationRow[]> = async (client) => {
+  /*
+   * Read through `my_notifications`, which writes the join once. Migration 0054
+   * moved read state off the notification and into a per-person receipt —
+   * because a company-wide notice is one row every member sees, and a `read_at`
+   * on it would have let the first reader mark it read for the whole company.
+   * A screen doing that join itself would get the company-wide case wrong,
+   * which is the case that matters.
+   */
+  const rows = unwrap(await client
+    .from('my_notifications')
+    .select('id, category, severity, title, body, action_path, action_label, read_at, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50)) as Array<Record<string, unknown>>;
+
+  return rows.map((n) => ({
+    id: String(n.id),
+    category: String(n.category),
+    severity: n.severity as NotificationRow['severity'],
+    title: String(n.title),
+    body: (n.body as string | null) ?? null,
+    actionPath: (n.action_path as string | null) ?? null,
+    actionLabel: (n.action_label as string | null) ?? null,
+    readAt: (n.read_at as string | null) ?? null,
+    createdAt: String(n.created_at),
+  }));
+};
+
+/**
+ * Mark one as read.
+ *
+ * Through a function rather than an insert, because a receipt needs the
+ * caller's user id and the notification's company — two facts a browser should
+ * not have to carry to say "I have seen this". Idempotent, so opening a notice
+ * twice does not move the timestamp.
+ */
+export async function markNotificationRead(
+  client: { rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ error: { message: string } | null }> },
+  id: string,
+): Promise<void> {
+  const { error } = await client.rpc('mark_notification_read', { p_notification: id });
+  if (error) throw new Error(error.message);
+}
+
+/** Put one away. The notice survives; it just leaves this person's inbox. */
+export async function dismissNotification(
+  client: { rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ error: { message: string } | null }> },
+  id: string,
+): Promise<void> {
+  const { error } = await client.rpc('dismiss_notification', { p_notification: id });
+  if (error) throw new Error(error.message);
+}

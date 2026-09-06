@@ -8,10 +8,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CUSTOMERS, OPPORTUNITIES } from '@/data/operations';
 import { money, moneyCompact, percent, date, relativeDays, titleCase } from '@/lib/format';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { CrmLivePage } from './crm-live';
 
 const STAGES = ['identified', 'qualifying', 'estimating', 'proposed', 'negotiating'] as const;
 
+/**
+ * With a workspace configured this shows the caller's own customers and what
+ * they have actually been worth. With none it shows the sample pipeline. The
+ * split matters more here than on most screens: an estimate can name a client
+ * now, so a CRM showing invented companies contradicts a screen next to it.
+ */
 export function CrmPage() {
+  if (isSupabaseConfigured) return <CrmLivePage />;
+  return <DemonstrationCrm />;
+}
+
+function DemonstrationCrm() {
   const openOpps = OPPORTUNITIES.filter((o) => !['won', 'lost'].includes(o.stage));
   const pipeline = openOpps.reduce((a, o) => a + o.value, 0);
   const weighted = openOpps.reduce((a, o) => a + o.value * o.probability, 0);

@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NOTIFICATIONS, type Notification } from '@/data/field';
 import { dateTime, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { NotificationsLivePage } from './notifications-live';
 
 const SEVERITY: Record<Notification['severity'], { dot: string; badge: 'default' | 'success' | 'warn' | 'danger' }> = {
   info: { dot: 'bg-info-600', badge: 'default' },
@@ -23,7 +25,17 @@ const CATEGORIES = [
   'approval', 'ai_finding', 'calibration', 'billing', 'safety', 'schedule', 'system',
 ] as const;
 
+/**
+ * With a workspace configured this shows the caller's own notifications; with
+ * none it shows the sample set. The fixture also fed the header bell, so a
+ * permanent "3 unread" followed every signed-in person around the application.
+ */
 export function NotificationsPage() {
+  if (isSupabaseConfigured) return <NotificationsLivePage />;
+  return <DemonstrationNotifications />;
+}
+
+function DemonstrationNotifications() {
   const [items, setItems] = useState(NOTIFICATIONS);
   const unread = items.filter((n) => !n.readAt);
 

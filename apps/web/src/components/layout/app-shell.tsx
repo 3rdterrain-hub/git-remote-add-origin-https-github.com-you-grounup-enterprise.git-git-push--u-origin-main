@@ -18,7 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { useQuery } from '@/lib/data/query';
 import {
   loadMemberships, loadMySuspension, loadMyPaymentProblem, loadMyAnnouncements,
-  dismissAnnouncement,
+  dismissAnnouncement, loadMyNotifications, markNotificationRead,
 } from '@/lib/data/session';
 import {
   loadNavPreference, applyNavOrder, DEFAULT_NAV, type NavPreference,
@@ -121,7 +121,24 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const pendingFindings = AI_FINDINGS.filter((f) => f.state === 'proposed').length;
-  const unread = NOTIFICATIONS.filter((n) => !n.readAt);
+
+  /*
+   * The bell read a fixture: "3 unread" in every signed-in person's header and
+   * five sample notices behind it, whoever they were. With no workspace behind
+   * the build it still shows the sample set, which is the honest thing to show
+   * somebody who has none — but it never shows them to somebody who does.
+   */
+  const notificationsQ = useQuery(loadMyNotifications, []);
+  const notifications = notificationsQ.status === 'ready'
+    ? notificationsQ.data
+    : notificationsQ.status === 'demonstration'
+      ? NOTIFICATIONS.map((n) => ({
+          id: n.id, category: n.category, severity: 'info' as const,
+          title: n.title, body: n.body, actionPath: n.actionPath ?? null,
+          actionLabel: null, readAt: n.readAt ?? null, createdAt: n.createdAt,
+        }))
+      : [];
+  const unread = notifications.filter((n) => !n.readAt);
 
   /*
    * How many of the caller's own estimates the engine has not cleared. Counted
@@ -375,7 +392,16 @@ export function AppShell() {
                         <li key={n.id}>
                           <NavLink
                             to={n.actionPath ?? '/app/notifications'}
-                            onClick={() => setBellOpen(false)}
+                            onClick={() => {
+                              setBellOpen(false);
+                              // Opening one is reading it. Failing to record
+                              // that is not worth interrupting them over.
+                              if (supabase) {
+                                markNotificationRead(supabase, n.id)
+                                  .then(() => notificationsQ.refetch())
+                                  .catch(() => undefined);
+                              }
+                            }}
                             className="block px-4 py-3 transition-colors hover:bg-charcoal-50"
                           >
                             <p className="text-sm font-medium leading-snug text-charcoal-900">{n.title}</p>
