@@ -205,6 +205,7 @@ API-009,api,GET /v1/metrics/{metricKey},supabase/functions/api,ENGINE
 UI-api-access,ui,api-access,apps/web/src/pages/app/api-access.tsx,ENTITY
 UI-billing,ui,billing,apps/web/src/pages/app/billing.tsx,ENTITY
 UI-claims,ui,claims,apps/web/src/pages/app/claims.tsx,ENTITY
+UI-crm-live,ui,crm-live,apps/web/src/pages/app/crm-live.tsx,ENTITY
 UI-crm,ui,crm,apps/web/src/pages/app/crm.tsx,ENTITY
 UI-dashboard-live,ui,dashboard-live,apps/web/src/pages/app/dashboard-live.tsx,ENTITY
 UI-dashboard,ui,dashboard,apps/web/src/pages/app/dashboard.tsx,ENTITY
@@ -215,6 +216,7 @@ UI-finance,ui,finance,apps/web/src/pages/app/finance.tsx,ENTITY
 UI-fleet,ui,fleet,apps/web/src/pages/app/fleet.tsx,ENTITY
 UI-libraries,ui,libraries,apps/web/src/pages/app/libraries.tsx,ENTITY
 UI-network,ui,network,apps/web/src/pages/app/network.tsx,ENTITY
+UI-notifications-live,ui,notifications-live,apps/web/src/pages/app/notifications-live.tsx,ENTITY
 UI-notifications,ui,notifications,apps/web/src/pages/app/notifications.tsx,ENTITY
 UI-plans,ui,plans,apps/web/src/pages/app/plans.tsx,ENTITY
 UI-procurement,ui,procurement,apps/web/src/pages/app/procurement.tsx,ENTITY
@@ -356,6 +358,7 @@ TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE
 TST-web-claims,test,web/claims.test.tsx,apps/web/src/pages/app/claims.test.tsx,ENGINE
+TST-web-crm-live,test,web/crm-live.test.tsx,apps/web/src/pages/app/crm-live.test.tsx,ENGINE
 TST-web-dashboard-live,test,web/dashboard-live.test.tsx,apps/web/src/pages/app/dashboard-live.test.tsx,ENGINE
 TST-web-estimate-pricing,test,web/estimate-pricing.test.tsx,apps/web/src/pages/app/estimate-pricing.test.tsx,ENGINE
 TST-web-estimate-version,test,web/estimate-version.test.tsx,apps/web/src/pages/app/estimate-version.test.tsx,ENGINE
@@ -364,6 +367,7 @@ TST-web-estimates,test,web/estimates.test.tsx,apps/web/src/pages/app/estimates.t
 TST-web-finance,test,web/finance.test.tsx,apps/web/src/pages/app/finance.test.tsx,ENGINE
 TST-web-fleet,test,web/fleet.test.tsx,apps/web/src/pages/app/fleet.test.tsx,ENGINE
 TST-web-network,test,web/network.test.tsx,apps/web/src/pages/app/network.test.tsx,ENGINE
+TST-web-notifications-live,test,web/notifications-live.test.tsx,apps/web/src/pages/app/notifications-live.test.tsx,ENGINE
 TST-web-plans,test,web/plans.test.tsx,apps/web/src/pages/app/plans.test.tsx,ENGINE
 TST-web-projects,test,web/projects.test.tsx,apps/web/src/pages/app/projects.test.tsx,ENGINE
 TST-web-proposals-live,test,web/proposals-live.test.tsx,apps/web/src/pages/app/proposals-live.test.tsx,ENGINE
