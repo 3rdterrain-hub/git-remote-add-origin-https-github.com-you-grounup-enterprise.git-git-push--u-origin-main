@@ -71,6 +71,8 @@ export interface LineRow {
   /** This line's own markup as a fraction, or null to use the profile. */
   markupOverride: number | null;
   wastePercent: number;
+  /** What the estimator typed to get the quantity, when it was a calculation. */
+  quantityExpression: string | null;
   productionModifier: number;
 }
 
@@ -202,13 +204,6 @@ type InsertCapable = {
     };
   };
 };
-type UpdateCapable = {
-  from: (t: string) => {
-    update: (v: Record<string, unknown>) => {
-      eq: (c: string, v: string) => PromiseLike<{ error: { message: string } | null }>;
-    };
-  };
-};
 
 const rpc = async <T,>(client: RpcCapable, fn: string, args: Record<string, unknown>) => {
   const { data, error } = await client.rpc(fn, args);
@@ -277,7 +272,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
                    created_at: string; customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
-    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, production_modifier, services(name), cost_codes(code)')
+    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, services(name), cost_codes(code)')
     .eq('estimate_version_id', versionId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -337,6 +332,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       clientVisible: l.client_visible !== false,
       markupOverride: l.markup_override == null ? null : Number(l.markup_override),
       wastePercent: num(l.waste_percent),
+      quantityExpression: (l.quantity_expression as string | null) ?? null,
       productionModifier: l.production_modifier == null ? 1 : Number(l.production_modifier),
     })),
     show: {
@@ -812,14 +808,22 @@ export async function addLine(
  * own; `adjusted_quantity` and `gross_quantity` follow from it by waste, loss
  * and swell the engine applies, and the guard refuses a hand-written one.
  */
+/**
+ * Set a line's quantity, and the calculation it came from.
+ *
+ * A governed function rather than a bare update, because the two have to move
+ * together: a quantity changed without its expression would leave a stale
+ * calculation beside a number it no longer produces. `120 * 4 * 0.667` next to
+ * a quantity somebody has since typed over is worse than no calculation at all.
+ */
 export async function setLineQuantity(
-  client: UpdateCapable, lineId: string, quantity: number,
+  client: RpcCapable, lineId: string, quantity: number, expression?: string | null,
 ): Promise<void> {
-  const { error } = await client
-    .from('estimate_line_items')
-    .update({ measured_quantity: Math.max(quantity, 0) })
-    .eq('id', lineId);
-  if (error) throw new Error(error.message);
+  await rpc(client, 'set_line_quantity', {
+    p_line: lineId,
+    p_quantity: Math.max(quantity, 0),
+    p_expression: expression?.trim() || null,
+  });
 }
 
 /**

@@ -73,7 +73,7 @@ const line = (over: Partial<LineRow> = {}): LineRow => ({
   unit: 'LF', measuredQuantity: 1837, adjustedQuantity: 1837,
   unitCost: 0, totalDirectCost: 0, laborHours: 0, equipmentHours: 0,
   confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
-  clientVisible: true, markupOverride: null, wastePercent: 0, productionModifier: 1,
+  clientVisible: true, markupOverride: null, wastePercent: 0, quantityExpression: null, productionModifier: 1,
   ...over,
 });
 

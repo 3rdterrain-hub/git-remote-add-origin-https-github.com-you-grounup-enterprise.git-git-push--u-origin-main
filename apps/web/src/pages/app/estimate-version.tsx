@@ -48,12 +48,14 @@ import { usePermissions } from '@/lib/data/session';
 import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
-  loadVersion, loadDrift, searchServices, setLineQuantity, setEstimateStatus,
+  loadVersion, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
   issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { NewLineRow } from '@/components/estimate/new-line-row';
+import { QuantityInput } from '@/components/estimate/quantity-input';
+import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
 import { CategorySelect } from '@/components/ui/category-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import {
@@ -77,6 +79,8 @@ export function EstimateVersionPage() {
   const navigate = useNavigate();
   const { can } = usePermissions();
   const version = useQuery(loadVersion(versionId ?? ''), [versionId]);
+  const company = useQuery(loadMyCompanyId, []);
+  const companyId = company.status === 'ready' ? company.data : null;
 
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'bad'; text: string } | null>(null);
@@ -434,6 +438,9 @@ export function EstimateVersionPage() {
         </div>
       </div>
 
+      <PlanTakeoffPanel versionId={v.id} estimateId={v.estimateId} companyId={companyId}
+        editable={editable && can('estimates.write')} onChanged={version.refetch} />
+
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
         directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice} />
 
@@ -529,11 +536,9 @@ function LineTable({
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
 
-  const commit = async (lineId: string, raw: string, was: number) => {
-    const next = Number(raw);
-    if (!Number.isFinite(next) || next < 0 || next === was) return;
+  const commit = async (lineId: string, next: number, expression: string | null) => {
     setSaving(lineId); setError(null);
-    try { await setLineQuantity(supabase!, lineId, next); onChanged(); }
+    try { await setLineQuantity(supabase!, lineId, next, expression); onChanged(); }
     catch (err) { setError(messageFor(err)); }
     finally { setSaving(null); }
   };
@@ -685,17 +690,32 @@ function LineTable({
                   </TableCell>
                   <TableCell className="text-right">
                     {editable ? (
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-start justify-end gap-1.5">
                         {saving === l.id
-                          ? <Loader2 className="size-3.5 animate-spin text-charcoal-400" /> : null}
-                        <Input
-                          className="h-8 w-28 text-right tabular"
-                          type="number" min={0} step="any"
-                          defaultValue={l.measuredQuantity}
-                          aria-label={`Quantity for ${l.description}`}
-                          onBlur={(e) => commit(l.id, e.target.value, l.measuredQuantity)} />
+                          ? <Loader2 className="mt-2 size-3.5 animate-spin text-charcoal-400" /> : null}
+                        {/*
+                          * The cell takes the arithmetic, not just its answer.
+                          * `120 * 4 * 0.667` is what the estimator has in their
+                          * head, and keeping it is what lets a reviewer ask
+                          * what the number is of.
+                          */}
+                        <QuantityInput
+                          quantity={l.measuredQuantity}
+                          expression={l.quantityExpression}
+                          unit={l.unit}
+                          label={`Quantity for ${l.description}`}
+                          onCommit={(n, expr) => commit(l.id, n, expr)} />
                       </div>
-                    ) : <span className="tabular">{qty(l.measuredQuantity)}</span>}
+                    ) : (
+                      <span className="tabular">
+                        {qty(l.measuredQuantity)}
+                        {l.quantityExpression ? (
+                          <span className="block text-xs font-normal text-charcoal-400">
+                            {l.quantityExpression}
+                          </span>
+                        ) : null}
+                      </span>
+                    )}
                     {l.adjustedQuantity !== l.measuredQuantity ? (
                       <p className="mt-0.5 text-xs text-charcoal-400">
                         {qty(l.adjustedQuantity)} after waste and loss

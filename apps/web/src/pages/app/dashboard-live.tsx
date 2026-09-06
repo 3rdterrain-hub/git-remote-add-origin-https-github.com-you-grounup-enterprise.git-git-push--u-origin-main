@@ -15,9 +15,9 @@
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle, ArrowRight, CalendarClock, Calculator, CircleDollarSign,
-  CloudRain, HardHat, Loader2, RefreshCw, Send, Sun,
+  CloudRain, HardHat, LayoutGrid, Loader2, RefreshCw, Send, Sun,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,11 +29,20 @@ import { callFunction } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import {
   loadDueBids, loadAwaitingAnswer, loadWeather, loadMoney, refreshWeather,
-  type DueBid, type WeatherDay,
+  type DueBid, type WeatherDay, type AwaitingAnswer,
 } from '@/lib/data/dashboard';
 import { loadMyCompanyId } from '@/lib/data/estimates';
-import { loadRateVariance } from '@/lib/data/project-view';
+import { loadRateVariance, type RateVarianceView } from '@/lib/data/project-view';
 import { WeekAhead } from '@/components/dashboard/week-ahead';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CustomizeDashboard } from '@/components/dashboard/customize';
+import {
+  BidPerformancePanel, BillingPanel, CredentialsPanel, SafetyPanel, SchedulePanel,
+} from '@/components/dashboard/panels';
+import {
+  DASHBOARD_TABS, DEFAULT_DASHBOARD, visiblePanels, type DashboardPreference,
+} from '@/lib/dashboard-panels';
+import { loadDashboardPreference } from '@/lib/data/preferences';
 import { money, moneyCompact, date, integer, percent, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +53,17 @@ export function DashboardLivePage() {
   const moneyQ = useQuery(loadMoney, []);
   const variance = useQuery(loadRateVariance, []);
   const { can } = usePermissions();
+
+  /*
+   * The arrangement is this person's, read once and held locally so saving it
+   * does not make the whole dashboard flicker while every panel refetches.
+   */
+  const prefQ = useQuery(loadDashboardPreference, []);
+  const [preference, setPreference] = useState<DashboardPreference>(DEFAULT_DASHBOARD);
+  const [arranging, setArranging] = useState(false);
+  useEffect(() => {
+    if (prefQ.status === 'ready') setPreference(prefQ.data);
+  }, [prefQ.status, prefQ.status === 'ready' ? prefQ.data : null]);
 
   const dueBids = bids.status === 'ready' ? bids.data : [];
   const proposals = awaiting.status === 'ready' ? awaiting.data : [];
@@ -58,6 +78,36 @@ export function DashboardLivePage() {
   const lapsed = proposals.filter((p) => p.lapsed);
 
   const loading = [bids, awaiting, moneyQ].some((q) => q.status === 'loading');
+
+  const panels = visiblePanels(preference, can);
+  const tabsInUse = DASHBOARD_TABS.filter((t) => panels.some((p) => p.tab === t));
+
+  /*
+   * One place that maps a panel key to what it draws. A key with no case here
+   * would render nothing at all, so the default returns null loudly rather than
+   * an empty card that looks like a panel with no data.
+   */
+  const renderPanel = (key: string) => {
+    switch (key) {
+      case 'due': return <DuePanel bids={dueBids} state={bids.status} />;
+      case 'weather': return (
+        <div className="space-y-6">
+          <WeatherCard days={forecast} state={weather.status}
+            readError={weather.status === 'error' ? weather.message : null}
+            onRefreshed={() => weather.refetch()} />
+          <WeekAhead bids={dueBids} weather={forecast} />
+        </div>
+      );
+      case 'awaiting': return <AwaitingPanel proposals={proposals} />;
+      case 'bids': return <BidPerformancePanel />;
+      case 'production': return <RateVariancePanel rates={rates} />;
+      case 'schedule': return <SchedulePanel />;
+      case 'billing': return <BillingPanel />;
+      case 'credentials': return <CredentialsPanel />;
+      case 'safety': return <SafetyPanel />;
+      default: return null;
+    }
+  };
   const failure = [bids, awaiting, moneyQ].find((q) => q.status === 'error');
 
   return (
@@ -71,9 +121,14 @@ export function DashboardLivePage() {
             + `${plural(cash?.activeProjects ?? 0, 'active project')}.`
         }
         actions={
-          <Button asChild disabled={!can('estimates.write')}>
-            <Link to="/app/estimates"><Calculator className="size-4" /> New estimate</Link>
-          </Button>
+          <>
+            <Button variant="outline" onClick={() => setArranging(true)}>
+              <LayoutGrid className="size-4" /> Arrange
+            </Button>
+            <Button asChild disabled={!can('estimates.write')}>
+              <Link to="/app/estimates"><Calculator className="size-4" /> New estimate</Link>
+            </Button>
+          </>
         }
       />
 
@@ -108,116 +163,165 @@ export function DashboardLivePage() {
           hint={cash ? `across ${plural(cash.activeProjects, 'active project')}` : 'no projects yet'} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>What is due</CardTitle>
-            <CardDescription>
-              A bid deadline and an expiry are the same kind of fact — a date after which doing
-              nothing costs you the job. Which one it is decides what to do about it.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            {bids.status === 'ready' && dueBids.length === 0 ? (
-              <div className="p-6">
-                <EmptyState title="Nothing has a date on it"
-                  hint="Give an estimate a bid date or an expiry and it will appear here." />
-              </div>
-            ) : (
-              <ul className="divide-y divide-charcoal-200">
-                {dueBids.slice(0, 8).map((b) => <DueRow key={b.id} bid={b} />)}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      {/*
+        * The panels a person has arranged, in their order. What is offered is
+        * decided by the catalog in `lib/dashboard-panels.ts` — the same list the
+        * customizer reads — so a panel cannot be rendered that cannot be turned
+        * off, offered that nothing renders, or shown to somebody whose role does
+        * not permit it.
+        */}
+      {panels.length === 0 ? (
+        <EmptyState title="Every panel is switched off"
+          hint={<Button variant="outline" size="sm" onClick={() => setArranging(true)}>
+            Arrange your dashboard
+          </Button>} />
+      ) : preference.layout === 'single' ? (
+        <PanelGrid panels={panels} render={renderPanel} />
+      ) : (
+        <Tabs defaultValue={tabsInUse[0] ?? 'Today'}>
+          <TabsList>
+            {tabsInUse.map((t) => <TabsTrigger key={t} value={t}>{t}</TabsTrigger>)}
+          </TabsList>
+          {tabsInUse.map((t) => (
+            <TabsContent key={t} value={t} className="space-y-6">
+              <PanelGrid panels={panels.filter((p) => p.tab === t)} render={renderPanel} />
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
 
-        <WeatherCard days={forecast} state={weather.status}
-          readError={weather.status === 'error' ? weather.message : null}
-          onRefreshed={() => weather.refetch()} />
-      </div>
-
-      <WeekAhead bids={dueBids} weather={forecast} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Waiting on a customer</CardTitle>
-            <CardDescription>
-              Issued, and no answer recorded. Until migration 0101 nothing could record one, so
-              every proposal ever sent sat here forever.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            {proposals.length === 0 ? (
-              <div className="p-6">
-                <EmptyState title="Nothing is out with a customer"
-                  hint={<Link to="/app/proposals" className="text-yellow-700 underline">
-                    See every proposal
-                  </Link>} />
-              </div>
-            ) : (
-              <ul className="divide-y divide-charcoal-200">
-                {proposals.slice(0, 6).map((p) => (
-                  <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <Link to="/app/proposals"
-                        className="font-medium text-charcoal-900 hover:text-yellow-700">
-                        {p.number}
-                      </Link>
-                      <p className="truncate text-xs text-charcoal-500">
-                        {p.customerName ?? 'No customer'} · {p.title}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="tabular font-medium text-charcoal-900">{money(p.totalPrice)}</p>
-                      <p className={cn('text-xs', p.lapsed ? 'text-danger-600' : 'text-charcoal-500')}>
-                        {p.lapsed ? 'past its validity' : `out ${plural(p.daysOut, 'day')}`}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Against the rate it was bid at</CardTitle>
-            <CardDescription>
-              Field production measured against the library rate the work was priced with. It
-              reports and does not propose — a library rate changes through approval, never by a
-              silent edit (RULE-008).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            {rates.length === 0 ? (
-              <div className="p-6">
-                <EmptyState title="No production recorded against a rate yet"
-                  hint="Daily production entered against an estimated rate appears here." />
-              </div>
-            ) : (
-              <ul className="divide-y divide-charcoal-200">
-                {rates.slice(0, 6).map((r, i) => (
-                  <li key={i} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-charcoal-900">{r.rateCode}</p>
-                      <p className="text-xs text-charcoal-500">
-                        {integer(r.hoursObserved)} hours across {plural(r.observations, 'job')}
-                      </p>
-                    </div>
-                    <Badge variant={r.variancePercent < -0.05 ? 'danger'
-                      : r.variancePercent > 0.05 ? 'success' : 'default'}>
-                      {percent(r.variancePercent, 1)}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <CustomizeDashboard open={arranging} onOpenChange={setArranging}
+        preference={preference} can={can}
+        onSaved={(next) => { setPreference(next); prefQ.refetch(); }} />
     </div>
+  );
+}
+
+/** A card that lays panels out two-up, letting a full-width one take the row. */
+function PanelGrid({ panels, render }: {
+  panels: readonly { key: string; width: 'half' | 'full' }[];
+  render: (key: string) => React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {panels.map((p) => (
+        <div key={p.key} className={p.width === 'full' ? 'lg:col-span-2' : undefined}>
+          {render(p.key)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DuePanel({ bids, state }: { bids: DueBid[]; state: string }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>What is due</CardTitle>
+        <CardDescription>
+          A bid deadline and an expiry are the same kind of fact — a date after which doing
+          nothing costs you the job. Which one it is decides what to do about it.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        {state === 'ready' && bids.length === 0 ? (
+          <div className="p-6">
+            <EmptyState title="Nothing has a date on it"
+              hint="Give an estimate a bid date or an expiry and it will appear here." />
+          </div>
+        ) : (
+          <ul className="divide-y divide-charcoal-200">
+            {bids.slice(0, 8).map((b) => <DueRow key={b.id} bid={b} />)}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function AwaitingPanel({ proposals }: { proposals: AwaitingAnswer[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Waiting on a customer</CardTitle>
+        <CardDescription>
+          Issued, and no answer recorded. Until migration 0101 nothing could record one, so
+          every proposal ever sent sat here forever.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        {proposals.length === 0 ? (
+          <div className="p-6">
+            <EmptyState title="Nothing is out with a customer"
+              hint={<Link to="/app/proposals" className="text-yellow-700 underline">
+                See every proposal
+              </Link>} />
+          </div>
+        ) : (
+          <ul className="divide-y divide-charcoal-200">
+            {proposals.slice(0, 6).map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <Link to="/app/proposals"
+                    className="font-medium text-charcoal-900 hover:text-yellow-700">
+                    {p.number}
+                  </Link>
+                  <p className="truncate text-xs text-charcoal-500">
+                    {p.customerName ?? 'No customer'} · {p.title}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="tabular font-medium text-charcoal-900">{money(p.totalPrice)}</p>
+                  <p className={cn('text-xs', p.lapsed ? 'text-danger-600' : 'text-charcoal-500')}>
+                    {p.lapsed ? 'past its validity' : `out ${plural(p.daysOut, 'day')}`}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function RateVariancePanel({ rates }: { rates: RateVarianceView[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Against the rate it was bid at</CardTitle>
+        <CardDescription>
+          Field production measured against the library rate the work was priced with. It
+          reports and does not propose — a library rate changes through approval, never by a
+          silent edit (RULE-008).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        {rates.length === 0 ? (
+          <div className="p-6">
+            <EmptyState title="No production recorded against a rate yet"
+              hint="Daily production entered against an estimated rate appears here." />
+          </div>
+        ) : (
+          <ul className="divide-y divide-charcoal-200">
+            {rates.slice(0, 6).map((r, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-charcoal-900">{r.rateCode}</p>
+                  <p className="text-xs text-charcoal-500">
+                    {integer(r.hoursObserved)} hours across {plural(r.observations, 'job')}
+                  </p>
+                </div>
+                <Badge variant={r.variancePercent < -0.05 ? 'danger'
+                  : r.variancePercent > 0.05 ? 'success' : 'default'}>
+                  {percent(r.variancePercent, 1)}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

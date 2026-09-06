@@ -228,3 +228,160 @@ export async function refreshWeather(
     efficiency: result.efficiency ?? null,
   };
 }
+
+// ---------------------------------------------------------------------------
+// The panels an advanced dashboard is built from
+//
+// Each of these reads a reporting view that already existed and that nothing
+// rendered. The dashboard showed four figures and three panels while the
+// semantic layer held nineteen views — so a company could be over-billed on a
+// project, have a foreman's certification lapsing in nine days and an
+// investigation still open, and the first screen they see every morning said
+// none of it.
+// ---------------------------------------------------------------------------
+
+/** A certification about to lapse, and what it stops somebody doing. */
+export interface CredentialExpiry {
+  credentialId: string;
+  employeeName: string;
+  credentialName: string;
+  standing: string;
+  daysRemaining: number | null;
+  blocksWorkTypes: string[];
+}
+
+export const loadCredentialExpiries: Query<CredentialExpiry[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_credential_expiry')
+    .select('credential_id, employee_name, credential_name, standing, days_remaining, blocks_work_types')
+    .neq('standing', 'valid')
+    .order('days_remaining', { ascending: true, nullsFirst: false })
+    .limit(12)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    credentialId: String(r.credential_id),
+    employeeName: String(r.employee_name ?? ''),
+    credentialName: String(r.credential_name ?? ''),
+    standing: String(r.standing ?? ''),
+    daysRemaining: r.days_remaining == null ? null : Number(r.days_remaining),
+    blocksWorkTypes: (r.blocks_work_types as string[]) ?? [],
+  }));
+};
+
+/** A project's billing against what it has earned. */
+export interface ProjectBilling {
+  projectId: string;
+  projectNumber: string;
+  projectName: string;
+  contractValue: number;
+  percentComplete: number;
+  earnedRevenue: number;
+  billedToDate: number;
+  /** Positive is over-billed, negative is under-billed. */
+  overUnderBilled: number;
+  retainageHeld: number;
+}
+
+export const loadProjectBilling: Query<ProjectBilling[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_project_financials')
+    .select('project_id, project_number, project_name, contract_value, percent_complete, earned_revenue, billed_to_date, over_under_billed, retainage_held')
+    .order('over_under_billed', { ascending: true })
+    .limit(12)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    projectId: String(r.project_id),
+    projectNumber: String(r.project_number ?? ''),
+    projectName: String(r.project_name ?? ''),
+    contractValue: Number(r.contract_value ?? 0),
+    percentComplete: Number(r.percent_complete ?? 0),
+    earnedRevenue: Number(r.earned_revenue ?? 0),
+    billedToDate: Number(r.billed_to_date ?? 0),
+    overUnderBilled: Number(r.over_under_billed ?? 0),
+    retainageHeld: Number(r.retainage_held ?? 0),
+  }));
+};
+
+/** An activity that has moved away from the baseline it was sold on. */
+export interface ScheduleSlip {
+  activityId: string;
+  activityName: string;
+  baselineFinish: string | null;
+  currentFinish: string | null;
+  finishVarianceDays: number;
+  status: string | null;
+}
+
+export const loadScheduleSlips: Query<ScheduleSlip[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_schedule_variance')
+    .select('schedule_activity_id, activity_name, baseline_finish, current_finish, finish_variance_days, status')
+    .gt('finish_variance_days', 0)
+    .order('finish_variance_days', { ascending: false })
+    .limit(12)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    activityId: String(r.schedule_activity_id),
+    activityName: String(r.activity_name ?? ''),
+    baselineFinish: (r.baseline_finish as string | null) ?? null,
+    currentFinish: (r.current_finish as string | null) ?? null,
+    finishVarianceDays: Number(r.finish_variance_days ?? 0),
+    status: (r.status as string | null) ?? null,
+  }));
+};
+
+/** Incidents this month and last, and what is still being investigated. */
+export interface SafetyStanding {
+  monthOf: string;
+  incidents: number;
+  recordables: number;
+  lostTimeCases: number;
+  openInvestigations: number;
+}
+
+export const loadSafetyStanding: Query<SafetyStanding[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_safety_summary')
+    .select('month_of, incidents, recordables, lost_time_cases, open_investigations')
+    .order('month_of', { ascending: false })
+    .limit(6)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    monthOf: String(r.month_of),
+    incidents: Number(r.incidents ?? 0),
+    recordables: Number(r.recordables ?? 0),
+    lostTimeCases: Number(r.lost_time_cases ?? 0),
+    openInvestigations: Number(r.open_investigations ?? 0),
+  }));
+};
+
+/** How bidding has gone, month by month. */
+export interface BidMonth {
+  monthOf: string;
+  estimates: number;
+  submitted: number;
+  won: number;
+  lost: number;
+  wins: number;
+  losses: number;
+  hitRate: number | null;
+}
+
+export const loadBidPerformance: Query<BidMonth[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_bid_performance')
+    .select('month_of, estimates, submitted, won, lost, wins, losses, hit_rate')
+    .order('month_of', { ascending: false })
+    .limit(6)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    monthOf: String(r.month_of),
+    estimates: Number(r.estimates ?? 0),
+    submitted: Number(r.submitted ?? 0),
+    won: Number(r.won ?? 0),
+    lost: Number(r.lost ?? 0),
+    wins: Number(r.wins ?? 0),
+    losses: Number(r.losses ?? 0),
+    hitRate: r.hit_rate == null ? null : Number(r.hit_rate),
+  }));
+};

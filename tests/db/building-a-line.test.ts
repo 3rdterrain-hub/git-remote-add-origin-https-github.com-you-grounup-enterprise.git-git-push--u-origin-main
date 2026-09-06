@@ -288,6 +288,63 @@ describe('building a line the way an estimator does', () => {
       .rejects.toThrow(/no compacted volume/i);
   });
 
+
+  describe('how the quantity was arrived at', () => {
+    /*
+     * A quantity is almost never a number somebody knows. Keeping the
+     * calculation beside it is what lets a reviewer ask "of what?" — and the
+     * two have to move together, or a stale expression sits beside a number it
+     * no longer produces.
+     */
+    it('keeps the calculation beside the number it produced', async () => {
+      await h.asUser(chief, () => h.sql(
+        `select app.set_line_quantity($1, 320.16, '120 * 4 * 0.667')`, [line]));
+      const [r] = await h.asUser(chief, () => h.sql<{ q: string; e: string | null }>(
+        `select measured_quantity as q, quantity_expression as e
+           from estimate_line_items where id = $1`, [line]));
+      expect(Number(r!.q)).toBeCloseTo(320.16, 2);
+      expect(r!.e).toBe('120 * 4 * 0.667');
+    });
+
+    it('stores no expression when the expression is only a number', async () => {
+      await h.asUser(chief, () => h.sql(
+        `select app.set_line_quantity($1, 1800, '1800')`, [line]));
+      const [r] = await h.asUser(chief, () => h.sql<{ e: string | null }>(
+        `select quantity_expression as e from estimate_line_items where id = $1`, [line]));
+      expect(r!.e).toBeNull();
+    });
+
+    it('clears a calculation the new quantity did not come from', async () => {
+      await h.asUser(chief, () => h.sql(
+        `select app.set_line_quantity($1, 320.16, '120 * 4 * 0.667')`, [line]));
+      await h.asUser(chief, () => h.sql(
+        `select app.set_line_quantity($1, 500)`, [line]));
+      const [r] = await h.asUser(chief, () => h.sql<{ q: string; e: string | null }>(
+        `select measured_quantity as q, quantity_expression as e
+           from estimate_line_items where id = $1`, [line]));
+      expect(Number(r!.q)).toBe(500);
+      expect(r!.e).toBeNull();
+    });
+
+    it('refuses a negative quantity', async () => {
+      await expect(h.asUser(chief, () => h.sql(
+        `select app.set_line_quantity($1, -5)`, [line])))
+        .rejects.toThrow(/zero or more/i);
+    });
+
+    it('tells another company nothing at all, not even that the line exists', async () => {
+      /*
+       * `security invoker`, so row level security hides the line before the
+       * permission check is reached. "No such estimate line" is the better
+       * answer: a refusal for lack of permission would confirm that somebody
+       * else's line is there.
+       */
+      await expect(h.asUser(outsider, () => h.sql(
+        `select app.set_line_quantity($1, 10)`, [line])))
+        .rejects.toThrow(/no such estimate line/i);
+    });
+  });
+
   // ------------------------------------------------------------- refusals
   it('keeps another company out of the line entirely', async () => {
     await expect(h.asUser(outsider, () => h.sql(

@@ -30,6 +30,7 @@ ENG-028,engine,Critical Path Engine,packages/engine/src/schedule.ts,ENGINE
 ENG-029,engine,Takeoff Measurement,packages/engine/src/takeoff.ts,ENGINE
 ENG-031,engine,Basin & Pond Engine,packages/engine/src/basins.ts,ENGINE
 ENG-030,engine,Estimate Hierarchy,packages/engine/src/hierarchy.ts,ENGINE
+ENG-032,engine,Quantity Arithmetic,packages/engine/src/arithmetic.ts,ENGINE
 AI-001,ai_agent,Plan Analyst,supabase/functions/ai-analyze-document,AI_AGENT
 TBL-ai_agents,table,ai_agents,supabase/migrations (table ai_agents),AI_AGENT
 TBL-ai_conversations,table,ai_conversations,supabase/migrations (table ai_conversations),AI_AGENT
@@ -238,6 +239,7 @@ RPT-reporting_project_financials,report,reporting_project_financials,supabase/mi
 RPT-reporting_labor_productivity,report,reporting_labor_productivity,supabase/migrations/0025_semantic_layer.sql,ENGINE
 RPT-reporting_safety_summary,report,reporting_safety_summary,supabase/migrations/0025_semantic_layer.sql,ENGINE
 RPT-reporting_bid_performance,report,reporting_bid_performance,supabase/migrations/0025_semantic_layer.sql,ENGINE
+TST-engine-arithmetic,test,engine/arithmetic.test.ts,packages/engine/tests/arithmetic.test.ts,ENGINE
 TST-engine-assemblies,test,engine/assemblies.test.ts,packages/engine/tests/assemblies.test.ts,ENGINE
 TST-engine-basins,test,engine/basins.test.ts,packages/engine/tests/basins.test.ts,ENGINE
 TST-engine-calendar,test,engine/calendar.test.ts,packages/engine/tests/calendar.test.ts,ENGINE
@@ -311,6 +313,7 @@ TST-db-operator-reports,test,db/operator-reports.test.ts,tests/db/operator-repor
 TST-db-operator-roles,test,db/operator-roles.test.ts,tests/db/operator-roles.test.ts,ENGINE
 TST-db-overrides,test,db/overrides.test.ts,tests/db/overrides.test.ts,ENGINE
 TST-db-payment-failures,test,db/payment-failures.test.ts,tests/db/payment-failures.test.ts,ENGINE
+TST-db-plan-takeoff,test,db/plan-takeoff.test.ts,tests/db/plan-takeoff.test.ts,ENGINE
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
 TST-db-platform-rows-are-readable,test,db/platform-rows-are-readable.test.ts,tests/db/platform-rows-are-readable.test.ts,ENGINE
 TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
@@ -350,10 +353,13 @@ TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENG
 TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
+TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
 TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
+TST-web-plan-takeoff,test,web/plan-takeoff.test.tsx,apps/web/src/components/estimate/plan-takeoff.test.tsx,ENGINE
 TST-web-production-rate,test,web/production-rate.test.tsx,apps/web/src/components/estimate/production-rate.test.tsx,ENGINE
+TST-web-quantity-input,test,web/quantity-input.test.tsx,apps/web/src/components/estimate/quantity-input.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
@@ -368,6 +374,7 @@ TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.t
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
+TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE

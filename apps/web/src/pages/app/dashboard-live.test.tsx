@@ -7,6 +7,7 @@
  * when it cannot, and never fills a space with a number it invented.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '@testing-library/react';
 import { renderPage } from '@/test/render';
 
@@ -24,6 +25,20 @@ vi.mock('@/lib/supabase', () => ({
   get supabase() { return hoisted.configured ? {} : null; },
   callFunction: async () => ({ refreshed: true, efficiency: 0.71 }),
 }));
+
+/*
+ * The dashboard is arranged per person now, so a test has to say which
+ * arrangement it is looking at. The shipped one is the interesting case.
+ */
+vi.mock('@/lib/data/preferences', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/data/preferences')>(
+    '@/lib/data/preferences');
+  return {
+    ...actual,
+    loadDashboardPreference: async () => ({ order: [], hidden: [], layout: 'tabs' }),
+    saveDashboardPreference: async () => {},
+  };
+});
 
 vi.mock('@/lib/data/session', () => ({
   usePermissions: () => ({ can: () => true, loading: false }),
@@ -127,9 +142,16 @@ describe('the dashboard', () => {
         totalPrice: 100_000, issuedAt: inDays(-5), daysOut: 5, lapsed: false },
     ];
     renderPage(<DashboardLivePage />);
+    /* The figure across the top is always there, whichever tab is open. */
     await waitFor(() => expect(screen.getByText('1 past its validity')).toBeInTheDocument());
     expect(screen.getByText('$350K')).toBeInTheDocument();
-    expect(screen.getByText('out 5 days')).toBeInTheDocument();
+
+    /*
+     * The panel itself lives under Winning work now that the dashboard is
+     * grouped, and Radix renders only the open tab.
+     */
+    await userEvent.click(screen.getByRole('tab', { name: 'Winning work' }));
+    expect(await screen.findByText('out 5 days')).toBeInTheDocument();
   });
 
   it('reports the calendar efficiency the weather actually implies', async () => {

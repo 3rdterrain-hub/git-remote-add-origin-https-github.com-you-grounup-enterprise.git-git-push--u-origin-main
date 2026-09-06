@@ -79,7 +79,7 @@
     },
     "mapped test evidence": {
       "status": "not_met",
-      "gap": "The engine is thoroughly tested — 632 tests including prismoidal and average-end-area volumes, stockpiles, progress against design, unit conversions and the georeference added this phase — and the database controls now have 42 tests behind them. That is test evidence for the arithmetic and the guards. It is not test evidence for the phase: twenty-one of twenty-nine domains have no implementation to test, so there is nothing mapped to them. A condition asking whether each requirement has mapped tests cannot be met where the capability does not exist, and counting engine coverage toward drone operations or point cloud management would be the kind of borrowed evidence this register exists to prevent."
+      "gap": "The engine is thoroughly tested — 654 tests including prismoidal and average-end-area volumes, stockpiles, progress against design, unit conversions and the georeference added this phase — and the database controls now have 42 tests behind them. That is test evidence for the arithmetic and the guards. It is not test evidence for the phase: twenty-one of twenty-nine domains have no implementation to test, so there is nothing mapped to them. A condition asking whether each requirement has mapped tests cannot be met where the capability does not exist, and counting engine coverage toward drone operations or point cloud management would be the kind of borrowed evidence this register exists to prevent."
     }
   },
   "domain_status": {

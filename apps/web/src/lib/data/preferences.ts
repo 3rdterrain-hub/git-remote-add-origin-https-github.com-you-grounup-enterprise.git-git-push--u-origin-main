@@ -11,6 +11,7 @@
  * a lost preference looks exactly like one that was never saved.
  */
 import { unwrap, type Query } from './query';
+import { DEFAULT_DASHBOARD, type DashboardPreference } from '@/lib/dashboard-panels';
 
 /** Where the navigation lives. */
 export type NavPlacement = 'side' | 'top';
@@ -84,4 +85,43 @@ export function applyNavOrder<T extends { key: string }>(
   }
   for (const item of items) if (byKey.has(item.key)) arranged.push(item);
   return arranged.filter((i) => !pref.hidden.includes(i.key));
+}
+
+// ---------------------------------------------------------------------------
+// The dashboard a person has arranged
+// ---------------------------------------------------------------------------
+
+/**
+ * Read a dashboard arrangement, forgiving whatever shape it turns out to be.
+ *
+ * Same reasoning as the navigation above: a preference is written by a version
+ * of the application that may not be the one reading it, and nobody should meet
+ * a broken dashboard because of a setting they saved last year. An unreadable
+ * arrangement falls back to the shipped one.
+ */
+export const loadDashboardPreference: Query<DashboardPreference> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_preferences')
+    .select('preferences')
+    .limit(1)) as Array<{ preferences: Record<string, unknown> | null }>;
+
+  const raw = rows[0]?.preferences?.dashboard;
+  if (!raw || typeof raw !== 'object') return DEFAULT_DASHBOARD;
+  const d = raw as Record<string, unknown>;
+  const strings = (v: unknown) =>
+    Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  return {
+    order: strings(d.order),
+    hidden: strings(d.hidden),
+    layout: d.layout === 'single' ? 'single' : 'tabs',
+  };
+};
+
+export async function saveDashboardPreference(
+  client: RpcCapable, value: DashboardPreference,
+): Promise<void> {
+  const { error } = await client.rpc('set_my_preference', {
+    p_key: 'dashboard', p_value: value,
+  });
+  if (error) throw new Error(error.message);
 }

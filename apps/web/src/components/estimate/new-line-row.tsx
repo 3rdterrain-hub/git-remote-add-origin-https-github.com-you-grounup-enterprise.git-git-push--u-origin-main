@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { UnitSelect } from '@/components/ui/unit-select';
+import { QuantityInput } from '@/components/estimate/quantity-input';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { searchServices, addLine, insertLineAfter, type LibraryService }
@@ -37,7 +38,8 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
   const [term, setTerm] = useState('');
   const [chosen, setChosen] = useState<LibraryService | null>(null);
   const [unit, setUnit] = useState('LS');
-  const [quantity, setQuantity] = useState('');
+  const [quantity, setQuantity] = useState(0);
+  const [expression, setExpression] = useState<string | null>(null);
   const [cursor, setCursor] = useState(-1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +62,7 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
       const fields = {
         serviceId: chosen?.id ?? null,
         description: chosen ? null : term.trim(),
-        quantity: Number(quantity) || 0,
+        quantity,
         unit: unit || 'LS',
       };
       if (afterLineId) {
@@ -145,12 +147,12 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
           <UnitSelect value={unit} onChange={setUnit} disabled={busy}
             allowed={chosen?.supportedUnits} label="Unit for this line" className="w-40" />
 
-          <Input type="number" min={0} step="any" value={quantity} disabled={busy}
-            aria-label="Quantity for this line" placeholder="Quantity"
-            className="h-8 w-28 text-right tabular"
-            onChange={(e) => setQuantity(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void save(); }
-                                if (e.key === 'Escape') onCancel(); }} />
+          {/* The same cell as the table's, so a line typed here and a line
+              edited later take arithmetic the same way. */}
+          <QuantityInput
+            quantity={quantity} expression={expression} unit={unit} disabled={busy}
+            label="Quantity for this line"
+            onCommit={(n, expr) => { setQuantity(n); setExpression(expr); }} />
 
           <button type="button" onClick={() => void save()}
             disabled={busy || term.trim().length === 0}

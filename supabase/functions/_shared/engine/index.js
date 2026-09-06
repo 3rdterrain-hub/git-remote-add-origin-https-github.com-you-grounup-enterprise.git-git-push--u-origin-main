@@ -7,6 +7,7 @@
  * specification Section 40, RULE-008).
  */
 export * from './numeric.js';
+export * from './arithmetic.js';
 export * from './units.js';
 export * from './quantity.js';
 export * from './production.js';
