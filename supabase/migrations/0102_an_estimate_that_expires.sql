@@ -21,15 +21,16 @@
 -- what follows from it and the current time.
 -- =============================================================================
 
+alter table estimates drop constraint if exists estimates_expiry_after_creation;
 alter table estimates
-  add column expires_at timestamptz,
+  add column if not exists expires_at timestamptz,
   add constraint estimates_expiry_after_creation
     check (expires_at is null or expires_at > created_at);
 
 comment on column estimates.expires_at is
   'When this estimate''s price stops being good. Optional: an estimate with no expiry does not expire. Expiry is derived from this and the clock, never stored as a status — a stored flag is wrong between the moment it passes and whatever would have corrected it.';
 
-create index estimates_expiring_idx on estimates(company_id, expires_at)
+create index if not exists estimates_expiring_idx on estimates(company_id, expires_at)
   where expires_at is not null and status in ('draft', 'in_review', 'approved', 'issued');
 
 /** Has this estimate's price stopped being good? */

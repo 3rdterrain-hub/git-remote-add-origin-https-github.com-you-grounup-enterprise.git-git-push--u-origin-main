@@ -49,8 +49,8 @@ create table value_overrides (
   -- somebody is bidding.
   unique (entity_table, entity_id, field_path)
 );
-create index value_overrides_entity_idx on value_overrides(entity_table, entity_id);
-create index value_overrides_company_idx on value_overrides(company_id, approved_at desc);
+create index if not exists value_overrides_entity_idx on value_overrides(entity_table, entity_id);
+create index if not exists value_overrides_company_idx on value_overrides(company_id, approved_at desc);
 
 comment on table value_overrides is
   'A person overriding a computed value, recorded rather than applied. The engine figure is retained beside the override, a reason is required, and the requester cannot approve their own.';
@@ -65,6 +65,7 @@ comment on constraint value_overrides_not_self_approved on value_overrides is
 -- rewrites the record of that decision; a different decision is a new override
 -- after the old one is withdrawn.
 -- -----------------------------------------------------------------------------
+drop trigger if exists value_overrides_immutable on value_overrides;
 create trigger value_overrides_immutable
   before update on value_overrides
   for each row execute function app.forbid_mutation();
@@ -119,6 +120,7 @@ begin
 end;
 $$;
 
+drop trigger if exists value_overrides_tenant_guard on value_overrides;
 create trigger value_overrides_tenant_guard
   before insert on value_overrides
   for each row execute function app.enforce_override_entity_tenant();

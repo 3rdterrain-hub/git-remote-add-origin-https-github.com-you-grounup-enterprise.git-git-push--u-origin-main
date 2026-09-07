@@ -30,7 +30,7 @@
 -- =============================================================================
 
 alter table platform_admins
-  add column role text not null default 'sales'
+  add column if not exists role text not null default 'sales'
     check (role in ('superadmin', 'sales'));
 
 comment on column platform_admins.role is
@@ -43,7 +43,7 @@ comment on column platform_admins.role is
  * expresses "at most one row matching this predicate". Revoked superadmins do
  * not count, so the role can be handed over.
  */
-create unique index platform_admins_one_superadmin
+create unique index if not exists platform_admins_one_superadmin
   on platform_admins ((true)) where role = 'superadmin' and revoked_at is null;
 
 /** Is the caller the superadmin? */
@@ -186,8 +186,8 @@ create table upsell_proposals (
   constraint upsell_proposals_proposes_something
     check (proposed_plan_id is not null or array_length(proposed_features, 1) > 0)
 );
-create index upsell_proposals_company_idx on upsell_proposals(company_id);
-create index upsell_proposals_open_idx on upsell_proposals(state, proposed_at desc)
+create index if not exists upsell_proposals_company_idx on upsell_proposals(company_id);
+create index if not exists upsell_proposals_open_idx on upsell_proposals(state, proposed_at desc)
   where state = 'proposed';
 
 comment on table upsell_proposals is

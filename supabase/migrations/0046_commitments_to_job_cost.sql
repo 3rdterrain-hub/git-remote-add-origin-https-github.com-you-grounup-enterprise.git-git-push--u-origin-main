@@ -130,6 +130,7 @@ begin
 end;
 $$;
 
+drop trigger if exists guard_purchase_order_invoiced on purchase_orders;
 create trigger guard_purchase_order_invoiced
   before update of invoiced_amount on purchase_orders
   for each row execute function app.guard_purchase_order_invoiced();
@@ -243,6 +244,7 @@ begin
 end;
 $$;
 
+drop trigger if exists post_purchase_order_to_job_cost on purchase_orders;
 create trigger post_purchase_order_to_job_cost
   after insert or update or delete on purchase_orders
   for each row execute function app.post_purchase_order_to_job_cost();
@@ -263,6 +265,7 @@ begin
 end;
 $$;
 
+drop trigger if exists repost_purchase_order_items on purchase_order_items;
 create trigger repost_purchase_order_items
   after insert or update or delete on purchase_order_items
   for each row execute function app.repost_purchase_order_items();
@@ -347,10 +350,12 @@ $$;
 
 -- Ordered after the invoiced-total sync by name, so the purchase order's open
 -- commitment is already correct when this posts the actual cost beside it.
+drop trigger if exists sync_purchase_order_invoiced on ap_invoices;
 create trigger sync_purchase_order_invoiced
   after insert or update or delete on ap_invoices
   for each row execute function app.sync_purchase_order_invoiced();
 
+drop trigger if exists zz_post_ap_invoice_to_job_cost on ap_invoices;
 create trigger zz_post_ap_invoice_to_job_cost
   after insert or update or delete on ap_invoices
   for each row execute function app.post_ap_invoice_to_job_cost();

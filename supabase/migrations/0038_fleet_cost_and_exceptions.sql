@@ -80,6 +80,7 @@ begin
 end;
 $$;
 
+drop trigger if exists fuel_transactions_post_cost on fuel_transactions;
 create trigger fuel_transactions_post_cost
   after insert or update or delete on fuel_transactions
   for each row execute function app.post_fuel_to_job_cost();
@@ -96,6 +97,7 @@ comment on function app.post_fuel_to_job_cost() is
 alter table notifications
   drop constraint notifications_category_check;
 
+alter table notifications drop constraint if exists notifications_category_check;
 alter table notifications
   add constraint notifications_category_check
   check (category in ('estimate', 'project', 'rfi', 'submittal', 'change_order',
@@ -132,6 +134,7 @@ begin
 end;
 $$;
 
+drop trigger if exists assets_notify_down on assets;
 create trigger assets_notify_down
   after insert or update of status on assets
   for each row execute function app.notify_asset_down();
@@ -185,6 +188,7 @@ begin
 end;
 $$;
 
+drop trigger if exists meter_readings_notify_due on meter_readings;
 create trigger meter_readings_notify_due
   after insert on meter_readings
   for each row execute function app.notify_maintenance_due();

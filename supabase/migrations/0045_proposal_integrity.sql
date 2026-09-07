@@ -125,6 +125,7 @@ $$;
 
 -- Named to sort after enforce_proposal_immutability, which must see the row as
 -- the caller submitted it before this one derives anything on top.
+drop trigger if exists enforce_proposal_integrity on proposals;
 create trigger enforce_proposal_integrity
   before insert or update on proposals
   for each row execute function app.enforce_proposal_integrity();
@@ -167,6 +168,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_proposal_line_lock on proposal_line_items;
 create trigger enforce_proposal_line_lock
   before insert or update or delete on proposal_line_items
   for each row execute function app.enforce_proposal_line_lock();

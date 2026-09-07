@@ -64,13 +64,13 @@ create table library_categories (
  * Work" and "site work " are the same category to everyone except a database
  * that was not told so.
  */
-create unique index library_categories_company_name_idx
+create unique index if not exists library_categories_company_name_idx
   on library_categories (company_id, kind, lower(trim(name)))
   where company_id is not null;
-create unique index library_categories_platform_name_idx
+create unique index if not exists library_categories_platform_name_idx
   on library_categories (kind, lower(trim(name)))
   where company_id is null;
-create index library_categories_kind_idx on library_categories (kind, sort_order, name);
+create index if not exists library_categories_kind_idx on library_categories (kind, sort_order, name);
 
 comment on table library_categories is
   'The categories the master libraries group by: service industry, category and subcategory, task, material, condition modifier, labor group, crew discipline and equipment class. LIBRARY. Platform rows ship with the catalog and are readable by every tenant; a company adds its own on top, and a trigger refuses any value that is not in this list.';

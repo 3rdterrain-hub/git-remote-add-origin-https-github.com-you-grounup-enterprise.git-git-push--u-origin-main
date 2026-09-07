@@ -34,8 +34,9 @@ create table schedule_of_values (
   unique (project_id, item_number),
   constraint sov_unit_price check (billing_basis <> 'unit_price' or (quantity is not null and unit_price is not null))
 );
-create index sov_project_idx on schedule_of_values(project_id, sort_order);
+create index if not exists sov_project_idx on schedule_of_values(project_id, sort_order);
 
+drop trigger if exists sov_tenant_parent on schedule_of_values;
 create trigger sov_tenant_parent
   before insert or update on schedule_of_values
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -80,8 +81,8 @@ create table pay_applications (
     check (completed_to_date <= contract_sum + approved_changes),
   constraint pay_applications_submitted check (status = 'draft' or submitted_at is not null)
 );
-create index pay_applications_project_idx on pay_applications(project_id, application_number desc);
-create index pay_applications_open_idx on pay_applications(company_id, status) where status not in ('paid', 'rejected');
+create index if not exists pay_applications_project_idx on pay_applications(project_id, application_number desc);
+create index if not exists pay_applications_open_idx on pay_applications(company_id, status) where status not in ('paid', 'rejected');
 
 comment on constraint pay_applications_not_over_billed on pay_applications is
   'Billing more than the contract sum plus approved changes is not a rounding error; it is a claim the owner will reject. Caught here rather than at the owner''s desk.';
@@ -104,8 +105,9 @@ create table pay_application_lines (
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now()
 );
-create index pay_application_lines_app_idx on pay_application_lines(pay_application_id, sort_order);
+create index if not exists pay_application_lines_app_idx on pay_application_lines(pay_application_id, sort_order);
 
+drop trigger if exists pay_application_lines_tenant_parent on pay_application_lines;
 create trigger pay_application_lines_tenant_parent
   before insert or update on pay_application_lines
   for each row execute function app.enforce_tenant_parent('pay_applications', 'pay_application_id', 'id');
@@ -155,6 +157,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_pay_application_lock on pay_applications;
 create trigger enforce_pay_application_lock
   before update on pay_applications
   for each row execute function app.enforce_pay_application_lock();
@@ -184,7 +187,7 @@ create table rfqs (
   -- An award must say why. "Low bid" is a reason; nothing is not.
   constraint rfqs_award check (status <> 'awarded' or (awarded_vendor_id is not null and award_reason is not null))
 );
-create index rfqs_company_status_idx on rfqs(company_id, status);
+create index if not exists rfqs_company_status_idx on rfqs(company_id, status);
 
 comment on constraint rfqs_award on rfqs is
   'Awarding to anyone other than the low bidder is a defensible decision only if the reason was recorded at the time.';
@@ -211,8 +214,9 @@ create table rfq_responses (
   unique (rfq_id, vendor_id),
   constraint rfq_responses_received check (status = 'invited' or status = 'declined' or quoted_amount is not null)
 );
-create index rfq_responses_rfq_idx on rfq_responses(rfq_id);
+create index if not exists rfq_responses_rfq_idx on rfq_responses(rfq_id);
 
+drop trigger if exists rfq_responses_tenant_parent on rfq_responses;
 create trigger rfq_responses_tenant_parent
   before insert or update on rfq_responses
   for each row execute function app.enforce_tenant_parent('rfqs', 'rfq_id', 'id');
@@ -250,8 +254,8 @@ create table purchase_orders (
   constraint purchase_orders_not_over_invoiced check (invoiced_amount <= committed_amount * 1.001),
   constraint purchase_orders_paid check (paid_amount <= invoiced_amount)
 );
-create index purchase_orders_project_idx on purchase_orders(project_id) where project_id is not null;
-create index purchase_orders_open_idx on purchase_orders(company_id, status) where status not in ('closed', 'canceled');
+create index if not exists purchase_orders_project_idx on purchase_orders(project_id) where project_id is not null;
+create index if not exists purchase_orders_open_idx on purchase_orders(company_id, status) where status not in ('closed', 'canceled');
 
 comment on constraint purchase_orders_not_over_invoiced on purchase_orders is
   'A vendor invoicing beyond the purchase order is a change that needs approving, not a payable to be quietly posted. The 0.1% tolerance absorbs freight and rounding.';
@@ -272,8 +276,9 @@ create table purchase_order_items (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index purchase_order_items_po_idx on purchase_order_items(purchase_order_id, sort_order);
+create index if not exists purchase_order_items_po_idx on purchase_order_items(purchase_order_id, sort_order);
 
+drop trigger if exists purchase_order_items_tenant_parent on purchase_order_items;
 create trigger purchase_order_items_tenant_parent
   before insert or update on purchase_order_items
   for each row execute function app.enforce_tenant_parent('purchase_orders', 'purchase_order_id', 'id');
@@ -296,8 +301,9 @@ create table deliveries (
   updated_at          timestamptz not null default now(),
   constraint deliveries_discrepancy check (is_accepted or discrepancy_note is not null)
 );
-create index deliveries_po_idx on deliveries(purchase_order_id, delivered_at desc);
+create index if not exists deliveries_po_idx on deliveries(purchase_order_id, delivered_at desc);
 
+drop trigger if exists deliveries_tenant_parent on deliveries;
 create trigger deliveries_tenant_parent
   before insert or update on deliveries
   for each row execute function app.enforce_tenant_parent('purchase_orders', 'purchase_order_id', 'id');
@@ -326,7 +332,7 @@ create table inventory_items (
   -- Reserving more than is on hand is how two crews both plan on the same pipe.
   constraint inventory_items_reserved check (quantity_reserved <= quantity_on_hand)
 );
-create index inventory_items_reorder_idx on inventory_items(company_id)
+create index if not exists inventory_items_reorder_idx on inventory_items(company_id)
   where reorder_point is not null;
 
 create table inventory_transactions (
@@ -348,8 +354,9 @@ create table inventory_transactions (
   -- An adjustment that is not explained is indistinguishable from shrinkage.
   constraint inventory_transactions_adjustment check (transaction_type <> 'adjustment' or reason is not null)
 );
-create index inventory_transactions_item_idx on inventory_transactions(inventory_item_id, transacted_at desc);
+create index if not exists inventory_transactions_item_idx on inventory_transactions(inventory_item_id, transacted_at desc);
 
+drop trigger if exists inventory_transactions_tenant_parent on inventory_transactions;
 create trigger inventory_transactions_tenant_parent
   before insert or update on inventory_transactions
   for each row execute function app.enforce_tenant_parent('inventory_items', 'inventory_item_id', 'id');
@@ -370,6 +377,7 @@ begin
 end;
 $$;
 
+drop trigger if exists apply_inventory_transaction on inventory_transactions;
 create trigger apply_inventory_transaction
   after insert on inventory_transactions
   for each row execute function app.apply_inventory_transaction();
@@ -408,8 +416,8 @@ create table ap_invoices (
   constraint ap_invoices_pay_requires_match
     check (status not in ('partially_paid', 'paid') or match_status in ('matched', 'no_po'))
 );
-create index ap_invoices_company_status_idx on ap_invoices(company_id, status);
-create index ap_invoices_project_idx on ap_invoices(project_id) where project_id is not null;
+create index if not exists ap_invoices_company_status_idx on ap_invoices(company_id, status);
+create index if not exists ap_invoices_project_idx on ap_invoices(project_id) where project_id is not null;
 
 comment on constraint ap_invoices_pay_requires_match on ap_invoices is
   'An invoice cannot be paid while it fails the three-way match. This is the control that stops payment for goods never received.';

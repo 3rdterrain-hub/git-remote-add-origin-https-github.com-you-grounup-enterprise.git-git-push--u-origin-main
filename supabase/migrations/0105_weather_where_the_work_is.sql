@@ -19,10 +19,10 @@
 -- =============================================================================
 
 alter table companies
-  add column latitude  numeric(9,6)  check (latitude is null or latitude between -90 and 90),
-  add column longitude numeric(9,6)  check (longitude is null or longitude between -180 and 180),
-  add column geocoded_at timestamptz,
-  add column geocoded_from text;
+  add column if not exists latitude  numeric(9,6)  check (latitude is null or latitude between -90 and 90),
+  add column if not exists longitude numeric(9,6)  check (longitude is null or longitude between -180 and 180),
+  add column if not exists geocoded_at timestamptz,
+  add column if not exists geocoded_from text;
 
 comment on column companies.geocoded_from is
   'The address text these coordinates were resolved from. Kept so a company that moves is re-geocoded rather than reporting the weather at the old yard.';
@@ -65,7 +65,7 @@ create table weather_days (
   unique (company_id, day)
 );
 
-create index weather_days_company_day_idx on weather_days(company_id, day);
+create index if not exists weather_days_company_day_idx on weather_days(company_id, day);
 
 comment on table weather_days is
   'A cached daily forecast for the company''s own location. Feeds calendar efficiency and the schedule''s weather days, which have always taken a number somebody guessed at.';

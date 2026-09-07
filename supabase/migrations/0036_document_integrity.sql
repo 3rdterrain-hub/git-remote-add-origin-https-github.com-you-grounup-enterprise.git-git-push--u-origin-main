@@ -39,10 +39,12 @@
 -- This is the exact structural gap `app.enforce_tenant_parent` exists to
 -- close, and the evidence layer was one of the few places without it.
 -- -----------------------------------------------------------------------------
+drop trigger if exists document_versions_tenant_parent on document_versions;
 create trigger document_versions_tenant_parent
   before insert or update on document_versions
   for each row execute function app.enforce_tenant_parent('documents', 'document_id', 'id');
 
+drop trigger if exists document_sheets_tenant_parent on document_sheets;
 create trigger document_sheets_tenant_parent
   before insert or update on document_sheets
   for each row execute function app.enforce_tenant_parent('document_versions', 'document_version_id', 'id');
@@ -79,6 +81,7 @@ begin
 end;
 $$;
 
+drop trigger if exists document_versions_sync_current on document_versions;
 create trigger document_versions_sync_current
   after insert or update or delete on document_versions
   for each row execute function app.sync_document_current_version();
@@ -130,6 +133,7 @@ begin
 end;
 $$;
 
+drop trigger if exists documents_current_version_true on documents;
 create trigger documents_current_version_true
   before insert or update of current_version on documents
   for each row execute function app.enforce_document_current_version();
@@ -141,6 +145,7 @@ comment on function app.enforce_document_current_version() is
 -- Supersession is a chain, not a loop
 -- -----------------------------------------------------------------------------
 
+alter table documents drop constraint if exists documents_not_superseded_by_self;
 alter table documents
   add constraint documents_not_superseded_by_self
   check (superseded_by_id is null or superseded_by_id <> id);
@@ -193,6 +198,7 @@ begin
 end;
 $$;
 
+drop trigger if exists documents_supersession_acyclic on documents;
 create trigger documents_supersession_acyclic
   before insert or update of superseded_by_id on documents
   for each row execute function app.enforce_supersession_acyclic();

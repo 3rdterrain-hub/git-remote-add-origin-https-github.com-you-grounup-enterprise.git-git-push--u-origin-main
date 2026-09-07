@@ -77,7 +77,7 @@ create table work_calendars (
 
 -- One default per company. A second would make "the company calendar"
 -- ambiguous at exactly the moment somebody relies on it.
-create unique index work_calendars_one_default
+create unique index if not exists work_calendars_one_default
   on work_calendars(company_id) where is_default;
 
 comment on table work_calendars is
@@ -102,9 +102,10 @@ create table work_calendar_exceptions (
   -- that input, and the database should not be able to produce it.
   unique (calendar_id, exception_date)
 );
-create index work_calendar_exceptions_calendar_idx
+create index if not exists work_calendar_exceptions_calendar_idx
   on work_calendar_exceptions(calendar_id, exception_date);
 
+drop trigger if exists work_calendar_exceptions_tenant_parent on work_calendar_exceptions;
 create trigger work_calendar_exceptions_tenant_parent
   before insert or update on work_calendar_exceptions
   for each row execute function app.enforce_tenant_parent('work_calendars', 'calendar_id', 'id');
@@ -145,15 +146,17 @@ create table schedule_calculations (
 
   constraint schedule_calculations_span check (project_finish >= project_start)
 );
-create index schedule_calculations_project_idx
+create index if not exists schedule_calculations_project_idx
   on schedule_calculations(project_id, calculated_at desc);
 
+drop trigger if exists schedule_calculations_tenant_parent on schedule_calculations;
 create trigger schedule_calculations_tenant_parent
   before insert or update on schedule_calculations
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
 
 -- A calculation is a record of a run. Re-running produces a new row; editing
 -- an old one rewrites what the schedule said at the time somebody acted on it.
+drop trigger if exists schedule_calculations_immutable on schedule_calculations;
 create trigger schedule_calculations_immutable
   before update on schedule_calculations
   for each row execute function app.forbid_mutation();
@@ -170,14 +173,18 @@ comment on table schedule_calculations is
 -- of one.
 -- -----------------------------------------------------------------------------
 alter table schedule_activities
-  add column calendar_id    uuid references work_calendars(id) on delete set null,
-  add column calculation_id uuid references schedule_calculations(id) on delete set null,
-  add column early_start    date,
-  add column early_finish   date,
-  add column late_start     date,
-  add column late_finish    date,
-  add column free_float_days numeric(8,2);
+  add column if not exists calendar_id    uuid references work_calendars(id) on delete set null,
+  add column if not exists calculation_id uuid references schedule_calculations(id) on delete set null,
+  add column if not exists early_start    date,
+  add column if not exists early_finish   date,
+  add column if not exists late_start     date,
+  add column if not exists late_finish    date,
+  add column if not exists free_float_days numeric(8,2);
 
+alter table schedule_activities drop constraint if exists schedule_activities_float_is_calculated;
+alter table schedule_activities drop constraint if exists schedule_activities_free_float_is_calculated;
+alter table schedule_activities drop constraint if exists schedule_activities_early_dates;
+alter table schedule_activities drop constraint if exists schedule_activities_late_dates;
 alter table schedule_activities
   add constraint schedule_activities_float_is_calculated
     check (total_float_days is null or calculation_id is not null),
@@ -218,13 +225,15 @@ create table schedule_baselines (
 
   unique (project_id, name)
 );
-create index schedule_baselines_project_idx
+create index if not exists schedule_baselines_project_idx
   on schedule_baselines(project_id, taken_on desc, created_at desc);
 
+drop trigger if exists schedule_baselines_tenant_parent on schedule_baselines;
 create trigger schedule_baselines_tenant_parent
   before insert or update on schedule_baselines
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
 
+drop trigger if exists schedule_baselines_immutable on schedule_baselines;
 create trigger schedule_baselines_immutable
   before update on schedule_baselines
   for each row execute function app.forbid_mutation();
@@ -256,13 +265,15 @@ create table schedule_baseline_activities (
   unique (baseline_id, schedule_activity_id),
   constraint schedule_baseline_activities_dates check (planned_finish >= planned_start)
 );
-create index schedule_baseline_activities_baseline_idx
+create index if not exists schedule_baseline_activities_baseline_idx
   on schedule_baseline_activities(baseline_id);
 
+drop trigger if exists schedule_baseline_activities_tenant_parent on schedule_baseline_activities;
 create trigger schedule_baseline_activities_tenant_parent
   before insert or update on schedule_baseline_activities
   for each row execute function app.enforce_tenant_parent('schedule_baselines', 'baseline_id', 'id');
 
+drop trigger if exists schedule_baseline_activities_immutable on schedule_baseline_activities;
 create trigger schedule_baseline_activities_immutable
   before update on schedule_baseline_activities
   for each row execute function app.forbid_mutation();
@@ -307,6 +318,7 @@ begin
 end;
 $$;
 
+drop trigger if exists schedule_baseline_activities_activity_guard on schedule_baseline_activities;
 create trigger schedule_baseline_activities_activity_guard
   before insert on schedule_baseline_activities
   for each row execute function app.enforce_baseline_activity_tenant();

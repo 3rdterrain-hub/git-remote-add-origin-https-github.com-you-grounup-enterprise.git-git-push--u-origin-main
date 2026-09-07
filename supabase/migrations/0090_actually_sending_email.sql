@@ -73,9 +73,9 @@ comment on column email_messages.transactional is
 comment on column email_messages.dedupe_key is
   'What caused this message, uniquely. A retry is indistinguishable from an original, so the only defense is refusing the second write.';
 
-create index email_messages_queued on email_messages (queued_at)
+create index if not exists email_messages_queued on email_messages (queued_at)
   where state = 'queued';
-create index email_messages_company on email_messages (company_id, queued_at desc);
+create index if not exists email_messages_company on email_messages (company_id, queued_at desc);
 
 alter table email_messages enable row level security;
 alter table email_messages force row level security;
@@ -94,6 +94,7 @@ alter table email_messages force row level security;
  * them. The guard would have refused it, and the customer would have been put
  * into read-only without ever being told why.
  */
+drop trigger if exists email_messages_no_delete on email_messages;
 create trigger email_messages_no_delete
   before delete on email_messages
   for each row execute function app.forbid_mutation();
@@ -236,6 +237,7 @@ begin
 end;
 $$;
 
+drop trigger if exists payment_failures_email on payment_failures;
 create trigger payment_failures_email
   after insert on payment_failures
   for each row execute function app.email_payment_failure();
@@ -263,6 +265,7 @@ begin
 end;
 $$;
 
+drop trigger if exists company_suspensions_email on company_suspensions;
 create trigger company_suspensions_email
   after insert on company_suspensions
   for each row execute function app.email_suspension();
@@ -301,6 +304,7 @@ begin
 end;
 $$;
 
+drop trigger if exists refund_requests_email on refund_requests;
 create trigger refund_requests_email
   after update on refund_requests
   for each row execute function app.email_refund();
@@ -356,6 +360,7 @@ begin
 end;
 $$;
 
+drop trigger if exists announcements_email on announcements;
 create trigger announcements_email
   after insert on announcements
   for each row execute function app.email_announcement();

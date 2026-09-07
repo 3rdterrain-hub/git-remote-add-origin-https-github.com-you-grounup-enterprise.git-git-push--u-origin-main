@@ -28,10 +28,10 @@ alter table takeoff_measurements
 
 alter table takeoff_measurements
   -- Top down. Each entry is {depth_feet, side_slope_run, bench_width_feet?, label?}.
-  add column lifts jsonb not null default '[]'::jsonb,
+  add column if not exists lifts jsonb not null default '[]'::jsonb,
   -- From the top of bank down to the design water surface. Storage is what
   -- sits below it; excavation is the whole hole.
-  add column freeboard_feet numeric(10,4)
+  add column if not exists freeboard_feet numeric(10,4)
     check (freeboard_feet is null or freeboard_feet >= 0);
 
 comment on column takeoff_measurements.lifts is
@@ -48,6 +48,7 @@ comment on column takeoff_measurements.freeboard_feet is
  * no depth, and lifts on an area measurement are inputs nothing reads, which
  * look like they were taken into account and were not.
  */
+alter table takeoff_measurements drop constraint if exists takeoff_measurements_basin_shape;
 alter table takeoff_measurements
   add constraint takeoff_measurements_basin_shape check (
     case kind
@@ -114,6 +115,7 @@ begin
 end;
 $$;
 
+drop trigger if exists takeoff_measurements_basin_lifts on takeoff_measurements;
 create trigger takeoff_measurements_basin_lifts
   before insert or update on takeoff_measurements
   for each row execute function app.validate_basin_lifts();
@@ -121,7 +123,7 @@ create trigger takeoff_measurements_basin_lifts
 comment on function app.validate_basin_lifts is
   'Checks that every lift on a basin states a depth and a side slope, and that the freeboard does not swallow the basin. A check constraint cannot walk a JSON array, and a lift has no identity of its own to earn a table.';
 
-create index takeoff_measurements_basin_idx
+create index if not exists takeoff_measurements_basin_idx
   on takeoff_measurements(company_id, document_sheet_id)
   where kind = 'basin';
 

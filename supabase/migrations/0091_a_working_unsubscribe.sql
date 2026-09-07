@@ -61,6 +61,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   optional = excluded.optional, sort_order = excluded.sort_order;
 
+drop trigger if exists notification_categories_frozen on notification_categories;
 create trigger notification_categories_frozen
   before insert or update or delete on notification_categories
   for each row execute function app.forbid_mutation();

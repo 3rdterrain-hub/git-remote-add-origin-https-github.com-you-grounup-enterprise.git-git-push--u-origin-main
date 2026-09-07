@@ -36,13 +36,13 @@
 -- =============================================================================
 
 alter table estimate_line_items
-  add column quantity_basis text not null default 'measured'
+  add column if not exists quantity_basis text not null default 'measured'
     check (quantity_basis in ('measured', 'per_parent_unit')),
-  add column per_parent_unit numeric(18,6)
+  add column if not exists per_parent_unit numeric(18,6)
     check (per_parent_unit is null or per_parent_unit > 0),
-  add column parametric_cost_per_unit numeric(16,4)
+  add column if not exists parametric_cost_per_unit numeric(16,4)
     check (parametric_cost_per_unit is null or parametric_cost_per_unit >= 0),
-  add column parametric_basis text;
+  add column if not exists parametric_basis text;
 
 comment on column estimate_line_items.quantity_basis is
   'Where this line''s quantity comes from. measured: entered or taken off, as every line worked before. per_parent_unit: answered by the parent, so the shape of the job drives the quantities beneath it.';
@@ -51,6 +51,7 @@ comment on column estimate_line_items.parametric_cost_per_unit is
   'A rate this line is priced at rather than built up from resources — what an estimate is before there are drawings. Requires parametric_basis, and forces measurement_method to estimator_allowance so the number is scored as the judgment it is.';
 
 -- A driven line needs a parent to be driven by, and a factor to be driven with.
+alter table estimate_line_items drop constraint if exists eli_driven_quantity;
 alter table estimate_line_items
   add constraint eli_driven_quantity
     check (quantity_basis <> 'per_parent_unit'
@@ -58,6 +59,7 @@ alter table estimate_line_items
 
 -- An unattributable rate is a guess, and a guess that looks like a price is the
 -- most expensive thing an estimate can carry.
+alter table estimate_line_items drop constraint if exists eli_parametric_basis;
 alter table estimate_line_items
   add constraint eli_parametric_basis
     check (parametric_cost_per_unit is null
@@ -70,6 +72,7 @@ alter table estimate_line_items
  * conceptual line being labeled as an explicit dimension and sailing through
  * the approval gate that the label decides.
  */
+alter table estimate_line_items drop constraint if exists eli_parametric_is_an_allowance;
 alter table estimate_line_items
   add constraint eli_parametric_is_an_allowance
     check (parametric_cost_per_unit is null
@@ -113,6 +116,7 @@ begin
 end;
 $$;
 
+drop trigger if exists estimate_line_items_acyclic on estimate_line_items;
 create trigger estimate_line_items_acyclic
   before insert or update of parent_line_id on estimate_line_items
   for each row execute function app.enforce_line_acyclic();
@@ -155,6 +159,7 @@ begin
 end;
 $$;
 
+drop trigger if exists estimate_line_items_parametric_leaf on estimate_line_items;
 create trigger estimate_line_items_parametric_leaf
   before insert or update of parent_line_id, parametric_cost_per_unit
   on estimate_line_items

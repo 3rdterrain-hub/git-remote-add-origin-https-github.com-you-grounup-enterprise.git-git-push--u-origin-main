@@ -73,6 +73,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   needs_detail = excluded.needs_detail, sort_order = excluded.sort_order;
 
+drop trigger if exists cancellation_reasons_frozen on cancellation_reasons;
 create trigger cancellation_reasons_frozen
   before insert or update or delete on cancellation_reasons
   for each row execute function app.forbid_mutation();
@@ -130,9 +131,9 @@ comment on table cancellations is
 comment on column cancellations.reason_key is
   'Null means the cancellation arrived through Stripe rather than through the product, so nobody was asked. Not defaulted to "other": "we do not know" and "they said something unusual" are different facts.';
 
-create index cancellations_company on cancellations (company_id, occurred_at desc);
-create index cancellations_when on cancellations (occurred_at desc);
-create unique index cancellations_one_per_subscription
+create index if not exists cancellations_company on cancellations (company_id, occurred_at desc);
+create index if not exists cancellations_when on cancellations (occurred_at desc);
+create unique index if not exists cancellations_one_per_subscription
   on cancellations (stripe_subscription_id) where stripe_subscription_id is not null;
 
 select app.apply_tenant_rls('cancellations');
@@ -141,6 +142,7 @@ select app.apply_tenant_rls('cancellations');
 drop policy if exists cancellations_insert on cancellations;
 drop policy if exists cancellations_update on cancellations;
 drop policy if exists cancellations_delete on cancellations;
+drop trigger if exists cancellations_append_only on cancellations;
 create trigger cancellations_append_only
   before update or delete on cancellations
   for each row execute function app.forbid_mutation();

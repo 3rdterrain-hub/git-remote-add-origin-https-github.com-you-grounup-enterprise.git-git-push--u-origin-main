@@ -30,18 +30,18 @@
 -- =============================================================================
 
 alter table trucking_rates
-  add column pricing_basis text not null default 'cycle'
+  add column if not exists pricing_basis text not null default 'cycle'
     check (pricing_basis in ('cycle', 'per_trip', 'per_unit')),
-  add column rate_per_trip numeric(14,2)
+  add column if not exists rate_per_trip numeric(14,2)
     check (rate_per_trip is null or rate_per_trip >= 0),
-  add column minimum_billable_quantity numeric(14,4)
+  add column if not exists minimum_billable_quantity numeric(14,4)
     check (minimum_billable_quantity is null or minimum_billable_quantity > 0),
   /*
    * Whether a partial load is paid as a whole trip. True is what "per trip"
    * means; a quote that genuinely prorates the last load is rare enough to be
    * worth stating rather than assuming.
    */
-  add column charges_whole_trips boolean not null default true;
+  add column if not exists charges_whole_trips boolean not null default true;
 
 comment on column trucking_rates.pricing_basis is
   'Which of the three ways this haul is bought. cycle: hourly, with the load, dump and speed figures for a real cycle analysis — the only basis that also yields a duration and a truck count. per_trip: a price per load, where a partial load is still a whole trip. per_unit: a rate per ton or yard, which RULE-004 treats as preliminary.';
@@ -50,6 +50,7 @@ comment on column trucking_rates.minimum_billable_quantity is
   'Quantity billed per trip whether or not the truck is filled — "$12 a ton, 22-ton minimum". Defaults to the truck''s capacity, which is the usual arrangement.';
 
 -- A rate must carry the figure its own basis needs.
+alter table trucking_rates drop constraint if exists trucking_rates_basis_has_its_figure;
 alter table trucking_rates
   add constraint trucking_rates_basis_has_its_figure
     check (
@@ -63,6 +64,7 @@ alter table trucking_rates
  * be worked out. `capacity` is already not null, so this only guards the case
  * of a capacity entered as zero.
  */
+alter table trucking_rates drop constraint if exists trucking_rates_trip_needs_capacity;
 alter table trucking_rates
   add constraint trucking_rates_trip_needs_capacity
     check (pricing_basis <> 'per_trip' or capacity > 0);

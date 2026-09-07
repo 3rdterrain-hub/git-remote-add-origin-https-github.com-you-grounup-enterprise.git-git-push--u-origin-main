@@ -167,6 +167,7 @@ comment on function app.guard_engine_outputs() is
 -- production_modifier, applied_contingency, the check_* verification booleans,
 -- shift_hours and the other version-level assumptions. The line between the
 -- two lists is the line between what a person decides and what follows from it.
+drop trigger if exists estimate_versions_engine_outputs on estimate_versions;
 create trigger estimate_versions_engine_outputs
   before insert or update on estimate_versions
   for each row execute function app.guard_engine_outputs(
@@ -179,6 +180,7 @@ create trigger estimate_versions_engine_outputs
     'recommended_contingency', 'executive_decision', 'blocked_from_issue',
     'engine_version', 'calculated_at', 'calculation_warnings');
 
+drop trigger if exists estimate_line_items_engine_outputs on estimate_line_items;
 create trigger estimate_line_items_engine_outputs
   before insert or update on estimate_line_items
   for each row execute function app.guard_engine_outputs(
@@ -192,6 +194,7 @@ create trigger estimate_line_items_engine_outputs
     'confidence_score', 'confidence_band', 'verification_status',
     'approval_gate', 'blocks_issue', 'derivation', 'warnings');
 
+drop trigger if exists estimate_line_resources_engine_outputs on estimate_line_resources;
 create trigger estimate_line_resources_engine_outputs
   before insert or update on estimate_line_resources
   for each row execute function app.guard_engine_outputs(

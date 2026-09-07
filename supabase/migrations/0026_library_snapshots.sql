@@ -34,7 +34,7 @@ create table library_snapshots (
   -- priced it, which defeats the purpose.
   unique (estimate_version_id)
 );
-create index library_snapshots_company_idx on library_snapshots(company_id, captured_at desc);
+create index if not exists library_snapshots_company_idx on library_snapshots(company_id, captured_at desc);
 
 comment on table library_snapshots is
   'The library rows an estimate version was priced from, copied rather than referenced so the estimate stays reproducible when the library moves or a row is deleted.';
@@ -63,8 +63,8 @@ create table library_snapshot_entries (
   unique (snapshot_id, kind, source_id),
   constraint library_snapshot_entries_payload_object check (jsonb_typeof(payload) = 'object')
 );
-create index library_snapshot_entries_snapshot_idx on library_snapshot_entries(snapshot_id, kind);
-create index library_snapshot_entries_source_idx on library_snapshot_entries(kind, source_id);
+create index if not exists library_snapshot_entries_snapshot_idx on library_snapshot_entries(snapshot_id, kind);
+create index if not exists library_snapshot_entries_source_idx on library_snapshot_entries(kind, source_id);
 
 comment on column library_snapshot_entries.source_id is
   'Deliberately not a foreign key. A snapshot must survive the deletion of the library row it captured, or an old estimate stops being reproducible the moment someone tidies the catalog.';
@@ -76,10 +76,12 @@ comment on column library_snapshot_entries.source_id is
 -- and DELETE outright; a re-price captures a new snapshot against a new
 -- estimate version rather than rewriting this one.
 -- -----------------------------------------------------------------------------
+drop trigger if exists library_snapshots_immutable on library_snapshots;
 create trigger library_snapshots_immutable
   before update or delete on library_snapshots
   for each row execute function app.forbid_mutation();
 
+drop trigger if exists library_snapshot_entries_immutable on library_snapshot_entries;
 create trigger library_snapshot_entries_immutable
   before update or delete on library_snapshot_entries
   for each row execute function app.forbid_mutation();
@@ -88,7 +90,7 @@ create trigger library_snapshot_entries_immutable
 -- Binding to the estimate version
 -- -----------------------------------------------------------------------------
 alter table estimate_versions
-  add column library_snapshot_id uuid references library_snapshots(id) on delete restrict;
+  add column if not exists library_snapshot_id uuid references library_snapshots(id) on delete restrict;
 
 comment on column estimate_versions.library_snapshot_id is
   'The snapshot this version was priced from. Required before a version may be issued: an issued price the platform cannot reproduce is not a record of anything.';
@@ -132,6 +134,7 @@ begin
 end;
 $$;
 
+drop trigger if exists estimate_versions_snapshot_required on estimate_versions;
 create trigger estimate_versions_snapshot_required
   before insert or update on estimate_versions
   for each row execute function app.enforce_issued_version_snapshot();

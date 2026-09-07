@@ -48,9 +48,9 @@ create table submittals (
   -- Resubmission requires a revision bump, so history is never overwritten.
   constraint submittals_resubmit check (status <> 'revise_resubmit' or revision >= 0)
 );
-create index submittals_company_status_idx on submittals(company_id, status);
-create index submittals_project_idx on submittals(project_id) where project_id is not null;
-create index submittals_ball_idx on submittals(company_id, ball_in_court) where status not in ('closed', 'approved');
+create index if not exists submittals_company_status_idx on submittals(company_id, status);
+create index if not exists submittals_project_idx on submittals(project_id) where project_id is not null;
+create index if not exists submittals_ball_idx on submittals(company_id, ball_in_court) where status not in ('closed', 'approved');
 
 comment on column submittals.ball_in_court is
   'Who owes the next action. This is the field a superintendent actually scans the log for.';
@@ -81,8 +81,9 @@ create table proposal_line_items (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index proposal_line_items_proposal_idx on proposal_line_items(proposal_id, sort_order);
+create index if not exists proposal_line_items_proposal_idx on proposal_line_items(proposal_id, sort_order);
 
+drop trigger if exists proposal_line_items_tenant_parent on proposal_line_items;
 create trigger proposal_line_items_tenant_parent
   before insert or update on proposal_line_items
   for each row execute function app.enforce_tenant_parent('proposals', 'proposal_id', 'id');
@@ -130,6 +131,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_proposal_immutability on proposals;
 create trigger enforce_proposal_immutability
   before update on proposals
   for each row execute function app.enforce_proposal_immutability();
@@ -161,8 +163,8 @@ create table notifications (
   emailed_at        timestamptz,
   created_at        timestamptz not null default now()
 );
-create index notifications_user_unread_idx on notifications(user_id, created_at desc) where read_at is null;
-create index notifications_company_idx on notifications(company_id, created_at desc);
+create index if not exists notifications_user_unread_idx on notifications(user_id, created_at desc) where read_at is null;
+create index if not exists notifications_company_idx on notifications(company_id, created_at desc);
 
 comment on column notifications.user_id is
   'NULL addresses the whole company. A member reads it if they belong to the company; a targeted notice reaches only its recipient.';
@@ -200,7 +202,7 @@ create table ai_models (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create unique index ai_models_one_default_idx on ai_models(is_default) where is_default;
+create unique index if not exists ai_models_one_default_idx on ai_models(is_default) where is_default;
 
 create table ai_prompts (
   id                uuid primary key default gen_random_uuid(),
@@ -226,8 +228,8 @@ create table ai_prompts (
     check (state <> 'active' or (activated_by is not null and activated_at is not null
                                  and eval_pass_rate is not null))
 );
-create index ai_prompts_agent_idx on ai_prompts(agent_id, state);
-create unique index ai_prompts_one_active_idx on ai_prompts(agent_id, coalesce(company_id, '00000000-0000-0000-0000-000000000000'::uuid))
+create index if not exists ai_prompts_agent_idx on ai_prompts(agent_id, state);
+create unique index if not exists ai_prompts_one_active_idx on ai_prompts(agent_id, coalesce(company_id, '00000000-0000-0000-0000-000000000000'::uuid))
   where state = 'active';
 
 comment on constraint ai_prompts_activation on ai_prompts is
@@ -251,8 +253,9 @@ create table daily_report_labor (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index daily_report_labor_report_idx on daily_report_labor(daily_report_id);
+create index if not exists daily_report_labor_report_idx on daily_report_labor(daily_report_id);
 
+drop trigger if exists daily_report_labor_tenant_parent on daily_report_labor;
 create trigger daily_report_labor_tenant_parent
   before insert or update on daily_report_labor
   for each row execute function app.enforce_tenant_parent('daily_reports', 'daily_report_id', 'id');
@@ -273,8 +276,9 @@ create table daily_report_equipment (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index daily_report_equipment_report_idx on daily_report_equipment(daily_report_id);
+create index if not exists daily_report_equipment_report_idx on daily_report_equipment(daily_report_id);
 
+drop trigger if exists daily_report_equipment_tenant_parent on daily_report_equipment;
 create trigger daily_report_equipment_tenant_parent
   before insert or update on daily_report_equipment
   for each row execute function app.enforce_tenant_parent('daily_reports', 'daily_report_id', 'id');
@@ -295,6 +299,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_daily_report_immutability on daily_reports;
 create trigger enforce_daily_report_immutability
   before update on daily_reports
   for each row execute function app.enforce_daily_report_immutability();
@@ -317,8 +322,9 @@ create table change_order_items (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index change_order_items_co_idx on change_order_items(change_order_id, sort_order);
+create index if not exists change_order_items_co_idx on change_order_items(change_order_id, sort_order);
 
+drop trigger if exists change_order_items_tenant_parent on change_order_items;
 create trigger change_order_items_tenant_parent
   before insert or update on change_order_items
   for each row execute function app.enforce_tenant_parent('change_orders', 'change_order_id', 'id');

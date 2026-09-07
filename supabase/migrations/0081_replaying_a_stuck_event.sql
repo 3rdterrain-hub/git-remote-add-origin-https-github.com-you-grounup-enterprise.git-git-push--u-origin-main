@@ -31,6 +31,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   is_powerful = excluded.is_powerful, sort_order = excluded.sort_order;
 
+drop trigger if exists platform_permissions_frozen on platform_permissions;
 create trigger platform_permissions_frozen
   before insert or update or delete on platform_permissions
   for each row execute function app.forbid_mutation();
@@ -69,7 +70,7 @@ create table stripe_event_replays (
 comment on table stripe_event_replays is
   'Somebody asking for a failed Stripe event to be applied again, and what happened. ENTITY. A replay changes a customer''s subscription and entitlement, so who asked, why, and whether it worked are all recorded — the same standard every other operator action is held to.';
 
-create index stripe_event_replays_event on stripe_event_replays (event_id, requested_at desc);
+create index if not exists stripe_event_replays_event on stripe_event_replays (event_id, requested_at desc);
 
 alter table stripe_event_replays enable row level security;
 alter table stripe_event_replays force row level security;

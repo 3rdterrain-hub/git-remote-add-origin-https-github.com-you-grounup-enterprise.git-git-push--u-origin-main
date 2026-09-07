@@ -80,9 +80,10 @@ create table takeoff_calibrations (
   -- Two identical points span nothing and would divide by zero.
   constraint takeoff_calibrations_span check (from_x <> to_x or from_y <> to_y)
 );
-create index takeoff_calibrations_sheet_idx on takeoff_calibrations(document_sheet_id);
-create index takeoff_calibrations_company_idx on takeoff_calibrations(company_id);
+create index if not exists takeoff_calibrations_sheet_idx on takeoff_calibrations(document_sheet_id);
+create index if not exists takeoff_calibrations_company_idx on takeoff_calibrations(company_id);
 
+drop trigger if exists takeoff_calibrations_tenant_parent on takeoff_calibrations;
 create trigger takeoff_calibrations_tenant_parent
   before insert or update on takeoff_calibrations
   for each row execute function app.enforce_tenant_parent('document_sheets', 'document_sheet_id', 'id');
@@ -153,11 +154,12 @@ create table takeoff_measurements (
     check (applied_line_item_id is null
            or (applied_quantity is not null and applied_at is not null))
 );
-create index takeoff_measurements_sheet_idx on takeoff_measurements(document_sheet_id);
-create index takeoff_measurements_company_idx on takeoff_measurements(company_id);
-create index takeoff_measurements_line_idx on takeoff_measurements(applied_line_item_id)
+create index if not exists takeoff_measurements_sheet_idx on takeoff_measurements(document_sheet_id);
+create index if not exists takeoff_measurements_company_idx on takeoff_measurements(company_id);
+create index if not exists takeoff_measurements_line_idx on takeoff_measurements(applied_line_item_id)
   where applied_line_item_id is not null;
 
+drop trigger if exists takeoff_measurements_tenant_parent on takeoff_measurements;
 create trigger takeoff_measurements_tenant_parent
   before insert or update on takeoff_measurements
   for each row execute function app.enforce_tenant_parent('document_sheets', 'document_sheet_id', 'id');
@@ -191,6 +193,7 @@ as $$
      end;
 $$;
 
+alter table takeoff_measurements drop constraint if exists takeoff_measurements_enough_points;
 alter table takeoff_measurements
   add constraint takeoff_measurements_enough_points
     check (app.takeoff_geometry_is_sufficient(kind, geometry));

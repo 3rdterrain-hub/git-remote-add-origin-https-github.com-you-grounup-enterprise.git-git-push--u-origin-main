@@ -72,8 +72,8 @@ comment on table companies is
 comment on column companies.terminology is
   'Per-company label overrides so GrounUp adapts to the company vocabulary rather than the reverse.';
 
-create index companies_group_idx on companies(enterprise_group_id) where enterprise_group_id is not null;
-create index companies_status_idx on companies(status);
+create index if not exists companies_group_idx on companies(enterprise_group_id) where enterprise_group_id is not null;
+create index if not exists companies_status_idx on companies(status);
 
 -- -----------------------------------------------------------------------------
 -- Divisions / offices / regions inside a company
@@ -93,7 +93,7 @@ create table divisions (
   unique (company_id, code)
 );
 
-create index divisions_company_idx on divisions(company_id);
+create index if not exists divisions_company_idx on divisions(company_id);
 
 -- -----------------------------------------------------------------------------
 -- User profiles — mirrors auth.users, holds application-level identity
@@ -137,8 +137,8 @@ create table roles (
 );
 
 -- A system role's key is globally unique; a company role's key is unique per company.
-create unique index roles_system_key_idx on roles(key) where company_id is null;
-create unique index roles_company_key_idx on roles(company_id, key) where company_id is not null;
+create unique index if not exists roles_system_key_idx on roles(key) where company_id is null;
+create unique index if not exists roles_company_key_idx on roles(company_id, key) where company_id is not null;
 
 comment on column roles.approval_tier is
   '0 none, 1 estimator, 2 senior estimator, 3 chief estimator, 4 executive. Gates which approval routing a user may satisfy.';
@@ -164,8 +164,8 @@ create table company_memberships (
   unique (company_id, user_id)
 );
 
-create index company_memberships_user_idx on company_memberships(user_id) where status = 'active';
-create index company_memberships_company_idx on company_memberships(company_id) where status = 'active';
+create index if not exists company_memberships_user_idx on company_memberships(user_id) where status = 'active';
+create index if not exists company_memberships_company_idx on company_memberships(company_id) where status = 'active';
 
 comment on table company_memberships is
   'Grants a user access to a company under exactly one role. This table is the sole source of tenant access; RLS reads it through app.current_company_ids().';
@@ -197,6 +197,7 @@ begin
 end;
 $$;
 
+drop trigger if exists protect_last_owner on company_memberships;
 create trigger protect_last_owner
   before update or delete on company_memberships
   for each row when (old.is_owner)
@@ -219,8 +220,8 @@ create table company_invitations (
   check (expires_at > created_at)
 );
 
-create index company_invitations_company_idx on company_invitations(company_id);
-create unique index company_invitations_pending_idx
+create index if not exists company_invitations_company_idx on company_invitations(company_id);
+create unique index if not exists company_invitations_pending_idx
   on company_invitations(company_id, lower(email))
   where accepted_at is null and revoked_at is null;
 

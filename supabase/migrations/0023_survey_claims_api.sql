@@ -35,8 +35,9 @@ create table surveys (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index surveys_project_idx on surveys(project_id, captured_on desc);
+create index if not exists surveys_project_idx on surveys(project_id, captured_on desc);
 
+drop trigger if exists surveys_tenant_parent on surveys;
 create trigger surveys_tenant_parent
   before insert or update on surveys
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -64,8 +65,9 @@ create table surfaces (
   updated_at          timestamptz not null default now(),
   constraint surfaces_has_data check (elevations is not null or storage_path is not null)
 );
-create index surfaces_survey_idx on surfaces(survey_id);
+create index if not exists surfaces_survey_idx on surfaces(survey_id);
 
+drop trigger if exists surfaces_tenant_parent on surfaces;
 create trigger surfaces_tenant_parent
   before insert or update on surfaces
   for each row execute function app.enforce_tenant_parent('surveys', 'survey_id', 'id');
@@ -101,8 +103,9 @@ create table surface_comparisons (
   updated_at          timestamptz not null default now(),
   constraint surface_comparisons_distinct check (existing_surface_id <> design_surface_id)
 );
-create index surface_comparisons_project_idx on surface_comparisons(project_id, computed_at desc);
+create index if not exists surface_comparisons_project_idx on surface_comparisons(project_id, computed_at desc);
 
+drop trigger if exists surface_comparisons_tenant_parent on surface_comparisons;
 create trigger surface_comparisons_tenant_parent
   before insert or update on surface_comparisons
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -144,6 +147,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_surface_datum_match on surface_comparisons;
 create trigger enforce_surface_datum_match
   before insert or update on surface_comparisons
   for each row execute function app.enforce_surface_datum_match();
@@ -175,8 +179,9 @@ create table machine_control_files (
   constraint mc_published check (status <> 'published' or (published_at is not null and published_by is not null)),
   constraint mc_superseded check (status <> 'superseded' or superseded_by_id is not null)
 );
-create index mc_files_project_idx on machine_control_files(project_id, status);
+create index if not exists mc_files_project_idx on machine_control_files(project_id, status);
 
+drop trigger if exists mc_files_tenant_parent on machine_control_files;
 create trigger mc_files_tenant_parent
   before insert or update on machine_control_files
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -196,8 +201,9 @@ create table machine_assignments (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create unique index machine_assignments_current_idx on machine_assignments(asset_id) where is_current;
+create unique index if not exists machine_assignments_current_idx on machine_assignments(asset_id) where is_current;
 
+drop trigger if exists machine_assignments_tenant_parent on machine_assignments;
 create trigger machine_assignments_tenant_parent
   before insert or update on machine_assignments
   for each row execute function app.enforce_tenant_parent('assets', 'asset_id', 'id');
@@ -232,8 +238,9 @@ create table contracts (
   unique (company_id, number),
   constraint contracts_executed check (status = 'draft' or executed_on is not null)
 );
-create index contracts_project_idx on contracts(project_id);
+create index if not exists contracts_project_idx on contracts(project_id);
 
+drop trigger if exists contracts_tenant_parent on contracts;
 create trigger contracts_tenant_parent
   before insert or update on contracts
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -282,8 +289,8 @@ create table claims (
     check (status not in ('settled', 'denied') or (resolved_on is not null and resolution is not null)),
   constraint claims_notice_order check (notice_given_on is null or notice_given_on >= event_date)
 );
-create index claims_project_idx on claims(project_id, status);
-create index claims_notice_due_idx on claims(company_id, notice_due_on)
+create index if not exists claims_project_idx on claims(project_id, status);
+create index if not exists claims_notice_due_idx on claims(company_id, notice_due_on)
   where status = 'potential' and notice_due_on is not null;
 
 comment on constraint claims_notice on claims is
@@ -316,6 +323,7 @@ begin
 end;
 $$;
 
+drop trigger if exists derive_claim_deadlines on claims;
 create trigger derive_claim_deadlines
   before insert or update of event_date, contract_id on claims
   for each row execute function app.derive_claim_deadlines();
@@ -364,9 +372,9 @@ create table network_vendors (
   constraint network_vendors_consent
     check (not is_published or (consent_recorded_by is not null and consent_recorded_at is not null))
 );
-create index network_vendors_published_idx on network_vendors(is_published) where is_published;
-create index network_vendors_trades_idx on network_vendors using gin (trades);
-create index network_vendors_name_idx on network_vendors using gin (display_name gin_trgm_ops);
+create index if not exists network_vendors_published_idx on network_vendors(is_published) where is_published;
+create index if not exists network_vendors_trades_idx on network_vendors using gin (trades);
+create index if not exists network_vendors_name_idx on network_vendors using gin (display_name gin_trgm_ops);
 
 comment on constraint network_vendors_consent on network_vendors is
   'A listing cannot be published without a recorded consent and the person who recorded it. Publishing a subcontractor''s details because you happen to have them is not a product feature.';
@@ -404,9 +412,10 @@ create table network_ratings (
   constraint network_ratings_one_per_project
     unique nulls not distinct (network_vendor_id, rating_company_id, project_id)
 );
-create index network_ratings_vendor_idx on network_ratings(network_vendor_id);
+create index if not exists network_ratings_vendor_idx on network_ratings(network_vendor_id);
 
 -- A rating is a statement of record. It is not editable after the fact.
+drop trigger if exists network_ratings_immutable on network_ratings;
 create trigger network_ratings_immutable
   before update on network_ratings
   for each row execute function app.forbid_mutation();
@@ -438,7 +447,7 @@ create table api_keys (
   constraint api_keys_scopes_not_empty check (cardinality(scopes) > 0),
   constraint api_keys_revoked check (revoked_at is null or revoke_reason is not null)
 );
-create index api_keys_company_idx on api_keys(company_id) where revoked_at is null;
+create index if not exists api_keys_company_idx on api_keys(company_id) where revoked_at is null;
 
 comment on column api_keys.key_hash is
   'SHA-256 only. The key is displayed once at creation and never stored, so reading this table yields nothing that can authenticate.';
@@ -456,8 +465,8 @@ create table api_requests (
   error_code          text,
   occurred_at         timestamptz not null default now()
 );
-create index api_requests_company_time_idx on api_requests(company_id, occurred_at desc);
-create index api_requests_key_idx on api_requests(api_key_id, occurred_at desc);
+create index if not exists api_requests_company_time_idx on api_requests(company_id, occurred_at desc);
+create index if not exists api_requests_key_idx on api_requests(api_key_id, occurred_at desc);
 
 -- -----------------------------------------------------------------------------
 -- Semantic layer (Phase 29)
@@ -490,5 +499,5 @@ create table metric_definitions (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create unique index metric_definitions_company_key_idx on metric_definitions(company_id, key) where company_id is not null;
-create unique index metric_definitions_global_key_idx on metric_definitions(key) where company_id is null;
+create unique index if not exists metric_definitions_company_key_idx on metric_definitions(company_id, key) where company_id is not null;
+create unique index if not exists metric_definitions_global_key_idx on metric_definitions(key) where company_id is null;

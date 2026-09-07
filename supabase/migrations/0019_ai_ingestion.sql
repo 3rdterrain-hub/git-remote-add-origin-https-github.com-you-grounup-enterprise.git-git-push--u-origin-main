@@ -49,8 +49,8 @@ create table ingestion_jobs (
   constraint ingestion_jobs_complete check (stage <> 'complete' or completed_at is not null),
   constraint ingestion_jobs_pages check (pages_total is null or pages_processed <= pages_total)
 );
-create index ingestion_jobs_document_idx on ingestion_jobs(document_version_id, created_at desc);
-create index ingestion_jobs_active_idx on ingestion_jobs(company_id, stage)
+create index if not exists ingestion_jobs_document_idx on ingestion_jobs(document_version_id, created_at desc);
+create index if not exists ingestion_jobs_active_idx on ingestion_jobs(company_id, stage)
   where stage not in ('complete', 'failed');
 
 comment on constraint ingestion_jobs_failed on ingestion_jobs is
@@ -78,9 +78,10 @@ create table document_extractions (
   is_current          boolean not null default true,
   created_at          timestamptz not null default now()
 );
-create index document_extractions_sheet_idx on document_extractions(document_sheet_id) where is_current;
-create index document_extractions_text_idx on document_extractions using gin (extracted_text gin_trgm_ops);
+create index if not exists document_extractions_sheet_idx on document_extractions(document_sheet_id) where is_current;
+create index if not exists document_extractions_text_idx on document_extractions using gin (extracted_text gin_trgm_ops);
 
+drop trigger if exists document_extractions_tenant_parent on document_extractions;
 create trigger document_extractions_tenant_parent
   before insert or update on document_extractions
   for each row execute function app.enforce_tenant_parent('document_sheets', 'document_sheet_id', 'id');
@@ -104,6 +105,7 @@ begin
 end;
 $$;
 
+drop trigger if exists supersede_extraction on document_extractions;
 create trigger supersede_extraction
   after insert on document_extractions
   for each row execute function app.supersede_extraction();
@@ -136,8 +138,8 @@ create table knowledge_articles (
   constraint knowledge_articles_approved
     check (status <> 'approved' or (approved_by is not null and approved_at is not null))
 );
-create index knowledge_articles_company_idx on knowledge_articles(company_id, status);
-create index knowledge_articles_search_idx on knowledge_articles using gin (search_text gin_trgm_ops);
+create index if not exists knowledge_articles_company_idx on knowledge_articles(company_id, status);
+create index if not exists knowledge_articles_search_idx on knowledge_articles using gin (search_text gin_trgm_ops);
 
 comment on constraint knowledge_articles_approved on knowledge_articles is
   'Only an approved article may be cited by the knowledge assistant. Quoting a draft back to the company as policy is worse than saying nothing.';

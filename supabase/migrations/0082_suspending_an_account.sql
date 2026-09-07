@@ -63,9 +63,9 @@ comment on table company_suspensions is
   'A company put into read-only, why, and what the customer was told. ENTITY. A suspension never hides or deletes anything: the customer keeps reading and exporting everything they built and simply cannot add to it. Kept after it is lifted, because "were we ever suspended, and why" is a question asked long afterwards.';
 
 -- One live suspension per company. Two would be a question with two answers.
-create unique index company_suspensions_one_live
+create unique index if not exists company_suspensions_one_live
   on company_suspensions (company_id) where lifted_at is null;
-create index company_suspensions_company on company_suspensions (company_id, suspended_at desc);
+create index if not exists company_suspensions_company on company_suspensions (company_id, suspended_at desc);
 
 select app.apply_tenant_rls('company_suspensions');
 select app.attach_standard_triggers('public.company_suspensions'::regclass);

@@ -51,10 +51,10 @@ create table estimate_version_markups (
   unique (estimate_version_id, code)
 );
 
-create index evm_version_idx on estimate_version_markups(estimate_version_id, sequence);
+create index if not exists evm_version_idx on estimate_version_markups(estimate_version_id, sequence);
 -- Every tenant key is indexed, so a policy filtering on it is a lookup rather
 -- than a scan of somebody else's rows on the way to none of them.
-create index evm_tenant_idx on estimate_version_markups(company_id);
+create index if not exists evm_tenant_idx on estimate_version_markups(company_id);
 
 comment on table estimate_version_markups is
   'This bid''s own overhead, profit, contingency, bond, tax or discount. ENTITY. A version carrying none uses its pricing profile, so an estimate nobody has adjusted behaves exactly as it did before. Held per version because the alternatives are editing the company profile — which moves every other open estimate — or making a profile per bid.';
@@ -63,6 +63,7 @@ select app.apply_tenant_rls('estimate_version_markups', null, 'estimates.write')
 select app.attach_standard_triggers('public.estimate_version_markups'::regclass);
 select app.guard_suspension('estimate_version_markups');
 
+drop trigger if exists estimate_version_markups_tenant_parent on estimate_version_markups;
 create trigger estimate_version_markups_tenant_parent
   before insert or update on estimate_version_markups
   for each row execute function app.enforce_tenant_parent(

@@ -39,6 +39,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   is_powerful = excluded.is_powerful, sort_order = excluded.sort_order;
 
+drop trigger if exists platform_permissions_frozen on platform_permissions;
 create trigger platform_permissions_frozen
   before insert or update or delete on platform_permissions
   for each row execute function app.forbid_mutation();
@@ -90,8 +91,8 @@ create table refund_requests (
 comment on table refund_requests is
   'Money going back to a customer: who asked, why, who approved it, and what Stripe did. ENTITY. The decision lives here and the money lives in Stripe — duplicating the amounts would create a second ledger that disagrees with the first. A refund returns money to the card; a credit reduces the next invoice and never moves any.';
 
-create index refund_requests_company on refund_requests (company_id, requested_at desc);
-create index refund_requests_open on refund_requests (state) where state = 'requested';
+create index if not exists refund_requests_company on refund_requests (company_id, requested_at desc);
+create index if not exists refund_requests_open on refund_requests (state) where state = 'requested';
 
 select app.apply_tenant_rls('refund_requests');
 select app.attach_standard_triggers('public.refund_requests'::regclass);

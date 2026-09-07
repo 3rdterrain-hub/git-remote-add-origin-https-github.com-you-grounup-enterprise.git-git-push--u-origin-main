@@ -83,14 +83,17 @@ comment on function app.refuse_when_version_frozen is
  * and refusing that would leave a company unable to remove an estimate they
  * abandoned.
  */
+drop trigger if exists estimate_line_items_frozen on estimate_line_items;
 create trigger estimate_line_items_frozen
   before update on estimate_line_items
   for each row execute function app.refuse_when_version_frozen('estimate_version_id');
 
+drop trigger if exists estimate_line_resources_frozen on estimate_line_resources;
 create trigger estimate_line_resources_frozen
   before insert or update on estimate_line_resources
   for each row execute function app.refuse_when_version_frozen('line_item_id');
 
+drop trigger if exists estimate_line_modifiers_frozen on estimate_line_modifiers;
 create trigger estimate_line_modifiers_frozen
   before insert or update on estimate_line_modifiers
   for each row execute function app.refuse_when_version_frozen('line_item_id');
@@ -101,6 +104,7 @@ create trigger estimate_line_modifiers_frozen
  * would fail `enforce_tenant_parent` only on tenancy. Guarded here so the two
  * ways in agree.
  */
+drop trigger if exists estimate_line_items_frozen_insert on estimate_line_items;
 create trigger estimate_line_items_frozen_insert
   before insert on estimate_line_items
   for each row execute function app.refuse_when_version_frozen('estimate_version_id');

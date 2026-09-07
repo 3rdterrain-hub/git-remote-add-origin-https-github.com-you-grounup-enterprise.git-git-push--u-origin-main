@@ -38,7 +38,7 @@ create table commercial_authority_limits (
 
   unique (company_id, record_type, threshold_value)
 );
-create index commercial_authority_limits_lookup_idx
+create index if not exists commercial_authority_limits_lookup_idx
   on commercial_authority_limits(company_id, record_type, threshold_value desc);
 
 comment on table commercial_authority_limits is
@@ -126,16 +126,19 @@ begin
 end;
 $$;
 
+drop trigger if exists change_orders_authority on change_orders;
 create trigger change_orders_authority
   before insert or update on change_orders
   for each row execute function app.enforce_commercial_authority(
     'change_order', 'price_impact', 'approved,executed');
 
+drop trigger if exists contracts_authority on contracts;
 create trigger contracts_authority
   before insert or update on contracts
   for each row execute function app.enforce_commercial_authority(
     'contract', 'original_value', 'executed,active');
 
+drop trigger if exists claims_authority on claims;
 create trigger claims_authority
   before insert or update on claims
   for each row execute function app.enforce_commercial_authority(

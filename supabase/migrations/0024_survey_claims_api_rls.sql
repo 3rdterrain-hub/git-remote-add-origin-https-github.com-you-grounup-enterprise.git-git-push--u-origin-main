@@ -46,6 +46,7 @@ begin
 end;
 $$;
 
+drop trigger if exists forbid_api_key_rewrite on api_keys;
 create trigger forbid_api_key_rewrite
   before update on api_keys
   for each row execute function app.forbid_api_key_rewrite();

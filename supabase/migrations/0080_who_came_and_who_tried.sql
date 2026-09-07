@@ -52,9 +52,9 @@ create table visit_events (
 comment on table visit_events is
   'Anonymous page views: where somebody landed, where they came from, and on what kind of device. ENTITY, append-only. No address, no cookie, no fingerprint — the visitor id is a random value the browser keeps for itself, so page views group into a session and identify nobody.';
 
-create index visit_events_when on visit_events (occurred_at desc);
-create index visit_events_path on visit_events (path, occurred_at desc);
-create index visit_events_visitor on visit_events (visitor, occurred_at);
+create index if not exists visit_events_when on visit_events (occurred_at desc);
+create index if not exists visit_events_path on visit_events (path, occurred_at desc);
+create index if not exists visit_events_visitor on visit_events (visitor, occurred_at);
 
 alter table visit_events enable row level security;
 alter table visit_events force row level security;
@@ -65,6 +65,7 @@ revoke all on visit_events from anon, authenticated;
 
 -- Append-only, like the other ledgers: a visit that can be edited is not
 -- evidence of anything.
+drop trigger if exists visit_events_append_only on visit_events;
 create trigger visit_events_append_only
   before update or delete on visit_events
   for each row execute function app.forbid_mutation();
@@ -85,13 +86,14 @@ create table signup_attempts (
 comment on table signup_attempts is
   'Somebody submitting the signup form, and what happened. ENTITY, append-only. Recorded on submit and never on a keystroke: an address typed and thought better of is not an attempt. The failure reason is kept because "already registered" and "password too short" are opposite problems that look identical from the operator side.';
 
-create index signup_attempts_when on signup_attempts (occurred_at desc);
-create index signup_attempts_email on signup_attempts (lower(email), occurred_at desc);
+create index if not exists signup_attempts_when on signup_attempts (occurred_at desc);
+create index if not exists signup_attempts_email on signup_attempts (lower(email), occurred_at desc);
 
 alter table signup_attempts enable row level security;
 alter table signup_attempts force row level security;
 revoke all on signup_attempts from anon, authenticated;
 
+drop trigger if exists signup_attempts_append_only on signup_attempts;
 create trigger signup_attempts_append_only
   before update or delete on signup_attempts
   for each row execute function app.forbid_mutation();

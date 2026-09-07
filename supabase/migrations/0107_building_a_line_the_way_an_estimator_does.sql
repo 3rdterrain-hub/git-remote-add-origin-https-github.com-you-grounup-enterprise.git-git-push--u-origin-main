@@ -34,11 +34,11 @@ alter table estimate_line_items
   -- Default true because the usual case is a line the customer sees. A hidden
   -- line is still priced and still in the internal total; it is left off the
   -- document.
-  add column client_visible boolean not null default true,
+  add column if not exists client_visible boolean not null default true,
   -- Null means "whatever the pricing profile says". A number here is this
   -- line's own markup, and it is a fraction rather than a percentage so it
   -- reads the same way every other rate in the schema does.
-  add column markup_override numeric(8,6)
+  add column if not exists markup_override numeric(8,6)
     check (markup_override is null or (markup_override >= 0 and markup_override <= 5));
 
 comment on column estimate_line_items.client_visible is
@@ -47,7 +47,7 @@ comment on column estimate_line_items.client_visible is
 comment on column estimate_line_items.markup_override is
   'This line''s own markup as a fraction, or null to use the pricing profile. A line that differs from the company standard is the estimator''s judgment about that scope, not a reason to make a new profile.';
 
-create index eli_client_visible_idx on estimate_line_items(estimate_version_id)
+create index if not exists eli_client_visible_idx on estimate_line_items(estimate_version_id)
   where not client_visible;
 
 /*
@@ -58,11 +58,11 @@ create index eli_client_visible_idx on estimate_line_items(estimate_version_id)
  * will not show them what the crew costs.
  */
 alter table estimate_versions
-  add column show_labor      boolean not null default false,
-  add column show_equipment  boolean not null default false,
-  add column show_materials  boolean not null default true,
-  add column show_hauling    boolean not null default true,
-  add column show_subcontract boolean not null default true;
+  add column if not exists show_labor      boolean not null default false,
+  add column if not exists show_equipment  boolean not null default false,
+  add column if not exists show_materials  boolean not null default true,
+  add column if not exists show_hauling    boolean not null default true,
+  add column if not exists show_subcontract boolean not null default true;
 
 comment on column estimate_versions.show_labor is
   'Whether the proposal discloses labor cost. Defaults off: a customer is shown a price for the work, and what the crew costs is the contractor''s business unless they choose otherwise.';
@@ -76,46 +76,46 @@ comment on column estimate_versions.show_labor is
  * which rows count has to be recorded rather than assumed from the kind.
  */
 alter table estimate_line_resources
-  add column sort_order int not null default 0,
-  add column drives_hours boolean not null default false,
-  add column production_per_hour numeric(16,6)
+  add column if not exists sort_order int not null default 0,
+  add column if not exists drives_hours boolean not null default false,
+  add column if not exists production_per_hour numeric(16,6)
     check (production_per_hour is null or production_per_hour > 0),
   -- How a machine is billed. An hourly rate and a weekly rate are different
   -- numbers with different rounding, and the difference is most of what an
   -- equipment line costs.
-  add column rate_basis text not null default 'hour'
+  add column if not exists rate_basis text not null default 'hour'
     check (rate_basis in ('hour', 'day', 'week', 'month', 'unit', 'lump')),
-  add column mobilization_cost numeric(16,2) not null default 0
+  add column if not exists mobilization_cost numeric(16,2) not null default 0
     check (mobilization_cost >= 0),
-  add column standby_days numeric(10,2) not null default 0 check (standby_days >= 0),
-  add column minimum_hours numeric(10,2) check (minimum_hours is null or minimum_hours > 0),
-  add column is_owned boolean not null default true,
+  add column if not exists standby_days numeric(10,2) not null default 0 check (standby_days >= 0),
+  add column if not exists minimum_hours numeric(10,2) check (minimum_hours is null or minimum_hours > 0),
+  add column if not exists is_owned boolean not null default true,
   /*
    * Trip-based hauling. Held as the inputs rather than the answer: the cycle
    * time, the load count and the truck count are the engine's to compute from
    * these, and storing them would be storing a conclusion that goes stale the
    * moment somebody changes the haul distance.
    */
-  add column haul_mode text not null default 'hours'
+  add column if not exists haul_mode text not null default 'hours'
     check (haul_mode in ('hours', 'trip')),
-  add column round_trip_miles numeric(10,2)
+  add column if not exists round_trip_miles numeric(10,2)
     check (round_trip_miles is null or round_trip_miles > 0),
-  add column average_speed_mph numeric(8,2)
+  add column if not exists average_speed_mph numeric(8,2)
     check (average_speed_mph is null or average_speed_mph > 0),
-  add column truck_capacity numeric(12,4)
+  add column if not exists truck_capacity numeric(12,4)
     check (truck_capacity is null or truck_capacity > 0),
-  add column tons_per_load numeric(12,4)
+  add column if not exists tons_per_load numeric(12,4)
     check (tons_per_load is null or tons_per_load > 0),
-  add column load_minutes numeric(8,2) check (load_minutes is null or load_minutes >= 0),
-  add column dump_minutes numeric(8,2) check (dump_minutes is null or dump_minutes >= 0),
-  add column queue_minutes numeric(8,2) check (queue_minutes is null or queue_minutes >= 0),
-  add column includes_disposal boolean not null default false,
+  add column if not exists load_minutes numeric(8,2) check (load_minutes is null or load_minutes >= 0),
+  add column if not exists dump_minutes numeric(8,2) check (dump_minutes is null or dump_minutes >= 0),
+  add column if not exists queue_minutes numeric(8,2) check (queue_minutes is null or queue_minutes >= 0),
+  add column if not exists includes_disposal boolean not null default false,
   -- Labor: what the wage is before burden, so the loaded rate is derived and
   -- not a third number somebody can contradict.
-  add column base_rate numeric(16,4) check (base_rate is null or base_rate >= 0),
-  add column burden_rate numeric(16,4) check (burden_rate is null or burden_rate >= 0),
-  add column role text,
-  add column notes text;
+  add column if not exists base_rate numeric(16,4) check (base_rate is null or base_rate >= 0),
+  add column if not exists burden_rate numeric(16,4) check (burden_rate is null or burden_rate >= 0),
+  add column if not exists role text,
+  add column if not exists notes text;
 
 comment on column estimate_line_resources.drives_hours is
   'Whether this row''s production governs the line''s hours. Two dozers at 100 units an hour are 200 between them and every other row works those same hours, so which rows count is recorded rather than guessed from the kind.';
@@ -126,12 +126,13 @@ comment on column estimate_line_resources.haul_mode is
 comment on column estimate_line_resources.rate_basis is
   'How the machine is billed. An hourly rate and a weekly rate are different numbers with different rounding, and that difference is most of what an equipment line costs.';
 
-create index elr_line_order_idx on estimate_line_resources(line_item_id, sort_order);
+create index if not exists elr_line_order_idx on estimate_line_resources(line_item_id, sort_order);
 
 /*
  * A trip-based haul needs the inputs a cycle is computed from. Left to the
  * application it would be a row that prices as zero and looks complete.
  */
+alter table estimate_line_resources drop constraint if exists elr_trip_inputs;
 alter table estimate_line_resources
   add constraint elr_trip_inputs check (
     haul_mode <> 'trip'
@@ -144,6 +145,7 @@ alter table estimate_line_resources
  * Prod/Hr box contributes nothing to the fleet rate and silently makes the
  * line take longer than it should.
  */
+alter table estimate_line_resources drop constraint if exists elr_driver_needs_production;
 alter table estimate_line_resources
   add constraint elr_driver_needs_production check (
     not drives_hours or production_per_hour is not null

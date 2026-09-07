@@ -61,9 +61,9 @@ create table allowance_overrides (
 comment on table allowance_overrides is
   'More (or less) of a metered allowance for one company. ENTITY. Composes over the plan rather than editing the entitlement, for the same reason feature overrides do: the Stripe webhook upserts the whole entitlement row, so a hand-edited allowance would survive exactly until the next invoice.';
 
-create unique index allowance_overrides_one_live
+create unique index if not exists allowance_overrides_one_live
   on allowance_overrides (company_id, allowance) where revoked_at is null;
-create index allowance_overrides_company on allowance_overrides (company_id);
+create index if not exists allowance_overrides_company on allowance_overrides (company_id);
 
 select app.apply_tenant_rls('allowance_overrides');
 select app.attach_standard_triggers('public.allowance_overrides'::regclass);
@@ -709,6 +709,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   enforced = excluded.enforced, sort_order = excluded.sort_order;
 
+drop trigger if exists feature_catalog_frozen on feature_catalog;
 create trigger feature_catalog_frozen
   before insert or update or delete on feature_catalog
   for each row execute function app.forbid_mutation();

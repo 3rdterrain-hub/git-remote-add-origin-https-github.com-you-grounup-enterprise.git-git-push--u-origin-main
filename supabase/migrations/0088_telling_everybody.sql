@@ -34,6 +34,7 @@ on conflict (key) do update set
   label = excluded.label, description = excluded.description,
   is_powerful = excluded.is_powerful, sort_order = excluded.sort_order;
 
+drop trigger if exists platform_permissions_frozen on platform_permissions;
 create trigger platform_permissions_frozen
   before insert or update or delete on platform_permissions
   for each row execute function app.forbid_mutation();
@@ -72,7 +73,7 @@ create table announcements (
 comment on table announcements is
   'A message shown to customers for a while. ENTITY, one row per message rather than one per reader — a broadcast written as notifications would mean a row for every user, more for everybody who signs up afterwards, and a cleanup job. Retracting stops it being shown and never unsends it.';
 
-create index announcements_live on announcements (starts_at desc)
+create index if not exists announcements_live on announcements (starts_at desc)
   where retracted_at is null;
 
 alter table announcements enable row level security;
@@ -110,6 +111,7 @@ revoke all on announcement_dismissals from anon;
  * un-clearing it — a row that could be deleted would let somebody make an
  * announcement reappear for a person who had already dealt with it.
  */
+drop trigger if exists announcement_dismissals_append_only on announcement_dismissals;
 create trigger announcement_dismissals_append_only
   before update or delete on announcement_dismissals
   for each row execute function app.forbid_mutation();

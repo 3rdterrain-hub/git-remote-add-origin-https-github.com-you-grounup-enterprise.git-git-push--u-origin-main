@@ -61,7 +61,7 @@ comment on column metric_definitions.expression is
 -- A metric names where its number comes from
 -- -----------------------------------------------------------------------------
 alter table metric_definitions
-  add column source_view text
+  add column if not exists source_view text
     check (source_view is null or source_view ~ '^reporting_[a-z_]+$');
 
 comment on column metric_definitions.source_view is
@@ -106,9 +106,10 @@ create table metric_definition_versions (
 
   unique (metric_id, version)
 );
-create index metric_definition_versions_metric_idx
+create index if not exists metric_definition_versions_metric_idx
   on metric_definition_versions(metric_id, version desc);
 
+drop trigger if exists metric_definition_versions_immutable on metric_definition_versions;
 create trigger metric_definition_versions_immutable
   before update or delete on metric_definition_versions
   for each row execute function app.forbid_mutation();
@@ -158,6 +159,7 @@ begin
 end;
 $$;
 
+drop trigger if exists metric_definitions_publish_version on metric_definitions;
 create trigger metric_definitions_publish_version
   after insert or update on metric_definitions
   for each row execute function app.publish_metric_version();

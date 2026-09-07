@@ -22,6 +22,7 @@
 alter table commercial_authority_limits
   drop constraint commercial_authority_limits_record_type_check;
 
+alter table commercial_authority_limits drop constraint if exists commercial_authority_limits_record_type_check;
 alter table commercial_authority_limits
   add constraint commercial_authority_limits_record_type_check
   check (record_type in ('change_order', 'contract', 'claim_settlement', 'purchase_order'));
@@ -37,6 +38,7 @@ comment on column commercial_authority_limits.record_type is
  * change order and a draft contract. Once issued, the vendor has a document
  * the company is bound by.
  */
+drop trigger if exists purchase_orders_authority on purchase_orders;
 create trigger purchase_orders_authority
   before insert or update on purchase_orders
   for each row execute function app.enforce_commercial_authority(

@@ -84,7 +84,7 @@ on conflict (key) do update set
 -- Attaching a role to a person
 -- -----------------------------------------------------------------------------
 alter table platform_admins
-  add column role_key text references platform_roles(key) on delete restrict;
+  add column if not exists role_key text references platform_roles(key) on delete restrict;
 
 -- Everybody already granted keeps what they had.
 update platform_admins set role_key = role where role_key is null;
@@ -115,11 +115,13 @@ begin
 end;
 $$;
 
+drop trigger if exists platform_admins_role_agrees on platform_admins;
 create trigger platform_admins_role_agrees
   before insert or update on platform_admins
   for each row execute function app.platform_admin_role_agrees();
 
 -- The two must agree: only the superadmin role belongs to the superadmin tier.
+alter table platform_admins drop constraint if exists platform_admins_role_agrees;
 alter table platform_admins
   add constraint platform_admins_role_agrees
     check ((role = 'superadmin') = (role_key = 'superadmin'));

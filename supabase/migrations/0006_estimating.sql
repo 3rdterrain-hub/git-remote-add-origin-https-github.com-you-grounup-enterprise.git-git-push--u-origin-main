@@ -29,9 +29,9 @@ create table estimates (
   updated_at        timestamptz not null default now(),
   unique (company_id, number)
 );
-create index estimates_company_status_idx on estimates(company_id, status);
-create index estimates_opportunity_idx on estimates(opportunity_id) where opportunity_id is not null;
-create index estimates_customer_idx on estimates(customer_id) where customer_id is not null;
+create index if not exists estimates_company_status_idx on estimates(company_id, status);
+create index if not exists estimates_opportunity_idx on estimates(opportunity_id) where opportunity_id is not null;
+create index if not exists estimates_customer_idx on estimates(customer_id) where customer_id is not null;
 
 -- -----------------------------------------------------------------------------
 -- Estimate versions — the immutable unit of record
@@ -109,13 +109,15 @@ create table estimate_versions (
     check (contingency_source <> 'override' or (contingency_override_reason is not null and contingency_approved_by is not null)),
   constraint estimate_versions_issued check (status <> 'issued' or issued_at is not null)
 );
-create index estimate_versions_estimate_idx on estimate_versions(estimate_id, version_number desc);
-create index estimate_versions_company_status_idx on estimate_versions(company_id, status);
+create index if not exists estimate_versions_estimate_idx on estimate_versions(estimate_id, version_number desc);
+create index if not exists estimate_versions_company_status_idx on estimate_versions(company_id, status);
 
+alter table estimates drop constraint if exists estimates_current_version_fk;
 alter table estimates
   add constraint estimates_current_version_fk
   foreign key (current_version_id) references estimate_versions(id) on delete set null;
 
+alter table documents drop constraint if exists documents_estimate_fk;
 alter table documents
   add constraint documents_estimate_fk
   foreign key (estimate_id) references estimates(id) on delete set null;
@@ -177,6 +179,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_version_immutability on estimate_versions;
 create trigger enforce_version_immutability
   before update on estimate_versions
   for each row execute function app.enforce_version_immutability();
@@ -277,12 +280,13 @@ create table estimate_line_items (
   -- RULE-008: an AI-suggested line cannot sit in an estimate unaccepted by a human.
   constraint eli_ai_acceptance check (origin <> 'ai_suggested' or ai_accepted_by is not null or approval_gate <> 'auto_accept')
 );
-create index eli_version_idx on estimate_line_items(estimate_version_id, sort_order);
-create index eli_company_idx on estimate_line_items(company_id);
-create index eli_service_idx on estimate_line_items(service_id) where service_id is not null;
-create index eli_gate_idx on estimate_line_items(estimate_version_id, approval_gate) where blocks_issue;
+create index if not exists eli_version_idx on estimate_line_items(estimate_version_id, sort_order);
+create index if not exists eli_company_idx on estimate_line_items(company_id);
+create index if not exists eli_service_idx on estimate_line_items(service_id) where service_id is not null;
+create index if not exists eli_gate_idx on estimate_line_items(estimate_version_id, approval_gate) where blocks_issue;
 
 -- Structural tenant guard: a line cannot attach to another company's version.
+drop trigger if exists eli_tenant_parent on estimate_line_items;
 create trigger eli_tenant_parent
   before insert or update on estimate_line_items
   for each row execute function app.enforce_tenant_parent('estimate_versions', 'estimate_version_id', 'id');
@@ -317,8 +321,9 @@ create table estimate_line_resources (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index elr_line_idx on estimate_line_resources(line_item_id);
+create index if not exists elr_line_idx on estimate_line_resources(line_item_id);
 
+drop trigger if exists elr_tenant_parent on estimate_line_resources;
 create trigger elr_tenant_parent
   before insert or update on estimate_line_resources
   for each row execute function app.enforce_tenant_parent('estimate_line_items', 'line_item_id', 'id');
@@ -338,7 +343,7 @@ create table estimate_line_modifiers (
   created_at            timestamptz not null default now(),
   unique (line_item_id, condition_modifier_id)
 );
-create index elm_line_idx on estimate_line_modifiers(line_item_id);
+create index if not exists elm_line_idx on estimate_line_modifiers(line_item_id);
 
 comment on constraint estimate_line_modifiers_justification_check on estimate_line_modifiers is
   'A condition modifier changes the price. The estimator must say why it applies, in more than a word.';
@@ -364,7 +369,7 @@ create table estimate_indirects (
   constraint estimate_indirects_has_basis
     check (amount is not null or percent_of_direct is not null or (per_day is not null and days is not null))
 );
-create index estimate_indirects_version_idx on estimate_indirects(estimate_version_id, sort_order);
+create index if not exists estimate_indirects_version_idx on estimate_indirects(estimate_version_id, sort_order);
 
 -- -----------------------------------------------------------------------------
 -- Assumptions, exclusions, conflicts and RFIs
@@ -388,7 +393,7 @@ create table estimate_assumptions (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index estimate_assumptions_version_idx on estimate_assumptions(estimate_version_id);
+create index if not exists estimate_assumptions_version_idx on estimate_assumptions(estimate_version_id);
 
 create table estimate_exclusions (
   id                  uuid primary key default gen_random_uuid(),
@@ -401,7 +406,7 @@ create table estimate_exclusions (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index estimate_exclusions_version_idx on estimate_exclusions(estimate_version_id, sort_order);
+create index if not exists estimate_exclusions_version_idx on estimate_exclusions(estimate_version_id, sort_order);
 
 comment on column estimate_exclusions.reason is
   'Section 49: an item may not be excluded merely because it is inconvenient to estimate. The reason is required.';
@@ -429,7 +434,7 @@ create table document_conflicts (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index document_conflicts_version_idx on document_conflicts(estimate_version_id) where resolved_at is null;
+create index if not exists document_conflicts_version_idx on document_conflicts(estimate_version_id) where resolved_at is null;
 
 create table rfis (
   id                  uuid primary key default gen_random_uuid(),
@@ -462,7 +467,7 @@ create table rfis (
   unique (company_id, number),
   constraint rfis_answered check (status <> 'answered' or (answer is not null and answered_at is not null))
 );
-create index rfis_company_status_idx on rfis(company_id, status);
+create index if not exists rfis_company_status_idx on rfis(company_id, status);
 
 -- -----------------------------------------------------------------------------
 -- Bid quantity reconciliation (Section 24)
@@ -485,7 +490,7 @@ create table bid_reconciliations (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index bid_reconciliations_version_idx on bid_reconciliations(estimate_version_id, severity);
+create index if not exists bid_reconciliations_version_idx on bid_reconciliations(estimate_version_id, severity);
 
 -- -----------------------------------------------------------------------------
 -- Proposals
@@ -517,4 +522,4 @@ create table proposals (
   updated_at          timestamptz not null default now(),
   unique (company_id, number)
 );
-create index proposals_company_status_idx on proposals(company_id, status);
+create index if not exists proposals_company_status_idx on proposals(company_id, status);

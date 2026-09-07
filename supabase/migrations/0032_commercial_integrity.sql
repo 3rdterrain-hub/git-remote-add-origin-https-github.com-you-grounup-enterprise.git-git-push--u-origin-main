@@ -71,6 +71,7 @@ begin
 end;
 $$;
 
+drop trigger if exists contracts_terms_frozen on contracts;
 create trigger contracts_terms_frozen
   before update on contracts
   for each row execute function app.forbid_executed_contract_edit();
@@ -116,6 +117,7 @@ begin
 end;
 $$;
 
+drop trigger if exists change_orders_impact_frozen on change_orders;
 create trigger change_orders_impact_frozen
   before update on change_orders
   for each row execute function app.forbid_executed_change_order_edit();
@@ -151,6 +153,7 @@ begin
 end;
 $$;
 
+drop trigger if exists claims_award_frozen on claims;
 create trigger claims_award_frozen
   before update on claims
   for each row execute function app.forbid_resolved_claim_edit();
@@ -305,6 +308,7 @@ begin
 end;
 $$;
 
+drop trigger if exists claims_evidence_exists on claims;
 create trigger claims_evidence_exists
   before insert or update on claims
   for each row execute function app.enforce_claim_evidence();

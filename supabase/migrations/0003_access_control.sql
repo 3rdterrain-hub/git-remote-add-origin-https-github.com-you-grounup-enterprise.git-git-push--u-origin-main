@@ -150,11 +150,12 @@ create table audit_events (
 comment on table audit_events is
   'Immutable business and security ledger. UPDATE and DELETE are blocked by trigger; corrections are appended as new events.';
 
-create index audit_events_company_time_idx on audit_events(company_id, occurred_at desc);
-create index audit_events_entity_idx on audit_events(entity_table, entity_id);
-create index audit_events_actor_idx on audit_events(actor_id, occurred_at desc);
-create index audit_events_correlation_idx on audit_events(correlation_id) where correlation_id is not null;
+create index if not exists audit_events_company_time_idx on audit_events(company_id, occurred_at desc);
+create index if not exists audit_events_entity_idx on audit_events(entity_table, entity_id);
+create index if not exists audit_events_actor_idx on audit_events(actor_id, occurred_at desc);
+create index if not exists audit_events_correlation_idx on audit_events(correlation_id) where correlation_id is not null;
 
+drop trigger if exists audit_events_immutable on audit_events;
 create trigger audit_events_immutable
   before update or delete on audit_events
   for each row execute function app.forbid_mutation();
@@ -268,8 +269,8 @@ create table approval_requests (
   check (state = 'pending' or decided_at is not null)
 );
 
-create index approval_requests_company_state_idx on approval_requests(company_id, state);
-create index approval_requests_entity_idx on approval_requests(entity_table, entity_id);
+create index if not exists approval_requests_company_state_idx on approval_requests(company_id, state);
+create index if not exists approval_requests_entity_idx on approval_requests(entity_table, entity_id);
 
 comment on table approval_requests is
   'Every protected change routes through here. An AI agent may create a request; only a human with the required approval tier may decide it (RULE-008).';
@@ -301,6 +302,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_approval_authority on approval_requests;
 create trigger enforce_approval_authority
   before update on approval_requests
   for each row execute function app.enforce_approval_authority();

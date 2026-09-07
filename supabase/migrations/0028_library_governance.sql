@@ -135,14 +135,15 @@ create table library_row_versions (
   unique (source_table, source_id, version_number)
 );
 
-create index library_row_versions_asof_idx
+create index if not exists library_row_versions_asof_idx
   on library_row_versions(source_table, source_id, valid_from desc);
-create index library_row_versions_current_idx
+create index if not exists library_row_versions_current_idx
   on library_row_versions(source_table, source_id, version_number desc);
 
 comment on table library_row_versions is
   'What every library row used to say, and when. Answers "what did this rate look like in March", which library snapshots do not: those make an estimate reproducible, this makes the library itself answerable.';
 
+drop trigger if exists library_row_versions_immutable on library_row_versions;
 create trigger library_row_versions_immutable
   before update or delete on library_row_versions
   for each row execute function app.forbid_mutation();

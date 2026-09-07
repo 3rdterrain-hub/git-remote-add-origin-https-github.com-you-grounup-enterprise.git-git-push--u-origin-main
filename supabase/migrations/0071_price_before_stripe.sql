@@ -32,7 +32,7 @@ alter table plan_prices
  * forget when the id is finally pasted in.
  */
 alter table plan_prices
-  add column is_chargeable boolean
+  add column if not exists is_chargeable boolean
     generated always as (stripe_price_id is not null
                          and length(trim(stripe_price_id)) > 0) stored;
 

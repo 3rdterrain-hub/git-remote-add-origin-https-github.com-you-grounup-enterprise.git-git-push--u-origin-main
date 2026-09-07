@@ -168,6 +168,7 @@ begin
 end;
 $$;
 
+drop trigger if exists metric_definitions_no_delete on metric_definitions;
 create trigger metric_definitions_no_delete
   before delete on metric_definitions
   for each row execute function app.forbid_metric_deletion();

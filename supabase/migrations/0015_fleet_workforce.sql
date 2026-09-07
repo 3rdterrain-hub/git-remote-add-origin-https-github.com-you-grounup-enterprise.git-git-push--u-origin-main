@@ -47,8 +47,8 @@ create table employees (
   -- reviews cannot tell an active worker from a stale record.
   constraint employees_terminated_date check (status <> 'terminated' or termination_date is not null)
 );
-create index employees_company_status_idx on employees(company_id, status);
-create index employees_name_idx on employees using gin (full_name gin_trgm_ops);
+create index if not exists employees_company_status_idx on employees(company_id, status);
+create index if not exists employees_name_idx on employees using gin (full_name gin_trgm_ops);
 
 -- -----------------------------------------------------------------------------
 -- Credentials and training
@@ -73,9 +73,10 @@ create table credentials (
   updated_at          timestamptz not null default now(),
   constraint credentials_dates check (expires_on is null or issued_on is null or expires_on > issued_on)
 );
-create index credentials_employee_idx on credentials(employee_id);
-create index credentials_expiry_idx on credentials(company_id, expires_on) where expires_on is not null and status <> 'revoked';
+create index if not exists credentials_employee_idx on credentials(employee_id);
+create index if not exists credentials_expiry_idx on credentials(company_id, expires_on) where expires_on is not null and status <> 'revoked';
 
+drop trigger if exists credentials_tenant_parent on credentials;
 create trigger credentials_tenant_parent
   before insert or update on credentials
   for each row execute function app.enforce_tenant_parent('employees', 'employee_id', 'id');
@@ -104,6 +105,7 @@ begin
 end;
 $$;
 
+drop trigger if exists refresh_credential_status on credentials;
 create trigger refresh_credential_status
   before insert or update of expires_on, status on credentials
   for each row execute function app.refresh_credential_status();
@@ -140,10 +142,11 @@ create table time_entries (
   constraint time_entries_day_total check (straight_hours + overtime_hours + doubletime_hours <= 24),
   constraint time_entries_approved check (approval_state <> 'approved' or (approved_by is not null and approved_at is not null))
 );
-create index time_entries_employee_date_idx on time_entries(employee_id, work_date desc);
-create index time_entries_project_idx on time_entries(project_id, work_date desc) where project_id is not null;
-create index time_entries_unapproved_idx on time_entries(company_id, work_date) where approval_state = 'pending';
+create index if not exists time_entries_employee_date_idx on time_entries(employee_id, work_date desc);
+create index if not exists time_entries_project_idx on time_entries(project_id, work_date desc) where project_id is not null;
+create index if not exists time_entries_unapproved_idx on time_entries(company_id, work_date) where approval_state = 'pending';
 
+drop trigger if exists time_entries_tenant_parent on time_entries;
 create trigger time_entries_tenant_parent
   before insert or update on time_entries
   for each row execute function app.enforce_tenant_parent('employees', 'employee_id', 'id');
@@ -164,6 +167,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_time_entry_lock on time_entries;
 create trigger enforce_time_entry_lock
   before update on time_entries
   for each row when (old.exported_at is not null)
@@ -212,9 +216,9 @@ create table assets (
   unique (company_id, asset_number),
   constraint assets_disposed check (status <> 'disposed' or disposed_on is not null)
 );
-create index assets_company_status_idx on assets(company_id, status);
-create index assets_project_idx on assets(assigned_project_id) where assigned_project_id is not null;
-create index assets_equipment_idx on assets(equipment_id) where equipment_id is not null;
+create index if not exists assets_company_status_idx on assets(company_id, status);
+create index if not exists assets_project_idx on assets(assigned_project_id) where assigned_project_id is not null;
+create index if not exists assets_equipment_idx on assets(equipment_id) where equipment_id is not null;
 
 comment on column assets.equipment_id is
   'Ties the physical machine to the catalog rate it is estimated at, so utilization can be read against the rate that priced the work.';
@@ -240,8 +244,9 @@ create table meter_readings (
   created_at          timestamptz not null default now(),
   constraint meter_readings_has_value check (hours is not null or miles is not null)
 );
-create index meter_readings_asset_idx on meter_readings(asset_id, reading_at desc);
+create index if not exists meter_readings_asset_idx on meter_readings(asset_id, reading_at desc);
 
+drop trigger if exists meter_readings_tenant_parent on meter_readings;
 create trigger meter_readings_tenant_parent
   before insert or update on meter_readings
   for each row execute function app.enforce_tenant_parent('assets', 'asset_id', 'id');
@@ -283,6 +288,7 @@ begin
 end;
 $$;
 
+drop trigger if exists apply_meter_reading on meter_readings;
 create trigger apply_meter_reading
   after insert on meter_readings
   for each row execute function app.apply_meter_reading();
@@ -307,8 +313,9 @@ create table maintenance_schedules (
   constraint maintenance_schedules_interval
     check (num_nonnulls(interval_hours, interval_miles, interval_days) >= 1)
 );
-create index maintenance_schedules_asset_idx on maintenance_schedules(asset_id) where is_active;
+create index if not exists maintenance_schedules_asset_idx on maintenance_schedules(asset_id) where is_active;
 
+drop trigger if exists maintenance_schedules_tenant_parent on maintenance_schedules;
 create trigger maintenance_schedules_tenant_parent
   before insert or update on maintenance_schedules
   for each row execute function app.enforce_tenant_parent('assets', 'asset_id', 'id');
@@ -348,9 +355,10 @@ create table work_orders (
   constraint work_orders_complete
     check (status <> 'complete' or (completed_at is not null and resolution is not null))
 );
-create index work_orders_asset_idx on work_orders(asset_id, opened_at desc);
-create index work_orders_open_idx on work_orders(company_id, status) where status not in ('complete', 'canceled');
+create index if not exists work_orders_asset_idx on work_orders(asset_id, opened_at desc);
+create index if not exists work_orders_open_idx on work_orders(company_id, status) where status not in ('complete', 'canceled');
 
+drop trigger if exists work_orders_tenant_parent on work_orders;
 create trigger work_orders_tenant_parent
   before insert or update on work_orders
   for each row execute function app.enforce_tenant_parent('assets', 'asset_id', 'id');
@@ -379,6 +387,7 @@ begin
 end;
 $$;
 
+drop trigger if exists close_maintenance_schedule on work_orders;
 create trigger close_maintenance_schedule
   after update on work_orders
   for each row execute function app.close_maintenance_schedule();
@@ -409,8 +418,8 @@ create table fuel_transactions (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index fuel_transactions_asset_idx on fuel_transactions(asset_id, transacted_at desc) where asset_id is not null;
-create index fuel_transactions_exceptions_idx on fuel_transactions(company_id, transacted_at desc) where exception_flag is not null;
+create index if not exists fuel_transactions_asset_idx on fuel_transactions(asset_id, transacted_at desc) where asset_id is not null;
+create index if not exists fuel_transactions_exceptions_idx on fuel_transactions(company_id, transacted_at desc) where exception_flag is not null;
 
 comment on column fuel_transactions.card_last4 is
   'Last four digits only, for reconciliation against a statement. No full card number is ever stored.';
@@ -449,9 +458,10 @@ create table schedule_activities (
   constraint schedule_activities_critical
     check (total_float_days is null or (is_critical = (total_float_days <= 0)))
 );
-create index schedule_activities_project_idx on schedule_activities(project_id, planned_start);
-create index schedule_activities_critical_idx on schedule_activities(project_id) where is_critical;
+create index if not exists schedule_activities_project_idx on schedule_activities(project_id, planned_start);
+create index if not exists schedule_activities_critical_idx on schedule_activities(project_id) where is_critical;
 
+drop trigger if exists schedule_activities_tenant_parent on schedule_activities;
 create trigger schedule_activities_tenant_parent
   before insert or update on schedule_activities
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -497,10 +507,11 @@ create table resource_assignments (
     (resource_kind = 'subcontractor' and vendor_id is not null)
   )
 );
-create index resource_assignments_project_idx on resource_assignments(project_id, starts_on);
-create index resource_assignments_asset_idx on resource_assignments(asset_id, starts_on) where asset_id is not null;
-create index resource_assignments_employee_idx on resource_assignments(employee_id, starts_on) where employee_id is not null;
+create index if not exists resource_assignments_project_idx on resource_assignments(project_id, starts_on);
+create index if not exists resource_assignments_asset_idx on resource_assignments(asset_id, starts_on) where asset_id is not null;
+create index if not exists resource_assignments_employee_idx on resource_assignments(employee_id, starts_on) where employee_id is not null;
 
+drop trigger if exists resource_assignments_tenant_parent on resource_assignments;
 create trigger resource_assignments_tenant_parent
   before insert or update on resource_assignments
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -513,6 +524,7 @@ create trigger resource_assignments_tenant_parent
  * superintendents both expect the excavator on Monday. Crews and employees can
  * legitimately split across jobs, so they are checked by allocation instead.
  */
+alter table resource_assignments drop constraint if exists resource_assignments_asset_no_overlap;
 alter table resource_assignments
   add constraint resource_assignments_asset_no_overlap
   exclude using gist (

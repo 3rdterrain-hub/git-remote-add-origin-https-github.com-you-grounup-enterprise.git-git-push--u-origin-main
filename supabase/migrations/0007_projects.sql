@@ -42,11 +42,14 @@ create table projects (
   unique (company_id, number),
   constraint projects_dates check (planned_finish is null or planned_start is null or planned_finish >= planned_start)
 );
-create index projects_company_status_idx on projects(company_id, status);
-create index projects_customer_idx on projects(customer_id) where customer_id is not null;
+create index if not exists projects_company_status_idx on projects(company_id, status);
+create index if not exists projects_customer_idx on projects(customer_id) where customer_id is not null;
 
+alter table documents drop constraint if exists documents_project_fk;
 alter table documents add constraint documents_project_fk foreign key (project_id) references projects(id) on delete set null;
+alter table rfis drop constraint if exists rfis_project_fk;
 alter table rfis add constraint rfis_project_fk foreign key (project_id) references projects(id) on delete set null;
+alter table production_rates drop constraint if exists production_rates_derived_project_fk;
 alter table production_rates add constraint production_rates_derived_project_fk
   foreign key (derived_from_project_id) references projects(id) on delete set null;
 
@@ -85,9 +88,10 @@ create table project_tasks (
   updated_at          timestamptz not null default now(),
   constraint project_tasks_no_self_parent check (parent_task_id is null or parent_task_id <> id)
 );
-create index project_tasks_project_idx on project_tasks(project_id, sort_order);
-create index project_tasks_status_idx on project_tasks(project_id, status);
+create index if not exists project_tasks_project_idx on project_tasks(project_id, sort_order);
+create index if not exists project_tasks_status_idx on project_tasks(project_id, status);
 
+drop trigger if exists project_tasks_tenant_parent on project_tasks;
 create trigger project_tasks_tenant_parent
   before insert or update on project_tasks
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -137,10 +141,11 @@ create table project_costs (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index project_costs_project_date_idx on project_costs(project_id, cost_date desc);
-create index project_costs_task_idx on project_costs(project_task_id) where project_task_id is not null;
-create index project_costs_type_idx on project_costs(project_id, cost_type);
+create index if not exists project_costs_project_date_idx on project_costs(project_id, cost_date desc);
+create index if not exists project_costs_task_idx on project_costs(project_task_id) where project_task_id is not null;
+create index if not exists project_costs_type_idx on project_costs(project_id, cost_type);
 
+drop trigger if exists project_costs_tenant_parent on project_costs;
 create trigger project_costs_tenant_parent
   before insert or update on project_costs
   for each row execute function app.enforce_tenant_parent('projects', 'project_id', 'id');
@@ -168,7 +173,7 @@ create table daily_reports (
   updated_at          timestamptz not null default now(),
   unique (project_id, report_date)
 );
-create index daily_reports_project_date_idx on daily_reports(project_id, report_date desc);
+create index if not exists daily_reports_project_date_idx on daily_reports(project_id, report_date desc);
 
 /**
  * Measured production. This is the input to calibration: when actual output
@@ -202,8 +207,8 @@ create table production_actuals (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index production_actuals_project_idx on production_actuals(project_id, work_date desc);
-create index production_actuals_rate_idx on production_actuals(production_rate_id) where production_rate_id is not null;
+create index if not exists production_actuals_project_idx on production_actuals(project_id, work_date desc);
+create index if not exists production_actuals_rate_idx on production_actuals(production_rate_id) where production_rate_id is not null;
 
 comment on table production_actuals is
   'Measured field production. Feeds the calibration engine, which proposes revised catalog rates as approval candidates — it never edits a rate directly (RULE-008).';
@@ -238,7 +243,7 @@ create table change_orders (
   unique (project_id, number),
   constraint change_orders_decision check (status not in ('approved', 'rejected') or decided_at is not null)
 );
-create index change_orders_project_status_idx on change_orders(project_id, status);
+create index if not exists change_orders_project_status_idx on change_orders(project_id, status);
 
 -- -----------------------------------------------------------------------------
 -- Award: estimate version -> project

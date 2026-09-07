@@ -41,7 +41,7 @@
 -- What the payment clause says, as a number
 -- -----------------------------------------------------------------------------
 alter table contracts
-  add column payment_terms_days int
+  add column if not exists payment_terms_days int
     check (payment_terms_days is null or (payment_terms_days >= 0 and payment_terms_days <= 365));
 
 comment on column contracts.payment_terms_days is

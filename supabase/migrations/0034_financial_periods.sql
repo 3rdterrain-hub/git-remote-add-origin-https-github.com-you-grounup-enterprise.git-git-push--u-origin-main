@@ -52,6 +52,7 @@ create table financial_periods (
 
 -- Two periods covering the same day would make "is this date closed" depend on
 -- which row was read first.
+alter table financial_periods drop constraint if exists financial_periods_no_overlap;
 alter table financial_periods
   add constraint financial_periods_no_overlap
   exclude using gist (
@@ -59,7 +60,7 @@ alter table financial_periods
     daterange(period_start, period_end, '[]') with &&
   );
 
-create index financial_periods_lookup_idx
+create index if not exists financial_periods_lookup_idx
   on financial_periods(company_id, period_start desc);
 
 comment on table financial_periods is
@@ -136,10 +137,12 @@ begin
 end;
 $$;
 
+drop trigger if exists project_costs_open_period on project_costs;
 create trigger project_costs_open_period
   before insert or update on project_costs
   for each row execute function app.enforce_open_period('cost_date', 'a job cost');
 
+drop trigger if exists ap_invoices_open_period on ap_invoices;
 create trigger ap_invoices_open_period
   before insert or update on ap_invoices
   for each row execute function app.enforce_open_period('invoice_date', 'a payable');

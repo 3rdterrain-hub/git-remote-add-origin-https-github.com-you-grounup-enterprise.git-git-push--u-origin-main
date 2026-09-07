@@ -65,12 +65,13 @@ create table notification_receipts (
   updated_at      timestamptz not null default now(),
   unique (notification_id, user_id)
 );
-create index notification_receipts_tenant_idx on notification_receipts(company_id);
-create index notification_receipts_user_idx on notification_receipts(user_id, notification_id);
+create index if not exists notification_receipts_tenant_idx on notification_receipts(company_id);
+create index if not exists notification_receipts_user_idx on notification_receipts(user_id, notification_id);
 
 comment on table notification_receipts is
   'Whether one person has read or dismissed one notification. ENTITY. Read state is personal, and a company-wide notice is a single row seen by every member — holding the timestamp on that row would have let the first reader mark it read for the whole company.';
 
+drop trigger if exists notification_receipts_tenant_parent on notification_receipts;
 create trigger notification_receipts_tenant_parent
   before insert or update on notification_receipts
   for each row execute function app.enforce_tenant_parent('notifications', 'notification_id', 'id');
@@ -104,6 +105,7 @@ alter table notifications
 
 drop policy if exists notifications_update on notifications;
 
+drop trigger if exists forbid_notification_edit on notifications;
 create trigger forbid_notification_edit
   before update on notifications
   for each row execute function app.forbid_notification_edit();

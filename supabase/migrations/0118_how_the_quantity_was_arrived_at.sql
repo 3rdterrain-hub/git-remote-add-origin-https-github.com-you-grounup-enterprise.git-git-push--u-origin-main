@@ -24,7 +24,7 @@
 -- =============================================================================
 
 alter table estimate_line_items
-  add column quantity_expression text
+  add column if not exists quantity_expression text
     check (quantity_expression is null
            or length(trim(quantity_expression)) between 1 and 200);
 

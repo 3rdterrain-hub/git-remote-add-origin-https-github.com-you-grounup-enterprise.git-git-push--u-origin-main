@@ -350,6 +350,7 @@ TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
+TST-gov-rerunnable-migrations,test,gov/rerunnable-migrations.test.ts,tests/governance/rerunnable-migrations.test.ts,ENGINE
 TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE

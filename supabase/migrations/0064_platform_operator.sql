@@ -48,7 +48,7 @@ create table platform_admins (
     check (revoked_at is null or revoke_reason is not null)
 );
 -- One live grant per person; a revoked one may sit beside it.
-create unique index platform_admins_live_idx
+create unique index if not exists platform_admins_live_idx
   on platform_admins(user_id) where revoked_at is null;
 
 comment on table platform_admins is
@@ -112,9 +112,9 @@ create table entitlement_overrides (
   constraint entitlement_overrides_revoked
     check (revoked_at is null or revoke_reason is not null)
 );
-create unique index entitlement_overrides_live_idx
+create unique index if not exists entitlement_overrides_live_idx
   on entitlement_overrides(company_id, feature) where revoked_at is null;
-create index entitlement_overrides_company_idx on entitlement_overrides(company_id);
+create index if not exists entitlement_overrides_company_idx on entitlement_overrides(company_id);
 
 comment on table entitlement_overrides is
   'A feature turned on or off for one company by the platform operator, composing on top of whatever the plan grants. ENTITY. Separate from `entitlements` on purpose: that table is upserted whole by the Stripe webhook on company_id, so a grant written there would work and then be silently reverted by the next invoice.';

@@ -106,6 +106,7 @@ $$;
  * year's bids has not used up this year's allowance, and telling them otherwise
  * would push them to delete their own history to keep working.
  */
+drop trigger if exists estimates_plan_limit on estimates;
 create trigger estimates_plan_limit
   before insert on estimates
   for each row execute function app.enforce_plan_count_limit(
@@ -115,6 +116,7 @@ create trigger estimates_plan_limit
  * Active projects. Closed and canceled jobs do not count against the limit,
  * for the same reason.
  */
+drop trigger if exists projects_plan_limit on projects;
 create trigger projects_plan_limit
   before insert on projects
   for each row execute function app.enforce_plan_count_limit(
@@ -127,6 +129,7 @@ create trigger projects_plan_limit
  * accepted, or a company could invite past its limit and have the overage
  * appear the moment people sign in.
  */
+drop trigger if exists company_memberships_plan_limit on company_memberships;
 create trigger company_memberships_plan_limit
   before insert on company_memberships
   for each row execute function app.enforce_plan_count_limit(

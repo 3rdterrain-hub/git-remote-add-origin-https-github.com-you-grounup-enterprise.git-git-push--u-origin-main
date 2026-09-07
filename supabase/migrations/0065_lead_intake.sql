@@ -68,9 +68,9 @@ create table lead_intake_forms (
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
-create index lead_intake_forms_company_idx on lead_intake_forms(company_id);
+create index if not exists lead_intake_forms_company_idx on lead_intake_forms(company_id);
 -- The lookup every submission makes, and the only one anon causes.
-create unique index lead_intake_forms_key_idx on lead_intake_forms(public_key) where is_active;
+create unique index if not exists lead_intake_forms_key_idx on lead_intake_forms(public_key) where is_active;
 
 comment on table lead_intake_forms is
   'A public address that accepts leads for one company. ENTITY. Keyed separately from the company so a form can be disabled or replaced without exposing or changing the tenant identifier, and so a scraped address can be turned off.';
@@ -107,14 +107,14 @@ select app.attach_standard_triggers('public.lead_intake_forms'::regclass);
 -- something goes wrong, what address sent it.
 -- -----------------------------------------------------------------------------
 alter table leads
-  add column intake_form_id uuid references lead_intake_forms(id) on delete set null,
-  add column submitted_ip inet,
-  add column submitted_user_agent text,
-  add column submitted_at timestamptz;
+  add column if not exists intake_form_id uuid references lead_intake_forms(id) on delete set null,
+  add column if not exists submitted_ip inet,
+  add column if not exists submitted_user_agent text,
+  add column if not exists submitted_at timestamptz;
 
-create index leads_intake_form_idx on leads(intake_form_id) where intake_form_id is not null;
+create index if not exists leads_intake_form_idx on leads(intake_form_id) where intake_form_id is not null;
 -- The rate-limit lookup, which runs on every public submission.
-create index leads_intake_recent_idx on leads(intake_form_id, submitted_at desc)
+create index if not exists leads_intake_recent_idx on leads(intake_form_id, submitted_at desc)
   where intake_form_id is not null;
 
 comment on column leads.submitted_ip is

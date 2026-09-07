@@ -34,7 +34,7 @@
 -- The part a human decides, separated from the part a date decides
 -- -----------------------------------------------------------------------------
 alter table credentials
-  add column lifecycle text not null default 'active'
+  add column if not exists lifecycle text not null default 'active'
     check (lifecycle in ('pending', 'active', 'revoked'));
 
 comment on column credentials.lifecycle is
@@ -56,7 +56,7 @@ drop function if exists app.refresh_credential_status();
 -- below against the column that replaced it.
 alter table credentials drop column status;
 
-create index credentials_expiry_idx on credentials(company_id, expires_on)
+create index if not exists credentials_expiry_idx on credentials(company_id, expires_on)
   where expires_on is not null and lifecycle <> 'revoked';
 
 /**
@@ -238,6 +238,7 @@ begin
 end;
 $$;
 
+drop trigger if exists notify_credential_lapse on credentials;
 create trigger notify_credential_lapse
   after insert or update of lifecycle, expires_on on credentials
   for each row execute function app.notify_credential_lapse();

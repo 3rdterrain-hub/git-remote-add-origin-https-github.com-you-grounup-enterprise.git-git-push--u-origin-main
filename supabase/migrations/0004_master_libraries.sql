@@ -39,8 +39,8 @@ create table cost_codes (
   updated_at          timestamptz not null default now(),
   constraint cost_codes_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index cost_codes_company_code_idx on cost_codes(company_id, code) where company_id is not null;
-create unique index cost_codes_global_code_idx on cost_codes(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists cost_codes_company_code_idx on cost_codes(company_id, code) where company_id is not null;
+create unique index if not exists cost_codes_global_code_idx on cost_codes(code) where company_id is null and enterprise_group_id is null;
 
 -- -----------------------------------------------------------------------------
 -- Services — what the company sells
@@ -75,10 +75,10 @@ create table services (
   constraint services_scope check (app.library_scope_valid(company_id, enterprise_group_id)),
   constraint services_default_unit_supported check (default_unit = any (supported_units))
 );
-create unique index services_company_code_idx on services(company_id, code) where company_id is not null;
-create unique index services_global_code_idx on services(code) where company_id is null and enterprise_group_id is null;
-create index services_search_idx on services using gin (search_text gin_trgm_ops);
-create index services_category_idx on services(category, subcategory);
+create unique index if not exists services_company_code_idx on services(company_id, code) where company_id is not null;
+create unique index if not exists services_global_code_idx on services(code) where company_id is null and enterprise_group_id is null;
+create index if not exists services_search_idx on services using gin (search_text gin_trgm_ops);
+create index if not exists services_category_idx on services(category, subcategory);
 
 comment on column services.origin is
   'A service discovered by AI enters as ai_discovered and must be approved by a human before it can price work (RULE-008).';
@@ -107,9 +107,9 @@ create table tasks (
   updated_at            timestamptz not null default now(),
   constraint tasks_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index tasks_company_code_idx on tasks(company_id, code) where company_id is not null;
-create unique index tasks_global_code_idx on tasks(code) where company_id is null and enterprise_group_id is null;
-create index tasks_category_idx on tasks(category);
+create unique index if not exists tasks_company_code_idx on tasks(company_id, code) where company_id is not null;
+create unique index if not exists tasks_global_code_idx on tasks(code) where company_id is null and enterprise_group_id is null;
+create index if not exists tasks_category_idx on tasks(category);
 
 -- -----------------------------------------------------------------------------
 -- Labor
@@ -140,8 +140,8 @@ create table labor_rates (
   constraint labor_rates_scope check (app.library_scope_valid(company_id, enterprise_group_id)),
   constraint labor_rates_dates check (expires_on is null or expires_on > effective_date)
 );
-create unique index labor_rates_company_code_idx on labor_rates(company_id, code, effective_date) where company_id is not null;
-create unique index labor_rates_global_code_idx on labor_rates(code, effective_date) where company_id is null and enterprise_group_id is null;
+create unique index if not exists labor_rates_company_code_idx on labor_rates(company_id, code, effective_date) where company_id is not null;
+create unique index if not exists labor_rates_global_code_idx on labor_rates(code, effective_date) where company_id is null and enterprise_group_id is null;
 
 comment on column labor_rates.burdened_cost_per_hour is
   'Generated column: base x (1 + burden). Stored so it cannot be edited independently of its inputs.';
@@ -169,8 +169,8 @@ create table equipment (
   updated_at            timestamptz not null default now(),
   constraint equipment_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index equipment_company_code_idx on equipment(company_id, code) where company_id is not null;
-create unique index equipment_global_code_idx on equipment(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists equipment_company_code_idx on equipment(company_id, code) where company_id is not null;
+create unique index if not exists equipment_global_code_idx on equipment(code) where company_id is null and enterprise_group_id is null;
 
 /**
  * One row per (equipment, rate source). RULE-003 resolves the winner in
@@ -196,7 +196,7 @@ create table equipment_rates (
   updated_at      timestamptz not null default now(),
   constraint equipment_rates_dates check (expires_on is null or expires_on > effective_date)
 );
-create index equipment_rates_lookup_idx on equipment_rates(equipment_id, source, effective_date desc);
+create index if not exists equipment_rates_lookup_idx on equipment_rates(equipment_id, source, effective_date desc);
 
 -- -----------------------------------------------------------------------------
 -- Crews
@@ -214,8 +214,8 @@ create table crews (
   updated_at            timestamptz not null default now(),
   constraint crews_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index crews_company_code_idx on crews(company_id, code) where company_id is not null;
-create unique index crews_global_code_idx on crews(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists crews_company_code_idx on crews(company_id, code) where company_id is not null;
+create unique index if not exists crews_global_code_idx on crews(code) where company_id is null and enterprise_group_id is null;
 
 create table crew_members (
   id                       uuid primary key default gen_random_uuid(),
@@ -230,7 +230,7 @@ create table crew_members (
   updated_at               timestamptz not null default now(),
   unique (crew_id, labor_rate_id)
 );
-create index crew_members_crew_idx on crew_members(crew_id);
+create index if not exists crew_members_crew_idx on crew_members(crew_id);
 
 -- -----------------------------------------------------------------------------
 -- Assemblies — reusable rollups of tasks and resources
@@ -255,9 +255,10 @@ create table assemblies (
   updated_at            timestamptz not null default now(),
   constraint assemblies_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index assemblies_company_code_idx on assemblies(company_id, code) where company_id is not null;
-create unique index assemblies_global_code_idx on assemblies(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists assemblies_company_code_idx on assemblies(company_id, code) where company_id is not null;
+create unique index if not exists assemblies_global_code_idx on assemblies(code) where company_id is null and enterprise_group_id is null;
 
+alter table services drop constraint if exists services_default_assembly_fk;
 alter table services
   add constraint services_default_assembly_fk
   foreign key (default_assembly_id) references assemblies(id) on delete set null;
@@ -292,7 +293,7 @@ create table assembly_components (
   ),
   constraint assembly_components_no_self_nest check (nested_assembly_id is null or nested_assembly_id <> assembly_id)
 );
-create index assembly_components_assembly_idx on assembly_components(assembly_id, sort_order);
+create index if not exists assembly_components_assembly_idx on assembly_components(assembly_id, sort_order);
 
 -- -----------------------------------------------------------------------------
 -- Materials
@@ -321,10 +322,11 @@ create table materials (
   -- Section 31: a waste factor without a reason is not allowed to ship.
   constraint materials_waste_basis check (default_waste_percent = 0 or waste_basis is not null)
 );
-create unique index materials_company_code_idx on materials(company_id, code) where company_id is not null;
-create unique index materials_global_code_idx on materials(code) where company_id is null and enterprise_group_id is null;
-create index materials_name_idx on materials using gin (name gin_trgm_ops);
+create unique index if not exists materials_company_code_idx on materials(company_id, code) where company_id is not null;
+create unique index if not exists materials_global_code_idx on materials(code) where company_id is null and enterprise_group_id is null;
+create index if not exists materials_name_idx on materials using gin (name gin_trgm_ops);
 
+alter table assembly_components drop constraint if exists assembly_components_material_fk;
 alter table assembly_components
   add constraint assembly_components_material_fk
   foreign key (material_id) references materials(id) on delete set null;
@@ -371,10 +373,10 @@ create table production_rates (
     source_type <> 'company_actual' or sample_size > 0
   )
 );
-create unique index production_rates_company_code_idx on production_rates(company_id, code) where company_id is not null;
-create unique index production_rates_global_code_idx on production_rates(code) where company_id is null and enterprise_group_id is null;
-create index production_rates_task_idx on production_rates(task_id) where status = 'active';
-create index production_rates_service_idx on production_rates(service_id) where status = 'active';
+create unique index if not exists production_rates_company_code_idx on production_rates(company_id, code) where company_id is not null;
+create unique index if not exists production_rates_global_code_idx on production_rates(code) where company_id is null and enterprise_group_id is null;
+create index if not exists production_rates_task_idx on production_rates(task_id) where status = 'active';
+create index if not exists production_rates_service_idx on production_rates(service_id) where status = 'active';
 
 comment on constraint production_rates_provenance on production_rates is
   'A rate cannot claim to be a company actual without at least one measured job behind it.';
@@ -398,8 +400,8 @@ create table condition_modifiers (
   constraint condition_modifiers_scope check (app.library_scope_valid(company_id, enterprise_group_id)),
   constraint condition_modifiers_factors_object check (jsonb_typeof(factors) = 'object' and factors <> '{}'::jsonb)
 );
-create unique index condition_modifiers_company_code_idx on condition_modifiers(company_id, code) where company_id is not null;
-create unique index condition_modifiers_global_code_idx on condition_modifiers(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists condition_modifiers_company_code_idx on condition_modifiers(company_id, code) where company_id is not null;
+create unique index if not exists condition_modifiers_global_code_idx on condition_modifiers(code) where company_id is null and enterprise_group_id is null;
 
 /** Every factor must name a real target and be a positive number. */
 create or replace function app.validate_modifier_factors()
@@ -426,6 +428,7 @@ begin
 end;
 $$;
 
+drop trigger if exists validate_modifier_factors on condition_modifiers;
 create trigger validate_modifier_factors
   before insert or update of factors on condition_modifiers
   for each row execute function app.validate_modifier_factors();
@@ -452,11 +455,12 @@ create table pricing_profiles (
   updated_at            timestamptz not null default now(),
   constraint pricing_profiles_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index pricing_profiles_company_code_idx on pricing_profiles(company_id, code) where company_id is not null;
-create unique index pricing_profiles_global_code_idx on pricing_profiles(code) where company_id is null and enterprise_group_id is null;
+create unique index if not exists pricing_profiles_company_code_idx on pricing_profiles(company_id, code) where company_id is not null;
+create unique index if not exists pricing_profiles_global_code_idx on pricing_profiles(code) where company_id is null and enterprise_group_id is null;
 -- At most one default profile per company.
-create unique index pricing_profiles_one_default_idx on pricing_profiles(company_id) where is_default and company_id is not null;
+create unique index if not exists pricing_profiles_one_default_idx on pricing_profiles(company_id) where is_default and company_id is not null;
 
+alter table companies drop constraint if exists companies_default_pricing_profile_fk;
 alter table companies
   add constraint companies_default_pricing_profile_fk
   foreign key (default_pricing_profile_id) references pricing_profiles(id) on delete set null;
@@ -476,7 +480,7 @@ create table markup_components (
   updated_at          timestamptz not null default now(),
   unique (pricing_profile_id, code)
 );
-create index markup_components_profile_idx on markup_components(pricing_profile_id, sequence);
+create index if not exists markup_components_profile_idx on markup_components(pricing_profile_id, sequence);
 
 -- -----------------------------------------------------------------------------
 -- Regional factors
@@ -497,7 +501,7 @@ create table regional_factors (
   updated_at          timestamptz not null default now(),
   constraint regional_factors_scope check (app.library_scope_valid(company_id, enterprise_group_id))
 );
-create unique index regional_factors_company_idx on regional_factors(company_id, region_code, effective_date) where company_id is not null;
+create unique index if not exists regional_factors_company_idx on regional_factors(company_id, region_code, effective_date) where company_id is not null;
 
 -- -----------------------------------------------------------------------------
 -- Vendors, disposal sites and trucking rates
@@ -526,9 +530,11 @@ create table vendors (
   updated_at        timestamptz not null default now(),
   unique (company_id, code)
 );
-create index vendors_company_type_idx on vendors(company_id, vendor_type) where status = 'active';
+create index if not exists vendors_company_type_idx on vendors(company_id, vendor_type) where status = 'active';
 
+alter table materials drop constraint if exists materials_vendor_fk;
 alter table materials add constraint materials_vendor_fk foreign key (vendor_id) references vendors(id) on delete set null;
+alter table equipment_rates drop constraint if exists equipment_rates_vendor_fk;
 alter table equipment_rates add constraint equipment_rates_vendor_fk foreign key (vendor_id) references vendors(id) on delete set null;
 
 create table disposal_sites (

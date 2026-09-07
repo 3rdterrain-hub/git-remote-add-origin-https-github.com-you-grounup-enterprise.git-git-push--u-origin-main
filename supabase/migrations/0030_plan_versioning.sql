@@ -49,10 +49,11 @@ create table plan_versions (
 
   unique (plan_id, version)
 );
-create index plan_versions_plan_idx on plan_versions(plan_id, version desc);
+create index if not exists plan_versions_plan_idx on plan_versions(plan_id, version desc);
 
 -- A published version is what somebody was sold. Editing it rewrites the terms
 -- of a sale that already happened.
+drop trigger if exists plan_versions_immutable on plan_versions;
 create trigger plan_versions_immutable
   before update or delete on plan_versions
   for each row execute function app.forbid_mutation();
@@ -119,6 +120,7 @@ begin
 end;
 $$;
 
+drop trigger if exists plans_publish_version on plans;
 create trigger plans_publish_version
   after insert or update on plans
   for each row execute function app.publish_plan_version();
@@ -158,10 +160,10 @@ grant execute on function app.current_plan_version(text) to authenticated, servi
 -- Pin the terms onto what was sold
 -- -----------------------------------------------------------------------------
 alter table subscriptions
-  add column plan_version_id uuid references plan_versions(id) on delete restrict;
+  add column if not exists plan_version_id uuid references plan_versions(id) on delete restrict;
 
 alter table entitlements
-  add column plan_version_id uuid references plan_versions(id) on delete restrict;
+  add column if not exists plan_version_id uuid references plan_versions(id) on delete restrict;
 
 comment on column subscriptions.plan_version_id is
   'The commercial terms this subscription was sold under. Null only for rows written before versioning existed.';
@@ -223,6 +225,7 @@ begin
 end;
 $$;
 
+drop trigger if exists entitlements_match_version on entitlements;
 create trigger entitlements_match_version
   before insert or update on entitlements
   for each row execute function app.enforce_entitlement_matches_version();
@@ -277,6 +280,7 @@ begin
 end;
 $$;
 
+drop trigger if exists stripe_events_record_immutable on stripe_events;
 create trigger stripe_events_record_immutable
   before update on stripe_events
   for each row execute function app.forbid_stripe_event_rewrite();
@@ -292,10 +296,12 @@ comment on function app.forbid_stripe_event_rewrite() is
  * transcript an AI finding's provenance chain runs through. Nothing writes to
  * either after insert, and a log that can be edited is not evidence.
  */
+drop trigger if exists api_requests_immutable on api_requests;
 create trigger api_requests_immutable
   before update or delete on api_requests
   for each row execute function app.forbid_mutation();
 
+drop trigger if exists ai_messages_immutable on ai_messages;
 create trigger ai_messages_immutable
   before update or delete on ai_messages
   for each row execute function app.forbid_mutation();

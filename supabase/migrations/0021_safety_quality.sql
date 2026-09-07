@@ -52,8 +52,8 @@ create table safety_incidents (
            or (root_cause is not null and corrective_action is not null and closed_at is not null)),
   constraint safety_incidents_reported_after check (reported_at >= occurred_at)
 );
-create index safety_incidents_company_idx on safety_incidents(company_id, occurred_at desc);
-create index safety_incidents_open_idx on safety_incidents(company_id) where investigation_state <> 'closed';
+create index if not exists safety_incidents_company_idx on safety_incidents(company_id, occurred_at desc);
+create index if not exists safety_incidents_open_idx on safety_incidents(company_id) where investigation_state <> 'closed';
 
 comment on constraint safety_incidents_closed on safety_incidents is
   'An incident closed with no root cause and no corrective action has been filed, not investigated.';
@@ -73,7 +73,7 @@ create table toolbox_talks (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index toolbox_talks_project_idx on toolbox_talks(project_id, held_on desc);
+create index if not exists toolbox_talks_project_idx on toolbox_talks(project_id, held_on desc);
 
 create table safety_observations (
   id                  uuid primary key default gen_random_uuid(),
@@ -95,7 +95,7 @@ create table safety_observations (
   constraint safety_observations_unsafe
     check (is_positive or corrected_on_site or corrective_action is not null)
 );
-create index safety_observations_project_idx on safety_observations(project_id, observed_at desc);
+create index if not exists safety_observations_project_idx on safety_observations(project_id, observed_at desc);
 
 -- -----------------------------------------------------------------------------
 -- Quality
@@ -129,8 +129,8 @@ create table inspections (
   unique (company_id, number),
   constraint inspections_failed check (result <> 'fail' or notes is not null)
 );
-create index inspections_project_idx on inspections(project_id, inspected_at desc);
-create index inspections_failed_idx on inspections(company_id) where result = 'fail';
+create index if not exists inspections_project_idx on inspections(project_id, inspected_at desc);
+create index if not exists inspections_failed_idx on inspections(company_id) where result = 'fail';
 
 create table deficiencies (
   id                  uuid primary key default gen_random_uuid(),
@@ -157,7 +157,7 @@ create table deficiencies (
   constraint deficiencies_closed
     check (status <> 'closed' or (closed_on is not null and closed_by is not null and verification_note is not null))
 );
-create index deficiencies_project_idx on deficiencies(project_id, status);
+create index if not exists deficiencies_project_idx on deficiencies(project_id, status);
 
 comment on constraint deficiencies_closed on deficiencies is
   'A punch item closed without a named verifier and a note is a checkbox, not an acceptance.';
@@ -191,7 +191,7 @@ create table connectors (
   -- A connector cannot be enabled without a credential to run as.
   constraint connectors_enabled_needs_credential check (not is_enabled or credential_ref is not null)
 );
-create index connectors_company_idx on connectors(company_id, connector_type);
+create index if not exists connectors_company_idx on connectors(company_id, connector_type);
 
 comment on column connectors.credential_ref is
   'A handle into the platform secret store, never the secret. Reading this table yields nothing an attacker can authenticate with.';
@@ -214,8 +214,8 @@ create table connector_runs (
   created_at          timestamptz not null default now(),
   constraint connector_runs_failed check (status not in ('failed', 'partial') or error_message is not null)
 );
-create index connector_runs_connector_idx on connector_runs(connector_id, started_at desc);
-create unique index connector_runs_idempotency_idx on connector_runs(connector_id, idempotency_key)
+create index if not exists connector_runs_connector_idx on connector_runs(connector_id, started_at desc);
+create unique index if not exists connector_runs_idempotency_idx on connector_runs(connector_id, idempotency_key)
   where idempotency_key is not null;
 
 /** Keeps connector health honest against its own run history. */
@@ -245,6 +245,7 @@ begin
 end;
 $$;
 
+drop trigger if exists apply_connector_run on connector_runs;
 create trigger apply_connector_run
   after insert or update of status on connector_runs
   for each row execute function app.apply_connector_run();

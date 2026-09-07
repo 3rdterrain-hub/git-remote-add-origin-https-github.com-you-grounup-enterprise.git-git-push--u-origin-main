@@ -55,7 +55,7 @@ create table work_credential_requirements (
 
   unique (company_id, work_type, credential_name)
 );
-create index work_credential_requirements_lookup_idx
+create index if not exists work_credential_requirements_lookup_idx
   on work_credential_requirements(company_id, work_type);
 
 comment on table work_credential_requirements is
@@ -65,7 +65,7 @@ comment on table work_credential_requirements is
 -- particular work, and nothing is checked — the same permissive default as an
 -- unconfigured plan limit or an undefined accounting period.
 alter table resource_assignments
-  add column work_type text check (work_type is null or work_type ~ '^[a-z][a-z0-9_]{1,60}$');
+  add column if not exists work_type text check (work_type is null or work_type ~ '^[a-z][a-z0-9_]{1,60}$');
 
 comment on column resource_assignments.work_type is
   'What this assignment is for, matched against work_credential_requirements. Null means unspecified, and nothing is required.';
@@ -153,6 +153,7 @@ begin
 end;
 $$;
 
+drop trigger if exists resource_assignments_credentialed on resource_assignments;
 create trigger resource_assignments_credentialed
   before insert or update on resource_assignments
   for each row execute function app.enforce_assignment_credentials();
@@ -204,6 +205,7 @@ begin
 end;
 $$;
 
+drop trigger if exists safety_incidents_notify on safety_incidents;
 create trigger safety_incidents_notify
   after insert or update of is_osha_recordable on safety_incidents
   for each row execute function app.notify_recordable_incident();
@@ -248,6 +250,7 @@ begin
 end;
 $$;
 
+drop trigger if exists credentials_notify_expiry on credentials;
 create trigger credentials_notify_expiry
   after insert or update of status on credentials
   for each row execute function app.notify_credential_expiry();

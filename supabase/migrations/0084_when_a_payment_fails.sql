@@ -55,14 +55,15 @@ create table payment_failures (
 comment on table payment_failures is
   'Each time Stripe tried to charge a card and could not. ENTITY, append-only. An attempt is an event, so it is recorded rather than counted into a column — "how many times has this been refused" cannot be answered by a number that gets overwritten. Whether the customer is still failing is derived from the invoice, never stored here.';
 
-create index payment_failures_company on payment_failures (company_id, occurred_at desc);
-create index payment_failures_invoice on payment_failures (stripe_invoice_id);
+create index if not exists payment_failures_company on payment_failures (company_id, occurred_at desc);
+create index if not exists payment_failures_invoice on payment_failures (stripe_invoice_id);
 
 select app.apply_tenant_rls('payment_failures');
 -- Written only by the webhook. A customer reads their own; nobody edits one.
 drop policy if exists payment_failures_insert on payment_failures;
 drop policy if exists payment_failures_update on payment_failures;
 drop policy if exists payment_failures_delete on payment_failures;
+drop trigger if exists payment_failures_append_only on payment_failures;
 create trigger payment_failures_append_only
   before update or delete on payment_failures
   for each row execute function app.forbid_mutation();

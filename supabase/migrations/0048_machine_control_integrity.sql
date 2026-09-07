@@ -96,6 +96,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_published_surface_frozen on surfaces;
 create trigger enforce_published_surface_frozen
   before update on surfaces
   for each row execute function app.enforce_published_surface_frozen();
@@ -130,6 +131,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_assignment_file_published on machine_assignments;
 create trigger enforce_assignment_file_published
   before insert or update on machine_assignments
   for each row execute function app.enforce_assignment_file_published();
@@ -179,6 +181,7 @@ begin
 end;
 $$;
 
+drop trigger if exists mc_supersession_acyclic on machine_control_files;
 create trigger mc_supersession_acyclic
   before insert or update of superseded_by_id on machine_control_files
   for each row execute function app.enforce_mc_supersession_acyclic();
@@ -231,6 +234,7 @@ begin
 end;
 $$;
 
+drop trigger if exists notify_superseded_assignment on machine_control_files;
 create trigger notify_superseded_assignment
   after insert or update of status on machine_control_files
   for each row execute function app.notify_superseded_assignment();

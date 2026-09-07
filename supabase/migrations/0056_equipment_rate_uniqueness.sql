@@ -30,11 +30,11 @@ where a.id <> b.id
   and a.company_id is not distinct from b.company_id
   and (a.created_at, a.id) > (b.created_at, b.id);
 
-create unique index equipment_rates_company_rate_idx
+create unique index if not exists equipment_rates_company_rate_idx
   on equipment_rates(company_id, equipment_id, source, effective_date)
   where company_id is not null;
 
-create unique index equipment_rates_global_rate_idx
+create unique index if not exists equipment_rates_global_rate_idx
   on equipment_rates(equipment_id, source, effective_date)
   where company_id is null;
 

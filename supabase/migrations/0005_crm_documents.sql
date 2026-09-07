@@ -39,8 +39,8 @@ create table customers (
   updated_at        timestamptz not null default now(),
   unique (company_id, code)
 );
-create index customers_company_idx on customers(company_id) where status = 'active';
-create index customers_name_idx on customers using gin (name gin_trgm_ops);
+create index if not exists customers_company_idx on customers(company_id) where status = 'active';
+create index if not exists customers_name_idx on customers using gin (name gin_trgm_ops);
 
 create table contacts (
   id                uuid primary key default gen_random_uuid(),
@@ -62,9 +62,9 @@ create table contacts (
   -- A contact belongs to a customer or a vendor, never to both and never to neither.
   constraint contacts_owner check (num_nonnulls(customer_id, vendor_id) = 1)
 );
-create index contacts_customer_idx on contacts(customer_id) where customer_id is not null;
-create index contacts_vendor_idx on contacts(vendor_id) where vendor_id is not null;
-create unique index contacts_one_primary_customer_idx on contacts(customer_id) where is_primary and customer_id is not null;
+create index if not exists contacts_customer_idx on contacts(customer_id) where customer_id is not null;
+create index if not exists contacts_vendor_idx on contacts(vendor_id) where vendor_id is not null;
+create unique index if not exists contacts_one_primary_customer_idx on contacts(customer_id) where is_primary and customer_id is not null;
 
 -- -----------------------------------------------------------------------------
 -- Leads and opportunities
@@ -93,8 +93,8 @@ create table leads (
   updated_at        timestamptz not null default now(),
   constraint leads_converted check (stage <> 'converted' or converted_customer_id is not null)
 );
-create index leads_company_stage_idx on leads(company_id, stage);
-create index leads_follow_up_idx on leads(company_id, next_follow_up_at) where next_follow_up_at is not null;
+create index if not exists leads_company_stage_idx on leads(company_id, stage);
+create index if not exists leads_follow_up_idx on leads(company_id, next_follow_up_at) where next_follow_up_at is not null;
 
 create table opportunities (
   id                uuid primary key default gen_random_uuid(),
@@ -127,9 +127,9 @@ create table opportunities (
   unique (company_id, number),
   constraint opportunities_lost_reason check (stage <> 'lost' or loss_reason is not null)
 );
-create index opportunities_company_stage_idx on opportunities(company_id, stage);
-create index opportunities_customer_idx on opportunities(customer_id);
-create index opportunities_bid_due_idx on opportunities(company_id, bid_due_at) where stage not in ('won', 'lost', 'abandoned');
+create index if not exists opportunities_company_stage_idx on opportunities(company_id, stage);
+create index if not exists opportunities_customer_idx on opportunities(customer_id);
+create index if not exists opportunities_bid_due_idx on opportunities(company_id, bid_due_at) where stage not in ('won', 'lost', 'abandoned');
 
 comment on constraint opportunities_lost_reason on opportunities is
   'A lost job must record why. Win/loss analysis is worthless without it, and it is the input to future bid strategy.';
@@ -151,8 +151,8 @@ create table crm_activities (
   updated_at        timestamptz not null default now(),
   constraint crm_activities_subject check (num_nonnulls(customer_id, opportunity_id, lead_id) >= 1)
 );
-create index crm_activities_company_due_idx on crm_activities(company_id, due_at) where completed_at is null;
-create index crm_activities_opportunity_idx on crm_activities(opportunity_id) where opportunity_id is not null;
+create index if not exists crm_activities_company_due_idx on crm_activities(company_id, due_at) where completed_at is null;
+create index if not exists crm_activities_opportunity_idx on crm_activities(opportunity_id) where opportunity_id is not null;
 
 -- -----------------------------------------------------------------------------
 -- Document control
@@ -182,9 +182,9 @@ create table documents (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index documents_company_type_idx on documents(company_id, document_type);
-create index documents_opportunity_idx on documents(opportunity_id) where opportunity_id is not null;
-create index documents_name_idx on documents using gin (name gin_trgm_ops);
+create index if not exists documents_company_type_idx on documents(company_id, document_type);
+create index if not exists documents_opportunity_idx on documents(opportunity_id) where opportunity_id is not null;
+create index if not exists documents_name_idx on documents using gin (name gin_trgm_ops);
 
 comment on column documents.is_superseded is
   'Section 3 revision control. A superseded document remains readable for the audit trail but is excluded from takeoff.';
@@ -212,7 +212,7 @@ create table document_versions (
   created_at        timestamptz not null default now(),
   unique (document_id, version_number)
 );
-create index document_versions_document_idx on document_versions(document_id, version_number desc);
+create index if not exists document_versions_document_idx on document_versions(document_id, version_number desc);
 
 comment on column document_versions.storage_path is
   'Supabase Storage object path. Large files are never stored in table rows.';
@@ -234,9 +234,10 @@ create table document_sheets (
   created_at        timestamptz not null default now(),
   unique (document_version_id, page_number)
 );
-create index document_sheets_number_idx on document_sheets(company_id, sheet_number);
-create index document_sheets_text_idx on document_sheets using gin (extracted_text gin_trgm_ops);
+create index if not exists document_sheets_number_idx on document_sheets(company_id, sheet_number);
+create index if not exists document_sheets_text_idx on document_sheets using gin (extracted_text gin_trgm_ops);
 
+alter table documents drop constraint if exists documents_superseded_requires_target;
 alter table documents
   add constraint documents_superseded_requires_target
   check (not is_superseded or superseded_by_id is not null);

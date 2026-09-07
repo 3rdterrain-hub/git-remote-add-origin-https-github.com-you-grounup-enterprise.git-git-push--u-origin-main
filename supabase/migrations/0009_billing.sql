@@ -60,7 +60,7 @@ create table plan_prices (
   updated_at            timestamptz not null default now(),
   unique (plan_id, interval, usage_type)
 );
-create index plan_prices_plan_idx on plan_prices(plan_id) where is_active;
+create index if not exists plan_prices_plan_idx on plan_prices(plan_id) where is_active;
 
 -- -----------------------------------------------------------------------------
 -- Subscriptions
@@ -90,11 +90,11 @@ create table subscriptions (
   -- One live subscription per company keeps entitlement resolution unambiguous.
   constraint subscriptions_period check (current_period_end is null or current_period_start is null or current_period_end > current_period_start)
 );
-create unique index subscriptions_one_live_per_company_idx
+create unique index if not exists subscriptions_one_live_per_company_idx
   on subscriptions(company_id)
   where status in ('trialing', 'active', 'past_due', 'unpaid', 'paused');
-create index subscriptions_company_idx on subscriptions(company_id);
-create index subscriptions_stripe_customer_idx on subscriptions(stripe_customer_id);
+create index if not exists subscriptions_company_idx on subscriptions(company_id);
+create index if not exists subscriptions_stripe_customer_idx on subscriptions(stripe_customer_id);
 
 comment on column subscriptions.default_payment_method_last4 is
   'Last four digits only, for display. No PAN, expiry or CVC is ever stored.';
@@ -110,7 +110,7 @@ create table subscription_items (
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now()
 );
-create index subscription_items_subscription_idx on subscription_items(subscription_id);
+create index if not exists subscription_items_subscription_idx on subscription_items(subscription_id);
 
 -- -----------------------------------------------------------------------------
 -- Effective entitlements
@@ -205,9 +205,10 @@ create table usage_events (
   stripe_usage_record_id text,
   occurred_at       timestamptz not null default now()
 );
-create index usage_events_company_metric_idx on usage_events(company_id, metric, occurred_at desc);
-create index usage_events_unreported_idx on usage_events(occurred_at) where reported_at is null;
+create index if not exists usage_events_company_metric_idx on usage_events(company_id, metric, occurred_at desc);
+create index if not exists usage_events_unreported_idx on usage_events(occurred_at) where reported_at is null;
 
+drop trigger if exists usage_events_immutable on usage_events;
 create trigger usage_events_immutable
   before update or delete on usage_events
   for each row when (old.reported_at is not null)
@@ -252,8 +253,8 @@ create table stripe_events (
   received_at       timestamptz not null default now(),
   processed_at      timestamptz
 );
-create index stripe_events_type_idx on stripe_events(type, received_at desc);
-create index stripe_events_unprocessed_idx on stripe_events(received_at) where processing_state in ('received', 'failed');
+create index if not exists stripe_events_type_idx on stripe_events(type, received_at desc);
+create index if not exists stripe_events_unprocessed_idx on stripe_events(received_at) where processing_state in ('received', 'failed');
 
 comment on table stripe_events is
   'Every webhook Stripe delivers, keyed by its event id. Insert-on-conflict-do-nothing gives exactly-once processing across retries and replays.';
@@ -278,4 +279,4 @@ create table billing_invoices (
   paid_at               timestamptz,
   created_at            timestamptz not null default now()
 );
-create index billing_invoices_company_idx on billing_invoices(company_id, issued_at desc);
+create index if not exists billing_invoices_company_idx on billing_invoices(company_id, issued_at desc);

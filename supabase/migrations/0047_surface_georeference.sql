@@ -35,8 +35,8 @@
 -- Where the grid sits on the ground
 -- -----------------------------------------------------------------------------
 alter table surfaces
-  add column origin_easting  numeric(14,4),
-  add column origin_northing numeric(14,4);
+  add column if not exists origin_easting  numeric(14,4),
+  add column if not exists origin_northing numeric(14,4);
 
 comment on column surfaces.origin_easting is
   'Easting of the center of cell (0,0), in the survey''s coordinate system and units. Without it a grid is a shape rather than a place, and two grids of equal shape can be differenced no matter what ground they cover.';
@@ -44,6 +44,7 @@ comment on column surfaces.origin_northing is
   'Northing of the center of cell (0,0), in the survey''s coordinate system and units.';
 
 -- Both or neither: half a georeference locates nothing.
+alter table surfaces drop constraint if exists surfaces_origin_complete;
 alter table surfaces
   add constraint surfaces_origin_complete
   check (num_nonnulls(origin_easting, origin_northing) <> 1);

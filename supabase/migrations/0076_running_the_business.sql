@@ -83,6 +83,7 @@ on conflict (key) do update set
  * to a role, granting nothing. Adding one is a migration, which drops this
  * trigger, writes, and puts it back.
  */
+drop trigger if exists platform_permissions_frozen on platform_permissions;
 create trigger platform_permissions_frozen
   before insert or update or delete on platform_permissions
   for each row execute function app.forbid_mutation();
@@ -108,6 +109,7 @@ begin
 end;
 $$;
 
+drop trigger if exists platform_roles_permissions_exist on platform_roles;
 create trigger platform_roles_permissions_exist
   before insert or update of permissions on platform_roles
   for each row execute function app.validate_role_permissions();
@@ -416,10 +418,10 @@ comment on column company_billing_terms.applies_in_stripe is
   'Whether this arrangement actually reaches the customer''s invoice. Free needs nothing from Stripe; a discount needs a coupon, and without one the console shows the arrangement as not yet in effect rather than pretending.';
 
 -- One live arrangement per company. Two would be a question with two answers.
-create unique index company_billing_terms_one_live
+create unique index if not exists company_billing_terms_one_live
   on company_billing_terms (company_id) where revoked_at is null;
 
-create index company_billing_terms_company on company_billing_terms (company_id);
+create index if not exists company_billing_terms_company on company_billing_terms (company_id);
 
 select app.apply_tenant_rls('company_billing_terms');
 select app.attach_standard_triggers('public.company_billing_terms'::regclass);

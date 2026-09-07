@@ -39,7 +39,7 @@ create table ai_conversations (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
-create index ai_conversations_company_idx on ai_conversations(company_id, updated_at desc);
+create index if not exists ai_conversations_company_idx on ai_conversations(company_id, updated_at desc);
 
 create table ai_messages (
   id                uuid primary key default gen_random_uuid(),
@@ -55,7 +55,7 @@ create table ai_messages (
   latency_ms        int check (latency_ms is null or latency_ms >= 0),
   created_at        timestamptz not null default now()
 );
-create index ai_messages_conversation_idx on ai_messages(conversation_id, created_at);
+create index if not exists ai_messages_conversation_idx on ai_messages(conversation_id, created_at);
 
 /**
  * The only channel through which AI output can reach business data.
@@ -114,10 +114,10 @@ create table ai_findings (
     check (finding_type not in ('quantity_candidate', 'conflict', 'scope_item')
            or jsonb_array_length(citations) > 0 or cardinality(sheet_references) > 0)
 );
-create index ai_findings_company_state_idx on ai_findings(company_id, state);
-create index ai_findings_estimate_idx on ai_findings(estimate_version_id) where estimate_version_id is not null;
-create index ai_findings_document_idx on ai_findings(document_id) where document_id is not null;
-create index ai_findings_type_idx on ai_findings(company_id, finding_type, state);
+create index if not exists ai_findings_company_state_idx on ai_findings(company_id, state);
+create index if not exists ai_findings_estimate_idx on ai_findings(estimate_version_id) where estimate_version_id is not null;
+create index if not exists ai_findings_document_idx on ai_findings(document_id) where document_id is not null;
+create index if not exists ai_findings_type_idx on ai_findings(company_id, finding_type, state);
 
 comment on constraint ai_findings_citations on ai_findings is
   'Section 54 hallucination audit: a quantity, conflict or scope claim must point at the drawing or specification it came from.';
@@ -148,6 +148,7 @@ begin
 end;
 $$;
 
+drop trigger if exists enforce_ai_finding_acceptance on ai_findings;
 create trigger enforce_ai_finding_acceptance
   before update on ai_findings
   for each row execute function app.enforce_ai_finding_acceptance();
@@ -176,7 +177,7 @@ create table production_calibrations (
   -- A calibration must be based on enough observations to mean anything.
   constraint production_calibrations_min_sample check (sample_size >= 3)
 );
-create index production_calibrations_company_state_idx on production_calibrations(company_id, state);
+create index if not exists production_calibrations_company_state_idx on production_calibrations(company_id, state);
 
 comment on table production_calibrations is
   'The learning loop. An excavator estimated at 800 CY/day but repeatedly producing 650 CY/day generates a proposal here — never a silent edit to the rate library.';
@@ -204,4 +205,4 @@ create table risks (
   updated_at          timestamptz not null default now(),
   constraint risks_subject check (num_nonnulls(estimate_version_id, project_id) >= 1)
 );
-create index risks_company_status_idx on risks(company_id, status, severity);
+create index if not exists risks_company_status_idx on risks(company_id, status, severity);

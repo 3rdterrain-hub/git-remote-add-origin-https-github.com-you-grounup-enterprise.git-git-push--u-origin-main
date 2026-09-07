@@ -44,6 +44,7 @@
  * and makes labor cost attributable to the person who worked the hours.
  */
 alter table project_costs drop constraint if exists project_costs_employee_id_fkey;
+alter table project_costs drop constraint if exists project_costs_employee_id_fkey;
 alter table project_costs
   add constraint project_costs_employee_id_fkey
   foreign key (employee_id) references employees(id) on delete set null;
@@ -216,6 +217,7 @@ begin
 end;
 $$;
 
+drop trigger if exists post_labor_to_job_cost on time_entries;
 create trigger post_labor_to_job_cost
   after insert or update or delete on time_entries
   for each row execute function app.post_labor_to_job_cost();

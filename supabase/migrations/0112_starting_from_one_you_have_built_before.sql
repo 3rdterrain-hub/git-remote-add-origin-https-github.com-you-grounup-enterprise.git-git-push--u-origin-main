@@ -415,10 +415,10 @@ create table estimate_templates (
   updated_at        timestamptz not null default now()
 );
 
-create unique index estimate_templates_name_idx
+create unique index if not exists estimate_templates_name_idx
   on estimate_templates (company_id, lower(trim(name)))
   where status = 'active';
-create index estimate_templates_company_idx on estimate_templates (company_id, status, name);
+create index if not exists estimate_templates_company_idx on estimate_templates (company_id, status, name);
 
 comment on table estimate_templates is
   'A saved estimate structure a company starts new bids from: its lines, and on each line the crew, equipment, material, haul and condition modifiers. ENTITY. Held as a captured payload rather than a parallel set of tables, so it carries whatever an estimate line carries today and cannot fall behind it.';

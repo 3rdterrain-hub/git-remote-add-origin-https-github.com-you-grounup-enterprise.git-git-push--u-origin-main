@@ -40,15 +40,15 @@ where a.id <> b.id
  * carry more than one of each — a bid with two subcontract allowances is normal.
  * They are deliberately left out.
  */
-create unique index assembly_components_task_idx
+create unique index if not exists assembly_components_task_idx
   on assembly_components(assembly_id, task_id) where component_kind = 'task';
-create unique index assembly_components_labor_idx
+create unique index if not exists assembly_components_labor_idx
   on assembly_components(assembly_id, labor_rate_id) where component_kind = 'labor';
-create unique index assembly_components_equipment_idx
+create unique index if not exists assembly_components_equipment_idx
   on assembly_components(assembly_id, equipment_id) where component_kind = 'equipment';
-create unique index assembly_components_material_idx
+create unique index if not exists assembly_components_material_idx
   on assembly_components(assembly_id, material_id) where component_kind = 'material';
-create unique index assembly_components_nested_idx
+create unique index if not exists assembly_components_nested_idx
   on assembly_components(assembly_id, nested_assembly_id) where component_kind = 'assembly';
 
 comment on index assembly_components_task_idx is

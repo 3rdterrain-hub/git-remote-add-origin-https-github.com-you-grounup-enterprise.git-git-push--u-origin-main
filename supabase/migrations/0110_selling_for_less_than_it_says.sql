@@ -18,12 +18,12 @@
 -- =============================================================================
 
 alter table estimate_versions
-  add column discount_percent numeric(6,4) not null default 0
+  add column if not exists discount_percent numeric(6,4) not null default 0
     check (discount_percent >= 0 and discount_percent < 1),
-  add column discount_amount numeric(16,2) not null default 0
+  add column if not exists discount_amount numeric(16,2) not null default 0
     check (discount_amount >= 0),
-  add column discount_reason text,
-  add column discount_approved_by uuid references auth.users(id) on delete set null;
+  add column if not exists discount_reason text,
+  add column if not exists discount_approved_by uuid references auth.users(id) on delete set null;
 
 comment on column estimate_versions.discount_percent is
   'A concession against the marked-up price, as a fraction. Applied after markup because a discount is agreed against the number quoted, not against cost — taking it earlier would give away more than the figure states.';
@@ -37,7 +37,7 @@ comment on column estimate_versions.discount_reason is
  * busy through winter — and the platform's job is to make sure it was a
  * decision rather than an accident.
  */
-create index estimate_versions_discounted_idx on estimate_versions(company_id)
+create index if not exists estimate_versions_discounted_idx on estimate_versions(company_id)
   where discount_percent > 0 or discount_amount > 0;
 
 /**

@@ -53,9 +53,9 @@ create table support_sessions (
 comment on table support_sessions is
   'An operator looking at one company''s billing, for a stated reason, for an hour. ENTITY. Not impersonation: it opens a view, never an identity, so nothing an operator does is ever recorded as the customer having done it. The company can read its own sessions.';
 
-create index support_sessions_live
+create index if not exists support_sessions_live
   on support_sessions (company_id, operator_id) where closed_at is null;
-create index support_sessions_company on support_sessions (company_id, opened_at desc);
+create index if not exists support_sessions_company on support_sessions (company_id, opened_at desc);
 
 alter table support_sessions enable row level security;
 alter table support_sessions force row level security;
