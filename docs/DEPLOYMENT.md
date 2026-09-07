@@ -256,6 +256,19 @@ without them:
 |---|---|---|
 | **Root Directory** | *(blank — the repository root)* | Set to `apps/web`, the build never builds `@grounup/engine`, and the application fails to resolve it |
 | **Environment Variables** | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | The bundle ships with no project configured, so every screen renders its demonstration fixture and says so |
+| **Node Version** | 22.x | `engines.node` is a range rather than a pin, so Vercel chooses its default. 22.x satisfies it and is what this has been built against |
+
+Both variables are read at **build** time, not at run time — Vite embeds them in
+the bundle. Adding them after a deployment does nothing until the next build, so
+set them before the first one or redeploy afterwards.
+
+A clean checkout builds with exactly the two commands Vercel runs:
+
+```bash
+npm ci
+VITE_SUPABASE_URL=… VITE_SUPABASE_ANON_KEY=… npm run build
+# → apps/web/dist
+```
 
 The rewrite excludes `/assets/` on purpose. A catch-all that also rewrote asset
 requests would answer a missing JavaScript file with `index.html`, and the
