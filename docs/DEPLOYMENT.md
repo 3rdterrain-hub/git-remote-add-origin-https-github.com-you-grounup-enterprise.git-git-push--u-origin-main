@@ -244,10 +244,23 @@ npm run build
 Deploy `apps/web/dist`. The app is a single-page application, so the host must
 rewrite unknown paths to `/index.html`.
 
-**Vercel** — `vercel.json`:
-```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
-```
+**Vercel** — `vercel.json` is in the repository root and already carries this.
+It sets the monorepo build (`npm run build` from the root, so the engine and the
+PDF package are built before the web application), the output directory
+(`apps/web/dist`), and the single-page rewrite.
+
+Two settings live in Vercel rather than in the file, and a deployment is wrong
+without them:
+
+| Vercel setting | Value | What breaks without it |
+|---|---|---|
+| **Root Directory** | *(blank — the repository root)* | Set to `apps/web`, the build never builds `@grounup/engine`, and the application fails to resolve it |
+| **Environment Variables** | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | The bundle ships with no project configured, so every screen renders its demonstration fixture and says so |
+
+The rewrite excludes `/assets/` on purpose. A catch-all that also rewrote asset
+requests would answer a missing JavaScript file with `index.html`, and the
+browser would report a syntax error in HTML rather than a missing file — an
+hour of looking in the wrong place.
 
 **Netlify** — `_redirects`:
 ```
