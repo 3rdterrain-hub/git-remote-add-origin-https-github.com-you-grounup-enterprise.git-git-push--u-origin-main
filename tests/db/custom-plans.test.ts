@@ -149,7 +149,15 @@ describe('a plan of your own', () => {
       await h.sql(`insert into billing_invoices (company_id, stripe_invoice_id, status,
                                                  amount_due_cents, amount_paid_cents,
                                                  period_start, period_end)
-                   values ($1,'in_w','paid',19900,19900, now() - interval '2 days', now()),
+                   values ($1,'in_w','paid',19900,19900,
+                           -- Inside this week and this year, whatever day it is
+                           -- run. Two days ago was neither, on a Monday:
+                           -- app.earnings buckets on period_start, so the
+                           -- invoice landed in last week and this test failed
+                           -- two days in seven, having passed for months.
+                           greatest(date_trunc('week', now()),
+                                    date_trunc('year', now())) + interval '1 hour',
+                           now()),
                           ($1,'in_y','paid',50000,50000,
                            now() - interval '400 days', now() - interval '370 days')`,
         [id!.id]);

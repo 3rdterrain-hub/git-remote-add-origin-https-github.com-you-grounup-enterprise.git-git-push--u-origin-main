@@ -1,31 +1,45 @@
 /**
- * A card that can be put away.
+ * A card with a one-line summary you can read while it is shut.
  *
- * The estimate workspace grew: lines, cost buckets, cost-to-price, markup and
- * adjustments, what the customer sees, this bid's assumptions, library drift.
- * All of them matter and not all of them matter at once — an estimator entering
- * quantities is not deciding bond rates, and a screen that shows everything
- * with equal weight makes the reader do the sorting.
+ * Collapsing itself is no longer this component's job — every `Card` in the
+ * application does that, from `components/ui/card.tsx`, because an affordance a
+ * screen has to opt into is one half the screens will not have. What is left
+ * here is the part that is genuinely particular: a section that says *what it
+ * would tell you* before you open it.
  *
- * Two decisions worth stating. The header is a real button with `aria-expanded`,
- * so this is one control rather than a heading with a chevron beside it. And a
- * card can carry a `summary` shown while it is shut — a section you have to
- * open to find out whether it needs opening is a section you open every time.
+ * "Markup and adjustments" is a heading. "Markup and adjustments — 14.5% over
+ * cost, two adjustments" is a heading somebody can act on without opening
+ * anything, and it is the difference between a collapsed section and a section
+ * nobody ever leaves collapsed.
  */
-import { useState, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { type ReactNode } from 'react';
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle, useCardOpen,
+} from '@/components/ui/card';
+
+/** The summary line, drawn only while the card is shut. */
+function WhileShut({ children }: { children: ReactNode }) {
+  const open = useCardOpen();
+  if (open || !children) return null;
+  return <span className="text-sm font-normal text-charcoal-500">{children}</span>;
+}
+
+/** Header controls, which are for the section rather than for opening it. */
+function WhileOpen({ children }: { children: ReactNode }) {
+  const open = useCardOpen();
+  if (!open || !children) return null;
+  return <div className="shrink-0">{children}</div>;
+}
 
 export function CollapsibleCard({
-  id, title, description, summary, actions, defaultOpen = true, open: controlled,
-  onOpenChange, children, className,
+  id, title, description, summary, actions, defaultOpen = true, open, onOpenChange,
+  children, className,
 }: {
   /** Anchors the card so something elsewhere on the page can jump to it. */
   id?: string;
   title: ReactNode;
   description?: ReactNode;
-  /** Shown on the header while shut, so it need not be opened to be read. */
+  /** Shown beside the title while shut, so it need not be opened to be read. */
   summary?: ReactNode;
   /** Controls that belong to the section rather than to opening it. */
   actions?: ReactNode;
@@ -36,44 +50,31 @@ export function CollapsibleCard({
    * answer to their own header.
    */
   open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (next: boolean) => void;
   children: ReactNode;
   className?: string;
 }) {
-  const [uncontrolled, setUncontrolled] = useState(defaultOpen);
-  const open = controlled ?? uncontrolled;
-  const setOpen = (next: boolean) => {
-    if (controlled === undefined) setUncontrolled(next);
-    onOpenChange?.(next);
-  };
-
   return (
-    <Card id={id} className={className}>
-      <div className="flex items-start justify-between gap-3 px-6 py-4">
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          aria-expanded={open}
-          className="flex min-w-0 flex-1 items-start gap-2 text-left"
-        >
-          <span className="mt-0.5 shrink-0 text-charcoal-400">
-            {open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-          </span>
-          <span className="min-w-0">
-            <span className="flex flex-wrap items-center gap-2 font-semibold text-charcoal-900">
+    <Card
+      id={id}
+      className={className}
+      defaultCollapsed={!defaultOpen}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <CardHeader className="flex-row items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <CardTitle>
+            <span className="flex flex-wrap items-center gap-2">
               {title}
-              {!open && summary ? (
-                <span className="text-sm font-normal text-charcoal-500">{summary}</span>
-              ) : null}
+              <WhileShut>{summary}</WhileShut>
             </span>
-            {open && description ? (
-              <span className="mt-1 block text-sm text-charcoal-500">{description}</span>
-            ) : null}
-          </span>
-        </button>
-        {actions && open ? <div className="shrink-0">{actions}</div> : null}
-      </div>
-      <CardContent className={cn('pt-0', !open && 'hidden')}>{children}</CardContent>
+          </CardTitle>
+          {description ? <CardDescription>{description}</CardDescription> : null}
+        </div>
+        <WhileOpen>{actions}</WhileOpen>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
     </Card>
   );
 }

@@ -28,6 +28,7 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/data/session', () => ({
   usePermissions: () => ({ can: (p: string) => hoisted.permissions.includes(p), loading: false }),
+  useCompanyId: () => ({ companyId: 'company-1', loading: false }),
 }));
 
 vi.mock('@/lib/data/crm', async () => {

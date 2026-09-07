@@ -31,10 +31,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
-import { usePermissions } from '@/lib/data/session';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { loadCrmCustomers, loadOpportunities, type CustomerRow } from '@/lib/data/crm';
 import { createCustomer, loadMyCompanyId } from '@/lib/data/estimates';
 import { money, moneyCompact, date, titleCase, plural } from '@/lib/format';
+import { LeadFormsSection } from '@/components/crm/lead-forms';
 
 const STAGE_TONE: Record<string, 'default' | 'info' | 'warn' | 'success' | 'danger'> = {
   identified: 'default', qualifying: 'default', estimating: 'info',
@@ -46,6 +47,7 @@ export function CrmLivePage() {
   const customersQ = useQuery(loadCrmCustomers, []);
   const opportunitiesQ = useQuery(loadOpportunities, []);
   const { can } = usePermissions();
+  const { companyId } = useCompanyId();
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
 
@@ -188,7 +190,20 @@ export function CrmLivePage() {
         <TabsList>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="forms">Website form</TabsTrigger>
         </TabsList>
+
+        {/*
+          * The public intake. It lives on this screen rather than in settings
+          * because the person who wants a form on the website is the person
+          * reading the pipeline, and "what came in" and "what is bringing it
+          * in" are the same question.
+          */}
+        <TabsContent value="forms">
+          {companyId
+            ? <LeadFormsSection companyId={companyId} canEdit={can('crm.write')} />
+            : <LoadingState label="Finding your company" />}
+        </TabsContent>
 
         <TabsContent value="customers">
           <Card>

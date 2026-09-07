@@ -16,6 +16,16 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 export const isSupabaseConfigured = Boolean(url && anonKey);
 
+/*
+ * Both are public by design and both are needed outside this module: the lead
+ * form snippet a company pastes into its own website posts to `rest/v1/rpc` and
+ * has to carry the anon key, which may call exactly one function in the schema
+ * and select from nothing. `scripts/check-bundle.mjs` says the same thing from
+ * the other direction — it deliberately does not treat the anon key as a leak.
+ */
+export const supabaseUrl = url ?? null;
+export const supabaseAnonKey = anonKey ?? null;
+
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(url!, anonKey!, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },

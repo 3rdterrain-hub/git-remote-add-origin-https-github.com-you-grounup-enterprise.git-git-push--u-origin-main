@@ -238,8 +238,29 @@ describe('the estimate workspace', () => {
 
   // -------------------------------------------------------------------------
   describe("this bid's assumptions", () => {
+    /*
+     * The section starts shut and shows its numbers on the header, so a person
+     * reading the bid does not have to open it and a person changing one does.
+     * These tests open it the way that person would.
+     *
+     * They used not to. The earlier collapsible card hid a shut section with a
+     * CSS class, so its fields stayed in the document — invisible on screen,
+     * still reachable by keyboard, and still findable here. Every assertion
+     * below was passing against a form nobody could see.
+     */
+    const openAssumptions = async () => {
+      await userEvent.click(
+        await screen.findByRole('button', { name: /this bid's assumptions/i }));
+    };
+
+    it('shows the numbers on the header without being opened', async () => {
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByText(/diesel \$4\.10 · swell 25%/i)).toBeInTheDocument();
+    });
+
     it('shows the numbers the engine actually reads off the version', async () => {
       renderPage(<EstimateVersionPage />);
+      await openAssumptions();
       await waitFor(() => expect(screen.getByLabelText('Diesel, $/gal')).toBeInTheDocument());
       expect(screen.getByLabelText('Diesel, $/gal')).toHaveValue(4.1);
       expect(screen.getByLabelText('Swell')).toHaveValue(0.25);
@@ -247,6 +268,7 @@ describe('the estimate workspace', () => {
 
     it('saves one when it changes, and only when it changes', async () => {
       renderPage(<EstimateVersionPage />);
+      await openAssumptions();
       const field = await screen.findByLabelText('Diesel, $/gal');
       await userEvent.clear(field);
       await userEvent.type(field, '4.55');
@@ -264,11 +286,13 @@ describe('the estimate workspace', () => {
     it('is read-only once the version is frozen', async () => {
       hoisted.version = version({ status: 'approved', approvedAt: '2026-09-02T00:00:00Z' });
       renderPage(<EstimateVersionPage />);
+      await openAssumptions();
       await waitFor(() => expect(screen.getByLabelText('Swell')).toBeDisabled());
     });
 
     it('says the price does not follow on its own', async () => {
       renderPage(<EstimateVersionPage />);
+      await openAssumptions();
       expect(await screen.findByText(/nothing recalculates on its own/i)).toBeInTheDocument();
     });
   });
@@ -553,6 +577,47 @@ describe('the estimate workspace', () => {
         { serviceId: 's-1', unit: 'CY' },
         { serviceId: 's-2', unit: 'LF' },
       ]);
+    });
+
+    it('reaches the library from a row, and lands the lines under it', async () => {
+      /*
+       * The toolbar's "From library" appends to the end. An estimator halfway
+       * down a bid who wants eight things from a trade wants them *here* — the
+       * position is the reason they were scrolling. It is a second control
+       * beside the plus rather than a menu on it, because typing a line as you
+       * think of it happens thirty times in a bid and must not cost a click.
+       */
+      hoisted.version = version({
+        lines: [
+          line({ id: 'l-1', description: 'Strip topsoil' }),
+          line({ id: 'l-2', description: 'Mass grading' }),
+        ],
+      });
+      hoisted.services = [
+        { id: 's-9', code: 'SVC-0100', name: 'Rock excavation', category: 'Earthwork',
+          defaultUnit: 'CY', supportedUnits: ['CY'], isOwn: false },
+      ];
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Add from the library under Strip topsoil' }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByText(/directly under "Strip topsoil"/)).toBeInTheDocument();
+
+      await userEvent.click(await within(dialog).findByLabelText('Add Rock excavation'));
+      await userEvent.click(within(dialog).getByRole('button', { name: /add 1 line/i }));
+
+      await waitFor(() => expect(hoisted.batches).toHaveLength(1));
+      expect(hoisted.batches[0]!.afterLineId).toBe('l-1');
+    });
+
+    it('offers both paths on every row, and neither is behind a menu', async () => {
+      hoisted.version = version({ lines: [line({ id: 'l-1', description: 'Strip topsoil' })] });
+      renderPage(<EstimateVersionPage />);
+      expect(await screen.findByRole('button', { name: 'Add a line under Strip topsoil' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Add from the library under Strip topsoil' }))
+        .toBeInTheDocument();
     });
 
     it('will not add an empty selection', async () => {

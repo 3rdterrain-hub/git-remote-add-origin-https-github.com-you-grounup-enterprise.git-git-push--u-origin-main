@@ -299,6 +299,7 @@ TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,E
 TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
+TST-db-lead-source,test,db/lead-source.test.ts,tests/db/lead-source.test.ts,ENGINE
 TST-db-library-governance,test,db/library-governance.test.ts,tests/db/library-governance.test.ts,ENGINE
 TST-db-line-order,test,db/line-order.test.ts,tests/db/line-order.test.ts,ENGINE
 TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.test.ts,ENGINE
@@ -375,6 +376,7 @@ TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/co
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
+TST-web-card,test,web/card.test.tsx,apps/web/src/components/ui/card.test.tsx,ENGINE
 TST-web-category-select,test,web/category-select.test.tsx,apps/web/src/components/ui/category-select.test.tsx,ENGINE
 TST-web-overtime-policy,test,web/overtime-policy.test.tsx,apps/web/src/components/workforce/overtime-policy.test.tsx,ENGINE
 TST-web-time-clock,test,web/time-clock.test.tsx,apps/web/src/components/workforce/time-clock.test.tsx,ENGINE
@@ -384,6 +386,7 @@ TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedul
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
+TST-web-lead-forms,test,web/lead-forms.test.ts,apps/web/src/lib/data/lead-forms.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
 TST-web-session,test,web/session.test.ts,apps/web/src/lib/data/session.test.ts,ENGINE

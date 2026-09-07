@@ -88,6 +88,14 @@ export function EstimateVersionPage() {
   /** The browse-and-tick panel. */
   const [browsing, setBrowsing] = useState(false);
   /*
+   * Browsing the library from a row rather than from the toolbar. Held as the
+   * line it was opened from, because "add eight things" and "add eight things
+   * *here*" are different requests and the second one is the reason an
+   * estimator was scrolling in the first place.
+   */
+  const [browsingAfter, setBrowsingAfter] =
+    useState<{ id: string; description: string } | null>(null);
+  /*
    * Where a blank row is open: a line id to sit under, '' for the end of the
    * table, null for none. Distinguishing '' from null is what lets the button
    * at the top and the plus on a row use the same row component.
@@ -340,6 +348,7 @@ export function EstimateVersionPage() {
                 versionId={v.id}
                 blankAfter={blankAfter}
                 onAddAfter={setBlankAfter}
+                onBrowseAfter={(id, description) => setBrowsingAfter({ id, description })}
                 onBlankDone={() => { setBlankAfter(''); version.refetch(); }}
                 onBlankCancel={() => setBlankAfter(null)}
                 onChanged={version.refetch} />
@@ -450,6 +459,17 @@ export function EstimateVersionPage() {
           setNotice({ tone: 'ok', text: `Added ${n} line${n === 1 ? '' : 's'} from the library.` });
           version.refetch();
         }} />
+      <AddLinesDialog
+        open={browsingAfter !== null}
+        onOpenChange={(next) => { if (!next) setBrowsingAfter(null); }}
+        versionId={v.id}
+        afterLineId={browsingAfter?.id ?? null}
+        afterDescription={browsingAfter?.description ?? null}
+        onAdded={(n) => {
+          setBrowsingAfter(null);
+          setNotice({ tone: 'ok', text: `Added ${n} line${n === 1 ? '' : 's'} from the library.` });
+          version.refetch();
+        }} />
       <IssueDialog open={issuing} onOpenChange={setIssuing} version={v}
         onIssued={() => { setIssuing(false); version.refetch(); }} />
       <ReviseDialog open={revising} onOpenChange={setRevising} version={v}
@@ -517,7 +537,7 @@ function CostBuckets({ costs, total }: { costs: Record<string, number>; total: n
  */
 function LineTable({
   version, editable, onlyBlocking = false, versionId, blankAfter = null,
-  onAddAfter, onBlankDone, onBlankCancel, onChanged,
+  onAddAfter, onBrowseAfter, onBlankDone, onBlankCancel, onChanged,
 }: {
   version: VersionDetail; editable: boolean; onlyBlocking?: boolean;
   versionId?: string;
@@ -525,6 +545,8 @@ function LineTable({
   blankAfter?: string | null;
   /** The plus on a row: open a blank row directly beneath this one. */
   onAddAfter?: (lineId: string) => void;
+  /** The magnifier on a row: browse the library and insert beneath this one. */
+  onBrowseAfter?: (lineId: string, description: string) => void;
   onBlankDone?: () => void;
   onBlankCancel?: () => void;
   onChanged: () => void;
@@ -662,6 +684,23 @@ function LineTable({
                             className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
                                        hover:text-charcoal-900">
                             <Plus className="size-4" />
+                          </button>
+                        ) : null}
+                        {/*
+                          * The library, at the same place and at the same cost.
+                          * These are two jobs and putting them behind one menu
+                          * would charge the fast one a click it does not owe:
+                          * typing a line as you think of it happens thirty
+                          * times in a bid, and browsing a trade for eight
+                          * things happens twice.
+                          */}
+                        {onBrowseAfter ? (
+                          <button onClick={() => onBrowseAfter(l.id, l.description)}
+                            aria-label={`Add from the library under ${l.description}`}
+                            title="Add from the library under this one"
+                            className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
+                                       hover:text-charcoal-900">
+                            <Search className="size-4" />
                           </button>
                         ) : null}
                         <span
