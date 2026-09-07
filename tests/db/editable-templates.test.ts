@@ -214,16 +214,39 @@ describe('a template you can change', () => {
 
   // ---------------------------------------------------------------------------
   describe('the services nobody can price yet', () => {
-    it('lists them rather than leaving them to be found at bid time', async () => {
+    it('is empty, because every shipped service now has a sequence behind it', async () => {
+      /*
+       * This used to assert the opposite. 465 product-master services arrived
+       * with no breakdown, because the file named 35 work sequences the task
+       * library did not contain; seed 0008 wrote those sequences and ran the
+       * join. The view is the queue, and the queue being empty is the point of
+       * having built it — so what is checked is that it still *works*, not that
+       * it still has something in it.
+       */
       const [r] = await sql<{ c: string }>(
-        `select count(*)::text as c from my_services_without_a_breakdown`);
-      expect(Number(r!.c)).toBeGreaterThan(0);
+        `select count(*)::text as c from my_services_without_a_breakdown
+         where company_id is null`);
+      expect(Number(r!.c)).toBe(0);
     });
 
-    it('says of each one whether it has an assembly at all', async () => {
-      const [r] = await sql<{ has_no_assembly: boolean; steps: number }>(
-        `select has_no_assembly, steps from my_services_without_a_breakdown limit 1`);
-      expect(typeof r!.has_no_assembly).toBe('boolean');
+    it('catches a service somebody points at an empty assembly', async () => {
+      // The view has to still find one, or its emptiness above says nothing.
+      const [a] = await sql<{ id: string }>(
+        `insert into assemblies (company_id, code, name, quantity_unit, status,
+                                 approved_by, approved_at)
+         values ($1, 'ASM-EMPTY', 'Nothing in it', 'LS', 'active', $2, now())
+         returning id`, [company, chief]);
+      await sql(
+        `insert into services (company_id, code, name, default_unit, supported_units,
+                               default_assembly_id, status, approved_by, approved_at)
+         values ($1, 'C-EMPTY', 'Service with an empty sequence', 'LS',
+                 array['LS']::app.unit_code[], $2, 'active', $3, now())`,
+        [company, a!.id, chief]);
+      const [r] = await sql<{ name: string; steps: number }>(
+        `select name, steps from my_services_without_a_breakdown
+         where company_id = $1`, [company]);
+      expect(r!.name).toBe('Service with an empty sequence');
+      expect(r!.steps).toBe(0);
     });
 
     it('shows nobody anything anonymously', async () => {

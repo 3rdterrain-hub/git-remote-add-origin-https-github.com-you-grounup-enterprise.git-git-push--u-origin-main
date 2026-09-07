@@ -37,6 +37,8 @@ import {
 import { UnitSelect } from '@/components/ui/unit-select';
 import { ProductionRatePanel } from '@/components/estimate/production-rate';
 import { UnitCostPanel, ResourceSuggestions } from '@/components/estimate/unit-cost';
+import { HaulCapacity } from '@/components/estimate/haul-capacity';
+import { ResourcePicker } from '@/components/estimate/resource-picker';
 import { FromLibrary } from '@/components/estimate/from-library';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -169,7 +171,7 @@ export function LineDetail({ line, editable, onChanged }: {
         </TabsContent>
         <TabsContent value="trucking">
           <HaulTab rows={of('trucking')} editable={editable} busy={busy}
-            onSave={save} onRemove={remove} />
+            onSave={save} onRemove={remove} onChanged={onChanged} />
         </TabsContent>
         <TabsContent value="subcontract">
           <SubTab rows={of('subcontract')} editable={editable} busy={busy}
@@ -187,8 +189,15 @@ type SaveFn = (kind: LineResource['kind'], fields: Record<string, unknown>, id?:
   => Promise<void>;
 
 /** A number field that commits on blur, and only when it changed. */
-function Num({ label, value, onCommit, disabled, width = 'w-20', placeholder }: {
-  label?: string; value: number | null; onCommit: (v: number | null) => void;
+function Num({ label, name, value, onCommit, disabled, width = 'w-20', placeholder }: {
+  label?: string;
+  /*
+   * The accessible name when there is no visible label — every one of these in
+   * a table row had none, so a screen reader announced an edit box and nothing
+   * about what it edits. A column header is not an accessible name.
+   */
+  name?: string;
+  value: number | null; onCommit: (v: number | null) => void;
   disabled?: boolean; width?: string; placeholder?: string;
 }) {
   return (
@@ -200,7 +209,7 @@ function Num({ label, value, onCommit, disabled, width = 'w-20', placeholder }: 
         disabled={disabled}
         placeholder={placeholder}
         defaultValue={value === null ? '' : String(value)}
-        aria-label={label}
+        aria-label={name ?? label}
         onBlur={(e) => {
           const raw = e.target.value.trim();
           const next = raw === '' ? null : Number(raw);
@@ -213,8 +222,11 @@ function Num({ label, value, onCommit, disabled, width = 'w-20', placeholder }: 
   );
 }
 
-function Text({ label, value, onCommit, disabled, width = 'flex-1', placeholder }: {
-  label?: string; value: string | null; onCommit: (v: string) => void;
+function Text({ label, name, value, onCommit, disabled, width = 'flex-1', placeholder }: {
+  label?: string;
+  /** The accessible name when there is no visible label. */
+  name?: string;
+  value: string | null; onCommit: (v: string) => void;
   disabled?: boolean; width?: string; placeholder?: string;
 }) {
   return (
@@ -222,7 +234,7 @@ function Text({ label, value, onCommit, disabled, width = 'flex-1', placeholder 
       {label ? <Label className="text-xs text-charcoal-500">{label}</Label> : null}
       <Input
         className="h-8" disabled={disabled} placeholder={placeholder}
-        defaultValue={value ?? ''} aria-label={label}
+        defaultValue={value ?? ''} aria-label={name ?? label}
         onBlur={(e) => { if (e.target.value !== (value ?? '')) onCommit(e.target.value); }}
       />
     </div>
@@ -279,21 +291,27 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
               return (
                 <tr key={r.id} className="align-bottom">
                   <td><Text value={r.role} disabled={!editable} width="w-32"
+                    name={`Role for ${r.description ?? 'this row'}`}
                     placeholder="Operator"
                     onCommit={(v) => { void onSave('labor', { role: v }, r.id); }} /></td>
                   <td><Text value={r.description} disabled={!editable} width="w-44"
+                    name={`What it is for ${r.description ?? 'this row'}`}
                     placeholder="Excavator Operator"
                     onCommit={(v) => { void onSave('labor', { description: v }, r.id); }} /></td>
                   <td><Num value={r.headcount} disabled={!editable} width="w-16"
+                    name={`How many for ${r.description ?? 'this row'}`}
                     onCommit={(v) => { void onSave('labor', { headcount: v ?? 1 }, r.id); }} /></td>
                   <td><Num value={r.baseRate} disabled={!editable} width="w-20"
+                    name={`Base rate for ${r.description ?? 'this row'}`}
                     onCommit={(v) => { void onSave('labor', { base_rate: v }, r.id); }} /></td>
                   <td><Num value={r.burdenRate} disabled={!editable} width="w-20"
+                    name={`Burden rate for ${r.description ?? 'this row'}`}
                     onCommit={(v) => { void onSave('labor', { burden_rate: v }, r.id); }} /></td>
                   <td className="tabular px-2 text-charcoal-700">{money(loaded)}</td>
                   <td className="tabular px-2 text-xs text-charcoal-500">
                     {r.drivesHours && hours != null ? `auto ${qty(hours, 2)}` : (
                       <Num value={r.hours || null} disabled={!editable} width="w-20"
+                    name={`Hours for ${r.description ?? 'this row'}`}
                         onCommit={(v) => { void onSave('labor', { hours: v ?? 0 }, r.id); }} />
                     )}
                   </td>
@@ -329,8 +347,10 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
       )}
       {editable ? (
         <div className="flex flex-wrap items-center gap-2">
-          <AddRow label="Add crew member" disabled={busy}
-            onAdd={() => { void onSave('labor',
+          <ResourcePicker
+            kind="labor" label="Add crew" disabled={busy}
+            onPick={(f) => { void onSave('labor', { headcount: 1, burden_rate: 0, ...f }); }}
+            onBlank={() => { void onSave('labor',
               { role: 'Operator', headcount: 1, base_rate: 0, burden_rate: 0 }); }} />
           <FromLibrary kind="labor" disabled={busy} label="From labor rates"
             onPick={(f) => { void onSave('labor', f); }} />
@@ -456,8 +476,10 @@ function EquipmentTab({ rows, editable, busy, hours, onSave, onRemove }: {
       })}
       {editable ? (
         <div className="flex flex-wrap items-center gap-2">
-          <AddRow label="Add equipment" disabled={busy}
-            onAdd={() => {
+          <ResourcePicker
+            kind="equipment" label="Add equipment" disabled={busy}
+            onPick={(f) => { void onSave('equipment', { rate_basis: 'hour', quantity: 1, ...f }); }}
+            onBlank={() => {
               void onSave('equipment', { description: '', rate_basis: 'hour', quantity: 1 });
             }} />
           <FromLibrary kind="equipment" disabled={busy} label="From your fleet"
@@ -509,8 +531,10 @@ function MaterialTab({ rows, editable, busy, onSave, onRemove }: {
       ))}
       {editable ? (
         <div className="flex flex-wrap items-center gap-2">
-          <AddRow label="Add material" disabled={busy}
-            onAdd={() => {
+          <ResourcePicker
+            kind="material" label="Add material" disabled={busy}
+            onPick={(f) => { void onSave('material', { quantity: 0, ...f }); }}
+            onBlank={() => {
               void onSave('material', { description: '', quantity: 0, unit_rate: 0 });
             }} />
           <FromLibrary kind="material" disabled={busy}
@@ -522,9 +546,11 @@ function MaterialTab({ rows, editable, busy, onSave, onRemove }: {
 }
 
 // ------------------------------------------------------------------- hauling
-function HaulTab({ rows, editable, busy, onSave, onRemove }: {
+function HaulTab({ rows, editable, busy, onSave, onRemove, onChanged }: {
   rows: LineResource[]; editable: boolean; busy: boolean;
   onSave: SaveFn; onRemove: (id: string) => void;
+  /** The capacity writes through its own function, so the panel refetches. */
+  onChanged: () => void;
 }) {
   return (
     <div className="space-y-2">
@@ -603,10 +629,18 @@ function HaulTab({ rows, editable, busy, onSave, onRemove }: {
                   <Num label="Speed (mph)" value={r.averageSpeedMph} disabled={!editable}
                     width="w-24"
                     onCommit={(v) => { void onSave('trucking', { average_speed_mph: v }, r.id); }} />
-                  <Num label="Truck cap" value={r.truckCapacity} disabled={!editable} width="w-24"
-                    onCommit={(v) => { void onSave('trucking', { truck_capacity: v }, r.id); }} />
-                  <Num label="Tons/load" value={r.tonsPerLoad} disabled={!editable} width="w-24"
-                    onCommit={(v) => { void onSave('trucking', { tons_per_load: v }, r.id); }} />
+                  {/*
+                    * One capacity that says what it counts, instead of two that
+                    * did not. "Tons/load" was an assumption the schema never
+                    * made: stone crosses a scale, topsoil is sold by the yard,
+                    * and a machine move is one load whatever is on it.
+                    */}
+                  <HaulCapacity
+                    resourceId={r.id}
+                    capacity={r.truckCapacity ?? r.tonsPerLoad}
+                    unit={r.capacityUnit ?? (r.tonsPerLoad ? 'TON' : null)}
+                    disabled={!editable}
+                    onSaved={onChanged} />
                   <Num label="Load (min)" value={r.loadMinutes} disabled={!editable} width="w-24"
                     onCommit={(v) => { void onSave('trucking', { load_minutes: v }, r.id); }} />
                   <Num label="Dump (min)" value={r.dumpMinutes} disabled={!editable} width="w-24"
@@ -667,8 +701,10 @@ function SubTab({ rows, editable, busy, onSave, onRemove }: {
         </div>
       ))}
       {editable ? (
-        <AddRow label="Add subcontract" disabled={busy}
-          onAdd={() => {
+        <ResourcePicker
+          kind="subcontract" label="Add subcontract" disabled={busy}
+          onPick={(f) => { void onSave('subcontract', { quantity: 1, unit_rate: 0, ...f }); }}
+          onBlank={() => {
             void onSave('subcontract', { description: '', unit_rate: 0, quantity: 1 });
           }} />
       ) : null}

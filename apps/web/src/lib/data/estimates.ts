@@ -119,6 +119,8 @@ export interface LineResource {
   roundTripMiles: number | null;
   averageSpeedMph: number | null;
   truckCapacity: number | null;
+  /** What truckCapacity counts. Null means nobody has said. */
+  capacityUnit: string | null;
   tonsPerLoad: number | null;
   loadMinutes: number | null;
   dumpMinutes: number | null;
@@ -486,7 +488,7 @@ export async function recordProposalOutcome(
 export const loadLineResources = (lineId: string): Query<LineResource[]> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_line_resources')
-    .select('id, resource_kind, sort_order, description, role, notes, quantity, unit, unit_rate, hours, headcount, base_rate, burden_rate, drives_hours, production_per_hour, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, haul_mode, round_trip_miles, average_speed_mph, truck_capacity, tons_per_load, load_minutes, dump_minutes, queue_minutes, includes_disposal, extended_cost')
+    .select('id, resource_kind, sort_order, description, role, notes, quantity, unit, unit_rate, hours, headcount, base_rate, burden_rate, drives_hours, production_per_hour, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, haul_mode, round_trip_miles, average_speed_mph, truck_capacity, capacity_unit, tons_per_load, load_minutes, dump_minutes, queue_minutes, includes_disposal, extended_cost')
     .eq('line_item_id', lineId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -517,6 +519,7 @@ export const loadLineResources = (lineId: string): Query<LineResource[]> => asyn
     roundTripMiles: maybeNum(r.round_trip_miles),
     averageSpeedMph: maybeNum(r.average_speed_mph),
     truckCapacity: maybeNum(r.truck_capacity),
+    capacityUnit: (r.capacity_unit as string | null) ?? null,
     tonsPerLoad: maybeNum(r.tons_per_load),
     loadMinutes: maybeNum(r.load_minutes),
     dumpMinutes: maybeNum(r.dump_minutes),
@@ -855,6 +858,151 @@ export async function insertLineAfter(
     p_description: input.description?.trim() || null,
     p_quantity: input.quantity ?? 0,
     p_unit: input.unit || null,
+  });
+}
+
+/**
+ * Something from the library to put on a line.
+ *
+ * One shape for all four kinds, because the picker is one control. What differs
+ * is what each carries a rate *of* — a labor rate is per hour and burdened, a
+ * machine is per hour and resolved through RULE-003, a material is per its own
+ * unit, and a subcontractor has no rate at all until somebody quotes.
+ */
+export interface LibraryPick {
+  id: string;
+  code: string | null;
+  name: string;
+  /** What it costs, in the unit below. Null when the library has no rate. */
+  rate: number | null;
+  unit: string | null;
+  /** A second line under the name: a trade, a class, a phone number. */
+  detail: string | null;
+  /** Whether it is the company's own row rather than the platform's. */
+  isOwn: boolean;
+  /** Said out loud when the library has no rate, rather than showing a zero. */
+  unpriced: boolean;
+}
+
+const like = (term: string) => `%${term.trim()}%`;
+
+/** Crew: the classifications, priced at the burdened hourly cost a line pays. */
+export const searchLaborRates = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('labor_rates')
+    .select('id, code, classification, labor_group, burdened_cost_per_hour, company_id')
+    .eq('status', 'active');
+  if (term.trim()) q = q.ilike('classification', like(term));
+  const rows = unwrap(await q.order('classification').limit(25)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    code: (r.code as string | null) ?? null,
+    name: String(r.classification),
+    rate: r.burdened_cost_per_hour === null ? null : Number(r.burdened_cost_per_hour),
+    unit: 'HR',
+    detail: (r.labor_group as string | null) ?? null,
+    isOwn: r.company_id !== null,
+    unpriced: r.burdened_cost_per_hour === null,
+  }));
+};
+
+/**
+ * Equipment, through the view that already resolves the rate.
+ *
+ * `my_unrated_equipment` picks the winner under RULE-003 — a project quote
+ * beats a company rate beats a regional one beats the seed — so the number in
+ * the picker is the number that will land, and a machine with no rate at all
+ * says so instead of showing nothing.
+ */
+export const searchEquipment = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('my_unrated_equipment')
+    .select('id, code, name, equipment_class, brand, model, hourly_rate, rate_state, company_id');
+  if (term.trim()) q = q.ilike('name', like(term));
+  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    code: (r.code as string | null) ?? null,
+    name: String(r.name),
+    rate: r.hourly_rate === null ? null : Number(r.hourly_rate),
+    unit: 'HR',
+    detail: [r.equipment_class, r.brand].filter(Boolean).join(' · ') || null,
+    isOwn: r.company_id !== null,
+    unpriced: r.rate_state === 'unrated',
+  }));
+};
+
+/** Materials, priced in whatever unit the library holds them in. */
+export const searchMaterials = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('materials')
+    .select('id, code, name, category, unit, unit_cost, cost_state, company_id')
+    .eq('status', 'active');
+  if (term.trim()) q = q.ilike('name', like(term));
+  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    code: (r.code as string | null) ?? null,
+    name: String(r.name),
+    rate: Number(r.unit_cost ?? 0),
+    unit: (r.unit as string | null) ?? null,
+    detail: (r.category as string | null) ?? null,
+    isOwn: r.company_id !== null,
+    /* Migration 0121: an uncosted material is a different fact from a free one. */
+    unpriced: r.cost_state === 'not_costed',
+  }));
+};
+
+/** Subcontractors. No rate until somebody quotes, which is the honest state. */
+export const searchVendors = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('vendors')
+    .select('id, code, name, vendor_type, city, state_province, is_qualified, company_id')
+    .eq('status', 'active')
+    /* A subcontract line wants subcontractors, not the gravel pit. */
+    .in('vendor_type', ['subcontractor', 'service']);
+  if (term.trim()) q = q.ilike('name', like(term));
+  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    code: (r.code as string | null) ?? null,
+    name: String(r.name),
+    rate: null,
+    unit: null,
+    detail: [
+      r.is_qualified ? 'qualified' : 'not qualified',
+      [r.city, r.state_province].filter(Boolean).join(', '),
+    ].filter(Boolean).join(' · ') || null,
+    isOwn: r.company_id !== null,
+    unpriced: true,
+  }));
+};
+
+/** The units a truck load is bought in, and what each is for. */
+export const HAUL_CAPACITY_UNITS = [
+  { unit: 'TON', label: 'Tons per load', note: 'Stone, millings, anything crossing a scale.' },
+  { unit: 'CY', label: 'Yards per load', note: 'Topsoil, mulch, spoil — sold by volume.' },
+  { unit: 'EA', label: 'Loads', note: 'A machine move or a set piece, priced whole.' },
+  { unit: 'LB', label: 'Pounds per load', note: 'Small quantities where a ton is too coarse.' },
+] as const;
+
+/**
+ * What a load is measured in, alongside how much of it there is.
+ *
+ * A tri-axle hauling stone is bought by the ton; the same truck hauling topsoil
+ * is bought by the yard. The two capacity fields on a haul row never said
+ * which, and the screen labeled one of them "Tons/load" — an assumption the
+ * schema never made.
+ */
+export async function setHaulCapacity(
+  client: RpcCapable, resourceId: string, capacity: number | null, unit: string | null,
+): Promise<void> {
+  await rpc(client, 'set_haul_capacity', {
+    p_resource: resourceId, p_capacity: capacity, p_unit: unit || null,
   });
 }
 

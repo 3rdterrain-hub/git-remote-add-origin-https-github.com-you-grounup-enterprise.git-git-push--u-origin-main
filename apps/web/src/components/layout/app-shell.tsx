@@ -5,6 +5,7 @@ import {
   BarChart3, Settings, CreditCard, Menu, X, Bell, Search, ChevronDown, Bot,
   FileSignature, ArrowRight, CalendarDays, Truck, Users2, ShoppingCart, Banknote, ShieldAlert,
   Mountain, Gavel, Network, KeyRound, Ruler, SlidersHorizontal,
+  PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
@@ -137,6 +138,22 @@ export function AppShell() {
   const [customizing, setCustomizing] = useState(false);
 
   /*
+   * The bar, narrowed to icons. Remembered per browser, because a person who
+   * works from a laptop wants the room back every day rather than once — and
+   * guarded, because a private window throws on storage rather than returning
+   * nothing.
+   */
+  const [iconsOnly, setIconsOnly] = useState(() => {
+    try { return window.localStorage.getItem('grounup.nav.iconsOnly') === 'yes'; }
+    catch { return false; }
+  });
+  const narrow = (next: boolean) => {
+    setIconsOnly(next);
+    try { window.localStorage.setItem('grounup.nav.iconsOnly', next ? 'yes' : 'no'); }
+    catch { /* a bar that cannot be remembered still collapses */ }
+  };
+
+  /*
    * The arrangement, read from the profile and held here so a save takes effect
    * without a round trip. Until it has loaded the shipped order is shown, which
    * is the right thing to be wrong with: every screen is present and in a
@@ -267,27 +284,55 @@ export function AppShell() {
         */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-charcoal-900 transition-transform',
+          'fixed inset-y-0 left-0 z-40 flex flex-col bg-charcoal-900 transition-all',
+          /* Narrow only where there is a pointer to hover with; the phone
+             drawer is always full width, because a tooltip is no use there. */
+          iconsOnly ? 'w-64 lg:w-16' : 'w-64',
           onTop ? 'lg:hidden' : 'lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-charcoal-800 px-4">
-          <NavLink to="/app" onClick={() => setOpen(false)}>
+        <div className={cn(
+          'flex h-16 shrink-0 items-center border-b border-charcoal-800',
+          iconsOnly ? 'justify-center px-2 lg:justify-center' : 'justify-between px-4')}>
+          <NavLink to="/app" onClick={() => setOpen(false)}
+            className={iconsOnly ? 'lg:hidden' : undefined}>
             <Logo subdued />
           </NavLink>
+          <button
+            onClick={() => narrow(!iconsOnly)}
+            title={iconsOnly ? 'Widen the bar' : 'Narrow the bar to icons'}
+            aria-label={iconsOnly ? 'Widen the navigation' : 'Narrow the navigation to icons'}
+            aria-pressed={iconsOnly}
+            className="hidden rounded-md p-1.5 text-charcoal-400 hover:bg-charcoal-800
+                       hover:text-white lg:block">
+            {iconsOnly ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+          </button>
           <Button variant="ghost" size="icon" className="text-charcoal-400 hover:bg-charcoal-800 lg:hidden" onClick={() => setOpen(false)}>
             <X />
           </Button>
         </div>
 
-        <div className="border-b border-charcoal-800 px-4 py-3">
-          <button className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors hover:bg-charcoal-800">
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-white">{COMPANY.name}</span>
-              <span className="block text-xs text-charcoal-400">{COMPANY.city}, {COMPANY.state} · {COMPANY.planName}</span>
-            </span>
-            <ChevronDown className="size-4 shrink-0 text-charcoal-500" />
+        <div className={cn('border-b border-charcoal-800 py-3', iconsOnly ? 'px-2' : 'px-4')}>
+          <button
+            title={iconsOnly ? COMPANY.name : undefined}
+            className={cn(
+              'flex w-full items-center rounded-md py-1.5 text-left transition-colors hover:bg-charcoal-800',
+              iconsOnly ? 'justify-center px-0' : 'justify-between px-2')}>
+            {iconsOnly ? (
+              <span className="flex size-8 items-center justify-center rounded-md bg-charcoal-800
+                               text-xs font-bold text-white">
+                {COMPANY.name.slice(0, 2).toUpperCase()}
+              </span>
+            ) : (
+              <>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-white">{COMPANY.name}</span>
+                  <span className="block text-xs text-charcoal-400">{COMPANY.city}, {COMPANY.state} · {COMPANY.planName}</span>
+                </span>
+                <ChevronDown className="size-4 shrink-0 text-charcoal-500" />
+              </>
+            )}
           </button>
         </div>
 
@@ -295,13 +340,18 @@ export function AppShell() {
           {sections.map(([group, items]) => (
             <div key={group || 'top'}>
               {group ? (
-                <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase
-                              tracking-[0.14em] text-charcoal-500">
-                  {group}
-                </p>
+                iconsOnly ? (
+                  <div className="mx-2 my-2 border-t border-charcoal-800 lg:block" aria-hidden />
+                ) : (
+                  <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase
+                                tracking-[0.14em] text-charcoal-500">
+                    {group}
+                  </p>
+                )
               ) : null}
               {items.map(({ key, group: _g, ...item }) => (
-                <NavItem key={key} {...item} onNavigate={() => setOpen(false)}
+                <NavItem key={key} {...item} iconsOnly={iconsOnly}
+                  onNavigate={() => setOpen(false)}
                   badge={item.label === 'Plans & Specs' && pendingFindings
                     ? pendingFindings : undefined} />
               ))}
@@ -317,20 +367,27 @@ export function AppShell() {
             */}
           <button
             onClick={() => { setCustomizing(true); setOpen(false); }}
-            className="mb-1 flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm
-                       font-medium text-charcoal-400 transition-colors
-                       hover:bg-charcoal-800/60 hover:text-white">
+            title={iconsOnly ? 'Arrange this bar' : undefined}
+            aria-label={iconsOnly ? 'Arrange this bar' : undefined}
+            className={cn(
+              'mb-1 flex w-full items-center rounded-md py-2 text-sm font-medium',
+              'text-charcoal-400 transition-colors hover:bg-charcoal-800/60 hover:text-white',
+              iconsOnly ? 'justify-center px-0' : 'gap-3 px-2')}>
             <SlidersHorizontal className="size-4 shrink-0" />
-            <span className="flex-1 text-left">Arrange this bar</span>
+            {iconsOnly ? null : <span className="flex-1 text-left">Arrange this bar</span>}
           </button>
-          <div className="flex items-center gap-3 rounded-md px-2 py-2">
+          <div className={cn('flex items-center rounded-md py-2',
+            iconsOnly ? 'justify-center px-0' : 'gap-3 px-2')}
+            title={iconsOnly ? USER.name : undefined}>
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-xs font-bold text-charcoal-900">
               {USER.name.split(' ').map((n) => n[0]).join('')}
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-white">{USER.name}</span>
-              <span className="block truncate text-xs text-charcoal-400">{USER.role}</span>
-            </span>
+            {iconsOnly ? null : (
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-white">{USER.name}</span>
+                <span className="block truncate text-xs text-charcoal-400">{USER.role}</span>
+              </span>
+            )}
           </div>
         </div>
       </aside>
@@ -631,19 +688,24 @@ function TopNavItem({ to, label, icon: Icon, end, badge }: {
 }
 
 function NavItem({
-  to, label, icon: Icon, end, onNavigate, badge,
+  to, label, icon: Icon, end, onNavigate, badge, iconsOnly = false,
 }: {
   to: string; label: string; icon: typeof LayoutDashboard; end?: boolean;
   onNavigate: () => void; badge?: number;
+  /** Narrowed to the icon. The label becomes the tooltip and the accessible name. */
+  iconsOnly?: boolean;
 }) {
   return (
     <NavLink
       to={to}
       end={end}
       onClick={onNavigate}
+      title={iconsOnly ? label : undefined}
+      aria-label={iconsOnly ? label : undefined}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+          'flex items-center rounded-md py-2 text-sm font-medium transition-colors',
+          iconsOnly ? 'justify-center px-2' : 'gap-3 px-3',
           isActive
             // The active item gets the yellow rail, which is the only place
             // yellow appears in the navigation — so it is unambiguous.
@@ -653,9 +715,11 @@ function NavItem({
       }
     >
       <Icon className="size-4 shrink-0" />
-      <span className="flex-1">{label}</span>
+      {iconsOnly ? null : <span className="flex-1">{label}</span>}
       {badge ? (
-        <span className="rounded-full bg-yellow-500 px-1.5 text-[10px] font-bold text-charcoal-900">{badge}</span>
+        <span className={cn(
+          'rounded-full bg-yellow-500 text-[10px] font-bold text-charcoal-900',
+          iconsOnly ? 'absolute ml-6 -mt-4 px-1' : 'px-1.5')}>{badge}</span>
       ) : null}
     </NavLink>
   );

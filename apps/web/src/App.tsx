@@ -32,6 +32,7 @@ const AdminBilling = lazy(() => import('@/pages/admin/simple').then((m) => ({ de
 const OnboardingPage = lazy(() => import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })));
 const PricingPage = lazy(() => import('@/pages/pricing').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/app/dashboard').then((m) => ({ default: m.DashboardPage })));
+const ClockPage = lazy(() => import('@/pages/clock').then((m) => ({ default: m.ClockPage })));
 const EstimatesPage = lazy(() => import('@/pages/app/estimates').then((m) => ({ default: m.EstimatesPage })));
 const TakeoffPage = lazy(() => import('@/pages/app/takeoff').then((m) => ({ default: m.TakeoffPage })));
 const EstimateWorkspacePage = lazy(() => import('@/pages/app/estimate-workspace').then((m) => ({ default: m.EstimateWorkspacePage })));
@@ -156,6 +157,12 @@ export function App() {
             <Route path="billing" element={<BillingPage />} />
           </Route>
 
+          {/*
+            * The clock, outside the application shell. Somebody punching in at a
+            * job trailer needs one screen and no navigation, and putting it
+            * under /app would wrap it in a sidebar they have to get past.
+            */}
+          <Route path="/clock" element={<ClockPage />} />
           <Route path="/dashboard" element={<Navigate to="/app" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

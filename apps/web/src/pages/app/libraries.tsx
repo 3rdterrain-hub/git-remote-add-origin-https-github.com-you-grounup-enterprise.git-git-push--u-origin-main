@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Library, Search, Lock, Copy, ShieldCheck, Info, Plus, Archive } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
+import { AssemblyLibrary } from '@/components/library/assemblies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -187,6 +188,7 @@ export function LibrariesPage() {
         <TabsList>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="assemblies">Work sequences</TabsTrigger>
           <TabsTrigger value="materials">Materials</TabsTrigger>
           <TabsTrigger value="hauling">Hauling</TabsTrigger>
           <TabsTrigger value="subs">Subcontractors</TabsTrigger>
@@ -285,6 +287,15 @@ export function LibrariesPage() {
         </TabsContent>
 
         {/* ---------------------------------------------------------- tasks */}
+        {/*
+          * The order the work happens in. Fifty-four sequences shipped with no
+          * screen at all — the functions to copy and edit them existed, were
+          * tested, and nothing called them.
+          */}
+        <TabsContent value="assemblies">
+          <AssemblyLibrary companyId={companyId} canEdit={can('libraries.write')} />
+        </TabsContent>
+
         <TabsContent value="tasks" className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full space-y-1.5 sm:w-72">

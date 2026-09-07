@@ -297,6 +297,7 @@ TST-db-financial-periods,test,db/financial-periods.test.ts,tests/db/financial-pe
 TST-db-fleet-cost,test,db/fleet-cost.test.ts,tests/db/fleet-cost.test.ts,ENGINE
 TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
 TST-db-free-and-terms,test,db/free-and-terms.test.ts,tests/db/free-and-terms.test.ts,ENGINE
+TST-db-haul-capacity,test,db/haul-capacity.test.ts,tests/db/haul-capacity.test.ts,ENGINE
 TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
 TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
 TST-db-import-materials,test,db/import-materials.test.ts,tests/db/import-materials.test.ts,ENGINE
@@ -369,18 +370,21 @@ TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
+TST-web-line-detail.a11y,test,web/line-detail.a11y.test.tsx,apps/web/src/components/estimate/line-detail.a11y.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
 TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
 TST-web-new-line-row,test,web/new-line-row.test.tsx,apps/web/src/components/estimate/new-line-row.test.tsx,ENGINE
 TST-web-plan-takeoff,test,web/plan-takeoff.test.tsx,apps/web/src/components/estimate/plan-takeoff.test.tsx,ENGINE
 TST-web-production-rate,test,web/production-rate.test.tsx,apps/web/src/components/estimate/production-rate.test.tsx,ENGINE
 TST-web-quantity-input,test,web/quantity-input.test.tsx,apps/web/src/components/estimate/quantity-input.test.tsx,ENGINE
+TST-web-resource-picker,test,web/resource-picker.test.tsx,apps/web/src/components/estimate/resource-picker.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-unit-cost,test,web/unit-cost.test.tsx,apps/web/src/components/estimate/unit-cost.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-nav-names-the-screen,test,web/nav-names-the-screen.test.ts,apps/web/src/components/layout/nav-names-the-screen.test.ts,ENGINE
 TST-web-page,test,web/page.test.tsx,apps/web/src/components/layout/page.test.tsx,ENGINE
+TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/assemblies.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
@@ -422,6 +426,7 @@ TST-web-safety,test,web/safety.test.tsx,apps/web/src/pages/app/safety.test.tsx,E
 TST-web-settings,test,web/settings.test.tsx,apps/web/src/pages/app/settings.test.tsx,ENGINE
 TST-web-survey,test,web/survey.test.tsx,apps/web/src/pages/app/survey.test.tsx,ENGINE
 TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.test.tsx,ENGINE
+TST-web-clock,test,web/clock.test.tsx,apps/web/src/pages/clock.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE
 TST-web-onboarding,test,web/onboarding.test.tsx,apps/web/src/pages/onboarding.test.tsx,ENGINE
 TST-web-routes,test,web/routes.test.tsx,apps/web/src/routes.test.tsx,ENGINE

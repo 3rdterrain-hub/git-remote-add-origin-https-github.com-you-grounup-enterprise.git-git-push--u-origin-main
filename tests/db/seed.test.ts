@@ -160,7 +160,7 @@ describe('global seed library loads into a real database', () => {
       'Carpentry, Concrete, Electrical, Envelope, Finishes, HVAC, Masonry, Plumbing, Roofing, Steel');
   });
 
-  it('ships nineteen sequences saying what order the work happens in', async () => {
+  it('ships a work sequence for every trade the catalog sells', async () => {
     /*
      * The library had thousands of tasks and nothing saying that forms go up
      * before the pour. These are the first real work breakdowns in it.
@@ -172,8 +172,8 @@ describe('global seed library loads into a real database', () => {
         (select count(*)::int from assembly_components ac
           join assemblies a on a.id = ac.assembly_id
          where a.company_id is null and a.source like 'GrounUp task templates%') as steps`);
-    expect(t!.templates).toBe(19);
-    expect(t!.steps).toBeGreaterThanOrEqual(160);
+    expect(t!.templates).toBe(54);
+    expect(t!.steps).toBeGreaterThanOrEqual(440);
   });
 
   it('gives every template an unbroken sequence, with no step number used twice', async () => {
@@ -200,6 +200,31 @@ describe('global seed library loads into a real database', () => {
       where company_id is null and source like 'GrounUp task templates%'`);
     expect(r!.rated).toBeLessThanOrEqual(25);
     expect(r!.rated).toBeGreaterThan(0);
+  });
+
+  it('leaves no product-master service without a work sequence', async () => {
+    /*
+     * 465 arrived with none, because the file named 35 sequences the task
+     * library did not contain — every landscaping service, all the roofing,
+     * masonry, framing, siding and exterior work. Seed 0008 wrote those
+     * sequences and ran the join the file always intended.
+     */
+    const [r] = await h.sql<{ bare: number }>(`
+      select count(*)::int as bare from services
+      where company_id is null and source like 'GrounUp product master%'
+        and default_assembly_id is null`);
+    expect(r!.bare).toBe(0);
+  });
+
+  it('shares a step between sequences rather than copying it', async () => {
+    // "Layout" is one task the library points at, not thirty-five copies, so a
+    // company measuring its own layout production measures it once.
+    const [r] = await h.sql<{ used_by: number }>(`
+      select count(distinct ac.assembly_id)::int as used_by
+      from tasks t
+      join assembly_components ac on ac.task_id = t.id
+      where t.company_id is null and t.name = 'Layout'`);
+    expect(r!.used_by).toBeGreaterThan(1);
   });
 
   it('brings the product master in with a cost code on every service', async () => {

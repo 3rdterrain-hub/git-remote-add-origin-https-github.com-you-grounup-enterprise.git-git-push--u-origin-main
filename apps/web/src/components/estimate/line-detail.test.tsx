@@ -61,6 +61,7 @@ const resource = (over: Partial<LineResource> = {}): LineResource => ({
   drivesHours: false, productionPerHour: null,
   rateBasis: 'hour', mobilizationCost: 0, standbyDays: 0, minimumHours: null, isOwned: true,
   haulMode: 'hours', roundTripMiles: null, averageSpeedMph: null, truckCapacity: null,
+  capacityUnit: null,
   tonsPerLoad: null, loadMinutes: null, dumpMinutes: null, queueMinutes: null,
   includesDisposal: false,
   extendedCost: 0,

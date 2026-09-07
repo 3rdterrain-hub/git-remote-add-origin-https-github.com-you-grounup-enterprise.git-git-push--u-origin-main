@@ -56,6 +56,7 @@ import { LineDetail } from '@/components/estimate/line-detail';
 import { NewLineRow } from '@/components/estimate/new-line-row';
 import { LineDescription } from '@/components/estimate/line-description';
 import { UnitCostCell } from '@/components/estimate/unit-cost-cell';
+import { MarkupCell } from '@/components/estimate/markup-cell';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
@@ -685,7 +686,7 @@ function LineTable({
                     * estimator reaches for most while building a bid, so it
                     * gets the position the eye lands on when it enters a row.
                     */}
-                  <TableCell className="align-top">
+                  <TableCell>
                     {editable ? (
                       <div className="flex items-center gap-0.5">
                         {onAddAfter ? (
@@ -748,9 +749,20 @@ function LineTable({
                           serviceName={l.serviceName}
                           serviceId={l.serviceId}
                           editable={editable}
-                          {...(!l.hasProductionRate && l.serviceId
-                            ? { note: 'No production rate — it cannot be priced from production' }
-                            : {})}
+                          note={[
+                            /*
+                              * Which library item the line came from, when the
+                              * words no longer say. A line renamed to "Mass
+                              * excavation — north half" still needs to show it
+                              * is the catalog's mass excavation, or nobody can
+                              * tell a library line from a typed one.
+                              */
+                            l.serviceName && l.serviceName !== l.description
+                              ? l.serviceName
+                              : l.serviceId ? null : 'Typed, not from the library',
+                            !l.hasProductionRate && l.serviceId
+                              ? 'no production rate' : null,
+                          ].filter(Boolean).join(' · ') || undefined}
                           onChanged={onChanged} />
                       </div>
                     </div>
@@ -764,7 +776,7 @@ function LineTable({
                     * reading the description and starts asking what it is
                     * built from.
                     */}
-                  <TableCell className="w-8 align-top">
+                  <TableCell className="w-8">
                     <button
                       onClick={() => setOpen((o) =>
                         o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
@@ -842,9 +854,12 @@ function LineTable({
                       onChanged={onChanged} />
                   </TableCell>
                   <TableCell className="tabular text-right text-xs text-charcoal-600">
-                    {l.markupOverride == null
-                      ? <span className="text-charcoal-400">profile</span>
-                      : `${Math.round(l.markupOverride * 100)}%`}
+                    <MarkupCell
+                      lineId={l.id}
+                      description={l.description}
+                      markupOverride={l.markupOverride}
+                      editable={editable}
+                      onChanged={onChanged} />
                   </TableCell>
                   <TableCell className="tabular text-right font-medium">
                     {l.totalDirectCost ? money(l.totalDirectCost)
@@ -857,14 +872,25 @@ function LineTable({
                         {titleCase(l.confidenceBand)}
                       </Badge>
                       {/* What is left at the end: disclosure, and removal. */}
+                      {/*
+                        * What the eye does, in words. An icon that toggles
+                        * something invisible is an icon nobody trusts: the line
+                        * is priced either way, and what changes is whether the
+                        * customer's copy itemizes it.
+                        */}
+                      {!l.clientVisible ? (
+                        <Badge variant="default" className="whitespace-nowrap">
+                          not on proposal
+                        </Badge>
+                      ) : null}
                       {editable ? (
                         <button onClick={() => toggleVisible(l)}
                           aria-label={l.clientVisible
                             ? `Hide ${l.description} from the proposal`
                             : `Show ${l.description} on the proposal`}
                           title={l.clientVisible
-                            ? 'The customer sees this line'
-                            : 'Hidden from the proposal, still priced'}
+                            ? 'The customer sees this line on the proposal. Click to hide it — it stays priced either way.'
+                            : 'Hidden from the proposal, still priced. Click to show it to the customer.'}
                           className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
                                      hover:text-charcoal-900">
                           {l.clientVisible ? <Eye className="size-3.5" />
