@@ -54,6 +54,9 @@ import {
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { NewLineRow } from '@/components/estimate/new-line-row';
+import { LineDescription } from '@/components/estimate/line-description';
+import { UnitCostCell } from '@/components/estimate/unit-cost-cell';
+import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
 import { CategorySelect } from '@/components/ui/category-select';
@@ -62,7 +65,7 @@ import {
   ApplyTemplateDialog, ApplyWarnings, SaveTemplateDialog,
 } from '@/components/estimate/templates';
 import type { ApplyResult } from '@/lib/data/templates';
-import { money, qty, integer, unitRate, date, titleCase } from '@/lib/format';
+import { money, qty, integer, date, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 /** A version at or past approval is frozen by RULE-009 and cannot be edited. */
@@ -567,6 +570,14 @@ function LineTable({
     finally { setSaving(null); }
   };
 
+  /* The unit, changed where it is read rather than behind the wrench. */
+  const commitUnit = async (lineId: string, unit: string) => {
+    setSaving(lineId); setError(null);
+    try { await updateLine(supabase!, lineId, { unit }); onChanged(); }
+    catch (err) { setError(messageFor(err)); }
+    finally { setSaving(null); }
+  };
+
   const shown = version.lines.filter((l) => !onlyBlocking || l.blocksIssue);
   const hiddenByFilter = version.lines.length - shown.length;
 
@@ -724,14 +735,23 @@ function LineTable({
                         <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-danger-600"
                           aria-label="This line blocks issue" />
                       ) : null}
-                      <div>
-                        <p className="font-medium text-charcoal-900">{l.description}</p>
-                        <p className="text-xs text-charcoal-400">
-                          {l.serviceName ?? 'Entered by hand'}
-                          {!l.hasProductionRate && l.serviceId
-                            ? ' · no production rate, so it cannot be priced from production'
-                            : ''}
-                        </p>
+                      {/*
+                        * The words, and the control that changes them. Typing
+                        * searches the library from the first letters, so
+                        * fixing a description and swapping the line onto the
+                        * right item are the same gesture.
+                        */}
+                      <div className="min-w-0 flex-1">
+                        <LineDescription
+                          lineId={l.id}
+                          description={l.description}
+                          serviceName={l.serviceName}
+                          serviceId={l.serviceId}
+                          editable={editable}
+                          {...(!l.hasProductionRate && l.serviceId
+                            ? { note: 'No production rate — it cannot be priced from production' }
+                            : {})}
+                          onChanged={onChanged} />
                       </div>
                     </div>
                   </TableCell>
@@ -794,9 +814,32 @@ function LineTable({
                       </p>
                     ) : null}
                   </TableCell>
-                  <TableCell className="text-xs text-charcoal-600">{l.unit}</TableCell>
+                  {/*
+                    * The unit, selectable where it is read. A company that bids
+                    * topsoil by the load rather than the cubic yard is not
+                    * making a mistake, and migration 0117 stopped refusing it —
+                    * the picker is what makes that reachable.
+                    */}
+                  <TableCell className="text-xs text-charcoal-600">
+                    {editable ? (
+                      <UnitSelect
+                        value={l.unit}
+                        label={`Unit for ${l.description}`}
+                        className="h-7 w-20"
+                        onChange={(u) => commitUnit(l.id, u)} />
+                    ) : l.unit}
+                  </TableCell>
                   <TableCell className="tabular text-right">
-                    {l.unitCost ? unitRate(l.unitCost) : <span className="text-charcoal-400">—</span>}
+                    <UnitCostCell
+                      lineId={l.id}
+                      description={l.description}
+                      unit={l.unit}
+                      unitCost={l.unitCost}
+                      typedRate={l.parametricCostPerUnit}
+                      basis={l.parametricBasis}
+                      hasResources={l.totalDirectCost > 0 && l.parametricCostPerUnit === null}
+                      editable={editable}
+                      onChanged={onChanged} />
                   </TableCell>
                   <TableCell className="tabular text-right text-xs text-charcoal-600">
                     {l.markupOverride == null

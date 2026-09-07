@@ -15,7 +15,14 @@
 import { UNITS, UNIT_DIMENSION, type Unit } from '@grounup/engine';
 import { cn } from '@/lib/utils';
 
-/** What each unit is, in the words somebody would use on a jobsite. */
+/**
+ * What each unit is, in the words somebody would use on a jobsite.
+ *
+ * Not what the picker shows. An estimator reads CY, LF and TON faster than
+ * "Cubic yards" — they are the words of the trade, and a column of them lines
+ * up where a column of prose does not. The long form stays here for a tooltip
+ * and for anywhere a unit has to be explained rather than picked.
+ */
 export const UNIT_LABEL: Readonly<Record<Unit, string>> = {
   LS: 'Lump sum', EA: 'Each', LF: 'Linear feet', SF: 'Square feet',
   SY: 'Square yards', CY: 'Cubic yards', TON: 'Tons', HR: 'Hours',
@@ -93,7 +100,7 @@ export function UnitSelect({
       {recommended.length > 0 ? (
         <optgroup label="Usually measured in">
           {recommended.map((u) => (
-            <option key={u} value={u}>{u} — {UNIT_LABEL[u]}</option>
+            <option key={u} value={u} title={UNIT_LABEL[u]}>{u}</option>
           ))}
         </optgroup>
       ) : null}
@@ -103,7 +110,7 @@ export function UnitSelect({
             ? `Other · ${DIMENSION_LABEL[dimension] ?? dimension}`
             : (DIMENSION_LABEL[dimension] ?? dimension)}>
           {units.map((u) => (
-            <option key={u} value={u}>{u} — {UNIT_LABEL[u]}</option>
+            <option key={u} value={u} title={UNIT_LABEL[u]}>{u}</option>
           ))}
         </optgroup>
       ))}

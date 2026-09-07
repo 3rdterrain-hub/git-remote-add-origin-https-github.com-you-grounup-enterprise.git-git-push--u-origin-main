@@ -36,6 +36,7 @@ import {
 } from '@/lib/data/estimates';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { ProductionRatePanel } from '@/components/estimate/production-rate';
+import { UnitCostPanel, ResourceSuggestions } from '@/components/estimate/unit-cost';
 import { FromLibrary } from '@/components/estimate/from-library';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -119,6 +120,23 @@ export function LineDetail({ line, editable, onChanged }: {
         * to see both to know which one is deciding the hours.
         */}
       <ProductionRatePanel lineId={line.id} editable={editable} onChanged={onChanged} />
+
+      {/*
+        * The two ways of pricing a line, above the build-up rather than inside
+        * it. A rate replaces the tabs below; the library's answer fills them.
+        */}
+      <UnitCostPanel
+        lineId={line.id}
+        unit={line.unit}
+        rate={line.parametricCostPerUnit}
+        basis={line.parametricBasis}
+        hasResources={resources.length > 0}
+        editable={editable}
+        onChanged={onChanged} />
+
+      {line.parametricCostPerUnit === null ? (
+        <ResourceSuggestions lineId={line.id} editable={editable} onChanged={onChanged} />
+      ) : null}
 
       {error ? <ErrorState message={error} /> : null}
       {resourcesQ.status === 'loading' ? <LoadingState label="Loading the build-up" /> : null}

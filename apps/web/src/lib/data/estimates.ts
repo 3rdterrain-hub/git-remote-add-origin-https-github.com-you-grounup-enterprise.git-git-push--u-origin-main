@@ -73,6 +73,14 @@ export interface LineRow {
   wastePercent: number;
   /** What the estimator typed to get the quantity, when it was a calculation. */
   quantityExpression: string | null;
+  /*
+   * A rate this line is priced *at* rather than built up to. Null on an
+   * ordinary line; when it is set, the crew, machines and materials below are
+   * empty by construction — a line carrying both would report a number nobody
+   * could reproduce from what is on it.
+   */
+  parametricCostPerUnit: number | null;
+  parametricBasis: string | null;
   productionModifier: number;
 }
 
@@ -272,7 +280,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
                    created_at: string; customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
-    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, services(name), cost_codes(code)')
+    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, services(name), cost_codes(code)')
     .eq('estimate_version_id', versionId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -321,6 +329,9 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       measuredQuantity: num(l.measured_quantity),
       adjustedQuantity: num(l.adjusted_quantity),
       unitCost: num(l.unit_cost),
+      parametricCostPerUnit: l.parametric_cost_per_unit === null
+        ? null : num(l.parametric_cost_per_unit),
+      parametricBasis: (l.parametric_basis as string | null) ?? null,
       totalDirectCost: num(l.total_direct_cost),
       laborHours: num(l.labor_hours),
       equipmentHours: num(l.equipment_hours),
@@ -845,6 +856,133 @@ export async function insertLineAfter(
     p_quantity: input.quantity ?? 0,
     p_unit: input.unit || null,
   });
+}
+
+export interface RepointResult {
+  service: string | null;
+  unit?: string;
+  /** True when the line was already priced, so the unit was left alone. */
+  unitHeld?: boolean;
+  changed: string[];
+}
+
+/**
+ * Point a line at a different library service, or take it off the library.
+ *
+ * The unit, the cost code and the production rate belong to the service rather
+ * than to the line, so they follow it — except the unit, which is held back
+ * once resources are priced on the line. Rescaling a measured quantity
+ * underneath somebody is worse than leaving the unit and saying so, which is
+ * what `unitHeld` reports.
+ */
+export async function setLineService(
+  client: RpcCapable, lineId: string, serviceId: string | null, keepDescription = false,
+): Promise<RepointResult> {
+  const row = await rpc<{
+    service: string | null; unit?: string; unit_held?: boolean; changed?: string[];
+  }>(client, 'set_line_service', {
+    p_line: lineId, p_service: serviceId, p_keep_description: keepDescription,
+  });
+  return {
+    service: row?.service ?? null,
+    unit: row?.unit,
+    unitHeld: Boolean(row?.unit_held),
+    changed: row?.changed ?? [],
+  };
+}
+
+export interface ResourceSuggestion {
+  kind: 'labor' | 'equipment' | 'material' | 'trucking';
+  resourceId: string;
+  name: string;
+  quantityPerUnit: number;
+  quantity: number;
+  unit: string;
+  unitRate: number;
+  extendedCost: number;
+  isOptional: boolean;
+  alreadyOnLine: boolean;
+}
+
+/**
+ * What the library says this line is made of.
+ *
+ * A read that changes nothing, so a screen can show what *would* be added
+ * before any of it is. `assembly_components` has held the answer since
+ * migration 0004 — 8,142 rows in the shipped catalog — and until now nothing
+ * read them onto a line: an estimator picking "Mass excavation" got a
+ * production rate and an empty resource list, and rebuilt by hand what the
+ * library already knew.
+ */
+export const loadResourceSuggestions = (lineId: string): Query<ResourceSuggestion[]> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_line_resource_suggestions')
+      .select('resource_kind, resource_id, name, quantity_per_unit, quantity, unit,'
+        + ' unit_rate, extended_cost, is_optional, already_on_line')
+      .eq('line_item_id', lineId)) as unknown as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      kind: r.resource_kind as ResourceSuggestion['kind'],
+      resourceId: String(r.resource_id),
+      name: String(r.name ?? 'Unnamed'),
+      quantityPerUnit: Number(r.quantity_per_unit ?? 0),
+      quantity: Number(r.quantity ?? 0),
+      unit: String(r.unit ?? 'LS'),
+      unitRate: Number(r.unit_rate ?? 0),
+      extendedCost: Number(r.extended_cost ?? 0),
+      isOptional: Boolean(r.is_optional),
+      alreadyOnLine: Boolean(r.already_on_line),
+    }));
+  };
+
+/** Returns how many were written, not how many were offered. */
+export async function applyResourceSuggestions(
+  client: RpcCapable, lineId: string, kinds?: string[],
+): Promise<number> {
+  return rpc<number>(client, 'apply_line_resource_suggestions', {
+    p_line: lineId, p_kinds: kinds ?? null,
+  });
+}
+
+/**
+ * Price this line at a rate instead of building it up.
+ *
+ * The basis is required by the database and asked for here, because "Sub quote,
+ * Delaney Bros, 14 Aug" and "roughly what we got last year" are different
+ * numbers and an estimate that cannot tell them apart cannot be reviewed.
+ */
+export async function setLineUnitCost(
+  client: RpcCapable, lineId: string, rate: number, basis: string,
+): Promise<void> {
+  await rpc(client, 'set_line_unit_cost', {
+    p_line: lineId, p_rate: rate, p_basis: basis.trim(),
+  });
+}
+
+export async function clearLineUnitCost(client: RpcCapable, lineId: string): Promise<void> {
+  await rpc(client, 'clear_line_unit_cost', { p_line: lineId });
+}
+
+/**
+ * Save a typed line into the company's own library.
+ *
+ * Returns what the library now holds, including whether it is live: somebody
+ * with `libraries.approve` saves an approved service, somebody without saves a
+ * draft waiting for a reviewer. The screen says which, because "saved" and
+ * "saved and everybody can now find it" are different outcomes and the
+ * difference is not the estimator's to guess at.
+ */
+export async function saveLineToLibrary(
+  client: RpcCapable,
+  input: { lineId: string; category?: string | null; industry?: string | null },
+): Promise<{ id: string; code: string; name: string; status: string }> {
+  const row = await rpc<{ id: string; code: string; name: string; status: string }>(
+    client, 'save_line_to_library', {
+      p_line: input.lineId,
+      p_category: input.category?.trim() || null,
+      p_industry: input.industry?.trim() || null,
+    });
+  return row;
 }
 
 /**

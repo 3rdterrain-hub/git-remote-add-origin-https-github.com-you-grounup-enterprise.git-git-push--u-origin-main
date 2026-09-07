@@ -113,7 +113,16 @@ const BRITISH_RE = new RegExp(`\\b(?:${BRITISH_WORDS.join('|')})[a-z]*`, 'gi');
  * spelling, and reporting one as a misspelling is how a governance test starts
  * being ignored.
  */
-const NOT_BRITISH = new Set(['tyree']);
+const NOT_BRITISH = new Set([
+  'tyree',
+  /*
+   * `programme` is British; `programmed`, `programmer`, `programmers` and
+   * `programming` are correct American English that happen to contain it. The
+   * trailing `[a-z]*` cannot tell them apart, and a governance test that
+   * reports a correct word is one people learn to ignore.
+   */
+  'programmed', 'programmer', 'programmers', 'programming',
+]);
 
 function sourceFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {

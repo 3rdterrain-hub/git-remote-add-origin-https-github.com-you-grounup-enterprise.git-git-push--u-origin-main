@@ -16,24 +16,89 @@
  * so running this again is safe and is the normal way to pick up new trades.
  *
  * Usage:
- *   DATABASE_URL="postgresql://…" npm run seed:load
+ *   npm run seed:load
  *
- * The connection string is on the Supabase dashboard under
- * Project Settings → Database → Connection string → URI. Use the pooler on
- * port 6543 or the direct connection on 5432; both work.
+ * Nothing to paste. If the project has been linked — and it has, or `supabase
+ * db push` would not work — the CLI has already written the host, the user and
+ * the database name to `supabase/.temp/pooler-url`. This reads them and asks
+ * only for the database password, which is typed here and goes nowhere else.
+ *
+ * That is deliberate. Asking somebody to assemble a connection string by hand
+ * is asking them to get it wrong: the first two attempts at this failed on a
+ * pasted `postgresql://...`, and the third on a hostname copied out of an
+ * example. None of those is a mistake worth making twice, and the only part
+ * that genuinely has to come from a person is the password.
+ *
+ * `DATABASE_URL` still wins when it is set, for CI and for anybody pointing
+ * this at a database the CLI has never heard of.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createInterface } from 'node:readline';
 
-const SEED_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'supabase', 'seed');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const SEED_DIR = join(ROOT, 'supabase', 'seed');
+const POOLER = join(ROOT, 'supabase', '.temp', 'pooler-url');
 
-const url = process.env.DATABASE_URL;
+/**
+ * Ask for the password without echoing it.
+ *
+ * Not through an environment variable by default: an exported secret is in the
+ * shell's history and in the process list, and this runs once.
+ */
+async function askPassword(prompt) {
+  if (!process.stdin.isTTY) return null;
+  const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+  const wasMuted = rl.output;
+  rl._writeToOutput = function muted(text) {
+    if (text.startsWith(prompt)) wasMuted.write(text);
+  };
+  const answer = await new Promise((resolve) => rl.question(prompt, resolve));
+  rl.close();
+  process.stdout.write('\n');
+  return answer.trim() || null;
+}
+
+/** The connection the CLI already knows about, with a password put into it. */
+async function linkedConnection() {
+  let stored;
+  try {
+    stored = (await readFile(POOLER, 'utf8')).trim();
+  } catch {
+    return null;
+  }
+  if (!stored.startsWith('postgres')) return null;
+
+  const password = process.env.SUPABASE_DB_PASSWORD ?? await askPassword(
+    'Database password (Supabase dashboard → Project Settings → Database): ');
+  if (!password) return null;
+
+  const at = new URL(stored);
+  at.password = encodeURIComponent(password);
+  return at.toString();
+}
+
+let url = process.env.DATABASE_URL;
+if (url && /^postgres(ql)?:\/\/\.{3}|\baws-0-region\b/.test(url)) {
+  /*
+   * The two placeholders that have actually been pasted. Saying so beats
+   * `getaddrinfo ENOTFOUND ...`, which reads like a network fault.
+   */
+  console.error(
+    `DATABASE_URL is still a placeholder: ${url}\n\n`
+    + 'Unset it and run `npm run seed:load` on its own — the project is already\n'
+    + 'linked, so it will ask for the database password and nothing else.\n');
+  process.exit(1);
+}
+if (!url) url = await linkedConnection();
 if (!url) {
   console.error(
-    'Set DATABASE_URL first.\n\n'
-    + '  Supabase dashboard → Project Settings → Database → Connection string → URI\n\n'
-    + '  DATABASE_URL="postgresql://…" npm run seed:load\n');
+    'No database to load into.\n\n'
+    + '  Link the project once:  npx supabase link\n'
+    + '  then:                   npm run seed:load\n\n'
+    + 'Or set DATABASE_URL yourself, from the Supabase dashboard under\n'
+    + 'Project Settings → Database → Connection string → URI.\n');
   process.exit(1);
 }
 

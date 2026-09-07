@@ -93,8 +93,23 @@ describe('where a lead came from', () => {
       expect(err?.hint ?? '').toMatch(/add_library_category/);
     });
 
+    it('files an added source against the company, not the platform', async () => {
+      /*
+       * `app.add_library_category` takes the description third and the company
+       * fourth. Passing the company third files a platform row every tenant can
+       * see — which is what the first version of this test did, and it passed.
+       */
+      await as(`select app.add_library_category('lead_source', 'Home show', null, $1)`,
+        [company]);
+      const [r] = await as<{ company_id: string | null }>(
+        `select company_id from library_categories
+         where kind = 'lead_source' and name = 'Home show'`);
+      expect(r!.company_id).toBe(company);
+    });
+
     it('accepts one the company adds for itself', async () => {
-      await as(`select app.add_library_category('lead_source', 'Carrier pigeon', $1)`, [company]);
+      await as(`select app.add_library_category('lead_source', 'Carrier pigeon', null, $1)`,
+        [company]);
       const [r] = await as<{ id: string }>(
         `insert into leads (company_id, company_name, source)
          values ($1, 'Kirk Builders', 'Carrier pigeon') returning id`, [company]);

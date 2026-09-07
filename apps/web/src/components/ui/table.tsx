@@ -52,7 +52,12 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
 TableHead.displayName = 'TableHead';
 
 const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement>>(
-  ({ className, ...props }, ref) => <td ref={ref} className={cn('px-3 py-2.5 align-middle', className)} {...props} />,
+  ({ className, ...props }, ref) => /*
+     * Tighter than it was. An estimate is read down a column, and every extra
+     * pixel of row height is a line an estimator has to scroll past — the rows
+     * are the thing there are hundreds of, so they are the thing that pays.
+     */
+    <td ref={ref} className={cn('px-2.5 py-1.5 align-middle', className)} {...props} />,
 );
 TableCell.displayName = 'TableCell';
 

@@ -12,9 +12,16 @@
  * The line is only written when there is something to write — a row that
  * created an empty line the moment it appeared would fill an estimate with
  * blanks every time somebody pressed the plus and changed their mind.
+ *
+ * And when the library did not have it, the words can be kept. An estimator
+ * types "Haul and place 8 inch aggregate base" because nothing matched, wins
+ * the job, and types it again next month spelled differently — the platform
+ * learning nothing from the one person who knew. The offer appears only when
+ * the search actually came back empty, so it is never in the way of somebody
+ * who simply has not finished typing.
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, Library, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
@@ -22,8 +29,9 @@ import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
-import { searchServices, addLine, insertLineAfter, type LibraryService }
-  from '@/lib/data/estimates';
+import {
+  searchServices, addLine, insertLineAfter, saveLineToLibrary, type LibraryService,
+} from '@/lib/data/estimates';
 import { cn } from '@/lib/utils';
 
 export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }: {
@@ -43,6 +51,8 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
   const [cursor, setCursor] = useState(-1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [alsoSave, setAlsoSave] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
   const field = useRef<HTMLInputElement>(null);
 
   useEffect(() => { field.current?.focus(); }, []);
@@ -50,6 +60,15 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
   const services = useQuery(searchServices(term, null), [term]);
   const results = services.status === 'ready' ? services.data : [];
   const suggesting = !chosen && term.trim().length > 0 && results.length > 0;
+  /*
+   * The library was asked and had nothing. Not "still loading", and not "you
+   * have typed two letters" — three characters is what `save_line_to_library`
+   * itself requires of a name.
+   */
+  const nothingMatched = !chosen
+    && term.trim().length >= 3
+    && services.status === 'ready'
+    && results.length === 0;
 
   const choose = (s: LibraryService) => {
     setChosen(s); setTerm(s.name); setUnit(s.defaultUnit); setCursor(-1);
@@ -65,10 +84,27 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
         quantity,
         unit: unit || 'LS',
       };
-      if (afterLineId) {
-        await insertLineAfter(supabase, { afterLineId, ...fields });
-      } else {
-        await addLine(supabase, { versionId, ...fields });
+      const lineId = afterLineId
+        ? await insertLineAfter(supabase, { afterLineId, ...fields })
+        : await addLine(supabase, { versionId, ...fields });
+
+      /*
+       * The library comes second, deliberately. The line is what the estimator
+       * asked for; if saving to the library is refused — no permission, a name
+       * already taken — the line still exists and they are told why, rather
+       * than losing both.
+       */
+      if (alsoSave && !chosen && lineId) {
+        try {
+          const service = await saveLineToLibrary(supabase, { lineId });
+          setSaved(service.status === 'active'
+            ? `Saved to your library as ${service.code}.`
+            : `Saved to your library as ${service.code}, waiting for a reviewer.`);
+        } catch (err) {
+          setError(`The line was added. It was not saved to the library: ${messageFor(err)}`);
+          setBusy(false);
+          return;
+        }
       }
       onDone();
     } catch (err) {
@@ -166,8 +202,32 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
             <X className="size-4" />
           </button>
 
+          {/*
+            * Offered only once the library has actually answered with nothing.
+            * While a search is still running, or before anything is typed, an
+            * "add this to the library" control would be an accusation that the
+            * library is missing something nobody has looked for yet.
+            */}
+          {nothingMatched ? (
+            <label className="flex w-full items-center gap-2 text-xs text-charcoal-700">
+              <input
+                type="checkbox"
+                checked={alsoSave}
+                disabled={busy}
+                onChange={(e) => setAlsoSave(e.target.checked)}
+                className="size-3.5 rounded border-charcoal-300" />
+              <span className="flex items-center gap-1">
+                <Library className="size-3.5 text-charcoal-400" />
+                Nothing in the library matches. Save this to your own library too,
+                so it is here next time.
+              </span>
+            </label>
+          ) : null}
+
           {error ? (
             <p className="w-full text-xs text-danger-700">{error}</p>
+          ) : saved ? (
+            <p className="w-full text-xs text-ok-700">{saved}</p>
           ) : (
             <p className="w-full text-xs text-charcoal-500">
               Enter adds it and opens the next blank row. Escape closes this one.

@@ -10,7 +10,7 @@ export const PIPELINE_STAGES = [
   { key: 'splitting', label: 'Sheet split', detail: 'A plan set is split into individual sheets so a finding can cite one.' },
   { key: 'ocr', label: 'OCR', detail: 'Scanned sheets are made searchable; born-digital PDFs skip this.' },
   { key: 'classifying', label: 'Classification', detail: 'Each sheet is identified — plan, profile, detail, schedule, specification.' },
-  { key: 'extracting', label: 'Extraction', detail: 'Claude reads the sheets and proposes cited findings.' },
+  { key: 'extracting', label: 'Extraction', detail: 'AI reads the sheets and proposes cited findings.' },
   { key: 'indexing', label: 'Indexing', detail: 'Text is indexed for permission-filtered search.' },
 ] as const;
 

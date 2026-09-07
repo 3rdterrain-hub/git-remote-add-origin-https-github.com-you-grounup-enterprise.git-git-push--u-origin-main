@@ -97,6 +97,7 @@ const line = (over: Record<string, unknown> = {}) => ({
   unitCost: 4.25, totalDirectCost: 51_000, laborHours: 180, equipmentHours: 210,
   confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
   clientVisible: true, markupOverride: null, wastePercent: 0, productionModifier: 1,
+  parametricCostPerUnit: null, parametricBasis: null,
   ...over,
 });
 
@@ -140,13 +141,35 @@ describe('the estimate workspace', () => {
     expect(screen.getAllByText('$66,000.00').length).toBeGreaterThan(0);
   });
 
-  it('lets the estimator edit the quantity and nothing else on the line', async () => {
+  it('lets the estimator change the quantity, the unit and the unit cost on the line', async () => {
+    /*
+     * This used to assert the opposite — that the unit cost was the engine's
+     * and had no field. It is still the engine's *answer*; what changed is that
+     * an estimator holding a subcontract quote can say so on the line instead
+     * of opening a panel to find the control. The rate they type carries a
+     * stated basis, which is what keeps it reviewable.
+     */
     renderPage(<EstimateVersionPage />);
     await waitFor(() =>
       expect(screen.getByLabelText('Quantity for Mass excavation')).toBeInTheDocument());
-    // The unit cost and total are the engine's; there is no field for either.
-    expect(screen.queryByLabelText(/unit cost/i)).not.toBeInTheDocument();
-    expect(screen.getByText('$4.25')).toBeInTheDocument();
+    expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument();
+    expect(screen.getByLabelText('Unit cost for Mass excavation')).toBeInTheDocument();
+  });
+
+  it('leaves the total to the engine, with no field for it', async () => {
+    // The one number on the row nobody types: it is the sum of everything else.
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Quantity for Mass excavation')).toBeInTheDocument());
+    expect(screen.queryByLabelText(/^total for/i)).not.toBeInTheDocument();
+  });
+
+  it('says the unit cost was typed rather than computed', async () => {
+    hoisted.version = version({
+      lines: [line({ parametricCostPerUnit: 48250, parametricBasis: 'Sub quote, Delaney Bros' })],
+    });
+    renderPage(<EstimateVersionPage />);
+    expect(await screen.findByText('typed')).toBeInTheDocument();
   });
 
   it('will not approve a version with a line that has a quantity and no price', async () => {

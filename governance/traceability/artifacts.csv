@@ -277,6 +277,7 @@ TST-db-building-a-line,test,db/building-a-line.test.ts,tests/db/building-a-line.
 TST-db-building-an-estimate,test,db/building-an-estimate.test.ts,tests/db/building-an-estimate.test.ts,ENGINE
 TST-db-cash-and-wip,test,db/cash-and-wip.test.ts,tests/db/cash-and-wip.test.ts,ENGINE
 TST-db-categories,test,db/categories.test.ts,tests/db/categories.test.ts,ENGINE
+TST-db-changing-what-a-line-is,test,db/changing-what-a-line-is.test.ts,tests/db/changing-what-a-line-is.test.ts,ENGINE
 TST-db-churn,test,db/churn.test.ts,tests/db/churn.test.ts,ENGINE
 TST-db-commercial,test,db/commercial.test.ts,tests/db/commercial.test.ts,ENGINE
 TST-db-commitments,test,db/commitments.test.ts,tests/db/commitments.test.ts,ENGINE
@@ -284,6 +285,7 @@ TST-db-company-controls,test,db/company-controls.test.ts,tests/db/company-contro
 TST-db-custom-plans,test,db/custom-plans.test.ts,tests/db/custom-plans.test.ts,ENGINE
 TST-db-deleting-a-company,test,db/deleting-a-company.test.ts,tests/db/deleting-a-company.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
+TST-db-editable-templates,test,db/editable-templates.test.ts,tests/db/editable-templates.test.ts,ENGINE
 TST-db-email,test,db/email.test.ts,tests/db/email.test.ts,ENGINE
 TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.test.ts,ENGINE
 TST-db-estimate-hierarchy,test,db/estimate-hierarchy.test.ts,tests/db/estimate-hierarchy.test.ts,ENGINE
@@ -297,6 +299,7 @@ TST-db-fleet,test,db/fleet.test.ts,tests/db/fleet.test.ts,ENGINE
 TST-db-free-and-terms,test,db/free-and-terms.test.ts,tests/db/free-and-terms.test.ts,ENGINE
 TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
 TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
+TST-db-import-materials,test,db/import-materials.test.ts,tests/db/import-materials.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
 TST-db-lead-source,test,db/lead-source.test.ts,tests/db/lead-source.test.ts,ENGINE
@@ -328,6 +331,7 @@ TST-db-refunds,test,db/refunds.test.ts,tests/db/refunds.test.ts,ENGINE
 TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
 TST-db-safety-controls,test,db/safety-controls.test.ts,tests/db/safety-controls.test.ts,ENGINE
 TST-db-safety,test,db/safety.test.ts,tests/db/safety.test.ts,ENGINE
+TST-db-save-line-to-library,test,db/save-line-to-library.test.ts,tests/db/save-line-to-library.test.ts,ENGINE
 TST-db-scheduling,test,db/scheduling.test.ts,tests/db/scheduling.test.ts,ENGINE
 TST-db-schema-invariants,test,db/schema-invariants.test.ts,tests/db/schema-invariants.test.ts,ENGINE
 TST-db-seed,test,db/seed.test.ts,tests/db/seed.test.ts,ENGINE
@@ -345,6 +349,7 @@ TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
 TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/timecard-from-punches.test.ts,ENGINE
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
+TST-db-unit-cost-and-suggestions,test,db/unit-cost-and-suggestions.test.ts,tests/db/unit-cost-and-suggestions.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
@@ -358,16 +363,20 @@ TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENG
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
 TST-gov-rerunnable-migrations,test,gov/rerunnable-migrations.test.ts,tests/governance/rerunnable-migrations.test.ts,ENGINE
 TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
+TST-gov-the-product-does-not-name-the-model,test,gov/the-product-does-not-name-the-model.test.ts,tests/governance/the-product-does-not-name-the-model.test.ts,ENGINE
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
+TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE
 TST-web-markup-panel,test,web/markup-panel.test.tsx,apps/web/src/components/estimate/markup-panel.test.tsx,ENGINE
+TST-web-new-line-row,test,web/new-line-row.test.tsx,apps/web/src/components/estimate/new-line-row.test.tsx,ENGINE
 TST-web-plan-takeoff,test,web/plan-takeoff.test.tsx,apps/web/src/components/estimate/plan-takeoff.test.tsx,ENGINE
 TST-web-production-rate,test,web/production-rate.test.tsx,apps/web/src/components/estimate/production-rate.test.tsx,ENGINE
 TST-web-quantity-input,test,web/quantity-input.test.tsx,apps/web/src/components/estimate/quantity-input.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
+TST-web-unit-cost,test,web/unit-cost.test.tsx,apps/web/src/components/estimate/unit-cost.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-nav-names-the-screen,test,web/nav-names-the-screen.test.ts,apps/web/src/components/layout/nav-names-the-screen.test.ts,ENGINE

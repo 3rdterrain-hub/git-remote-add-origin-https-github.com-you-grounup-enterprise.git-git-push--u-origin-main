@@ -6,14 +6,14 @@
 |---|---:|---:|
 | Estimating engine (source + tests) | 47 | ~14,100 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (124 files, 167 tables, 77 views) | 124 | ~32,200 |
+| Database migrations (130 files, 167 tables, 81 views) | 130 | ~33,600 |
 | Edge Functions + shared modules | 60 | ~9,400 |
-| Database & function tests | 90 | ~24,200 |
-| Governance & traceability tests | 7 | ~3,000 |
-| Web application (48 routes, 29 app screens) | 200 | ~48,000 |
+| Database & function tests | 95 | ~25,700 |
+| Governance & traceability tests | 8 | ~3,100 |
+| Web application (48 routes, 29 app screens) | 206 | ~49,700 |
 | Documentation | 14 | ~5,400 |
-| Seed & tooling | 9 | ~2,400 |
-| **Total hand-written** | **559** | **~140,300** |
+| Seed & tooling | 10 | ~2,700 |
+| **Total hand-written** | **578** | **~145,500** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 3,552 tests, production build —
+drift checks, 3,718 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
 Engine        654 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database    1,626 tests   against real PostgreSQL 18 (PGlite)
+Database    1,740 tests   against real PostgreSQL 18 (PGlite)
 Functions     268 tests   billing, plan versioning, AI governance, API, observability
-Governance    265 tests   the five-category rule, traceability, verification, spelling, pipeline
-Web           682 tests   jsdom + Testing Library
+Governance    269 tests   the five-category rule, traceability, verification, spelling, pipeline
+Web           730 tests   jsdom + Testing Library
             ───────────
-            3,552 tests
+            3,718 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

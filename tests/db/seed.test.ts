@@ -6,7 +6,7 @@ import { createHarness, type Harness } from './harness.js';
 
 describe('global seed library loads into a real database', () => {
   let h: Harness;
-  beforeAll(async () => { h = await createHarness({ seed: true }); });
+  beforeAll(async () => { h = await createHarness({ seed: 'full' }); });
   afterAll(async () => { await h?.db.close(); });
 
   it('loads every catalog record from the governed v2.0 package', async () => {
@@ -24,15 +24,18 @@ describe('global seed library loads into a real database', () => {
         where company_id is null and code ~ '^SVC-[0-9]+$'
       union all select 'tasks', count(*)::int from tasks
         where company_id is null and code ~ '^TSK-[0-9]+$'
-      union all select 'labor_rates', count(*)::int from labor_rates where company_id is null
-      union all select 'equipment', count(*)::int from equipment where company_id is null
+      union all select 'labor_rates', count(*)::int from labor_rates
+        where company_id is null and source is null
+      union all select 'equipment', count(*)::int from equipment
+        where company_id is null and source is null
       union all select 'production_rates', count(*)::int from production_rates
         where company_id is null and code ~ '^PR-[0-9]+$'
       union all select 'assemblies', count(*)::int from assemblies
         where company_id is null and code ~ '^ASM-[0-9]+$'
       union all select 'condition_modifiers', count(*)::int from condition_modifiers where company_id is null
       union all select 'pricing_profiles', count(*)::int from pricing_profiles where company_id is null
-      union all select 'crews', count(*)::int from crews where company_id is null
+      union all select 'crews', count(*)::int from crews
+        where company_id is null and source is null
       order by 1`);
     const map = Object.fromEntries(counts.map((r) => [r.t, r.c]));
     expect(map).toEqual({
@@ -46,6 +49,214 @@ describe('global seed library loads into a real database', () => {
       services: 188,
       tasks: 2783,
     });
+  });
+
+  it('ships the trades the service catalog already covers', async () => {
+    /*
+     * The catalog has held 857 services across electrical, plumbing, HVAC,
+     * roofing and drywall since v2.0, and the only equipment, labor and crews
+     * beside them were heavy civil. An estimator could find "install branch
+     * circuit wiring" and then had no electrician to put on it.
+     */
+    const counts = await h.sql<{ t: string; c: number }>(`
+      select 'equipment' t, count(*)::int c from equipment
+        where company_id is null and source like 'GrounUp trades pack%'
+      union all select 'labor_rates', count(*)::int from labor_rates
+        where company_id is null and source like 'GrounUp trades pack%'
+      union all select 'crews', count(*)::int from crews
+        where company_id is null and source like 'GrounUp trades pack%'
+      order by 1`);
+    const map = Object.fromEntries(counts.map((r) => [r.t, r.c]));
+    expect(map.equipment).toBeGreaterThanOrEqual(40);
+    expect(map.labor_rates).toBeGreaterThanOrEqual(40);
+    expect(map.crews).toBeGreaterThanOrEqual(30);
+  });
+
+  it('gives every trade crew somebody to put on it', async () => {
+    // A crew with no members prices at nothing and looks like it worked.
+    const [empty] = await h.sql<{ names: string | null }>(`
+      select string_agg(c.name, ', ') as names
+      from crews c
+      where c.company_id is null
+        and not exists (select 1 from crew_members m where m.crew_id = c.id)`);
+    expect(empty!.names).toBeNull();
+  });
+
+  it('gives every machine in a priced pack a rate, or it prices at nothing', async () => {
+    /*
+     * Scoped to the packs that claim rates. The resource catalog deliberately
+     * ships none — see the test below — and folding the two together would mean
+     * neither said anything.
+     */
+    const [unrated] = await h.sql<{ names: string | null }>(`
+      select string_agg(e.name, ', ') as names
+      from equipment e
+      where e.company_id is null
+        and coalesce(e.source, '') not like 'GrounUp resource catalog%'
+        and not exists (select 1 from equipment_rates r where r.equipment_id = e.id)`);
+    expect(unrated!.names).toBeNull();
+  });
+
+  it('ships the resource catalog unrated, and says so rather than writing a zero', async () => {
+    /*
+     * The catalog arrived with no rates at all, which is the ordinary state of
+     * a resource list. Loading it is right — an estimator who can find a
+     * hydraulic conduit bender and see that it needs a rate is ahead of one who
+     * cannot find it. Writing 0.00 to make the library look complete is the one
+     * thing that would make it dangerous: a machine that prices at nothing
+     * still lets the line total.
+     */
+    const [caught] = await h.sql<{ total: number; unrated: number; zero_rated: number }>(`
+      select
+        count(*)::int as total,
+        count(*) filter (where app.equipment_rate_state(e.id) = 'unrated')::int as unrated,
+        count(*) filter (where exists (
+          select 1 from equipment_rates r
+          where r.equipment_id = e.id and r.hourly_rate = 0))::int as zero_rated
+      from equipment e
+      where e.company_id is null and e.source like 'GrounUp resource catalog%'`);
+    expect(caught!.total).toBeGreaterThanOrEqual(180);
+    expect(caught!.unrated).toBe(caught!.total);
+    expect(caught!.zero_rated).toBe(0);
+  });
+
+  it('lists every unrated machine where somebody will find it', async () => {
+    const [seen] = await h.sql<{ n: number }>(`
+      select count(*)::int as n from my_unrated_equipment where rate_state = 'unrated'`);
+    expect(seen!.n).toBeGreaterThanOrEqual(180);
+  });
+
+  it('keeps the brand and model the catalog stated', async () => {
+    const [m] = await h.sql<{ name: string; brand: string; model: string }>(`
+      select name, brand, model from equipment
+      where company_id is null and brand = 'Bobcat' and model = 'T76'`);
+    expect(m!.name).toBe('Compact Track Loader — Bobcat T76');
+  });
+
+  it('keeps what each machine is used on, which is the link to the work', async () => {
+    const [m] = await h.sql<{ groups: string[] }>(`
+      select service_groups as groups from equipment
+      where company_id is null and source like 'GrounUp resource catalog%'
+        and array_length(service_groups, 1) > 0 limit 1`);
+    expect(m!.groups.length).toBeGreaterThan(0);
+  });
+
+  it('never files a branded machine under the same name as its class', async () => {
+    // 49 names appeared more than once in the file; none may survive as a clash.
+    const clashes = await h.sql<{ name: string }>(`
+      select name from equipment where company_id is null
+      group by name having count(*) > 1`);
+    expect(clashes.map((c) => c.name)).toEqual([]);
+  });
+
+  it('covers the trades by name rather than by count', async () => {
+    const [r] = await h.sql<{ found: string }>(`
+      select string_agg(distinct d.trade, ', ' order by d.trade) as found
+      from (values ('Electrical'),('Plumbing'),('HVAC'),('Roofing'),('Finishes'),
+                   ('Carpentry'),('Masonry'),('Steel'),('Concrete'),('Envelope')) as d(trade)
+      where exists (select 1 from crews c
+                    where c.company_id is null and c.discipline = d.trade)`);
+    expect(r!.found).toBe(
+      'Carpentry, Concrete, Electrical, Envelope, Finishes, HVAC, Masonry, Plumbing, Roofing, Steel');
+  });
+
+  it('ships nineteen sequences saying what order the work happens in', async () => {
+    /*
+     * The library had thousands of tasks and nothing saying that forms go up
+     * before the pour. These are the first real work breakdowns in it.
+     */
+    const [t] = await h.sql<{ templates: number; steps: number }>(`
+      select
+        (select count(*)::int from assemblies
+          where company_id is null and source like 'GrounUp task templates%') as templates,
+        (select count(*)::int from assembly_components ac
+          join assemblies a on a.id = ac.assembly_id
+         where a.company_id is null and a.source like 'GrounUp task templates%') as steps`);
+    expect(t!.templates).toBe(19);
+    expect(t!.steps).toBeGreaterThanOrEqual(160);
+  });
+
+  it('gives every template an unbroken sequence, with no step number used twice', async () => {
+    /*
+     * The defect in the file this came from: ten of the nineteen held two
+     * generations of the same sequence merged together, sharing steps 1 to 4.
+     * A concrete estimate would have carried "Layout" twice.
+     */
+    const clashes = await h.sql<{ name: string }>(`
+      select a.name
+      from assemblies a
+      join assembly_components ac on ac.assembly_id = a.id
+      where a.company_id is null and a.source like 'GrounUp task templates%'
+      group by a.id, a.name, ac.sort_order
+      having count(*) > 1`);
+    expect(clashes.map((c) => c.name)).toEqual([]);
+  });
+
+  it('invents no production rate for a step that never had one', async () => {
+    // 19 of 161 steps carried a rate. The other 142 carry none, not a placeholder.
+    const [r] = await h.sql<{ rated: number }>(`
+      select count(*)::int as rated
+      from production_rates
+      where company_id is null and source like 'GrounUp task templates%'`);
+    expect(r!.rated).toBeLessThanOrEqual(25);
+    expect(r!.rated).toBeGreaterThan(0);
+  });
+
+  it('brings the product master in with a cost code on every service', async () => {
+    /*
+     * A service with no cost code cannot reach a budget, which is most of what
+     * a service is for once the job is won. The file carries a CSI division on
+     * every row; those became 28 cost codes and every service rolls up to one.
+     */
+    const [r] = await h.sql<{ total: number; coded: number; divisions: number }>(`
+      select
+        count(*)::int as total,
+        count(*) filter (where cost_code_id is not null)::int as coded,
+        (select count(*)::int from cost_codes
+          where company_id is null and code like 'CC-CSI-%') as divisions
+      from services where company_id is null and source like 'GrounUp product master%'`);
+    expect(r!.total).toBeGreaterThanOrEqual(1900);
+    expect(r!.coded).toBe(r!.total);
+    expect(r!.divisions).toBe(28);
+  });
+
+  it('gives most of the product master a work sequence, and lists the rest', async () => {
+    /*
+     * 1,494 of the 1,959 reference one of the nineteen sequences from seed
+     * 0006, so they arrive knowing the order the work happens in. The other 465
+     * reference templates the task library did not contain. The gap belongs on
+     * a list somebody works through, not in a bid.
+     */
+    const [r] = await h.sql<{ linked: number; bare: number; listed: number }>(`
+      select
+        count(*) filter (where default_assembly_id is not null)::int as linked,
+        count(*) filter (where default_assembly_id is null)::int as bare,
+        (select count(*)::int from my_services_without_a_breakdown) as listed
+      from services where company_id is null and source like 'GrounUp product master%'`);
+    expect(r!.linked).toBeGreaterThanOrEqual(1400);
+    expect(r!.listed).toBeGreaterThanOrEqual(r!.bare);
+  });
+
+  it('invents no production rate and no confidence for the product master', async () => {
+    /*
+     * The file gave all 2,062 rows a rate drawn from nine values, and assigned
+     * 1,361 of them "medium-high" confidence. A confidence score is a claim
+     * about how well something is known, and RULE-010 exists to stop the
+     * platform making that claim about its own placeholders.
+     */
+    const [r] = await h.sql<{ rates: number }>(`
+      select count(*)::int as rates from production_rates
+      where company_id is null and source like 'GrounUp product master%'`);
+    expect(r!.rates).toBe(0);
+  });
+
+  it('leaves one service per name across the whole shipped library', async () => {
+    // "no duplicates through the whole system".
+    const clashes = await h.sql<{ name: string; n: number }>(`
+      select name, count(*)::int as n from services
+      where company_id is null and status = 'active'
+      group by lower(btrim(name)) , name having count(*) > 1 order by 2 desc limit 10`);
+    expect(clashes.map((c) => `${c.name} ×${c.n}`)).toEqual([]);
   });
 
   it('computes the burdened labor rate as a generated column', async () => {
@@ -62,11 +273,27 @@ describe('global seed library loads into a real database', () => {
   });
 
   it('links assemblies to their services and back again', async () => {
+    /*
+     * Scoped past the task templates, which are trade-level on purpose. "Concrete
+     * Template" is the order concrete work happens in and belongs to no single
+     * service; pointing it at one would be inventing a link to satisfy a test.
+     */
     const [row] = await h.sql<{ unlinked: number }>(
-      `select count(*)::int unlinked from assemblies where company_id is null and service_id is null`);
+      `select count(*)::int unlinked from assemblies
+       where company_id is null and service_id is null
+         and coalesce(source, '') not like 'GrounUp task templates%'`);
     expect(row!.unlinked).toBe(0);
+    /*
+     * Scoped past the product master. 465 of its services reference work
+     * sequences the task library did not contain — mostly landscaping — and
+     * carry no breakdown. They are still worth having as named, CSI-coded
+     * services somebody can build up by hand, and the test below holds them to
+     * being listed rather than lost.
+     */
     const [svc] = await h.sql<{ without_default: number }>(
-      `select count(*)::int without_default from services where company_id is null and default_assembly_id is null`);
+      `select count(*)::int without_default from services
+       where company_id is null and default_assembly_id is null
+         and coalesce(source, '') not like 'GrounUp product master%'`);
     expect(svc!.without_default).toBe(0);
   });
 
@@ -88,16 +315,19 @@ describe('global seed library loads into a real database', () => {
      */
     const [row] = await h.sql<{ services: number; with_tasks: number; with_rates: number }>(
       `select (select count(*)::int from services
-                where company_id is null and status = 'active') as services,
+                where company_id is null and status = 'active'
+                  and coalesce(source, '') not like 'GrounUp product master%') as services,
               (select count(distinct s.id)::int from services s
                  join assembly_components ac on ac.assembly_id = s.default_assembly_id
                   and ac.component_kind = 'task'
-                where s.company_id is null and s.status = 'active') as with_tasks,
+                where s.company_id is null and s.status = 'active'
+                  and coalesce(s.source, '') not like 'GrounUp product master%') as with_tasks,
               (select count(distinct s.id)::int from services s
                  join assembly_components ac on ac.assembly_id = s.default_assembly_id
                   and ac.component_kind = 'task'
                  join production_rates pr on pr.task_id = ac.task_id and pr.status = 'active'
-                where s.company_id is null and s.status = 'active') as with_rates`);
+                where s.company_id is null and s.status = 'active'
+                  and coalesce(s.source, '') not like 'GrounUp product master%') as with_rates`);
     expect(row!.services).toBeGreaterThanOrEqual(188);
     expect(row!.with_tasks, 'a service with no tasks cannot be priced').toBe(row!.services);
     expect(row!.with_rates, 'a service with no production rate prices at zero').toBe(row!.services);
@@ -293,7 +523,7 @@ describe('global seed library loads into a real database', () => {
 describe('the seed can be applied twice', () => {
   let h: Harness;
 
-  beforeAll(async () => { h = await createHarness({ seed: true }); }, 180_000);
+  beforeAll(async () => { h = await createHarness({ seed: 'full' }); }, 180_000);
   afterAll(async () => { await h?.db.close(); });
 
   it('replays every seed file without error', async () => {

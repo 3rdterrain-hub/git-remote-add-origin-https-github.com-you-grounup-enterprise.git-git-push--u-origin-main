@@ -2,7 +2,7 @@
   "name": "grounup-enterprise",
   "version": "1.0.0",
   "private": true,
-  "description": "GrounUp Enterprise — AI-powered construction operating system",
+  "description": "GrounUp Enterprise \u2014 AI-powered construction operating system",
   "type": "module",
   "workspaces": [
     "packages/pdf",
@@ -39,7 +39,8 @@
     "typecheck": "npm run typecheck -w @grounup/engine && npm run typecheck -w @grounup/pdf && tsc -p apps/web/tsconfig.app.json --noEmit && tsc -p supabase/functions/tsconfig.json",
     "verification": "node scripts/build-verification.mjs",
     "verification:check": "node scripts/build-verification.mjs --check",
-    "verify": "npm run typecheck && npm run engine:edge:check && npm run openapi:check && npm run schema:check && npm run verification:check && npm run traceability:check && npm run test && npm run counts:check && npm run build && npm run bundle:check"
+    "verify": "npm run typecheck && npm run engine:edge:check && npm run openapi:check && npm run schema:check && npm run verification:check && npm run traceability:check && npm run test && npm run counts:check && npm run build && npm run bundle:check",
+    "materials:import": "node tools/import-materials.mjs"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

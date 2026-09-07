@@ -35,7 +35,33 @@ export async function listMigrations(): Promise<string[]> {
   return files.filter((f) => f.endsWith('.sql')).sort();
 }
 
-export async function createHarness(opts: { seed?: boolean } = {}): Promise<Harness> {
+/**
+ * Which seed files a test needs.
+ *
+ * `true` loads the governed v2.0 catalog and the plan catalog — the two every
+ * test that needs a library has ever needed. `'full'` loads every pack as well:
+ * the trades library, the resource catalog, the task templates and the product
+ * master.
+ *
+ * The split exists because the packs made the suite four times slower. Each of
+ * the 83 database tests builds its own PostgreSQL and replays every seed into
+ * it; adding two thousand services took a file from 66 seconds to 110, and the
+ * whole gate from forty minutes to two and a half hours. Almost none of those
+ * tests reads a service the packs added. The ones that do ask for them.
+ */
+export type SeedScope = boolean | 'full';
+
+/*
+ * Everything the suite loaded before the packs existed: the governed catalog,
+ * the plan catalog, and the example Stripe price wiring three billing tests
+ * read. Narrowing this by one file is how a seed split quietly changes what a
+ * test is standing on.
+ */
+const CORE_SEEDS = /^000[123]_/;
+
+export async function createHarness(
+  opts: { seed?: SeedScope } = {},
+): Promise<Harness> {
   // The same three extensions the production migration enables. Loading them
   // here is what lets the migrations run byte-identical against PGlite and
   // against a hosted Supabase project.
@@ -52,7 +78,11 @@ export async function createHarness(opts: { seed?: boolean } = {}): Promise<Harn
   }
 
   if (opts.seed) {
-    for (const file of (await readdir(SEED_DIR)).filter((f) => f.endsWith('.sql')).sort()) {
+    const wanted = (await readdir(SEED_DIR))
+      .filter((f) => f.endsWith('.sql'))
+      .filter((f) => opts.seed === 'full' || CORE_SEEDS.test(f))
+      .sort();
+    for (const file of wanted) {
       const sql = await readFile(join(SEED_DIR, file), 'utf8');
       try {
         await db.exec(sql);

@@ -146,7 +146,7 @@ export function PlanTakeoffPanel({ versionId, estimateId, companyId, editable, o
       title={<span className="flex items-center gap-2">
         <Sparkles className="size-4 text-charcoal-500" /> Quantities from the plans
       </span>}
-      description="Upload the bid set and Claude reads it for scope, quantities and conflicts between sheets. Nothing it finds reaches this estimate until you accept it, and it never computes a cost — every price here is the engine's."
+      description="Upload the bid set and AI reads it for scope, quantities and conflicts between sheets. Nothing it finds reaches this estimate until you accept it, and it never computes a cost — every price here is the engine's."
       summary={docs.length === 0
         ? 'nothing uploaded'
         : `${docs.length} document${docs.length === 1 ? '' : 's'}`
@@ -187,7 +187,7 @@ export function PlanTakeoffPanel({ versionId, estimateId, companyId, editable, o
 
         {documents.status === 'ready' && docs.length === 0 ? (
           <EmptyState title="No plans uploaded yet"
-            hint="Upload the bid set and Claude will read it for scope, quantities and anything the sheets disagree about." />
+            hint="Upload the bid set and AI will read it for scope, quantities and anything the sheets disagree about." />
         ) : null}
 
         {docs.length > 0 ? (
