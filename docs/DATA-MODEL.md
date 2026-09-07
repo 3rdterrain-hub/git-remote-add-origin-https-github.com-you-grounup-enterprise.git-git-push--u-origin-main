@@ -1,7 +1,8 @@
 # Data model
 
-69 tables across 12 ordered migrations. Every business table carries `company_id`
-and is isolated by row level security.
+167 tables across 123 ordered migrations. The table below covers the twelve that
+lay the foundation; every migration after them extends it. Every business table
+carries `company_id` and is isolated by row level security.
 
 ---
 

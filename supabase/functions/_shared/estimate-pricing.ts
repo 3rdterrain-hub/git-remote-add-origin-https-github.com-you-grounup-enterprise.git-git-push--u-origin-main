@@ -79,6 +79,8 @@ export interface EquipmentRow {
 
 export interface MaterialRow {
   id: string; name: string; unit: string; unit_cost: Num;
+  cost_state?: 'not_costed' | 'estimated' | 'quoted' | 'free' | null;
+  free_reason?: string | null;
   vendor_id: string | null; quote_reference: string | null;
 }
 
@@ -523,6 +525,12 @@ function toMaterial(r: ResourceRow, problems: PricingProblem[]): MaterialRequire
     unit: r.unit ?? m?.unit ?? 'EA',
     unitCost,
     ...(m?.quote_reference ? { quoteReference: m.quote_reference } : {}),
+    /*
+     * Carried so the engine can tell "nobody has costed this" from "the owner
+     * supplies it". Both are zero, and only one of them should be quiet.
+     */
+    ...(m?.cost_state ? { costState: m.cost_state } : {}),
+    ...(m?.free_reason ? { freeReason: m.free_reason } : {}),
   };
 }
 

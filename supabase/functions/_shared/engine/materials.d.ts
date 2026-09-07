@@ -43,6 +43,17 @@ export interface MaterialInput {
     unitsPerLoad?: number;
     /** Sales or use tax on the material, as a fraction. */
     taxPercent?: number;
+    /**
+     * Whether a zero price means "nobody has costed this" or "it is free".
+     *
+     * The difference cannot be read off the number, and the number is the same
+     * either way, so the library has to say. Absent, an uncosted material is
+     * assumed rather than a free one — the assumption that costs somebody money
+     * is the one worth making loudly.
+     */
+    costState?: 'not_costed' | 'estimated' | 'quoted' | 'free';
+    /** Why a material is free, when it is. Stated so a reviewer can check it. */
+    freeReason?: string;
     /** A quoted price is firmer than a catalog price, and the estimate should say which. */
     source?: 'vendor_quote' | 'company_price' | 'regional_average' | 'catalog_seed';
     quoteExpiresOn?: string;

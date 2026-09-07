@@ -98,6 +98,17 @@ function sweep(): Violation[] {
         out.push({ file, statement: 'add constraint', name: m[1]! });
       }
     }
+    /*
+     * `create type` has no `if not exists` in PostgreSQL, and a type cannot be
+     * dropped first while columns depend on it. The only re-runnable form is a
+     * block that swallows `duplicate_object` — which is why this looks for the
+     * absence of a `create type` at statement level rather than for a guard
+     * keyword. Sixteen enums, fifteen of them in the very first migration, were
+     * one interrupted push away from the same dead end migration 0103 reached.
+     */
+    for (const m of low.matchAll(/(?:^|;)\s*create type\s+(?:app\.)?([a-z_]+)/g)) {
+      out.push({ file, statement: 'create type', name: m[1]! });
+    }
   }
   return out;
 }
@@ -124,6 +135,11 @@ describe('every migration survives being run twice', () => {
 
   it('adds no constraint without first dropping the one it replaces', () => {
     const bad = sweep().filter((o) => o.statement === 'add constraint');
+    expect(bad.map((o) => `${o.file}: ${o.name}`)).toEqual([]);
+  });
+
+  it('creates no type outside a block that tolerates it already existing', () => {
+    const bad = sweep().filter((o) => o.statement === 'create type');
     expect(bad.map((o) => `${o.file}: ${o.name}`)).toEqual([]);
   });
 

@@ -15,6 +15,10 @@ const hoisted = vi.hoisted(() => ({
   configured: true,
   bids: [] as unknown[],
   proposals: [] as unknown[],
+  who: { firstName: 'Tyree', fullName: 'Tyree Myers', email: 't@r.test',
+         companyName: 'Ridgeline Excavating' } as {
+           firstName: string | null; fullName: string | null;
+           email: string | null; companyName: string | null },
   weather: [] as unknown[],
   weatherFails: null as string | null,
   money: null as unknown,
@@ -40,9 +44,15 @@ vi.mock('@/lib/data/preferences', async () => {
   };
 });
 
-vi.mock('@/lib/data/session', () => ({
-  usePermissions: () => ({ can: () => true, loading: false }),
-}));
+vi.mock('@/lib/data/session', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/data/session')>(
+    '@/lib/data/session');
+  return {
+    ...actual,
+    usePermissions: () => ({ can: () => true, loading: false }),
+    loadWhoAmI: async () => hoisted.who,
+  };
+});
 
 vi.mock('@/lib/data/project-view', async () => {
   const actual = await vi.importActual<typeof import('./../../lib/data/project-view')>(
@@ -238,4 +248,79 @@ describe('the dashboard', () => {
     renderPage(<DashboardLivePage />);
     await waitFor(() => expect(screen.getByText('Nothing has a date on it')).toBeInTheDocument());
   });
+
+  // -------------------------------------------------------------------------
+  describe('what a person meets when they sign in', () => {
+    it('is called what the navigation calls it', async () => {
+      /*
+       * The heading is the name of the screen, not a salutation. Somebody who
+       * clicks "Dashboard" has to land somewhere that says "Dashboard" — the
+       * greeting reads underneath it, where it costs nobody an inference.
+       */
+      renderPage(<DashboardLivePage />);
+      expect(await screen.findByRole('heading', { level: 1, name: 'Dashboard' }))
+        .toBeInTheDocument();
+    });
+
+    it('greets them by name, with the company they are in', async () => {
+      renderPage(<DashboardLivePage />);
+      expect(await screen.findByText(/Good (morning|afternoon|evening), Tyree/))
+        .toBeInTheDocument();
+      expect(screen.getByText(/Ridgeline Excavating/)).toBeInTheDocument();
+    });
+
+    it('greets without a name rather than greeting a null', async () => {
+      /*
+       * A person who signed up with no profile name still deserves a sentence
+       * that reads properly. "Good morning, null" is the failure this guards.
+       */
+      hoisted.who = { firstName: null, fullName: null, email: null, companyName: null };
+      renderPage(<DashboardLivePage />);
+      const line = await screen.findByText(/^Good (morning|afternoon|evening)$/);
+      expect(line).toBeInTheDocument();
+      expect(line.textContent).not.toMatch(/null|undefined|,\s*$/);
+    });
+
+    it("says today's weather in the greeting, not behind a tab", async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      hoisted.weather = [{
+        day: today, highF: 62, lowF: 44, precipInches: 0, precipChance: 10,
+        summary: 'Partly cloudy', workable: true, lostReason: null,
+      }];
+      renderPage(<DashboardLivePage />);
+      expect(await screen.findByText(/Partly cloudy, 62°\/44° — workable/)).toBeInTheDocument();
+    });
+
+    it('says why a day is not workable rather than only that it is not', async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      hoisted.weather = [{
+        day: today, highF: 41, lowF: 33, precipInches: 0.8, precipChance: 90,
+        summary: 'Rain', workable: false, lostReason: 'Rain over half an inch',
+      }];
+      renderPage(<DashboardLivePage />);
+      expect(await screen.findByText(/Rain, 41°\/33° — Rain over half an inch/))
+        .toBeInTheDocument();
+    });
+
+    it('counts the workable days in the week beside it', async () => {
+      const day = (i: number) =>
+        new Date(Date.now() + i * 86_400_000).toISOString().slice(0, 10);
+      hoisted.weather = Array.from({ length: 7 }, (_, i) => ({
+        day: i === 0 ? new Date().toISOString().slice(0, 10) : day(i),
+        highF: 60, lowF: 40, precipInches: i < 2 ? 0.5 : 0, precipChance: 50,
+        summary: i < 2 ? 'Rain' : 'Clear', workable: i >= 2,
+        lostReason: i < 2 ? 'Rain' : null,
+      }));
+      renderPage(<DashboardLivePage />);
+      expect(await screen.findByText(/5 of 7 days workable this week/)).toBeInTheDocument();
+    });
+
+    it('says nothing about weather when there is no forecast', async () => {
+      hoisted.weather = [];
+      renderPage(<DashboardLivePage />);
+      await screen.findByText(/Good (morning|afternoon|evening)/);
+      expect(screen.queryByText(/days workable this week/)).not.toBeInTheDocument();
+    });
+  });
+
 });

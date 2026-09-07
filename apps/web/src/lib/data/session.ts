@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 /**
  * Who the caller is, and what they may do.
  *
@@ -18,6 +20,7 @@
 import { unwrap, type Query } from './query';
 import { useQuery } from './query';
 import { USER } from '@/data/demo';
+import { loadMyCompanyId } from './estimates';
 
 export interface Session {
   permissions: string[];
@@ -397,4 +400,119 @@ export async function dismissNotification(
 ): Promise<void> {
   const { error } = await client.rpc('dismiss_notification', { p_notification: id });
   if (error) throw new Error(error.message);
+}
+
+// ---------------------------------------------------------------------------
+// Whether anybody is signed in
+// ---------------------------------------------------------------------------
+
+export type AuthState = 'checking' | 'signed-in' | 'signed-out';
+
+/**
+ * Whether there is a session, watched rather than sampled.
+ *
+ * Signed out, every query behind `/app` fails with *permission denied* — which
+ * is row level security working exactly as intended, and a terrible thing to
+ * show somebody. The application rendered its whole shell around those errors
+ * and left a person reading "permission denied for table estimates" when the
+ * honest answer was "sign in".
+ *
+ * `onAuthStateChange` rather than a single `getSession`, so signing out in one
+ * tab moves the other one too, and an expired token does not leave somebody
+ * clicking a workspace that will refuse everything.
+ */
+export function useAuthState(): AuthState {
+  const [state, setState] = useState<AuthState>(
+    isSupabaseConfigured ? 'checking' : 'signed-out');
+
+  useEffect(() => {
+    if (!supabase) return;
+    let alive = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setState(data.session ? 'signed-in' : 'signed-out');
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (alive) setState(session ? 'signed-in' : 'signed-out');
+    });
+
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  return state;
+}
+
+// ---------------------------------------------------------------------------
+// Who is signed in
+// ---------------------------------------------------------------------------
+
+export interface WhoAmI {
+  /** What to call them. A first name if there is one, otherwise the email local part. */
+  firstName: string | null;
+  fullName: string | null;
+  email: string | null;
+  companyName: string | null;
+}
+
+/**
+ * The person and the company, for a screen that greets rather than reports.
+ *
+ * The name is not decoration. A workspace that opens on four figures and no
+ * acknowledgment of who opened it reads like a report somebody left running;
+ * a person arriving at seven in the morning to price a bid should be met by
+ * name and told what the day looks like.
+ *
+ * Falls back through full name, then the local part of the email, then nothing
+ * — and a greeting with no name is written to read properly without one rather
+ * than saying "Good morning, null".
+ */
+export const loadWhoAmI: Query<WhoAmI> = async (client) => {
+  const { data: { user } } = await client.auth.getUser();
+  const rows = unwrap(await client
+    .from('my_companies')
+    .select('name')
+    .limit(1)) as Array<{ name: string }>;
+
+  const profile = unwrap(await client
+    .from('user_profiles')
+    .select('full_name, email')
+    .limit(1)) as Array<{ full_name: string | null; email: string | null }>;
+
+  const fullName = profile[0]?.full_name?.trim() || null;
+  const email = profile[0]?.email ?? user?.email ?? null;
+  const firstName = fullName
+    ? fullName.split(/\s+/)[0]!
+    : (email ? email.split('@')[0]!.replace(/[._-]+/g, ' ').trim() || null : null);
+
+  return {
+    firstName: firstName && firstName.length > 1 ? firstName : null,
+    fullName,
+    email,
+    companyName: rows[0]?.name ?? null,
+  };
+};
+
+/** Morning, afternoon or evening, from the reader's own clock. */
+export function greeting(now = new Date()): string {
+  const h = now.getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/**
+ * The company the caller is working in, as a hook.
+ *
+ * Thin on purpose: the answer comes from `loadMyCompanyId`, which is where the
+ * rule about two memberships being a question rather than a default lives. A
+ * second implementation of "which company am I in" is exactly the kind of thing
+ * that ends up disagreeing with the first one.
+ */
+export function useCompanyId(): { companyId: string | null; loading: boolean } {
+  const q = useQuery(loadMyCompanyId, []);
+  return {
+    companyId: q.status === 'ready' ? q.data : null,
+    loading: q.status === 'loading',
+  };
 }

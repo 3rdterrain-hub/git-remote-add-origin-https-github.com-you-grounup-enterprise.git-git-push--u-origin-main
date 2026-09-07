@@ -80,7 +80,7 @@ export function BillingPage() {
       ) : null}
 
       <PageHeader
-        title="Subscription & Billing"
+        title="Billing & Subscription"
         description="Payment is handled entirely by Stripe. GrounUp stores the customer and subscription identifiers, the plan, the status and the period — never a card number."
         actions={
           <>

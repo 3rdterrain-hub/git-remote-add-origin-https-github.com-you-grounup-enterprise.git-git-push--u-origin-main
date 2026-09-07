@@ -626,27 +626,62 @@ describe('the estimate workspace', () => {
   });
 
   // -------------------------------------------------------------------------
-  describe('every control this row has, in one place', () => {
-    it('keeps the wrench, the plus, the eye and the remove together', async () => {
+  describe('where each control sits on the row', () => {
+    it('puts the plus first, then the handle, then the line', async () => {
+      /*
+       * The plus is what an estimator reaches for most while building a bid, so
+       * it takes the position the eye lands on when it enters a row. The handle
+       * follows it, because a drag handle still has to be near the row's start
+       * to be findable.
+       */
+      hoisted.version = version({
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      const plus = await screen.findByRole('button',
+        { name: /add a line under Strip and stockpile topsoil/i });
+      const grip = screen.getByRole('button',
+        { name: /drag to reorder Strip and stockpile topsoil/i });
+      const cell = plus.closest('td')!;
+      expect(cell).toContainElement(grip);
+      expect(cell.compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(plus.compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('puts the wrench between what the line is and how much of it there is', async () => {
       hoisted.version = version({
         lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
       });
       renderPage(<EstimateVersionPage />);
       const wrench = await screen.findByRole('button',
         { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i });
+      const quantity = screen.getByLabelText(/quantity for Strip and stockpile topsoil/i);
+
+      // Its own cell, after the description and before the quantity.
       const cell = wrench.closest('td')!;
-      /*
-       * One cluster, so an estimator's eye travels once. The grip stays at the
-       * start of the row because a drag handle has to be where the row begins.
-       */
-      for (const name of [
-        /add a line under Strip and stockpile topsoil/i,
-        /(hide|show) Strip and stockpile topsoil (from|on) the proposal/i,
-        /^Remove Strip and stockpile topsoil$/i,
-      ]) {
-        expect(within(cell).getByRole('button', { name })).toBeInTheDocument();
-      }
-      expect(within(cell).queryByRole('button', { name: /drag to reorder/i })).toBeNull();
+      expect(cell).not.toContainElement(quantity);
+      expect(wrench.compareDocumentPosition(quantity) & Node.DOCUMENT_POSITION_FOLLOWING)
+        .toBeTruthy();
+      /* The hours card lower down lists descriptions too, so anchor on the
+         row's own drag handle rather than on the text. */
+      const grip = screen.getByRole('button',
+        { name: /drag to reorder Strip and stockpile topsoil/i });
+      expect(grip.compareDocumentPosition(wrench) & Node.DOCUMENT_POSITION_FOLLOWING)
+        .toBeTruthy();
+    });
+
+    it('leaves the eye and the remove at the end, where a decision about the row goes', async () => {
+      hoisted.version = version({
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      const remove = await screen.findByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i });
+      const cell = remove.closest('td')!;
+      expect(within(cell).getByRole('button',
+        { name: /(hide|show) Strip and stockpile topsoil (from|on) the proposal/i }))
+        .toBeInTheDocument();
+      expect(within(cell).queryByRole('button', { name: /add a line under/i })).toBeNull();
     });
   });
 

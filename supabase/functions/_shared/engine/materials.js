@@ -65,6 +65,24 @@ export function calculateMaterialCost(input) {
     const surplusQuantity = qty(orderedQuantity - input.netQuantity);
     const materialCost = money(orderedQuantity * input.unitCost);
     parts.push(`${orderedQuantity} ${input.unit} x ${money(input.unitCost)}/${input.unit} = ${materialCost} material`);
+    /*
+     * A material at zero contributes nothing and looks exactly like a material
+     * that was priced. That is the most expensive silence available to an
+     * estimating engine: the line prices, the estimate totals, the bid goes out,
+     * and the material is bought at whatever it actually costs.
+     *
+     * The engine cannot tell "nobody has costed this" from "the owner supplies
+     * it", so it does not try. It says the number is zero and that somebody has
+     * to mean it, and `costState` is how a library says which — an explicitly
+     * free material is stated rather than inferred from an empty field.
+     */
+    if (input.unitCost === 0 && input.netQuantity > 0) {
+        warnings.push(input.costState === 'free'
+            ? `${input.name} is priced at zero on purpose (${input.freeReason ?? 'recorded as supplied at no cost'}), `
+                + 'so it adds nothing to this line.'
+            : `${input.name} has no cost in the library, so it adds nothing to this line. `
+                + `${orderedQuantity} ${input.unit} will still be bought.`);
+    }
     let freightCost = 0;
     switch (freightBasis) {
         case 'included':

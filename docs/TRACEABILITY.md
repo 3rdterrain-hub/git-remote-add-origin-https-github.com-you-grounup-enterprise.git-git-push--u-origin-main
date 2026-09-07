@@ -23,7 +23,7 @@ and architectural place, no screens) · ✗ not built
 | Pricing CTA routing to the Stripe flow | ✅ | → `/pricing` → Edge Function |
 | Footer: Product, Company, Support, Privacy, Terms, Login | ✅ | |
 | Supabase structure ready for auth, data, storage, Stripe | ✅ | 12 migrations, 5 functions |
-| Expandable to the full architecture without restructuring | ✅ | 69 tables already in place |
+| Expandable to the full architecture without restructuring | ✅ | 167 tables already in place |
 
 ---
 
@@ -74,7 +74,7 @@ and architectural place, no screens) · ✗ not built
 |---|---|
 | React + Tailwind + shadcn/ui | React 19, Tailwind 4, shadcn/ui on Radix |
 | Supabase backend | 12 migrations, RLS throughout |
-| PostgreSQL via Supabase | 69 tables, tested on PostgreSQL 18 |
+| PostgreSQL via Supabase | 167 tables, tested on PostgreSQL 18 |
 | Email/password via Supabase Auth | ✅ |
 | Supabase Storage | buckets and policies in the runbook; only paths stored in rows |
 | RLS with tenant isolation and RBAC | ✅ 50 tests |

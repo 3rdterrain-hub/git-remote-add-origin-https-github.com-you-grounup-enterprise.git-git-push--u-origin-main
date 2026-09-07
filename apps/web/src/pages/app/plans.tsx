@@ -43,7 +43,7 @@ export function PlansPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Plans & Specifications"
+        title="Plans & Specs"
         description="Upload the document set, let the agents read it, then approve what enters the estimate. Every AI claim cites the sheet or specification section it came from."
         actions={<Button><FileUp className="size-4" /> Upload documents</Button>}
       />

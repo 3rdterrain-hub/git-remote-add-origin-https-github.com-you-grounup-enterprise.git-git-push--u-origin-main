@@ -48,6 +48,18 @@ vi.mock('@/lib/data/workforce', async () => {
 
 const { WorkforcePage } = await import('./workforce');
 
+/**
+ * Open the timecard tab.
+ *
+ * The screen opens on the time clock now — punching is what somebody is here to
+ * do at 6:41 in the morning, and approving a week is not. Radix renders only
+ * the active tab, so a test about timecards has to click its way there, the way
+ * a person would.
+ */
+async function openTimecards() {
+  await userEvent.click(await screen.findByRole('tab', { name: /Time & attendance/ }));
+}
+
 const entry = {
   id: 't-1', employeeName: 'Ray Delgado', workDate: '2026-09-01', project: 'PRJ-2026-011',
   costCode: 'CC-0340', straight: 8, overtime: 1.5, doubletime: 0,
@@ -66,6 +78,7 @@ describe('the workforce page', () => {
 
   it('approves a timecard through the database', async () => {
     renderPage(<WorkforcePage />);
+    await openTimecards();
     await waitFor(() => expect(screen.getAllByText('Ray Delgado').length).toBeGreaterThan(0));
     await userEvent.click(screen.getAllByText('Approve')[0]!);
     await waitFor(() => expect(hoisted.approved).toEqual(['t-1']));
@@ -79,6 +92,7 @@ describe('the workforce page', () => {
      */
     hoisted.approveError = 'new row violates row-level security policy';
     renderPage(<WorkforcePage />);
+    await openTimecards();
     await waitFor(() => expect(screen.getAllByText('Ray Delgado').length).toBeGreaterThan(0));
     await userEvent.click(screen.getAllByText('Approve')[0]!);
     await waitFor(() =>
@@ -93,6 +107,7 @@ describe('the workforce page', () => {
       finding: 'hours reported not on a timecard',
     }];
     renderPage(<WorkforcePage />);
+    await openTimecards();
     await waitFor(() =>
       expect(screen.getByText('hours reported not on a timecard')).toBeInTheDocument());
     expect(screen.getByText('+8.0')).toBeInTheDocument();
@@ -101,6 +116,7 @@ describe('the workforce page', () => {
   it('says nothing when the two agree', async () => {
     // A list of days that agree is a list nobody reads.
     renderPage(<WorkforcePage />);
+    await openTimecards();
     await waitFor(() => expect(screen.getAllByText('Ray Delgado').length).toBeGreaterThan(0));
     expect(screen.queryByText('Daily report against timecards')).not.toBeInTheDocument();
   });
@@ -114,8 +130,20 @@ describe('the workforce page', () => {
      */
     hoisted.canApprove = false;
     renderPage(<WorkforcePage />);
+    await openTimecards();
     await waitFor(() => expect(screen.getAllByText('Ray Delgado').length).toBeGreaterThan(0));
     expect(screen.queryByText('Approve')).not.toBeInTheDocument();
+  });
+
+  it('opens on the time clock, because that is what the crew is here for', async () => {
+    /*
+     * The tab order is a claim about who this screen is for. Approving a week
+     * is an office task done once; punching in is done by everybody, daily, on
+     * a phone, standing up.
+     */
+    renderPage(<WorkforcePage />);
+    expect(await screen.findByRole('tab', { name: 'Time clock' }))
+      .toHaveAttribute('data-state', 'active');
   });
 
   it('labels the page when there is no workspace behind it', async () => {

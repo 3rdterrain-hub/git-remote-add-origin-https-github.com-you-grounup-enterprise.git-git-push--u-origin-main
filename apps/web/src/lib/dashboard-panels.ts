@@ -48,6 +48,12 @@ export const PANELS: readonly PanelDefinition[] = [
     tab: 'Today', permission: 'estimates.read', defaultOn: true, width: 'full',
   },
   {
+    key: 'clock',
+    title: 'Your clock',
+    blurb: 'Clock in and out, and see who else is on the clock. The punches your timecard is posted from.',
+    tab: 'Today', permission: 'projects.read', defaultOn: true, width: 'half',
+  },
+  {
     key: 'weather',
     title: 'The week ahead',
     blurb: "The forecast for your yard, with a workable verdict per day. It feeds the calendar efficiency an estimate is priced with.",

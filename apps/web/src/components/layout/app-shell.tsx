@@ -19,6 +19,7 @@ import { useQuery } from '@/lib/data/query';
 import {
   loadMemberships, loadMySuspension, loadMyPaymentProblem, loadMyAnnouncements,
   dismissAnnouncement, loadMyNotifications, markNotificationRead,
+  useAuthState,
 } from '@/lib/data/session';
 import {
   loadNavPreference, applyNavOrder, DEFAULT_NAV, type NavPreference,
@@ -91,6 +92,17 @@ const ADMIN_NAV: ReadonlyArray<{
 ];
 
 export function AppShell() {
+  /*
+   * Signed out, every query behind this shell fails with *permission denied* —
+   * row level security working exactly as intended, and the worst possible
+   * thing to render. The shell used to draw itself around those errors and
+   * leave somebody reading "permission denied for table estimates" when the
+   * honest answer was "sign in". Where they were going is carried along, so
+   * signing in returns them to it rather than to the dashboard.
+   */
+  const auth = useAuthState();
+  const here = useLocation();
+
   /*
    * A signed-in person with no company sees an empty screen on every route,
    * because row level security correctly returns nothing to somebody who
@@ -212,6 +224,18 @@ export function AppShell() {
     setQuery('');
     navigate(hit.path);
   };
+
+  if (auth === 'checking') {
+    return (
+      <div className="flex min-h-full items-center justify-center" role="status" aria-live="polite">
+        <span className="size-6 animate-spin rounded-full border-2 border-charcoal-200 border-t-yellow-500" />
+        <span className="sr-only">Checking your session</span>
+      </div>
+    );
+  }
+  if (auth === 'signed-out') {
+    return <Navigate to="/login" replace state={{ from: here.pathname + here.search }} />;
+  }
 
   if (memberships.status === 'loading') {
     return (

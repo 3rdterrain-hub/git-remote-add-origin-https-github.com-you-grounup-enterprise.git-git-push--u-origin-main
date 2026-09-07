@@ -71,6 +71,34 @@
 @layer base {
   * { border-color: var(--color-charcoal-200); }
 
+  /*
+   * Tailwind's reset leaves a button with the default arrow cursor, which is
+   * technically the modern convention and practically a lie: on a dense screen
+   * the pointer is how somebody finds out a thing is pressable without pressing
+   * it. Every control that responds to a click says so on hover.
+   *
+   * `:disabled` is deliberately excluded — a pointer over a control that will
+   * not respond is the same lie in the other direction.
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label:has(input[type="checkbox"]:not(:disabled)),
+  label:has(input[type="radio"]:not(:disabled)),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  select:not(:disabled),
+  a[href] {
+    cursor: pointer;
+  }
+
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="option"],
+  [role="switch"]:not(:disabled),
+  [role="menuitem"] {
+    cursor: pointer;
+  }
+
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
   body {

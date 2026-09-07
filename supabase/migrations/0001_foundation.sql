@@ -22,55 +22,100 @@ grant usage on schema app to authenticated, service_role;
 -- Shared enums
 -- -----------------------------------------------------------------------------
 
-create type app.record_status as enum ('draft', 'active', 'inactive', 'archived', 'retired');
+do $type$ begin
+  create type app.record_status as enum ('draft', 'active', 'inactive', 'archived', 'retired');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.approval_state as enum ('not_required', 'pending', 'approved', 'rejected', 'withdrawn');
+do $type$ begin
+  create type app.approval_state as enum ('not_required', 'pending', 'approved', 'rejected', 'withdrawn');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.confidence_band as enum ('verified', 'strong', 'reliable', 'assumption', 'uncertain', 'do_not_price');
+do $type$ begin
+  create type app.confidence_band as enum ('verified', 'strong', 'reliable', 'assumption', 'uncertain', 'do_not_price');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.approval_gate as enum ('auto_accept', 'estimator_review', 'senior_review', 'rfi_required');
+do $type$ begin
+  create type app.approval_gate as enum ('auto_accept', 'estimator_review', 'senior_review', 'rfi_required');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.verification_status as enum (
-  'verified', 'high_confidence', 'moderate_confidence', 'low_confidence', 'do_not_price'
-);
+do $type$ begin
+  create type app.verification_status as enum (
+    'verified', 'high_confidence', 'moderate_confidence', 'low_confidence', 'do_not_price'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.measurement_method as enum (
-  'explicit_dimension', 'verified_scale', 'approximate_scale', 'calculated',
-  'derived', 'schedule_quantity', 'owner_quantity', 'estimator_allowance'
-);
+do $type$ begin
+  create type app.measurement_method as enum (
+    'explicit_dimension', 'verified_scale', 'approximate_scale', 'calculated',
+    'derived', 'schedule_quantity', 'owner_quantity', 'estimator_allowance'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.production_source as enum (
-  'company_actual', 'company_historical', 'regional_benchmark',
-  'seed_benchmark', 'manufacturer', 'estimator_judgment'
-);
+do $type$ begin
+  create type app.production_source as enum (
+    'company_actual', 'company_historical', 'regional_benchmark',
+    'seed_benchmark', 'manufacturer', 'estimator_judgment'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.rate_source as enum ('project_quote', 'tenant_approved', 'regional', 'global_seed');
+do $type$ begin
+  create type app.rate_source as enum ('project_quote', 'tenant_approved', 'regional', 'global_seed');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.markup_method as enum ('parallel', 'stacked');
+do $type$ begin
+  create type app.markup_method as enum ('parallel', 'stacked');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.estimate_status as enum (
-  'draft', 'in_review', 'approved', 'issued', 'awarded', 'lost', 'archived'
-);
+do $type$ begin
+  create type app.estimate_status as enum (
+    'draft', 'in_review', 'approved', 'issued', 'awarded', 'lost', 'archived'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.unit_code as enum (
-  'LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB', 'MO', 'WK'
-);
+do $type$ begin
+  create type app.unit_code as enum (
+    'LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB', 'MO', 'WK'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.volume_state as enum ('BCY', 'LCY', 'CCY');
+do $type$ begin
+  create type app.volume_state as enum ('BCY', 'LCY', 'CCY');
+exception when duplicate_object then null;
+end $type$;
 
-create type app.modifier_target as enum (
-  'production', 'labor_cost', 'equipment_cost', 'material_cost',
-  'trucking_cost', 'disposal_cost', 'indirect_cost', 'schedule', 'risk'
-);
+do $type$ begin
+  create type app.modifier_target as enum (
+    'production', 'labor_cost', 'equipment_cost', 'material_cost',
+    'trucking_cost', 'disposal_cost', 'indirect_cost', 'schedule', 'risk'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.subscription_status as enum (
-  'trialing', 'active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'unpaid', 'paused'
-);
+do $type$ begin
+  create type app.subscription_status as enum (
+    'trialing', 'active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'unpaid', 'paused'
+  );
+exception when duplicate_object then null;
+end $type$;
 
-create type app.audit_action as enum (
-  'insert', 'update', 'delete', 'approve', 'reject', 'issue', 'award',
-  'login', 'permission_change', 'export', 'ai_suggestion', 'ai_accepted', 'ai_rejected'
-);
+do $type$ begin
+  create type app.audit_action as enum (
+    'insert', 'update', 'delete', 'approve', 'reject', 'issue', 'award',
+    'login', 'permission_change', 'export', 'ai_suggestion', 'ai_accepted', 'ai_rejected'
+  );
+exception when duplicate_object then null;
+end $type$;
 
 -- -----------------------------------------------------------------------------
 -- Shared trigger functions

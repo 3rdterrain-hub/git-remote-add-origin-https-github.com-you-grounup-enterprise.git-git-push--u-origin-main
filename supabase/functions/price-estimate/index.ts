@@ -72,7 +72,7 @@ const RESOURCE_SELECT =
   'operator_required, mobilization_required, mobilization_cost, ' +
   'equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, ' +
   'effective_date, expires_on, reference)), ' +
-  'materials(id, name, unit, unit_cost, vendor_id, quote_reference), ' +
+  'materials(id, name, unit, unit_cost, cost_state, free_reason, vendor_id, quote_reference), ' +
   'labor_rates(id, classification, labor_group, base_wage_per_hour, burden_percent, ' +
   'overtime_multiplier, doubletime_multiplier, region, effective_date, status)';
 

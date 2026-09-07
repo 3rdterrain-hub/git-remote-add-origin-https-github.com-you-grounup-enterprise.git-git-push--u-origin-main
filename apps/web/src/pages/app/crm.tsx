@@ -34,7 +34,7 @@ function DemonstrationCrm() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="CRM & Customers"
+        title="Customers & CRM"
         description="The pipeline that feeds estimating. A lost job must record why it was lost — win/loss analysis is worthless without it, and it is the input to the next bid strategy."
         actions={<Button><UserPlus className="size-4" /> Add customer</Button>}
       />

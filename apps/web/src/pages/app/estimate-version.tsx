@@ -599,6 +599,7 @@ function LineTable({
             <TableHead className="w-8" />
             <TableHead>Line</TableHead>
             <TableHead>Cost code</TableHead>
+            <TableHead className="w-8"><span className="sr-only">Build-up</span></TableHead>
             <TableHead className="text-right">Quantity</TableHead>
             <TableHead>Unit</TableHead>
             <TableHead className="text-right">Unit cost</TableHead>
@@ -617,7 +618,7 @@ function LineTable({
             <TableRow className="hover:bg-transparent"
               onDragOver={(e) => { e.preventDefault(); setOver('__top__'); }}
               onDrop={(e) => { e.preventDefault(); void drop(null); }}>
-              <TableCell colSpan={9}
+              <TableCell colSpan={10}
                 className={cn('py-1 text-center text-xs',
                   over === '__top__'
                     ? 'bg-yellow-50 text-yellow-800'
@@ -646,20 +647,36 @@ function LineTable({
                     * estimator's eye travels once rather than across the table
                     * and back.
                     */}
+                  {/*
+                    * Add first, then the handle. The plus is the control an
+                    * estimator reaches for most while building a bid, so it
+                    * gets the position the eye lands on when it enters a row.
+                    */}
                   <TableCell className="align-top">
                     {editable ? (
-                      <span
-                        draggable
-                        onDragStart={() => setDragging(l.id)}
-                        onDragEnd={() => { setDragging(null); setOver(null); }}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`Drag to reorder ${l.description}`}
-                        title="Drag to reorder"
-                        className="inline-flex cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
-                      >
-                        <GripVertical className="size-4" />
-                      </span>
+                      <div className="flex items-center gap-0.5">
+                        {onAddAfter ? (
+                          <button onClick={() => onAddAfter(l.id)}
+                            aria-label={`Add a line under ${l.description}`}
+                            title="Add a line under this one"
+                            className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
+                                       hover:text-charcoal-900">
+                            <Plus className="size-4" />
+                          </button>
+                        ) : null}
+                        <span
+                          draggable
+                          onDragStart={() => setDragging(l.id)}
+                          onDragEnd={() => { setDragging(null); setOver(null); }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Drag to reorder ${l.description}`}
+                          title="Drag to reorder"
+                          className="inline-flex cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
+                        >
+                          <GripVertical className="size-4" />
+                        </span>
+                      </div>
                     ) : null}
                   </TableCell>
                   <TableCell>
@@ -681,6 +698,28 @@ function LineTable({
                   </TableCell>
                   <TableCell className="text-xs text-charcoal-600">
                     {l.costCode ?? <span className="text-charcoal-400">—</span>}
+                  </TableCell>
+                  {/*
+                    * The wrench sits between what the line is and how much of
+                    * it there is — the point in the row where somebody stops
+                    * reading the description and starts asking what it is
+                    * built from.
+                    */}
+                  <TableCell className="w-8 align-top">
+                    <button
+                      onClick={() => setOpen((o) =>
+                        o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
+                      aria-label={expanded
+                        ? `Hide the crew, equipment, material and haul on ${l.description}`
+                        : `Crew, equipment, material and haul on ${l.description}`}
+                      title="Crew, equipment, material and haul"
+                      aria-expanded={expanded}
+                      className={cn(
+                        'rounded p-1 hover:bg-charcoal-100 hover:text-charcoal-900',
+                        expanded ? 'bg-charcoal-100 text-charcoal-900' : 'text-charcoal-400',
+                      )}>
+                      <Wrench className="size-4" />
+                    </button>
                   </TableCell>
                   <TableCell className="text-right">
                     {editable ? (
@@ -735,34 +774,7 @@ function LineTable({
                         : l.confidenceBand === 'high' ? 'success' : 'warn'}>
                         {titleCase(l.confidenceBand)}
                       </Badge>
-                      {/*
-                        * Everything this row can do, together: what it is built
-                        * from, a line under it, whether the customer sees it,
-                        * and taking it off.
-                        */}
-                      <button
-                        onClick={() => setOpen((o) =>
-                          o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
-                        aria-label={expanded
-                          ? `Hide the crew, equipment, material and haul on ${l.description}`
-                          : `Crew, equipment, material and haul on ${l.description}`}
-                        title="Crew, equipment, material and haul"
-                        aria-expanded={expanded}
-                        className={cn(
-                          'rounded p-1 hover:bg-charcoal-100 hover:text-charcoal-900',
-                          expanded ? 'bg-charcoal-100 text-charcoal-900' : 'text-charcoal-400',
-                        )}>
-                        <Wrench className="size-3.5" />
-                      </button>
-                      {editable && onAddAfter ? (
-                        <button onClick={() => onAddAfter(l.id)}
-                          aria-label={`Add a line under ${l.description}`}
-                          title="Add a line under this one"
-                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
-                                     hover:text-charcoal-900">
-                          <Plus className="size-3.5" />
-                        </button>
-                      ) : null}
+                      {/* What is left at the end: disclosure, and removal. */}
                       {editable ? (
                         <button onClick={() => toggleVisible(l)}
                           aria-label={l.clientVisible
@@ -807,14 +819,14 @@ function LineTable({
 
                 {expanded ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={9} className="p-0">
+                    <TableCell colSpan={10} className="p-0">
                       <LineDetail line={l} editable={editable} onChanged={onChanged} />
                     </TableCell>
                   </TableRow>
                 ) : null}
 
                 {blankAfter === l.id && versionId ? (
-                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={9}
+                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={10}
                     onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
                 ) : null}
               </Fragment>
@@ -822,13 +834,13 @@ function LineTable({
           })}
 
           {blankAfter === '' && versionId ? (
-            <NewLineRow versionId={versionId} afterLineId={null} columns={9}
+            <NewLineRow versionId={versionId} afterLineId={null} columns={10}
               onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
           ) : null}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={7} className="font-medium">
+            <TableCell colSpan={8} className="font-medium">
               Direct cost
               {hiddenByFilter > 0 ? (
                 <span className="ml-1.5 font-normal text-charcoal-500">

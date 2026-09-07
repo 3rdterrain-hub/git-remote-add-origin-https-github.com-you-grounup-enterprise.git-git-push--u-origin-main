@@ -106,6 +106,15 @@ const SINGLE_L = /\b(?:fulfil|enrol|instil|distil|appal|annul(?=\b))(?!l)/gi;
 
 const BRITISH_RE = new RegExp(`\\b(?:${BRITISH_WORDS.join('|')})[a-z]*`, 'gi');
 
+/*
+ * Words the trailing `[a-z]*` sweeps up that are not the British word at all.
+ * The suffix is what makes "colour" catch "colours" and "colouring"; it also
+ * makes "tyre" catch "Tyree", which is a person's name. A name is not a
+ * spelling, and reporting one as a misspelling is how a governance test starts
+ * being ignored.
+ */
+const NOT_BRITISH = new Set(['tyree']);
+
 function sourceFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (SKIP_DIRS.has(entry.name)) continue;
@@ -144,7 +153,9 @@ function scan(): Hit[] {
         if (!isAllowedIse(word)) record(m[0]);
       }
       for (const m of line.matchAll(YSE_FAMILY)) record(m[0]);
-      for (const m of line.matchAll(BRITISH_RE)) record(m[0]);
+      for (const m of line.matchAll(BRITISH_RE)) {
+        if (!NOT_BRITISH.has(m[0].toLowerCase())) record(m[0]);
+      }
       for (const m of line.matchAll(SINGLE_L)) record(m[0]);
     });
   }

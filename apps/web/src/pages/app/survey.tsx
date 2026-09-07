@@ -97,7 +97,7 @@ export function SurveyPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Survey & Machine Control"
+        title="Survey & Grade Control"
         description="A drone flight or a rover survey becomes a quantity here. The volume comes from the same deterministic engine that prices the work, so a measured yard and an estimated yard are the same yard."
         actions={
           <>

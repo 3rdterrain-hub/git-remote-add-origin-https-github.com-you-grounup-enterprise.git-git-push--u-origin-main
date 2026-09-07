@@ -15,6 +15,7 @@ import { money, moneyCompact, percent, integer, dateTime, relativeDays, qty, plu
 import { GateBadge, ConfidencePill } from '@/components/estimating';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { DashboardLivePage } from './dashboard-live';
+import { greeting } from '@/lib/data/session';
 
 /**
  * With a workspace configured this shows what is actually due, waiting and
@@ -42,11 +43,18 @@ function DemonstrationDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Good morning, ${USER.name.split(' ')[0]}`}
+        title="Dashboard"
         description={
+          <span className="space-y-1">
+            <span className="block font-medium text-charcoal-800">
+              {greeting()}, {USER.name.split(' ')[0]} · sample workspace
+            </span>
+            <span className="block">{
           `${plural(activeProjects.length, 'active project')}, ` +
           `${plural(OPPORTUNITIES.filter((o) => o.stage === 'estimating').length, 'estimate')} in progress, and ` +
           `${plural(openRfis.length, 'unanswered RFI')} holding up pricing.`
+            }</span>
+          </span>
         }
         actions={
           <>

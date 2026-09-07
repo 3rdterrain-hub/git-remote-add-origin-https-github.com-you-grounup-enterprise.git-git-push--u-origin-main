@@ -14,10 +14,10 @@
  */
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowRight, CalendarClock, Calculator, CircleDollarSign,
+  AlarmClock, AlertTriangle, ArrowRight, CalendarClock, Calculator, CircleDollarSign,
   CloudRain, HardHat, LayoutGrid, Loader2, RefreshCw, Send, Sun,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ import { Alert } from '@/components/ui/misc';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { callFunction } from '@/lib/supabase';
-import { usePermissions } from '@/lib/data/session';
+import { usePermissions, loadWhoAmI, greeting } from '@/lib/data/session';
 import {
   loadDueBids, loadAwaitingAnswer, loadWeather, loadMoney, refreshWeather,
   type DueBid, type WeatherDay, type AwaitingAnswer,
@@ -43,6 +43,7 @@ import {
   DASHBOARD_TABS, DEFAULT_DASHBOARD, visiblePanels, type DashboardPreference,
 } from '@/lib/dashboard-panels';
 import { loadDashboardPreference } from '@/lib/data/preferences';
+import { PunchCard } from '@/components/workforce/time-clock';
 import { money, moneyCompact, date, integer, percent, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +59,11 @@ export function DashboardLivePage() {
    * The arrangement is this person's, read once and held locally so saving it
    * does not make the whole dashboard flicker while every panel refetches.
    */
+  const whoQ = useQuery(loadWhoAmI, []);
+  const myCompany = useQuery(loadMyCompanyId, []);
+  const companyId = myCompany.status === 'ready' ? myCompany.data : null;
+  const who = whoQ.status === 'ready' ? whoQ.data : null;
+
   const prefQ = useQuery(loadDashboardPreference, []);
   const [preference, setPreference] = useState<DashboardPreference>(DEFAULT_DASHBOARD);
   const [arranging, setArranging] = useState(false);
@@ -71,6 +77,8 @@ export function DashboardLivePage() {
   const cash = moneyQ.status === 'ready' ? moneyQ.data : null;
   const rates = variance.status === 'ready' ? variance.data : [];
 
+  const today = forecast.find((d) => d.day === new Date().toISOString().slice(0, 10))
+    ?? forecast[0] ?? null;
   const thisWeek = dueBids.filter((b) => b.daysAway <= 7);
   const overdue = dueBids.filter((b) => b.daysAway < 0);
   const blocked = dueBids.filter((b) => b.blockedFromIssue && b.priced);
@@ -78,6 +86,23 @@ export function DashboardLivePage() {
   const lapsed = proposals.filter((p) => p.lapsed);
 
   const loading = [bids, awaiting, moneyQ].some((q) => q.status === 'loading');
+
+  /*
+   * The forecast fetches itself. Asking somebody to press a button for their
+   * own weather every morning is asking them to do the platform's work — and
+   * the function caches for three hours, so a page load is not an external
+   * request. It only tries once per visit, and only when there is nothing
+   * cached: a company with no address configured should see the reason, not a
+   * request retrying forever.
+   */
+  const fetchedOnce = useRef(false);
+  useEffect(() => {
+    if (fetchedOnce.current) return;
+    if (weather.status !== 'ready' || weather.data.length > 0) return;
+    if (!companyId) return;
+    fetchedOnce.current = true;
+    refreshWeather(callFunction, companyId).then(() => weather.refetch()).catch(() => {});
+  }, [weather.status, weather.status === 'ready' ? weather.data.length : 0, companyId]);
 
   const panels = visiblePanels(preference, can);
   const tabsInUse = DASHBOARD_TABS.filter((t) => panels.some((p) => p.tab === t));
@@ -90,6 +115,25 @@ export function DashboardLivePage() {
   const renderPanel = (key: string) => {
     switch (key) {
       case 'due': return <DuePanel bids={dueBids} state={bids.status} />;
+      case 'clock': return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlarmClock className="size-4 text-charcoal-500" /> Your clock
+            </CardTitle>
+            <CardDescription>
+              <Link to="/app/workforce" className="hover:text-charcoal-900">
+                Who is on the clock →
+              </Link>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {companyId
+              ? <PunchCard companyId={companyId} compact />
+              : <LoadingState label="Finding your company" />}
+          </CardContent>
+        </Card>
+      );
       case 'weather': return (
         <div className="space-y-6">
           <WeatherCard days={forecast} state={weather.status}
@@ -112,13 +156,49 @@ export function DashboardLivePage() {
 
   return (
     <div className="space-y-6">
+      {/*
+        * Named for the thing in the navigation that leads here. A person who
+        * clicks "Dashboard" and arrives at a page called "Today" has to work
+        * out whether they are in the right place, which is a small tax charged
+        * on every single visit. The greeting is still worth saying — it just is
+        * not the name of the screen, so it moves down a line.
+        */}
       <PageHeader
-        title="Today"
+        title="Dashboard"
         description={
-          loading ? 'Reading your workspace…'
-          : `${plural(thisWeek.length, 'bid')} due inside a week, `
-            + `${plural(proposals.length, 'proposal')} waiting on a customer, `
-            + `${plural(cash?.activeProjects ?? 0, 'active project')}.`
+          <span className="space-y-1">
+            <span className="block font-medium text-charcoal-800">
+              {who?.firstName ? `${greeting()}, ${who.firstName}` : greeting()}
+              {who?.companyName ? ` · ${who.companyName}` : ''}
+            </span>
+            <span className="block">
+              {loading ? 'Reading your workspace…'
+                : `${plural(thisWeek.length, 'bid')} due inside a week, `
+                  + `${plural(proposals.length, 'proposal')} waiting on a customer, `
+                  + `${plural(cash?.activeProjects ?? 0, 'active project')}.`}
+            </span>
+            {/*
+              * Today's weather, in the sentence rather than behind a tab. It is
+              * the first thing a contractor checks and the platform already
+              * knows it — a forecast filed under a heading somebody has to find
+              * is a forecast they will keep reading on their phone instead.
+              */}
+            {today ? (
+              <span className="block text-charcoal-600">
+                {today.workable
+                  ? <><Sun className="mr-1 inline size-3.5 text-warn-600" />
+                      {today.summary}, {Math.round(today.highF ?? 0)}°/{Math.round(today.lowF ?? 0)}° — workable</>
+                  : <><CloudRain className="mr-1 inline size-3.5 text-info-600" />
+                      {today.summary}, {Math.round(today.highF ?? 0)}°/{Math.round(today.lowF ?? 0)}° — {today.lostReason ?? 'not workable'}</>}
+                {forecast.length > 0 ? (
+                  <span className="text-charcoal-500">
+                    {' '}· {forecast.filter((d) => d.workable).length} of {forecast.length}{' '}
+                    days workable this week
+                  </span>
+                ) : null}
+              </span>
+            ) : null}
+          </span>
         }
         actions={
           <>

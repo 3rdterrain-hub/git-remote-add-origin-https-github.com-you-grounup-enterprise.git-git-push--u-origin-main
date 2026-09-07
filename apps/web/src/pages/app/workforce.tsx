@@ -18,9 +18,16 @@ import {
 } from '@/lib/data/workforce';
 import { money, percent, qty, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { usePermissions } from '@/lib/data/session';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { TimeClockSection } from '@/components/workforce/time-clock';
+import { loadTimeClock, duration as clockDuration } from '@/lib/data/time-clock';
 
 export function WorkforcePage() {
+  const { companyId } = useCompanyId();
+  const clockQ = useQuery(loadTimeClock, []);
+  const clockRows = clockQ.status === 'ready' ? clockQ.data : [];
+  const onTheClock = clockRows.filter((r) => r.standing === 'On the clock');
+  const onBreak = clockRows.filter((r) => r.standing === 'On break');
   const employeesQ = useQuery(loadEmployees, []);
   const entriesQ = useQuery(loadTimeEntries, []);
   const reconciliationQ = useQuery(loadReconciliation, []);
@@ -102,7 +109,35 @@ export function WorkforcePage() {
         </Alert>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {/*
+          * On the clock right now, ahead of the headcount, because it is the
+          * only figure on this row that changes during the day.
+          */}
+        <StatTile
+          label="On the clock" value={onTheClock.length}
+          tone={onTheClock.length ? 'success' : 'neutral'}
+          icon={<Clock className="size-4" />}
+          hint={clockQ.status === 'ready'
+            ? `${onBreak.length} on break, ${clockRows.length - onTheClock.length - onBreak.length} off`
+            : 'reading the clock'}
+          actionLabel="Who"
+          detail={clockRows.length === 0 ? 'Nobody has an employee record yet.' : (
+            <ul className="space-y-1">
+              {clockRows
+                .filter((r) => r.standing !== 'Off the clock')
+                .map((r) => (
+                  <li key={r.employeeId}>
+                    <span className="font-medium text-charcoal-800">{r.employeeName}</span>
+                    {' — '}{r.standing.toLowerCase()}
+                    {r.projectName ? ` on ${r.projectName}` : ''}
+                    {r.workedMinutes > 0 ? `, ${clockDuration(r.workedMinutes)} today` : ''}
+                  </li>
+                ))}
+              {onTheClock.length + onBreak.length === 0
+                ? <li className="text-charcoal-500">Nobody is on the clock.</li> : null}
+            </ul>
+          )} />
         <StatTile label="Active employees" value={EMPLOYEES.length} icon={<Users2 className="size-4" />}
           hint={`${EMPLOYEES.filter((e) => e.isUnion).length} union`} />
         <StatTile label="Credentials expiring" value={expiring.length + expired.length}
@@ -114,12 +149,26 @@ export function WorkforcePage() {
           hint="timecards not yet approved for payroll" />
       </div>
 
-      <Tabs defaultValue="time">
+      <Tabs defaultValue="clock">
         <TabsList>
+          <TabsTrigger value="clock">Time clock</TabsTrigger>
           <TabsTrigger value="time">Time &amp; attendance ({pending.length} pending)</TabsTrigger>
           <TabsTrigger value="credentials">Credentials ({expired.length + expiring.length})</TabsTrigger>
           <TabsTrigger value="roster">Roster ({EMPLOYEES.length})</TabsTrigger>
         </TabsList>
+
+        {/* ----------------------------------------------------------- clock */}
+        {/*
+          * The punch clock. It sits ahead of the timecard tab because the
+          * punches are what the timecard is made of — migration 0123 posts one
+          * from the other — and because at 6:41 in the morning nobody is here
+          * to approve a week.
+          */}
+        <TabsContent value="clock" className="space-y-4">
+          {companyId
+            ? <TimeClockSection companyId={companyId} />
+            : <LoadingState label="Finding your company" />}
+        </TabsContent>
 
         {/* ------------------------------------------------------------ time */}
         <TabsContent value="time" className="space-y-4">

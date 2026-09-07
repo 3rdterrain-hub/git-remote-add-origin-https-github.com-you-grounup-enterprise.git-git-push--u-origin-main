@@ -10,7 +10,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DEFAULT_DASHBOARD, type DashboardPreference } from '@/lib/dashboard-panels';
+import { DEFAULT_DASHBOARD, PANELS, type DashboardPreference } from '@/lib/dashboard-panels';
 
 const hoisted = vi.hoisted(() => ({
   saved: [] as DashboardPreference[],
@@ -46,6 +46,14 @@ const show = (
   return { onSaved };
 };
 
+/**
+ * The rows the customizer draws, in the order it draws them.
+ *
+ * Not the same list as `visiblePanels`: the customizer shows the panels that are
+ * switched *off* too, because turning one back on is the point of it.
+ */
+const orderedInTheCustomizer = () => PANELS;
+
 beforeEach(() => { hoisted.saved = []; hoisted.fail = null; });
 
 describe('what it offers', () => {
@@ -70,8 +78,14 @@ describe('what it offers', () => {
   });
 
   it('counts what is on out of what is available', () => {
+    /*
+     * Counted from the catalog rather than typed in. A literal here meant that
+     * adding the tenth panel failed this test for a reason that had nothing to
+     * do with what it is checking — which is that the customizer states the two
+     * numbers rather than leaving somebody to count checkboxes.
+     */
     show();
-    expect(screen.getByText(/of 9 panels on/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`of ${PANELS.length} panels on`))).toBeInTheDocument();
   });
 });
 
@@ -94,17 +108,26 @@ describe('arranging it', () => {
   });
 
   it('moves one up the order', async () => {
+    /*
+     * The second row of the customizer's own list, whichever panel that is.
+     * Naming one made this test fail when a tenth panel was added between it
+     * and the top — a failure about the catalog, not about reordering.
+     */
+    const listed = orderedInTheCustomizer();
+    const second = listed[1]!;
     show();
-    await userEvent.click(screen.getByRole('button', { name: 'Move The week ahead up' }));
+    await userEvent.click(screen.getByRole('button', { name: `Move ${second.title} up` }));
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(hoisted.saved).toHaveLength(1));
-    expect(hoisted.saved[0]!.order[0]).toBe('weather');
+    expect(hoisted.saved[0]!.order[0]).toBe(second.key);
   });
 
   it('will not move the first one up or the last one down', () => {
+    const listed = orderedInTheCustomizer();
     show();
-    expect(screen.getByRole('button', { name: 'Move What is due up' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Move Safety standing down' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: `Move ${listed[0]!.title} up` })).toBeDisabled();
+    expect(screen.getByRole('button',
+      { name: `Move ${listed[listed.length - 1]!.title} down` })).toBeDisabled();
   });
 
   it('turns the tabs off for one long page', async () => {
