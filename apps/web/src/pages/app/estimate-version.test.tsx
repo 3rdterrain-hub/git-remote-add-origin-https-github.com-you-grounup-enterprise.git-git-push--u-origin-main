@@ -222,6 +222,101 @@ describe('the estimate workspace', () => {
         .toBeInTheDocument());
   });
 
+  /**
+   * The columns hold still.
+   *
+   * Both editors used to render inside their own cell carrying a minimum width
+   * — twenty-two rems for the rate and its basis, thirteen for the markup. A
+   * table sizes its columns from what is in them, so clicking one number made
+   * that column demand the width, every other column give some up to pay for
+   * it, and every row in the estimate shift sideways at once. The row being
+   * edited was the only one anybody was looking at and the whole grid moved
+   * under it.
+   *
+   * The editor is a row now. These hold it there, because "put it back in the
+   * cell, it is simpler" is a reasonable-looking change that brings the bug
+   * straight back.
+   */
+  describe('typing a rate or a markup does not move the columns', () => {
+    it('opens the rate editor outside the cell it was clicked in', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      const cost = await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const cell = cost.closest('td')!;
+      await userEvent.click(cost);
+
+      const field = await screen.findByLabelText('Where the rate came from');
+      expect(cell).not.toContainElement(field);
+      // And it is a row of its own, spanning the table.
+      expect(field.closest('td')!.getAttribute('colspan')).toBe('10');
+    });
+
+    it('opens the markup editor outside the cell it was clicked in', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      const markup = await screen.findByRole('button', { name: 'Markup for Mass excavation' });
+      const cell = markup.closest('td')!;
+      await userEvent.click(markup);
+
+      /*
+       * By role, because the button and the field share an accessible name on
+       * purpose — the thing you click and the thing you type into are the same
+       * control as far as a screen reader is concerned.
+       */
+      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
+      expect(cell).not.toContainElement(field);
+      expect(field.closest('td')!.getAttribute('colspan')).toBe('10');
+    });
+
+    it('leaves nothing in the cell that could widen its column', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      const cost = await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      await userEvent.click(cost);
+      /*
+       * The specific shape of the bug: a minimum width inside a table cell.
+       * Anything in the column may be as wide as the number it shows and no
+       * wider.
+       */
+      const cell = cost.closest('td')!;
+      for (const el of [cell, ...Array.from(cell.querySelectorAll('*'))]) {
+        expect(el.className).not.toMatch(/min-w-/);
+      }
+    });
+
+    it('closes the rate editor when the markup one is opened', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Unit cost for Mass excavation' }));
+      expect(await screen.findByLabelText('Where the rate came from')).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Markup for Mass excavation' }));
+      await waitFor(() =>
+        expect(screen.queryByLabelText('Where the rate came from')).not.toBeInTheDocument());
+    });
+
+    it('leaves the editor on Escape without writing anything', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Unit cost for Mass excavation' }));
+      await userEvent.keyboard('{Escape}');
+      await waitFor(() =>
+        expect(screen.queryByLabelText('Where the rate came from')).not.toBeInTheDocument());
+      expect(hoisted.updated).toEqual([]);
+    });
+
+    it('gives the grid fixed columns, so no cell can re-proportion it', async () => {
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const table = container.querySelector('table')!;
+      expect(table.className).toMatch(/table-fixed/);
+      expect(table.querySelectorAll('colgroup > col')).toHaveLength(10);
+    });
+  });
+
   it('offers no editing at all once the version is approved', async () => {
     hoisted.version = version({
       status: 'approved', approvedAt: '2026-09-02T10:00:00Z', librarySnapshotId: 'snap-1',

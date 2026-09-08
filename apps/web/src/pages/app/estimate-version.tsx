@@ -55,8 +55,8 @@ import {
 import { LineDetail } from '@/components/estimate/line-detail';
 import { NewLineRow } from '@/components/estimate/new-line-row';
 import { LineDescription } from '@/components/estimate/line-description';
-import { UnitCostCell } from '@/components/estimate/unit-cost-cell';
-import { MarkupCell } from '@/components/estimate/markup-cell';
+import { UnitCostCell, UnitCostEditor } from '@/components/estimate/unit-cost-cell';
+import { MarkupCell, MarkupEditor } from '@/components/estimate/markup-cell';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
@@ -561,6 +561,16 @@ function LineTable({
   /** The line being dragged, and the one it is currently hovering after. */
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
+  /**
+   * Which number on which line is being typed, at most one at a time.
+   *
+   * It lives here rather than in the cell because the editor is a row, and a
+   * cell cannot render a sibling row. One at a time is also the honest model: a
+   * rate and a markup opening together would be two panels between a line and
+   * the next one, and nobody is editing both at once.
+   */
+  const [editing, setEditing] =
+    useState<{ line: string; what: 'rate' | 'markup' } | null>(null);
   /** The line whose delete is asking a second time. */
   const [confirming, setConfirming] = useState<string | null>(null);
 
@@ -627,7 +637,30 @@ function LineTable({
             + 'again to see them.'}
         </p>
       ) : null}
-      <Table>
+      {/*
+        * Fixed columns, sized here and nowhere else.
+        *
+        * A table lays itself out from its content by default, so a wide thing
+        * in one cell is paid for by every other column in every other row. That
+        * is how clicking a unit cost used to move the whole grid sideways.
+        * `table-fixed` and this colgroup take that away from the cells: the
+        * only column without a stated width is the description, which takes
+        * whatever is left, and below the minimum the wrapper scrolls rather
+        * than squeezing ten columns into a phone.
+        */}
+      <Table className="min-w-[70rem] table-fixed">
+        <colgroup>
+          <col className="w-10" />{/* drag */}
+          <col />{/* line — takes the remainder */}
+          <col className="w-24" />{/* cost code */}
+          <col className="w-10" />{/* build-up */}
+          <col className="w-32" />{/* quantity */}
+          <col className="w-24" />{/* unit */}
+          <col className="w-28" />{/* unit cost */}
+          <col className="w-24" />{/* markup */}
+          <col className="w-28" />{/* total */}
+          <col className="w-40" />{/* confidence */}
+        </colgroup>
         <TableHeader>
           <TableRow>
             <TableHead className="w-8" />
@@ -843,7 +876,6 @@ function LineTable({
                   </TableCell>
                   <TableCell className="tabular text-right">
                     <UnitCostCell
-                      lineId={l.id}
                       description={l.description}
                       unit={l.unit}
                       unitCost={l.unitCost}
@@ -851,15 +883,16 @@ function LineTable({
                       basis={l.parametricBasis}
                       hasResources={l.totalDirectCost > 0 && l.parametricCostPerUnit === null}
                       editable={editable}
-                      onChanged={onChanged} />
+                      open={editing?.line === l.id && editing.what === 'rate'}
+                      onOpen={(next) => setEditing(next ? { line: l.id, what: 'rate' } : null)} />
                   </TableCell>
                   <TableCell className="tabular text-right text-xs text-charcoal-600">
                     <MarkupCell
-                      lineId={l.id}
                       description={l.description}
                       markupOverride={l.markupOverride}
                       editable={editable}
-                      onChanged={onChanged} />
+                      open={editing?.line === l.id && editing.what === 'markup'}
+                      onOpen={(next) => setEditing(next ? { line: l.id, what: 'markup' } : null)} />
                   </TableCell>
                   <TableCell className="tabular text-right font-medium">
                     {l.totalDirectCost ? money(l.totalDirectCost)
@@ -924,6 +957,34 @@ function LineTable({
                     </div>
                   </TableCell>
                 </TableRow>
+
+                {/*
+                  * The rate and the markup open here rather than inside their
+                  * cells. A table sizes a column from what is in it, so an
+                  * editor in the cell made every column in the estimate shift
+                  * the moment somebody clicked one number.
+                  */}
+                {editing?.line === l.id && editing.what === 'rate' ? (
+                  <UnitCostEditor
+                    lineId={l.id}
+                    description={l.description}
+                    typedRate={l.parametricCostPerUnit}
+                    basis={l.parametricBasis}
+                    hasResources={l.totalDirectCost > 0 && l.parametricCostPerUnit === null}
+                    columns={10}
+                    onClose={() => setEditing(null)}
+                    onChanged={onChanged} />
+                ) : null}
+
+                {editing?.line === l.id && editing.what === 'markup' ? (
+                  <MarkupEditor
+                    lineId={l.id}
+                    description={l.description}
+                    markupOverride={l.markupOverride}
+                    columns={10}
+                    onClose={() => setEditing(null)}
+                    onChanged={onChanged} />
+                ) : null}
 
                 {expanded ? (
                   <TableRow className="hover:bg-transparent">
