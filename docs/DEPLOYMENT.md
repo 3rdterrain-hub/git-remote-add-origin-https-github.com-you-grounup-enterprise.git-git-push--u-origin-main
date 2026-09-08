@@ -155,7 +155,9 @@ the platform.
 # versions are declared, which is exactly why the flag cannot be omitted.
 supabase functions deploy --import-map supabase/functions/deno.json
 
-# Or one at a time:
+# Or one at a time. The flag is on every line for a reason: the four that were
+# missing it were copied from here and failed, and a command that works on six
+# lines and fails on the seventh teaches nobody anything.
 supabase functions deploy create-checkout-session --import-map supabase/functions/deno.json
 supabase functions deploy replay-stripe-event --import-map supabase/functions/deno.json
 supabase functions deploy apply-refund --import-map supabase/functions/deno.json
@@ -164,17 +166,23 @@ supabase functions deploy apply-refund --import-map supabase/functions/deno.json
 supabase functions deploy send-email --no-verify-jwt --import-map supabase/functions/deno.json
 supabase functions deploy cancel-subscription --import-map supabase/functions/deno.json
 supabase functions deploy stripe-webhook --no-verify-jwt --import-map supabase/functions/deno.json
-supabase functions deploy create-billing-portal-session
-supabase functions deploy change-subscription
-supabase functions deploy cancel-subscription
-supabase functions deploy get-effective-entitlements
+supabase functions deploy create-billing-portal-session --import-map supabase/functions/deno.json
+supabase functions deploy change-subscription --import-map supabase/functions/deno.json
+supabase functions deploy get-effective-entitlements --import-map supabase/functions/deno.json
 ```
+
+Better: `npm run functions:deploy`, which carries the flag so nobody has to
+remember it. The flag was documented correctly here and left off a command typed
+from memory, and every one of the fourteen functions refused to bundle. Nothing
+broke — a function that fails to bundle does not replace the one already
+running, and all fourteen stayed ACTIVE on their previous version — but the
+deploy silently did nothing, which is its own kind of expensive.
 
 The webhook must be deployed **without** JWT verification, because Stripe does not
 send a Supabase token. Its signature check is what authenticates the caller:
 
 ```bash
-supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy stripe-webhook --no-verify-jwt --import-map supabase/functions/deno.json
 ```
 
 ### Register the webhook endpoint
@@ -346,7 +354,7 @@ until `valid_until`. Replay the missed events from Stripe rather than editing
 
 ```bash
 supabase secrets set STRIPE_SECRET_KEY=sk_live_new
-supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy stripe-webhook --no-verify-jwt --import-map supabase/functions/deno.json
 ```
 
 Redeploy each billing function so it picks up the new secret. Rotating the webhook
