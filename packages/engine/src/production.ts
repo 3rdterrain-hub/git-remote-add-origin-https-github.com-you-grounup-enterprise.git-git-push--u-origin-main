@@ -11,7 +11,7 @@
  *              three different numbers and must be reported separately.
  */
 
-import { assertNonNegative, assertPositive, factor, hours, qty, roundTo, safeDivide } from './numeric.js';
+import { assertNonNegative, assertPositive, factor, hours, qty, roundTo, safeDivide, SCALE } from './numeric.js';
 
 // ---------------------------------------------------------------------------
 // Condition modifiers (RULE-006)
@@ -384,8 +384,24 @@ export interface DurationResult {
   totalHours: number;
   /** Pure production days, before calendar allowance. */
   rawDays: number;
-  /** Days a superintendent should actually plan for. */
+  /** Days a superintendent should actually plan for. Rounded, for reading. */
   practicalDays: number;
+  /**
+   * The same figure unrounded, which is what crew cost is computed from.
+   *
+   * `practicalDays` is a schedule number and is rounded to two decimals so a
+   * superintendent reads "1.54 days" rather than fourteen digits. Crew cost was
+   * being taken from that rounded figure and multiplied back up by the shift
+   * length, so a line of 333 CY at 100 CY/hr — 3.33 productive hours — was
+   * billing 3.36 labor hours, while the excavator on the same line billed 3.33.
+   * One line, two different hour counts, and the labor one could not be
+   * reproduced by anybody checking it with a calculator.
+   *
+   * The drift went both ways (250 CY billed 2.48 against 2.5 productive), so it
+   * was not a systematic overcharge — it was noise in the one number an
+   * estimate has to be able to defend.
+   */
+  paidShifts: number;
   /** Planning range: optimistic (raw) to pessimistic (practical + 20%). */
   rangeDays: { low: number; high: number };
   calendarEfficiency: number;
@@ -427,8 +443,16 @@ export function calculateDuration(input: DurationInput): DurationResult {
   const productiveHours =
     input.productionPerHour > 0 ? hours(safeDivide(input.quantity, input.productionPerHour)) : 0;
   const totalHours = hours((productiveHours + fixedHrs) / parallelCrews);
-  const rawDays = roundTo(safeDivide(totalHours, input.shiftHours), 2);
-  const practicalDays = roundTo(safeDivide(rawDays, calendarEfficiency), 2);
+  /*
+   * Rounded once, at the end, and only for the figures a person reads.
+   *
+   * `practicalDays` used to be rounded from an already-rounded `rawDays`, so
+   * two roundings compounded before the result was used to price labor.
+   */
+  const rawDaysExact = safeDivide(totalHours, input.shiftHours);
+  const paidShiftsExact = safeDivide(rawDaysExact, calendarEfficiency);
+  const rawDays = roundTo(rawDaysExact, 2);
+  const practicalDays = roundTo(paidShiftsExact, 2);
 
   return {
     productiveHours,
@@ -436,6 +460,7 @@ export function calculateDuration(input: DurationInput): DurationResult {
     totalHours,
     rawDays,
     practicalDays,
+    paidShifts: roundTo(paidShiftsExact, SCALE.FACTOR),
     rangeDays: { low: rawDays, high: roundTo(practicalDays * 1.2, 2) },
     calendarEfficiency: factor(calendarEfficiency),
     parallelCrews,

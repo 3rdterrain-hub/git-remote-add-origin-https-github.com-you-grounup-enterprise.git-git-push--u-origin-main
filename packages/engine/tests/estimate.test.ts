@@ -435,9 +435,24 @@ describe('documented use case EX-001 — mass excavation, two-dozer method', () 
   });
 
   it('staffs four workers across that duration', () => {
-    // 4 workers x 8 hr x 8.37 days = 267.84 man-hours
+    /*
+     * 4 workers x 66.9344 operation hours = 267.7376 man-hours.
+     *
+     * This used to read 4 x 8 x 8.37 = 267.84, taken from the *rounded* day
+     * count a schedule shows. The day figure is rounded to two decimals so a
+     * superintendent reads "8.37 days"; multiplying that back up by the shift
+     * length put the rounding into the labor cost, and left this line billing
+     * 267.84 labor hours while the machines on the same line billed against
+     * 66.9344. Two hour counts, one operation, and only one of them could be
+     * reproduced with a calculator.
+     *
+     * Labor and equipment now share a basis: the line below charges three
+     * machines for 3 x 66.9344, and this charges four workers for 4 x 66.9344.
+     */
     expect(line.crew!.headcount).toBe(4);
-    expect(line.laborHours).toBe(267.84);
+    expect(line.laborHours).toBe(267.7376);
+    // The same basis the equipment assertion below uses.
+    expect(line.laborHours).toBe(4 * line.duration!.totalHours);
   });
 
   it('runs three machines for the operation duration', () => {

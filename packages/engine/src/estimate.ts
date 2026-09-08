@@ -232,7 +232,14 @@ export function calculateEstimateLine(input: EstimateLineInput): EstimateLineRes
     );
   }
 
-  const shifts = duration ? duration.practicalDays : 0;
+  /*
+   * Crew cost is charged on the unrounded shift count, not the rounded one a
+   * schedule shows. `practicalDays` is rounded to two decimals for reading;
+   * pricing labor from it and multiplying back up by the shift length made a
+   * line's labor hours disagree with its own equipment hours and with anybody's
+   * calculator. See `DurationResult.paidShifts`.
+   */
+  const shifts = duration ? duration.paidShifts : 0;
   const operatingHoursPerUnit = duration ? duration.totalHours : 0;
 
   // 5. Crew -----------------------------------------------------------------

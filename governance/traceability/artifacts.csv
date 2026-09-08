@@ -250,6 +250,7 @@ TST-engine-estimate,test,engine/estimate.test.ts,packages/engine/tests/estimate.
 TST-engine-estimating-acceptance,test,engine/estimating-acceptance.test.ts,packages/engine/tests/estimating-acceptance.test.ts,ENGINE
 TST-engine-hierarchy,test,engine/hierarchy.test.ts,packages/engine/tests/hierarchy.test.ts,ENGINE
 TST-engine-materials,test,engine/materials.test.ts,packages/engine/tests/materials.test.ts,ENGINE
+TST-engine-multiplication,test,engine/multiplication.test.ts,packages/engine/tests/multiplication.test.ts,ENGINE
 TST-engine-numeric,test,engine/numeric.test.ts,packages/engine/tests/numeric.test.ts,ENGINE
 TST-engine-overrides,test,engine/overrides.test.ts,packages/engine/tests/overrides.test.ts,ENGINE
 TST-engine-portable,test,engine/portable.test.ts,packages/engine/tests/portable.test.ts,ENGINE
@@ -329,6 +330,7 @@ TST-db-pricing-a-catalog-material,test,db/pricing-a-catalog-material.test.ts,tes
 TST-db-production-rates,test,db/production-rates.test.ts,tests/db/production-rates.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
+TST-db-rate-sheet-import,test,db/rate-sheet-import.test.ts,tests/db/rate-sheet-import.test.ts,ENGINE
 TST-db-refunds,test,db/refunds.test.ts,tests/db/refunds.test.ts,ENGINE
 TST-db-rls,test,db/rls.test.ts,tests/db/rls.test.ts,ENGINE
 TST-db-safety-controls,test,db/safety-controls.test.ts,tests/db/safety-controls.test.ts,ENGINE

@@ -165,8 +165,24 @@ export interface DurationResult {
     totalHours: number;
     /** Pure production days, before calendar allowance. */
     rawDays: number;
-    /** Days a superintendent should actually plan for. */
+    /** Days a superintendent should actually plan for. Rounded, for reading. */
     practicalDays: number;
+    /**
+     * The same figure unrounded, which is what crew cost is computed from.
+     *
+     * `practicalDays` is a schedule number and is rounded to two decimals so a
+     * superintendent reads "1.54 days" rather than fourteen digits. Crew cost was
+     * being taken from that rounded figure and multiplied back up by the shift
+     * length, so a line of 333 CY at 100 CY/hr — 3.33 productive hours — was
+     * billing 3.36 labor hours, while the excavator on the same line billed 3.33.
+     * One line, two different hour counts, and the labor one could not be
+     * reproduced by anybody checking it with a calculator.
+     *
+     * The drift went both ways (250 CY billed 2.48 against 2.5 productive), so it
+     * was not a systematic overcharge — it was noise in the one number an
+     * estimate has to be able to defend.
+     */
+    paidShifts: number;
     /** Planning range: optimistic (raw) to pessimistic (practical + 20%). */
     rangeDays: {
         low: number;

@@ -10,7 +10,7 @@
  *  - Section 25 Theoretical, practical and recommended estimating production are
  *              three different numbers and must be reported separately.
  */
-import { assertNonNegative, assertPositive, factor, hours, qty, roundTo, safeDivide } from './numeric.js';
+import { assertNonNegative, assertPositive, factor, hours, qty, roundTo, safeDivide, SCALE } from './numeric.js';
 const ALL_TARGETS = [
     'production', 'labor_cost', 'equipment_cost', 'material_cost',
     'trucking_cost', 'disposal_cost', 'indirect_cost', 'schedule', 'risk',
@@ -222,14 +222,23 @@ export function calculateDuration(input) {
     }
     const productiveHours = input.productionPerHour > 0 ? hours(safeDivide(input.quantity, input.productionPerHour)) : 0;
     const totalHours = hours((productiveHours + fixedHrs) / parallelCrews);
-    const rawDays = roundTo(safeDivide(totalHours, input.shiftHours), 2);
-    const practicalDays = roundTo(safeDivide(rawDays, calendarEfficiency), 2);
+    /*
+     * Rounded once, at the end, and only for the figures a person reads.
+     *
+     * `practicalDays` used to be rounded from an already-rounded `rawDays`, so
+     * two roundings compounded before the result was used to price labor.
+     */
+    const rawDaysExact = safeDivide(totalHours, input.shiftHours);
+    const paidShiftsExact = safeDivide(rawDaysExact, calendarEfficiency);
+    const rawDays = roundTo(rawDaysExact, 2);
+    const practicalDays = roundTo(paidShiftsExact, 2);
     return {
         productiveHours,
         fixedHours: hours(fixedHrs),
         totalHours,
         rawDays,
         practicalDays,
+        paidShifts: roundTo(paidShiftsExact, SCALE.FACTOR),
         rangeDays: { low: rawDays, high: roundTo(practicalDays * 1.2, 2) },
         calendarEfficiency: factor(calendarEfficiency),
         parallelCrews,
