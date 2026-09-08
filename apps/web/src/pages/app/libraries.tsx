@@ -12,17 +12,18 @@ import { loadProductionRates, SOURCE_LABEL } from '@/lib/data/production';
 import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LABOR, EQUIPMENT_SPECS, CREWS, MODIFIERS, PRICING_PROFILES } from '@/data/catalog';
+import { LABOR, CREWS, MODIFIERS, PRICING_PROFILES } from '@/data/catalog';
 import { loadedLaborRate, calculatePrice } from '@grounup/engine';
 import { money, unitRate, percent, qty, titleCase } from '@/lib/format';
 import { useQuery } from '@/lib/data/query';
 import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
-  loadMaterials, loadLaborRates, updateCost, setMaterialCost,
+  loadMaterials, loadLaborRates, loadEquipmentOptions, updateCost, setMaterialCost,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
 import { ImportPriceList } from '@/components/library/import-price-list';
+import { ImportRateSheet } from '@/components/library/import-rate-sheet';
 import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
@@ -55,6 +56,7 @@ export function LibrariesPage() {
   const disposalQ = useQuery(loadDisposalSites, []);
   const vendorsQ = useQuery(loadVendors, []);
   const materialsQ = useQuery(loadMaterials, []);
+  const equipmentQ = useQuery(loadEquipmentOptions, []);
   const laborQ = useQuery(loadLaborRates, []);
   const membershipsQ = useQuery(loadMemberships, []);
   const { can } = usePermissions();
@@ -72,6 +74,7 @@ export function LibrariesPage() {
   const vendors = vendorsQ.status === 'ready' ? vendorsQ.data : [];
   const subs = vendors.filter((v) => v.vendorType === 'subcontractor');
   const materials = materialsQ.status === 'ready' ? materialsQ.data : [];
+  const equipment = equipmentQ.status === 'ready' ? equipmentQ.data : [];
   const laborRates = laborQ.status === 'ready' ? laborQ.data : [];
 
   /**
@@ -782,37 +785,85 @@ export function LibrariesPage() {
         </TabsContent>
 
         {/* ------------------------------------------------------- equipment */}
-        <TabsContent value="equipment">
-          <Card><CardContent className="p-0">
+        {/*
+          * The real fleet, not a sample of it.
+          *
+          * This tab rendered eight machines out of `EQUIPMENT_SPECS` — a
+          * hardcoded demo constant with invented hourly rates — while
+          * `loadEquipmentOptions` sat in the data layer reading the actual
+          * library with whichever rate RULE-003 says wins. So the catalog could
+          * hold five hundred machines and this showed eight, and the rates it
+          * showed were nobody's.
+          */}
+        <TabsContent value="equipment" className="space-y-4">
+          {equipmentQ.status === 'loading' ? <LoadingState label="Reading equipment" /> : null}
+          {equipmentQ.status === 'error'
+            ? <ErrorState message={equipmentQ.message} onRetry={equipmentQ.refetch} /> : null}
+          {writeError ? <Alert tone="danger">{writeError}</Alert> : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipment</CardTitle>
+              <CardDescription>
+                Every machine the library holds, carrying whichever rate wins under
+                RULE-003. The platform ships a published hourly figure on each so nothing
+                prices at nothing; your dealer&apos;s sheet beats it the moment it is loaded.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="border-b border-charcoal-100 pb-4">
+              <ImportRateSheet companyId={companyId} canWrite={canWrite}
+                onImported={equipmentQ.refetch} />
+            </CardContent>
+            <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Equipment</TableHead>
                   <TableHead>Class</TableHead>
                   <TableHead className="text-right">Hourly</TableHead>
+                  <TableHead className="text-right">Daily</TableHead>
                   <TableHead className="text-right">Fuel</TableHead>
-                  <TableHead className="text-right">DEF</TableHead>
                   <TableHead className="text-right">Mobilization</TableHead>
-                  <TableHead>Rate source</TableHead>
+                  <TableHead>Scope</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Object.values(EQUIPMENT_SPECS).filter((e) => match(`${e.name} ${e.equipmentClass}`)).map((e) => (
+                {equipment.filter((e) => match(`${e.name} ${e.equipmentClass}`))
+                  .slice(0, 300).map((e) => (
                   <TableRow key={e.id}>
                     <TableCell>
                       <p className="font-medium text-charcoal-900">{e.name}</p>
-                      <p className="font-mono text-xs text-charcoal-400">{e.id}</p>
                     </TableCell>
                     <TableCell className="text-charcoal-600">{e.equipmentClass}</TableCell>
-                    <TableCell className="tabular text-right font-semibold">{unitRate(e.hourlyRate)}</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{e.fuelGallonsPerHour} gal/hr</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{percent(e.defPercentOfFuel, 0)}</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{money(e.mobilizationCost)}</TableCell>
-                    <TableCell><Badge variant="info">Tenant approved</Badge></TableCell>
+                    <TableCell className="tabular text-right font-semibold">
+                      {/*
+                        * A machine with no rate says so. Showing $0.00 for one
+                        * nobody has priced is the silence migration 0128 exists
+                        * to break — the line totals and the machine was on the job.
+                        */}
+                      {e.hourlyRate > 0
+                        ? unitRate(e.hourlyRate)
+                        : <span className="font-normal text-warn-700">No rate yet</span>}
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-600">
+                      {e.dailyRate ? money(e.dailyRate) : <span className="text-charcoal-300">—</span>}
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-600">
+                      {e.fuelGallonsPerHour ? `${e.fuelGallonsPerHour} gal/hr`
+                        : <span className="text-charcoal-300">—</span>}
+                    </TableCell>
+                    <TableCell className="tabular text-right text-charcoal-600">
+                      {e.mobilizationCost ? money(e.mobilizationCost)
+                        : <span className="text-charcoal-300">—</span>}
+                    </TableCell>
+                    <TableCell><ScopeBadge scope={e.scope} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            {!equipment.length && equipmentQ.status === 'ready' ? (
+              <EmptyState title={q ? 'Nothing matches that' : 'No equipment yet'} />
+            ) : null}
           </CardContent></Card>
           <Alert tone="info" className="mt-4" icon={<Info className="size-4" />} title="RULE-003 — equipment rate hierarchy">
             A project quote beats an approved company rate, which beats a regional rate, which beats

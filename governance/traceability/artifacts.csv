@@ -393,6 +393,7 @@ TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
+TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-card,test,web/card.test.tsx,apps/web/src/components/ui/card.test.tsx,ENGINE
@@ -405,6 +406,7 @@ TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedul
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
+TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,apps/web/src/lib/data/equipment-rate-precedence.test.ts,ENGINE
 TST-web-lead-forms,test,web/lead-forms.test.ts,apps/web/src/lib/data/lead-forms.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE

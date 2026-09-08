@@ -636,6 +636,54 @@ export async function importMaterials(
   };
 }
 
+/**
+ * What `import_equipment_rates` hands back.
+ *
+ * `machinesCreated` is the count worth reading twice: a dealer's sheet lists
+ * machines you may not have in the catalog, so the function makes them — and a
+ * rate sheet never says how much fuel a machine burns or whether it carries an
+ * operator. Both change what a line costs, so every machine it created is named
+ * on the review list rather than shipped with a guess in it.
+ */
+export interface EquipmentRateImportReport {
+  priced: number;
+  machinesCreated: number;
+  rejected: { name: string; reason: string }[];
+  needsReview: { name: string; why: string }[];
+  /** False when the caller cannot approve, so the rates landed pending. */
+  approved: boolean;
+}
+
+/**
+ * Import a dealer rate sheet into a company's equipment library.
+ *
+ * The rate lands as `tenant_approved`, which under RULE-003 outranks both the
+ * regional figure and the published schedule the platform ships — and does not
+ * outrank a quote on a specific project, which is correct: a number somebody got
+ * for this job beats a number the company uses generally.
+ *
+ * The function reads `equipment` (or `code`), `hourly_rate`, `daily_rate`,
+ * `weekly_rate`, `monthly_rate`, `equipment_class`, `region`, `reference` and
+ * `effective_date`, and ignores the rest, so a dealer's export imports without
+ * anybody editing it first.
+ */
+export async function importEquipmentRates(
+  client: Writer, companyId: string, rows: Record<string, string>[],
+): Promise<EquipmentRateImportReport> {
+  const { data, error } = await client.rpc('import_equipment_rates', {
+    p_company: companyId, p_rows: rows,
+  });
+  if (error) throw new Error(error.message);
+  const r = (data ?? {}) as Record<string, unknown>;
+  return {
+    priced: Number(r.priced ?? 0),
+    machinesCreated: Number(r.machines_created ?? 0),
+    rejected: (r.rejected as EquipmentRateImportReport['rejected']) ?? [],
+    needsReview: (r.needs_review as EquipmentRateImportReport['needsReview']) ?? [],
+    approved: Boolean(r.approved),
+  };
+}
+
 export interface MaterialInput {
   companyId: string; code: string; name: string; category?: string | null;
   unit: string; unitCost: number;
@@ -722,6 +770,16 @@ export const loadCrews: Query<CrewPreset[]> = async (client) => {
 };
 
 /**
+ * RULE-003, in the order the rule states it.
+ *
+ * A quote for this project beats the company's approved rate, which beats a
+ * regional figure, which beats what the platform ships. The same array the
+ * database uses in `array_position` when it resolves a rate, kept here so the
+ * screen and the engine cannot disagree about which one won.
+ */
+const RATE_PRECEDENCE = ['project_quote', 'tenant_approved', 'regional', 'global_seed'] as const;
+
+/**
  * The machines themselves, with whichever rate is in force.
  *
  * `loadEquipmentRates` returns rates; this returns the machine an estimator
@@ -751,15 +809,24 @@ export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => 
 
   return rows.map((e) => {
     /*
-     * The most specific rate the machine carries. RULE-003's full precedence
-     * is the engine's to apply at pricing time; this only needs to put a
-     * sensible number in front of the estimator, and a company rate is the
-     * one they mean when they pick a machine off their own list.
+     * The rate that will actually price the line, chosen by RULE-003.
+     *
+     * This used to look for `company_owned` first — which is not a value of
+     * `app.rate_source` and so never matched — then `tenant_approved`, then
+     * whichever row the database happened to return first. Two things followed.
+     * `project_quote`, the highest precedence there is, was never preferred at
+     * all. And a machine carrying both a regional and a seeded rate showed
+     * whichever came back first, so the number on this screen could differ from
+     * the number the engine used, with nothing to say which was which.
+     *
+     * A displayed rate that is not the rate that prices is the same defect as a
+     * labor cost that cannot be reproduced by hand: plausible, silent, and
+     * wrong exactly when somebody checks.
      */
     const rates = (e.equipment_rates ?? []) as Array<Record<string, unknown>>;
-    const best = rates.find((r) => r.source === 'company_owned')
-      ?? rates.find((r) => r.source === 'tenant_approved')
-      ?? rates[0];
+    const best = RATE_PRECEDENCE
+      .map((source) => rates.find((r) => r.source === source))
+      .find(Boolean) ?? rates[0];
     return {
       id: String(e.id),
       name: String(e.name),
