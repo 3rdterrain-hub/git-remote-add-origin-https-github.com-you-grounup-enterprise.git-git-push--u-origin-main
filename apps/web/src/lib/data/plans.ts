@@ -145,6 +145,18 @@ export async function uploadPlanSet(
   const safe = input.file.name.replace(/[^A-Za-z0-9._-]/g, '-');
   const path = `${input.companyId}/${crypto.randomUUID()}-${safe}`;
 
+  /*
+   * Counted before the upload, because the count is what turns a file into
+   * something a takeoff can be taken on.
+   *
+   * `register_document_version` has taken a page count since migration 0119 and
+   * this passed null every time, so `document_sheets` was never written and the
+   * takeoff screen had nothing to open — the canvas, the overlay, calibration
+   * and apply-to-line all sat behind an empty list. The browser renders these
+   * pages with PDF.js a moment later; it always knew the number.
+   */
+  const pageCount = await countPdfPages(input.file);
+
   const { error } = await client.storage
     .from('project-documents')
     .upload(path, input.file, { contentType: input.file.type || undefined, upsert: false });
@@ -159,8 +171,33 @@ export async function uploadPlanSet(
     p_byte_size: input.file.size,
     p_document_type: input.documentType ?? 'plan_set',
     p_estimate_id: input.estimateId ?? null,
-    p_page_count: null,
+    p_page_count: pageCount,
   });
+}
+
+/**
+ * How many pages a PDF has, or null when it is not one.
+ *
+ * Null rather than a throw, and null rather than 1: a specification, a
+ * spreadsheet or a photograph has no drawing sheets, and inventing a page for
+ * it would put an un-takeoffable sheet on the takeoff screen. A PDF that cannot
+ * be parsed gets the same answer — `set_document_page_count` is the way back,
+ * and `my_plan_sets_without_sheets` is where it is named — because failing the
+ * upload of a plan set over a page count would be a worse trade.
+ */
+export async function countPdfPages(file: File): Promise<number | null> {
+  if (!/pdf/i.test(file.type) && !/\.pdf$/i.test(file.name)) return null;
+  try {
+    const pdfjs = await import('pdfjs-dist');
+    pdfjs.GlobalWorkerOptions.workerSrc =
+      new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+    const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+    const pages = doc.numPages;
+    await doc.destroy();
+    return pages > 0 ? pages : null;
+  } catch {
+    return null;
+  }
 }
 
 export interface AnalysisOutcome {

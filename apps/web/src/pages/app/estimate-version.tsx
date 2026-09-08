@@ -648,27 +648,32 @@ function LineTable({
         * whatever is left, and below the minimum the wrapper scrolls rather
         * than squeezing ten columns into a phone.
         */}
-      <Table className="min-w-[70rem] table-fixed">
+      {/*
+        * Roomier than the rest of the tables in the product, on purpose.
+        *
+        * `TableCell` is `py-1.5` because an estimate is read down a column and
+        * every pixel of row height is a line somebody scrolls past. That is
+        * right for a table of text and wrong for this one: these rows carry
+        * inputs, a select and two editable numbers, and packed to the same
+        * density the controls touch each other and the row reads as one smear.
+        */}
+      <Table className="min-w-[58rem] table-fixed [&_td]:py-2.5">
         <colgroup>
-          <col className="w-10" />{/* drag */}
+          <col className="w-9" />{/* drag */}
           <col />{/* line — takes the remainder */}
-          <col className="w-24" />{/* cost code */}
-          <col className="w-10" />{/* build-up */}
-          <col className="w-32" />{/* quantity */}
-          <col className="w-24" />{/* unit */}
+          <col className="w-9" />{/* build-up */}
+          <col className="w-36" />{/* quantity, with its unit */}
           <col className="w-28" />{/* unit cost */}
-          <col className="w-24" />{/* markup */}
+          <col className="w-20" />{/* markup */}
           <col className="w-28" />{/* total */}
-          <col className="w-40" />{/* confidence */}
+          <col className="w-36" />{/* confidence */}
         </colgroup>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-8" />
+            <TableHead />
             <TableHead>Line</TableHead>
-            <TableHead>Cost code</TableHead>
-            <TableHead className="w-8"><span className="sr-only">Build-up</span></TableHead>
+            <TableHead><span className="sr-only">Build-up</span></TableHead>
             <TableHead className="text-right">Quantity</TableHead>
-            <TableHead>Unit</TableHead>
             <TableHead className="text-right">Unit cost</TableHead>
             <TableHead className="text-right">Markup</TableHead>
             <TableHead className="text-right">Total</TableHead>
@@ -685,7 +690,7 @@ function LineTable({
             <TableRow className="hover:bg-transparent"
               onDragOver={(e) => { e.preventDefault(); setOver('__top__'); }}
               onDrop={(e) => { e.preventDefault(); void drop(null); }}>
-              <TableCell colSpan={10}
+              <TableCell colSpan={8}
                 className={cn('py-1 text-center text-xs',
                   over === '__top__'
                     ? 'bg-yellow-50 text-yellow-800'
@@ -784,6 +789,15 @@ function LineTable({
                           editable={editable}
                           note={[
                             /*
+                              * The cost code reads here rather than in a column
+                              * of its own. It is optional — nothing refuses a
+                              * line without one, and it matters only to a
+                              * company tracking estimate against actual — so a
+                              * whole column for it was six rems taken from the
+                              * description on every screen.
+                              */
+                            l.costCode,
+                            /*
                               * Which library item the line came from, when the
                               * words no longer say. A line renamed to "Mass
                               * excavation — north half" still needs to show it
@@ -799,9 +813,6 @@ function LineTable({
                           onChanged={onChanged} />
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-xs text-charcoal-600">
-                    {l.costCode ?? <span className="text-charcoal-400">—</span>}
                   </TableCell>
                   {/*
                     * The wrench sits between what the line is and how much of
@@ -842,10 +853,23 @@ function LineTable({
                           unit={l.unit}
                           label={`Quantity for ${l.description}`}
                           onCommit={(n, expr) => commit(l.id, n, expr)} />
+                        {/*
+                          * The unit sits with the number it measures rather
+                          * than in a column of its own — "12,000 CY" is one
+                          * fact and reads as one. A company that bids topsoil
+                          * by the load is not making a mistake, and migration
+                          * 0117 stopped refusing it; this is what keeps that
+                          * reachable.
+                          */}
+                        <UnitSelect
+                          value={l.unit}
+                          label={`Unit for ${l.description}`}
+                          className="h-7 w-[4.5rem] shrink-0"
+                          onChange={(u) => commitUnit(l.id, u)} />
                       </div>
                     ) : (
                       <span className="tabular">
-                        {qty(l.measuredQuantity)}
+                        {qty(l.measuredQuantity)} <span className="text-charcoal-500">{l.unit}</span>
                         {l.quantityExpression ? (
                           <span className="block text-xs font-normal text-charcoal-400">
                             {l.quantityExpression}
@@ -858,21 +882,6 @@ function LineTable({
                         {qty(l.adjustedQuantity)} after waste and loss
                       </p>
                     ) : null}
-                  </TableCell>
-                  {/*
-                    * The unit, selectable where it is read. A company that bids
-                    * topsoil by the load rather than the cubic yard is not
-                    * making a mistake, and migration 0117 stopped refusing it —
-                    * the picker is what makes that reachable.
-                    */}
-                  <TableCell className="text-xs text-charcoal-600">
-                    {editable ? (
-                      <UnitSelect
-                        value={l.unit}
-                        label={`Unit for ${l.description}`}
-                        className="h-7 w-20"
-                        onChange={(u) => commitUnit(l.id, u)} />
-                    ) : l.unit}
                   </TableCell>
                   <TableCell className="tabular text-right">
                     <UnitCostCell
@@ -971,7 +980,7 @@ function LineTable({
                     typedRate={l.parametricCostPerUnit}
                     basis={l.parametricBasis}
                     hasResources={l.totalDirectCost > 0 && l.parametricCostPerUnit === null}
-                    columns={10}
+                    columns={8}
                     onClose={() => setEditing(null)}
                     onChanged={onChanged} />
                 ) : null}
@@ -981,21 +990,21 @@ function LineTable({
                     lineId={l.id}
                     description={l.description}
                     markupOverride={l.markupOverride}
-                    columns={10}
+                    columns={8}
                     onClose={() => setEditing(null)}
                     onChanged={onChanged} />
                 ) : null}
 
                 {expanded ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={10} className="p-0">
+                    <TableCell colSpan={8} className="p-0">
                       <LineDetail line={l} editable={editable} onChanged={onChanged} />
                     </TableCell>
                   </TableRow>
                 ) : null}
 
                 {blankAfter === l.id && versionId ? (
-                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={10}
+                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={8}
                     onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
                 ) : null}
               </Fragment>
@@ -1003,13 +1012,13 @@ function LineTable({
           })}
 
           {blankAfter === '' && versionId ? (
-            <NewLineRow versionId={versionId} afterLineId={null} columns={10}
+            <NewLineRow versionId={versionId} afterLineId={null} columns={8}
               onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
           ) : null}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={8} className="font-medium">
+            <TableCell colSpan={6} className="font-medium">
               Direct cost
               {hiddenByFilter > 0 ? (
                 <span className="ml-1.5 font-normal text-charcoal-500">

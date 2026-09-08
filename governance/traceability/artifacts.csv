@@ -268,6 +268,7 @@ TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
+TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
@@ -396,7 +397,9 @@ TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.t
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
+TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
+TST-web-unsheeted-plan-sets,test,web/unsheeted-plan-sets.test.tsx,apps/web/src/components/takeoff/unsheeted-plan-sets.test.tsx,ENGINE
 TST-web-card,test,web/card.test.tsx,apps/web/src/components/ui/card.test.tsx,ENGINE
 TST-web-category-select,test,web/category-select.test.tsx,apps/web/src/components/ui/category-select.test.tsx,ENGINE
 TST-web-overtime-policy,test,web/overtime-policy.test.tsx,apps/web/src/components/workforce/overtime-policy.test.tsx,ENGINE

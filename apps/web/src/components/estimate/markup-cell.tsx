@@ -93,7 +93,16 @@ export function MarkupEditor({
     }
     setBusy(true); setError(null);
     try {
-      await updateLine(supabase, lineId, { markupOverride: next });
+      /*
+       * `markup_override`, not `markupOverride`.
+       *
+       * `update_estimate_line` reads `p_fields ? 'markup_override'`, so the
+       * camelCase key matched nothing, the update wrote nothing, and the call
+       * returned without an error — the markup typed here had never once been
+       * saved. Migration 0136 makes an unknown key an error rather than a
+       * silence, so the next one of these fails at the write.
+       */
+      await updateLine(supabase, lineId, { markup_override: next });
       onClose();
       onChanged();
     } catch (err) {

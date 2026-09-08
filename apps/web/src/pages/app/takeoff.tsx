@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors, Waves, Plus,
+  Loader2,
 } from 'lucide-react';
 import type { Point } from '@grounup/engine';
 import { PageHeader } from '@/components/layout/page';
@@ -21,7 +22,9 @@ import { ApplyPanel } from '@/components/takeoff/apply-panel';
 import { useQuery } from '@/lib/data/query';
 import {
   loadSheets, loadOpenEstimateLines, sheetUrl, applyMeasurement, saveCalibration,
+  loadPlanSetsWithoutSheets, loadMeasurements, saveMeasurement,
 } from '@/lib/data/takeoff';
+import { UnsheetedPlanSets } from '@/components/takeoff/unsheeted-plan-sets';
 import { DemonstrationNotice, ErrorState } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { measure, measureBasin, ENGINE_VERSION } from '@grounup/engine';
@@ -71,6 +74,23 @@ export function TakeoffPage() {
   const forLine = params.get('line');
 
   const sheetsQ = useQuery(loadSheets, []);
+  /*
+   * Anything uploaded before migration 0135 has no sheets and so cannot appear
+   * in the picker. Listing those is the difference between fixing this going
+   * forward and fixing it.
+   */
+  const unsheetedQ = useQuery(loadPlanSetsWithoutSheets, []);
+  /*
+   * What has already been taken off this sheet.
+   *
+   * `loadMeasurements` has existed since the takeoff screen was built and
+   * nothing called it, so a finished measurement disappeared from the drawing
+   * the moment it was applied. You could not see what you had already measured,
+   * which is how a room gets taken off twice.
+   */
+  const measurementsQ = useQuery(loadMeasurements, []);
+  const measurements = measurementsQ.status === 'ready'
+    ? measurementsQ.data.filter((m) => m.sheetId === sheetId) : [];
   const linesQ = useQuery(loadOpenEstimateLines, []);
   const demonstration = sheetsQ.status === 'demonstration';
 
@@ -94,6 +114,8 @@ export function TakeoffPage() {
   const [lifts, setLifts] = useState<Lift[]>([{ depthFeet: 8, sideSlopeRun: 3 }]);
   const [freeboardFeet, setFreeboardFeet] = useState('');
   const [deductions, setDeductions] = useState<Point[][]>([]);
+  const [shapeName, setShapeName] = useState('');
+  const [saving, setSaving] = useState(false);
   const [sheetSize, setSheetSize] = useState({ width: 1224, height: 792 });
   const [zoom, setZoom] = useState(1);
 
@@ -258,6 +280,70 @@ export function TakeoffPage() {
     }
   }
 
+  /**
+   * Finish this shape, keep it, and be ready for the next one.
+   *
+   * The measurement is written with no line item on it — `applied_line_item_id`
+   * has been nullable since 0061 and nothing ever used it. Before this, the
+   * only way to end a shape was to apply it to an estimate line, which meant a
+   * sheet with twelve things on it was twelve trips through the apply panel in
+   * whatever order the estimate happened to be in. A takeoff is not done in
+   * that order: you measure what is in front of you, then decide where it goes.
+   */
+  async function finishShape() {
+    if (!supabase || !measured || !sheet || saving) return;
+    if (tool === 'calibrate' || tool === 'deduct' || tool === 'none') return;
+    setSaving(true); setApplyError(null);
+    try {
+      let calibrationId: string | null = null;
+      if (scaleState && scale) {
+        calibrationId = await saveCalibration(supabase, {
+          companyId: sheet.companyId, sheetId,
+          from: scaleState.from, to: scaleState.to,
+          knownDistanceFeet: scaleState.knownDistanceFeet,
+          basis: scaleState.basis,
+          reference: scaleState.reference.trim() || null,
+        });
+      }
+      await saveMeasurement(supabase, {
+        companyId: sheet.companyId, sheetId, calibrationId,
+        name: shapeName.trim()
+          || `${tool.charAt(0).toUpperCase()}${tool.slice(1)} ${measurements.length + 1}`,
+        trade: null,
+        kind: tool as 'count' | 'linear' | 'area' | 'volume' | 'basin',
+        unit, geometry: points, deductions,
+        isClosed: tool === 'area' || tool === 'volume' || tool === 'basin',
+        pitchRise: num(pitchRise) ?? null, pitchRun: num(pitchRise) === undefined ? null : 12,
+        depthFeet: num(depthFeet) ?? null, widthFeet: num(widthFeet) ?? null,
+        countPer: num(countPer) ?? 1, multiplier: num(multiplier) ?? 1,
+        ...(tool === 'basin' ? {
+          lifts: lifts.map((l) => ({
+            depth_feet: l.depthFeet,
+            side_slope_run: l.sideSlopeRun,
+            ...(l.benchWidthFeet ? { bench_width_feet: l.benchWidthFeet } : {}),
+          })),
+          freeboardFeet: num(freeboardFeet) ?? null,
+        } : {}),
+      });
+      setShapeName('');
+      setPoints([]);
+      setDeductions([]);
+      measurementsQ.refetch();
+    } catch (err) {
+      setApplyError(err instanceof Error ? err.message : 'That measurement could not be saved.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  /*
+   * A shape can be kept once it is a shape. Calibration is not a measurement
+   * and a deduction belongs to the shape it is cut out of, so neither is
+   * finishable on its own.
+   */
+  const canFinish = Boolean(
+    measured && sheetId && tool !== 'calibrate' && tool !== 'deduct' && tool !== 'none');
+
   function bankDeduction() {
     if (points.length < 3) return;
     setDeductions([...deductions, points]);
@@ -283,6 +369,12 @@ export function TakeoffPage() {
       {demonstration ? <DemonstrationNotice /> : null}
       {sheetsQ.status === 'error'
         ? <ErrorState message={sheetsQ.message} onRetry={sheetsQ.refetch} /> : null}
+
+      {isSupabaseConfigured && unsheetedQ.status === 'ready' ? (
+        <UnsheetedPlanSets
+          plans={unsheetedQ.data}
+          onSheeted={() => { sheetsQ.refetch(); unsheetedQ.refetch(); }} />
+      ) : null}
 
       {isSupabaseConfigured ? (
         <div className="flex flex-wrap items-end gap-3 rounded-[--radius-card] border border-charcoal-200 bg-white p-4">
@@ -333,14 +425,32 @@ export function TakeoffPage() {
                 <Icon className="size-4" /> {label}
               </Button>
             ))}
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex items-center gap-2">
+              {/*
+                * Naming it is optional and worth offering: "Slab, north bay"
+                * found again in six weeks beats "Area 3".
+                */}
+              {canFinish ? (
+                <Input value={shapeName} onChange={(e) => setShapeName(e.target.value)}
+                  placeholder={`${tool.charAt(0).toUpperCase()}${tool.slice(1)} ${measurements.length + 1}`}
+                  aria-label="Name this measurement"
+                  className="h-8 w-48" />
+              ) : null}
               <Button size="sm" variant="ghost" disabled={!points.length}
-                onClick={() => setPoints(points.slice(0, -1))}>
+                onClick={() => setPoints(points.slice(0, -1))}
+                title="Backspace">
                 <Undo2 className="size-4" /> Undo point
               </Button>
               <Button size="sm" variant="ghost" disabled={!points.length}
-                onClick={() => setPoints([])}>
+                onClick={() => setPoints([])}
+                title="Escape">
                 <Trash2 className="size-4" /> Clear
+              </Button>
+              <Button size="sm" disabled={!canFinish || saving}
+                onClick={() => void finishShape()}
+                title="Enter">
+                {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                Done — keep it
               </Button>
             </div>
           </CardHeader>
@@ -353,12 +463,36 @@ export function TakeoffPage() {
                 width={sheetSize.width} height={sheetSize.height}
                 displayWidth={displayWidth}
                 points={points} onPointsChange={setPoints}
-                existing={deductions.map((d, i) => ({ id: `d-${i}`, points: d, kind: 'deduct' as Tool }))}
+                existing={[
+                  /*
+                    * Everything already taken off this sheet, drawn back on it.
+                    * An estimate line that says 1,240 LF can only be checked by
+                    * seeing what was traced for it, and a sheet whose finished
+                    * measurements are invisible is a sheet somebody measures
+                    * twice.
+                    */
+                  ...measurements.map((m) => ({
+                    id: m.id,
+                    points: m.geometry,
+                    kind: m.kind as Tool,
+                    label: m.name,
+                  })),
+                  ...deductions.map((d, i) => (
+                    { id: `d-${i}`, points: d, kind: 'deduct' as Tool })),
+                ]}
+                feetPerUnit={scale ? scale.unitsPerPoint : null}
+                onFinish={() => void finishShape()}
+                onUndo={() => setPoints(points.slice(0, -1))}
+                onCancel={() => setPoints([])}
               />
             </div>
             <p className="mt-3 text-center text-xs text-charcoal-500">
               {TOOLS.find((t) => t.tool === tool)?.hint}
               {points.length ? ` ${points.length} of ${MINIMUM_POINTS[tool]} minimum placed.` : ''}
+            </p>
+            <p className="mt-1 text-center text-xs text-charcoal-400">
+              Enter keeps it · Backspace undoes a point · Escape starts over · hold Shift to
+              square the line up · points snap to a corner already on the sheet
             </p>
           </CardContent>
         </Card>

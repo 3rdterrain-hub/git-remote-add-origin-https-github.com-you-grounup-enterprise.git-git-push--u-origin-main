@@ -247,8 +247,11 @@ describe('the estimate workspace', () => {
 
       const field = await screen.findByLabelText('Where the rate came from');
       expect(cell).not.toContainElement(field);
-      // And it is a row of its own, spanning the table.
-      expect(field.closest('td')!.getAttribute('colspan')).toBe('10');
+      // And it is a row of its own, spanning the table. Asserted against the
+      // header rather than a number, so folding two columns together does not
+      // quietly leave an editor spanning the wrong width.
+      const columns = document.querySelectorAll('thead th').length;
+      expect(field.closest('td')!.getAttribute('colspan')).toBe(String(columns));
     });
 
     it('opens the markup editor outside the cell it was clicked in', async () => {
@@ -265,7 +268,8 @@ describe('the estimate workspace', () => {
        */
       const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
       expect(cell).not.toContainElement(field);
-      expect(field.closest('td')!.getAttribute('colspan')).toBe('10');
+      const columns = document.querySelectorAll('thead th').length;
+      expect(field.closest('td')!.getAttribute('colspan')).toBe(String(columns));
     });
 
     it('leaves nothing in the cell that could widen its column', async () => {
@@ -313,7 +317,9 @@ describe('the estimate workspace', () => {
       await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
       const table = container.querySelector('table')!;
       expect(table.className).toMatch(/table-fixed/);
-      expect(table.querySelectorAll('colgroup > col')).toHaveLength(10);
+      // One col per header, or the widths line up against the wrong columns.
+      expect(table.querySelectorAll('colgroup > col'))
+        .toHaveLength(table.querySelectorAll('thead th').length);
     });
   });
 

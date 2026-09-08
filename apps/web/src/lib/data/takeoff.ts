@@ -272,6 +272,50 @@ export async function applyMeasurement(
     lineItemId: string; quantity: number; engineVersion: string;
   },
 ): Promise<string> {
+  const measurementId = await saveMeasurement(client, input);
+
+  const { error: applyError } = await client.rpc('apply_takeoff_to_line', {
+    p_measurement: measurementId,
+    p_line_item: input.lineItemId,
+    p_quantity: input.quantity,
+    p_engine_version: input.engineVersion,
+  });
+  if (applyError) throw new Error(applyError.message);
+  return measurementId;
+}
+
+/**
+ * Keep a shape without deciding yet what it belongs to.
+ *
+ * `applied_line_item_id` has been nullable since migration 0061, and nothing
+ * ever wrote a row that used it: the only way to end a measurement was to apply
+ * it to an estimate line, which cleared the canvas. So taking six measurements
+ * off one sheet meant six trips through the apply panel, in the order the
+ * estimate happened to be in rather than the order the drawing reads — and a
+ * shape not applied was gone the moment the tool changed.
+ *
+ * A takeoff is not done in that order. You measure what is in front of you,
+ * then decide where it goes.
+ */
+export async function saveMeasurement(
+  client: { from: (t: string) => { insert: (v: Record<string, unknown>) => {
+    select: (c: string) => { single: () =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }> } } } },
+  input: {
+    companyId: string; sheetId: string; calibrationId: string | null;
+    name: string; trade: string | null;
+    kind: MeasurementRow['kind']; unit: string;
+    geometry: Point[]; deductions: Point[][]; isClosed: boolean;
+    pitchRise: number | null; pitchRun: number | null;
+    depthFeet: number | null; widthFeet: number | null;
+    countPer: number; multiplier: number;
+    lifts?: ReadonlyArray<{
+      depth_feet: number; side_slope_run: number;
+      bench_width_feet?: number; label?: string;
+    }>;
+    freeboardFeet?: number | null;
+  },
+): Promise<string> {
   const { data, error } = await client.from('takeoff_measurements').insert({
     company_id: input.companyId,
     document_sheet_id: input.sheetId,
@@ -293,14 +337,54 @@ export async function applyMeasurement(
     freeboard_feet: input.freeboardFeet ?? null,
   }).select('id').single();
   if (error) throw new Error(error.message);
-  const measurementId = String((data as { id: string }).id);
+  return String((data as { id: string }).id);
+}
 
-  const { error: applyError } = await client.rpc('apply_takeoff_to_line', {
-    p_measurement: measurementId,
-    p_line_item: input.lineItemId,
-    p_quantity: input.quantity,
-    p_engine_version: input.engineVersion,
+/**
+ * The plan sets nobody can take off, and the way back.
+ *
+ * A document uploaded before migration 0135 has no sheets, because nothing in
+ * the platform ever created one — so it does not appear on the takeoff screen
+ * and nothing says why. It is not broken and it is not listed: it is simply
+ * absent, which is the hardest kind of missing to notice.
+ */
+export interface UnsheetedPlanSet {
+  documentVersionId: string;
+  documentName: string;
+  fileName: string;
+  documentType: string;
+  pageCount: number | null;
+  createdAt: string;
+}
+
+export const loadPlanSetsWithoutSheets: Query<UnsheetedPlanSet[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_plan_sets_without_sheets')
+    .select('document_version_id, document_name, file_name, document_type, page_count, created_at')
+    .order('created_at')
+    .limit(200)) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    documentVersionId: String(r.document_version_id),
+    documentName: String(r.document_name ?? 'Untitled document'),
+    fileName: String(r.file_name ?? ''),
+    documentType: String(r.document_type ?? 'plan_set'),
+    pageCount: r.page_count == null ? null : Number(r.page_count),
+    createdAt: String(r.created_at),
+  }));
+};
+
+/**
+ * Say how many pages a plan set has, and get its sheets.
+ *
+ * Returns how many sheets were made, which is zero when they already existed —
+ * so pressing it twice is a no-op rather than a second set of pages.
+ */
+export async function setDocumentPageCount(
+  client: RpcCapable, documentVersionId: string, pages: number,
+): Promise<number> {
+  const { data, error } = await client.rpc('set_document_page_count', {
+    p_version: documentVersionId, p_pages: pages,
   });
-  if (applyError) throw new Error(applyError.message);
-  return measurementId;
+  if (error) throw new Error(error.message);
+  return Number(data ?? 0);
 }
