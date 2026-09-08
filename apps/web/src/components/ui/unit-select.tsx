@@ -1,8 +1,8 @@
 /**
  * Picking a unit, everywhere.
  *
- * `app.unit_code` is an enum of fourteen values and `@grounup/engine` exports
- * the same fourteen. A free-text unit field can only produce one of two
+ * `app.unit_code` is a closed enum and `@grounup/engine` exports the same
+ * values in the same order, held there by a governance test. A free-text unit field can only produce one of two
  * outcomes: a value the database refuses, or — worse — a value it accepts that
  * means something different from what the estimator meant. "Tons" is not
  * "TON", "cy" is not "CY", and a line measured in a unit the engine cannot
@@ -28,16 +28,19 @@ export const UNIT_LABEL: Readonly<Record<Unit, string>> = {
   SY: 'Square yards', CY: 'Cubic yards', TON: 'Tons', HR: 'Hours',
   DAY: 'Days', ACRE: 'Acres', GAL: 'Gallons', LB: 'Pounds',
   MO: 'Months', WK: 'Weeks',
+  BF: 'Board feet', SQ: 'Roofing squares', KW: 'Kilowatts',
 };
 
 /** Grouped by what they measure, so a list of fourteen reads as four short ones. */
 const DIMENSION_ORDER = [
-  'lumpsum', 'count', 'length', 'area', 'volume', 'mass', 'liquid', 'time',
+  'lumpsum', 'count', 'length', 'area', 'volume', 'lumber', 'mass', 'liquid',
+  'power', 'time',
 ] as const;
 
 const DIMENSION_LABEL: Record<string, string> = {
   lumpsum: 'Lump sum', count: 'Count', length: 'Length', area: 'Area',
-  volume: 'Volume', mass: 'Weight', liquid: 'Liquid', time: 'Time',
+  volume: 'Volume', lumber: 'Lumber', mass: 'Weight', liquid: 'Liquid',
+  power: 'Power', time: 'Time',
 };
 
 export function UnitSelect({

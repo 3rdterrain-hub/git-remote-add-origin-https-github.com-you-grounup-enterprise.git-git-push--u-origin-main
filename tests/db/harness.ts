@@ -30,9 +30,31 @@ export interface Harness {
   reset(): Promise<void>;
 }
 
+/**
+ * The schema migrations, which is not quite all of them.
+ *
+ * The catalog also ships as migrations — `0900_catalog_*` — so that
+ * `supabase db push` can apply it without a database password. Those are
+ * verbatim copies of the seed files, and the harness deliberately skips them:
+ * every test builds its own PostgreSQL, and loading two and a half megabytes of
+ * catalog into all eighty-five of them would put the suite back where it was
+ * before the seed scope was split.
+ *
+ * The catalog is still tested. The seed path loads the same bytes, a governance
+ * test holds the copies byte-identical to their sources, and `seed.test.ts`
+ * proves they apply twice without changing what the library holds.
+ */
 export async function listMigrations(): Promise<string[]> {
   const files = await readdir(MIGRATIONS_DIR);
-  return files.filter((f) => f.endsWith('.sql')).sort();
+  return files
+    .filter((f) => f.endsWith('.sql') && !f.includes('_catalog_'))
+    .sort();
+}
+
+/** The generated catalog migrations, for the tests that are about them. */
+export async function listCatalogMigrations(): Promise<string[]> {
+  const files = await readdir(MIGRATIONS_DIR);
+  return files.filter((f) => f.endsWith('.sql') && f.includes('_catalog_')).sort();
 }
 
 /**

@@ -12,6 +12,12 @@
  * more than it sounds: an importer whose rules live in a script is an importer
  * whose rules can be skipped by anybody who calls the database another way.
  *
+ * **You probably do not need this.** Libraries → Materials → "Bring in a price
+ * list" calls the same function with the session the browser already holds, and
+ * asks for no password at all. This stays for the headless case — a scripted
+ * load, a machine with no browser — and it is the only reason a password is
+ * involved anywhere in the import path.
+ *
  * Usage:
  *   npm run materials:import -- <file.csv> [--company <uuid>]
  *

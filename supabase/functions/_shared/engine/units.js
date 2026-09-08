@@ -7,9 +7,22 @@
  * an explicit, recorded conversion.
  */
 import { assertNonNegative, assertPositive, qty, factor } from './numeric.js';
-/** Units the catalog and estimate lines are allowed to use. */
+/**
+ * Units the catalog and estimate lines are allowed to use.
+ *
+ * The same values as `app.unit_code`, in the same order, and a governance test
+ * holds them to it. A unit the database accepts and this list does not know is
+ * a unit no dropdown offers; a unit here and not in the enum is a dropdown
+ * entry that fails on save.
+ *
+ * BF, SQ and KW arrived with a real materials export: lumber quoted in board
+ * feet, shingles in squares, a solar allowance in kilowatts. The importer
+ * refused all three kinds, correctly, and the fix was the enum rather than the
+ * spreadsheet.
+ */
 export const UNITS = [
     'LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB', 'MO', 'WK',
+    'BF', 'SQ', 'KW',
 ];
 export function isUnit(value) {
     return UNITS.includes(value);
@@ -29,6 +42,9 @@ export const UNIT_DIMENSION = {
     WK: 'time',
     MO: 'time',
     GAL: 'liquid',
+    SQ: 'area',
+    BF: 'lumber',
+    KW: 'power',
 };
 /** Factor to the family's base unit (SF for area, CY for volume, LB for mass, HR for time). */
 const TO_BASE = {
@@ -46,6 +62,11 @@ const TO_BASE = {
     WK: 40,
     MO: 173.33,
     GAL: 1,
+    /* A roofing square is defined as 100 square feet. That is a definition, not
+     * an assumption about a roof, so it converts. */
+    SQ: 100,
+    BF: 1,
+    KW: 1,
 };
 /**
  * Convert between two units in the same dimension.

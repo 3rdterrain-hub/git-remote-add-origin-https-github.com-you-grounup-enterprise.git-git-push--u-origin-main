@@ -271,7 +271,9 @@ describe('the documentation states what the tree contains', () => {
 
   it('agrees with the tree right now', () => {
     const summary = read('docs/BUILD-SUMMARY.md');
-    const migrations = readdirSync(join(ROOT, 'supabase/migrations')).filter((f) => f.endsWith('.sql'));
+    /* Schema migrations only; the generated catalog copies are counted apart. */
+    const migrations = readdirSync(join(ROOT, 'supabase/migrations'))
+      .filter((f) => f.endsWith('.sql') && !f.includes('_catalog_'));
     expect(summary).toContain(`Database migrations (${migrations.length} files,`);
   });
 });

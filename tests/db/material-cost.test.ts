@@ -116,14 +116,22 @@ describe('a material that costs nothing', () => {
         .rejects.toThrow(/why this material costs nothing/i);
     });
 
-    it('refuses to price a shipped catalog row', async () => {
-      const [platform] = await asChief<{ id: string }>(
-        `select id from materials where company_id is null limit 1`);
-      if (!platform) return;
-      await expect(asChief(
-        `select app.set_material_cost($1, 5, 'estimated', 'A supplier')`, [platform.id]))
-        .rejects.toThrow(/shipped catalog/i);
-    });
+    /*
+     * What a catalog row does is `pricing-a-catalog-material.test.ts`, and it
+     * moved twice over.
+     *
+     * There used to be a test here asserting that pricing a shipped catalog row
+     * was refused. It never ran: this harness loads the core seed, the core seed
+     * ships no materials, and the test opened with `if (!platform) return`. A
+     * guard like that turns a missing fixture into a silent pass, which is the
+     * one outcome worse than a failure — it reads as coverage for years.
+     *
+     * The behavior it described also reversed. Migration 0133 makes a catalog
+     * row copy itself into the company's library rather than refusing, because
+     * "copy it to your library to price it" was an instruction the database was
+     * perfectly capable of carrying out. That is tested against a harness that
+     * actually has a catalog in it.
+     */
   });
 
   describe('the constraints, not the function', () => {

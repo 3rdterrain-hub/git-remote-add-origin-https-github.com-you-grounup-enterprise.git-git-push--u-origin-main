@@ -20,9 +20,18 @@ import { CategorySelect } from '@/components/ui/category-select';
  * Said before somebody types, rather than discovered when their change silently
  * does nothing.
  */
-export const UNITS = [
-  'LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB', 'MO', 'WK',
-] as const;
+/**
+ * Every value of `app.unit_code`, re-exported from the engine.
+ *
+ * This list used to be typed out here as well, and the two drifted the first
+ * time a real materials export arrived: framing lumber in board feet, shingles
+ * in squares, a solar allowance in kilowatts, and four materials nearly dropped
+ * because a dropdown in a form did not know units the platform was about to
+ * have. There is one list, it lives in the engine, and a governance test holds
+ * it to the enum.
+ */
+import { UNITS } from '@grounup/engine';
+export { UNITS };
 
 export interface ServiceFormValues {
   code: string; name: string; description: string;

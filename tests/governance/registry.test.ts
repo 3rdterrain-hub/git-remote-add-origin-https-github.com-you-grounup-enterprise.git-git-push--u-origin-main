@@ -328,7 +328,15 @@ describe('the documentation states the counts the repository actually has', () =
    * said 16 engines while there were 28, and both were written truthfully on
    * the day. A count nobody rechecks is the count somebody quotes.
    */
-  const migrations = readdirSync(join(ROOT, 'supabase/migrations')).filter((f) => f.endsWith('.sql'));
+  /*
+   * The schema migrations. The generated `_catalog_` copies are excluded for
+   * the same reason `build-schema-counts` excludes them: they are seed data
+   * copied verbatim so `supabase db push` can apply it, and counting them as
+   * written work would overstate the build. `catalog-migrations.test.ts` is
+   * what holds those to being faithful copies.
+   */
+  const migrations = readdirSync(join(ROOT, 'supabase/migrations'))
+    .filter((f) => f.endsWith('.sql') && !f.includes('_catalog_'));
   const tables = Object.keys(registry.tables).length;
   const engines = registry.engines.length;
   const agents = registry.ai_agents.length;

@@ -19,9 +19,10 @@ import { useQuery } from '@/lib/data/query';
 import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
-  loadMaterials, loadLaborRates, updateCost,
+  loadMaterials, loadLaborRates, updateCost, setMaterialCost,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
+import { ImportPriceList } from '@/components/library/import-price-list';
 import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
@@ -90,6 +91,26 @@ export function LibrariesPage() {
     try {
       await updateCost(supabase, table, id, patch);
       refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That cost could not be saved.');
+    } finally { setBusy(false); }
+  }
+
+  /**
+   * Price a material, whichever tier it sits in.
+   *
+   * The company's own rows update in place. A catalog row cannot be updated by
+   * anybody — it is the row every tenant reads — so the database copies it into
+   * this company's library and prices the copy. Both go through the one
+   * function, because from the estimator's side it is one gesture: they clicked
+   * a price and typed a number.
+   */
+  async function priceMaterial(id: string, cost: number, source: string) {
+    if (!supabase || !companyId) return;
+    setBusy(true); setWriteError(null);
+    try {
+      await setMaterialCost(supabase, { materialId: id, companyId, cost, source });
+      materialsQ.refetch();
     } catch (err) {
       setWriteError(err instanceof Error ? err.message : 'That cost could not be saved.');
     } finally { setBusy(false); }
@@ -397,9 +418,15 @@ export function LibrariesPage() {
               <CardDescription>
                 Unit cost and the waste factor that grosses a measured quantity up to a
                 purchased one. A waste factor must state its basis; the database refuses one
-                that does not.
+                that does not. The catalog ships the names, the categories and the units;
+                the costs are yours, and clicking one on a catalog material makes your own
+                copy of it rather than changing what every company reads.
               </CardDescription>
             </CardHeader>
+            <CardContent className="border-b border-charcoal-100 pb-4">
+              <ImportPriceList companyId={companyId} canWrite={canWrite}
+                onImported={materialsQ.refetch} />
+            </CardContent>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
@@ -425,11 +452,21 @@ export function LibrariesPage() {
                       </TableCell>
                       <TableCell className="text-charcoal-600">{m.unit}</TableCell>
                       <TableCell className="text-right">
-                        <CostCell value={m.unitCost} editable={m.editable} busy={busy}
+                        <CostCell value={m.unitCost} editable={canWrite} busy={busy}
                           label={`unit cost for ${m.name}`} suffix={` / ${m.unit}`}
-                          hint={m.quoteReference ?? undefined}
-                          onSave={(v) => saveCost('materials', m.id, { unit_cost: v },
-                            materialsQ.refetch)} />
+                          unset={m.costState === 'not_costed'}
+                          hint={m.editable
+                            ? m.quoteReference ?? undefined
+                            : m.costState === 'free' ? m.freeReason ?? undefined : undefined}
+                          note={m.editable ? undefined : (
+                            <>
+                              This is a catalog material, and the catalog is the same for
+                              every company. Saving a cost makes <strong>your</strong> copy of
+                              it and prices that; the catalog row is left alone.
+                            </>
+                          )}
+                          sourcePrompt="Where this price came from"
+                          onSave={(v, src) => priceMaterial(m.id, v, src)} />
                       </TableCell>
                       <TableCell className="tabular text-right text-charcoal-600">
                         {percent(m.defaultWastePercent, 1)}

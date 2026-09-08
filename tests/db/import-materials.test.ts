@@ -5,9 +5,10 @@
  * and a national average is worse than nothing. So materials arrive by import,
  * and the import is where the damage happens if it is careless.
  *
- * The real export this was built against had 342 rows, 336 of them with no
- * price and 212 filed as `EA` including crushed stone and aggregate base. Every
- * refusal below comes from something in that file.
+ * The real export this was built against had 342 rows — 333 distinct materials
+ * once the repeats are taken out, five of them with a price, and thirty-seven
+ * filed as `EA` that are bought by the ton or the yard. Every refusal below
+ * comes from something in that file.
  */
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { createHarness, type Harness } from './harness.js';
@@ -162,23 +163,60 @@ describe('a price list you already have', () => {
   });
 
   // ---------------------------------------------------------------------------
-  describe('a unit the platform does not have', () => {
-    it('refuses a roofing square rather than flattening it into square feet', async () => {
-      /*
-       * A square is 100 square feet. Converting it would change the number
-       * attached to somebody's price, which is not an importer's decision.
-       */
+  /*
+   * These four rows used to be refused, and the refusal was right at the time:
+   * `app.unit_code` had no square, no board foot and no kilowatt, and an
+   * importer that invents a conversion to make a row fit is worse than one that
+   * refuses it. But the platform was the thing that was wrong. A roofing square
+   * is how every roof in the country is sold and a board foot is how every
+   * lumberyard quotes lumber, so migration 0132 added them and the file that
+   * prompted all this imports whole.
+   *
+   * What still gets refused is a unit that is a *multiplier* rather than a
+   * name. MBF is a thousand board feet; taking it as BF prices lumber at a
+   * thousandth of what it costs, and taking it as 1000 BF changes a number
+   * somebody typed. That one is still the spreadsheet's to settle.
+   */
+  describe('a unit written the way the trade writes it', () => {
+    it('takes a roofing square, now that there is a unit for it', async () => {
       const report = await load([{ name: 'Architectural shingles', category: 'Roofing',
         unit: 'SQ', unit_cost: '112', waste_pct: '10' }]);
-      expect(report.imported).toBe(0);
-      expect(report.rejected[0]!.reason).toMatch(/SQ is not a unit this platform has/);
-      expect(report.rejected[0]!.reason).toMatch(/would change the price/);
+      expect(report.imported).toBe(1);
+      expect(report.rejected).toEqual([]);
+      const [m] = await sql<{ unit: string }>(
+        `select unit::text from materials
+          where company_id = $1 and name = 'Architectural shingles'`, [company]);
+      expect(m!.unit).toBe('SQ');
     });
 
-    it('refuses a board foot for the same reason', async () => {
+    it('takes a board foot, and does not turn it into anything else', async () => {
       const report = await load([{ name: 'Rough sawn oak', category: 'Lumber & Framing',
         unit: 'BF', unit_cost: '4.10', waste_pct: '0' }]);
-      expect(report.rejected).toHaveLength(1);
+      expect(report.imported).toBe(1);
+      const [m] = await sql<{ unit: string; unit_cost: string }>(
+        `select unit::text, unit_cost::text from materials
+          where company_id = $1 and name = 'Rough sawn oak'`, [company]);
+      expect(m!.unit).toBe('BF');
+      expect(Number(m!.unit_cost)).toBe(4.1);   // the price is the price
+    });
+
+    it('takes a kilowatt allowance', async () => {
+      const report = await load([{ name: 'Solar PV allowance', category: 'Electrical',
+        unit: 'kW', unit_cost: '2400', waste_pct: '0' }]);
+      expect(report.imported).toBe(1);
+    });
+
+    it('still refuses a unit that is a multiplier in disguise', async () => {
+      /*
+       * A thousand board feet. Reading it as BF is off by a factor of a
+       * thousand; multiplying it out changes a price somebody typed. Neither is
+       * an importer's decision, so it is refused by name.
+       */
+      const report = await load([{ name: 'Framing package', category: 'Lumber & Framing',
+        unit: 'MBF', unit_cost: '640', waste_pct: '0' }]);
+      expect(report.imported).toBe(0);
+      expect(report.rejected[0]!.reason).toMatch(/MBF is not a unit this platform has/);
+      expect(report.rejected[0]!.reason).toMatch(/would change the price/);
     });
 
     it('accepts Ton written in mixed case', async () => {
@@ -273,7 +311,9 @@ describe('a price list you already have', () => {
       const rows = Array.from({ length: 40 }, (_, i) => ({
         name: `Bulk import row ${i}`,
         category: i % 3 === 0 ? 'Aggregate & Stone' : 'Electrical',
-        unit: i % 7 === 0 ? 'SQ' : 'EA',
+        // MBF rather than SQ: a square is a unit now, and this needs a unit
+        // that is still genuinely unconvertible for the refusal to mean anything.
+        unit: i % 7 === 0 ? 'MBF' : 'EA',
         unit_cost: i % 5 === 0 ? '10.00' : '0',
         waste_pct: '0',
       }));

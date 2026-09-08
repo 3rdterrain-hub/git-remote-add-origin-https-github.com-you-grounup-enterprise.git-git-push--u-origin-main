@@ -59,3 +59,55 @@ export function csvFilename(what: string): string {
   const day = new Date().toISOString().slice(0, 10);
   return `grounup-${what.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${day}.csv`;
 }
+
+/**
+ * Reading a file somebody exported from somewhere else.
+ *
+ * The mirror of `toCsv`, and strict about the same things for the same reason.
+ * A material named `Pipe, ductile iron 8"` is not exotic, and a reader that
+ * splits on commas files half of it as the category and the other half as the
+ * unit — quietly, on one row out of three hundred.
+ *
+ * Two concessions to what actually arrives: the byte order mark Excel writes,
+ * stripped rather than made part of the first header; and the leading
+ * apostrophe a spreadsheet-safe export adds to a field that looks like a
+ * formula, removed so a value survives a round trip through this pair.
+ */
+export function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let quoted = false;
+  const src = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+
+  for (let i = 0; i < src.length; i += 1) {
+    const c = src[i]!;
+    if (quoted) {
+      if (c === '"' && src[i + 1] === '"') { field += '"'; i += 1; }
+      else if (c === '"') quoted = false;
+      else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (c !== '\r') field += c;
+  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+
+  // A wholly blank line is a blank line, not a row of empty materials.
+  return rows.filter((r) => r.some((v) => v.trim() !== ''));
+}
+
+/**
+ * A CSV as records keyed by its header, lowercased and trimmed.
+ *
+ * Lowercased because `Unit Cost`, `unit_cost` and `UNIT COST` are the same
+ * column to everybody except a string comparison, and the header is whatever
+ * the last system exported rather than something the person chose.
+ */
+export function recordsFromCsv(text: string): Record<string, string>[] {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return [];
+  const header = rows[0]!.map((h) => h.trim().toLowerCase().replace(/^'/, ''));
+  return rows.slice(1).map((r) => Object.fromEntries(
+    header.map((h, i) => [h, (r[i] ?? '').replace(/^'/, '')])));
+}

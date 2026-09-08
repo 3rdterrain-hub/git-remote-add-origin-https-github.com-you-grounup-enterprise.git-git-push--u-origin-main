@@ -57,7 +57,18 @@ const mjs = (n) => n.endsWith('.mjs');
 const isTest = (n) => /\.test\.tsx?$/.test(n);
 
 // ---------------------------------------------------------------- the tree
-const migrations = walk('supabase/migrations', sql).sort();
+/*
+ * The schema migrations. The generated `_catalog_` copies are excluded from the
+ * counts: they are two and a half megabytes of seed data copied verbatim so
+ * `supabase db push` can apply it, and counting thirty thousand generated lines
+ * as hand-written work would make this document overstate the build by a fifth.
+ * They are still migrations and still applied; they are just not written.
+ */
+const migrations = walk('supabase/migrations', sql)
+  .filter((f) => !f.includes('_catalog_'))
+  .sort();
+const catalogMigrations = walk('supabase/migrations', sql)
+  .filter((f) => f.includes('_catalog_')).sort();
 const migrationText = migrations.map((f) => readFileSync(join(ROOT, f), 'utf8')).join('\n');
 
 const count = (re) => (migrationText.match(re) ?? []).length;

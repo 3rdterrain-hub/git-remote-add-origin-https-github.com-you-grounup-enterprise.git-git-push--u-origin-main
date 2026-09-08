@@ -128,6 +128,8 @@ type Writer = {
         PromiseLike<{ data: unknown; error: { message: string } | null }>;
     };
   };
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
 };
 
 export interface ServiceInput {
@@ -406,19 +408,30 @@ export async function createTruckingRate(
 // that were in force then. That is what makes editing a rate safe rather than
 // retroactive.
 // ---------------------------------------------------------------------------
+export type MaterialCostState = 'not_costed' | 'estimated' | 'quoted' | 'free';
+
 export interface MaterialRow {
   id: string; code: string; name: string; category: string | null;
   unit: string; unitCost: number;
+  /**
+   * Whether a zero means nobody has priced this or that it genuinely costs
+   * nothing. Both are `0`, so the screen cannot tell them apart without this
+   * and would show `$0.00` for a material nobody has ever costed.
+   */
+  costState: MaterialCostState;
+  freeReason: string | null;
   defaultWastePercent: number; wasteBasis: string | null;
   specification: string | null; quoteReference: string | null;
   quoteDate: string | null;
-  status: string; scope: Scope; editable: boolean;
+  status: string; scope: Scope;
+  /** True when this row is the company's own, so a write lands on it directly. */
+  editable: boolean;
 }
 
 export const loadMaterials: Query<MaterialRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('materials')
-    .select('id, code, name, category, unit, unit_cost, default_waste_percent, waste_basis, specification, quote_reference, quote_date, status, company_id, enterprise_group_id')
+    .select('id, code, name, category, unit, unit_cost, cost_state, free_reason, default_waste_percent, waste_basis, specification, quote_reference, quote_date, status, company_id, enterprise_group_id')
     .order('code')
     .limit(2000)) as Array<Record<string, unknown>>;
   return rows.map((m) => {
@@ -427,6 +440,8 @@ export const loadMaterials: Query<MaterialRow[]> = async (client) => {
       id: String(m.id), code: String(m.code), name: String(m.name),
       category: (m.category as string | null) ?? null,
       unit: String(m.unit), unitCost: Number(m.unit_cost ?? 0),
+      costState: String(m.cost_state ?? 'not_costed') as MaterialRow['costState'],
+      freeReason: (m.free_reason as string | null) ?? null,
       defaultWastePercent: Number(m.default_waste_percent ?? 0),
       wasteBasis: (m.waste_basis as string | null) ?? null,
       specification: (m.specification as string | null) ?? null,
@@ -523,6 +538,102 @@ export async function updateCost(
 ): Promise<void> {
   const { error } = await client.from(table).update(patch).eq('id', id);
   if (error) throw new Error(error.message);
+}
+
+/**
+ * Put a price on a material, whoever owns it.
+ *
+ * A catalog material belongs to no company and every company reads it, so
+ * nobody may edit one — which would leave 328 uncosted catalog materials with
+ * a padlock on each and no way through. `set_material_cost` copies the catalog
+ * row into the company's library and prices the copy, which is the same
+ * copy-on-write the templates use.
+ *
+ * Returns the id that ended up holding the price. On a catalog material that is
+ * **not** the id passed in, so a caller that keeps showing the old one is
+ * showing the catalog row it did not change.
+ */
+export interface MaterialCostInput {
+  materialId: string;
+  companyId: string;
+  cost: number;
+  state?: MaterialCostState;
+  /**
+   * Where the price came from, and the database insists on it: a price called
+   * estimated or quoted has to name a supplier, a quote or how it was worked
+   * out, and a material called free has to say why. A number with no
+   * provenance is the thing migration 0121 was written to stop.
+   */
+  source: string;
+  quotedOn?: string | null;
+}
+
+export async function setMaterialCost(
+  client: Writer, input: MaterialCostInput,
+): Promise<string> {
+  const { data, error } = await client.rpc('set_material_cost', {
+    p_material: input.materialId,
+    p_unit_cost: input.cost,
+    p_state: input.state ?? 'estimated',
+    p_source: input.source,
+    p_quoted_on: input.quotedOn ?? null,
+    p_company: input.companyId,
+  });
+  if (error) throw new Error(error.message);
+  const row = (Array.isArray(data) ? data[0] : data) as { id?: unknown } | null;
+  if (!row?.id) throw new Error('That cost was not saved.');
+  return String(row.id);
+}
+
+/**
+ * What `import_materials` hands back.
+ *
+ * A count of what went in would hide the two things worth knowing, so the
+ * function returns them: what it refused and why, and what it took but somebody
+ * should look at. A hundred materials imported with sixty of them filed as
+ * "each" is not a successful import.
+ */
+export interface MaterialImportReport {
+  imported: number;
+  alreadyThere: number;
+  categoriesAdded: number;
+  /** Not imported, with the reason — an unconvertible unit, a missing name. */
+  rejected: { name: string; reason: string }[];
+  /** Imported, and wrong in a way only a person can settle. */
+  needsReview: { name: string; unit: string; why: string }[];
+  /** False when the caller cannot approve, so the rows landed as drafts. */
+  approved: boolean;
+}
+
+/**
+ * Import a price list into a company's own library.
+ *
+ * Every decision lives in the database function, in one transaction: the
+ * categories are created first because `materials.category` is governed, unit
+ * synonyms are mapped but a unit that would need arithmetic is refused by name,
+ * and an uncosted row is filed as `not_costed` rather than as free.
+ *
+ * The rows are the CSV as it arrived — lowercased headers, values as text. The
+ * function reads `name`, `category`, `unit`, `unit_cost`, `density` and
+ * `waste_pct` and ignores the rest, so an export with extra columns imports
+ * without anybody editing it first.
+ */
+export async function importMaterials(
+  client: Writer, companyId: string, rows: Record<string, string>[],
+): Promise<MaterialImportReport> {
+  const { data, error } = await client.rpc('import_materials', {
+    p_company: companyId, p_rows: rows,
+  });
+  if (error) throw new Error(error.message);
+  const r = (data ?? {}) as Record<string, unknown>;
+  return {
+    imported: Number(r.imported ?? 0),
+    alreadyThere: Number(r.already_there ?? 0),
+    categoriesAdded: Number(r.categories_added ?? 0),
+    rejected: (r.rejected as MaterialImportReport['rejected']) ?? [],
+    needsReview: (r.needs_review as MaterialImportReport['needsReview']) ?? [],
+    approved: Boolean(r.approved),
+  };
 }
 
 export interface MaterialInput {

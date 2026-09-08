@@ -325,6 +325,7 @@ TST-db-plan-takeoff,test,db/plan-takeoff.test.ts,tests/db/plan-takeoff.test.ts,E
 TST-db-platform-operator,test,db/platform-operator.test.ts,tests/db/platform-operator.test.ts,ENGINE
 TST-db-platform-rows-are-readable,test,db/platform-rows-are-readable.test.ts,tests/db/platform-rows-are-readable.test.ts,ENGINE
 TST-db-price-control,test,db/price-control.test.ts,tests/db/price-control.test.ts,ENGINE
+TST-db-pricing-a-catalog-material,test,db/pricing-a-catalog-material.test.ts,tests/db/pricing-a-catalog-material.test.ts,ENGINE
 TST-db-production-rates,test,db/production-rates.test.ts,tests/db/production-rates.test.ts,ENGINE
 TST-db-production-variance,test,db/production-variance.test.ts,tests/db/production-variance.test.ts,ENGINE
 TST-db-proposal-integrity,test,db/proposal-integrity.test.ts,tests/db/proposal-integrity.test.ts,ENGINE
@@ -360,12 +361,14 @@ TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENG
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
+TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
 TST-gov-rerunnable-migrations,test,gov/rerunnable-migrations.test.ts,tests/governance/rerunnable-migrations.test.ts,ENGINE
 TST-gov-spelling,test,gov/spelling.test.ts,tests/governance/spelling.test.ts,ENGINE
 TST-gov-the-product-does-not-name-the-model,test,gov/the-product-does-not-name-the-model.test.ts,tests/governance/the-product-does-not-name-the-model.test.ts,ENGINE
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
+TST-gov-units-match-the-enum,test,gov/units-match-the-enum.test.ts,tests/governance/units-match-the-enum.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
@@ -387,6 +390,7 @@ TST-web-page,test,web/page.test.tsx,apps/web/src/components/layout/page.test.tsx
 TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/assemblies.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
+TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-card,test,web/card.test.tsx,apps/web/src/components/ui/card.test.tsx,ENGINE

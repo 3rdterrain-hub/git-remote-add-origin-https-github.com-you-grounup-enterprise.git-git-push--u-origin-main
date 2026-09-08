@@ -6,12 +6,33 @@
  * different physical states of the same soil and must never be mixed without
  * an explicit, recorded conversion.
  */
-/** Units the catalog and estimate lines are allowed to use. */
-export declare const UNITS: readonly ["LS", "EA", "LF", "SF", "SY", "CY", "TON", "HR", "DAY", "ACRE", "GAL", "LB", "MO", "WK"];
+/**
+ * Units the catalog and estimate lines are allowed to use.
+ *
+ * The same values as `app.unit_code`, in the same order, and a governance test
+ * holds them to it. A unit the database accepts and this list does not know is
+ * a unit no dropdown offers; a unit here and not in the enum is a dropdown
+ * entry that fails on save.
+ *
+ * BF, SQ and KW arrived with a real materials export: lumber quoted in board
+ * feet, shingles in squares, a solar allowance in kilowatts. The importer
+ * refused all three kinds, correctly, and the fix was the enum rather than the
+ * spreadsheet.
+ */
+export declare const UNITS: readonly ["LS", "EA", "LF", "SF", "SY", "CY", "TON", "HR", "DAY", "ACRE", "GAL", "LB", "MO", "WK", "BF", "SQ", "KW"];
 export type Unit = (typeof UNITS)[number];
 export declare function isUnit(value: string): value is Unit;
 /** Dimension family a unit belongs to. Conversions only happen inside a family. */
-export type Dimension = 'lumpsum' | 'count' | 'length' | 'area' | 'volume' | 'mass' | 'time' | 'liquid';
+export type Dimension = 'lumpsum' | 'count' | 'length' | 'area' | 'volume' | 'mass' | 'time' | 'liquid'
+/**
+ * A board foot is 144 cubic inches of *nominal* lumber, and a two-by-four is
+ * an inch and a half by three and a half. So it is a volume that does not
+ * convert to one, and it gets a family of its own rather than a factor into
+ * CY that would be arithmetically defensible and wrong at the lumberyard.
+ */
+ | 'lumber'
+/** Kilowatts: solar arrays, generators, temporary power. */
+ | 'power';
 export declare const UNIT_DIMENSION: Readonly<Record<Unit, Dimension>>;
 /**
  * Convert between two units in the same dimension.

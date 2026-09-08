@@ -57,7 +57,26 @@ async function askPassword(prompt) {
   const answer = await new Promise((resolve) => rl.question(prompt, resolve));
   rl.close();
   process.stdout.write('\n');
-  return answer.trim() || null;
+  const given = answer.trim();
+  if (!given) return null;
+
+  /*
+   * A command typed at the password prompt.
+   *
+   * The prompt does not echo, so a shell that is busy looks exactly like a
+   * shell that is idle — somebody types `npx supabase db push`, sees nothing,
+   * presses Enter, and has just sent their intended command as a password. The
+   * failure that follows says "password authentication failed", which is true
+   * and unhelpful. This says what actually happened.
+   */
+  if (/^(npx|npm|yarn|pnpm|supabase|git|cd|ls)\s/.test(given)) {
+    console.error(
+      `\nThat looks like a command rather than a password: "${given}"\n\n`
+      + 'This prompt does not echo, so a busy shell looks like an idle one.\n'
+      + 'Press Ctrl+C to get your shell back, run the command, then start this again.\n');
+    process.exit(1);
+  }
+  return given;
 }
 
 /** The connection the CLI already knows about, with a password put into it. */
@@ -127,7 +146,34 @@ const client = new Client({
   statement_timeout: 10 * 60 * 1000,
 });
 
-await client.connect();
+/*
+ * A failed login used to arrive as a `pg` stack trace, which says
+ * "password authentication failed" and nothing about which password. There are
+ * two, they are unrelated, and only one of them works here.
+ */
+try {
+  await client.connect();
+} catch (err) {
+  const message = String(err?.message ?? err);
+  if (/password authentication failed/i.test(message)) {
+    console.error(
+      '\nThat password was refused by the database.\n\n'
+      + 'It is the *database* password, not the one you sign in to Supabase with.\n'
+      + 'Dashboard -> Project Settings -> Database -> Database password.\n\n'
+      + 'It cannot be read back, only reset. Resetting it is safe and takes a moment;\n'
+      + 'nothing else in the project uses it.\n\n'
+      + 'To skip the prompt entirely:\n'
+      + '  SUPABASE_DB_PASSWORD=\'your-password\' npm run seed:load\n');
+  } else if (/ENOTFOUND|EAI_AGAIN/i.test(message)) {
+    console.error(
+      `\nCould not reach the database host.\n\n${message}\n\n`
+      + 'If that hostname looks like an example rather than yours, unset DATABASE_URL\n'
+      + 'and run this again — it reads the host from the linked project.\n');
+  } else {
+    console.error(`\nCould not connect: ${message}\n`);
+  }
+  process.exit(1);
+}
 console.log(`Connected. ${files.length} seed file${files.length === 1 ? '' : 's'} to apply.\n`);
 
 let applied = 0;

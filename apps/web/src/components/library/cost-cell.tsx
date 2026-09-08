@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Check, Loader2, Pencil, X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,15 @@ import { cn } from '@/lib/utils';
  * would touch it. With it, this is the right place to keep a company's costs.
  *
  * A catalog row cannot be edited at all — row level security refuses it — and
- * the control says why rather than failing when it is pressed.
+ * the control says why rather than failing when it is pressed. Where the
+ * library has a copy-on-write path for that row, the caller passes `note`
+ * instead of `editable={false}`: the cell takes the number and says what
+ * saving it will do, which for a catalog material is make the company's own
+ * copy and price that.
+ *
+ * A cost of zero is only shown as `$0.00` when zero is the answer. A material
+ * nobody has priced reads "Set a cost", because `$0.00` on 328 catalog rows is
+ * the exact silence migration 0121 exists to break.
  */
 export interface CostCellProps {
   value: number;
@@ -31,16 +39,36 @@ export interface CostCellProps {
   label: string;
   suffix?: string;
   busy?: boolean;
-  onSave: (next: number) => void | Promise<void>;
+  onSave: (next: number, source: string) => void | Promise<void>;
+  /**
+   * Ask where the price came from, and refuse to save without it.
+   *
+   * Not politeness. `app.set_material_cost` refuses a price called estimated or
+   * quoted that does not name a supplier, a quote or how it was worked out —
+   * "a quote and a guess are different claims and the estimate should be able
+   * to tell them apart". Asking here means somebody types it once; not asking
+   * means they meet the refusal after typing the number.
+   */
+  sourcePrompt?: string;
   /** Shown under the value: where the rate came from, when it took effect. */
   hint?: string;
+  /**
+   * What saving does, shown while editing in place of the default. Use it when
+   * saving does something other than change this row — copying a catalog row
+   * into the company's library, for one.
+   */
+  note?: ReactNode;
+  /** True when the zero means nobody has costed this, rather than "free". */
+  unset?: boolean;
 }
 
 export function CostCell({
-  value, editable, label, suffix, busy = false, onSave, hint,
+  value, editable, label, suffix, busy = false, onSave, hint, note, unset = false,
+  sourcePrompt,
 }: CostCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
+  const [source, setSource] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   if (!editable) {
@@ -48,7 +76,10 @@ export function CostCell({
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="tabular inline-flex items-center gap-1.5 text-charcoal-700">
-            {money(value)}{suffix ? <span className="text-charcoal-400">{suffix}</span> : null}
+            {unset
+              ? <span className="text-charcoal-400">Not costed</span>
+              : <>{money(value)}{suffix
+                  ? <span className="text-charcoal-400">{suffix}</span> : null}</>}
             <Lock className="size-3 text-charcoal-300" />
           </span>
         </TooltipTrigger>
@@ -65,9 +96,15 @@ export function CostCell({
       <div className="group inline-flex flex-col items-end">
         <button type="button"
           className="tabular inline-flex items-center gap-1.5 text-charcoal-900 hover:underline"
-          onClick={() => { setDraft(String(value)); setError(null); setEditing(true); }}
-          aria-label={`Change ${label}`}>
-          {money(value)}{suffix ? <span className="text-charcoal-400">{suffix}</span> : null}
+          onClick={() => {
+            setDraft(unset ? '' : String(value));
+            setSource(''); setError(null); setEditing(true);
+          }}
+          aria-label={unset ? `Set ${label}` : `Change ${label}`}>
+          {unset
+            ? <span className="text-charcoal-500">Set a cost</span>
+            : <>{money(value)}{suffix
+                ? <span className="text-charcoal-400">{suffix}</span> : null}</>}
           <Pencil className="size-3 text-charcoal-300 group-hover:text-charcoal-600" />
         </button>
         {hint ? <span className="text-[11px] text-charcoal-400">{hint}</span> : null}
@@ -77,18 +114,31 @@ export function CostCell({
 
   async function save() {
     const next = Number(draft);
-    if (!Number.isFinite(next) || next < 0) {
+    if (draft.trim() === '' || !Number.isFinite(next) || next < 0) {
       setError('A cost must be zero or more');
       return;
     }
+    if (sourcePrompt && source.trim().length < 3) {
+      setError('Say where this price came from');
+      return;
+    }
     setError(null);
-    await onSave(next);
+    await onSave(next, source.trim());
     setEditing(false);
   }
 
   return (
     <div className="inline-flex flex-col items-end gap-1">
       <div className="flex items-center gap-1">
+        {sourcePrompt ? (
+          <Input value={source} className="h-8 w-44" aria-label={sourcePrompt}
+            placeholder={sourcePrompt}
+            onChange={(e) => setSource(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void save();
+              if (e.key === 'Escape') setEditing(false);
+            }} />
+        ) : null}
         <Input value={draft} inputMode="decimal" autoFocus
           className="h-8 w-24 text-right" aria-label={label}
           onChange={(e) => setDraft(e.target.value)}
@@ -107,7 +157,7 @@ export function CostCell({
       </div>
       {error ? <span className="text-[11px] text-danger-700">{error}</span> : null}
       <span className={cn('text-[11px] text-charcoal-500')}>
-        Applies to future estimates. Issued ones keep the rate that priced them.
+        {note ?? 'Applies to future estimates. Issued ones keep the rate that priced them.'}
       </span>
     </div>
   );
