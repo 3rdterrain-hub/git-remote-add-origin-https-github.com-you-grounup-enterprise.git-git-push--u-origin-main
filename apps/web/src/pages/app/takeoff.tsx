@@ -25,6 +25,7 @@ import {
   loadPlanSetsWithoutSheets, loadMeasurements, saveMeasurement,
 } from '@/lib/data/takeoff';
 import { UnsheetedPlanSets } from '@/components/takeoff/unsheeted-plan-sets';
+import { TakenOff } from '@/components/takeoff/taken-off';
 import { DemonstrationNotice, ErrorState } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { measure, measureBasin, ENGINE_VERSION } from '@grounup/engine';
@@ -496,6 +497,21 @@ export function TakeoffPage() {
             </p>
           </CardContent>
         </Card>
+
+        {/*
+          * What has been kept, and the two things left to do with it.
+          *
+          * Finishing a shape saves it with no line on it, which is the order a
+          * takeoff is actually done in — but a measurement that can only be
+          * kept is a measurement in a drawer. This is where one goes onto an
+          * estimate, or comes off the sheet.
+          */}
+        <TakenOff
+          measurements={measurements}
+          lines={lines.map((l) => ({ id: l.id, description: l.description, unit: l.unit }))}
+          editable={isSupabaseConfigured && Boolean(sheetId)}
+          onChanged={() => { measurementsQ.refetch(); linesQ.refetch(); }} />
+
 
         {/* -------------------------------------------------------- the panel */}
         <div className="space-y-4">

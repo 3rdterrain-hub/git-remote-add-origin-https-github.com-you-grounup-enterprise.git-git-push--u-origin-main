@@ -368,6 +368,7 @@ TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
+TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
@@ -401,6 +402,7 @@ TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/compo
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE
+TST-web-taken-off,test,web/taken-off.test.tsx,apps/web/src/components/takeoff/taken-off.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-unsheeted-plan-sets,test,web/unsheeted-plan-sets.test.tsx,apps/web/src/components/takeoff/unsheeted-plan-sets.test.tsx,ENGINE
 TST-web-card,test,web/card.test.tsx,apps/web/src/components/ui/card.test.tsx,ENGINE
@@ -414,6 +416,7 @@ TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.chec
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
 TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,apps/web/src/lib/data/equipment-rate-precedence.test.ts,ENGINE
+TST-web-fleet-rate,test,web/fleet-rate.test.ts,apps/web/src/lib/data/fleet-rate.test.ts,ENGINE
 TST-web-lead-forms,test,web/lead-forms.test.ts,apps/web/src/lib/data/lead-forms.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE

@@ -388,3 +388,44 @@ export async function setDocumentPageCount(
   if (error) throw new Error(error.message);
   return Number(data ?? 0);
 }
+
+/**
+ * Put a measurement that was already taken onto an estimate line.
+ *
+ * The other half of keeping a shape. `saveMeasurement` writes one with no line
+ * item on it, because a takeoff is done in the order the drawing reads rather
+ * than the order the estimate is in — and without this, a kept measurement
+ * could be looked at and never used, which is a shape saved into a drawer.
+ *
+ * The measurement already carries its geometry, its calibration and how it was
+ * measured; only the quantity and the line are decided here. `measurement_method`
+ * is read from the calibration inside the function and never accepted from the
+ * caller, because it decides the line's confidence and its approval gate.
+ */
+export async function applySavedMeasurement(
+  client: RpcCapable,
+  input: { measurementId: string; lineItemId: string; quantity: number; engineVersion: string },
+): Promise<void> {
+  const { error } = await client.rpc('apply_takeoff_to_line', {
+    p_measurement: input.measurementId,
+    p_line_item: input.lineItemId,
+    p_quantity: input.quantity,
+    p_engine_version: input.engineVersion,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Take a measurement off the sheet.
+ *
+ * A mis-traced shape has to be removable or the sheet fills with attempts and
+ * nobody can tell which one the estimate is standing on.
+ */
+export async function deleteMeasurement(
+  client: { from: (t: string) => { delete: () => { eq: (c: string, v: string) =>
+    PromiseLike<{ error: { message: string } | null }> } } },
+  measurementId: string,
+): Promise<void> {
+  const { error } = await client.from('takeoff_measurements').delete().eq('id', measurementId);
+  if (error) throw new Error(error.message);
+}

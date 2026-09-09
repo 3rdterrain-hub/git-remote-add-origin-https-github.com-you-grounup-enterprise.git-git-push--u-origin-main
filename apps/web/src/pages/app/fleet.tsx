@@ -14,7 +14,6 @@ import {
   loadAssets, loadMaintenanceDue, loadWorkOrders, loadFuel,
   demonstrationAssets, demonstrationMaintenance, demonstrationWorkOrders, demonstrationFuel,
 } from '@/lib/data/fleet';
-import { EQUIPMENT_SPECS } from '@/data/catalog';
 import { money, moneyCompact, qty, integer, dateTime, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -406,11 +405,19 @@ export function FleetPage() {
                 </TableHeader>
                 <TableBody>
                   {ASSETS.filter((a) => (a.acquisitionCost ?? 0) > 0 && a.equipmentCode).map((a) => {
-                    const catalogRate = EQUIPMENT_SPECS[a.equipmentCode as keyof typeof EQUIPMENT_SPECS]?.hourlyRate ?? 0;
+                    /*
+                      * The rate this machine bills at, from the equipment
+                      * library by RULE-003 — not from `EQUIPMENT_SPECS`, which
+                      * is eight demo machines with invented rates. Real
+                      * equipment codes never appeared in that constant, so the
+                      * lookup fell through to zero and this "spread" was the
+                      * ownership cost with a minus sign in front of it.
+                      */
+                    const billingRate = a.hourlyRate;
                     // Straight-line ownership cost per hour run to date. The filter
                     // above guarantees an acquisition cost, so the fallback never runs.
                     const costPerHour = (a.acquisitionCost ?? 0) / Math.max(a.currentHours, 1);
-                    const spread = catalogRate - costPerHour;
+                    const spread = billingRate === null ? null : billingRate - costPerHour;
                     return (
                       <TableRow key={a.id}>
                         <TableCell>
@@ -427,9 +434,23 @@ export function FleetPage() {
                         <TableCell className="tabular text-right text-charcoal-600">{integer(a.currentHours)} h</TableCell>
                         <TableCell className="tabular text-right text-charcoal-600">{moneyCompact(a.acquisitionCost)}</TableCell>
                         <TableCell className="tabular text-right">{money(costPerHour)}</TableCell>
-                        <TableCell className="tabular text-right text-charcoal-600">{money(catalogRate)}</TableCell>
-                        <TableCell className={cn('tabular text-right font-medium', spread >= 0 ? 'text-success-700' : 'text-danger-700')}>
-                          {spread >= 0 ? '+' : '−'}{money(Math.abs(spread))}
+                        <TableCell className="tabular text-right text-charcoal-600">
+                          {billingRate === null
+                            ? <span className="text-warn-700">No rate yet</span>
+                            : money(billingRate)}
+                        </TableCell>
+                        {/*
+                          * No rate, no spread. Subtracting an ownership cost
+                          * from a zero and calling the answer a spread is how a
+                          * machine nobody has priced reads as the worst asset
+                          * in the fleet.
+                          */}
+                        <TableCell className={cn('tabular text-right font-medium',
+                          spread === null ? 'text-charcoal-300'
+                            : spread >= 0 ? 'text-success-700' : 'text-danger-700')}>
+                          {spread === null
+                            ? '—'
+                            : `${spread >= 0 ? '+' : '−'}${money(Math.abs(spread))}`}
                         </TableCell>
                       </TableRow>
                     );

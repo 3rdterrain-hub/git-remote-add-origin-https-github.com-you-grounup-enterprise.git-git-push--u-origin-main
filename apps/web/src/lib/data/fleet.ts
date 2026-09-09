@@ -9,6 +9,7 @@
  * clock, because that is how heavy equipment is serviced.
  */
 import { unwrap, type Query } from './query';
+import { rateInForce } from './library';
 import { ASSETS, MAINTENANCE_DUE, WORK_ORDERS, FUEL_TRANSACTIONS } from '@/data/fleet';
 
 export interface AssetRow {
@@ -20,6 +21,16 @@ export interface AssetRow {
   acquisitionCost: number | null;
   /** The catalog rate this machine is estimated at, if it is linked to one. */
   equipmentCode: string | null;
+  /**
+   * What this machine bills at, from the equipment library, by RULE-003.
+   *
+   * Null when nobody has priced it. The fleet screen read this out of
+   * `EQUIPMENT_SPECS` — eight demo machines carrying invented rates — and
+   * subtracted a real asset's ownership cost from it. Real equipment codes do
+   * not appear in that constant, so the lookup fell through to zero and the
+   * "spread" was the ownership cost with a minus sign in front of it.
+   */
+  hourlyRate: number | null;
   /**
    * Hours the meter actually moved in the last thirty days.
    *
@@ -61,7 +72,7 @@ export const loadAssets: Query<AssetRow[]> = async (client) => {
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const rows = unwrap(await client
     .from('assets')
-    .select('id, asset_number, name, asset_class, make, model, model_year, ownership, current_hours, fuel_type, home_location, last_telemetry_at, acquisition_cost, status, projects(number), employees(full_name), equipment(code)')
+    .select('id, asset_number, name, asset_class, make, model, model_year, ownership, current_hours, fuel_type, home_location, last_telemetry_at, acquisition_cost, status, projects(number), employees(full_name), equipment(code, equipment_rates(source, hourly_rate))')
     .is('disposed_on', null)
     .order('asset_number')) as Array<Record<string, unknown>>;
 
@@ -101,6 +112,9 @@ export const loadAssets: Query<AssetRow[]> = async (client) => {
     lastTelemetryAt: (a.last_telemetry_at as string | null) ?? null,
     acquisitionCost: a.acquisition_cost == null ? null : Number(a.acquisition_cost),
     equipmentCode: one<{ code: string }>(a.equipment)?.code ?? null,
+    hourlyRate: rateInForce(
+      (one<{ equipment_rates?: Array<{ source: unknown; hourly_rate: unknown }> }>(a.equipment)
+        ?.equipment_rates) ?? []),
     hoursLast30: (() => {
       const from = earliest.get(String(a.id));
       if (from == null) return null;      // nothing recorded in the window
@@ -211,6 +225,8 @@ export const demonstrationAssets = (): AssetRow[] =>
     status: a.status, location: a.location, lastTelemetryAt: a.lastTelemetryAt,
     acquisitionCost: a.acquisitionCost,
     equipmentCode: a.equipmentCode,
+    /* The sample fleet carries no rates; the library is where they live. */
+    hourlyRate: null,
     // The sample dataset carries a utilization ratio; hours run is what the
     // platform can measure, so the demonstration path reports the same shape.
     hoursLast30: Math.round(a.utilization30d * 30 * 10),

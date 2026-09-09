@@ -777,7 +777,24 @@ export const loadCrews: Query<CrewPreset[]> = async (client) => {
  * database uses in `array_position` when it resolves a rate, kept here so the
  * screen and the engine cannot disagree about which one won.
  */
-const RATE_PRECEDENCE = ['project_quote', 'tenant_approved', 'regional', 'global_seed'] as const;
+export const RATE_PRECEDENCE =
+  ['project_quote', 'tenant_approved', 'regional', 'global_seed'] as const;
+
+/**
+ * The rate in force on a machine, by RULE-003, out of whatever rows it carries.
+ *
+ * Exported because the fleet screen needs the same answer the library gives. It
+ * was reading an hourly rate out of `EQUIPMENT_SPECS` — eight demo machines
+ * with invented rates — and comparing it against a real asset's ownership cost.
+ */
+export function rateInForce(
+  rates: ReadonlyArray<{ source?: unknown; hourly_rate?: unknown }>,
+): number | null {
+  const best = RATE_PRECEDENCE
+    .map((source) => rates.find((r) => r.source === source))
+    .find(Boolean);
+  return best?.hourly_rate == null ? null : Number(best.hourly_rate);
+}
 
 /**
  * The machines themselves, with whichever rate is in force.
@@ -838,6 +855,134 @@ export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => 
       fuelGallonsPerHour: Number(e.fuel_gallons_per_hour ?? 0),
       mobilizationCost: Number(e.mobilization_cost ?? 0),
       scope: scopeOf(e.company_id, e.enterprise_group_id),
+    };
+  });
+};
+
+/**
+ * The conditions that change what work takes, and by how much.
+ *
+ * Rock in the cut, a live lane, night work, frost. Each names a factor per
+ * target — production, labor cost, equipment cost — and migration 0004 refuses
+ * a factor that names a target the engine does not have, so what is here is
+ * what the engine will actually apply.
+ */
+export interface ConditionModifierRow {
+  id: string;
+  code: string;
+  name: string;
+  category: string | null;
+  /** Target to factor: `{ production: 0.75, labor_cost: 1.15 }`. */
+  factors: Record<string, number>;
+  applicationRule: string;
+  scope: Scope;
+  editable: boolean;
+}
+
+export const loadConditionModifiers: Query<ConditionModifierRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('condition_modifiers')
+    .select('id, code, name, category, factors, application_rule, company_id, enterprise_group_id')
+    .eq('status', 'active')
+    .order('code')
+    .limit(500)) as Array<Record<string, unknown>>;
+  return rows.map((m) => {
+    const scope = scopeOf(m.company_id, m.enterprise_group_id);
+    return {
+      id: String(m.id),
+      code: String(m.code),
+      name: String(m.name),
+      category: (m.category as string | null) ?? null,
+      factors: (m.factors ?? {}) as Record<string, number>,
+      applicationRule: String(m.application_rule ?? ''),
+      scope,
+      editable: scope === 'company',
+    };
+  });
+};
+
+/**
+ * How a company turns cost into price, and the adjustments it stacks to do it.
+ *
+ * The components come with the profile because a profile without them says
+ * nothing: "Standard" is a name, and 10% overhead then 8% profit on the running
+ * total is the thing that decides a bid. The method matters for exactly that
+ * reason — parallel takes each percentage off the same base, stacked takes the
+ * next off the last result, and on ten thousand dollars that is a hundred
+ * dollars of difference.
+ */
+export interface MarkupComponentRow {
+  code: string;
+  label: string;
+  /** A fraction, as every other rate in the schema is. */
+  percent: number;
+  /**
+   * Which base the percentage is taken off. The same closed set the engine and
+   * `markup_components` both use — typed here rather than as `string`, so a
+   * profile can be handed to `calculatePrice` without a cast that would hide a
+   * value the engine cannot read.
+   */
+  basis: 'profile_default' | 'direct_cost' | 'direct_plus_indirect'
+       | 'running_total' | 'marked_up_total';
+  sequence: number;
+  disclosed: boolean;
+}
+
+/** The five bases `markup_components` allows, for narrowing what the row says. */
+const MARKUP_BASES = ['profile_default', 'direct_cost', 'direct_plus_indirect',
+  'running_total', 'marked_up_total'] as const;
+
+export interface PricingProfileRow {
+  id: string;
+  code: string;
+  name: string;
+  method: 'parallel' | 'stacked';
+  region: string | null;
+  regionalFactor: number;
+  escalationPercent: number;
+  escalationYears: number;
+  isDefault: boolean;
+  components: MarkupComponentRow[];
+  scope: Scope;
+  editable: boolean;
+}
+
+export const loadPricingProfiles: Query<PricingProfileRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('pricing_profiles')
+    .select('id, code, name, method, region, regional_factor, escalation_percent, escalation_years, is_default, company_id, enterprise_group_id, markup_components(code, label, percent, basis, sequence, disclosed)')
+    .eq('status', 'active')
+    .order('name')
+    .limit(200)) as Array<Record<string, unknown>>;
+  return rows.map((p) => {
+    const scope = scopeOf(p.company_id, p.enterprise_group_id);
+    const components = ((p.markup_components ?? []) as Array<Record<string, unknown>>)
+      .map((c) => ({
+        code: String(c.code),
+        label: String(c.label),
+        percent: Number(c.percent ?? 0),
+        /* Anything else is a value the engine has no rule for; the profile
+           default is what the column itself defaults to. */
+        basis: (MARKUP_BASES as readonly string[]).includes(String(c.basis))
+          ? (String(c.basis) as MarkupComponentRow['basis'])
+          : 'profile_default',
+        sequence: Number(c.sequence ?? 10),
+        disclosed: Boolean(c.disclosed),
+      }))
+      .sort((a, b) => a.sequence - b.sequence);
+    return {
+      id: String(p.id),
+      code: String(p.code),
+      name: String(p.name),
+      method: (p.method === 'stacked' ? 'stacked' : 'parallel') as 'parallel' | 'stacked',
+      region: (p.region as string | null) ?? null,
+      regionalFactor: Number(p.regional_factor ?? 1),
+      escalationPercent: Number(p.escalation_percent ?? 0),
+      escalationYears: Number(p.escalation_years ?? 0),
+      isDefault: Boolean(p.is_default),
+      components,
+      scope,
+      editable: scope === 'company',
     };
   });
 };
