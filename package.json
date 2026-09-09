@@ -21,7 +21,7 @@
     "docs": "npm run schema:counts && npm run counts && npm run verification && npm run traceability && npm run schema:counts",
     "engine:edge": "node scripts/build-edge-engine.mjs",
     "engine:edge:check": "node scripts/build-edge-engine.mjs --check",
-    "functions:deploy": "supabase functions deploy --import-map supabase/functions/deno.json",
+    "functions:deploy": "npx supabase functions deploy --import-map supabase/functions/deno.json",
     "materials:import": "node tools/import-materials.mjs",
     "openapi": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/generate-openapi.mjs --check",
