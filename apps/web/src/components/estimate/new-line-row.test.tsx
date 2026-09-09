@@ -62,11 +62,11 @@ const { NewLineRow } = await import('./new-line-row');
 const show = (afterLineId: string | null = null) => {
   const onDone = vi.fn();
   const onCancel = vi.fn();
+  // No table wrapper any more: a line is a card, and the blank row that adds
+  // one is a card too.
   render(
-    <table><tbody>
-      <NewLineRow versionId="v-1" afterLineId={afterLineId} columns={10}
-        onDone={onDone} onCancel={onCancel} />
-    </tbody></table>,
+    <NewLineRow versionId="v-1" afterLineId={afterLineId}
+      onDone={onDone} onCancel={onCancel} />,
   );
   return { onDone, onCancel };
 };

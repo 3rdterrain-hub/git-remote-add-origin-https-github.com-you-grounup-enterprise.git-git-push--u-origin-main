@@ -92,7 +92,12 @@ export function QuantityInput({
           inputMode="text"
           aria-label={label}
           aria-invalid={error ? true : undefined}
-          className={cn('tabular h-8 w-32 pr-6 text-right', error && 'border-danger-400')}
+          /*
+           * Narrower than it was. "Keep the line item boxes smaller" — and a
+           * quantity is six or seven digits, so w-32 was buying blank space at
+           * the description's expense.
+           */
+          className={cn('tabular h-8 w-24 pr-6 text-right', error && 'border-danger-400')}
           onChange={(e) => { setDraft(e.target.value); setError(null); }}
           onBlur={commit}
           onKeyDown={onKeyDown}

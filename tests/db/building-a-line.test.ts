@@ -89,18 +89,33 @@ describe('building a line the way an estimator does', () => {
     expect(Number(r!.cost)).toBe(0);
   });
 
-  it('will not take a cost, because sending one would be silently dropped',
-    async () => {
-      // 0058's guard resets a hand-written engine output on insert rather than
-      // refusing it, so a caller would get no error and no effect.
-      const id = await save('labor', {
-        role: 'Labor', description: 'Laborer', headcount: 1,
-        base_rate: 30, burden_rate: 15, extended_cost: 9999,
-      });
-      const [r] = await h.asUser(chief, () => h.sql<{ cost: string }>(
-        `select extended_cost as cost from estimate_line_resources where id = $1`, [id]));
-      expect(Number(r!.cost)).toBe(0);
+  it('refuses a cost by name rather than dropping it in silence', async () => {
+    /*
+     * This used to assert the silence. 0058's guard resets a hand-written
+     * engine output on insert rather than refusing it, so a caller sending a
+     * cost got no error and no effect — and the test said so, in a comment,
+     * as though it were acceptable.
+     *
+     * Migration 0139 refuses an unrecognized field on the build-up the way 0136
+     * did on the line, after a markup typed on a line turned out to have been
+     * dropped that way for months. `extended_cost` is the engine's, so it is
+     * not a field this function takes, and saying that is more use than
+     * quietly returning a zero.
+     */
+    await expect(save('labor', {
+      role: 'Labor', description: 'Laborer', headcount: 1,
+      base_rate: 30, burden_rate: 15, extended_cost: 9999,
+    })).rejects.toThrow(/extended_cost/);
+  });
+
+  it('still costs nothing until the engine says otherwise', async () => {
+    const id = await save('labor', {
+      role: 'Labor', description: 'Laborer', headcount: 1, base_rate: 30, burden_rate: 15,
     });
+    const [r] = await h.asUser(chief, () => h.sql<{ cost: string }>(
+      `select extended_cost as cost from estimate_line_resources where id = $1`, [id]));
+    expect(Number(r!.cost)).toBe(0);
+  });
 
   it('orders resources rather than returning them however the table feels', async () => {
     const rows = await h.asUser(chief, () => h.sql<{ sort: number }>(

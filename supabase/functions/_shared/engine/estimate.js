@@ -207,6 +207,12 @@ export function calculateEstimateLine(input) {
         directCost,
         totalDirectCost: total,
         unitCost: unitRate(safeDivide(total, quantity.adjusted)),
+        /* A line on its own has a cost. `calculateEstimate` fills these in, because
+           the price needs the profile and the profile belongs to the estimate. */
+        markupRate: 0,
+        markupAmount: 0,
+        price: total,
+        unitPrice: unitRate(safeDivide(total, quantity.adjusted)),
         confidence,
         approval,
         assumptions: input.assumptions ?? [],
@@ -267,6 +273,12 @@ export function calculateEstimate(input) {
             ? roundTo(lines.reduce((a, l) => a + l.confidence.score, 0) / lines.length, 1)
             : 0;
     const band = confidenceBandOf(weightedConfidence);
+    /** What the caller said about this line, by id. */
+    const overrideFor = (id) => {
+        const found = input.lines.find((l) => l.id === id);
+        const v = found?.markupOverride;
+        return v === null || v === undefined ? null : assertNonNegative(v, 'markupOverride');
+    };
     const recommendedContingency = contingencyFor(weightedConfidence);
     const profileContingency = input.pricingProfile.components.find((c) => c.code === 'CONT')?.percent ?? null;
     let appliedContingency;
@@ -301,12 +313,86 @@ export function calculateEstimate(input) {
                 : []),
         ],
     };
-    const price = calculatePrice(totalDirect, indirectCost, effectiveProfile);
+    /*
+     * Lines the estimator has priced by hand, and lines the profile prices.
+     *
+     * `markup_override` has existed since migration 0107 and nothing ever read
+     * it, so a markup typed on a line moved a number on the screen and left the
+     * bid exactly where it was. The schema says what it means — "this line's own
+     * markup as a fraction, or null to use the pricing profile" — so an
+     * overridden line is priced at its own rate and taken out of the profile's
+     * base entirely. Anything else would apply two markups to one line.
+     */
+    const overridden = lines.filter((l) => overrideFor(l.id) !== null);
+    const overriddenDirect = sumMoney(overridden.map((l) => l.totalDirectCost));
+    const profiledDirect = money(totalDirect - overriddenDirect);
+    const price = calculatePrice(profiledDirect, indirectCost, effectiveProfile);
     warnings.push(...price.warnings);
+    const overriddenMarkup = sumMoney(overridden.map((l) => money(l.totalDirectCost * (overrideFor(l.id) ?? 0))));
+    if (overridden.length > 0) {
+        warnings.push(`${overridden.length} line${overridden.length === 1 ? ' carries its' : 's carry their'} own `
+            + `markup and ${overridden.length === 1 ? 'is' : 'are'} priced outside the profile, so the `
+            + `${factor(appliedContingency * 100)}% contingency does not cover `
+            + `${overridden.length === 1 ? 'it' : 'them'}. Their cost is `
+            + `${money(overriddenDirect)} of ${money(totalDirect)}.`);
+    }
+    /*
+     * What each line sells for.
+     *
+     * An overridden line is exact: its cost times its own rate. The rest share
+     * the profile's price in proportion to their cost — and the last cents are
+     * handed out by largest remainder rather than rounded away, so the lines add
+     * up to the bid exactly. A bid that disagrees with the lines it is made of is
+     * the one thing an estimator cannot explain to a customer.
+     */
+    const totalPrice = money(price.totalPrice + overriddenDirect + overriddenMarkup);
+    const profiledPrice = price.totalPrice;
+    const shares = lines.map((l) => {
+        const rate = overrideFor(l.id);
+        if (rate !== null) {
+            const amount = money(l.totalDirectCost * rate);
+            return { id: l.id, rate, amount, price: money(l.totalDirectCost + amount), exact: true };
+        }
+        const share = profiledDirect === 0 ? 0 : l.totalDirectCost / profiledDirect;
+        return { id: l.id, rate: 0, amount: 0, price: profiledPrice * share, exact: false };
+    });
+    /* Largest remainder, over the lines the profile priced. */
+    const allocated = new Map();
+    const flexible = shares.filter((x) => !x.exact);
+    let handedOut = 0;
+    for (const x of flexible) {
+        const down = Math.floor(x.price * 100) / 100;
+        allocated.set(x.id, down);
+        handedOut = money(handedOut + down);
+    }
+    let remainder = Math.round((profiledPrice - handedOut) * 100);
+    const byRemainder = [...flexible].sort((a, b) => (b.price * 100 - Math.floor(b.price * 100)) - (a.price * 100 - Math.floor(a.price * 100)));
+    for (let i = 0; remainder > 0 && byRemainder.length > 0; i += 1, remainder -= 1) {
+        const x = byRemainder[i % byRemainder.length];
+        allocated.set(x.id, money((allocated.get(x.id) ?? 0) + 0.01));
+    }
+    const priced = lines.map((l) => {
+        const x = shares.find((y) => y.id === l.id);
+        const linePrice = x.exact ? x.price : (allocated.get(l.id) ?? 0);
+        const amount = x.exact ? x.amount : money(linePrice - l.totalDirectCost);
+        return {
+            ...l,
+            markupRate: x.exact ? x.rate
+                : factor(safeDivide(amount, l.totalDirectCost)),
+            markupAmount: amount,
+            price: linePrice,
+            unitPrice: unitRate(safeDivide(linePrice, l.quantity.adjusted)),
+        };
+    });
     const increment = input.bidRoundingIncrement ?? 0;
+    /*
+     * The bid is the whole estimate: what the profile priced, plus the lines the
+     * estimator priced by hand. `price` describes the profiled part and is kept
+     * as the audit of how that part was built.
+     */
     const rounded = increment > 0
-        ? money(Math.ceil(price.totalPrice / increment - 1e-9) * increment)
-        : price.totalPrice;
+        ? money(Math.ceil(totalPrice / increment - 1e-9) * increment)
+        : totalPrice;
     // Approval routing --------------------------------------------------------
     const approvalSummary = {
         auto_accept: [],
@@ -314,7 +400,7 @@ export function calculateEstimate(input) {
         senior_review: [],
         rfi_required: [],
     };
-    for (const l of lines)
+    for (const l of priced)
         approvalSummary[l.approval.gate].push(l.id);
     const blockedFromIssue = lines.some((l) => l.approval.blocksIssue);
     const { decision, reason } = executiveDecision(lines, approvalSummary, weightedConfidence);
@@ -334,12 +420,12 @@ export function calculateEstimate(input) {
         name: input.name,
         version: input.version,
         status: input.status,
-        lines,
+        lines: priced,
         directCost,
         totalDirectCost: totalDirect,
         indirectCost,
         indirectDetail,
-        price,
+        price: { ...price, totalPrice },
         bidPrice: rounded,
         bidRoundingAdjustment: money(rounded - price.totalPrice),
         totalLaborHours: roundTo(lines.reduce((a, l) => a + l.laborHours, 0), 2),

@@ -70,7 +70,7 @@ const resource = (over: Partial<LineResource> = {}): LineResource => ({
 
 const line = (over: Partial<LineRow> = {}): LineRow => ({
   id: 'l-1', sortOrder: 10, lineNumber: null, description: 'Berm build',
-  serviceId: 's-1', serviceName: 'Berm build', costCode: 'CC-0006',
+  serviceId: 's-1', serviceName: 'Berm build', costCode: 'CC-0006', costCodeId: null, notes: null, markupRate: 0, markupAmount: 0, totalPrice: 0, unitPrice: 0,
   unit: 'LF', measuredQuantity: 1837, adjustedQuantity: 1837,
   unitCost: 0, totalDirectCost: 0, laborHours: 0, equipmentHours: 0,
   parametricCostPerUnit: null, parametricBasis: null,

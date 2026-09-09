@@ -249,6 +249,7 @@ TST-engine-confidence,test,engine/confidence.test.ts,packages/engine/tests/confi
 TST-engine-estimate,test,engine/estimate.test.ts,packages/engine/tests/estimate.test.ts,ENGINE
 TST-engine-estimating-acceptance,test,engine/estimating-acceptance.test.ts,packages/engine/tests/estimating-acceptance.test.ts,ENGINE
 TST-engine-hierarchy,test,engine/hierarchy.test.ts,packages/engine/tests/hierarchy.test.ts,ENGINE
+TST-engine-line-price,test,engine/line-price.test.ts,packages/engine/tests/line-price.test.ts,ENGINE
 TST-engine-materials,test,engine/materials.test.ts,packages/engine/tests/materials.test.ts,ENGINE
 TST-engine-multiplication,test,engine/multiplication.test.ts,packages/engine/tests/multiplication.test.ts,ENGINE
 TST-engine-numeric,test,engine/numeric.test.ts,packages/engine/tests/numeric.test.ts,ENGINE
@@ -268,6 +269,7 @@ TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
+TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
@@ -356,6 +358,7 @@ TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/time
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
 TST-db-unit-cost-and-suggestions,test,db/unit-cost-and-suggestions.test.ts,tests/db/unit-cost-and-suggestions.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
+TST-db-what-a-line-sells-for,test,db/what-a-line-sells-for.test.ts,tests/db/what-a-line-sells-for.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
 TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE

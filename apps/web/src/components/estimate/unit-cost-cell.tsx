@@ -29,7 +29,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { TableCell, TableRow } from '@/components/ui/table';
 import { messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { setLineUnitCost, clearLineUnitCost } from '@/lib/data/estimates';
@@ -88,16 +87,16 @@ export function UnitCostCell({
 }
 
 /**
- * The editor, as a row of its own under the line it belongs to.
+ * The editor, opening under the line it belongs to.
  *
- * `columns` spans the table so the panel is laid out against the table's width
- * rather than against one column's, which is the whole point: no column is
- * asked to be any wider than the number it holds.
+ * A panel across the full width of the card rather than something inside the
+ * cost field, so the rate and the reason for it sit side by side with room to
+ * read instead of being crammed into the width of a number.
  */
 export function UnitCostEditor({
-  lineId, description, typedRate, basis, hasResources, columns, onClose, onChanged,
+  lineId, description, typedRate, basis, hasResources, onClose, onChanged,
 }: Pick<UnitCostProps, 'lineId' | 'description' | 'typedRate' | 'basis' | 'hasResources'>
-  & { columns: number; onClose: () => void; onChanged: () => void }) {
+  & { onClose: () => void; onChanged: () => void }) {
   const [rate, setRate] = useState(typedRate ? String(typedRate) : '');
   const [why, setWhy] = useState(basis ?? '');
   const [busy, setBusy] = useState(false);
@@ -148,8 +147,7 @@ export function UnitCostEditor({
   };
 
   return (
-    <TableRow className="hover:bg-transparent">
-      <TableCell colSpan={columns} className="border-l-2 border-l-yellow-500 bg-charcoal-50 py-2">
+    <div className="border-l-2 border-l-yellow-500 bg-charcoal-50 px-3 py-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-charcoal-700">
             Unit cost for {description}
@@ -193,7 +191,6 @@ export function UnitCostEditor({
           </p>
         )}
         {error ? <p role="alert" className="mt-1 text-xs text-danger-700">{error}</p> : null}
-      </TableCell>
-    </TableRow>
+    </div>
   );
 }

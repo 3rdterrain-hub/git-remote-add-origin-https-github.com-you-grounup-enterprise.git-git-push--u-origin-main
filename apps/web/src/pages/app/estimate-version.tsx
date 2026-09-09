@@ -38,9 +38,6 @@ import { Alert } from '@/components/ui/misc';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
@@ -55,8 +52,9 @@ import {
 import { LineDetail } from '@/components/estimate/line-detail';
 import { NewLineRow } from '@/components/estimate/new-line-row';
 import { LineDescription } from '@/components/estimate/line-description';
+import { ClientDescription } from '@/components/estimate/client-description';
 import { UnitCostCell, UnitCostEditor } from '@/components/estimate/unit-cost-cell';
-import { MarkupCell, MarkupEditor } from '@/components/estimate/markup-cell';
+import { MarkupCell } from '@/components/estimate/markup-cell';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
@@ -66,7 +64,7 @@ import {
   ApplyTemplateDialog, ApplyWarnings, SaveTemplateDialog,
 } from '@/components/estimate/templates';
 import type { ApplyResult } from '@/lib/data/templates';
-import { money, qty, integer, date, titleCase } from '@/lib/format';
+import { money, qty, integer, date, titleCase, unitRate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 /** A version at or past approval is frozen by RULE-009 and cannot be edited. */
@@ -77,6 +75,54 @@ const COST_LABELS: Record<string, string> = {
   mobilization: 'Equipment mobilization', fuel: 'Fuel & DEF', material: 'Material',
   trucking: 'Trucking', disposal: 'Disposal', subcontract: 'Subcontract', other: 'Other',
 };
+
+/**
+ * One line, on one line.
+ *
+ * A grid rather than a table, and the same template on every row, so the
+ * columns line up down the whole estimate without a table's insistence on
+ * being as wide as the sum of its content. The description takes what is left
+ * — it is the field somebody is typing into, and it was the one being squeezed.
+ *
+ * No minimum width anywhere. A table sizes itself to its content and then makes
+ * the screen scroll; this compresses the description and keeps every field on
+ * screen, which is what "show all the fields entirely" asks for.
+ */
+const LINE_GRID =
+  'grid grid-cols-[9rem_minmax(18rem,1fr)_2rem_4rem_5rem_3.5rem_7rem_4.5rem_6rem_8rem_4rem] '
+  + 'items-center gap-x-3 px-3 py-2';
+
+/** One column name. */
+function Col({ children, right, center }: {
+  children: React.ReactNode; right?: boolean; center?: boolean;
+}) {
+  return (
+    <span className={cn(
+      'text-[11px] font-semibold uppercase tracking-wide text-charcoal-500',
+      right && 'text-right', center && 'text-center')}>
+      {children}
+    </span>
+  );
+}
+
+/** The same template, as a header, so each column is named once at the top. */
+function LineHeader() {
+  return (
+    <div data-line-header className={cn(LINE_GRID, 'border-b border-charcoal-200 pb-1.5')}>
+      <span />
+      <Col>Service</Col>
+      <span />
+      <Col center>Qty</Col>
+      <Col center>Unit</Col>
+      <Col center>Cond.</Col>
+      <Col right>Unit cost</Col>
+      <Col center>Markup</Col>
+      <Col right>+Markup</Col>
+      <Col right>Total</Col>
+      <span />
+    </div>
+  );
+}
 
 export function EstimateVersionPage() {
   const { estimateId: versionId } = useParams();
@@ -302,8 +348,19 @@ export function EstimateVersionPage() {
             : undefined} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      {/*
+        * The lines get the whole width, and the three explainers sit under them.
+        *
+        * They used to share a row: `lg:grid-cols-3` with the lines on
+        * `col-span-2`, so a third of every screen went to three cards that are
+        * read once and then collapsed, and the line item — the thing being
+        * worked on all day — was squeezed into two thirds. Which is what made
+        * the last fields on a line fall off the edge.
+        *
+        * A line item is the widest thing in this product. It gets the width.
+        */}
+      <div className="space-y-6">
+        <Card>
           <CardHeader className="flex-row items-start justify-between gap-4 space-y-0">
             <div>
               <CardTitle>Lines</CardTitle>
@@ -360,7 +417,7 @@ export function EstimateVersionPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/*
             * Named for what it answers. "Where the cost is" described the card's
             * purpose to whoever wrote it; "What the cost is made of" says what a
@@ -638,80 +695,61 @@ function LineTable({
         </p>
       ) : null}
       {/*
-        * Fixed columns, sized here and nowhere else.
+        * Every line is a card, not a row.
         *
-        * A table lays itself out from its content by default, so a wide thing
-        * in one cell is paid for by every other column in every other row. That
-        * is how clicking a unit cost used to move the whole grid sideways.
-        * `table-fixed` and this colgroup take that away from the cells: the
-        * only column without a stated width is the description, which takes
-        * whatever is left, and below the minimum the wrapper scrolls rather
-        * than squeezing ten columns into a phone.
-        */}
-      {/*
-        * Roomier than the rest of the tables in the product, on purpose.
+        * A table puts ten facts on one horizontal line and asks the screen to
+        * be wide enough. It never is: shaving the columns from ten to eight
+        * bought one screen size and lost the cost code, and the next screen
+        * narrower is back where it started. So the row wraps instead. The
+        * description takes the width it needs, the numbers sit under it in a
+        * band that reflows, and the whole line is visible at any width without
+        * a horizontal scrollbar anywhere.
         *
-        * `TableCell` is `py-1.5` because an estimate is read down a column and
-        * every pixel of row height is a line somebody scrolls past. That is
-        * right for a table of text and wrong for this one: these rows carry
-        * inputs, a select and two editable numbers, and packed to the same
-        * density the controls touch each other and the row reads as one smear.
+        * What is given up is column scanning — reading every quantity down a
+        * single line. That is worth less here than it looks: an estimator reads
+        * a bid line by line, and the totals that are genuinely scanned live in
+        * the summary and the cost breakdown above.
         */}
-      <Table className="min-w-[58rem] table-fixed [&_td]:py-2.5">
-        <colgroup>
-          <col className="w-9" />{/* drag */}
-          <col />{/* line — takes the remainder */}
-          <col className="w-9" />{/* build-up */}
-          <col className="w-36" />{/* quantity, with its unit */}
-          <col className="w-28" />{/* unit cost */}
-          <col className="w-20" />{/* markup */}
-          <col className="w-28" />{/* total */}
-          <col className="w-36" />{/* confidence */}
-        </colgroup>
-        <TableHeader>
-          <TableRow>
-            <TableHead />
-            <TableHead>Line</TableHead>
-            <TableHead><span className="sr-only">Build-up</span></TableHead>
-            <TableHead className="text-right">Quantity</TableHead>
-            <TableHead className="text-right">Unit cost</TableHead>
-            <TableHead className="text-right">Markup</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead>Confidence</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <div className="divide-y divide-charcoal-100 px-1 pb-2">
+          <LineHeader />
           {/*
             * Dropping here puts a line first. Without it the top of the list is
             * the one position a drag cannot reach, since every drop target is
             * "after this row".
             */}
           {editable && dragging ? (
-            <TableRow className="hover:bg-transparent"
+            <div
               onDragOver={(e) => { e.preventDefault(); setOver('__top__'); }}
-              onDrop={(e) => { e.preventDefault(); void drop(null); }}>
-              <TableCell colSpan={8}
-                className={cn('py-1 text-center text-xs',
-                  over === '__top__'
-                    ? 'bg-yellow-50 text-yellow-800'
-                    : 'text-charcoal-400')}>
-                Drop here to put it first
-              </TableCell>
-            </TableRow>
+              onDrop={(e) => { e.preventDefault(); void drop(null); }}
+              className={cn('rounded border border-dashed py-1 text-center text-xs',
+                over === '__top__'
+                  ? 'border-yellow-500 bg-yellow-50 text-yellow-800'
+                  : 'border-charcoal-200 text-charcoal-400')}>
+              Drop here to put it first
+            </div>
           ) : null}
-          {shown.map((l) => {
+          {shown.map((l, i) => {
             const expanded = open.includes(l.id);
             return (
               <Fragment key={l.id}>
-                <TableRow
+                <div
+                  data-line={l.id}
                   className={cn(
-                    !l.clientVisible && 'bg-charcoal-50/70',
-                    over === l.id && 'border-b-2 border-yellow-500',
+                    /*
+                      * Flat rows on one hairline, not a stack of cards. Cards
+                      * put a border and a gap between every line, which is a
+                      * pixel of drift per row against the header and reads as
+                      * eleven separate objects rather than one list.
+                      */
+                    'bg-white',
+                    !l.clientVisible && 'bg-charcoal-50/60',
+                    over === l.id && 'ring-1 ring-inset ring-yellow-500',
                     dragging === l.id && 'opacity-50',
                   )}
                   onDragOver={editable ? (e) => { e.preventDefault(); setOver(l.id); } : undefined}
                   onDrop={editable ? (e) => { e.preventDefault(); void drop(l.id); } : undefined}
                 >
+                 <div className={LINE_GRID}>
                   {/*
                     * Only the grip lives at the start of the row. A drag handle
                     * has to be where the row begins to be findable; everything
@@ -724,10 +762,16 @@ function LineTable({
                     * estimator reaches for most while building a bid, so it
                     * gets the position the eye lands on when it enters a row.
                     */}
-                  <TableCell>
-                    {editable ? (
-                      <div className="flex items-center gap-0.5">
-                        {onAddAfter ? (
+                  {/*
+                    * Number and eye at the front, with the plus and the grip.
+                    *
+                    * The eye was at the far end beside the trash, which put a
+                    * thing you read — is this on the customer's copy — next to a
+                    * thing you press once and regret. It belongs with the line's
+                    * identity, where it is visible without hunting for it.
+                    */}
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    {editable && onAddAfter ? (
                           <button onClick={() => onAddAfter(l.id)}
                             aria-label={`Add a line under ${l.description}`}
                             title="Add a line under this one"
@@ -753,33 +797,44 @@ function LineTable({
                             <Search className="size-4" />
                           </button>
                         ) : null}
-                        <span
-                          draggable
-                          onDragStart={() => setDragging(l.id)}
-                          onDragEnd={() => { setDragging(null); setOver(null); }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Drag to reorder ${l.description}`}
-                          title="Drag to reorder"
-                          className="inline-flex cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
-                        >
-                          <GripVertical className="size-4" />
-                        </span>
-                      </div>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-start gap-1.5">
+                        {editable ? (
+                          <span
+                            draggable
+                            onDragStart={() => setDragging(l.id)}
+                            onDragEnd={() => { setDragging(null); setOver(null); }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Drag to reorder ${l.description}`}
+                            title="Drag to reorder"
+                            className="inline-flex cursor-grab rounded p-0.5 text-charcoal-300 hover:text-charcoal-600 active:cursor-grabbing"
+                          >
+                            <GripVertical className="size-4" />
+                          </span>
+                        ) : null}
+                    <span className="tabular w-6 shrink-0 text-right text-xs text-charcoal-400">
+                      {l.lineNumber ?? i + 1}
+                    </span>
+                    <button onClick={editable ? () => toggleVisible(l) : undefined}
+                      disabled={!editable}
+                      aria-label={l.clientVisible
+                        ? `Hide ${l.description} from the proposal`
+                        : `Show ${l.description} on the proposal`}
+                      title={l.clientVisible
+                        ? 'On the customer proposal. Click to keep it priced but off the document.'
+                        : 'Priced, and off the customer proposal. Click to show it.'}
+                      className={cn('rounded p-1 disabled:opacity-100',
+                        l.clientVisible
+                          ? 'text-charcoal-400 hover:bg-charcoal-100 hover:text-charcoal-900'
+                          : 'text-warn-600 hover:bg-warn-50')}>
+                      {l.clientVisible ? <Eye className="size-4" />
+                                       : <EyeOff className="size-4" />}
+                    </button>
+                  </div>
+                  <div className="flex min-w-0 items-center gap-1.5">
                       {l.blocksIssue ? (
-                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-danger-600"
+                        <AlertTriangle className="size-3.5 shrink-0 text-danger-600"
                           aria-label="This line blocks issue" />
                       ) : null}
-                      {/*
-                        * The words, and the control that changes them. Typing
-                        * searches the library from the first letters, so
-                        * fixing a description and swapping the line onto the
-                        * right item are the same gesture.
-                        */}
                       <div className="min-w-0 flex-1">
                         <LineDescription
                           lineId={l.id}
@@ -787,40 +842,32 @@ function LineTable({
                           serviceName={l.serviceName}
                           serviceId={l.serviceId}
                           editable={editable}
-                          note={[
-                            /*
-                              * The cost code reads here rather than in a column
-                              * of its own. It is optional — nothing refuses a
-                              * line without one, and it matters only to a
-                              * company tracking estimate against actual — so a
-                              * whole column for it was six rems taken from the
-                              * description on every screen.
-                              */
-                            l.costCode,
-                            /*
-                              * Which library item the line came from, when the
-                              * words no longer say. A line renamed to "Mass
-                              * excavation — north half" still needs to show it
-                              * is the catalog's mass excavation, or nobody can
-                              * tell a library line from a typed one.
-                              */
-                            l.serviceName && l.serviceName !== l.description
-                              ? l.serviceName
-                              : l.serviceId ? null : 'Typed, not from the library',
-                            !l.hasProductionRate && l.serviceId
-                              ? 'no production rate' : null,
-                          ].filter(Boolean).join(' · ') || undefined}
                           onChanged={onChanged} />
+                        {/*
+                          * Under the title: which library item this is, then
+                          * what the customer reads. Two different audiences on
+                          * one line — the estimator's words and the client's.
+                          */}
+                        <div className="flex min-w-0 items-baseline gap-2">
+                          <span className={cn('shrink-0 text-xs',
+                            l.serviceId ? 'text-charcoal-500' : 'text-charcoal-400')}>
+                            {l.serviceName ?? 'Typed'}
+                          </span>
+                          <ClientDescription
+                            lineId={l.id}
+                            description={l.description}
+                            value={l.notes}
+                            editable={editable}
+                            onChanged={onChanged} />
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
+                  </div>
                   {/*
-                    * The wrench sits between what the line is and how much of
-                    * it there is — the point in the row where somebody stops
-                    * reading the description and starts asking what it is
+                    * The wrench sits at the end of what the line is, where
+                    * somebody stops reading it and starts asking what it is
                     * built from.
                     */}
-                  <TableCell className="w-8">
+                  <div className="shrink-0">
                     <button
                       onClick={() => setOpen((o) =>
                         o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
@@ -835,12 +882,12 @@ function LineTable({
                       )}>
                       <Wrench className="size-4" />
                     </button>
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </div>
+                  <div className="min-w-0">
                     {editable ? (
-                      <div className="flex items-start justify-end gap-1.5">
+                      <div className="flex items-center justify-center gap-1.5">
                         {saving === l.id
-                          ? <Loader2 className="mt-2 size-3.5 animate-spin text-charcoal-400" /> : null}
+                          ? <Loader2 className="size-3.5 animate-spin text-charcoal-400" /> : null}
                         {/*
                           * The cell takes the arithmetic, not just its answer.
                           * `120 * 4 * 0.667` is what the estimator has in their
@@ -853,23 +900,10 @@ function LineTable({
                           unit={l.unit}
                           label={`Quantity for ${l.description}`}
                           onCommit={(n, expr) => commit(l.id, n, expr)} />
-                        {/*
-                          * The unit sits with the number it measures rather
-                          * than in a column of its own — "12,000 CY" is one
-                          * fact and reads as one. A company that bids topsoil
-                          * by the load is not making a mistake, and migration
-                          * 0117 stopped refusing it; this is what keeps that
-                          * reachable.
-                          */}
-                        <UnitSelect
-                          value={l.unit}
-                          label={`Unit for ${l.description}`}
-                          className="h-7 w-[4.5rem] shrink-0"
-                          onChange={(u) => commitUnit(l.id, u)} />
                       </div>
                     ) : (
                       <span className="tabular">
-                        {qty(l.measuredQuantity)} <span className="text-charcoal-500">{l.unit}</span>
+                        {qty(l.measuredQuantity)}
                         {l.quantityExpression ? (
                           <span className="block text-xs font-normal text-charcoal-400">
                             {l.quantityExpression}
@@ -882,8 +916,35 @@ function LineTable({
                         {qty(l.adjustedQuantity)} after waste and loss
                       </p>
                     ) : null}
-                  </TableCell>
-                  <TableCell className="tabular text-right">
+                  </div>
+                  {/*
+                    * The unit, in its own column. A company that bids topsoil by
+                    * the load rather than the cubic yard is not making a
+                    * mistake, and migration 0117 stopped refusing it — the
+                    * picker is what keeps that reachable.
+                    */}
+                  <div className="min-w-0">
+                    {editable ? (
+                      <UnitSelect
+                        value={l.unit}
+                        label={`Unit for ${l.description}`}
+                        className="h-8 w-full"
+                        onChange={(u) => commitUnit(l.id, u)} />
+                    ) : (
+                      <span className="block text-center text-sm text-charcoal-600">{l.unit}</span>
+                    )}
+                  </div>
+                  {/*
+                    * The condition factor, on the line. 1.0x is normal ground;
+                    * anything else is a decision somebody made about this line
+                    * and it should be visible without opening the panel.
+                    */}
+                  <div className="tabular min-w-0 text-center text-sm text-charcoal-500">
+                    {l.productionModifier === 1
+                      ? <span className="text-charcoal-400">1.0x</span>
+                      : <span className="font-medium text-charcoal-900">{l.productionModifier}x</span>}
+                  </div>
+                  <div className="min-w-0 text-right">
                     <UnitCostCell
                       description={l.description}
                       unit={l.unit}
@@ -894,21 +955,42 @@ function LineTable({
                       editable={editable}
                       open={editing?.line === l.id && editing.what === 'rate'}
                       onOpen={(next) => setEditing(next ? { line: l.id, what: 'rate' } : null)} />
-                  </TableCell>
-                  <TableCell className="tabular text-right text-xs text-charcoal-600">
+                  </div>
+                  <div className="min-w-0 text-center">
                     <MarkupCell
+                      lineId={l.id}
                       description={l.description}
                       markupOverride={l.markupOverride}
                       editable={editable}
-                      open={editing?.line === l.id && editing.what === 'markup'}
-                      onOpen={(next) => setEditing(next ? { line: l.id, what: 'markup' } : null)} />
-                  </TableCell>
-                  <TableCell className="tabular text-right font-medium">
-                    {l.totalDirectCost ? money(l.totalDirectCost)
-                      : <span className="text-charcoal-400">not priced</span>}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
+                      onChanged={onChanged} />
+                  </div>
+                  {/*
+                    * The money the markup adds, in its own column, so the
+                    * decision is a figure rather than an inference from two
+                    * others.
+                    */}
+                  <div className="tabular min-w-0 text-right text-sm text-charcoal-600">
+                    {l.markupAmount
+                      ? `+${money(l.markupAmount)}`
+                      : <span className="text-charcoal-300">—</span>}
+                  </div>
+                  {/*
+                    * What the line sells for, with the rate a customer reads on
+                    * a unit-price bid underneath it.
+                    */}
+                  <div className="min-w-0 text-right">
+                    <span className="tabular text-base font-semibold text-charcoal-900">
+                      {l.totalPrice ? money(l.totalPrice)
+                        : l.totalDirectCost ? money(l.totalDirectCost)
+                        : <span className="text-sm font-normal text-charcoal-400">not priced</span>}
+                    </span>
+                    {l.unitPrice ? (
+                      <span className="tabular block text-[11px] text-charcoal-400">
+                        eff. {unitRate(l.unitPrice)}/{l.unit}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center justify-end gap-1">
                       <Badge variant={l.confidenceBand === 'do_not_price' ? 'danger'
                         : l.confidenceBand === 'high' ? 'success' : 'warn'}>
                         {titleCase(l.confidenceBand)}
@@ -924,20 +1006,6 @@ function LineTable({
                         <Badge variant="default" className="whitespace-nowrap">
                           not on proposal
                         </Badge>
-                      ) : null}
-                      {editable ? (
-                        <button onClick={() => toggleVisible(l)}
-                          aria-label={l.clientVisible
-                            ? `Hide ${l.description} from the proposal`
-                            : `Show ${l.description} on the proposal`}
-                          title={l.clientVisible
-                            ? 'The customer sees this line on the proposal. Click to hide it — it stays priced either way.'
-                            : 'Hidden from the proposal, still priced. Click to show it to the customer.'}
-                          className="rounded p-1 text-charcoal-400 hover:bg-charcoal-100
-                                     hover:text-charcoal-900">
-                          {l.clientVisible ? <Eye className="size-3.5" />
-                                           : <EyeOff className="size-3.5" />}
-                        </button>
                       ) : null}
                       {editable ? (
                         confirming === l.id ? (
@@ -964,14 +1032,12 @@ function LineTable({
                         )
                       ) : null}
                     </div>
-                  </TableCell>
-                </TableRow>
+                 </div>
 
                 {/*
-                  * The rate and the markup open here rather than inside their
-                  * cells. A table sizes a column from what is in it, so an
-                  * editor in the cell made every column in the estimate shift
-                  * the moment somebody clicked one number.
+                  * The rate and the markup open inside the card, under the
+                  * numbers band, so the field being typed keeps its place on
+                  * the line it belongs to.
                   */}
                 {editing?.line === l.id && editing.what === 'rate' ? (
                   <UnitCostEditor
@@ -980,31 +1046,19 @@ function LineTable({
                     typedRate={l.parametricCostPerUnit}
                     basis={l.parametricBasis}
                     hasResources={l.totalDirectCost > 0 && l.parametricCostPerUnit === null}
-                    columns={8}
-                    onClose={() => setEditing(null)}
-                    onChanged={onChanged} />
-                ) : null}
-
-                {editing?.line === l.id && editing.what === 'markup' ? (
-                  <MarkupEditor
-                    lineId={l.id}
-                    description={l.description}
-                    markupOverride={l.markupOverride}
-                    columns={8}
                     onClose={() => setEditing(null)}
                     onChanged={onChanged} />
                 ) : null}
 
                 {expanded ? (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={8} className="p-0">
-                      <LineDetail line={l} editable={editable} onChanged={onChanged} />
-                    </TableCell>
-                  </TableRow>
+                  <div className="border-t border-charcoal-100">
+                    <LineDetail line={l} editable={editable} onChanged={onChanged} />
+                  </div>
                 ) : null}
+                </div>
 
                 {blankAfter === l.id && versionId ? (
-                  <NewLineRow versionId={versionId} afterLineId={l.id} columns={8}
+                  <NewLineRow versionId={versionId} afterLineId={l.id}
                     onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
                 ) : null}
               </Fragment>
@@ -1012,27 +1066,24 @@ function LineTable({
           })}
 
           {blankAfter === '' && versionId ? (
-            <NewLineRow versionId={versionId} afterLineId={null} columns={8}
+            <NewLineRow versionId={versionId} afterLineId={null}
               onDone={() => onBlankDone?.()} onCancel={() => onBlankCancel?.()} />
           ) : null}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={6} className="font-medium">
-              Direct cost
-              {hiddenByFilter > 0 ? (
-                <span className="ml-1.5 font-normal text-charcoal-500">
-                  — the whole estimate, not the {shown.length} shown
-                </span>
-              ) : null}
-            </TableCell>
-            <TableCell className="tabular text-right font-medium">
-              {money(version.directCost)}
-            </TableCell>
-            <TableCell />
-          </TableRow>
-        </TableFooter>
-      </Table>
+      </div>
+      {/* The total, on the same band the cards use, so it lines up with them. */}
+      <div className="flex items-center gap-x-6 border-t border-charcoal-200 px-5 py-3">
+        <span className="font-medium text-charcoal-900">
+          Direct cost
+          {hiddenByFilter > 0 ? (
+            <span className="ml-1.5 font-normal text-charcoal-500">
+              — the whole estimate, not the {shown.length} shown
+            </span>
+          ) : null}
+        </span>
+        <span className="tabular ml-auto font-medium text-charcoal-900">
+          {money(version.directCost)}
+        </span>
+      </div>
     </>
   );
 }

@@ -136,6 +136,8 @@ export interface LineRow {
   waste_percent: Num; loss_percent: Num; waste_basis: string | null;
   quantity_adjustments: unknown; source_references: string[] | null;
   production_modifier: Num;
+  /* The estimator's own markup for this line, or null for the profile's. */
+  markup_override: Num;
   check_primary_source: boolean | null;
   check_cross_source: boolean | null;
   check_reconciliation: boolean | null;
@@ -696,6 +698,14 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
           crossSource: l.check_cross_source ?? false,
           mathematicalReconciliation: l.check_reconciliation ?? false,
         },
+        /*
+         * The estimator's own markup for this line. Selected, passed, and
+         * finally read: the column has existed since 0107 and every layer
+         * between the editor and the engine dropped it, so a rate typed on a
+         * line changed nothing about the bid.
+         */
+        markupOverride: maybe(l.markup_override) === undefined
+          ? null : n(l.markup_override),
         conflictCount: l.conflict_count ?? 0,
         hasOpenRfi: l.has_open_rfi ?? false,
         documentsCannotResolve: l.documents_cannot_resolve ?? false,
@@ -816,6 +826,10 @@ export function toEnginePayload(r: EstimateResult): EnginePayload {
       cost_other: l.directCost.other,
       total_direct_cost: l.totalDirectCost,
       unit_cost: l.unitCost,
+      markup_rate: l.markupRate,
+      markup_amount: l.markupAmount,
+      total_price: l.price,
+      unit_price: l.unitPrice,
       labor_hours: l.laborHours,
       equipment_hours: l.equipmentHours,
       fuel_gallons: l.fuelGallons,

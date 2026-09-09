@@ -49,6 +49,15 @@ export interface EstimateLineInput {
     otherDirectCost?: number;
     fuelPricePerGallon?: number;
     defPricePerGallon?: number;
+    /**
+     * This line's own markup as a fraction, or null to use the pricing profile.
+     *
+     * The column has existed since migration 0107 and the engine never read it,
+     * so a markup typed on a line changed the number on screen and nothing about
+     * the price. A line that differs from the company standard is the estimator's
+     * judgment about that scope, and the estimate has to reflect it.
+     */
+    markupOverride?: number | null;
     /** Fixed hours that do not scale with quantity. */
     fixedHours?: number;
     calendarEfficiency?: number;
@@ -89,6 +98,18 @@ export interface EstimateLineResult {
     directCost: DirectCostBreakdown;
     totalDirectCost: number;
     unitCost: number;
+    /**
+     * What this line sells for, and the markup inside it.
+     *
+     * Filled in by `calculateEstimate`, which is the only place that knows the
+     * profile — a line on its own has a cost and no price. The prices of every
+     * line sum exactly to the estimate's price: the last cent is allocated rather
+     * than rounded away, so a bid never disagrees with the lines it is made of.
+     */
+    markupRate: number;
+    markupAmount: number;
+    price: number;
+    unitPrice: number;
     confidence: ConfidenceResult;
     approval: ApprovalGateResult;
     assumptions: readonly string[];

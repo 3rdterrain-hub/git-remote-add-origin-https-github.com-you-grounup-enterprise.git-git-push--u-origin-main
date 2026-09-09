@@ -31,7 +31,7 @@ import { LoadingState, ErrorState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import {
-  loadLineResources, saveLineResource, deleteLineResource, updateLine,
+  loadLineResources, saveLineResource, deleteLineResource, updateLine, loadCostCodes,
   type LineResource, type LineRow,
 } from '@/lib/data/estimates';
 import { UnitSelect } from '@/components/ui/unit-select';
@@ -755,6 +755,18 @@ function LineSettings({ line, onSaved }: { line: LineRow; onSaved: () => void })
           onChange={(e) => { void set({ client_visible: e.target.checked }); }} />
         Show on the proposal
       </label>
+      {/*
+        * The cost code, where an optional per-line setting belongs.
+        *
+        * It had a column on the main row for a while, which cost the
+        * description six rems on every screen for a field most companies never
+        * touch — and it was read-only there anyway, because
+        * `update_estimate_line` did not take the field until migration 0137. It
+        * is optional: nothing refuses a line without one, and it matters to a
+        * company tracking estimate against actual, because it is the join
+        * between this line and what the work ended up costing.
+        */}
+      <CostCodePicker line={line} onPick={(id) => { void set({ cost_code_id: id }); }} />
       <Num label="Markup %" value={asPercent(line.markupOverride)}
         width="w-24" placeholder="profile"
         onCommit={(v) => { void set({ markup_override: v === null ? null : v / 100 }); }} />
@@ -769,5 +781,48 @@ function LineSettings({ line, onSaved }: { line: LineRow; onSaved: () => void })
       </p>
       {error ? <ErrorState message={error} /> : null}
     </div>
+  );
+}
+
+/**
+ * Which budget this line rolls up to, or none.
+ *
+ * "No cost code" is a real answer and the first option, because most estimates
+ * never need one and a picker whose only choices are codes implies otherwise.
+ */
+function CostCodePicker({ line, onPick }: {
+  line: LineRow; onPick: (id: string | null) => void;
+}) {
+  const codesQ = useQuery(loadCostCodes, []);
+  const codes = codesQ.status === 'ready' ? codesQ.data : [];
+  const own = codes.filter((c) => c.isOwn);
+  const shipped = codes.filter((c) => !c.isOwn);
+
+  return (
+    <label className="flex items-center gap-2 pb-2 text-sm text-charcoal-700">
+      <span className="w-24 shrink-0">Cost code</span>
+      <select
+        aria-label={`Cost code for ${line.description}`}
+        value={line.costCodeId ?? ''}
+        onChange={(e) => onPick(e.target.value || null)}
+        className="h-8 min-w-0 flex-1 rounded-md border border-charcoal-200 bg-white px-2 text-sm
+                   focus:border-yellow-500 focus:outline-none">
+        <option value="">No cost code</option>
+        {own.length ? (
+          <optgroup label="Yours">
+            {own.map((c) => (
+              <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
+            ))}
+          </optgroup>
+        ) : null}
+        {shipped.length ? (
+          <optgroup label="Shipped with GrounUp">
+            {shipped.map((c) => (
+              <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
+            ))}
+          </optgroup>
+        ) : null}
+      </select>
+    </label>
   );
 }

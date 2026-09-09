@@ -55,6 +55,8 @@ export interface LineRow {
   description: string;
   serviceId: string | null;
   serviceName: string | null;
+  /** The words the customer reads on the proposal, under the line's own. */
+  notes: string | null;
   costCode: string | null;
   unit: string;
   measuredQuantity: number;
@@ -70,6 +72,13 @@ export interface LineRow {
   clientVisible: boolean;
   /** This line's own markup as a fraction, or null to use the profile. */
   markupOverride: number | null;
+  /** Which budget this line rolls up to, when the company tracks that. */
+  costCodeId: string | null;
+  /** What the line sells for, and the markup inside it. Engine-written. */
+  markupRate: number;
+  markupAmount: number;
+  totalPrice: number;
+  unitPrice: number;
   wastePercent: number;
   /** What the estimator typed to get the quantity, when it was a calculation. */
   quantityExpression: string | null;
@@ -282,7 +291,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
                    created_at: string; customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
-    .select('id, sort_order, line_number, description, service_id, cost_code_id, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, services(name), cost_codes(code)')
+    .select('id, sort_order, line_number, description, service_id, cost_code_id, notes, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, markup_rate, markup_amount, total_price, unit_price, services(name), cost_codes(code)')
     .eq('estimate_version_id', versionId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -344,6 +353,12 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       hasProductionRate: l.production_rate_id != null,
       clientVisible: l.client_visible !== false,
       markupOverride: l.markup_override == null ? null : Number(l.markup_override),
+      costCodeId: (l.cost_code_id as string | null) ?? null,
+      notes: (l.notes as string | null) ?? null,
+      markupRate: Number(l.markup_rate ?? 0),
+      markupAmount: Number(l.markup_amount ?? 0),
+      totalPrice: Number(l.total_price ?? 0),
+      unitPrice: Number(l.unit_price ?? 0),
       wastePercent: num(l.waste_percent),
       quantityExpression: (l.quantity_expression as string | null) ?? null,
       productionModifier: l.production_modifier == null ? 1 : Number(l.production_modifier),
@@ -1248,3 +1263,36 @@ export function demonstrationEstimates(): EstimateRow[] {
     pricedAt: e.value ? e.updatedAt : null,
   }));
 }
+
+/**
+ * The cost codes a line may roll up to.
+ *
+ * Optional, and it was accidentally unreachable: `cost_code_id` has been on the
+ * line since migration 0006, `update_estimate_line` never accepted the field,
+ * and no screen offered a picker — so the only code a line ever carried was the
+ * one it inherited from a library service, chosen by nobody and changeable by
+ * no one. Migration 0137 took the field; this is where the list comes from.
+ */
+export interface CostCodeOption {
+  id: string;
+  code: string;
+  name: string;
+  division: string | null;
+  /** False for the shipped CSI set, so a picker can say which is which. */
+  isOwn: boolean;
+}
+
+export const loadCostCodes: Query<CostCodeOption[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_cost_codes')
+    .select('id, code, name, division, is_own')
+    .order('code')
+    .limit(1000)) as Array<Record<string, unknown>>;
+  return rows.map((c) => ({
+    id: String(c.id),
+    code: String(c.code),
+    name: String(c.name ?? ''),
+    division: (c.division as string | null) ?? null,
+    isOwn: Boolean(c.is_own),
+  }));
+};

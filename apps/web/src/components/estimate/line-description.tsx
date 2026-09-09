@@ -175,7 +175,17 @@ export function LineDescription({
      * sized for reading is too narrow for typing into, and shrinking the words
      * to fit the box is the wrong way round — the box gets bigger instead.
      */
-    <div className="relative z-30 min-w-[26rem]">
+    /*
+     * `w-full`, not a minimum.
+     *
+     * This carried `min-w-[26rem]` so the words being typed had room. Inside
+     * the estimate's grid that forced the description column wider than its
+     * share and pushed every number on the row to the right — which is the
+     * "everything gets out of line" that kept coming back. The column is
+     * already the widest thing on the line; the input takes all of it, and the
+     * suggestion list below floats free of the layout because it is absolute.
+     */
+    <div className="relative z-30 w-full">
       <div className="flex items-center gap-1">
         <Input
           ref={field}
@@ -202,7 +212,7 @@ export function LineDescription({
         </button>
       </div>
 
-      <p className="mt-1 text-xs text-charcoal-500">
+      <p className="mt-1 truncate text-xs text-charcoal-500">
         Enter keeps your words. Pick a match below to change what the line is.
         {serviceId ? (
           <>

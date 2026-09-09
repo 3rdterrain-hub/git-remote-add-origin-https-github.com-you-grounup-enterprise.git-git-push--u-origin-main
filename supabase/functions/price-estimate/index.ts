@@ -49,7 +49,8 @@ const VERSION_SELECT =
 const LINE_SELECT =
   'id, description, sort_order, service_id, assembly_id, discipline, measured_quantity, unit, ' +
   'measurement_method, waste_percent, loss_percent, waste_basis, quantity_adjustments, ' +
-  'source_references, production_modifier, check_primary_source, check_cross_source, ' +
+  'source_references, production_modifier, markup_override, ' +
+  'check_primary_source, check_cross_source, ' +
   'check_reconciliation, conflict_count, has_open_rfi, documents_cannot_resolve, ' +
   'material_geotech_assumption, major_earthwork_decision, origin, notes, ' +
   'cost_codes(code), ' +

@@ -24,7 +24,6 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Check, Library, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { TableCell, TableRow } from '@/components/ui/table';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { useQuery, messageFor } from '@/lib/data/query';
@@ -34,12 +33,10 @@ import {
 } from '@/lib/data/estimates';
 import { cn } from '@/lib/utils';
 
-export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }: {
+export function NewLineRow({ versionId, afterLineId, onDone, onCancel }: {
   versionId: string;
   /** Null appends; otherwise the new line goes directly under this one. */
   afterLineId: string | null;
-  /** How wide the table is, so the row spans it while it is being typed. */
-  columns: number;
   onDone: () => void;
   onCancel: () => void;
 }) {
@@ -130,8 +127,7 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
   };
 
   return (
-    <TableRow className="bg-yellow-50/60 hover:bg-yellow-50/60">
-      <TableCell colSpan={columns} className="p-0">
+    <div className="rounded-[--radius-card] border border-yellow-300 bg-yellow-50/60">
         <div className="flex flex-wrap items-start gap-2 p-2">
           <div className="relative min-w-56 flex-1">
             <Input
@@ -234,7 +230,6 @@ export function NewLineRow({ versionId, afterLineId, columns, onDone, onCancel }
             </p>
           )}
         </div>
-      </TableCell>
-    </TableRow>
+    </div>
   );
 }

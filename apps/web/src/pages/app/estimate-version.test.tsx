@@ -22,6 +22,12 @@ const hoisted = vi.hoisted(() => ({
   fail: null as string | null,
   permissions: ['estimates.read', 'estimates.write', 'estimates.approve', 'estimates.issue'] as string[],
   updated: [] as Array<Record<string, unknown>>,
+  /*
+   * What was saved on a *line*, as against on the version. These were not
+   * recorded by anything, which is part of why a markup that never reached the
+   * database went unnoticed: no test had ever watched this call.
+   */
+  lineUpdates: [] as Array<{ id: string; fields: Record<string, unknown> }>,
   revised: [] as Array<{ id: string; reason: string }>,
   navigated: [] as string[],
   moved: [] as Array<{ line: string; after: string | null }>,
@@ -73,6 +79,9 @@ vi.mock('@/lib/data/estimates', async () => {
     deleteLine: async (_c: unknown, id: string) => { hoisted.deleted.push(id); return 1; },
     updateVersion: async (_c: unknown, _v: string, fields: Record<string, unknown>) => {
       hoisted.updated.push(fields);
+    },
+    updateLine: async (_c: unknown, id: string, fields: Record<string, unknown>) => {
+      hoisted.lineUpdates.push({ id, fields });
     },
     reviseVersion: async (_c: unknown, id: string, reason: string) => {
       hoisted.revised.push({ id, reason });
@@ -128,7 +137,7 @@ describe('the estimate workspace', () => {
     hoisted.configured = true; hoisted.fail = null;
     hoisted.permissions = ['estimates.read', 'estimates.write', 'estimates.approve', 'estimates.issue'];
     hoisted.version = version();
-    hoisted.updated = []; hoisted.revised = []; hoisted.navigated = [];
+    hoisted.updated = []; hoisted.lineUpdates = []; hoisted.revised = []; hoisted.navigated = [];
     hoisted.moved = []; hoisted.inserted = [];
     hoisted.services = []; hoisted.added = []; hoisted.batches = [];
     hoisted.deleted = [];
@@ -223,82 +232,244 @@ describe('the estimate workspace', () => {
   });
 
   /**
-   * The columns hold still.
+   * One line, on one line, with every field on it.
    *
-   * Both editors used to render inside their own cell carrying a minimum width
-   * — twenty-two rems for the rate and its basis, thirteen for the markup. A
-   * table sizes its columns from what is in them, so clicking one number made
-   * that column demand the width, every other column give some up to pay for
-   * it, and every row in the estimate shift sideways at once. The row being
-   * edited was the only one anybody was looking at and the whole grid moved
-   * under it.
+   * Asked for four times in four ways: the typing box is not big enough to see
+   * what is being typed; the words should stay on one line; keep the line item
+   * boxes smaller; the lines box should show all the fields entirely. And after
+   * a table was made to hold still: everything on a line item needs to align
+   * neatly.
    *
-   * The editor is a row now. These hold it there, because "put it back in the
-   * cell, it is simpler" is a reasonable-looking change that brings the bug
-   * straight back.
+   * Two shapes were tried and both were wrong. A table sizes itself to the sum
+   * of its content and then makes the screen scroll, so the last fields sit off
+   * the right edge — and shaving it from ten columns to eight bought one screen
+   * size. A card that wrapped the numbers under the description fixed the width
+   * and broke the requirement, because it put one line item on two lines.
+   *
+   * What holds all of it at once is a grid: the same column template on every
+   * row, so the columns line up down the estimate the way a table's do; the
+   * description on `1fr`, so the field being typed into is the one that gets
+   * the room; and no minimum width anywhere, so nothing is ever off the edge.
    */
-  describe('typing a rate or a markup does not move the columns', () => {
-    it('opens the rate editor outside the cell it was clicked in', async () => {
+  describe('a line is one line, and all of it is on screen', () => {
+    const cardOf = (container: HTMLElement, id = 'l-1') =>
+      container.querySelector(`[data-line="${id}"]`) as HTMLElement;
+
+    it('puts every field of the line in one row', async () => {
       hoisted.version = version();
-      renderPage(<EstimateVersionPage />);
-      const cost = await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
-      const cell = cost.closest('td')!;
-      await userEvent.click(cost);
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const row = cardOf(container).firstElementChild as HTMLElement;
 
-      const field = await screen.findByLabelText('Where the rate came from');
-      expect(cell).not.toContainElement(field);
-      // And it is a row of its own, spanning the table. Asserted against the
-      // header rather than a number, so folding two columns together does not
-      // quietly leave an editor spanning the wrong width.
-      const columns = document.querySelectorAll('thead th').length;
-      expect(field.closest('td')!.getAttribute('colspan')).toBe(String(columns));
-    });
-
-    it('opens the markup editor outside the cell it was clicked in', async () => {
-      hoisted.version = version();
-      renderPage(<EstimateVersionPage />);
-      const markup = await screen.findByRole('button', { name: 'Markup for Mass excavation' });
-      const cell = markup.closest('td')!;
-      await userEvent.click(markup);
-
-      /*
-       * By role, because the button and the field share an accessible name on
-       * purpose — the thing you click and the thing you type into are the same
-       * control as far as a screen reader is concerned.
-       */
-      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
-      expect(cell).not.toContainElement(field);
-      const columns = document.querySelectorAll('thead th').length;
-      expect(field.closest('td')!.getAttribute('colspan')).toBe(String(columns));
-    });
-
-    it('leaves nothing in the cell that could widen its column', async () => {
-      hoisted.version = version();
-      renderPage(<EstimateVersionPage />);
-      const cost = await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
-      await userEvent.click(cost);
-      /*
-       * The specific shape of the bug: a minimum width inside a table cell.
-       * Anything in the column may be as wide as the number it shows and no
-       * wider.
-       */
-      const cell = cost.closest('td')!;
-      for (const el of [cell, ...Array.from(cell.querySelectorAll('*'))]) {
-        expect(el.className).not.toMatch(/min-w-/);
+      for (const control of [
+        'Unit cost for Mass excavation',
+        'Markup for Mass excavation',
+        'Quantity for Mass excavation',
+        'Unit for Mass excavation',
+        'Drag to reorder Mass excavation',
+      ]) {
+        expect(row, `${control} is not on the line`)
+          .toContainElement(screen.getByLabelText(control) as HTMLElement);
       }
     });
 
-    it('closes the rate editor when the markup one is opened', async () => {
+    it('sets no minimum width anywhere on the line, so nothing scrolls off the edge', async () => {
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const card = cardOf(container);
+      for (const el of [card, ...Array.from(card.querySelectorAll('*'))]) {
+        expect(el.className.toString(), 'a minimum width puts a field off the edge')
+          .not.toMatch(/min-w-\[/);
+      }
+    });
+
+    it('gives every row the same columns, so they line up down the estimate', async () => {
+      hoisted.version = version({
+        lines: [line({ id: 'l-1' }), line({ id: 'l-2', description: 'Rock removal' })],
+      });
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Rock removal' });
+      const a = (cardOf(container, 'l-1').firstElementChild as HTMLElement).className;
+      const b = (cardOf(container, 'l-2').firstElementChild as HTMLElement).className;
+      expect(a).toBe(b);
+      expect(a).toMatch(/grid-cols-\[/);
+    });
+
+    it('gives the description the room that is left, rather than a fixed slice', async () => {
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const row = (cardOf(container).firstElementChild as HTMLElement).className;
+      /*
+       * `1fr` on the service column, with a real floor under it: the field
+       * being typed into is the one that grows, and it never gets squeezed
+       * below something a line description can be read in.
+       */
+      const service = row.match(/grid-cols-\[[^_]+_([^_]+)_/)![1]!;
+      expect(service).toMatch(/^minmax\(\d+rem,1fr\)$/);
+      const floor = Number(service.match(/minmax\((\d+)rem/)![1]);
+      expect(floor, 'the description can be squeezed too narrow to read')
+        .toBeGreaterThanOrEqual(16);
+    });
+
+    it('keeps the words on one line rather than wrapping them', async () => {
+      hoisted.version = version({
+        lines: [line({
+          description: 'Strip and stockpile topsoil across the north half of the site',
+        })],
+      });
+      renderPage(<EstimateVersionPage />);
+      const words = await screen.findByRole('button', { name: /change what line/i });
+      expect(words.className).toMatch(/truncate/);
+    });
+
+    it('gives the lines the whole width rather than two thirds of it', async () => {
+      /*
+       * The lines card shared a row with three explainers — `lg:grid-cols-3`
+       * with the lines on `col-span-2` — so a third of every screen went to
+       * cards that are read once and collapsed, and the thing being worked on
+       * all day got what was left. That is what pushed the last fields off the
+       * edge, and no amount of shaving columns was going to fix it.
+       */
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const card = container.querySelector('[data-line="l-1"]')!.closest('.rounded-\\[--radius-card\\], [class*="rounded"]');
+      // Nothing between the line and the page may take a share of the row.
+      let el: HTMLElement | null = container.querySelector('[data-line="l-1"]') as HTMLElement;
+      while (el) {
+        expect(el.className.toString(), 'the lines are sharing their row')
+          .not.toMatch(/col-span-2/);
+        el = el.parentElement;
+      }
+      expect(card).not.toBeNull();
+    });
+
+    it('lines every value up under the column that names it', async () => {
+      /*
+       * Eleven columns, and the same template on the header and on every row —
+       * so a value can never sit under the wrong word. Checked by counting
+       * rather than by eye, because "looks aligned" is what three attempts at
+       * this already claimed.
+       */
+      hoisted.version = version({
+        lines: [line({ id: 'l-1' }), line({ id: 'l-2', description: 'Rock removal' })],
+      });
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Rock removal' });
+
+      const header = container.querySelector('[data-line-header]') as HTMLElement;
+      const rows = Array.from(container.querySelectorAll('[data-line]'))
+        .map((c) => c.firstElementChild as HTMLElement);
+
+      // Same template, and the same number of cells, header and rows alike.
+      for (const row of rows) {
+        // Same grid template — the part that decides where a value lands.
+        const template = (c: string) => c.match(/grid-cols-\[[^\]]+\]/)![0];
+        expect(template(row.className)).toBe(template(header.className));
+        expect(row.children.length).toBe(header.children.length);
+      }
+    });
+
+    it('sizes no column by its content, because two grids size that differently', async () => {
+      /*
+       * The bug this replaced, and it was invisible in the markup: the first
+       * and last columns were `auto`. The header's are empty, so they collapsed
+       * to nothing; the rows' hold buttons, so they were wide. Two independent
+       * grids resolve `auto` against their own content, so every column between
+       * them shifted and TOTAL sat to the right of its own numbers.
+       *
+       * A shared template is only shared if every track is a fixed size or a
+       * fraction. Nothing here may be content-sized.
+       */
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      const header = container.querySelector('[data-line-header]') as HTMLElement;
+      const template = header.className.match(/grid-cols-\[([^\]]+)\]/)![1]!;
+
+      for (const track of template.split('_')) {
+        expect(track, `"${track}" is sized by its content`).not.toMatch(/^(auto|min-content|max-content)$/);
+      }
+    });
+
+    it('names each column once, at the top', async () => {
       hoisted.version = version();
       renderPage(<EstimateVersionPage />);
+      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
+      for (const label of ['Service', 'Qty', 'Unit', 'Cond.', 'Unit cost',
+                           'Markup', '+Markup', 'Total']) {
+        expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+      }
+    });
+
+    it('opens the rate editor under the line without moving it', async () => {
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
       await userEvent.click(
         await screen.findByRole('button', { name: 'Unit cost for Mass excavation' }));
-      expect(await screen.findByLabelText('Where the rate came from')).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Markup for Mass excavation' }));
-      await waitFor(() =>
-        expect(screen.queryByLabelText('Where the rate came from')).not.toBeInTheDocument());
+      const field = await screen.findByLabelText('Where the rate came from');
+      const card = cardOf(container);
+      expect(card).toContainElement(field);
+      // Under the row, not inside it: an editor on the row would widen a column.
+      expect(card.firstElementChild).not.toContainElement(field);
     });
+
+    it('takes the markup as an input on the row, not a panel under it', async () => {
+      /*
+       * It was a button that opened an editor row, because an input inside a
+       * table cell widened its column and shoved every number sideways. The
+       * columns are fixed tracks now, so the control is what it should always
+       * have been: a box on the line that you type into.
+       */
+      hoisted.version = version();
+      const { container } = renderPage(<EstimateVersionPage />);
+      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
+      // On the row itself, not in a panel beneath it.
+      expect(cardOf(container).firstElementChild).toContainElement(field);
+    });
+
+    it('saves the markup the estimator types, under the name the database reads', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
+      await userEvent.type(field, '30');
+      await userEvent.tab();
+      /*
+       * `markup_override`. The camelCase key matched nothing in
+       * `update_estimate_line`, so the value was dropped and the call reported
+       * success — the markup typed on a line had never once been saved.
+       */
+      await waitFor(() => expect(hoisted.lineUpdates).toContainEqual({ id: 'l-1', fields: { markup_override: 0.3 } }));
+    });
+
+    it('puts an empty markup back under the profile rather than at zero', async () => {
+      hoisted.version = version({ lines: [line({ markupOverride: 0.3 })] });
+      renderPage(<EstimateVersionPage />);
+      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
+      await userEvent.clear(field);
+      await userEvent.tab();
+      await waitFor(() => expect(hoisted.lineUpdates).toContainEqual({ id: 'l-1', fields: { markup_override: null } }));
+    });
+
+    it('takes a typed zero as a real answer, which is not the same as empty', async () => {
+      hoisted.version = version();
+      renderPage(<EstimateVersionPage />);
+      const field = await screen.findByRole('textbox', { name: 'Markup for Mass excavation' });
+      await userEvent.type(field, '0');
+      await userEvent.tab();
+      await waitFor(() => expect(hoisted.lineUpdates).toContainEqual({ id: 'l-1', fields: { markup_override: 0 } }));
+    });
+
+    /*
+     * There used to be a test here that opening the markup closed the rate
+     * editor. Two panels competing for the space under one row needed that
+     * rule; the markup is a box on the line now, so there is only one panel and
+     * nothing for it to close. Typing a markup while a rate is being written is
+     * two different fields, and neither should interrupt the other.
+     */
 
     it('leaves the editor on Escape without writing anything', async () => {
       hoisted.version = version();
@@ -309,17 +480,6 @@ describe('the estimate workspace', () => {
       await waitFor(() =>
         expect(screen.queryByLabelText('Where the rate came from')).not.toBeInTheDocument());
       expect(hoisted.updated).toEqual([]);
-    });
-
-    it('gives the grid fixed columns, so no cell can re-proportion it', async () => {
-      hoisted.version = version();
-      const { container } = renderPage(<EstimateVersionPage />);
-      await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
-      const table = container.querySelector('table')!;
-      expect(table.className).toMatch(/table-fixed/);
-      // One col per header, or the widths line up against the wrong columns.
-      expect(table.querySelectorAll('colgroup > col'))
-        .toHaveLength(table.querySelectorAll('thead th').length);
     });
   });
 
@@ -549,9 +709,10 @@ describe('the estimate workspace', () => {
       renderPage(<EstimateVersionPage />);
       const grip = await screen.findByRole('button',
         { name: /drag to reorder Strip and stockpile topsoil/i });
+      // The card is the drop target now, and it says which line it is.
       const target = screen
         .getByRole('button', { name: /drag to reorder Rock removal/i })
-        .closest('tr')!;
+        .closest('[data-line]')!;
 
       fireEvent.dragStart(grip);
       fireEvent.dragOver(target);
@@ -831,10 +992,13 @@ describe('the estimate workspace', () => {
         { name: /add a line under Strip and stockpile topsoil/i });
       const grip = screen.getByRole('button',
         { name: /drag to reorder Strip and stockpile topsoil/i });
-      const cell = plus.closest('td')!;
-      expect(cell).toContainElement(grip);
-      expect(cell.compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      // Order on the card, which is what the eye actually follows. The cell
+      // this used to assert against no longer exists — a line is a card now.
       expect(plus.compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      const description = screen.getByRole('button',
+        { name: /change what line "Strip and stockpile topsoil" says/i });
+      expect(grip.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_FOLLOWING)
+        .toBeTruthy();
     });
 
     it('puts the wrench between what the line is and how much of it there is', async () => {
@@ -846,9 +1010,7 @@ describe('the estimate workspace', () => {
         { name: /crew, equipment, material and haul on Strip and stockpile topsoil/i });
       const quantity = screen.getByLabelText(/quantity for Strip and stockpile topsoil/i);
 
-      // Its own cell, after the description and before the quantity.
-      const cell = wrench.closest('td')!;
-      expect(cell).not.toContainElement(quantity);
+      // After the description, before the quantity.
       expect(wrench.compareDocumentPosition(quantity) & Node.DOCUMENT_POSITION_FOLLOWING)
         .toBeTruthy();
       /* The hours card lower down lists descriptions too, so anchor on the
@@ -859,19 +1021,44 @@ describe('the estimate workspace', () => {
         .toBeTruthy();
     });
 
-    it('leaves the eye and the remove at the end, where a decision about the row goes', async () => {
+    it('puts the eye with the line number at the front, not beside the trash', async () => {
+      /*
+       * It sat at the far end next to Remove, which put a thing you read — is
+       * this on the customer's copy — beside a thing you press once and regret.
+       * It belongs with the line's identity, where its state is visible without
+       * hunting for it.
+       */
+      hoisted.version = version({
+        lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
+      });
+      renderPage(<EstimateVersionPage />);
+      const eye = await screen.findByRole('button',
+        { name: /(hide|show) Strip and stockpile topsoil (from|on) the proposal/i });
+      const words = screen.getByRole('button',
+        { name: /change what line "Strip and stockpile topsoil" says/i });
+      const remove = screen.getByRole('button',
+        { name: /^Remove Strip and stockpile topsoil$/i });
+
+      // Before the words, and a long way before the trash.
+      expect(eye.compareDocumentPosition(words) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(eye.compareDocumentPosition(remove) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('leaves removing the line at the end, where a decision about it goes', async () => {
       hoisted.version = version({
         lines: [line({ id: 'l-1', description: 'Strip and stockpile topsoil' })],
       });
       renderPage(<EstimateVersionPage />);
       const remove = await screen.findByRole('button',
         { name: /^Remove Strip and stockpile topsoil$/i });
-      const cell = remove.closest('td')!;
-      expect(within(cell).getByRole('button',
-        { name: /(hide|show) Strip and stockpile topsoil (from|on) the proposal/i }))
-        .toBeInTheDocument();
-      expect(within(cell).queryByRole('button', { name: /add a line under/i })).toBeNull();
+      const plus = screen.getByRole('button',
+        { name: /add a line under Strip and stockpile topsoil/i });
+      expect(plus.compareDocumentPosition(remove) & Node.DOCUMENT_POSITION_FOLLOWING)
+        .toBeTruthy();
+      expect(within(remove.parentElement!)
+        .queryByRole('button', { name: /add a line under/i })).toBeNull();
     });
+
   });
 
   // -------------------------------------------------------------------------
