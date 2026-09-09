@@ -67,7 +67,13 @@ export function CostCell({
   sourcePrompt,
 }: CostCellProps) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(String(value));
+  /*
+   * Zero opens as an empty box, not as `0`. A rate nobody has set is the
+   * common case here, and a box already reading `0` is one the estimator has
+   * to clear before it is usable — "I want to see the typed value not 0
+   * first". The placeholder says what shape the number takes instead.
+   */
+  const [draft, setDraft] = useState(value === 0 ? '' : String(value));
   const [source, setSource] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -97,7 +103,7 @@ export function CostCell({
         <button type="button"
           className="tabular inline-flex items-center gap-1.5 text-charcoal-900 hover:underline"
           onClick={() => {
-            setDraft(unset ? '' : String(value));
+            setDraft(unset || value === 0 ? '' : String(value));
             setSource(''); setError(null); setEditing(true);
           }}
           aria-label={unset ? `Set ${label}` : `Change ${label}`}>
@@ -139,7 +145,7 @@ export function CostCell({
               if (e.key === 'Escape') setEditing(false);
             }} />
         ) : null}
-        <Input value={draft} inputMode="decimal" autoFocus
+        <Input value={draft} inputMode="decimal" autoFocus placeholder="0.00"
           className="h-8 w-24 text-right" aria-label={label}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {

@@ -23,6 +23,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { updateLine } from '@/lib/data/estimates';
+import { useSelectOnFocus } from '@/lib/select-on-focus';
 import { cn } from '@/lib/utils';
 
 /** A fraction on the record, a percentage on the screen. */
@@ -41,6 +42,12 @@ export function MarkupCell({ lineId, description, markupOverride, editable, onCh
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const field = useRef<HTMLInputElement>(null);
+  /*
+   * A raw input rather than the shared one, because it sits inside a fixed grid
+   * track and carries the percent sign under it — so it takes the same
+   * select-what-you-hold behavior directly. Typing 15 over a 10 gives 15.
+   */
+  const select = useSelectOnFocus<HTMLInputElement>();
 
   useEffect(() => { setDraft(asPercentText(markupOverride)); }, [markupOverride]);
 
@@ -102,6 +109,9 @@ export function MarkupCell({ lineId, description, markupOverride, editable, onCh
         placeholder="profile"
         title={error ?? 'Empty uses the company pricing profile. Zero means this line carries none.'}
         onChange={(e) => setDraft(e.target.value)}
+        onFocus={select.onFocus}
+        onMouseDown={select.onMouseDown}
+        onMouseUp={select.onMouseUp}
         onBlur={() => void commit()}
         onKeyDown={onKeyDown}
         className={cn(

@@ -25,6 +25,10 @@ import { Input } from '@/components/ui/input';
 import { qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
+/** What the box reads. Zero reads as empty; anything else reads as itself. */
+const textFor = (quantity: number, expression: string | null) =>
+  expression ?? (quantity === 0 ? '' : String(quantity));
+
 export function QuantityInput({
   quantity, expression, unit, disabled, label, className, onCommit,
 }: {
@@ -41,14 +45,20 @@ export function QuantityInput({
   /*
    * The field shows the expression when there is one, because that is what the
    * estimator wrote and what they will want to edit. The number is underneath.
+   *
+   * A quantity of zero shows nothing. Every new line starts at zero, and a box
+   * reading `0` is a box you have to clear before you can use it — "when I type
+   * a value in any box I want to see the typed value not 0 first". Zero is not
+   * a quantity anybody means; it is the absence of one, and the placeholder
+   * says so without occupying the field.
    */
-  const initial = expression ?? String(quantity);
+  const initial = textFor(quantity, expression);
   const [draft, setDraft] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const committed = useRef(initial);
 
   useEffect(() => {
-    const next = expression ?? String(quantity);
+    const next = textFor(quantity, expression);
     setDraft(next);
     committed.current = next;
     setError(null);
@@ -89,7 +99,14 @@ export function QuantityInput({
         <Input
           value={draft}
           disabled={disabled}
+          placeholder="0"
+          /*
+           * An expression, not only a number, so the keypad would be the wrong
+           * one — but typing still replaces what is there, which is the whole
+           * point of the cell on a line being repriced.
+           */
           inputMode="text"
+          selectOnFocus
           aria-label={label}
           aria-invalid={error ? true : undefined}
           /*

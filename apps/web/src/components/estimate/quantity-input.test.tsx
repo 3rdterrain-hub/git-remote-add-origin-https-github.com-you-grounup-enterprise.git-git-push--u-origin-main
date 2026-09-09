@@ -111,3 +111,47 @@ describe('showing the working', () => {
     expect(field).toBeDisabled();
   });
 });
+
+/**
+ * "When I type a value in any box I want to see the typed value not 0 first."
+ *
+ * Every new line starts at a quantity of zero, so every quantity cell opened
+ * with a `0` sitting in it and the first digit typed landed beside that zero.
+ */
+describe('typing a quantity into a cell that had one', () => {
+  it('opens empty rather than holding a zero nobody meant', () => {
+    const { field } = cell({ quantity: 0 });
+    expect(field).toHaveValue('');
+    expect(field).toHaveAttribute('placeholder', '0');
+  });
+
+  it('gives the typed value, not the value typed onto a zero', async () => {
+    const { onCommit, field } = cell({ quantity: 0 });
+    await userEvent.click(field);
+    await userEvent.keyboard('1800');
+    expect(field).toHaveValue('1800');
+    await userEvent.tab();
+    expect(onCommit).toHaveBeenCalledWith(1800, null);
+  });
+
+  it('replaces the quantity already on the line instead of appending to it', async () => {
+    const { onCommit, field } = cell({ quantity: 1800 });
+    await userEvent.click(field);
+    await userEvent.keyboard('250');
+    expect(field).toHaveValue('250');
+    await userEvent.tab();
+    expect(onCommit).toHaveBeenCalledWith(250, null);
+  });
+
+  it('still lets a number be corrected rather than retyped', async () => {
+    // The second click inside a field that already has focus is an edit, not a
+    // replacement — fixing the third digit of a rate is a normal thing to do.
+    const { onCommit, field } = cell({ quantity: 1800 });
+    await userEvent.click(field);
+    await userEvent.click(field);
+    await userEvent.keyboard('{End}0');
+    expect(field).toHaveValue('18000');
+    await userEvent.tab();
+    expect(onCommit).toHaveBeenCalledWith(18000, null);
+  });
+});
