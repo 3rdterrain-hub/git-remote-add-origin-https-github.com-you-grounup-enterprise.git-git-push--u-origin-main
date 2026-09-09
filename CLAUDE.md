@@ -135,6 +135,10 @@ npm run verify      # the gate: typecheck, edge fingerprint, openapi, counts,
 
 - Node lives at `/Users/tradertree/.grounup-tools/node-v24.20.0-darwin-x64/bin`
   and must be on `PATH` in every shell.
+- **Typecheck with `npm run typecheck`, never `npx tsc -p apps/web/tsconfig.json`.**
+  The gate uses `tsconfig.app.json`, which is stricter: a PostgREST embedded
+  relation typed as `GenericStringError[]` passes the first and fails the second,
+  and finding that out costs a whole gate run.
 - **Do not edit files while the gate is running** — the docs counts and the test
   results end up describing different trees.
 - Push only on a green gate, unless told otherwise.
