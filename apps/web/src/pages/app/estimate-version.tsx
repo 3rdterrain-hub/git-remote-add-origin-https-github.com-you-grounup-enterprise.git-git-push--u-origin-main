@@ -88,8 +88,25 @@ const COST_LABELS: Record<string, string> = {
  * the screen scroll; this compresses the description and keeps every field on
  * screen, which is what "show all the fields entirely" asks for.
  */
+/*
+ * The column template, measured against the real screen rather than guessed.
+ *
+ * Two tracks were too narrow for what was put in them, and a track that is too
+ * narrow does not scroll or clip — it overflows and paints over its neighbor.
+ *
+ *   * Quantity was `4rem` holding a `w-24` input: 96px of box in 64px of track,
+ *     overflowing 16px each side, so the input touched the unit picker with no
+ *     gap at all.
+ *   * The last track was `4rem` holding a confidence badge, which is 91px on
+ *     its own before the delete button beside it. The badge spilled 53px to its
+ *     left, straight over the total — "not priced" rendered as "not", and on a
+ *     priced line it would have covered the last digits of the money.
+ *
+ * Both are sized to their contents now, and the width comes out of the service
+ * column, which is the `1fr` and is 590px wide at this window either way.
+ */
 const LINE_GRID =
-  'grid grid-cols-[9rem_minmax(18rem,1fr)_2rem_4rem_5rem_3.5rem_7rem_4.5rem_6rem_8rem_4rem] '
+  'grid grid-cols-[9rem_minmax(18rem,1fr)_2rem_5.5rem_5rem_3.5rem_7rem_4.5rem_6rem_8rem_7.5rem] '
   + 'items-center gap-x-3 px-3 py-2';
 
 /** One column name. */
@@ -911,11 +928,22 @@ function LineTable({
                         ) : null}
                       </span>
                     )}
-                    {l.adjustedQuantity !== l.measuredQuantity ? (
-                      <p className="mt-0.5 text-xs text-charcoal-400">
-                        {qty(l.adjustedQuantity)} after waste and loss
-                      </p>
-                    ) : null}
+                    {/*
+                      * Nothing under the quantity.
+                      *
+                      * A note lived here — the quantity net of waste and loss —
+                      * and it was asked for gone: "no text under quantity in
+                      * estimator". It is not lost. Waste is a property of the
+                      * line rather than of the number typed into it, so it is
+                      * read and set in the wrench panel with the rest of what
+                      * the line is made of, and the gross quantity the engine
+                      * actually prices is on the line's own detail.
+                      *
+                      * The cell holds one control and nothing else, which is
+                      * also what keeps every row the same height: this note
+                      * wrapped to four lines in a column five characters wide
+                      * and took its row from 63px to 99px.
+                      */}
                   </div>
                   {/*
                     * The unit, in its own column. A company that bids topsoil by

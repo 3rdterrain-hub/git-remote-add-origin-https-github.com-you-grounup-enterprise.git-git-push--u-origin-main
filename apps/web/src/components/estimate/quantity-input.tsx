@@ -55,6 +55,19 @@ export function QuantityInput({
   const initial = textFor(quantity, expression);
   const [draft, setDraft] = useState(initial);
   const [error, setError] = useState<string | null>(null);
+  /*
+   * Whether the cell is being typed in.
+   *
+   * "No text under quantity in estimator." At rest the cell is the box and
+   * nothing else — a second line under one cell is what made a row taller than
+   * its neighbors, and a column of quantities you cannot scan is worse than a
+   * working shown twice. While the cell has focus the answer appears, because
+   * an estimator typing `3,180 - 240` needs to see what it comes to before
+   * they leave it; the moment they do, it goes away and the number is in the
+   * box. The result stays reachable at rest on the field itself, where hover
+   * and a screen reader both find it.
+   */
+  const [focused, setFocused] = useState(false);
   const committed = useRef(initial);
 
   useEffect(() => {
@@ -110,13 +123,18 @@ export function QuantityInput({
           aria-label={label}
           aria-invalid={error ? true : undefined}
           /*
-           * Narrower than it was. "Keep the line item boxes smaller" — and a
-           * quantity is six or seven digits, so w-32 was buying blank space at
-           * the description's expense.
+           * The width of its column, not a width of its own.
+           *
+           * `w-24` was 96px inside a 64px grid track: it overflowed 16px each
+           * side, touched the unit picker with no gap, and reached back over the
+           * wrench. A fixed width in a fixed track is two sources of truth about
+           * one number, and this is the one that cannot be wrong.
            */
-          className={cn('tabular h-8 w-24 pr-6 text-right', error && 'border-danger-400')}
+          className={cn('tabular h-8 w-full pr-6 text-right', error && 'border-danger-400')}
+          title={expression ? `${expression} = ${qty(quantity)}${unit ? ` ${unit}` : ''}` : undefined}
           onChange={(e) => { setDraft(e.target.value); setError(null); }}
-          onBlur={commit}
+          onFocus={() => setFocused(true)}
+          onBlur={() => { setFocused(false); commit(); }}
           onKeyDown={onKeyDown}
         />
         {looksCalculated(draft) ? (
@@ -124,15 +142,16 @@ export function QuantityInput({
         ) : null}
       </div>
 
+      {/*
+        * An error is shown whether or not the cell has focus — a refusal that
+        * disappeared when you looked away would be a refusal nobody read. The
+        * answer to a calculation is shown only while it is being typed.
+        */}
       {error ? (
         <p className="text-xs text-danger-700">{error}</p>
-      ) : preview != null && String(preview) !== draft.trim() ? (
+      ) : focused && preview != null && String(preview) !== draft.trim() ? (
         <p className="text-xs text-charcoal-500">
           = {qty(preview)}{unit ? ` ${unit}` : ''}
-        </p>
-      ) : expression && draft === expression ? (
-        <p className="text-xs text-charcoal-400">
-          = {qty(quantity)}{unit ? ` ${unit}` : ''}
         </p>
       ) : null}
     </div>

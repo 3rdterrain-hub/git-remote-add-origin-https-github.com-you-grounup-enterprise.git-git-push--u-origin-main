@@ -585,3 +585,69 @@ describe('a discount on one bid', () => {
     expect(input.input.pricingProfile.components.map((c) => c.code)).toEqual(['OH', 'PROFIT']);
   });
 });
+
+/**
+ * A rate the estimator typed, and the check that said it was nothing.
+ *
+ * `parametric_cost_per_unit` has existed since migration 0120, with a required
+ * basis, its own editor and nineteen database tests. It was not in the column
+ * list this path selects, not in the payload it builds, and not in the check
+ * that decides whether a line can be priced — so a line carrying a quoted rate
+ * was reported as having "nothing to price", and because that is a refusal
+ * rather than a warning, one such line returned a 422 and stopped the whole
+ * estimate.
+ *
+ * Found by typing $42.50 per LF into the running application and pressing
+ * Price with engine.
+ */
+describe('a line priced at a typed rate', () => {
+  const typedRate = (over: Partial<LineRow> = {}): LineRow => line({
+    id: 'line-typed', description: 'Electrical duct bank installation',
+    measured_quantity: '500', unit: 'LF',
+    production_rates: null, crews: null, estimate_line_modifiers: [],
+    parametric_cost_per_unit: '42.50',
+    parametric_basis: 'Sub quote, Delaney Bros, 9 Sep',
+    ...over,
+  });
+
+  it('is not reported as having nothing to price', () => {
+    const { problems } = buildEstimateInput(
+      snapshot({ lines: [typedRate()], resources: [] }), ASOF);
+    expect(problems.map((p) => p.field)).not.toContain('resources');
+  });
+
+  it('carries the rate and its basis into the engine payload', () => {
+    const { input } = buildEstimateInput(
+      snapshot({ lines: [typedRate()], resources: [] }), ASOF);
+    expect(input.lines[0]!.parametricCostPerUnit).toBe(42.5);
+    expect(input.lines[0]!.parametricBasis).toBe('Sub quote, Delaney Bros, 9 Sep');
+  });
+
+  it('prices, rather than refusing the whole estimate for one line', () => {
+    const { result, problems } = priceEstimate(
+      snapshot({ lines: [typedRate()], resources: [] }), ASOF);
+    expect(problems).toEqual([]);
+    // 500 LF x $42.50 = $21,250.00 of direct cost, from a line with no
+    // resources on it at all.
+    expect(result.totalDirectCost).toBe(21_250);
+    expect(result.bidPrice).toBeGreaterThan(21_250);
+  });
+
+  it('still reports a line that has neither a rate nor anything else', () => {
+    const { problems } = buildEstimateInput(
+      snapshot({ lines: [typedRate({ parametric_cost_per_unit: null, parametric_basis: null })], resources: [] }),
+      ASOF);
+    expect(problems.map((p) => p.field)).toContain('resources');
+  });
+
+  it('refuses a typed rate that does not say where it came from', () => {
+    /*
+     * The basis is not politeness. "Sub quote, Delaney Bros, 14 Aug" and
+     * "roughly what we got last year" are different claims about the same
+     * number, and an estimate that cannot tell them apart cannot be reviewed.
+     */
+    const { problems } = buildEstimateInput(
+      snapshot({ lines: [typedRate({ parametric_basis: null })], resources: [] }), ASOF);
+    expect(problems.map((p) => p.field)).toContain('parametric_basis');
+  });
+});

@@ -1095,3 +1095,116 @@ describe('the estimate workspace', () => {
   });
 
 });
+
+/**
+ * Three things the first real estimate opened in a browser showed.
+ *
+ * Every one of them was invisible to jsdom, because jsdom lays nothing out: a
+ * grid track has no width, a box that overflows it overflows by zero, and text
+ * that wraps to four lines wraps to none. They are held here by the properties
+ * that caused them rather than by pixels.
+ */
+describe('what the line looked like on a real screen', () => {
+  beforeEach(() => {
+    hoisted.configured = true; hoisted.fail = null;
+    hoisted.permissions = ['estimates.read', 'estimates.write'];
+    hoisted.version = version();
+    hoisted.lineUpdates = []; hoisted.updated = []; hoisted.navigated = [];
+    hoisted.moved = []; hoisted.inserted = []; hoisted.services = [];
+    hoisted.added = []; hoisted.batches = []; hoisted.deleted = []; hoisted.revised = [];
+  });
+
+  it('gives the quantity box the width of its column rather than one of its own', async () => {
+    /*
+     * `w-24` was 96px of input inside a 64px track. It overflowed 16px each
+     * side, touched the unit picker with no gap and reached back over the
+     * wrench. A fixed width inside a fixed track is two sources of truth about
+     * one number.
+     *
+     * Asserted on what renders rather than on the source file: jsdom lays
+     * nothing out, so a width cannot be measured here — but the declaration
+     * that sets it is on the element, and the element is what ships.
+     */
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getAllByLabelText(/^Quantity for /).length).toBeGreaterThan(0));
+    const box = screen.getAllByLabelText(/^Quantity for /)[0]!;
+    expect(box.className).toContain('w-full');
+    expect(box.className).not.toContain('w-24');
+  });
+
+  it('leaves the last column wide enough for the badge that lives in it', async () => {
+    /*
+     * The confidence badge is 91px on its own and shared a 4rem track with the
+     * delete button. It spilled 53px to its left, over the total — "not priced"
+     * rendered as "not", and on a priced line it would have covered the last
+     * digits of the money.
+     *
+     * The header and the rows have to carry the same eleven tracks or the
+     * columns do not line up down the estimate, so both are checked.
+     */
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(document.querySelector('[data-line-header]')).not.toBeNull());
+
+    for (const el of [
+      document.querySelector('[data-line-header]')!,
+      document.querySelector('[data-line] > div')!,
+    ]) {
+      const template = el.className.match(/grid-cols-\[([^\]]+)\]/)?.[1];
+      expect(template).toBeTruthy();
+      const tracks = template!.split('_');
+      expect(tracks).toHaveLength(11);
+      // The quantity, and the cluster at the end.
+      expect(tracks[3]).toBe('5.5rem');
+      expect(tracks[10]).toBe('7.5rem');
+    }
+  });
+
+  it('says nothing about waste before the engine has computed any', async () => {
+    /*
+     * `adjusted_quantity` is an engine output — `not null default 0` until the
+     * engine writes it. Comparing it against the measured quantity was true on
+     * every unpriced line, so a line measured at 500 LF read "net 0.00": waste
+     * and loss appearing to have taken the whole quantity, on an estimate the
+     * engine had never seen.
+     */
+    hoisted.version = version({
+      lines: [line({
+        id: 'l-waste', description: 'Electrical duct bank installation',
+        serviceName: 'Electrical duct bank installation',
+        measuredQuantity: 500, adjustedQuantity: 0, unit: 'LF',
+      })],
+    });
+    renderPage(<EstimateVersionPage />);
+    // Twice on the row: the service name, and the description under it.
+    await waitFor(() =>
+      expect(screen.getAllByText('Electrical duct bank installation').length)
+        .toBeGreaterThan(0));
+    expect(screen.queryByText(/^net /)).not.toBeInTheDocument();
+  });
+
+  it('puts nothing under the quantity, priced or not', async () => {
+    /*
+     * A note lived under the quantity — what it came to net of waste — and it
+     * was asked for gone. Waste is a property of the line rather than of the
+     * number typed into it, so it is read and set in the wrench panel with the
+     * rest of what the line is made of. The cell holds one control and
+     * nothing else, which is also what keeps every row the same height.
+     */
+    hoisted.version = version({
+      lines: [line({
+        id: 'l-waste', description: 'Electrical duct bank installation',
+        serviceName: 'Electrical duct bank installation',
+        measuredQuantity: 500, adjustedQuantity: 525, unit: 'LF', wastePercent: 0.05,
+      })],
+    });
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getAllByText('Electrical duct bank installation').length)
+        .toBeGreaterThan(0));
+
+    expect(screen.queryByText(/^net /)).not.toBeInTheDocument();
+    expect(screen.queryByText(/after waste and loss/)).not.toBeInTheDocument();
+  });
+});

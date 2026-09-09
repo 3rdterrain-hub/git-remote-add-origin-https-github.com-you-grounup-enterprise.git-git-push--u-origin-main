@@ -254,6 +254,7 @@ TST-engine-materials,test,engine/materials.test.ts,packages/engine/tests/materia
 TST-engine-multiplication,test,engine/multiplication.test.ts,packages/engine/tests/multiplication.test.ts,ENGINE
 TST-engine-numeric,test,engine/numeric.test.ts,packages/engine/tests/numeric.test.ts,ENGINE
 TST-engine-overrides,test,engine/overrides.test.ts,packages/engine/tests/overrides.test.ts,ENGINE
+TST-engine-parametric-rate,test,engine/parametric-rate.test.ts,packages/engine/tests/parametric-rate.test.ts,ENGINE
 TST-engine-portable,test,engine/portable.test.ts,packages/engine/tests/portable.test.ts,ENGINE
 TST-engine-pricing,test,engine/pricing.test.ts,packages/engine/tests/pricing.test.ts,ENGINE
 TST-engine-production,test,engine/production.test.ts,packages/engine/tests/production.test.ts,ENGINE
@@ -372,6 +373,7 @@ TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/
 TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
 TST-gov-every-stat-tile-does-something,test,gov/every-stat-tile-does-something.test.ts,tests/governance/every-stat-tile-does-something.test.ts,ENGINE
+TST-gov-no-compiled-output-beside-the-source,test,gov/no-compiled-output-beside-the-source.test.ts,tests/governance/no-compiled-output-beside-the-source.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE
 TST-gov-rerunnable-migrations,test,gov/rerunnable-migrations.test.ts,tests/governance/rerunnable-migrations.test.ts,ENGINE

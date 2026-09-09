@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Loader2, ShieldCheck, Mail, Lock, Building2 } from 'lucide-react';
+import {
+  ArrowRight, Loader2, ShieldCheck, Mail, Lock, Building2, Eye, EyeOff, Wand2,
+} from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,8 +31,30 @@ export function AuthPage({ mode }: { mode: Mode }) {
   // Read once: which providers exist is a deployment fact, not a state change.
   const providers = enabledProviders();
   const [notice, setNotice] = useState<string | null>(null);
+  /*
+   * Whether the password is legible.
+   *
+   * A password field that cannot be read is a field people mistype, and the
+   * only feedback they get is a refusal that says nothing about which
+   * character was wrong. Off by default, because the reason it is masked is
+   * that somebody may be standing behind you.
+   */
+  const [showPassword, setShowPassword] = useState(false);
+  /*
+   * The second way in, and the one that needs nothing configured.
+   *
+   * The provider buttons above are real and have worked since they were
+   * written, but they appear only when a deployment names its providers in
+   * `VITE_OAUTH_PROVIDERS` — so on a deployment that has not, this page offers
+   * exactly one way to sign in. A one-time link needs no provider, no password
+   * and no setup: it is the same email address, and the same mailbox that
+   * already receives the reset link.
+   */
+  const [passwordless, setPasswordless] = useState(false);
 
   const copy = COPY[mode];
+  /* The password is only asked for when a password is what is being used. */
+  const wantsPassword = mode !== 'reset' && !(mode === 'login' && passwordless);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -47,7 +71,25 @@ export function AuthPage({ mode }: { mode: Mode }) {
 
     setBusy(true);
     try {
-      if (mode === 'login') {
+      if (mode === 'login' && passwordless) {
+        /*
+         * `shouldCreateUser: false`, so a one-time link is a way into an
+         * account that exists rather than a way to create one without ever
+         * naming a company. The wording below does not say which it was: an
+         * error that distinguishes "no such account" from "link sent" is an
+         * account enumeration oracle, and this page already refuses to be one
+         * on the reset path.
+         */
+        const { error: err } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (err) throw err;
+        setNotice('If that email has an account, a sign-in link is on its way. It works once and expires.');
+      } else if (mode === 'login') {
         const { error: err } = await supabase.auth.signInWithPassword({ email, password });
         if (err) throw err;
         navigate('/app');
@@ -154,7 +196,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
               </div>
             </div>
 
-            {mode !== 'reset' ? (
+            {wantsPassword ? (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
@@ -166,10 +208,31 @@ export function AuthPage({ mode }: { mode: Mode }) {
                 </div>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-                  <Input id="password" type="password" className="pl-9" placeholder="••••••••••••" value={password}
+                  <Input id="password" type={showPassword ? 'text' : 'password'}
+                    className="pl-9 pr-10" placeholder="••••••••••••" value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                     minLength={mode === 'signup' ? 12 : undefined} required />
+                  {/*
+                    * Show what was typed.
+                    *
+                    * `type="button"`, because a button inside a form submits it
+                    * by default and revealing a password is not signing in. The
+                    * state is on the control rather than only in the icon, so a
+                    * screen reader announces "shown" or "hidden" instead of
+                    * announcing a picture of an eye.
+                    */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-pressed={showPassword}
+                    aria-controls="password"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-charcoal-400 hover:bg-charcoal-100 hover:text-charcoal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
                 </div>
                 {mode === 'signup' ? (
                   <p className="text-xs text-charcoal-500">At least 12 characters.</p>
@@ -177,12 +240,28 @@ export function AuthPage({ mode }: { mode: Mode }) {
               </div>
             ) : null}
 
+            {/*
+              * The other way in. Offered on the sign-in page only: creating an
+              * account still asks for a company name and a password, because
+              * the workspace is provisioned from them.
+              */}
+            {mode === 'login' ? (
+              <button type="button"
+                onClick={() => { setPasswordless((v) => !v); setError(null); setNotice(null); }}
+                className="flex w-full items-center justify-center gap-1.5 text-xs font-medium text-charcoal-500 hover:text-charcoal-900">
+                {passwordless
+                  ? <><Lock className="size-3.5" /> Use a password instead</>
+                  : <><Wand2 className="size-3.5" /> Email me a one-time sign-in link instead</>}
+              </button>
+            ) : null}
+
             {error ? <Alert tone="danger">{error}</Alert> : null}
             {notice ? <Alert tone="success">{notice}</Alert> : null}
 
             <Button type="submit" className="w-full" size="lg" disabled={busy}>
               {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-              {copy.cta} {!busy ? <ArrowRight className="size-4" /> : null}
+              {mode === 'login' && passwordless ? 'Send a sign-in link' : copy.cta}
+              {!busy ? <ArrowRight className="size-4" /> : null}
             </Button>
           </form>
 

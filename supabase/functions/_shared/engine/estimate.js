@@ -143,6 +143,31 @@ export function calculateEstimateLine(input) {
             derivation.push(`HAUL BALANCE: ${haul.balanceNote}`);
         }
     }
+    /*
+     * 8b. A rate somebody typed, times the quantity it is a rate for.
+     *
+     * Filed under `other` rather than `subcontract`, because the platform scores
+     * a typed rate as an allowance and that is what decides the review it faces.
+     * Calling it a subcontract would understate the review a guess needs and
+     * overstate what a quote is (RULE-001: the buckets are not interchangeable).
+     */
+    const parametricRate = input.parametricCostPerUnit ?? 0;
+    if (parametricRate < 0) {
+        warnings.push(`A typed rate cannot be negative; ${parametricRate} per ${input.quantity.unit} `
+            + 'was ignored.');
+    }
+    if (parametricRate > 0 && !input.parametricBasis?.trim()) {
+        warnings.push('A typed rate has to say where it came from. A quote and a guess are different '
+            + 'claims and a reviewer cannot tell them apart without one.');
+    }
+    const parametricCost = parametricRate > 0
+        ? money(parametricRate * quantity.adjusted)
+        : 0;
+    if (parametricCost > 0) {
+        derivation.push(`PARAMETRIC: ${parametricRate} per ${input.quantity.unit} x ${quantity.adjusted} `
+            + `= ${parametricCost}`
+            + (input.parametricBasis ? ` (${input.parametricBasis})` : ''));
+    }
     // 9. Direct cost, before and after cost modifiers --------------------------
     const rawDirectCost = {
         laborWage: crew?.baseWageCost ?? 0,
@@ -154,7 +179,7 @@ export function calculateEstimateLine(input) {
         trucking: haul?.truckingCost ?? 0,
         disposal: haul?.disposalCost ?? 0,
         subcontract: money(input.subcontractCost ?? 0),
-        other: money(input.otherDirectCost ?? 0),
+        other: money((input.otherDirectCost ?? 0) + parametricCost),
     };
     const directCost = applyCostModifiers(rawDirectCost, {
         labor_cost: modifiers.combined.labor_cost,

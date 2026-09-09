@@ -47,6 +47,36 @@ export interface EstimateLineInput {
     haul?: Omit<HaulCycleInput, 'loaderProductionPerHour' | 'shiftHours'> & Partial<Pick<HaulCycleInput, 'loaderProductionPerHour' | 'shiftHours'>>;
     subcontractCost?: number;
     otherDirectCost?: number;
+    /**
+     * A rate the estimator typed, per unit, instead of building the line up.
+     *
+     * Not every line is built up. A subcontract quote, an allowance, a number
+     * somebody simply knows — before this existed the only way to price one was
+     * to invent resources until the arithmetic came out right, which is worse
+     * than typing the number and saying where it came from.
+     *
+     * The column has existed since migration 0120 and the engine never read it.
+     * A line priced this way was reported by the pricing path as having "no crew,
+     * equipment, material, subcontract or production rate on it. There is nothing
+     * to price" — and because that is a refusal rather than a warning, one such
+     * line returned a 422 and stopped the whole estimate from pricing. The rate
+     * was on the screen, on the record, and in none of the arithmetic.
+     *
+     * It is multiplied here rather than by the caller so it uses the same
+     * adjusted quantity as everything else on the line: waste and loss apply to a
+     * quoted rate exactly as they apply to a built-up one, and a caller doing its
+     * own multiplication would silently use the measured quantity instead.
+     */
+    parametricCostPerUnit?: number;
+    /**
+     * Where that rate came from, and why it is required.
+     *
+     * "Sub quote, Delaney Bros, 14 Aug" and "roughly what we got last year" are
+     * different claims, and an estimate that cannot tell them apart cannot be
+     * reviewed. The database refuses a rate without one; the engine refuses to
+     * price one, for the same reason.
+     */
+    parametricBasis?: string;
     fuelPricePerGallon?: number;
     defPricePerGallon?: number;
     /**

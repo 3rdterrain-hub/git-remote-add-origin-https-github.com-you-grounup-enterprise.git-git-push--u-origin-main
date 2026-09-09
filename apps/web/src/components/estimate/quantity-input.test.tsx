@@ -94,10 +94,32 @@ describe('refusing rather than guessing', () => {
 });
 
 describe('showing the working', () => {
-  it('shows the calculation a quantity came from', () => {
+  it('shows the calculation a quantity came from, in the box', () => {
     cell({ quantity: 320.16, expression: '120 * 4 * 0.667' });
     expect(screen.getByLabelText('Quantity for this line')).toHaveValue('120 * 4 * 0.667');
+  });
+
+  it('says nothing under the box when nobody is typing in it', () => {
+    /*
+     * "No text under quantity in estimator." A second line under one cell is
+     * what made a row taller than its neighbors, and a column of quantities
+     * you cannot scan down is worse than a working shown twice. What the
+     * expression comes to is on the field itself, where hover and a screen
+     * reader both reach it.
+     */
+    cell({ quantity: 320.16, expression: '120 * 4 * 0.667' });
+    expect(screen.queryByText('= 320.16 CY')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Quantity for this line'))
+      .toHaveAttribute('title', '120 * 4 * 0.667 = 320.16 CY');
+  });
+
+  it('shows the answer again the moment the cell is entered', async () => {
+    const { field } = cell({ quantity: 320.16, expression: '120 * 4 * 0.667' });
+    await userEvent.click(field);
     expect(screen.getByText('= 320.16 CY')).toBeInTheDocument();
+
+    await userEvent.tab();
+    expect(screen.queryByText('= 320.16 CY')).not.toBeInTheDocument();
   });
 
   it('shows a plain number as itself, with nothing to explain', () => {

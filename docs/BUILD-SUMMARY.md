@@ -4,16 +4,16 @@
 
 | Area | Files | Lines |
 |---|---:|---:|
-| Estimating engine (source + tests) | 49 | ~14,800 |
+| Estimating engine (source + tests) | 50 | ~15,000 |
 | Document rendering (source + tests) | 8 | ~1,800 |
 | Database migrations (138 files, 167 tables, 83 views) | 138 | ~35,200 |
-| Edge Functions + shared modules | 60 | ~9,400 |
-| Database & function tests | 102 | ~27,300 |
-| Governance & traceability tests | 13 | ~3,600 |
-| Web application (49 routes, 29 app screens) | 239 | ~58,900 |
+| Edge Functions + shared modules | 60 | ~9,500 |
+| Database & function tests | 102 | ~27,400 |
+| Governance & traceability tests | 14 | ~3,700 |
+| Web application (49 routes, 29 app screens) | 239 | ~59,300 |
 | Documentation | 14 | ~5,400 |
 | Seed & tooling | 11 | ~2,800 |
-| **Total hand-written** | **634** | **~159,200** |
+| **Total hand-written** | **636** | **~160,000** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 4,154 tests, production build —
+drift checks, 4,190 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
-Engine        689 tests   estimating, surfaces, calendars, critical path
+Engine        701 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
 Database    1,838 tests   against real PostgreSQL 18 (PGlite)
-Functions     268 tests   billing, plan versioning, AI governance, API, observability
-Governance    293 tests   the five-category rule, traceability, verification, spelling, pipeline
-Web         1,009 tests   jsdom + Testing Library
+Functions     273 tests   billing, plan versioning, AI governance, API, observability
+Governance    295 tests   the five-category rule, traceability, verification, spelling, pipeline
+Web         1,026 tests   jsdom + Testing Library
             ───────────
-            4,154 tests
+            4,190 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

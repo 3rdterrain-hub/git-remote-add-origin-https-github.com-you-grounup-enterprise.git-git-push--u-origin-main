@@ -138,6 +138,13 @@ export interface LineRow {
   production_modifier: Num;
   /* The estimator's own markup for this line, or null for the profile's. */
   markup_override: Num;
+  /*
+   * A rate typed on the line instead of building it up, and where it came from.
+   * Both have existed since migration 0120 and neither was read here, so a line
+   * priced at a quoted rate reached the engine with nothing on it at all.
+   */
+  parametric_cost_per_unit?: Num;
+  parametric_basis?: string | null;
   check_primary_source: boolean | null;
   check_cross_source: boolean | null;
   check_reconciliation: boolean | null;
@@ -665,12 +672,34 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         .reduce((a, r) => a + n(r.unit_rate) * n(r.hours, 0) * Math.max(1, n(r.quantity, 1)), 0);
       const otherDirectCost = sum('disposal') + hourlyTrucking;
 
+      /*
+       * A rate the estimator typed, which is a price rather than a build-up.
+       *
+       * It belongs in this check as much as a subcontract does. Leaving it out
+       * meant a line carrying a quoted rate was reported as having "nothing to
+       * price" — and since that is a refusal rather than a warning, one such
+       * line returned a 422 and stopped the whole estimate. The rate was on the
+       * screen, on the record, and in none of the arithmetic.
+       */
+      const parametricCostPerUnit = maybe(l.parametric_cost_per_unit) !== undefined
+        ? n(l.parametric_cost_per_unit) : 0;
+
+      if (parametricCostPerUnit > 0 && !l.parametric_basis?.trim()) {
+        problems.push({
+          lineId: l.id, field: 'parametric_basis',
+          detail: `"${l.description}" is priced at a typed rate with no note of where the `
+            + 'rate came from. A quote and a guess are different claims and an estimate '
+            + 'that cannot tell them apart cannot be reviewed.',
+        });
+      }
+
       if (!rate && !crew && equipment.length === 0 && materials.length === 0
-          && !haul && subcontractCost === 0 && otherDirectCost === 0) {
+          && !haul && subcontractCost === 0 && otherDirectCost === 0
+          && parametricCostPerUnit === 0) {
         problems.push({
           lineId: l.id, field: 'resources',
-          detail: `"${l.description}" has no crew, equipment, material, subcontract or `
-            + 'production rate on it. There is nothing to price.',
+          detail: `"${l.description}" has no crew, equipment, material, subcontract, typed `
+            + 'rate or production rate on it. There is nothing to price.',
         });
       }
 
@@ -690,6 +719,8 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         ...(haul ? { haul } : {}),
         ...(subcontractCost ? { subcontractCost } : {}),
         ...(otherDirectCost ? { otherDirectCost } : {}),
+        ...(parametricCostPerUnit ? { parametricCostPerUnit } : {}),
+        ...(l.parametric_basis ? { parametricBasis: l.parametric_basis } : {}),
         fuelPricePerGallon: n(v.fuel_price_per_gallon),
         defPricePerGallon: n(v.def_price_per_gallon),
         calendarEfficiency: n(v.calendar_efficiency, 1),
