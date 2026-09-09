@@ -152,3 +152,28 @@ describe('the workforce page', () => {
     await waitFor(() => expect(screen.getByText('Demonstration data')).toBeInTheDocument());
   });
 });
+
+describe('the boxes across the top', () => {
+  it('opens the credential register from the tile that counts credentials', async () => {
+    const user = userEvent.setup();
+    renderPage(<WorkforcePage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Open the credential register' }))
+        .toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Open the credential register' }));
+    expect(screen.getByRole('tab', { name: /Credentials/ }))
+      .toHaveAttribute('data-state', 'active');
+  });
+
+  it('sends the approval count to the timecards it is counting', async () => {
+    const user = userEvent.setup();
+    renderPage(<WorkforcePage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Show the timecards waiting for approval' }))
+        .toBeInTheDocument());
+    await user.click(
+      screen.getByRole('button', { name: 'Show the timecards waiting for approval' }));
+    expect(screen.getByRole('tab', { name: /Time & attendance/ }))
+      .toHaveAttribute('data-state', 'active');
+  });
+});

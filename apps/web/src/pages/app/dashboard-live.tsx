@@ -18,7 +18,7 @@ import {
   CloudRain, HardHat, LayoutGrid, Loader2, RefreshCw, Send, Sun,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { PageHeader, StatTile } from '@/components/layout/page';
+import { PageHeader, StatTile, useAnswerBelow } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +79,7 @@ export function DashboardLivePage() {
 
   const today = forecast.find((d) => d.day === new Date().toISOString().slice(0, 10))
     ?? forecast[0] ?? null;
+  const { showing, show } = useAnswerBelow();
   const thisWeek = dueBids.filter((b) => b.daysAway <= 7);
   const overdue = dueBids.filter((b) => b.daysAway < 0);
   const blocked = dueBids.filter((b) => b.blockedFromIssue && b.priced);
@@ -228,19 +229,44 @@ export function DashboardLivePage() {
         <StatTile label="Due this week" value={thisWeek.length}
           tone={overdue.length ? 'danger' : thisWeek.length ? 'warn' : undefined}
           icon={<CalendarClock className="size-4" />}
-          hint={overdue.length ? `${overdue.length} already past` : 'bids and expiries'} />
+          hint={overdue.length ? `${overdue.length} already past` : 'bids and expiries'}
+          active={showing === 'what-is-due'}
+          actionLabel="Show what is due"
+          onClick={() => show('what-is-due')} />
         <StatTile label="Waiting on a customer" value={moneyCompact(unanswered)}
           icon={<Send className="size-4" />}
           hint={lapsed.length
             ? `${lapsed.length} past its validity`
-            : `${plural(proposals.length, 'proposal')} issued`} />
+            : `${plural(proposals.length, 'proposal')} issued`}
+          active={showing === 'waiting-on-a-customer'}
+          actionLabel="Show the proposals waiting on an answer"
+          onClick={() => show('waiting-on-a-customer')} />
         <StatTile label="Blocked from issue" value={blocked.length}
           tone={blocked.length ? 'danger' : 'success'}
-          hint="the engine has not cleared these to bid" />
+          hint="the engine has not cleared these to bid"
+          detail={blocked.length === 0
+            ? 'Every estimate with a date on it has been priced and cleared to bid.'
+            : (
+              <>
+                Priced, and the engine will not clear them: a line carrying a quantity and no
+                price, a rate nobody sourced, or a question still open on the drawings. Each
+                one says which in <strong>What is due</strong> below.
+              </>
+            )} />
         <StatTile label="Billed, not collected"
           value={cash ? moneyCompact(cash.billedToDate - cash.actualCost) : '—'}
           icon={<CircleDollarSign className="size-4" />}
-          hint={cash ? `across ${plural(cash.activeProjects, 'active project')}` : 'no projects yet'} />
+          hint={cash ? `across ${plural(cash.activeProjects, 'active project')}` : 'no projects yet'}
+          detail={cash ? (
+            <>
+              {moneyCompact(cash.billedToDate)} billed against {moneyCompact(cash.actualCost)}
+              {' '}of actual cost, across {plural(cash.activeProjects, 'active project')}.
+              <br />
+              It is invoiced minus incurred, not cash in the bank: what a customer has actually
+              paid is not recorded here, so a project that billed and was paid reads the same
+              as one that billed and was not.
+            </>
+          ) : 'No active projects, so nothing has been billed.'} />
       </div>
 
       {/*
@@ -295,7 +321,7 @@ function PanelGrid({ panels, render }: {
 
 function DuePanel({ bids, state }: { bids: DueBid[]; state: string }) {
   return (
-    <Card>
+    <Card id="what-is-due">
       <CardHeader>
         <CardTitle>What is due</CardTitle>
         <CardDescription>
@@ -321,7 +347,7 @@ function DuePanel({ bids, state }: { bids: DueBid[]; state: string }) {
 
 function AwaitingPanel({ proposals }: { proposals: AwaitingAnswer[] }) {
   return (
-    <Card>
+    <Card id="waiting-on-a-customer">
       <CardHeader>
         <CardTitle>Waiting on a customer</CardTitle>
         <CardDescription>

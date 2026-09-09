@@ -123,3 +123,30 @@ describe('metric presentation', () => {
     expect(csv.split('\n')[0]).toBe('key,name,domain,unit,value,target,higher_is_better,description');
   });
 });
+
+describe('the headline metrics', () => {
+  beforeEach(() => { hoisted.configured = true; });
+
+  it('goes to the row that defines the figure it is showing', async () => {
+    hoisted.metrics = [
+      { key: 'gross_margin_percent', name: 'Gross margin', domain: 'finance',
+        description: 'Margin on revenue earned', unit: 'percent', value: 0.182,
+        targetValue: 0.2, direction: 'higher_is_better' },
+      { key: 'trir', name: 'TRIR', domain: 'safety', description: 'Recordable rate',
+        unit: 'rate', value: 1.5, targetValue: 2, direction: 'lower_is_better' },
+    ];
+    const user = userEvent.setup();
+    renderPage(<ReportsPage />);
+    await waitFor(() => expect(screen.getAllByText('Gross margin').length).toBeGreaterThan(0));
+
+    const tile = screen.getByRole('button', { name: 'Show what Gross margin is defined as' });
+    expect(tile).toHaveAttribute('aria-pressed', 'false');
+    await user.click(tile);
+    expect(screen.getByRole('button', { name: 'Show what Gross margin is defined as' }))
+      .toHaveAttribute('aria-pressed', 'true');
+    // The row it points at is marked, so the eye lands on it rather than
+    // scanning a table of eleven definitions for the one just pressed.
+    expect(screen.getByText('gross_margin_percent').closest('tr'))
+      .toHaveAttribute('aria-current', 'true');
+  });
+});

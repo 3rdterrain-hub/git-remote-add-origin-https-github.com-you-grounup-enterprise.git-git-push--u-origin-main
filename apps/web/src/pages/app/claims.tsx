@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Gavel, Clock, TriangleAlert, FileText, MessageSquareWarning, CheckCircle2, Plus } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -48,12 +49,33 @@ const STATUS_VARIANT = {
   negotiating: 'info', settled: 'success', denied: 'danger', withdrawn: 'default',
 } as const;
 
+/**
+ * What each of the four boxes above the list narrows it to.
+ *
+ * Every one of them counted claims that are already on the page and left the
+ * reader to find which — "notice at risk: 2" over eleven cards is a number and
+ * a search.
+ */
+type ClaimFilter = 'all' | 'open' | 'awarded' | 'at-risk';
+
+const FILTER_SAYS: Record<ClaimFilter, string> = {
+  all: 'every claim',
+  open: 'the claims that are still open',
+  awarded: 'the claims that have been awarded something',
+  'at-risk': 'the claims whose notice period closes within three days',
+};
+
 export function ClaimsPage() {
+  const [filter, setFilter] = useState<ClaimFilter>('all');
   const open = CLAIMS.filter((c) => !['settled', 'denied', 'withdrawn'].includes(c.status));
   const atRisk = CLAIMS.filter((c) => !c.noticeGivenOn && daysUntil(c.noticeDueOn) <= 3);
   const claimed = open.reduce((a, c) => a + c.costClaimed, 0);
   const recovered = CLAIMS.reduce((a, c) => a + (c.costAwarded ?? 0), 0);
   const daysAwarded = CLAIMS.reduce((a, c) => a + (c.timeAwardedDays ?? 0), 0);
+  const shown = filter === 'open' ? open
+    : filter === 'awarded' ? CLAIMS.filter((c) => c.costAwarded !== null)
+      : filter === 'at-risk' ? atRisk
+        : CLAIMS;
 
   return (
     <div className="space-y-6">
@@ -73,17 +95,53 @@ export function ClaimsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Open claims" value={open.length} icon={<Gavel className="size-4" />}
-          hint={`${money(claimed)} claimed`} />
+          hint={`${money(claimed)} claimed`}
+          onClick={() => setFilter((f) => (f === 'open' ? 'all' : 'open'))}
+          active={filter === 'open'}
+          actionLabel="List the claims that are still open" />
         <StatTile label="Recovered to date" value={money(recovered)} tone="success"
-          hint={`across ${plural(CLAIMS.filter((c) => c.costAwarded !== null).length, 'settled claim')}`} />
+          hint={`across ${plural(CLAIMS.filter((c) => c.costAwarded !== null).length, 'settled claim')}`}
+          onClick={() => setFilter((f) => (f === 'awarded' ? 'all' : 'awarded'))}
+          active={filter === 'awarded'}
+          actionLabel="List the claims that have been awarded" />
         <StatTile label="Time awarded" value={plural(daysAwarded, 'day')}
-          icon={<Clock className="size-4" />} hint="excusable, compensable delay" />
+          icon={<Clock className="size-4" />} hint="excusable, compensable delay"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Days of extension granted across every claim, added together. Excusable and
+                compensable: the delay was not the contractor's fault and the contract pays for it,
+                which is a different thing from an extension of time granted with no money attached.
+              </p>
+              <p>
+                It is days awarded, not days claimed — what was asked for is on each claim, and the
+                gap between the two is what the negotiation cost.
+              </p>
+            </div>
+          } />
         <StatTile label="Notice at risk" value={atRisk.length}
-          tone={atRisk.length ? 'danger' : 'success'} hint="unserved, inside three days" />
+          tone={atRisk.length ? 'danger' : 'success'} hint="unserved, inside three days"
+          onClick={() => setFilter((f) => (f === 'at-risk' ? 'all' : 'at-risk'))}
+          active={filter === 'at-risk'}
+          actionLabel="List the claims whose notice period is closing" />
       </div>
 
+      {filter !== 'all' ? (
+        <div className="flex flex-wrap items-center gap-3 text-sm text-charcoal-600">
+          <span>Showing {FILTER_SAYS[filter]}.</span>
+          <Button variant="outline" size="sm" onClick={() => setFilter('all')}>
+            Show all {CLAIMS.length}
+          </Button>
+        </div>
+      ) : null}
+
       <div className="space-y-4">
-        {CLAIMS.map((c) => {
+        {shown.length === 0 ? (
+          <Card><CardContent className="p-6 text-sm text-charcoal-600">
+            None of the {CLAIMS.length} claims on this page match.
+          </CardContent></Card>
+        ) : null}
+        {shown.map((c) => {
           const notice = noticeState(c);
           const claimLeft = daysUntil(c.claimDueOn);
           const resolved = c.costAwarded !== null;

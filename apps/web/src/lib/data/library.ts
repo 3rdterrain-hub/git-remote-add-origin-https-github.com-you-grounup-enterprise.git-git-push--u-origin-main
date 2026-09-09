@@ -867,6 +867,51 @@ export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => 
  * a factor that names a target the engine does not have, so what is here is
  * what the engine will actually apply.
  */
+/**
+ * How much is in the library, counted rather than remembered.
+ *
+ * The four figures across the top of the Master Libraries screen were constants
+ * copied out of the generated seed — 188 services, 2,783 tasks — and they stayed
+ * at those numbers whatever a company added, copied or retired. The tabs
+ * underneath list the real rows, so the page disagreed with itself for anybody
+ * who had used it.
+ *
+ * `head: true` asks PostgREST for the count and none of the rows, and row level
+ * security decides what is counted: the caller's own library plus the catalog
+ * they are entitled to read, which is exactly what the tabs below list.
+ */
+export interface LibraryCounts {
+  services: number;
+  tasks: number;
+  assemblies: number;
+  productionRates: number;
+  labor: number;
+  equipment: number;
+  crews: number;
+}
+
+const countRows = async (
+  client: Parameters<Query<unknown>>[0], table: string,
+): Promise<number> => {
+  const { count, error } = await client.from(table).select('id', { count: 'exact', head: true });
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+};
+
+export const loadLibraryCounts: Query<LibraryCounts> = async (client) => {
+  const [services, tasks, assemblies, productionRates, labor, equipment, crews] =
+    await Promise.all([
+      countRows(client, 'services'),
+      countRows(client, 'tasks'),
+      countRows(client, 'assemblies'),
+      countRows(client, 'my_production_rates'),
+      countRows(client, 'labor_rates'),
+      countRows(client, 'equipment'),
+      countRows(client, 'crews'),
+    ]);
+  return { services, tasks, assemblies, productionRates, labor, equipment, crews };
+};
+
 export interface ConditionModifierRow {
   id: string;
   code: string;

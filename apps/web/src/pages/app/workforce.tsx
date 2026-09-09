@@ -37,6 +37,11 @@ export function WorkforcePage() {
   const [approving, setApproving] = useState<string | null>(null);
   const [approvalError, setApprovalError] = useState<string | null>(null);
   const [locallyApproved, setLocallyApproved] = useState<Set<string>>(new Set());
+  /*
+   * Which tab the boxes across the top open. The first of them stays a
+   * disclosure — who is on the clock is a list of names, not a tab.
+   */
+  const [tab, setTab] = useState('clock');
 
   const EMPLOYEES = employeesQ.status === 'ready' ? employeesQ.data
     : demo ? demonstrationEmployees() : [];
@@ -139,17 +144,25 @@ export function WorkforcePage() {
             </ul>
           )} />
         <StatTile label="Active employees" value={EMPLOYEES.length} icon={<Users2 className="size-4" />}
-          hint={`${EMPLOYEES.filter((e) => e.isUnion).length} union`} />
+          hint={`${EMPLOYEES.filter((e) => e.isUnion).length} union`}
+          onClick={() => setTab('roster')} active={tab === 'roster'}
+          actionLabel="Open the roster" />
         <StatTile label="Credentials expiring" value={expiring.length + expired.length}
           tone={expired.length ? 'danger' : expiring.length ? 'warn' : 'success'} icon={<BadgeCheck className="size-4" />}
-          hint={`${expired.length} expired, ${expiring.length} within 30 days`} />
+          hint={`${expired.length} expired, ${expiring.length} within 30 days`}
+          onClick={() => setTab('credentials')} active={tab === 'credentials'}
+          actionLabel="Open the credential register" />
         <StatTile label="Hours this week" value={qty(weekHours, 1)} icon={<Clock className="size-4" />}
-          hint={`${qty(otHours, 1)} overtime (${percent(otHours / Math.max(weekHours, 1), 0)})`} />
+          hint={`${qty(otHours, 1)} overtime (${percent(otHours / Math.max(weekHours, 1), 0)})`}
+          onClick={() => setTab('time')} active={tab === 'time'}
+          actionLabel="Show the timecards these hours came from" />
         <StatTile label="Awaiting approval" value={pending.length} tone={pending.length ? 'warn' : 'success'}
-          hint="timecards not yet approved for payroll" />
+          hint="timecards not yet approved for payroll"
+          onClick={() => setTab('time')} active={tab === 'time'}
+          actionLabel="Show the timecards waiting for approval" />
       </div>
 
-      <Tabs defaultValue="clock">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="clock">Time clock</TabsTrigger>
           <TabsTrigger value="time">Time &amp; attendance ({pending.length} pending)</TabsTrigger>

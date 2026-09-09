@@ -79,3 +79,31 @@ describe('the security panel claims nothing the platform does not do', () => {
     expect(within(panel).getAllByText(/cannot be edited or deleted/i).length).toBeGreaterThan(0);
   });
 });
+
+/*
+ * Four counts over a table of connectors, each of which the reader had to match
+ * against a column of status badges by eye.
+ */
+describe('the connector boxes', () => {
+  it('narrows the connector table to the failed ones', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('tab', { name: /Integrations/ }));
+    await user.click(screen.getByRole('button', { name: 'List the connectors that have failed' }));
+
+    expect(screen.getByText('Showing the Failed connectors.')).toBeInTheDocument();
+  });
+
+  it('puts them all back', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('tab', { name: /Integrations/ }));
+    const tile = () => screen.getByRole('button',
+      { name: 'List the connectors whose last run did not fully succeed' });
+    await user.click(tile());
+    expect(tile()).toHaveAttribute('aria-pressed', 'true');
+    await user.click(tile());
+    expect(tile()).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByText(/Showing the Degraded connectors/)).not.toBeInTheDocument();
+  });
+});

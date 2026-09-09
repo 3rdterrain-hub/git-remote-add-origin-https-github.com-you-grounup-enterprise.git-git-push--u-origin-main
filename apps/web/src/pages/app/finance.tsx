@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Receipt, TrendingUp, TrendingDown, Banknote, AlertTriangle, Lock, FileCheck, Plus, CircleDollarSign,
 } from 'lucide-react';
@@ -18,6 +19,12 @@ import { money, moneyCompact, percent, date, titleCase, plural } from '@/lib/for
 import { cn } from '@/lib/utils';
 
 export function FinancePage() {
+  /*
+   * Which tab the five boxes above it open. Three of them are totals of a
+   * table on one of these tabs; the other two are accounting definitions with
+   * nothing below to point at, so they explain themselves in place.
+   */
+  const [tab, setTab] = useState('payapp');
   const payAppsQ = useQuery(loadPayApplications, []);
   const wipQ = useQuery(loadWip, []);
   const payablesQ = useQuery(loadPayables, []);
@@ -128,23 +135,57 @@ export function FinancePage() {
         <StatTile label="Contract value" value={moneyCompact(wipTotals.contract)} icon={<CircleDollarSign className="size-4" />}
           hint={unmeasured
             ? `${plural(measurable.length, 'measurable project')}, ${unmeasured} without a budget`
-            : plural(measurable.length, 'project')} />
+            : plural(measurable.length, 'project')}
+          onClick={() => setTab('wip')} active={tab === 'wip'}
+          actionLabel="Show the work in progress this is summed from" />
         <StatTile label="Earned to date" value={moneyCompact(wipTotals.earned)} icon={<TrendingUp className="size-4" />}
           hint={wipTotals.contract
             ? `${percent(wipTotals.earned / wipTotals.contract, 0)} of contract, cost-to-cost`
-            : 'no measurable contract value'} />
+            : 'no measurable contract value'}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Revenue the work has earned, measured cost-to-cost: cost incurred divided by cost
+                forecast, applied to the contract. It is not what has been billed, and the difference
+                between the two is the box beside this one.
+              </p>
+              <p>
+                Only projects carrying a budget can be measured this way —{' '}
+                {unmeasured
+                  ? `${unmeasured} ${unmeasured === 1 ? 'project has' : 'projects have'} none and ${unmeasured === 1 ? 'is' : 'are'} left out rather than assumed complete.`
+                  : 'every project on this page carries one.'}
+              </p>
+            </div>
+          } />
         <StatTile label={underBilled >= 0 ? 'Under billed' : 'Over billed'} value={moneyCompact(Math.abs(underBilled))}
           tone={underBilled > 0 ? 'warn' : 'success'}
           icon={underBilled >= 0 ? <TrendingDown className="size-4" /> : <TrendingUp className="size-4" />}
-          hint={underBilled > 0 ? 'work performed but not yet invoiced' : 'billed ahead of work performed'} />
+          hint={underBilled > 0 ? 'work performed but not yet invoiced' : 'billed ahead of work performed'}
+          onClick={() => setTab('wip')} active={tab === 'wip'}
+          actionLabel="Show which projects are under or over billed" />
         <StatTile label="Retainage held" value={moneyCompact(retainageHeld)} icon={<Lock className="size-4" />}
-          hint={retainagePercent ? `${percent(retainagePercent, 0)} withheld until closeout` : 'withheld until closeout'} />
+          hint={retainagePercent ? `${percent(retainagePercent, 0)} withheld until closeout` : 'withheld until closeout'}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Money earned, certified and deliberately not paid — held back against completion and
+                released at closeout. It is an asset the company owns and cannot spend, which is why
+                it is shown apart from what is merely unbilled.
+              </p>
+              <p>
+                It comes off each application for payment at the contract's own rate, so it is
+                already deducted from every certified amount on the pay application tab.
+              </p>
+            </div>
+          } />
         <StatTile label="Open payables" value={moneyCompact(openAp.reduce((a, i) => a + i.amount - i.amountPaid, 0))}
           tone={blockedAp.length ? 'danger' : 'neutral'} icon={<Receipt className="size-4" />}
-          hint={`${plural(openAp.length, 'invoice')}, ${blockedAp.length} blocked`} />
+          hint={`${plural(openAp.length, 'invoice')}, ${blockedAp.length} blocked`}
+          onClick={() => setTab('payables')} active={tab === 'payables'}
+          actionLabel="List the open invoices, including the blocked ones" />
       </div>
 
-      <Tabs defaultValue="payapp">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="payapp">Pay application</TabsTrigger>
           <TabsTrigger value="wip">Work in progress</TabsTrigger>

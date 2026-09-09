@@ -19,7 +19,7 @@ import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
   loadMaterials, loadLaborRates, loadEquipmentOptions, loadCrews,
-  loadConditionModifiers, loadPricingProfiles,
+  loadConditionModifiers, loadPricingProfiles, loadLibraryCounts,
   updateCost, setMaterialCost,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
@@ -31,14 +31,14 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 
-/** Counts shipped by the global seed, mirrored from the generated seed SQL. */
-const SEED_COUNTS = {
-  services: 188, tasks: 2783, assemblies: 188, productionRates: 1452,
-  labor: 12, equipment: 17, modifiers: 20, profiles: 3, crews: 8,
-};
-
 export function LibrariesPage() {
   const [q, setQ] = useState('');
+  /*
+   * Which tab is open, so the four boxes across the top can open the one that
+   * holds what they counted. Labor to start, because it is the tab a first-time
+   * visitor has something to change on.
+   */
+  const [tab, setTab] = useState('labor');
   const [category, setCategory] = useState('');
   const [taskCategory, setTaskCategory] = useState('');
   const [rateCategory, setRateCategory] = useState('');
@@ -62,6 +62,7 @@ export function LibrariesPage() {
   const modifiersQ = useQuery(loadConditionModifiers, []);
   const profilesQ = useQuery(loadPricingProfiles, []);
   const laborQ = useQuery(loadLaborRates, []);
+  const countsQ = useQuery(loadLibraryCounts, []);
   const membershipsQ = useQuery(loadMemberships, []);
   const { can } = usePermissions();
   const canWrite = can('libraries.write');
@@ -83,6 +84,9 @@ export function LibrariesPage() {
   const modifiers = modifiersQ.status === 'ready' ? modifiersQ.data : [];
   const profiles = profilesQ.status === 'ready' ? profilesQ.data : [];
   const laborRates = laborQ.status === 'ready' ? laborQ.data : [];
+  const counts = countsQ.status === 'ready' ? countsQ.data : null;
+  /* A count that has not arrived is an em dash, never a remembered number. */
+  const count = (n: number | undefined) => (n == null ? '—' : n.toLocaleString());
 
   /**
    * Change a cost in the company's library.
@@ -193,13 +197,24 @@ export function LibrariesPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Services" value={SEED_COUNTS.services} icon={<Library className="size-4" />}
-          hint="across 13 construction industries" />
-        <StatTile label="Tasks" value={SEED_COUNTS.tasks.toLocaleString()} hint={`${SEED_COUNTS.assemblies} assemblies`} />
-        <StatTile label="Production rates" value={SEED_COUNTS.productionRates.toLocaleString()}
-          hint="seed benchmarks, replaceable with company actuals" />
-        <StatTile label="Resources" value={SEED_COUNTS.labor + SEED_COUNTS.equipment + SEED_COUNTS.crews}
-          hint={`${SEED_COUNTS.labor} labor, ${SEED_COUNTS.equipment} equipment, ${SEED_COUNTS.crews} crews`} />
+        <StatTile label="Services" value={count(counts?.services)} icon={<Library className="size-4" />}
+          hint="the catalog and your own, together"
+          onClick={() => setTab('services')} active={tab === 'services'}
+          actionLabel="Open the services tab" />
+        <StatTile label="Tasks" value={count(counts?.tasks)}
+          hint={`in ${count(counts?.assemblies)} work sequences`}
+          onClick={() => setTab('tasks')} active={tab === 'tasks'}
+          actionLabel="Open the tasks tab" />
+        <StatTile label="Production rates" value={count(counts?.productionRates)}
+          hint="benchmarks, replaceable with company actuals"
+          onClick={() => setTab('production')} active={tab === 'production'}
+          actionLabel="Open the production rates tab" />
+        <StatTile label="Resources"
+          value={counts ? (counts.labor + counts.equipment + counts.crews).toLocaleString() : '—'}
+          hint={`${count(counts?.labor)} labor, ${count(counts?.equipment)} equipment, ${count(counts?.crews)} crews`}
+          onClick={() => setTab('labor')}
+          active={tab === 'labor' || tab === 'equipment' || tab === 'crews'}
+          actionLabel="Open the labor, equipment and crew tabs" />
       </div>
 
       <Alert tone="neutral" icon={<ShieldCheck className="size-4" />} title="Three library scopes, one governed catalog">
@@ -215,7 +230,7 @@ export function LibrariesPage() {
         <Input className="pl-9" placeholder="Search the library…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
-      <Tabs defaultValue="labor">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="tasks">Tasks</TabsTrigger>

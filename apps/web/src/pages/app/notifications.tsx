@@ -38,6 +38,14 @@ export function NotificationsPage() {
 function DemonstrationNotifications() {
   const [items, setItems] = useState(NOTIFICATIONS);
   const unread = items.filter((n) => !n.readAt);
+  /*
+   * The three boxes counted notices that are already on this page. Unread and
+   * total each had a tab and went to neither; critical had no view at all, so
+   * it has one — a fourth tab rather than a fourth badge, because "eleven
+   * notices, one of which matters" is the question this screen is opened with.
+   */
+  const critical = items.filter((n) => n.severity === 'critical' && !n.readAt);
+  const [tab, setTab] = useState('inbox');
 
   const markRead = (id: string) =>
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)));
@@ -53,16 +61,23 @@ function DemonstrationNotifications() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Unread" value={unread.length} tone={unread.length ? 'warn' : 'success'} icon={<Bell className="size-4" />} />
-        <StatTile label="Critical" value={items.filter((n) => n.severity === 'critical' && !n.readAt).length}
-          tone={items.some((n) => n.severity === 'critical' && !n.readAt) ? 'danger' : 'success'}
-          hint="needs attention today" />
-        <StatTile label="Total" value={items.length} icon={<Inbox className="size-4" />} hint="last 30 days" />
+        <StatTile label="Unread" value={unread.length} tone={unread.length ? 'warn' : 'success'} icon={<Bell className="size-4" />}
+          onClick={() => setTab('inbox')} active={tab === 'inbox'}
+          actionLabel="Open the inbox" />
+        <StatTile label="Critical" value={critical.length}
+          tone={critical.length ? 'danger' : 'success'}
+          hint="needs attention today"
+          onClick={() => setTab('critical')} active={tab === 'critical'}
+          actionLabel="Show only the unread critical notices" />
+        <StatTile label="Total" value={items.length} icon={<Inbox className="size-4" />} hint="last 30 days"
+          onClick={() => setTab('all')} active={tab === 'all'}
+          actionLabel="Show everything, read and unread" />
       </div>
 
-      <Tabs defaultValue="inbox">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="inbox">Inbox ({unread.length})</TabsTrigger>
+          <TabsTrigger value="critical">Critical ({critical.length})</TabsTrigger>
           <TabsTrigger value="all">All ({items.length})</TabsTrigger>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
         </TabsList>
@@ -75,6 +90,19 @@ function DemonstrationNotifications() {
             ) : (
               <ul className="divide-y divide-charcoal-200">
                 {unread.map((n) => <NotificationRow key={n.id} n={n} onRead={markRead} />)}
+              </ul>
+            )}
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="critical">
+          <Card><CardContent className="p-0">
+            {critical.length === 0 ? (
+              <EmptyState icon={<Check className="size-5" />} title="Nothing critical is unread"
+                description="A critical notice is one that will cost money or time today if it is left." />
+            ) : (
+              <ul className="divide-y divide-charcoal-200">
+                {critical.map((n) => <NotificationRow key={n.id} n={n} onRead={markRead} />)}
               </ul>
             )}
           </CardContent></Card>

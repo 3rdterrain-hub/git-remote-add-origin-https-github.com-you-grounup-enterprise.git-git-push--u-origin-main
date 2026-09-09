@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Truck, Wrench, Fuel, Gauge, AlertTriangle, Radio, CircleDollarSign, Plus, TrendingDown,
 } from 'lucide-react';
@@ -22,6 +23,15 @@ const STATUS_TONE: Record<string, 'success' | 'info' | 'warn' | 'danger'> = {
 };
 
 export function FleetPage() {
+  /*
+   * The five boxes across the top each counted something one of the five tabs
+   * below already lists, and none of them went there. The tabs are driven from
+   * here now so a tile can open the one that accounts for its number — and the
+   * machines that are down are a filter on the asset list rather than a count
+   * an operator has to find by reading every status badge.
+   */
+  const [tab, setTab] = useState('assets');
+  const [downOnly, setDownOnly] = useState(false);
   const assetsQ = useQuery(loadAssets, []);
   const maintenanceQ = useQuery(loadMaintenanceDue, []);
   const workOrdersQ = useQuery(loadWorkOrders, []);
@@ -60,6 +70,16 @@ export function FleetPage() {
   const idle = metered.filter(
     (a) => (a.hoursLast30 ?? 0) < LOW_HOURS_30D && (a.acquisitionCost ?? 0) > 0);
 
+  const outOfService = ASSETS.filter(
+    (a) => a.status === 'down' || a.status === 'in_maintenance');
+  const shownAssets = downOnly ? outOfService : ASSETS;
+  const owned = ASSETS.filter((a) => (a.acquisitionCost ?? 0) > 0);
+
+  const showTab = (next: string) => {
+    setTab(next);
+    if (next !== 'assets') setDownOnly(false);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -88,24 +108,48 @@ export function FleetPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Fleet size" value={ASSETS.length} icon={<Truck className="size-4" />}
-          hint={`${active.length} available or assigned`} />
+          hint={`${active.length} available or assigned`}
+          onClick={() => { showTab('assets'); setDownOnly(false); }}
+          active={tab === 'assets' && !downOnly}
+          actionLabel="List every machine" />
         <StatTile label="Hours run (30 days)"
           value={metered.length ? integer(totalHours30) : '—'}
           tone={metered.length && totalHours30 / metered.length >= 100 ? 'success' : 'warn'}
           icon={<Gauge className="size-4" />}
           hint={metered.length
             ? `across ${metered.length} ${metered.length === 1 ? 'machine' : 'machines'} with meter readings`
-            : 'no meter readings in the window'} />
-        <StatTile label="Down or in shop" value={down.length + ASSETS.filter((a) => a.status === 'in_maintenance').length}
+            : 'no meter readings in the window'}
+          onClick={() => showTab('utilization')} active={tab === 'utilization'}
+          actionLabel="Show the hours each machine ran" />
+        <StatTile label="Down or in shop" value={outOfService.length}
           tone={down.length ? 'danger' : 'warn'} icon={<Wrench className="size-4" />}
-          hint={`${plural(openWo.length, 'open work order')}`} />
+          hint={`${plural(openWo.length, 'open work order')}`}
+          onClick={() => { setTab('assets'); setDownOnly((v) => !v); }}
+          active={downOnly}
+          actionLabel="List the machines that are down or in the shop" />
         <StatTile label="Fuel this week" value={`${integer(fuelGallons)} gal`} icon={<Fuel className="size-4" />}
-          hint={`${money(fuelCost)} · ${fuelExceptions.length} exception(s)`} />
+          hint={`${money(fuelCost)} · ${plural(fuelExceptions.length, 'exception')}`}
+          onClick={() => showTab('fuel')} active={tab === 'fuel'}
+          actionLabel="Show every fuel transaction in the window" />
         <StatTile label="Owned fleet value" value={moneyCompact(ownedValue)} icon={<CircleDollarSign className="size-4" />}
-          hint="at acquisition cost" />
+          hint="at acquisition cost"
+          detail={
+            <div className="space-y-2">
+              <p>
+                What {plural(owned.length, 'machine')} cost to buy, added up. It is what was paid,
+                not what the fleet is worth today: nothing here depreciates a machine, because a
+                book value that nobody entered would be a number the platform invented.
+              </p>
+              <p>
+                Rented and leased machines are not in it — {plural(ASSETS.length - owned.length,
+                  'machine')} on this page {ASSETS.length - owned.length === 1 ? 'is' : 'are'} not
+                owned, and a rental has a rate rather than a purchase price.
+              </p>
+            </div>
+          } />
       </div>
 
-      <Tabs defaultValue="assets">
+      <Tabs value={tab} onValueChange={showTab}>
         <TabsList>
           <TabsTrigger value="assets">Assets ({ASSETS.length})</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance ({overdue.length + dueSoon.length} due)</TabsTrigger>
@@ -117,6 +161,18 @@ export function FleetPage() {
         {/* ---------------------------------------------------------- assets */}
         <TabsContent value="assets">
           <Card><CardContent className="p-0">
+            {downOnly ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-charcoal-200 px-4 py-2">
+                <p className="text-sm text-charcoal-600">
+                  {outOfService.length === 1
+                    ? 'The 1 machine that is down or in the shop.'
+                    : `The ${outOfService.length} machines that are down or in the shop.`}
+                </p>
+                <Button variant="outline" size="sm" onClick={() => setDownOnly(false)}>
+                  Show all {ASSETS.length}
+                </Button>
+              </div>
+            ) : null}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -131,7 +187,7 @@ export function FleetPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {ASSETS.map((a) => (
+                {shownAssets.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell>
                       <p className="font-medium text-charcoal-900">{a.assetNumber}</p>

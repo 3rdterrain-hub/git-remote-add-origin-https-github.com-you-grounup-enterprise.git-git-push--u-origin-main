@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   HardHat, ShieldAlert, ClipboardCheck, Eye, AlertTriangle, CheckCircle2, Plus, FileWarning,
 } from 'lucide-react';
@@ -24,6 +25,14 @@ const SEVERITY: Record<string, 'default' | 'warn' | 'danger'> = {
 };
 
 export function SafetyPage() {
+  /*
+   * The five boxes across the top each counted rows one of the five tabs below
+   * already lists, and none of them went there. Two of them count incidents in
+   * a particular state, so they narrow the incident list to it — "OSHA
+   * recordable: 2" beside eleven incident cards was a number and a search.
+   */
+  const [tab, setTab] = useState('incidents');
+  const [incidentFilter, setIncidentFilter] = useState<'all' | 'open' | 'recordable'>('all');
   const incidentsQ = useQuery(loadIncidents, []);
   const observationsQ = useQuery(loadObservations, []);
   const talksQ = useQuery(loadToolboxTalks, []);
@@ -54,6 +63,21 @@ export function SafetyPage() {
   const tested = INSPECTIONS.filter((i) => i.result === 'pass' || i.result === 'fail');
   const passRate = tested.length ? tested.filter((i) => i.result === 'pass').length / tested.length : 1;
   const openDeficiencies = DEFICIENCIES.filter((d) => d.status !== 'closed');
+
+  const shownIncidents = incidentFilter === 'open' ? open
+    : incidentFilter === 'recordable' ? recordable
+      : INCIDENTS;
+
+  /* One press: open the incidents tab, and narrow it to what was counted. */
+  const showIncidents = (next: 'open' | 'recordable') => {
+    setTab('incidents');
+    setIncidentFilter((current) => (current === next ? 'all' : next));
+  };
+
+  const showTab = (next: string) => {
+    setTab(next);
+    if (next !== 'incidents') setIncidentFilter('all');
+  };
 
   return (
     <div className="space-y-6">
@@ -95,20 +119,32 @@ export function SafetyPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Open investigations" value={open.length} tone={open.length ? 'warn' : 'success'}
-          icon={<ShieldAlert className="size-4" />} hint={`${INCIDENTS.length} incidents recorded`} />
+          icon={<ShieldAlert className="size-4" />} hint={`${INCIDENTS.length} incidents recorded`}
+          onClick={() => showIncidents('open')}
+          active={tab === 'incidents' && incidentFilter === 'open'}
+          actionLabel="List the investigations that are still open" />
         <StatTile label="OSHA recordable" value={recordable.length} tone={recordable.length ? 'danger' : 'success'}
-          hint={`${daysAway} days away, ${INCIDENTS.reduce((a, i) => a + i.daysRestricted, 0)} restricted`} />
+          hint={`${daysAway} days away, ${INCIDENTS.reduce((a, i) => a + i.daysRestricted, 0)} restricted`}
+          onClick={() => showIncidents('recordable')}
+          active={tab === 'incidents' && incidentFilter === 'recordable'}
+          actionLabel="List the OSHA recordable incidents" />
         <StatTile label="Toolbox talks" value={TOOLBOX_TALKS.length} icon={<HardHat className="size-4" />}
-          hint={`${TOOLBOX_TALKS.reduce((a, t) => a + t.attendees, 0)} attendances logged`} />
+          hint={`${TOOLBOX_TALKS.reduce((a, t) => a + t.attendees, 0)} attendances logged`}
+          onClick={() => showTab('talks')} active={tab === 'talks'}
+          actionLabel="List the toolbox talks" />
         <StatTile label="Test pass rate" value={percent(passRate, 0)}
           tone={passRate >= 0.9 ? 'success' : 'warn'} icon={<CheckCircle2 className="size-4" />}
-          hint={`${failed.length} failed, ${pending.length} pending`} />
+          hint={`${failed.length} failed, ${pending.length} pending`}
+          onClick={() => showTab('inspections')} active={tab === 'inspections'}
+          actionLabel="List the tests and inspections behind the pass rate" />
         <StatTile label="Open punch items" value={openDeficiencies.length}
           tone={openDeficiencies.length ? 'warn' : 'success'} icon={<FileWarning className="size-4" />}
-          hint={`${DEFICIENCIES.length} identified`} />
+          hint={`${DEFICIENCIES.length} identified`}
+          onClick={() => showTab('punch')} active={tab === 'punch'}
+          actionLabel="Open the punch list" />
       </div>
 
-      <Tabs defaultValue="incidents">
+      <Tabs value={tab} onValueChange={showTab}>
         <TabsList>
           <TabsTrigger value="incidents">Incidents ({INCIDENTS.length})</TabsTrigger>
           <TabsTrigger value="observations">Observations ({OBSERVATIONS.length})</TabsTrigger>
@@ -119,7 +155,28 @@ export function SafetyPage() {
 
         {/* ------------------------------------------------------- incidents */}
         <TabsContent value="incidents" className="space-y-4">
-          {INCIDENTS.map((i) => (
+          {incidentFilter !== 'all' ? (
+            <div className="flex flex-wrap items-center gap-3 text-sm text-charcoal-600">
+              <span>
+                Showing the {incidentFilter === 'open'
+                  ? 'incidents whose investigation is still open'
+                  : 'OSHA recordable incidents'}.
+              </span>
+              <Button variant="outline" size="sm" onClick={() => setIncidentFilter('all')}>
+                Show all {INCIDENTS.length}
+              </Button>
+            </div>
+          ) : null}
+          {shownIncidents.length === 0 && INCIDENTS.length > 0 ? (
+            <Card><CardContent className="p-6">
+              <EmptyState
+                title={incidentFilter === 'open'
+                  ? 'Every investigation is closed'
+                  : 'Nothing recorded is OSHA recordable'}
+                hint={`None of the ${INCIDENTS.length} incidents on this page match.`} />
+            </CardContent></Card>
+          ) : null}
+          {shownIncidents.map((i) => (
             <Card key={i.id} className={cn(i.investigationState !== 'closed' && i.severity === 'critical' && 'border-danger-500/30')}>
               <CardHeader className="flex-row items-start justify-between space-y-0">
                 <div>
@@ -381,16 +438,61 @@ function SafetyRatesCard({ rates }: { rates: { trir: number | null; dart: number
             <StatTile label="TRIR" value={rates.trir == null ? '—' : rates.trir.toFixed(2)}
               tone={rates.trir != null && rates.trir > 3 ? 'danger' : 'success'}
               icon={<ShieldAlert className="size-4" />}
-              hint="recordables x 200,000 / hours" />
+              hint="recordables x 200,000 / hours"
+              detail={
+                <div className="space-y-2">
+                  <p>
+                    {`${rates.recordables} recordable ${rates.recordables === 1 ? 'incident' : 'incidents'}`
+                      + ` × 200,000 ÷ ${Math.round(rates.hoursObserved).toLocaleString('en-US')}`
+                      + ` approved hours = ${rates.trir == null ? '—' : rates.trir.toFixed(2)}.`}
+                  </p>
+                  <p>
+                    The 200,000 is a hundred full-time workers for a year, which is what makes this
+                    comparable to another contractor's figure and to the rate an insurer prices against.
+                    Only approved time is in the denominator — hours nobody has signed off would make the
+                    rate look better every week the timesheets ran late.
+                  </p>
+                </div>
+              } />
             <StatTile label="DART" value={rates.dart == null ? '—' : rates.dart.toFixed(2)}
               tone={rates.dart != null && rates.dart > 2 ? 'danger' : 'success'}
               icon={<ShieldAlert className="size-4" />}
-              hint="days away, restricted or transferred — cases, not days" />
+              hint="days away, restricted or transferred — cases, not days"
+              detail={
+                <div className="space-y-2">
+                  <p>
+                    The same arithmetic as TRIR over a narrower numerator: only the recordable cases that
+                    cost days away, restricted duty or a transfer. It is always the lower of the two, and
+                    the gap between them is the recordables that cost no lost time.
+                  </p>
+                  <p>
+                    Cases, not days. One case costing sixty restricted days counts once — counting days
+                    here was a real defect on this page, and it made a single bad injury look like sixty
+                    accidents.
+                  </p>
+                </div>
+              } />
             <StatTile label="Recordables" value={rates.recordables}
-              hint={`${rates.lostTimeCases} with days away`} />
+              hint={`${rates.lostTimeCases} with days away`}
+              detail={
+                <p>
+                  Incidents meeting the OSHA recording criteria — the numerator of TRIR beside it. Of
+                  them, {rates.lostTimeCases} cost days away from work, which is the subset DART is
+                  counted over. Every one is a card on the incidents tab with its investigation state,
+                  and none of them can be closed without a root cause and a corrective action.
+                </p>
+              } />
             <StatTile label="Hours behind the rate"
               value={Math.round(rates.hoursObserved).toLocaleString('en-US')}
-              hint="approved time only" />
+              hint="approved time only"
+              detail={
+                <p>
+                  The denominator, and the reason a rate can be missing while incidents are counted.
+                  These are approved timecard hours for the same period, so a rate is only published
+                  once there is signed-off time to divide by. An assumed denominator — a headcount, a
+                  calendar — would turn two figures a contractor is prequalified on into a guess.
+                </p>
+              } />
           </div>
         )}
       </CardContent>

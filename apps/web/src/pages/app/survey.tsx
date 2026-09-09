@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import {
   Mountain, Plane, Radio, Upload, AlertTriangle, CheckCircle2, Layers, Ruler, TriangleAlert,
 } from 'lucide-react';
-import { PageHeader, StatTile, Field } from '@/components/layout/page';
+import { PageHeader, StatTile, Field, useAnswerBelow } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -90,9 +91,24 @@ function DepthMap() {
 }
 
 export function SurveyPage() {
+  /*
+   * The boxes across the top are the earthwork figures the rest of this page
+   * derives. Three of them have a card below that shows the working, so they go
+   * to it; the other two are unit conversions with nothing to point at, so they
+   * say what they are made of in place. Bank yards and compacted yards are not
+   * the same yard, and that is the thing this screen most needs to say out loud.
+   */
+  const [tab, setTab] = useState('volumes');
+  const { showing, show } = useAnswerBelow();
+  const [mcFilter, setMcFilter] = useState<'all' | 'published' | 'superseded'>('all');
   const published = MC_FILES.filter((f) => f.status === 'published');
   const superseded = MC_FILES.filter((f) => f.status === 'superseded');
   const assigned = MC_FILES.flatMap((f) => f.assignedTo);
+  const shownFiles = mcFilter === 'published' ? published
+    : mcFilter === 'superseded' ? superseded : MC_FILES;
+
+  /* A tile above the fold both opens the volumes tab and goes to its card. */
+  const showVolume = (id: string) => { setTab('volumes'); show(id); };
 
   return (
     <div className="space-y-6">
@@ -118,22 +134,62 @@ export function SurveyPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Cut" value={`${integer(SURFACE_COMPARISON.cutBcy)} BCY`} icon={<Mountain className="size-4" />}
-          hint={`avg ${SURFACE_COMPARISON.averageCutDepth} ft over ${integer(SURFACE_COMPARISON.cutAreaSf / 43_560)} acres`} />
+          hint={`avg ${SURFACE_COMPARISON.averageCutDepth} ft over ${integer(SURFACE_COMPARISON.cutAreaSf / 43_560)} acres`}
+          onClick={() => showVolume('measured-to-priced')}
+          active={tab === 'volumes' && showing === 'measured-to-priced'}
+          actionLabel="Show how the measured cut becomes a priced quantity" />
         <StatTile label="Fill" value={`${integer(SURFACE_COMPARISON.fillCcy)} CCY`}
-          hint={`avg ${SURFACE_COMPARISON.averageFillDepth} ft over ${integer(SURFACE_COMPARISON.fillAreaSf / 43_560)} acres`} />
+          hint={`avg ${SURFACE_COMPARISON.averageFillDepth} ft over ${integer(SURFACE_COMPARISON.fillAreaSf / 43_560)} acres`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Compacted cubic yards — the hole the fill has to fill, measured in place after
+                compaction. The cut beside it is <em>bank</em> yards, the ground as it sits, and the
+                two are different units of the same dirt.
+              </p>
+              <p>
+                That is why a job with equal cut and fill is not balanced.
+                {' '}{integer(SURFACE_COMPARISON.cutBcy)} BCY of cut, less what is unsuitable, shrinks
+                to {qty(BALANCE.reusableAsCompactedCcy, 0)} CCY once it is placed and rolled — and it is
+                that number, not the cut, that is set against this one.
+              </p>
+            </div>
+          } />
         <StatTile label="Balance" value={titleCase(BALANCE.condition)}
           tone={BALANCE.condition === 'balanced' ? 'success' : 'warn'}
-          hint={BALANCE.exportBcy ? `${integer(BALANCE.exportBcy)} BCY to export` : `${integer(BALANCE.importCcy)} CCY to import`} />
+          hint={BALANCE.exportBcy ? `${integer(BALANCE.exportBcy)} BCY to export` : `${integer(BALANCE.importCcy)} CCY to import`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Whether the site's own dirt makes its own fill, after the two adjustments that decide
+                it: {qty(BALANCE.unsuitableBcy, 0)} BCY of the cut is unsuitable and cannot be
+                reused, and what is left shrinks when it is compacted.
+              </p>
+              <p>
+                {BALANCE.exportBcy > 0
+                  ? `The surplus is ${qty(BALANCE.exportBcy, 0)} BCY, which trucks as ${qty(BALANCE.exportLcy, 0)} LCY once it is loose in the bed — a third unit again, and the one the haul is actually priced in.`
+                  : BALANCE.importCcy > 0
+                    ? `The shortfall is ${qty(BALANCE.importCcy, 0)} CCY placed, which is ${qty(BALANCE.importBcy, 0)} BCY to buy, because a supplier sells bank yards and the job needs compacted ones.`
+                    : 'Neither export nor import is needed: the reusable cut makes the fill.'}
+              </p>
+            </div>
+          } />
         <StatTile label="Progress to grade" value={percent(SURFACE_PROGRESS.percentComplete, 1)}
           icon={<Ruler className="size-4" />}
-          hint={`${integer(SURFACE_PROGRESS.cellsAtGrade)} cells at grade ±${SURFACE_PROGRESS.toleranceFt} ft`} />
+          hint={`${integer(SURFACE_PROGRESS.cellsAtGrade)} cells at grade ±${SURFACE_PROGRESS.toleranceFt} ft`}
+          onClick={() => showVolume('progress-against-design')}
+          active={tab === 'volumes' && showing === 'progress-against-design'}
+          actionLabel="Show the latest flight against design grade" />
         <StatTile label="Survey coverage" value={percent(SURFACE_COMPARISON.coverage, 1)}
           tone={SURFACE_COMPARISON.coverage >= 0.85 ? 'success' : 'danger'}
           icon={<Layers className="size-4" />}
-          hint={`${integer(SURFACE_COMPARISON.cellsSkipped)} cells outside the boundary`} />
+          hint={`${integer(SURFACE_COMPARISON.cellsSkipped)} cells outside the boundary`}
+          onClick={() => showVolume('cut-and-fill-depth')}
+          active={tab === 'volumes' && showing === 'cut-and-fill-depth'}
+          actionLabel="Show which cells the survey reached" />
       </div>
 
-      <Tabs defaultValue="volumes">
+      <Tabs value={tab} onValueChange={(v) => { setTab(v); if (v !== 'machine') setMcFilter('all'); }}>
         <TabsList>
           <TabsTrigger value="volumes">Surface volumes</TabsTrigger>
           <TabsTrigger value="sections">Cross sections</TabsTrigger>
@@ -144,7 +200,7 @@ export function SurveyPage() {
         {/* ---------------------------------------------------------- volumes */}
         <TabsContent value="volumes" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-            <Card>
+            <Card id="cut-and-fill-depth">
               <CardHeader>
                 <CardTitle>Cut and fill depth</CardTitle>
                 <CardDescription>
@@ -155,7 +211,7 @@ export function SurveyPage() {
               <CardContent><DepthMap /></CardContent>
             </Card>
 
-            <Card>
+            <Card id="measured-to-priced">
               <CardHeader>
                 <CardTitle>Measured to priced</CardTitle>
                 <CardDescription>
@@ -188,7 +244,7 @@ export function SurveyPage() {
             </Card>
           </div>
 
-          <Card>
+          <Card id="progress-against-design">
             <CardHeader>
               <CardTitle>Progress against design</CardTitle>
               <CardDescription>
@@ -343,6 +399,14 @@ export function SurveyPage() {
                 A superseded design must name its replacement, so an operator can always be told which file is
                 current. A stale file left live on a dozer is how a crew builds last week's grade.
               </CardDescription>
+              {mcFilter !== 'all' ? (
+                <div className="flex flex-wrap items-center gap-3 pt-2 text-sm text-charcoal-600">
+                  <span>Showing the {mcFilter} designs.</span>
+                  <Button variant="outline" size="sm" onClick={() => setMcFilter('all')}>
+                    Show all {MC_FILES.length}
+                  </Button>
+                </div>
+              ) : null}
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -357,7 +421,7 @@ export function SurveyPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {MC_FILES.map((f) => (
+                  {shownFiles.map((f) => (
                     <TableRow key={f.id} className={cn(f.status === 'superseded' && 'opacity-55')}>
                       <TableCell className="font-medium text-charcoal-900">{f.name}</TableCell>
                       <TableCell>
@@ -390,11 +454,27 @@ export function SurveyPage() {
           </Card>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <StatTile label="Published designs" value={published.length} tone="success" />
+            <StatTile label="Published designs" value={published.length} tone="success"
+              onClick={() => setMcFilter((c) => (c === 'published' ? 'all' : 'published'))}
+              active={mcFilter === 'published'}
+              actionLabel="List the published designs" />
             <StatTile label="Superseded" value={superseded.length}
-              hint="retained, each naming its replacement" />
+              hint="retained, each naming its replacement"
+              onClick={() => setMcFilter((c) => (c === 'superseded' ? 'all' : 'superseded'))}
+              active={mcFilter === 'superseded'}
+              actionLabel="List the superseded designs" />
             <StatTile label="Machines running a design" value={new Set(assigned).size}
-              hint="one current file per machine, enforced" />
+              hint="one current file per machine, enforced"
+              detail={
+                <p>
+                  Distinct machines carrying a file, counted across every design in the table above —{' '}
+                  {assigned.length === new Set(assigned).size
+                    ? 'each on exactly one, which is what the rule requires'
+                    : 'and a machine appearing against two designs is the stale-file case the rule exists to catch'}.
+                  A design is not work until it is on a machine, so this is the number that says the
+                  grade the crew is building is the grade that was published.
+                </p>
+              } />
           </div>
         </TabsContent>
       </Tabs>

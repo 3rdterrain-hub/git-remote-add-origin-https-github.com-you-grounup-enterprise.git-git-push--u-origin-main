@@ -93,6 +93,22 @@ because it is the field being typed into.
 
 ---
 
+## Screen rules that are now enforced by a test
+
+- **A number on a tile answers the question it raises.** Every `StatTile` carries
+  `onClick` (filter the list, open the tab, go to the section that accounts for
+  it) or `detail` (say what the figure is made of, where nothing else does), and
+  a clickable one carries an `actionLabel`. Enforced by
+  `tests/governance/every-stat-tile-does-something.test.ts`.
+- **A numeric box selects what it holds when you enter it**, so the first
+  keystroke replaces the value rather than landing beside it. Free in the shared
+  `Input` for `type="number"` and decimal or numeric keypads; opt in with
+  `selectOnFocus` elsewhere. A value of zero renders as an empty box with a
+  placeholder — "I want to see the typed value not 0 first".
+- **A headline count is counted, not remembered.** Four library figures were seed
+  constants and disagreed with the tabs beneath them for every company that had
+  added a row. A count that has not arrived is an em dash.
+
 ## Things the user has said once and should not have to say again
 
 - **Nothing is read-only without a reason.** If a person can see it, they can edit

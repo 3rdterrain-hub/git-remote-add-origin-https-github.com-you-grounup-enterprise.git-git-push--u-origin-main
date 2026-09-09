@@ -96,6 +96,19 @@ const ROLES = [
 
 export function SettingsPage() {
   const [dirty, setDirty] = useState(false);
+  /*
+   * The four boxes over the connector table counted rows in it by status and
+   * left the reader to match each count against a column of badges. They are
+   * the filter for that table now.
+   */
+  const [connectorStatus, setConnectorStatus] = useState<string | null>(null);
+  const shownConnectors = connectorStatus
+    ? CONNECTORS.filter((c) => c.status === connectorStatus)
+    : CONNECTORS;
+  const connectorTile = (status: string) => ({
+    onClick: () => setConnectorStatus((c) => (c === status ? null : status)),
+    active: connectorStatus === status,
+  });
   const touch = () => setDirty(true);
 
   return (
@@ -522,15 +535,23 @@ export function SettingsPage() {
 
           <div className="grid gap-4 sm:grid-cols-4">
             <StatTile label="Connected" value={CONNECTORS.filter((c) => c.status === 'connected').length}
-              tone="success" hint={`of ${CONNECTORS.length} available`} />
+              tone="success" hint={`of ${CONNECTORS.length} available`}
+              {...connectorTile('connected')}
+              actionLabel="List the connectors that are working" />
             <StatTile label="Degraded" value={CONNECTORS.filter((c) => c.status === 'degraded').length}
               tone={CONNECTORS.some((c) => c.status === 'degraded') ? 'warn' : 'success'}
-              hint="last run did not fully succeed" />
+              hint="last run did not fully succeed"
+              {...connectorTile('degraded')}
+              actionLabel="List the connectors whose last run did not fully succeed" />
             <StatTile label="Failed" value={CONNECTORS.filter((c) => c.status === 'failed').length}
               tone={CONNECTORS.some((c) => c.status === 'failed') ? 'danger' : 'success'}
-              hint="three consecutive failures" />
+              hint="three consecutive failures"
+              {...connectorTile('failed')}
+              actionLabel="List the connectors that have failed" />
             <StatTile label="Not connected" value={CONNECTORS.filter((c) => c.status === 'not_connected').length}
-              hint="available but not set up" />
+              hint="available but not set up"
+              {...connectorTile('not_connected')}
+              actionLabel="List the connectors that are available but not set up" />
           </div>
 
           <Card>
@@ -540,6 +561,14 @@ export function SettingsPage() {
                 Health is derived from each connector's own run history, so a connector that quietly stopped
                 working shows as degraded rather than continuing to look connected.
               </CardDescription>
+              {connectorStatus ? (
+                <div className="flex flex-wrap items-center gap-3 pt-2 text-sm text-charcoal-600">
+                  <span>Showing the {titleCase(connectorStatus)} connectors.</span>
+                  <Button variant="outline" size="sm" onClick={() => setConnectorStatus(null)}>
+                    Show all {CONNECTORS.length}
+                  </Button>
+                </div>
+              ) : null}
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -555,7 +584,7 @@ export function SettingsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {CONNECTORS.map((c) => (
+                  {shownConnectors.map((c) => (
                     <TableRow key={c.id}>
                       <TableCell>
                         <p className="font-medium text-charcoal-900">{c.provider}</p>

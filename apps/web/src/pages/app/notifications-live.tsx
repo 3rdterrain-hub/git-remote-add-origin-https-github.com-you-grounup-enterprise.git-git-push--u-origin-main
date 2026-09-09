@@ -36,15 +36,38 @@ const SEVERITY: Record<NotificationRow['severity'],
   critical: { dot: 'bg-danger-500', badge: 'danger' },
 };
 
+type Filter = 'unread' | 'attention' | 'all';
+
+const TITLES: Record<Filter, string> = {
+  unread: 'Waiting on you',
+  attention: 'Warnings and critical notices',
+  all: 'Everything',
+};
+
+const EMPTY: Record<Filter, string> = {
+  unread: 'Nothing unread',
+  attention: 'Nothing needing attention',
+  all: 'Nothing here yet',
+};
+
 export function NotificationsLivePage() {
   const notificationsQ = useQuery(loadMyNotifications, []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'unread' | 'all'>('unread');
+  const [filter, setFilter] = useState<Filter>('unread');
 
   const items = notificationsQ.status === 'ready' ? notificationsQ.data : [];
   const unread = useMemo(() => items.filter((n) => !n.readAt), [items]);
-  const shown = filter === 'unread' ? unread : items;
+  /*
+   * Warnings and critical notices, which the tile above counted and nothing on
+   * the screen could then show. They are their own view rather than a fourth
+   * severity badge because "eleven notices, two of which matter" is the
+   * question this screen is opened with.
+   */
+  const attention = useMemo(
+    () => items.filter((n) => n.severity === 'critical' || n.severity === 'warning'),
+    [items]);
+  const shown = filter === 'unread' ? unread : filter === 'attention' ? attention : items;
 
   /*
    * The categories actually present, rather than the twelve the schema allows.
@@ -52,6 +75,13 @@ export function NotificationsLivePage() {
    */
   const categories = useMemo(
     () => [...new Set(items.map((n) => n.category))].sort(), [items]);
+
+  /* What each kind is made of, for the tile that counts them. */
+  const countByCategory = useMemo(() => categories.map((c) => ({
+    category: c,
+    total: items.filter((n) => n.category === c).length,
+    unread: items.filter((n) => n.category === c && !n.readAt).length,
+  })), [categories, items]);
 
   const markAll = async () => {
     const client = supabase;
@@ -114,27 +144,52 @@ export function NotificationsLivePage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Unread" value={unread.length}
           tone={unread.length ? 'warn' : 'success'} icon={<Bell className="size-4" />}
-          hint={unread.length ? 'waiting on you' : 'nothing waiting'} />
+          hint={unread.length ? 'waiting on you' : 'nothing waiting'}
+          onClick={() => setFilter('unread')} active={filter === 'unread'}
+          actionLabel="Show only what is unread" />
         <StatTile label="Total" value={items.length} icon={<Inbox className="size-4" />}
-          hint="not dismissed" />
-        <StatTile label="Needing attention"
-          value={items.filter((n) => n.severity === 'critical' || n.severity === 'warning').length}
+          hint="not dismissed"
+          onClick={() => setFilter('all')} active={filter === 'all'}
+          actionLabel="Show everything, read and unread" />
+        <StatTile label="Needing attention" value={attention.length}
           tone={items.some((n) => n.severity === 'critical' && !n.readAt) ? 'danger' : undefined}
-          hint="warnings and critical" />
+          hint="warnings and critical"
+          onClick={() => setFilter('attention')} active={filter === 'attention'}
+          actionLabel="Show only warnings and critical notices" />
         <StatTile label="Kinds" value={categories.length}
-          hint={categories.length ? categories.map((c) => titleCase(c.replace(/_/g, ' '))).slice(0, 3).join(', ') : 'none yet'} />
+          hint={categories.length ? categories.map((c) => titleCase(c.replace(/_/g, ' '))).slice(0, 3).join(', ') : 'none yet'}
+          detail={countByCategory.length === 0 ? (
+            <p>
+              Nothing has been sent yet. A kind appears here the first time the platform sends
+              you one of that kind — an estimate waiting on approval, a payment that failed, a
+              rate you priced with that changed.
+            </p>
+          ) : (
+            <ul className="space-y-1">
+              {countByCategory.map((c) => (
+                <li key={c.category} className="flex items-baseline justify-between gap-3">
+                  <span>{titleCase(c.category.replace(/_/g, ' '))}</span>
+                  <span className="tabular text-charcoal-500">
+                    {c.total} {c.total === 1 ? 'notice' : 'notices'}
+                    {c.unread ? `, ${c.unread} unread` : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )} />
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
         <TabsList>
           <TabsTrigger value="unread">Unread ({unread.length})</TabsTrigger>
+          <TabsTrigger value="attention">Needing attention ({attention.length})</TabsTrigger>
           <TabsTrigger value="all">Everything ({items.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={filter}>
           <Card>
             <CardHeader>
-              <CardTitle>{filter === 'unread' ? 'Waiting on you' : 'Everything'}</CardTitle>
+              <CardTitle>{TITLES[filter]}</CardTitle>
               <CardDescription>
                 Opening one marks it read. Dismissing takes it out of your inbox and leaves it on
                 the record — nothing here is deleted, and a notice you dismissed still shows the
@@ -145,9 +200,11 @@ export function NotificationsLivePage() {
               {notificationsQ.status === 'ready' && shown.length === 0 ? (
                 <div className="p-6">
                   <EmptyState
-                    title={filter === 'unread' ? 'Nothing unread' : 'Nothing here yet'}
-                    hint={filter === 'unread' && items.length > 0
-                      ? 'Everything has been read.'
+                    title={EMPTY[filter]}
+                    hint={items.length > 0
+                      ? (filter === 'unread'
+                        ? 'Everything has been read.'
+                        : 'Nothing here is a warning or a critical notice.')
                       : 'The platform will tell you when an estimate needs approval, a payment fails, or a rate you priced with changes.'} />
                 </div>
               ) : (

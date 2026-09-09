@@ -37,9 +37,27 @@ function Stars({ value }: { value: number }) {
   );
 }
 
+/** What each of the four boxes above the vendor list narrows it to. */
+type Lens = 'all' | 'published' | 'rated' | 'insurance' | 'diverse';
+
+const LENS_SAYS: Record<Lens, string> = {
+  all: 'every vendor',
+  published: 'the vendors published to the network',
+  rated: 'the vendors with performance history',
+  insurance: 'the vendors whose insurance needs attention',
+  diverse: 'the DBE, MBE and WBE certified vendors',
+};
+
 export function NetworkPage() {
   const [query, setQuery] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
+  /*
+   * Each box counted vendors that are already in the list below and left the
+   * reader to find them among fifty cards. It is a lens on the same list, and
+   * it composes with the search and the trade buttons rather than replacing
+   * them.
+   */
+  const [lens, setLens] = useState<Lens>('all');
 
   const trades = useMemo(
     () => [...new Set(NETWORK_VENDORS.flatMap((v) => v.trades))].sort((a, b) => a.localeCompare(b)),
@@ -52,6 +70,10 @@ export function NetworkPage() {
       .filter((v) => {
         // Unpublished vendors are your private record — they are visible to you
         // because you own them, and to nobody else.
+        if (lens === 'published' && !v.isPublished) return false;
+        if (lens === 'rated' && v.ratings.length === 0) return false;
+        if (lens === 'insurance' && insuranceState(v).tone === 'success') return false;
+        if (lens === 'diverse' && !(v.isDbe || v.isMbe || v.isWbe)) return false;
         if (trade && !v.trades.includes(trade)) return false;
         if (!q) return true;
         return (
@@ -63,7 +85,7 @@ export function NetworkPage() {
         );
       })
       .sort((a, b) => (vendorScore(b) ?? 0) - (vendorScore(a) ?? 0));
-  }, [query, trade]);
+  }, [query, trade, lens]);
 
   const published = NETWORK_VENDORS.filter((v) => v.isPublished);
   const rated = NETWORK_VENDORS.filter((v) => v.ratings.length > 0);
@@ -80,16 +102,37 @@ export function NetworkPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Vendors in network" value={published.length} icon={<Network className="size-4" />}
-          hint={`${NETWORK_VENDORS.length - published.length} of yours kept private`} />
+          hint={`${NETWORK_VENDORS.length - published.length} of yours kept private`}
+          onClick={() => setLens((l) => (l === 'published' ? 'all' : 'published'))}
+          active={lens === 'published'}
+          actionLabel="List the vendors published to the network" />
         <StatTile label="With performance history" value={rated.length}
           icon={<Star className="size-4" />}
-          hint={`${NETWORK_VENDORS.reduce((a, v) => a + v.ratings.length, 0)} ratings from real contracts`} />
+          hint={`${NETWORK_VENDORS.reduce((a, v) => a + v.ratings.length, 0)} ratings from real contracts`}
+          onClick={() => setLens((l) => (l === 'rated' ? 'all' : 'rated'))}
+          active={lens === 'rated'}
+          actionLabel="List the vendors somebody has rated" />
         <StatTile label="Insurance attention" value={lapsing.length}
           tone={lapsing.length ? 'warn' : 'success'} icon={<ShieldAlert className="size-4" />}
-          hint={`expiring inside ${INSURANCE_WARN_DAYS} days`} />
+          hint={`expiring inside ${INSURANCE_WARN_DAYS} days`}
+          onClick={() => setLens((l) => (l === 'insurance' ? 'all' : 'insurance'))}
+          active={lens === 'insurance'}
+          actionLabel="List the vendors whose insurance needs attention" />
         <StatTile label="DBE / MBE / WBE" value={diverse.length} icon={<Award className="size-4" />}
-          hint="certified, for participation goals" />
+          hint="certified, for participation goals"
+          onClick={() => setLens((l) => (l === 'diverse' ? 'all' : 'diverse'))}
+          active={lens === 'diverse'}
+          actionLabel="List the certified DBE, MBE and WBE vendors" />
       </div>
+
+      {lens !== 'all' ? (
+        <div className="flex flex-wrap items-center gap-3 text-sm text-charcoal-600">
+          <span>Showing {LENS_SAYS[lens]}.</span>
+          <Button variant="outline" size="sm" onClick={() => setLens('all')}>
+            Show all {NETWORK_VENDORS.length}
+          </Button>
+        </div>
+      ) : null}
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3 p-4">

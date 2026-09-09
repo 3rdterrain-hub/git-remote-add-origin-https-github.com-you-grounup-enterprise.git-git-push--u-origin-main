@@ -53,13 +53,23 @@ export function ProposalsPage() {
   return <DemonstrationProposals />;
 }
 
+/** What each of the boxes above the proposal list narrows it to. */
+type ProposalLens = 'all' | 'issued' | 'accepted';
+
 function DemonstrationProposals() {
   const [selected, setSelected] = useState(PROPOSALS[0]!);
+  /*
+   * The boxes each counted proposals in the table directly below them. They
+   * narrow it now, and the one that is a ratio rather than a set says what it
+   * is measured over instead.
+   */
+  const [lens, setLens] = useState<ProposalLens>('all');
   const [showUnitPrices, setShowUnitPrices] = useState(true);
   const [showLineDetail, setShowLineDetail] = useState(false);
   const sections = proposalSections();
   const issued = PROPOSALS.filter((p) => p.status !== 'draft');
   const accepted = PROPOSALS.filter((p) => p.status === 'accepted');
+  const shown = lens === 'issued' ? issued : lens === 'accepted' ? accepted : PROPOSALS;
 
   return (
     <div className="space-y-6">
@@ -71,18 +81,48 @@ function DemonstrationProposals() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Proposals" value={PROPOSALS.length} icon={<FileText className="size-4" />}
-          hint={`${issued.length} issued`} />
+          hint={`${issued.length} issued`}
+          onClick={() => setLens('all')} active={lens === 'all'}
+          actionLabel="List every proposal, drafts included" />
         <StatTile label="Issued value" value={moneyCompact(issued.reduce((a, p) => a + p.total, 0))}
-          hint="excluding drafts" />
+          hint="excluding drafts"
+          onClick={() => setLens((l) => (l === 'issued' ? 'all' : 'issued'))}
+          active={lens === 'issued'}
+          actionLabel="List the proposals that have been issued" />
         <StatTile label="Accepted" value={moneyCompact(accepted.reduce((a, p) => a + p.total, 0))} tone="success"
-          icon={<CheckCircle2 className="size-4" />} hint={`${accepted.length} of ${issued.length} issued`} />
+          icon={<CheckCircle2 className="size-4" />} hint={`${accepted.length} of ${issued.length} issued`}
+          onClick={() => setLens((l) => (l === 'accepted' ? 'all' : 'accepted'))}
+          active={lens === 'accepted'}
+          actionLabel="List the accepted proposals" />
         <StatTile label="Acceptance rate" value={percent(accepted.length / Math.max(issued.length, 1), 0)}
-          tone="success" hint="by count, last 12 months" />
+          tone="success" hint="by count"
+          detail={
+            <div className="space-y-2">
+              <p>
+                {accepted.length} accepted out of {issued.length} issued, counted by document rather
+                than by value — a rate by value would say something different, because the jobs a
+                company wins are rarely the same size as the ones it loses.
+              </p>
+              <p>
+                Drafts are not in the denominator. A proposal nobody sent has not been declined.
+              </p>
+            </div>
+          } />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1.5fr]">
         <Card>
-          <CardHeader><CardTitle>All proposals</CardTitle></CardHeader>
+          <CardHeader className="gap-2">
+            <CardTitle>
+              {lens === 'all' ? 'All proposals' : lens === 'issued' ? 'Issued proposals' : 'Accepted proposals'}
+            </CardTitle>
+            {lens !== 'all' ? (
+              <Button variant="outline" size="sm" className="self-start"
+                onClick={() => setLens('all')}>
+                Show all {PROPOSALS.length}
+              </Button>
+            ) : null}
+          </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
@@ -93,7 +133,7 @@ function DemonstrationProposals() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {PROPOSALS.map((p) => (
+                {shown.map((p) => (
                   <TableRow key={p.id}
                     className={selected.id === p.id ? 'bg-charcoal-50' : 'cursor-pointer'}
                     onClick={() => setSelected(p)}>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderPage as renderWithProviders } from '@/test/render';
 import { ClaimsPage } from './claims';
 import { CLAIMS } from '@/data/survey';
@@ -41,5 +42,25 @@ describe('the notice clock is the point of the page', () => {
   it('warns when a live claim has no contemporaneous records attached', () => {
     renderPage();
     expect(screen.getByText(/No daily reports are linked yet/i)).toBeInTheDocument();
+  });
+});
+
+describe('the boxes across the top', () => {
+  it('narrows the list to the claims whose notice period is closing', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button',
+      { name: 'List the claims whose notice period is closing' }));
+
+    expect(screen.getByText(/Showing the claims whose notice period closes within three days/))
+      .toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `Show all ${CLAIMS.length}` })).toBeInTheDocument();
+  });
+
+  it('says what time awarded means, since no list on the page shows days', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Time awarded' }));
+    expect(screen.getByText(/It is days awarded, not days claimed/)).toBeInTheDocument();
   });
 });

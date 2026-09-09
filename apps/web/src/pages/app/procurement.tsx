@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ShoppingCart, Package, Scale, CheckCircle2, Plus, TrendingDown, Boxes,
 } from 'lucide-react';
@@ -13,6 +14,8 @@ import { money, moneyCompact, percent, qty, integer, date, titleCase, plural, re
 import { cn } from '@/lib/utils';
 
 export function ProcurementPage() {
+  /* Which tab the five boxes above it open. */
+  const [tab, setTab] = useState('rfqs');
   const openPos = PURCHASE_ORDERS.filter((p) => !['closed', 'canceled'].includes(p.status));
   const committed = openPos.reduce((a, p) => a + p.committed, 0);
   const invoiced = PURCHASE_ORDERS.reduce((a, p) => a + p.invoiced, 0);
@@ -46,17 +49,39 @@ export function ProcurementPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Open commitments" value={moneyCompact(committed)} icon={<ShoppingCart className="size-4" />}
-          hint={`${plural(openPos.length, 'purchase order')}`} />
+          hint={`${plural(openPos.length, 'purchase order')}`}
+          onClick={() => setTab('pos')} active={tab === 'pos'}
+          actionLabel="List the purchase orders behind the commitment" />
         <StatTile label="Not yet invoiced" value={moneyCompact(openCommitment)} tone="warn"
-          hint="cost already owed against open POs" />
-        <StatTile label="Invoiced to date" value={moneyCompact(invoiced)} hint="across all purchase orders" />
+          hint="cost already owed against open POs"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Ordered and not yet billed: {moneyCompact(committed)} committed
+                less {moneyCompact(invoiced)} invoiced. The company can no longer choose not to spend
+                it, and no invoice has arrived to make it visible in the accounts.
+              </p>
+              <p>
+                This is the number that turns a budget overrun into something you can act on while
+                there is still time — a project looks fine on spend and is already gone on
+                commitment.
+              </p>
+            </div>
+          } />
+        <StatTile label="Invoiced to date" value={moneyCompact(invoiced)} hint="across all purchase orders"
+          onClick={() => setTab('pos')} active={tab === 'pos'}
+          actionLabel="List the purchase orders and what has been invoiced against them" />
         <StatTile label="Active RFQs" value={activeRfqs.length} icon={<Scale className="size-4" />}
-          hint={`${RFQS.filter((r) => r.status === 'leveling').length} in leveling`} />
+          hint={`${RFQS.filter((r) => r.status === 'leveling').length} in leveling`}
+          onClick={() => setTab('rfqs')} active={tab === 'rfqs'}
+          actionLabel="Open the RFQs and their leveling" />
         <StatTile label="Inventory value" value={moneyCompact(inventoryValue)} icon={<Boxes className="size-4" />}
-          hint={`${belowReorder.length} below reorder`} />
+          hint={`${belowReorder.length} below reorder`}
+          onClick={() => setTab('inventory')} active={tab === 'inventory'}
+          actionLabel="List what is in stock" />
       </div>
 
-      <Tabs defaultValue="rfqs">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="rfqs">RFQs &amp; leveling ({RFQS.length})</TabsTrigger>
           <TabsTrigger value="pos">Purchase orders ({openPos.length} open)</TabsTrigger>

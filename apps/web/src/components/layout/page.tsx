@@ -21,6 +21,38 @@ export function PageHeader({
 }
 
 /**
+ * Send a tile to the part of the page that accounts for its number.
+ *
+ * Most tiles sit above a section that already contains the answer. "Blocked
+ * from issue: 3" and, four hundred pixels below, the three of them. The tile
+ * knew and the reader had to go looking.
+ *
+ * `show(id)` scrolls that section into view and marks the tile pressed while it
+ * is the one being answered; `showing` is what a tile passes to `active`. The
+ * section needs an `id` and nothing else, so this costs a section one attribute
+ * and a tile two props.
+ *
+ * Written once here rather than a hundred times in the screens, because a
+ * hundred copies of a scroll call is a hundred chances to disagree about what
+ * "smooth" and "start" mean.
+ */
+export function useAnswerBelow() {
+  const [showing, setShowing] = useState<string | null>(null);
+
+  const show = (id: string) => {
+    setShowing((current) => (current === id ? null : id));
+    /*
+     * Guarded: `scrollIntoView` is not implemented in jsdom, and a tile that
+     * throws when it is clicked is worse than one that does not scroll.
+     */
+    const el = typeof document === 'undefined' ? null : document.getElementById(id);
+    el?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  };
+
+  return { showing, show };
+}
+
+/**
  * KPI tile. `hint` explains what the number means, so nothing is a mystery metric.
  *
  * Every tile in this application was a `div`. "Blocked from issue: 3" told an

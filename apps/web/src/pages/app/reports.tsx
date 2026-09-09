@@ -13,7 +13,7 @@
  * belongs to an estimate rather than to a company, and lives on the estimate
  * workspace.
  */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BarChart3, Download, Gauge } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -31,6 +31,13 @@ import { cn } from '@/lib/utils';
 export function ReportsPage() {
   const metrics = useQuery(loadMetrics, []);
   const projects = useQuery(loadProjects, []);
+  /*
+   * The four headline figures are four of the rows in the tables below them,
+   * and were the only place on the page where a number had no definition
+   * beside it. Pressing one goes to the row it came from — the metric key, the
+   * sentence saying what it means, its target, and whether it is on it.
+   */
+  const [focused, setFocused] = useState<string | null>(null);
 
   const rows = metrics.status === 'ready' ? metrics.data : [];
   const byDomain = useMemo(() => {
@@ -64,10 +71,17 @@ export function ReportsPage() {
         />
       ) : null}
 
-      {rows.length > 0 ? <Headline rows={rows} /> : null}
+      {rows.length > 0 ? (
+        <Headline rows={rows} focused={focused}
+          onFocus={(m) => {
+            setFocused((current) => (current === m.key ? null : m.key));
+            document.getElementById(`metric-domain-${m.domain}`)
+              ?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+          }} />
+      ) : null}
 
       {byDomain.map(([domain, group]) => (
-        <Card key={domain}>
+        <Card key={domain} id={`metric-domain-${domain}`}>
           <CardHeader>
             <CardTitle className="capitalize">{titleCase(domain)}</CardTitle>
             <CardDescription>
@@ -88,8 +102,11 @@ export function ReportsPage() {
               <TableBody>
                 {group.map((m) => {
                   const tone = metricTone(m);
+                  const isFocused = focused === m.key;
                   return (
-                    <TableRow key={m.key}>
+                    <TableRow key={m.key}
+                      aria-current={isFocused ? 'true' : undefined}
+                      className={isFocused ? 'bg-yellow-50' : undefined}>
                       <TableCell className="max-w-96">
                         <p className="font-medium text-charcoal-900">{m.name}</p>
                         <p className="font-mono text-xs text-charcoal-400">{m.key}</p>
@@ -155,7 +172,11 @@ function ExportButton({ rows, disabled, demo }: {
   );
 }
 
-function Headline({ rows }: { rows: MetricValue[] }) {
+function Headline({ rows, focused, onFocus }: {
+  rows: MetricValue[];
+  focused: string | null;
+  onFocus: (metric: MetricValue) => void;
+}) {
   const pick = (key: string) => rows.find((m) => m.key === key);
   const margin = pick('gross_margin_percent');
   const backlog = pick('backlog_value');
@@ -171,6 +192,9 @@ function Headline({ rows }: { rows: MetricValue[] }) {
           tone={metricTone(m!) === 'warn' ? 'danger' : metricTone(m!) === 'success' ? 'success' : undefined}
           icon={<BarChart3 className="size-4" />}
           hint={m!.targetValue == null ? m!.unit : `target ${formatMetric({ ...m!, value: m!.targetValue })}`}
+          onClick={() => onFocus(m!)}
+          active={focused === m!.key}
+          actionLabel={`Show what ${m!.name} is defined as`}
         />
       ))}
     </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   HardHat, CloudRain, Users2, TrendingUp, TrendingDown, FileWarning,
@@ -23,6 +24,14 @@ const ESTIMATED_RATE: Record<string, { rate: number; code: string }> = {
 };
 
 export function ProjectDetailPage() {
+  /*
+   * The boxes across the top each summarize something one of the five tabs
+   * below already shows in full, and none of them went there. The change-order
+   * boxes further down do the same to the list directly beneath them, so they
+   * filter it.
+   */
+  const [tab, setTab] = useState('field');
+  const [coFilter, setCoFilter] = useState<'all' | 'approved' | 'pending'>('all');
   const { projectId } = useParams();
   const project = PROJECTS.find((p) => p.id === projectId) ?? PROJECTS[0]!;
 
@@ -37,6 +46,13 @@ export function ProjectDetailPage() {
 
   const approvedCo = changeOrders.filter((c) => ['approved', 'executed'].includes(c.status));
   const pendingCo = changeOrders.filter((c) => ['potential', 'submitted'].includes(c.status));
+  const shownCo = coFilter === 'approved' ? approvedCo
+    : coFilter === 'pending' ? pendingCo : changeOrders;
+
+  const showTab = (next: string) => {
+    setTab(next);
+    if (next !== 'changes') setCoFilter('all');
+  };
 
   return (
     <div className="space-y-6">
@@ -69,21 +85,44 @@ export function ProjectDetailPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Contract value" value={moneyCompact(project.contractValue)} icon={<HardHat className="size-4" />}
-          hint={approvedCo.length ? `+${moneyCompact(approvedCo.reduce((a, c) => a + c.priceImpact, 0))} in approved changes` : 'no approved changes'} />
+          hint={approvedCo.length ? `+${moneyCompact(approvedCo.reduce((a, c) => a + c.priceImpact, 0))} in approved changes` : 'no approved changes'}
+          onClick={() => { setTab('changes'); setCoFilter('approved'); }}
+          active={tab === 'changes' && coFilter === 'approved'}
+          actionLabel="Show the approved changes that moved the contract value" />
         <StatTile label="Percent complete" value={percent(project.percentComplete, 0)} icon={<Gauge className="size-4" />}
-          hint={`${date(project.plannedStart)} → ${date(project.plannedFinish)}`} />
+          hint={`${date(project.plannedStart)} → ${date(project.plannedFinish)}`}
+          onClick={() => showTab('production')} active={tab === 'production'}
+          actionLabel="Show the installed production this is measured from" />
         <StatTile label="Actual cost" value={moneyCompact(project.actualCost)}
-          hint={`${moneyCompact(budgetToDate)} budgeted to date`} />
+          hint={`${moneyCompact(budgetToDate)} budgeted to date`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                What the job has cost so far, against the {moneyCompact(budgetToDate)} the budget
+                allowed for the work that is actually complete —
+                {percent(project.percentComplete, 0)} of {moneyCompact(project.budget)}.
+              </p>
+              <p>
+                It is spend, not commitment: money already promised on a purchase order but not yet
+                invoiced is not in this figure, which is why a job can look on budget here and still
+                have no room left.
+              </p>
+            </div>
+          } />
         <StatTile label="Cost variance" value={moneyCompact(Math.abs(variance))}
           tone={variance >= 0 ? 'success' : 'danger'}
           icon={variance >= 0 ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
-          hint={variance >= 0 ? 'under budget for work performed' : 'over budget for work performed'} />
+          hint={variance >= 0 ? 'under budget for work performed' : 'over budget for work performed'}
+          onClick={() => showTab('overview')} active={tab === 'overview'}
+          actionLabel="Show the cost performance behind the variance" />
         <StatTile label="Open items" value={openRfis.length + openSubmittals.length + pendingCo.length}
           tone="warn" icon={<AlertTriangle className="size-4" />}
-          hint={`${plural(openRfis.length, 'RFI')} · ${plural(openSubmittals.length, 'submittal')} · ${plural(pendingCo.length, 'change')}`} />
+          hint={`${plural(openRfis.length, 'RFI')} · ${plural(openSubmittals.length, 'submittal')} · ${plural(pendingCo.length, 'change')}`}
+          onClick={() => showTab('rfis')} active={tab === 'rfis'}
+          actionLabel="List the open RFIs and submittals" />
       </div>
 
-      <Tabs defaultValue="field">
+      <Tabs value={tab} onValueChange={showTab}>
         <TabsList>
           <TabsTrigger value="field">Field reports ({reports.length})</TabsTrigger>
           <TabsTrigger value="production">Production</TabsTrigger>
@@ -256,14 +295,46 @@ export function ProjectDetailPage() {
         <TabsContent value="changes" className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <StatTile label="Approved changes" value={moneyCompact(approvedCo.reduce((a, c) => a + c.priceImpact, 0))}
-              tone="success" hint={plural(approvedCo.length, 'change') + ' executed or approved'} />
+              tone="success" hint={plural(approvedCo.length, 'change') + ' executed or approved'}
+              onClick={() => setCoFilter((c) => (c === 'approved' ? 'all' : 'approved'))}
+              active={coFilter === 'approved'}
+              actionLabel="List the approved and executed change orders" />
             <StatTile label="Pending changes" value={moneyCompact(pendingCo.reduce((a, c) => a + c.priceImpact, 0))}
-              tone="warn" hint={plural(pendingCo.length, 'change') + ' awaiting a decision'} />
+              tone="warn" hint={plural(pendingCo.length, 'change') + ' awaiting a decision'}
+              onClick={() => setCoFilter((c) => (c === 'pending' ? 'all' : 'pending'))}
+              active={coFilter === 'pending'}
+              actionLabel="List the change orders awaiting a decision" />
             <StatTile label="Schedule impact" value={`${changeOrders.reduce((a, c) => a + c.scheduleImpactDays, 0)} days`}
-              hint="across all change orders" />
+              hint="across all change orders"
+              detail={
+                <div className="space-y-2">
+                  <p>
+                    Days claimed across every change order on this project, approved and pending
+                    together — {approvedCo.reduce((a, c) => a + c.scheduleImpactDays, 0)} of them on
+                    changes that have been approved.
+                  </p>
+                  <p>
+                    It is the sum of what each change asked for, not a new completion date. Two changes
+                    delaying the same week of work both count here and cost the schedule one week, so
+                    the contract date moves only where the change order says it does.
+                  </p>
+                </div>
+              } />
           </div>
 
-          {changeOrders.map((c) => {
+          {coFilter !== 'all' ? (
+            <div className="flex flex-wrap items-center gap-3 text-sm text-charcoal-600">
+              <span>
+                Showing the {coFilter === 'approved' ? 'approved and executed' : 'pending'} change
+                orders.
+              </span>
+              <Button variant="outline" size="sm" onClick={() => setCoFilter('all')}>
+                Show all {changeOrders.length}
+              </Button>
+            </div>
+          ) : null}
+
+          {shownCo.map((c) => {
             const margin = c.priceImpact ? (c.priceImpact - c.costImpact) / c.priceImpact : 0;
             return (
               <Card key={c.id}>

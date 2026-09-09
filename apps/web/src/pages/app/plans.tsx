@@ -21,6 +21,14 @@ import { usePermissions } from '@/lib/data/session';
 export function PlansPage() {
   const [findings, setFindings] = useState<AiFinding[]>(AI_FINDINGS);
   const [query, setQuery] = useState('');
+  /*
+   * The four boxes across the top each counted something one of the three tabs
+   * below already lists. Two of them count findings in a particular state, so
+   * they narrow the findings list to that state rather than only naming a
+   * number and leaving the reader to read every card looking for it.
+   */
+  const [tab, setTab] = useState('findings');
+  const [state, setState] = useState<'all' | 'proposed' | 'accepted'>('all');
 
   const { can } = usePermissions();
   const canAccept = can('ai.accept_findings');
@@ -37,8 +45,16 @@ export function PlansPage() {
     setFindings((prev) => prev.map((f) => (f.id === id ? { ...f, state, reviewedBy: USER.name } : f)));
   }
 
-  const visible = findings.filter((f) =>
-    !query || `${f.title} ${f.description} ${f.citations.join(' ')}`.toLowerCase().includes(query.toLowerCase()));
+  const visible = findings
+    .filter((f) => state === 'all' || f.state === state)
+    .filter((f) =>
+      !query || `${f.title} ${f.description} ${f.citations.join(' ')}`.toLowerCase().includes(query.toLowerCase()));
+
+  /* One tile press does both: open the findings tab and narrow it. */
+  const showFindings = (next: 'proposed' | 'accepted') => {
+    setTab('findings');
+    setState((current) => (current === next ? 'all' : next));
+  };
 
   return (
     <div className="space-y-6">
@@ -50,13 +66,35 @@ export function PlansPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Active documents" value={activeDocs.length} icon={<FileText className="size-4" />}
-          hint={`${DOCUMENTS.length - activeDocs.length} superseded, retained for audit`} />
+          hint={`${DOCUMENTS.length - activeDocs.length} superseded, retained for audit`}
+          onClick={() => setTab('documents')} active={tab === 'documents'}
+          actionLabel="Open the document register" />
         <StatTile label="Sheets indexed" value={integer(activeDocs.reduce((a, d) => a + d.pages, 0))} icon={<Layers className="size-4" />}
-          hint="searchable, permission-filtered" />
+          hint="searchable, permission-filtered"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Every page of the {activeDocs.length} active {activeDocs.length === 1 ? 'document' : 'documents'},
+                read and indexed so a search reaches the sheet rather than the file.
+              </p>
+              <p>
+                Superseded revisions are not counted — their{' '}
+                {integer(DOCUMENTS.filter((d) => d.superseded).reduce((a, d) => a + d.pages, 0))} pages stay on
+                the record for audit but are not what a takeoff is measured off. What a person can find is also
+                filtered by what they may see, so this is the sheet count, not their sheet count.
+              </p>
+            </div>
+          } />
         <StatTile label="Findings awaiting review" value={pending.length} tone={pending.length ? 'warn' : 'success'}
-          icon={<Bot className="size-4" />} hint="nothing enters an estimate unapproved" />
+          icon={<Bot className="size-4" />} hint="nothing enters an estimate unapproved"
+          onClick={() => showFindings('proposed')}
+          active={tab === 'findings' && state === 'proposed'}
+          actionLabel="List the findings waiting for a reviewer" />
         <StatTile label="Findings accepted" value={accepted.length} tone="success" icon={<ShieldCheck className="size-4" />}
-          hint="each recorded against its reviewer" />
+          hint="each recorded against its reviewer"
+          onClick={() => showFindings('accepted')}
+          active={tab === 'findings' && state === 'accepted'}
+          actionLabel="List the findings that have been accepted" />
       </div>
 
       <Alert tone="neutral" icon={<ShieldCheck className="size-4" />} title="How AI findings are governed">
@@ -66,7 +104,7 @@ export function PlansPage() {
         permission accepts it — and the acceptance is attributed to that person permanently.
       </Alert>
 
-      <Tabs defaultValue="findings">
+      <Tabs value={tab} onValueChange={(v) => { setTab(v); if (v !== 'findings') setState('all'); }}>
         <TabsList>
           <TabsTrigger value="findings">AI findings ({pending.length} pending)</TabsTrigger>
           <TabsTrigger value="documents">Document register ({DOCUMENTS.length})</TabsTrigger>
@@ -74,14 +112,31 @@ export function PlansPage() {
         </TabsList>
 
         <TabsContent value="findings" className="space-y-4">
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-            <Input className="pl-9" placeholder="Search findings and citations…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative max-w-md flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
+              <Input className="pl-9" placeholder="Search findings and citations…" value={query} onChange={(e) => setQuery(e.target.value)} />
+            </div>
+            {state !== 'all' ? (
+              <div className="flex items-center gap-2 text-sm text-charcoal-600">
+                <span>
+                  Showing the {state === 'proposed' ? 'findings waiting for a reviewer' : 'accepted findings'}.
+                </span>
+                <Button variant="outline" size="sm" onClick={() => setState('all')}>
+                  Show all {findings.length}
+                </Button>
+              </div>
+            ) : null}
           </div>
 
           {visible.length === 0 ? (
             <Card><CardContent className="p-0">
-              <EmptyState icon={<Search className="size-5" />} title="No findings match that search" />
+              <EmptyState icon={<Search className="size-5" />}
+                title={state === 'all'
+                  ? 'No findings match that search'
+                  : state === 'proposed'
+                    ? 'Nothing is waiting for a reviewer'
+                    : 'Nothing has been accepted yet'} />
             </CardContent></Card>
           ) : (
             <div className="space-y-3">
@@ -170,14 +225,53 @@ function PipelinePanel() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatTile label="Pipeline runs" value={usage.runs} icon={<RefreshCw className="size-4" />}
-          hint={`${running.length} running, ${failed.length} failed`} />
-        <StatTile label="Pages analyzed" value={integer(usage.pages)} icon={<Layers className="size-4" />} />
+          hint={`${running.length} running, ${failed.length} failed`}
+          detail={
+            <p>
+              One run is one document version through all six stages below. The{' '}
+              {INGESTION_JOBS.length} {INGESTION_JOBS.length === 1 ? 'job' : 'jobs'} at the foot of this tab
+              are those runs, each showing the stage it reached — a failed run stays on the list with its
+              stage rather than disappearing, because a document nobody was told failed to read is a
+              document somebody will estimate from anyway.
+            </p>
+          } />
+        <StatTile label="Pages analyzed" value={integer(usage.pages)} icon={<Layers className="size-4" />}
+          detail={
+            <p>
+              Pages the model actually read, summed over every run — so a sheet read twice, once per
+              revision, counts twice. It is the unit the spend below is metered in, which is why it is
+              counted per run rather than per document.
+            </p>
+          } />
         <StatTile label="Findings proposed" value={usage.findings} icon={<Bot className="size-4" />}
-          hint={`${usage.rejected} rejected by the citation guard`} />
+          hint={`${usage.rejected} rejected by the citation guard`}
+          detail={
+            <p>
+              What the model offered, not what entered an estimate — nothing here is in a bid until a
+              person with the acceptance permission takes it (RULE-008). The{' '}
+              {usage.rejected} rejected never reached a reviewer at all: they arrived without a sheet or
+              specification citation and were refused before they were stored.
+            </p>
+          } />
         <StatTile label="Tokens" value={`${integer(usage.inputTokens / 1000)}K in`} icon={<Cpu className="size-4" />}
-          hint={`${integer(usage.outputTokens / 1000)}K out`} />
+          hint={`${integer(usage.outputTokens / 1000)}K out`}
+          detail={
+            <p>
+              {integer(usage.inputTokens)} tokens of plans and specifications went to the model
+              and {integer(usage.outputTokens)} came back. Input dominates because a drawing set is large
+              and a finding is a sentence, and it is why the spend beside this tracks pages rather than
+              findings.
+            </p>
+          } />
         <StatTile label="AI spend" value={money(usage.cost)} icon={<CircleDollarSign className="size-4" />}
-          hint="metered per run against the plan allowance" />
+          hint="metered per run against the plan allowance"
+          detail={
+            <p>
+              Charged per run and counted against the plan's allowance, so a document set that is
+              re-analyzed after a revision costs again. It buys the reading, not the answer: the price on
+              an estimate is the engine's arithmetic, and no part of this figure is in it.
+            </p>
+          } />
       </div>
 
       <Card>

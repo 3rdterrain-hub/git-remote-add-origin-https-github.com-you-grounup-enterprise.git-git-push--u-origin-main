@@ -194,9 +194,20 @@ export function AuthPage({ mode }: { mode: Mode }) {
             )}
           </p>
 
-          <Button asChild variant="ghost" className="mt-3 w-full">
-            <Link to="/app">Explore the demonstration workspace</Link>
-          </Button>
+          {/*
+            * Only where it goes somewhere.
+            *
+            * `/app` is behind the session guard, so with a Supabase project
+            * configured this button sent a signed-out visitor to `/login` —
+            * the page they were already looking at. The demonstration
+            * workspace exists for the build that has no project behind it, and
+            * that is the only build where the door is real.
+            */}
+          {!isSupabaseConfigured ? (
+            <Button asChild variant="ghost" className="mt-3 w-full">
+              <Link to="/app">Explore the demonstration workspace</Link>
+            </Button>
+          ) : null}
         </div>
       </div>
 

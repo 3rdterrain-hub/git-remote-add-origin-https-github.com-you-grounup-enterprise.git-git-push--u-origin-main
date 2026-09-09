@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   CreditCard, ExternalLink, Loader2, ShieldCheck, Receipt, Gauge, AlertTriangle, ArrowUpRight,
 } from 'lucide-react';
-import { PageHeader, StatTile, Field } from '@/components/layout/page';
+import { PageHeader, StatTile, Field, useAnswerBelow } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +37,8 @@ export function BillingPage() {
   const [error, setError] = useState<string | null>(null);
   const [canceling, setCanceling] = useState(false);
   const [canceled, setCanceled] = useState<string | null>(null);
+  /* The card each of the four boxes above sends you to. */
+  const { showing, show } = useAnswerBelow();
 
   const plan = PLANS.find((p) => p.id === COMPANY.plan)!;
   const { can } = usePermissions();
@@ -108,17 +110,37 @@ export function BillingPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Current plan" value={plan.name} tone="accent" icon={<ShieldCheck className="size-4" />}
-          hint={plan.seats} />
+          hint={plan.seats}
+          onClick={() => show('subscription-detail')} active={showing === 'subscription-detail'}
+          actionLabel="Show what this subscription is" />
         <StatTile label="Monthly cost" value={money(plan.monthlyCents / 100)} icon={<Receipt className="size-4" />}
-          hint="billed monthly, next on 1 September 2026" />
+          hint="billed monthly, next on 1 September 2026"
+          onClick={() => show('billing-history')} active={showing === 'billing-history'}
+          actionLabel="Show what has actually been charged" />
         <StatTile label="Subscription status" value="Active" tone="success"
-          hint="from the last verified Stripe webhook" />
+          hint="from the last verified Stripe webhook"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Read from subscription state written by a signature-verified Stripe webhook, and from
+                nowhere else. Coming back from a checkout page does not activate anything: a browser
+                that has been redirected has proved nothing about whether a payment succeeded, and
+                treating a redirect as payment is how paid access gets handed out for free.
+              </p>
+              <p>
+                So there is a gap between paying and this reading Active — the length of a webhook —
+                and that gap is deliberate.
+              </p>
+            </div>
+          } />
         <StatTile label="Seats used" value={`7 / ${plan.seats.replace(/\D/g, '') || '—'}`} icon={<Gauge className="size-4" />}
-          hint="active company memberships" />
+          hint="active company memberships"
+          onClick={() => show('usage-this-period')} active={showing === 'usage-this-period'}
+          actionLabel="Show every limit and what is used against it" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-        <Card>
+        <Card id="usage-this-period">
           <CardHeader>
             <CardTitle>Usage this period</CardTitle>
             <CardDescription>
@@ -152,7 +174,7 @@ export function BillingPage() {
           </CardFooter>
         </Card>
 
-        <Card>
+        <Card id="subscription-detail">
           <CardHeader>
             <CardTitle>Subscription detail</CardTitle>
             <CardDescription>Written only from signature-verified Stripe webhooks.</CardDescription>

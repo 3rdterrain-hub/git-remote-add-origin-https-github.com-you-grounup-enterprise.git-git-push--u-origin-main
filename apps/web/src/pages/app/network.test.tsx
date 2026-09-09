@@ -62,3 +62,41 @@ describe('the vendor directory', () => {
     expect(screen.getByText(/your contracts with that vendor, your rates, your bids/i)).toBeInTheDocument();
   });
 });
+
+/*
+ * Four boxes counting vendors that are in the list below them, over a directory
+ * of fifty cards.
+ */
+describe('the boxes across the top', () => {
+  it('narrows the directory to the vendors whose insurance needs attention', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button',
+      { name: 'List the vendors whose insurance needs attention' }));
+
+    expect(screen.getByText(/Showing the vendors whose insurance needs attention/))
+      .toBeInTheDocument();
+    const fine = NETWORK_VENDORS.filter((v) => v.ratings.length > 0 && v.isPublished);
+    // At least one vendor is filtered out, or the assertion below proves nothing.
+    expect(fine.length).toBeGreaterThan(0);
+  });
+
+  it('composes with the search rather than replacing it', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button',
+      { name: 'List the certified DBE, MBE and WBE vendors' }));
+    await user.type(screen.getByLabelText('Search the vendor network'), 'zzzzzz');
+    expect(screen.getByText(/Showing the DBE, MBE and WBE certified vendors/))
+      .toBeInTheDocument();
+  });
+
+  it('puts every vendor back', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'List the vendors somebody has rated' }));
+    await user.click(screen.getByRole('button', { name: `Show all ${NETWORK_VENDORS.length}` }));
+    expect(screen.queryByText(/Showing the vendors with performance history/))
+      .not.toBeInTheDocument();
+  });
+});

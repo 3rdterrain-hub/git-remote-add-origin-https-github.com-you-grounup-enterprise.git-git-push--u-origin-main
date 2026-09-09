@@ -76,15 +76,64 @@ function DemonstrationDashboard() {
         </Alert>
       ) : null}
 
+      {/*
+        * Seven figures, each of which used to be a number and nothing else. The
+        * answer to every one of them is on another screen, so each says what it
+        * is made of and offers the door — a dashboard's job is to send somebody
+        * somewhere, and a tile that could not be pressed was not doing it.
+        */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Open pipeline" value={moneyCompact(pipeline)} tone="neutral" icon={<TrendingUp className="size-4" />}
-          hint={`${moneyCompact(weighted)} weighted by probability`} />
+          hint={`${moneyCompact(weighted)} weighted by probability`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Every opportunity that is neither won nor lost, at full value —{' '}
+                {plural(OPPORTUNITIES.filter((o) => !['won', 'lost'].includes(o.stage)).length, 'opportunity')}.
+                The weighted figure multiplies each by its probability, which is the number to plan
+                capacity against; this one is the number to plan nothing against.
+              </p>
+              <p><Link to="/app/crm" className="font-medium text-yellow-700 hover:underline">See the pipeline by stage</Link></p>
+            </div>
+          } />
         <StatTile label="Estimates in progress" value={OPPORTUNITIES.filter((o) => o.stage === 'estimating').length} icon={<Calculator className="size-4" />}
-          hint={`${ESTIMATES.filter((e) => e.blocked).length} blocked from issue`} />
+          hint={`${ESTIMATES.filter((e) => e.blocked).length} blocked from issue`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Opportunities at the estimating stage. Of the estimates
+                themselves, {ESTIMATES.filter((e) => e.blocked).length}{' '}
+                {ESTIMATES.filter((e) => e.blocked).length === 1 ? 'is' : 'are'} blocked from issue —
+                priced, but held by a gate until somebody with the authority signs the exception.
+              </p>
+              <p><Link to="/app/estimates" className="font-medium text-yellow-700 hover:underline">Open the estimates</Link></p>
+            </div>
+          } />
         <StatTile label="Backlog remaining" value={moneyCompact(backlog)} icon={<HardHat className="size-4" />}
-          hint={`across ${activeProjects.length} active projects`} />
+          hint={`across ${activeProjects.length} active projects`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Contract value on the {plural(activeProjects.length, 'active project')} less the
+                share already complete — work that is sold and not yet built. It is revenue still to
+                earn, not cash still to collect: what has been billed and not paid is a different
+                number and lives in finance.
+              </p>
+              <p><Link to="/app/projects" className="font-medium text-yellow-700 hover:underline">See the projects behind it</Link></p>
+            </div>
+          } />
         <StatTile label="AI findings awaiting review" value={pendingFindings.length} tone={pendingFindings.length ? 'warn' : 'success'}
-          icon={<Bot className="size-4" />} hint="nothing enters an estimate unapproved" />
+          icon={<Bot className="size-4" />} hint="nothing enters an estimate unapproved"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Findings the document agents have proposed and nobody has decided on. None of them is
+                in an estimate: a finding is inert until a person with the acceptance permission takes
+                it, and the acceptance is recorded against that person permanently (RULE-008).
+              </p>
+              <p><Link to="/app/plans" className="font-medium text-yellow-700 hover:underline">Review the findings</Link></p>
+            </div>
+          } />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
@@ -296,11 +345,37 @@ function DemonstrationDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatTile label="Labor hours estimated" value={integer(ESTIMATE.totalLaborHours)} icon={<Users className="size-4" />}
-          hint={`${integer(ESTIMATE.totalEquipmentHours)} equipment hours`} />
+          hint={`${integer(ESTIMATE.totalEquipmentHours)} equipment hours`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Crew hours across every line of {ESTIMATE.number}, at the production rates each line
+                was priced with. The equipment figure beside it counts machine hours over the same
+                work, and the two differ because a crew is not one person and a machine is not
+                running every hour the crew is on site.
+              </p>
+              <p><Link to={`/app/estimates/${ESTIMATE.id}`} className="font-medium text-yellow-700 hover:underline">See the lines these hours came from</Link></p>
+            </div>
+          } />
         <StatTile label="Fuel forecast" value={`${integer(ESTIMATE.totalFuelGallons)} gal`} icon={<CircleDollarSign className="size-4" />}
-          hint="from operating hours and machine burn rates" />
+          hint="from operating hours and machine burn rates"
+          detail={
+            <p>
+              Each machine's operating hours multiplied by its own burn rate, then summed — not a
+              percentage added to the equipment cost. Fuel is its own cost bucket (RULE-001), so a
+              diesel price that moves re-prices the fuel on this estimate and leaves the machine
+              rates where they are.
+            </p>
+          } />
         <StatTile label="Estimated duration" value={`${integer(ESTIMATE.totalDurationDays)} days`} icon={<Clock className="size-4" />}
-          hint="crew-days across all lines, before overlap" />
+          hint="crew-days across all lines, before overlap"
+          detail={
+            <p>
+              Every line's own duration added together, which is the calendar only if nothing runs
+              alongside anything else. It is a measure of how much work there is, not of when the job
+              finishes — sequencing decides that, and the schedule is where it is decided.
+            </p>
+          } />
       </div>
     </div>
   );

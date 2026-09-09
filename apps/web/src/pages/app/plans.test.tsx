@@ -50,3 +50,52 @@ describe('AI finding governance in the UI (RULE-008)', () => {
     expect(screen.getAllByText('Superseded').length).toBeGreaterThan(0);
   });
 });
+
+/*
+ * The four boxes across the top each counted something one of the three tabs
+ * already lists, and none of them went there.
+ */
+describe('the boxes across the top', () => {
+  it('narrows the findings to the ones waiting for a reviewer', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button',
+      { name: 'List the findings waiting for a reviewer' }));
+
+    expect(screen.getByText(/Showing the findings waiting for a reviewer/))
+      .toBeInTheDocument();
+    const accepted = AI_FINDINGS.filter((f) => f.state === 'accepted');
+    for (const f of accepted) {
+      expect(screen.queryByText(f.title)).not.toBeInTheDocument();
+    }
+    for (const f of AI_FINDINGS.filter((f) => f.state === 'proposed')) {
+      expect(screen.getByText(f.title)).toBeInTheDocument();
+    }
+  });
+
+  it('puts them all back when the tile is pressed again', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const tile = () => screen.getByRole('button',
+      { name: 'List the findings waiting for a reviewer' });
+    await user.click(tile());
+    expect(tile()).toHaveAttribute('aria-pressed', 'true');
+    await user.click(tile());
+    expect(tile()).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('opens the document register from the tile that counts documents', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'Open the document register' }));
+    expect(screen.getByRole('tab', { name: /Document register/ }))
+      .toHaveAttribute('data-state', 'active');
+  });
+
+  it('says what a sheet count is made of, since no tab lists sheets', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Sheets indexed' }));
+    expect(screen.getByText(/Superseded revisions are not counted/)).toBeInTheDocument();
+  });
+});

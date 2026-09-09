@@ -8,6 +8,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderPage } from '@/test/render';
 
 const hoisted = vi.hoisted(() => ({
@@ -101,5 +102,56 @@ describe('the safety page', () => {
     hoisted.configured = false;
     renderPage(<SafetyPage />);
     await waitFor(() => expect(screen.getByText('Demonstration data')).toBeInTheDocument());
+  });
+});
+
+/*
+ * TRIR and DART are the two figures a contractor is prequalified on, and the
+ * page showed each as a number with a formula in six words underneath it.
+ */
+describe('the boxes across the top', () => {
+  beforeEach(() => {
+    hoisted.configured = true;
+    hoisted.rates = { trir: 1.5, dart: 0.8, recordables: 3, hoursObserved: 400_000, lostTimeCases: 1 };
+    hoisted.credentials = [];
+  });
+
+  it('shows the arithmetic behind TRIR, with this page\'s own numbers in it', async () => {
+    const user = userEvent.setup();
+    renderPage(<SafetyPage />);
+    await waitFor(() => expect(screen.getByText('TRIR')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'What is behind TRIR' }));
+
+    expect(screen.getByText(/3 recordable incidents × 200,000 ÷ 400,000 approved hours = 1.50/))
+      .toBeInTheDocument();
+    expect(screen.getByText(/a hundred full-time workers for a year/)).toBeInTheDocument();
+  });
+
+  it('says why DART counts cases and not days', async () => {
+    const user = userEvent.setup();
+    renderPage(<SafetyPage />);
+    await waitFor(() => expect(screen.getByText('DART')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'What is behind DART' }));
+    expect(screen.getByText(/One case costing sixty restricted days counts once/))
+      .toBeInTheDocument();
+  });
+
+  it('opens the punch list from the tile that counts punch items', async () => {
+    const user = userEvent.setup();
+    renderPage(<SafetyPage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Open the punch list' })).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Open the punch list' }));
+    expect(screen.getByRole('tab', { name: /Punch list/ })).toHaveAttribute('data-state', 'active');
+  });
+
+  it('says so rather than showing an empty list when nothing is recordable', async () => {
+    const user = userEvent.setup();
+    renderPage(<SafetyPage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'List the OSHA recordable incidents' }))
+        .toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'List the OSHA recordable incidents' }));
+    expect(screen.getByText(/Showing the OSHA recordable incidents/)).toBeInTheDocument();
   });
 });

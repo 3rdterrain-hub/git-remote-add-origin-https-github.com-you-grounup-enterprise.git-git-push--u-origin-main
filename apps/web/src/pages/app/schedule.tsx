@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   CalendarDays, AlertTriangle, GitBranch, Flag, Users2, Truck, Plus,
 } from 'lucide-react';
@@ -37,7 +38,16 @@ function barGeometry(a: (typeof SCHEDULE)[number]) {
 }
 
 export function SchedulePage() {
+  /*
+   * The four boxes each counted something one of the two tabs below already
+   * lists. The critical-path one narrows the schedule to the activities with no
+   * float rather than only saying how many there are.
+   */
+  const [tab, setTab] = useState('gantt');
+  const [criticalOnly, setCriticalOnly] = useState(false);
+  const showTab = (next: string) => { setTab(next); if (next !== 'gantt') setCriticalOnly(false); };
   const critical = SCHEDULE.filter((a) => a.isCritical);
+  const shownActivities = criticalOnly ? critical : SCHEDULE;
   const complete = SCHEDULE.filter((a) => a.percentComplete >= 1);
   const inProgress = SCHEDULE.filter((a) => a.percentComplete > 0 && a.percentComplete < 1);
   const criticalInProgress = critical.filter((a) => a.percentComplete > 0 && a.percentComplete < 1);
@@ -68,16 +78,26 @@ export function SchedulePage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Activities" value={SCHEDULE.length} icon={<CalendarDays className="size-4" />}
-          hint={`${complete.length} complete, ${inProgress.length} in progress`} />
+          hint={`${complete.length} complete, ${inProgress.length} in progress`}
+          onClick={() => { setTab('gantt'); setCriticalOnly(false); }}
+          active={tab === 'gantt' && !criticalOnly}
+          actionLabel="Show every activity on the schedule" />
         <StatTile label="Critical path" value={critical.length} tone="warn" icon={<AlertTriangle className="size-4" />}
-          hint="zero float — a slip moves the finish date" />
+          hint="zero float — a slip moves the finish date"
+          onClick={() => { setTab('gantt'); setCriticalOnly((v) => !v); }}
+          active={criticalOnly}
+          actionLabel="Show only the activities on the critical path" />
         <StatTile label="Crews assigned" value={assignedPeople.length} icon={<Users2 className="size-4" />}
-          hint={`across ${new Set(assignedPeople.map((e) => e.assignedProject)).size} projects`} />
+          hint={`across ${new Set(assignedPeople.map((e) => e.assignedProject)).size} projects`}
+          onClick={() => showTab('resources')} active={tab === 'resources'}
+          actionLabel="Show the crew loading" />
         <StatTile label="Equipment assigned" value={assignedAssets.length} icon={<Truck className="size-4" />}
-          hint={`${ASSETS.length - assignedAssets.length} unassigned`} />
+          hint={`${ASSETS.length - assignedAssets.length} unassigned`}
+          onClick={() => showTab('resources')} active={tab === 'resources'}
+          actionLabel="Show the equipment assignments" />
       </div>
 
-      <Tabs defaultValue="gantt">
+      <Tabs value={tab} onValueChange={showTab}>
         <TabsList>
           <TabsTrigger value="gantt">Schedule</TabsTrigger>
           <TabsTrigger value="resources">Resource loading</TabsTrigger>
@@ -98,6 +118,17 @@ export function SchedulePage() {
                 . Three holidays fall inside it — Memorial Day, Independence Day observed and Labor
                 Day — and the schedule works around them rather than through them.
               </CardDescription>
+              {criticalOnly ? (
+                <div className="flex flex-wrap items-center gap-3 pt-2 text-sm text-charcoal-600">
+                  <span>
+                    Showing the {critical.length} {critical.length === 1 ? 'activity' : 'activities'} with
+                    zero float.
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => setCriticalOnly(false)}>
+                    Show all {SCHEDULE.length}
+                  </Button>
+                </div>
+              ) : null}
             </CardHeader>
             <CardContent className="p-0">
               <div className="w-full overflow-x-auto">
@@ -112,7 +143,7 @@ export function SchedulePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {SCHEDULE.map((a) => {
+                    {shownActivities.map((a) => {
                       const g = barGeometry(a);
                       return (
                         <tr key={a.id} className="border-b border-charcoal-200 last:border-0 hover:bg-charcoal-50/70">

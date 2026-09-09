@@ -56,6 +56,8 @@ function DemonstrationWorkspace() {
    * Edge Function that hosts the engine answers.
    */
   const [pricing, setPricing] = useState(false);
+  /* Which tab the boxes above it can open. */
+  const [tab, setTab] = useState('lines');
   const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
   const canPrice = can('estimates.write');
 
@@ -153,20 +155,78 @@ function DemonstrationWorkspace() {
         </Alert>
       ) : null}
 
+      {/*
+        * Five figures, and until now not one of them said where it came from.
+        * Two of them are totals of a table that is already on this page, so
+        * they open it; the other three are the engine's own arithmetic, with
+        * nothing below to point at, so they say what they are made of in
+        * place.
+        */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatTile label="Bid price" value={money(e.bidPrice)} hint={`rounded up ${money(e.bidRoundingAdjustment)}`} />
-        <StatTile label="Direct cost" value={money(e.totalDirectCost)} hint={`+ ${money(e.indirectCost)} indirect`} />
+        <StatTile label="Bid price" value={money(e.bidPrice)}
+          hint={`rounded up ${money(e.bidRoundingAdjustment)}`}
+          onClick={() => setTab('pricing')} active={tab === 'pricing'}
+          actionLabel="Show how the bid price was priced" />
+        <StatTile label="Direct cost" value={money(e.totalDirectCost)}
+          hint={`+ ${money(e.indirectCost)} indirect`}
+          onClick={() => setTab('composition')} active={tab === 'composition'}
+          actionLabel="Show what the direct cost is made of" />
         <StatTile label="Gross margin" value={percent(e.price.grossMarginPercent)} tone="success"
-          hint={`${percent(e.price.effectiveMarkupPercent)} markup on cost`} />
+          hint={`${percent(e.price.effectiveMarkupPercent)} markup on cost`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Margin on the price, not markup on the cost — the same money said two ways, and
+                the two numbers are never equal. {money(e.bidPrice - e.totalDirectCost - e.indirectCost)} of
+                the {money(e.bidPrice)} bid is margin, which is {percent(e.price.grossMarginPercent)} of
+                what the customer pays and {percent(e.price.effectiveMarkupPercent)} of what the
+                work costs.
+              </p>
+              <p>
+                Cost here is everything the engine priced: {money(e.totalDirectCost)} direct
+                and {money(e.indirectCost)} indirect. Contingency is inside it, so this is margin
+                after risk rather than before it.
+              </p>
+            </div>
+          } />
         <StatTile label="Weighted confidence" value={e.weightedConfidence}
           tone={e.weightedConfidence >= 90 ? 'success' : e.weightedConfidence >= 80 ? 'warn' : 'danger'}
-          hint={titleCase(e.confidenceBand)} />
+          hint={titleCase(e.confidenceBand)}
+          detail={
+            <div className="space-y-2">
+              <p>
+                Each line carries a confidence score, and they are weighted by what the line is
+                worth rather than averaged. A guessed allowance on a $400 line and a quoted
+                subcontract on a $400,000 one are not equally uncertain, and an unweighted
+                average would say they were.
+              </p>
+              <p>
+                {e.weightedConfidence} puts this estimate in
+                the {titleCase(e.confidenceBand).toLowerCase()} band, and the band is what sets
+                the contingency beside it.
+              </p>
+            </div>
+          } />
         <StatTile label="Contingency" value={percent(e.appliedContingency, 0)}
           tone={e.contingencySource === 'confidence_band' ? 'warn' : 'neutral'}
-          hint={`from the ${e.contingencySource.replace(/_/g, ' ')}`} />
+          hint={`from the ${e.contingencySource.replace(/_/g, ' ')}`}
+          detail={
+            <div className="space-y-2">
+              <p>
+                {e.contingencySource === 'confidence_band'
+                  ? 'Set by the confidence band above rather than typed in: the estimate did not carry its own contingency, so the engine applied the one its band calls for.'
+                  : `Taken from the ${e.contingencySource.replace(/_/g, ' ')}, which overrides what the confidence band alone would have applied.`}
+              </p>
+              <p>
+                It is applied to direct cost, so it is inside the cost the markup is taken on
+                rather than a line added at the end — {money(e.totalDirectCost * e.appliedContingency)} on
+                this estimate.
+              </p>
+            </div>
+          } />
       </div>
 
-      <Tabs defaultValue="lines">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="lines">Scope &amp; lines</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>

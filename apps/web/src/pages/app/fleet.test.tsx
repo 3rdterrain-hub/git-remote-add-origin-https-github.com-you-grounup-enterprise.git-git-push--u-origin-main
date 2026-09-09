@@ -122,3 +122,52 @@ describe('the fleet page', () => {
     await waitFor(() => expect(screen.getByText('Demonstration data')).toBeInTheDocument());
   });
 });
+
+describe('the boxes across the top', () => {
+  beforeEach(() => {
+    hoisted.configured = true;
+    hoisted.assetsError = null;
+    hoisted.assets = [asset];
+    hoisted.maintenance = [];
+  });
+
+  it('narrows the asset list to what is down or in the shop', async () => {
+    hoisted.assets = [
+      asset,
+      { ...asset, id: 'a-2', assetNumber: 'DZ-2205', name: 'Dozer', status: 'down' },
+    ];
+    const user = userEvent.setup();
+    renderPage(<FleetPage />);
+    await waitFor(() => expect(screen.getByText('DZ-2205')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button',
+      { name: 'List the machines that are down or in the shop' }));
+    await waitFor(() =>
+      expect(screen.getByText(/The 1 machine that is down or in the shop/)).toBeInTheDocument());
+    expect(screen.getByText('DZ-2205')).toBeInTheDocument();
+    expect(screen.queryByText('EX-4412')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show all 2' }));
+    await waitFor(() => expect(screen.getByText('EX-4412')).toBeInTheDocument());
+  });
+
+  it('opens the utilization tab from the tile that counts hours', async () => {
+    const user = userEvent.setup();
+    renderPage(<FleetPage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Show the hours each machine ran' }))
+        .toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Show the hours each machine ran' }));
+    expect(screen.getByRole('tab', { name: 'Utilization' })).toHaveAttribute('data-state', 'active');
+  });
+
+  it('says what the owned fleet value excludes', async () => {
+    const user = userEvent.setup();
+    renderPage(<FleetPage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'What is behind Owned fleet value' }))
+        .toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'What is behind Owned fleet value' }));
+    expect(screen.getByText(/nothing here depreciates a machine/)).toBeInTheDocument();
+  });
+});

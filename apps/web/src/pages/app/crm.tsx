@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { UserPlus, TrendingUp, Trophy, XCircle, Building2, Mail, Phone } from 'lucide-react';
-import { PageHeader, StatTile } from '@/components/layout/page';
+import { PageHeader, StatTile, useAnswerBelow } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,9 @@ export function CrmPage() {
 }
 
 function DemonstrationCrm() {
+  /* Which tab the boxes across the top open, and the card one of them goes to. */
+  const [tab, setTab] = useState('opportunities');
+  const { showing, show } = useAnswerBelow();
   const openOpps = OPPORTUNITIES.filter((o) => !['won', 'lost'].includes(o.stage));
   const pipeline = openOpps.reduce((a, o) => a + o.value, 0);
   const weighted = openOpps.reduce((a, o) => a + o.value * o.probability, 0);
@@ -41,16 +45,39 @@ function DemonstrationCrm() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Open pipeline" value={moneyCompact(pipeline)} icon={<TrendingUp className="size-4" />}
-          hint={`${openOpps.length} live opportunities`} />
+          hint={`${openOpps.length} live opportunities`}
+          onClick={() => show('pipeline-by-stage')} active={showing === 'pipeline-by-stage'}
+          actionLabel="Show the pipeline broken down by stage" />
         <StatTile label="Weighted pipeline" value={moneyCompact(weighted)} icon={<TrendingUp className="size-4" />}
-          hint="value × probability" />
+          hint="value × probability"
+          detail={
+            <div className="space-y-2">
+              <p>
+                Each live opportunity multiplied by its own probability of being won, then added up.
+                It is not a forecast of any one job — no job lands at 40% — it is what the whole
+                pipeline is worth if every probability on it is honest.
+              </p>
+              <p>
+                The difference from the open pipeline beside it
+                is {moneyCompact(pipeline - weighted)}, which is the part of the pipeline that is
+                expected not to close. Capacity is planned against this number; nothing is planned
+                against the other one.
+              </p>
+            </div>
+          } />
         <StatTile label="Customers" value={CUSTOMERS.length} icon={<Building2 className="size-4" />}
-          hint={`${moneyCompact(CUSTOMERS.reduce((a, c) => a + c.wonValue, 0))} lifetime awarded`} />
-        <StatTile label="Win rate" value="62%" tone="success" icon={<Trophy className="size-4" />}
-          hint={`${won.length} won, ${lost.length} lost, last 12 months`} />
+          hint={`${moneyCompact(CUSTOMERS.reduce((a, c) => a + c.wonValue, 0))} lifetime awarded`}
+          onClick={() => setTab('customers')} active={tab === 'customers'}
+          actionLabel="List the customers" />
+        <StatTile label="Win rate"
+          value={won.length + lost.length ? percent(won.length / (won.length + lost.length), 0) : '—'}
+          tone="success" icon={<Trophy className="size-4" />}
+          hint={`${won.length} won, ${lost.length} lost`}
+          onClick={() => setTab('lost')} active={tab === 'lost'}
+          actionLabel="Show the win and loss analysis" />
       </div>
 
-      <Card>
+      <Card id="pipeline-by-stage">
         <CardHeader>
           <CardTitle>Pipeline by stage</CardTitle>
           <CardDescription>Value in each stage, and how much of it is weighted by probability.</CardDescription>
@@ -73,7 +100,7 @@ function DemonstrationCrm() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="opportunities">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>

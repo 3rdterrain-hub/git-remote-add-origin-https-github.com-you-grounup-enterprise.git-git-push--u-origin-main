@@ -186,3 +186,29 @@ describe('the finance page', () => {
     await waitFor(() => expect(screen.getByText('Demonstration data')).toBeInTheDocument());
   });
 });
+
+describe('the boxes across the top', () => {
+  beforeEach(() => { hoisted.configured = true; });
+
+  it('opens the work in progress from the tile that summed it', async () => {
+    const user = userEvent.setup();
+    renderPage(<FinancePage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button',
+        { name: 'Show the work in progress this is summed from' })).toBeInTheDocument());
+    await user.click(screen.getByRole('button',
+      { name: 'Show the work in progress this is summed from' }));
+    expect(screen.getByRole('tab', { name: 'Work in progress' }))
+      .toHaveAttribute('data-state', 'active');
+  });
+
+  it('says what retainage is, since no tab lists it', async () => {
+    const user = userEvent.setup();
+    renderPage(<FinancePage />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'What is behind Retainage held' }))
+        .toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'What is behind Retainage held' }));
+    expect(screen.getByText(/an asset the company owns and cannot spend/)).toBeInTheDocument();
+  });
+});

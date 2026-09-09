@@ -63,3 +63,19 @@ describe('the endpoint list cannot drift from the gateway', () => {
     expect(screen.getAllByText('/v1/equipment/{equipmentId}/hours')).toHaveLength(2);
   });
 });
+
+describe('the boxes across the top', () => {
+  it('opens the endpoint list from the tile that counts endpoints', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'List the published endpoints' }));
+    expect(screen.getByRole('tab', { name: 'Endpoints' })).toHaveAttribute('data-state', 'active');
+  });
+
+  it('says what counts as a failed request, which no list on the page shows', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Error rate' }));
+    expect(screen.getByText(/A refusal counts as a failure here/)).toBeInTheDocument();
+  });
+});

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { KeyRound, Plus, ShieldCheck, Activity, Ban, Copy, BookOpen, Gauge } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -52,6 +53,8 @@ const METHOD_TONE: Record<string, string> = {
 };
 
 export function ApiAccessPage() {
+  /* Which tab the two countable boxes above open. */
+  const [tab, setTab] = useState('keys');
   const active = KEYS.filter((k) => !k.revokedOn);
   const calls = KEYS.reduce((a, k) => a + k.calls30d, 0);
   const errors = KEYS.reduce((a, k) => a + k.calls30d * k.errorRate, 0);
@@ -77,16 +80,37 @@ export function ApiAccessPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Active keys" value={active.length} icon={<KeyRound className="size-4" />}
-          hint={`${KEYS.length - active.length} revoked and retained`} />
-        <StatTile label="Calls, 30 days" value={integer(calls)} icon={<Activity className="size-4" />} />
+          hint={`${KEYS.length - active.length} revoked and retained`}
+          onClick={() => setTab('keys')} active={tab === 'keys'}
+          actionLabel="List the keys, live and revoked" />
+        <StatTile label="Calls, 30 days" value={integer(calls)} icon={<Activity className="size-4" />}
+          detail={
+            <p>
+              Requests across every key in the last thirty days, revoked keys included — a key that
+              was revoked on Tuesday still made the calls it made on Monday, and removing them would
+              hide the traffic that caused the revocation. Each key's own share is on the keys tab,
+              beside the rate limit it is counted against.
+            </p>
+          } />
         <StatTile label="Error rate" value={percent(calls ? errors / calls : 0, 2)}
           tone={errors / Math.max(calls, 1) < 0.01 ? 'success' : 'warn'}
-          hint={`${integer(Math.round(errors))} failed requests`} />
+          hint={`${integer(Math.round(errors))} failed requests`}
+          detail={
+            <p>
+              Failed requests over total requests. A refusal counts as a failure here — a call that
+              asked for another company's data, or reached past its key's scopes, is a failure of the
+              integration and not of the platform, and it is exactly the thing worth noticing. A rate
+              that climbs after a key is issued usually means the integration is asking for something
+              its scopes do not cover.
+            </p>
+          } />
         <StatTile label="Endpoints published" value={ENDPOINTS.length} icon={<Gauge className="size-4" />}
-          hint="versioned at /v1" />
+          hint="versioned at /v1"
+          onClick={() => setTab('endpoints')} active={tab === 'endpoints'}
+          actionLabel="List the published endpoints" />
       </div>
 
-      <Tabs defaultValue="keys">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="keys">Keys ({KEYS.length})</TabsTrigger>
           <TabsTrigger value="endpoints">Endpoints</TabsTrigger>

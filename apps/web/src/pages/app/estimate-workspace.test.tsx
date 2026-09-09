@@ -99,3 +99,49 @@ describe('estimate workspace', () => {
     expect(within(panel).getByText('Engine notices')).toBeInTheDocument();
   });
 });
+
+/*
+ * Five figures across the top, and until now not one of them said where it came
+ * from. Two are totals of a table on this page, so they open it; the other three
+ * are the engine's own arithmetic and say what they are made of.
+ */
+describe('the boxes across the top', () => {
+  it('opens the pricing tab from the bid price', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'Show how the bid price was priced' }));
+    expect(screen.getByRole('tab', { name: 'Pricing' })).toHaveAttribute('data-state', 'active');
+  });
+
+  it('opens the composition tab from the direct cost', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button',
+      { name: 'Show what the direct cost is made of' }));
+    expect(screen.getByRole('tab', { name: 'Composition' }))
+      .toHaveAttribute('data-state', 'active');
+  });
+
+  it('says margin on price and markup on cost are the same money said twice', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Gross margin' }));
+    expect(screen.getByText(/the same money said two ways, and/)).toBeInTheDocument();
+    expect(screen.getByText(/margin after risk rather than before it/)).toBeInTheDocument();
+  });
+
+  it('says confidence is weighted by line value rather than averaged', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Weighted confidence' }));
+    expect(screen.getByText(/weighted by what the line is\s+worth rather than averaged/))
+      .toBeInTheDocument();
+  });
+
+  it('says where the contingency came from and what it applies to', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Contingency' }));
+    expect(screen.getByText(/inside the cost the markup is taken on/)).toBeInTheDocument();
+  });
+});

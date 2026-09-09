@@ -7,6 +7,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderPage } from '@/test/render';
 
 const hoisted = vi.hoisted(() => ({
@@ -106,5 +107,123 @@ describe('the projects screen', () => {
     hoisted.rows = [];
     renderPage(<ProjectsPage />);
     await waitFor(() => expect(screen.getByText('No projects yet')).toBeInTheDocument());
+  });
+});
+
+/*
+ * Each of the four boxes summed a column of the table below it and then left
+ * the reader to find the rows that made the number. Each is now the filter for
+ * its own figure.
+ */
+describe('the boxes across the top', () => {
+  const second = {
+    ...project, id: 'p-2', number: 'PRJ-2026-012', name: 'Sylvania Transfer Station',
+    customer: 'Lucas County', status: 'closed',
+    billedToDate: 1_050_000, costToComplete: -75_000, openChangeOrders: 0, openRfis: 0,
+  };
+
+  beforeEach(() => {
+    hoisted.configured = true; hoisted.fail = null;
+    hoisted.rows = [project, second];
+  });
+
+  it('leaves the tiles counting everything until one is pressed', async () => {
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument());
+    expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument();
+    expect(screen.getByText('Projects')).toBeInTheDocument();
+  });
+
+  it('shows only the active projects from the contract value tile', async () => {
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'List the active projects' }));
+    await waitFor(() => expect(screen.getByText('Active projects')).toBeInTheDocument());
+    expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument();
+    expect(screen.queryByText('PRJ-2026-012')).not.toBeInTheDocument();
+  });
+
+  it('shows only what is committed past its budget, which is the point of the tile',
+    async () => {
+      const user = userEvent.setup();
+      renderPage(<ProjectsPage />);
+      await waitFor(() => expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument());
+
+      await user.click(screen.getByRole('button',
+        { name: 'List the projects committed past their budget' }));
+      await waitFor(() =>
+        expect(screen.getByText('Projects committed past their budget')).toBeInTheDocument());
+      expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument();
+      expect(screen.queryByText('PRJ-2026-011')).not.toBeInTheDocument();
+    });
+
+  it('shows what is left to bill, not what has been billed', async () => {
+    // The second project is billed to its full contract value; the first is not.
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button',
+      { name: 'List the projects with contract value left to bill' }));
+    await waitFor(() => expect(
+      screen.getByText('Projects with contract value left to bill')).toBeInTheDocument());
+    expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument();
+    expect(screen.queryByText('PRJ-2026-012')).not.toBeInTheDocument();
+  });
+
+  it('shows the projects an open change order or RFI belongs to', async () => {
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button',
+      { name: 'List the projects with an open change order or RFI' }));
+    await waitFor(() => expect(
+      screen.getByText('Projects with an open change order or RFI')).toBeInTheDocument());
+    expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument();
+    expect(screen.queryByText('PRJ-2026-012')).not.toBeInTheDocument();
+  });
+
+  it('marks the pressed tile and puts everything back when it is pressed again', async () => {
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+
+    const tile = screen.getByRole('button', { name: 'List the active projects' });
+    expect(tile).toHaveAttribute('aria-pressed', 'false');
+    await user.click(tile);
+    await waitFor(() => expect(
+      screen.getByRole('button', { name: 'List the active projects' }))
+      .toHaveAttribute('aria-pressed', 'true'));
+
+    await user.click(screen.getByRole('button', { name: 'List the active projects' }));
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+  });
+
+  it('offers a way back that says how many are being hidden', async () => {
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'List the active projects' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Show all 2' })).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Show all 2' }));
+    await waitFor(() => expect(screen.getByText('PRJ-2026-012')).toBeInTheDocument());
+  });
+
+  it('says the filter found nothing rather than showing an empty table', async () => {
+    hoisted.rows = [{ ...project, openChangeOrders: 0, openRfis: 0 }];
+    const user = userEvent.setup();
+    renderPage(<ProjectsPage />);
+    await waitFor(() => expect(screen.getByText('PRJ-2026-011')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button',
+      { name: 'List the projects with an open change order or RFI' }));
+    await waitFor(() =>
+      expect(screen.getByText('Nothing is open on any project')).toBeInTheDocument());
+    expect(screen.getByText('None of the 1 project on this page match.')).toBeInTheDocument();
   });
 });

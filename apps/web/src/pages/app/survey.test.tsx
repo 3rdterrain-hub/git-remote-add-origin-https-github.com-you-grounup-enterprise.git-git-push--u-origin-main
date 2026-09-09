@@ -93,3 +93,45 @@ describe('machine control', () => {
     expect(screen.getAllByText('Superseded')).toHaveLength(superseded.length + 1);
   });
 });
+
+/*
+ * Cut in bank yards and fill in compacted yards are the same dirt in different
+ * units, and the page never said so anywhere a reader would look.
+ */
+describe('the boxes across the top', () => {
+  it('explains why cut and fill are not the same unit', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'What is behind Fill' }));
+    expect(screen.getByText(/different units of the same dirt/)).toBeInTheDocument();
+    expect(screen.getByText(/why a job with equal cut and fill is not balanced/))
+      .toBeInTheDocument();
+  });
+
+  it('sends the cut figure to the card that turns it into a priced quantity', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const tile = screen.getByRole('button',
+      { name: 'Show how the measured cut becomes a priced quantity' });
+    await user.click(tile);
+    expect(tile).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText('Measured to priced')).toBeInTheDocument();
+  });
+
+  it('narrows the machine control files to the published ones', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('tab', { name: /Machine control/ }));
+    await user.click(screen.getByRole('button', { name: 'List the published designs' }));
+
+    expect(screen.getByText('Showing the published designs.')).toBeInTheDocument();
+    /*
+     * Asserted on the version rather than on the name: the superseded file is
+     * version 2 of a design whose version 3 is published, and both rows carry
+     * the same name — which is the whole reason a stale file left on a dozer is
+     * hard to spot in the first place.
+     */
+    expect(screen.queryByText('v2')).not.toBeInTheDocument();
+    expect(screen.getByText('v3')).toBeInTheDocument();
+  });
+});
