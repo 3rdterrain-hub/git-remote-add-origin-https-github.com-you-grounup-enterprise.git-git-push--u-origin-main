@@ -107,28 +107,114 @@ export const loadFindings = (documentVersionId: string): Query<Finding[]> =>
       .eq('document_version_id', documentVersionId)
       .order('confidence', { ascending: false })) as Array<Record<string, unknown>>;
 
-    return rows.map((r) => ({
-      id: String(r.id),
-      findingType: String(r.finding_type),
-      title: String(r.title),
-      description: String(r.description ?? ''),
-      confidence: Number(r.confidence ?? 0),
-      state: String(r.state),
-      severity: (r.severity as string | null) ?? null,
-      quantity: num(r.quantity),
-      unit: (r.unit as string | null) ?? null,
-      method: (r.method as string | null) ?? null,
-      sheetReferences: (r.sheet_references as string[]) ?? [],
-      specificationReferences: (r.specification_references as string[]) ?? [],
-      citations: Array.isArray(r.citations)
-        ? (r.citations as Finding['citations']) : [],
-      model: (r.model as string | null) ?? null,
-      documentName: (r.document_name as string | null) ?? null,
-      reviewNote: (r.review_note as string | null) ?? null,
-      appliedEntityId: (r.applied_entity_id as string | null) ?? null,
-      createdAt: String(r.created_at),
-    }));
+    return rows.map(toFinding);
   };
+
+/** One row of `my_ai_findings`, in the shape a screen reads. */
+function toFinding(r: Record<string, unknown>): Finding {
+  return {
+    id: String(r.id),
+    findingType: String(r.finding_type),
+    title: String(r.title),
+    description: String(r.description ?? ''),
+    confidence: Number(r.confidence ?? 0),
+    state: String(r.state),
+    severity: (r.severity as string | null) ?? null,
+    quantity: num(r.quantity),
+    unit: (r.unit as string | null) ?? null,
+    method: (r.method as string | null) ?? null,
+    sheetReferences: (r.sheet_references as string[]) ?? [],
+    specificationReferences: (r.specification_references as string[]) ?? [],
+    citations: Array.isArray(r.citations) ? (r.citations as Finding['citations']) : [],
+    model: (r.model as string | null) ?? null,
+    documentName: (r.document_name as string | null) ?? null,
+    reviewNote: (r.review_note as string | null) ?? null,
+    appliedEntityId: (r.applied_entity_id as string | null) ?? null,
+    createdAt: String(r.created_at),
+  };
+}
+
+/**
+ * Every finding this company has, newest first.
+ *
+ * The per-document loader above answers "what did the model find in this plan
+ * set", which is the question inside a takeoff. The Plans & Specs screen asks
+ * the other one — "what is waiting on a person" — across every document, and
+ * had no way to ask it: the page rendered a fixture while `my_ai_findings` sat
+ * there with row level security already on it.
+ *
+ * Ordered by state then confidence, so what is waiting comes first and the
+ * model's own strongest claim comes first within it. Capped, because a company
+ * three years in has tens of thousands and a page that loads them all is a page
+ * nobody opens twice.
+ */
+export const loadAllFindings: Query<Finding[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_ai_findings')
+    .select('id, finding_type, title, description, confidence, state, severity, quantity, unit, method, sheet_references, specification_references, citations, model, document_name, review_note, applied_entity_id, created_at')
+    .order('created_at', { ascending: false })
+    .limit(300)) as Array<Record<string, unknown>>;
+  return rows.map(toFinding);
+};
+
+export interface IngestionJob {
+  id: string;
+  documentId: string;
+  documentVersionId: string;
+  stage: string;
+  progress: number;
+  pagesTotal: number | null;
+  pagesProcessed: number;
+  findingsCreated: number;
+  model: string | null;
+  promptVersion: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  costEstimate: number | null;
+  attempts: number;
+  errorMessage: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  durationMs: number | null;
+  createdAt: string;
+}
+
+/**
+ * What the pipeline has run, and what it is running.
+ *
+ * A failed job stays on this list with the message that failed it — the table
+ * refuses to record a failure without one, precisely so nobody has to re-run it
+ * blind to find out.
+ */
+export const loadIngestionJobs: Query<IngestionJob[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('ingestion_jobs')
+    .select('id, document_id, document_version_id, stage, progress, pages_total, pages_processed, findings_created, model, prompt_version, input_tokens, output_tokens, cost_estimate, attempts, error_message, started_at, completed_at, duration_ms, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50)) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => ({
+    id: String(r.id),
+    documentId: String(r.document_id),
+    documentVersionId: String(r.document_version_id),
+    stage: String(r.stage),
+    progress: Number(r.progress ?? 0),
+    pagesTotal: num(r.pages_total),
+    pagesProcessed: Number(r.pages_processed ?? 0),
+    findingsCreated: Number(r.findings_created ?? 0),
+    model: (r.model as string | null) ?? null,
+    promptVersion: (r.prompt_version as string | null) ?? null,
+    inputTokens: num(r.input_tokens),
+    outputTokens: num(r.output_tokens),
+    costEstimate: num(r.cost_estimate),
+    attempts: Number(r.attempts ?? 0),
+    errorMessage: (r.error_message as string | null) ?? null,
+    startedAt: (r.started_at as string | null) ?? null,
+    completedAt: (r.completed_at as string | null) ?? null,
+    durationMs: num(r.duration_ms),
+    createdAt: String(r.created_at),
+  }));
+};
 
 /**
  * Put a file in storage and file the rows that make it a document.

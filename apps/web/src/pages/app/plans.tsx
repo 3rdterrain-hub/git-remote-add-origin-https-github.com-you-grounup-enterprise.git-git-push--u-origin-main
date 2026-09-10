@@ -1,97 +1,201 @@
-import { useState } from 'react';
+/**
+ * Plans & Specs, on the company's own documents.
+ *
+ * Everything behind this screen was built and none of it had a door here.
+ * `documents`, `document_versions` and `document_sheets` since migration 0005;
+ * `ai_findings` with its citation constraint and its acceptance trigger since
+ * 0008; `ingestion_jobs` since 0019; `my_documents`, `my_ai_findings`,
+ * `accept_finding_as_line` and `reject_finding` since 0119; and an
+ * `ai-analyze-document` Edge Function to drive it. The data layer that reads
+ * all of it has existed since the takeoff panel was written.
+ *
+ * This page rendered `AI_FINDINGS`, `DOCUMENTS` and `INGESTION_JOBS` out of
+ * `src/data`. So the one screen in the application named for the subsystem was
+ * the one place it could not be reached: the whole of it was available from
+ * inside an estimate line's takeoff panel and nowhere else, and every signed-in
+ * customer saw the same five sample findings about somebody else's parking lot.
+ *
+ * Two rules are the point of the screen and are visible on it rather than
+ * implied:
+ *
+ *   * **RULE-008 — AI proposes, humans accept.** Nothing here reaches an
+ *     estimate until a person with `ai.accept_findings` puts it there, and the
+ *     acceptance is recorded against that person. The database enforces it too:
+ *     a finding cannot be born accepted.
+ *   * **A factual claim cites the sheet it came from.** The citation is shown
+ *     on the finding, not hidden behind a hover, because a quantity whose
+ *     source nobody can check is a quantity nobody should price.
+ */
+import { useMemo, useState } from 'react';
 import {
-  FileUp, FileText, Bot, Check, X, Search, AlertTriangle, Layers, ShieldCheck, Quote,
-  Cpu, CircleDollarSign, RefreshCw, CheckCircle2, Loader2, Ban,
+  FileText, FileUp, Bot, Layers, ShieldCheck, Search, Loader2, Check, X, Cpu,
+  RefreshCw, CircleDollarSign, AlertTriangle,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AI_FINDINGS, DOCUMENTS, type AiFinding } from '@/data/operations';
-import { INGESTION_JOBS, PIPELINE_STAGES, aiUsageSummary, type IngestionJob } from '@/data/ingestion';
-import { USER } from '@/data/demo';
-import { date, dateTime, integer, titleCase, money, percent, qty, plural } from '@/lib/format';
 import { Alert, EmptyState, Progress, Separator } from '@/components/ui/misc';
+import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
+import { useQuery, messageFor } from '@/lib/data/query';
+import { supabase } from '@/lib/supabase';
+import {
+  loadPlanDocuments, loadAllFindings, loadIngestionJobs,
+  uploadPlanSet, countPdfPages, analyzeDocument, acceptFinding, rejectFinding,
+  type Finding, type IngestionJob, type PlanDocument,
+} from '@/lib/data/plans';
+import { loadEstimates } from '@/lib/data/estimates';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { date, dateTime, integer, titleCase, money, percent, qty, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { usePermissions } from '@/lib/data/session';
+
+/** The pipeline, in the order `ingestion_jobs.stage` runs it. */
+const STAGES = [
+  ['queued', 'Queued', 'Accepted and waiting for a worker.'],
+  ['virus_scan', 'Virus scan', 'Nothing is opened before it is scanned.'],
+  ['splitting', 'Splitting', 'One row per sheet, so a finding can name one.'],
+  ['ocr', 'OCR', 'Scanned sheets become text that can be searched and cited.'],
+  ['classifying', 'Classifying', 'Which discipline each sheet belongs to.'],
+  ['extracting', 'Extracting', 'Scope, quantities and conflicts, each with its citation.'],
+  ['indexing', 'Indexing', 'Searchable, and filtered by what the reader may see.'],
+] as const;
+
+const STAGE_ORDER = STAGES.map((s) => s[0]) as readonly string[];
+
+const SEVERITY: Record<string, 'default' | 'warn' | 'danger'> = {
+  low: 'default', moderate: 'warn', high: 'danger', critical: 'danger',
+};
 
 export function PlansPage() {
-  const [findings, setFindings] = useState<AiFinding[]>(AI_FINDINGS);
-  const [query, setQuery] = useState('');
-  /*
-   * The four boxes across the top each counted something one of the three tabs
-   * below already lists. Two of them count findings in a particular state, so
-   * they narrow the findings list to that state rather than only naming a
-   * number and leaving the reader to read every card looking for it.
-   */
-  const [tab, setTab] = useState('findings');
-  const [state, setState] = useState<'all' | 'proposed' | 'accepted'>('all');
+  const { companyId } = useCompanyId();
+  const docsQ = useQuery(loadPlanDocuments, []);
+  const findingsQ = useQuery(loadAllFindings, []);
+  const jobsQ = useQuery(loadIngestionJobs, []);
+  const estimatesQ = useQuery(loadEstimates, []);
 
   const { can } = usePermissions();
   const canAccept = can('ai.accept_findings');
+  const canUpload = can('documents.write');
+
+  const [tab, setTab] = useState('findings');
+  const [state, setState] = useState<'all' | 'proposed' | 'accepted'>('all');
+  const [query, setQuery] = useState('');
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const documents = docsQ.status === 'ready' ? docsQ.data : [];
+  const findings = findingsQ.status === 'ready' ? findingsQ.data : [];
+  const jobs = jobsQ.status === 'ready' ? jobsQ.data : [];
+  const estimates = estimatesQ.status === 'ready' ? estimatesQ.data : [];
+  const demo = docsQ.status === 'demonstration';
+
   const pending = findings.filter((f) => f.state === 'proposed');
   const accepted = findings.filter((f) => f.state === 'accepted');
-  const activeDocs = DOCUMENTS.filter((d) => !d.superseded);
+  const sheets = documents.reduce((a, d) => a + (d.pageCount ?? 0), 0);
 
-  /**
-   * Accepting a finding is the only path from AI output into business data.
-   * The reviewer is recorded because RULE-008 requires an identified human on
-   * every acceptance — the database rejects the write otherwise.
-   */
-  function decide(id: string, state: 'accepted' | 'rejected') {
-    setFindings((prev) => prev.map((f) => (f.id === id ? { ...f, state, reviewedBy: USER.name } : f)));
-  }
-
-  const visible = findings
+  const visible = useMemo(() => findings
     .filter((f) => state === 'all' || f.state === state)
-    .filter((f) =>
-      !query || `${f.title} ${f.description} ${f.citations.join(' ')}`.toLowerCase().includes(query.toLowerCase()));
+    .filter((f) => !query
+      || `${f.title} ${f.description} ${f.sheetReferences.join(' ')} ${f.specificationReferences.join(' ')} ${f.documentName ?? ''}`
+        .toLowerCase().includes(query.toLowerCase())),
+  [findings, state, query]);
 
-  /* One tile press does both: open the findings tab and narrow it. */
+  const refresh = () => { findingsQ.refetch(); docsQ.refetch(); jobsQ.refetch(); };
+
   const showFindings = (next: 'proposed' | 'accepted') => {
     setTab('findings');
     setState((current) => (current === next ? 'all' : next));
   };
+
+  async function onUpload(file: File) {
+    if (!supabase || !companyId) return;
+    setBusy('upload'); setError(null); setNotice(null);
+    try {
+      const pages = await countPdfPages(file);
+      await uploadPlanSet(supabase, { companyId, file, documentType: 'plan_set' });
+      setNotice(pages
+        ? `${file.name} is filed, ${plural(pages, 'sheet')} of it. Read it to get findings.`
+        : `${file.name} is filed. Read it to get findings.`);
+      refresh();
+    } catch (err) { setError(messageFor(err)); }
+    finally { setBusy(null); }
+  }
+
+  async function onAnalyze(d: PlanDocument) {
+    if (!companyId) return;
+    setBusy(d.id); setError(null); setNotice(null);
+    const outcome = await analyzeDocument(companyId, d.currentVersionId);
+    if (outcome.status === 'read') {
+      setNotice(outcome.rejected > 0
+        ? `${outcome.message} ${plural(outcome.rejected, 'claim')} arrived without a citation and ${outcome.rejected === 1 ? 'was' : 'were'} refused before being stored.`
+        : outcome.message);
+      refresh();
+    } else {
+      setError(outcome.message);
+    }
+    setBusy(null);
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Plans & Specs"
         description="Upload the document set, let the agents read it, then approve what enters the estimate. Every AI claim cites the sheet or specification section it came from."
-        actions={<Button><FileUp className="size-4" /> Upload documents</Button>}
+        actions={
+          <UploadButton disabled={!canUpload || !companyId || busy === 'upload'}
+            busy={busy === 'upload'} onFile={onUpload} />
+        }
       />
 
+      {demo ? <DemonstrationNotice what="this page" /> : null}
+      {docsQ.status === 'loading' ? <LoadingState label="Reading your documents" /> : null}
+      {docsQ.status === 'error'
+        ? <ErrorState message={docsQ.message} onRetry={docsQ.refetch} /> : null}
+      {error ? <Alert tone="danger" icon={<AlertTriangle className="size-4" />}>{error}</Alert> : null}
+      {notice ? <Alert tone="success" icon={<Check className="size-4" />}>{notice}</Alert> : null}
+
+      {!canUpload ? (
+        <Alert tone="neutral" icon={<ShieldCheck className="size-4" />}
+          title="You can read the document set but not add to it">
+          Uploading a plan set needs <code className="font-mono text-[12px]">documents.write</code>.
+        </Alert>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Active documents" value={activeDocs.length} icon={<FileText className="size-4" />}
-          hint={`${DOCUMENTS.length - activeDocs.length} superseded, retained for audit`}
+        <StatTile label="Active documents" value={documents.length} icon={<FileText className="size-4" />}
+          hint={documents.length
+            ? `${documents.filter((d) => d.processingState === 'indexed').length} indexed`
+            : 'nothing uploaded yet'}
           onClick={() => setTab('documents')} active={tab === 'documents'}
           actionLabel="Open the document register" />
-        <StatTile label="Sheets indexed" value={integer(activeDocs.reduce((a, d) => a + d.pages, 0))} icon={<Layers className="size-4" />}
+        <StatTile label="Sheets indexed" value={integer(sheets)} icon={<Layers className="size-4" />}
           hint="searchable, permission-filtered"
           detail={
             <div className="space-y-2">
               <p>
-                Every page of the {activeDocs.length} active {activeDocs.length === 1 ? 'document' : 'documents'},
-                read and indexed so a search reaches the sheet rather than the file.
+                Every page of the {plural(documents.length, 'document')} above, split into a row
+                each so a finding can name the sheet it came from rather than the file.
               </p>
               <p>
-                Superseded revisions are not counted — their{' '}
-                {integer(DOCUMENTS.filter((d) => d.superseded).reduce((a, d) => a + d.pages, 0))} pages stay on
-                the record for audit but are not what a takeoff is measured off. What a person can find is also
-                filtered by what they may see, so this is the sheet count, not their sheet count.
+                A plan set with no sheet count was uploaded before the page count was recorded and
+                cannot be taken off until it is counted. What a person can find is also filtered by
+                what they may see, so this is the sheet count, not their sheet count.
               </p>
             </div>
           } />
-        <StatTile label="Findings awaiting review" value={pending.length} tone={pending.length ? 'warn' : 'success'}
-          icon={<Bot className="size-4" />} hint="nothing enters an estimate unapproved"
+        <StatTile label="Findings awaiting review" value={pending.length}
+          tone={pending.length ? 'warn' : 'success'} icon={<Bot className="size-4" />}
+          hint="nothing enters an estimate unapproved"
           onClick={() => showFindings('proposed')}
           active={tab === 'findings' && state === 'proposed'}
           actionLabel="List the findings waiting for a reviewer" />
-        <StatTile label="Findings accepted" value={accepted.length} tone="success" icon={<ShieldCheck className="size-4" />}
-          hint="each recorded against its reviewer"
+        <StatTile label="Findings accepted" value={accepted.length} tone="success"
+          icon={<ShieldCheck className="size-4" />} hint="each recorded against its reviewer"
           onClick={() => showFindings('accepted')}
           active={tab === 'findings' && state === 'accepted'}
           actionLabel="List the findings that have been accepted" />
@@ -107,15 +211,17 @@ export function PlansPage() {
       <Tabs value={tab} onValueChange={(v) => { setTab(v); if (v !== 'findings') setState('all'); }}>
         <TabsList>
           <TabsTrigger value="findings">AI findings ({pending.length} pending)</TabsTrigger>
-          <TabsTrigger value="documents">Document register ({DOCUMENTS.length})</TabsTrigger>
+          <TabsTrigger value="documents">Document register ({documents.length})</TabsTrigger>
           <TabsTrigger value="pipeline">Ingestion pipeline</TabsTrigger>
         </TabsList>
 
+        {/* -------------------------------------------------------- findings */}
         <TabsContent value="findings" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative max-w-md flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-              <Input className="pl-9" placeholder="Search findings and citations…" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <Input className="pl-9" placeholder="Search findings, sheets and citations…"
+                value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
             {state !== 'all' ? (
               <div className="flex items-center gap-2 text-sm text-charcoal-600">
@@ -129,147 +235,386 @@ export function PlansPage() {
             ) : null}
           </div>
 
-          {visible.length === 0 ? (
-            <Card><CardContent className="p-0">
-              <EmptyState icon={<Search className="size-5" />}
-                title={state === 'all'
-                  ? 'No findings match that search'
-                  : state === 'proposed'
-                    ? 'Nothing is waiting for a reviewer'
-                    : 'Nothing has been accepted yet'} />
+          {findingsQ.status === 'loading' ? <LoadingState label="Reading the findings" /> : null}
+          {findingsQ.status === 'error'
+            ? <ErrorState message={findingsQ.message} onRetry={findingsQ.refetch} /> : null}
+
+          {findingsQ.status === 'ready' && visible.length === 0 ? (
+            <Card><CardContent className="p-6">
+              <EmptyState icon={<Bot className="size-5" />}
+                title={findings.length === 0
+                  ? 'Nothing has been read yet'
+                  : state === 'proposed' ? 'Nothing is waiting for a reviewer'
+                    : state === 'accepted' ? 'Nothing has been accepted yet'
+                      : 'No findings match that search'}
+                description={findings.length === 0
+                  ? 'Upload a plan set and read it. What the model finds appears here, each claim citing the sheet it came from, and none of it reaches an estimate until you accept it.'
+                  : undefined} />
             </CardContent></Card>
-          ) : (
-            <div className="space-y-3">
-              {visible.map((f) => (
-                <FindingCard key={f.id} finding={f} canAccept={canAccept} onDecide={decide} />
-              ))}
-            </div>
-          )}
+          ) : null}
+
+          <div className="space-y-3">
+            {visible.map((f) => (
+              <FindingCard key={f.id} finding={f} canAccept={canAccept} estimates={estimates}
+                busy={busy === f.id}
+                onDecide={async (decision, versionId, note) => {
+                  if (!supabase) return;
+                  setBusy(f.id); setError(null); setNotice(null);
+                  try {
+                    if (decision === 'accept') {
+                      await acceptFinding(supabase, f.id, versionId!, note);
+                      setNotice(`"${f.title}" is on the estimate as a line, recorded against you.`);
+                    } else {
+                      await rejectFinding(supabase, f.id, note ?? '');
+                      setNotice(`"${f.title}" is set aside, with your reason on the record.`);
+                    }
+                    refresh();
+                  } catch (err) { setError(messageFor(err)); }
+                  finally { setBusy(null); }
+                }} />
+            ))}
+          </div>
         </TabsContent>
 
+        {/* ------------------------------------------------------- documents */}
         <TabsContent value="documents">
           <Card>
             <CardHeader>
               <CardTitle>Document register</CardTitle>
               <CardDescription>
-                Section 2 — a complete inventory before takeoff begins. A superseded document stays
-                readable for the audit trail but is excluded from pricing.
+                A complete inventory before takeoff begins. A superseded document stays readable for
+                the audit trail; the current version is what a takeoff measures and what the agents
+                read.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Document</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Discipline</TableHead>
-                    <TableHead className="text-right">Ver.</TableHead>
-                    <TableHead className="text-right">Pages</TableHead>
-                    <TableHead>Issued</TableHead>
-                    <TableHead>State</TableHead>
-                    <TableHead className="text-right">Findings</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {DOCUMENTS.map((d) => (
-                    <TableRow key={d.id} className={cn(d.superseded && 'opacity-55')}>
-                      <TableCell className="max-w-72">
-                        <p className="truncate font-medium text-charcoal-900">{d.name}</p>
-                        {d.superseded ? <Badge variant="default" className="mt-0.5">Superseded</Badge> : null}
-                      </TableCell>
-                      <TableCell className="text-charcoal-600">{titleCase(d.type)}</TableCell>
-                      <TableCell className="text-charcoal-600">{d.discipline}</TableCell>
-                      <TableCell className="tabular text-right">{d.version}</TableCell>
-                      <TableCell className="tabular text-right">{d.pages}</TableCell>
-                      <TableCell className="text-charcoal-600">{date(d.issueDate)}</TableCell>
-                      <TableCell>
-                        <Badge variant={d.state === 'indexed' ? 'success' : d.state === 'failed' ? 'danger' : 'warn'}>
-                          {titleCase(d.state)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="tabular text-right">{d.findings || '—'}</TableCell>
+              {documents.length === 0 && docsQ.status === 'ready' ? (
+                <div className="p-6">
+                  <EmptyState icon={<FileUp className="size-5" />} title="No documents yet"
+                    description="Upload a plan set to start. The page count is taken as it uploads, which is what turns a file into something a takeoff can be measured on." />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Document</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead className="text-right">Sheets</TableHead>
+                      <TableHead className="text-right">Size</TableHead>
+                      <TableHead>Uploaded</TableHead>
+                      <TableHead>State</TableHead>
+                      <TableHead className="text-right">Findings</TableHead>
+                      <TableHead />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {documents.map((d) => (
+                      <TableRow key={d.id}>
+                        <TableCell className="max-w-72">
+                          <p className="truncate font-medium text-charcoal-900">{d.name}</p>
+                          <p className="truncate text-xs text-charcoal-500">{d.fileName}</p>
+                        </TableCell>
+                        <TableCell className="text-charcoal-600">
+                          {titleCase(d.documentType.replace(/_/g, ' '))}
+                        </TableCell>
+                        <TableCell className="tabular text-right">
+                          {d.pageCount ?? <span className="text-charcoal-400">not counted</span>}
+                        </TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">
+                          {d.byteSize == null ? '—' : `${(d.byteSize / 1_048_576).toFixed(1)} MB`}
+                        </TableCell>
+                        <TableCell className="text-charcoal-600">{date(d.createdAt)}</TableCell>
+                        <TableCell>
+                          <Badge variant={d.processingState === 'indexed' ? 'success'
+                            : d.processingState === 'failed' ? 'danger' : 'warn'}>
+                            {titleCase(d.processingState.replace(/_/g, ' '))}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="tabular text-right">
+                          {d.findingCount || <span className="text-charcoal-400">—</span>}
+                          {d.awaitingReview > 0 ? (
+                            <span className="block text-xs text-warn-700">
+                              {d.awaitingReview} waiting
+                            </span>
+                          ) : null}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="outline" size="sm" disabled={!canUpload || busy === d.id}
+                            onClick={() => void onAnalyze(d)}>
+                            {busy === d.id ? <Loader2 className="size-4 animate-spin" />
+                              : <Bot className="size-4" />}
+                            {d.findingCount > 0 ? 'Read again' : 'Read it'}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
+
         {/* -------------------------------------------------------- pipeline */}
         <TabsContent value="pipeline" className="space-y-6">
-          <PipelinePanel />
+          <PipelinePanel jobs={jobs} state={jobsQ.status} documents={documents} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
+/* -------------------------------------------------------------- upload ---- */
+
+function UploadButton({ disabled, busy, onFile }: {
+  disabled: boolean; busy: boolean; onFile: (file: File) => void;
+}) {
+  return (
+    <label className={cn(
+      'inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-yellow-500 px-4 text-sm font-medium text-charcoal-900',
+      'hover:bg-yellow-400 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-2',
+      disabled && 'pointer-events-none opacity-50',
+    )}>
+      {busy ? <Loader2 className="size-4 animate-spin" /> : <FileUp className="size-4" />}
+      {busy ? 'Uploading…' : 'Upload documents'}
+      <input type="file" accept="application/pdf" className="sr-only" disabled={disabled}
+        aria-label="Upload a plan set"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (file) onFile(file);
+        }} />
+    </label>
+  );
+}
+
+/* ------------------------------------------------------------- finding ---- */
+
+function FindingCard({ finding, canAccept, estimates, busy, onDecide }: {
+  finding: Finding;
+  canAccept: boolean;
+  estimates: Array<{ id: string; number: string; name: string; currentVersionId: string | null }>;
+  busy: boolean;
+  onDecide: (decision: 'accept' | 'reject', versionId: string | null, note: string | null) => void;
+}) {
+  const open = estimates.filter((e) => e.currentVersionId);
+  const [versionId, setVersionId] = useState(open[0]?.currentVersionId ?? '');
+  const [note, setNote] = useState('');
+  const [rejecting, setRejecting] = useState(false);
+
+  const decided = finding.state !== 'proposed';
+  const cited = finding.sheetReferences.length + finding.specificationReferences.length
+    + finding.citations.length;
+
+  return (
+    <Card className={cn(decided && 'opacity-90')}>
+      <CardHeader className="gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">{titleCase(finding.findingType.replace(/_/g, ' '))}</Badge>
+              {finding.severity ? (
+                <Badge variant={SEVERITY[finding.severity] ?? 'default'}>
+                  {titleCase(finding.severity)}
+                </Badge>
+              ) : null}
+              <Badge variant={finding.state === 'accepted' ? 'success'
+                : finding.state === 'rejected' ? 'danger' : 'warn'}>
+                {titleCase(finding.state)}
+              </Badge>
+              {finding.documentName ? (
+                <span className="text-xs text-charcoal-500">{finding.documentName}</span>
+              ) : null}
+            </div>
+            <CardTitle className="mt-1.5">{finding.title}</CardTitle>
+            <CardDescription className="mt-1 max-w-3xl">{finding.description}</CardDescription>
+          </div>
+          {finding.quantity != null ? (
+            <div className="shrink-0 text-right">
+              <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">
+                Candidate quantity
+              </p>
+              <p className="tabular text-xl font-bold text-charcoal-900">
+                {qty(finding.quantity)} {finding.unit}
+              </p>
+              {finding.method ? (
+                <p className="text-xs text-charcoal-500">{titleCase(finding.method.replace(/_/g, ' '))}</p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-3">
+        {/*
+          * The evidence, on the card rather than behind it. The database refuses
+          * to store a quantity, conflict or scope claim without one — this is
+          * that constraint made visible, because a quantity whose source nobody
+          * can check is a quantity nobody should price.
+          */}
+        <div className="rounded-md border border-charcoal-200 bg-charcoal-50 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">
+            Cited from
+          </p>
+          {cited === 0 ? (
+            <p className="mt-1 text-sm text-charcoal-500">
+              Nothing cited. This type of finding is not required to cite, and it is not a quantity.
+            </p>
+          ) : (
+            <div className="mt-1 space-y-1.5">
+              {finding.sheetReferences.length ? (
+                <p className="text-sm text-charcoal-700">
+                  Sheets: <span className="font-mono text-xs">{finding.sheetReferences.join(', ')}</span>
+                </p>
+              ) : null}
+              {finding.specificationReferences.length ? (
+                <p className="text-sm text-charcoal-700">
+                  Specifications: <span className="font-mono text-xs">{finding.specificationReferences.join(', ')}</span>
+                </p>
+              ) : null}
+              {finding.citations.map((c, i) => (
+                <p key={i} className="text-xs italic leading-relaxed text-charcoal-600">
+                  {c.sheet ? <span className="font-mono not-italic">{c.sheet}</span> : null}
+                  {c.section ? <span className="font-mono not-italic"> {c.section}</span> : null}
+                  {c.quote ? <> — “{c.quote}”</> : null}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-charcoal-500">
+          <span>Model confidence {percent(finding.confidence / 100, 0)}</span>
+          {finding.model ? <span className="font-mono">{finding.model}</span> : null}
+          <span>{dateTime(finding.createdAt)}</span>
+          {/*
+            * The model's score, named as the model's. A line's confidence is the
+            * engine's to compute from what the line is actually made of, and
+            * carrying this across would let a model's optimism reach a bid.
+            */}
+        </div>
+
+        {decided ? (
+          finding.reviewNote ? (
+            <p className="text-sm italic text-charcoal-600">“{finding.reviewNote}”</p>
+          ) : null
+        ) : !canAccept ? (
+          <p className="text-sm text-charcoal-500">
+            Accepting a finding needs <code className="font-mono text-[12px]">ai.accept_findings</code>.
+            Somebody with that permission has to decide this one.
+          </p>
+        ) : rejecting ? (
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="min-w-64 flex-1 space-y-1">
+              <Label htmlFor={`note-${finding.id}`}>Why is this being set aside?</Label>
+              <Input id={`note-${finding.id}`} value={note} disabled={busy}
+                placeholder="The sheet it cites is superseded by Addendum 2."
+                onChange={(e) => setNote(e.target.value)} />
+            </div>
+            <Button size="sm" variant="outline" disabled={busy || note.trim().length < 3}
+              onClick={() => onDecide('reject', null, note)}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
+              Set aside
+            </Button>
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => setRejecting(false)}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-64 space-y-1">
+              <Label htmlFor={`est-${finding.id}`}>Onto which estimate?</Label>
+              <select id={`est-${finding.id}`} value={versionId} disabled={busy || open.length === 0}
+                onChange={(e) => setVersionId(e.target.value)}
+                className="h-9 w-full rounded-md border border-charcoal-300 bg-white px-2 text-sm">
+                {open.length === 0 ? <option value="">No estimate to add it to</option> : null}
+                {open.map((e) => (
+                  <option key={e.id} value={e.currentVersionId!}>{e.number} — {e.name}</option>
+                ))}
+              </select>
+            </div>
+            <Button size="sm" disabled={busy || !versionId}
+              onClick={() => onDecide('accept', versionId, null)}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+              Accept onto the estimate
+            </Button>
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => setRejecting(true)}>
+              Set aside
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ------------------------------------------------------------- pipeline ---- */
 
-const STAGE_ORDER = PIPELINE_STAGES.map((s) => s.key) as readonly string[];
-
-function PipelinePanel() {
-  const usage = aiUsageSummary();
-  const running = INGESTION_JOBS.filter((j) => !['complete', 'failed'].includes(j.stage));
-  const failed = INGESTION_JOBS.filter((j) => j.stage === 'failed');
+function PipelinePanel({ jobs, state, documents }: {
+  jobs: IngestionJob[]; state: string; documents: PlanDocument[];
+}) {
+  const running = jobs.filter((j) => !['complete', 'failed'].includes(j.stage));
+  const failed = jobs.filter((j) => j.stage === 'failed');
+  const pages = jobs.reduce((a, j) => a + j.pagesProcessed, 0);
+  const findings = jobs.reduce((a, j) => a + j.findingsCreated, 0);
+  const inputTokens = jobs.reduce((a, j) => a + (j.inputTokens ?? 0), 0);
+  const outputTokens = jobs.reduce((a, j) => a + (j.outputTokens ?? 0), 0);
+  const cost = jobs.reduce((a, j) => a + (j.costEstimate ?? 0), 0);
+  const named = (id: string) => documents.find((d) => d.currentVersionId === id)?.name ?? 'a document';
 
   return (
     <>
       <Alert tone="neutral" icon={<ShieldCheck className="size-4" />}
         title="What the model is and is not allowed to do">
-        The analyst prompt forbids the model from computing cost, price, production rate, duration, crew size or
-        markup — the deterministic engine owns all of that. Every scope item, quantity and conflict must cite the
-        sheet or specification it came from, and a finding that arrives without one is <em>rejected before it is
-        stored</em>. The rejection count below is that guard doing its job, not a failure.
+        The analyst prompt forbids the model from computing cost, price, production rate, duration,
+        crew size or markup — the deterministic engine owns all of that. Every scope item, quantity
+        and conflict must cite the sheet or specification it came from, and a finding that arrives
+        without one is <em>rejected before it is stored</em>. A rejection count is that guard doing
+        its job, not a failure.
       </Alert>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatTile label="Pipeline runs" value={usage.runs} icon={<RefreshCw className="size-4" />}
+        <StatTile label="Pipeline runs" value={jobs.length} icon={<RefreshCw className="size-4" />}
           hint={`${running.length} running, ${failed.length} failed`}
           detail={
             <p>
-              One run is one document version through all six stages below. The{' '}
-              {INGESTION_JOBS.length} {INGESTION_JOBS.length === 1 ? 'job' : 'jobs'} at the foot of this tab
-              are those runs, each showing the stage it reached — a failed run stays on the list with its
-              stage rather than disappearing, because a document nobody was told failed to read is a
-              document somebody will estimate from anyway.
+              One run is one document version through the stages below. A failed run stays on the
+              list with the stage it reached and the message that failed it — the table refuses to
+              record a failure without one, precisely so nobody has to re-run it blind.
             </p>
           } />
-        <StatTile label="Pages analyzed" value={integer(usage.pages)} icon={<Layers className="size-4" />}
+        <StatTile label="Pages analyzed" value={integer(pages)} icon={<Layers className="size-4" />}
           detail={
             <p>
               Pages the model actually read, summed over every run — so a sheet read twice, once per
-              revision, counts twice. It is the unit the spend below is metered in, which is why it is
-              counted per run rather than per document.
+              revision, counts twice. It is the unit the spend beside this is metered in.
             </p>
           } />
-        <StatTile label="Findings proposed" value={usage.findings} icon={<Bot className="size-4" />}
-          hint={`${usage.rejected} rejected by the citation guard`}
+        <StatTile label="Findings proposed" value={integer(findings)} icon={<Bot className="size-4" />}
+          hint="none of them in an estimate yet"
           detail={
             <p>
-              What the model offered, not what entered an estimate — nothing here is in a bid until a
-              person with the acceptance permission takes it (RULE-008). The{' '}
-              {usage.rejected} rejected never reached a reviewer at all: they arrived without a sheet or
-              specification citation and were refused before they were stored.
+              What the model offered, not what entered an estimate. Nothing here is in a bid until a
+              person with the acceptance permission takes it (RULE-008), and a claim that arrived
+              without a citation never reached a reviewer at all.
             </p>
           } />
-        <StatTile label="Tokens" value={`${integer(usage.inputTokens / 1000)}K in`} icon={<Cpu className="size-4" />}
-          hint={`${integer(usage.outputTokens / 1000)}K out`}
+        <StatTile label="Tokens" value={`${integer(inputTokens / 1000)}K in`} icon={<Cpu className="size-4" />}
+          hint={`${integer(outputTokens / 1000)}K out`}
           detail={
             <p>
-              {integer(usage.inputTokens)} tokens of plans and specifications went to the model
-              and {integer(usage.outputTokens)} came back. Input dominates because a drawing set is large
-              and a finding is a sentence, and it is why the spend beside this tracks pages rather than
-              findings.
+              {integer(inputTokens)} tokens of plans and specifications went to the model
+              and {integer(outputTokens)} came back. Input dominates because a drawing set is large
+              and a finding is a sentence, which is why the spend tracks pages rather than findings.
             </p>
           } />
-        <StatTile label="AI spend" value={money(usage.cost)} icon={<CircleDollarSign className="size-4" />}
+        <StatTile label="AI spend" value={money(cost)} icon={<CircleDollarSign className="size-4" />}
           hint="metered per run against the plan allowance"
           detail={
             <p>
-              Charged per run and counted against the plan's allowance, so a document set that is
-              re-analyzed after a revision costs again. It buys the reading, not the answer: the price on
-              an estimate is the engine's arithmetic, and no part of this figure is in it.
+              Charged per run and counted against the plan&apos;s allowance, so a document set
+              re-read after a revision costs again. It buys the reading, not the answer: the price on
+              an estimate is the engine&apos;s arithmetic and no part of this figure is in it.
             </p>
           } />
       </div>
@@ -278,197 +623,83 @@ function PipelinePanel() {
         <CardHeader>
           <CardTitle>The pipeline</CardTitle>
           <CardDescription>
-            Each stage is recorded against the document version, so a bad quantity can be traced to the exact
-            model, prompt version and page that produced it.
+            Each stage is recorded against the document version, so a bad quantity can be traced to
+            the exact model, prompt version and page that produced it.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ol className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-            {PIPELINE_STAGES.map((s, i) => (
-              <li key={s.key} className="rounded-md border border-charcoal-200 p-3">
+          <ol className="grid gap-3 md:grid-cols-3 xl:grid-cols-7">
+            {STAGES.map(([key, label, detail], i) => (
+              <li key={key} className="rounded-md border border-charcoal-200 p-3">
                 <span className="tabular text-xs font-bold text-yellow-600">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <p className="mt-1 text-sm font-semibold text-charcoal-900">{s.label}</p>
-                <p className="mt-1 text-xs leading-relaxed text-charcoal-500">{s.detail}</p>
+                <p className="mt-1 text-sm font-semibold text-charcoal-900">{label}</p>
+                <p className="mt-1 text-xs leading-relaxed text-charcoal-500">{detail}</p>
               </li>
             ))}
           </ol>
         </CardContent>
       </Card>
 
+      {state === 'loading' ? <LoadingState label="Reading the pipeline" /> : null}
+      {jobs.length === 0 && state === 'ready' ? (
+        <Card><CardContent className="p-6">
+          <EmptyState icon={<RefreshCw className="size-5" />} title="Nothing has been through the pipeline"
+            description="A run appears here the first time a document is read." />
+        </CardContent></Card>
+      ) : null}
+
       <div className="space-y-3">
-        {INGESTION_JOBS.map((j) => <JobCard key={j.id} job={j} />)}
+        {jobs.map((j) => {
+          const stageIndex = STAGE_ORDER.indexOf(j.stage);
+          const done = j.stage === 'complete';
+          return (
+            <Card key={j.id}>
+              <CardHeader className="gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <CardTitle className="text-base">{named(j.documentVersionId)}</CardTitle>
+                    <CardDescription>
+                      {j.startedAt ? dateTime(j.startedAt) : dateTime(j.createdAt)}
+                      {j.durationMs ? ` · ${(j.durationMs / 1000).toFixed(1)}s` : ''}
+                      {j.model ? ` · ${j.model}` : ''}
+                      {j.promptVersion ? ` · prompt ${j.promptVersion}` : ''}
+                    </CardDescription>
+                  </div>
+                  <Badge variant={done ? 'success' : j.stage === 'failed' ? 'danger' : 'warn'}>
+                    {titleCase(j.stage.replace(/_/g, ' '))}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Progress value={done ? 100 : Math.round(j.progress * 100)}
+                  indicatorClassName={j.stage === 'failed' ? 'bg-danger-500' : undefined} />
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-charcoal-600">
+                  <span>
+                    {integer(j.pagesProcessed)}
+                    {j.pagesTotal ? ` of ${integer(j.pagesTotal)}` : ''} pages
+                  </span>
+                  <span>{plural(j.findingsCreated, 'finding')}</span>
+                  {j.attempts > 1 ? <span>{j.attempts} attempts</span> : null}
+                  {j.costEstimate != null ? <span>{money(j.costEstimate)}</span> : null}
+                  {stageIndex >= 0 ? (
+                    <span className="text-charcoal-400">
+                      stage {stageIndex + 1} of {STAGES.length}
+                    </span>
+                  ) : null}
+                </div>
+                {j.errorMessage ? (
+                  <>
+                    <Separator />
+                    <p className="text-sm text-danger-700">{j.errorMessage}</p>
+                  </>
+                ) : null}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </>
-  );
-}
-
-function JobCard({ job }: { job: IngestionJob }) {
-  const stageIndex = STAGE_ORDER.indexOf(job.stage);
-  const isDone = job.stage === 'complete';
-  const isFailed = job.stage === 'failed';
-
-  return (
-    <Card className={cn(isFailed && 'border-danger-500/30')}>
-      <CardContent className="p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="font-semibold text-charcoal-900">{job.documentName}</p>
-            <p className="text-xs text-charcoal-500">
-              version {job.version} · started {dateTime(job.startedAt)}
-              {job.durationMs ? ` · ${qty(job.durationMs / 1000, 0)}s` : ''}
-              {job.attempts > 1 ? ` · attempt ${job.attempts}` : ''}
-            </p>
-          </div>
-          <Badge variant={isDone ? 'success' : isFailed ? 'danger' : 'warn'}>
-            {isDone ? <CheckCircle2 className="size-3" />
-              : isFailed ? <Ban className="size-3" />
-              : <Loader2 className="size-3 animate-spin" />}
-            {titleCase(job.stage)}
-          </Badge>
-        </div>
-
-        <div className="mt-3">
-          <Progress value={job.progress * 100}
-            indicatorClassName={isFailed ? 'bg-danger-500' : isDone ? 'bg-success-600' : 'bg-yellow-500'} />
-          <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs text-charcoal-500">
-            <span>{integer(job.pagesProcessed)} of {integer(job.pagesTotal)} pages · {percent(job.progress, 0)}</span>
-            <span className="flex flex-wrap items-center gap-2">
-              {STAGE_ORDER.map((s, i) => (
-                <span key={s} className={cn(
-                  'text-[10px]',
-                  isDone || i < stageIndex ? 'text-success-700'
-                    : i === stageIndex ? 'font-semibold text-charcoal-900' : 'text-charcoal-300',
-                )}>
-                  {titleCase(s)}
-                </span>
-              ))}
-            </span>
-          </div>
-        </div>
-
-        {job.model ? (
-          <>
-            <Separator className="my-3" />
-            <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-5">
-              <div><dt className="text-charcoal-500">Model</dt><dd className="font-mono text-charcoal-900">{job.model}</dd></div>
-              <div><dt className="text-charcoal-500">Prompt</dt><dd className="font-mono text-charcoal-900">{job.promptVersion}</dd></div>
-              <div><dt className="text-charcoal-500">Tokens</dt>
-                <dd className="tabular text-charcoal-900">
-                  {job.inputTokens !== null ? `${integer(job.inputTokens / 1000)}K / ${integer((job.outputTokens ?? 0) / 1000)}K` : '—'}
-                </dd></div>
-              <div><dt className="text-charcoal-500">Cost</dt>
-                <dd className="tabular text-charcoal-900">{job.costEstimate !== null ? money(job.costEstimate) : '—'}</dd></div>
-              <div><dt className="text-charcoal-500">Findings</dt>
-                <dd className="tabular text-charcoal-900">
-                  {job.findingsCreated} proposed{job.findingsRejected ? `, ${job.findingsRejected} rejected` : ''}
-                </dd></div>
-            </dl>
-          </>
-        ) : null}
-
-        {job.errorMessage ? (
-          <Alert tone="danger" className="mt-3" icon={<AlertTriangle className="size-4" />}
-            title={`Failed after ${plural(job.pagesProcessed, 'page')}`}>
-            {job.errorMessage} The {job.findingsCreated} findings produced before the failure were kept — a partial
-            run that found something real should not be thrown away because it did not finish.
-          </Alert>
-        ) : null}
-
-        {job.rejectionReasons?.length ? (
-          <div className="mt-3 rounded-md border border-charcoal-200 bg-charcoal-50 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">
-              Rejected by the citation guard
-            </p>
-            <ul className="mt-1.5 space-y-1">
-              {job.rejectionReasons.map((r, i) => (
-                <li key={i} className="flex gap-2 text-xs leading-relaxed text-charcoal-600">
-                  <X className="mt-0.5 size-3 shrink-0 text-danger-600" />{r}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
-
-function FindingCard({
-  finding, canAccept, onDecide,
-}: { finding: AiFinding; canAccept: boolean; onDecide: (id: string, s: 'accepted' | 'rejected') => void }) {
-  const decided = finding.state !== 'proposed';
-  return (
-    <Card data-testid={`finding-${finding.id}`} className={cn(decided && 'bg-charcoal-50')}>
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="dark" className="font-mono text-[10px]">{finding.agent}</Badge>
-              <Badge variant="outline">{titleCase(finding.type)}</Badge>
-              {finding.severity ? (
-                <Badge variant={finding.severity === 'critical' ? 'danger' : finding.severity === 'high' ? 'danger' : 'warn'}>
-                  {titleCase(finding.severity)}
-                </Badge>
-              ) : null}
-              <Badge variant={finding.confidence >= 90 ? 'success' : 'warn'}>Confidence {finding.confidence}</Badge>
-              {finding.state === 'accepted' ? <Badge variant="success"><Check className="size-3" /> Accepted</Badge> : null}
-              {finding.state === 'rejected' ? <Badge variant="danger"><X className="size-3" /> Rejected</Badge> : null}
-            </div>
-
-            <h3 className="mt-2.5 font-semibold text-charcoal-900">{finding.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-charcoal-600">{finding.description}</p>
-
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <Quote className="size-3.5 text-charcoal-400" />
-              {finding.citations.map((c) => (
-                <Badge key={c} variant="info" className="font-mono text-[10px]">{c}</Badge>
-              ))}
-            </div>
-
-            {finding.reviewedBy ? (
-              <p className="mt-2.5 text-xs text-charcoal-500">
-                {titleCase(finding.state)} by <span className="font-medium text-charcoal-700">{finding.reviewedBy}</span>
-              </p>
-            ) : null}
-          </div>
-
-          <div className="flex shrink-0 flex-col gap-2 lg:w-52">
-            <div className="rounded-md border border-charcoal-200 bg-white p-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-charcoal-500">Suggested routing</p>
-              <p className="mt-0.5 text-sm font-medium text-charcoal-900">{titleCase(finding.gate)}</p>
-            </div>
-            {!decided ? (
-              canAccept ? (
-                <div className="flex gap-2">
-                  <Button size="sm" variant="success" className="flex-1" onClick={() => onDecide(finding.id, 'accepted')}>
-                    <Check className="size-4" /> Accept
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => onDecide(finding.id, 'rejected')}>
-                    <X className="size-4" /> Reject
-                  </Button>
-                </div>
-              ) : (
-                <Alert tone="warn" icon={<AlertTriangle className="size-4" />}>
-                  Your role cannot accept AI findings.
-                </Alert>
-              )
-            ) : null}
-          </div>
-        </div>
-
-        {finding.type === 'conflict' && !decided ? (
-          <>
-            <Separator className="my-3" />
-            <p className="text-xs text-charcoal-500">
-              A conflict drops the affected line to <span className="font-medium text-charcoal-700">do-not-price</span>{' '}
-              verification status and routes it to senior review. The engine will not choose between two
-              disagreeing documents on your behalf.
-            </p>
-          </>
-        ) : null}
-      </CardContent>
-    </Card>
   );
 }

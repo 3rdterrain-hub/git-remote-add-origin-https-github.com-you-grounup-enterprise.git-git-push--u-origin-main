@@ -10,10 +10,10 @@
 | Edge Functions + shared modules | 60 | ~9,500 |
 | Database & function tests | 103 | ~27,500 |
 | Governance & traceability tests | 14 | ~3,700 |
-| Web application (49 routes, 29 app screens) | 239 | ~59,300 |
+| Web application (49 routes, 29 app screens) | 240 | ~60,200 |
 | Documentation | 14 | ~5,400 |
 | Seed & tooling | 11 | ~2,800 |
-| **Total hand-written** | **638** | **~160,300** |
+| **Total hand-written** | **639** | **~161,200** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,7 +22,7 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 4,195 tests, production build —
+drift checks, 4,217 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
@@ -31,9 +31,9 @@ PDF            57 tests   parsing the bytes it emits
 Database    1,843 tests   against real PostgreSQL 18 (PGlite)
 Functions     273 tests   billing, plan versioning, AI governance, API, observability
 Governance    295 tests   the five-category rule, traceability, verification, spelling, pipeline
-Web         1,026 tests   jsdom + Testing Library
+Web         1,048 tests   jsdom + Testing Library
             ───────────
-            4,195 tests
+            4,217 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

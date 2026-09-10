@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/misc';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SiteFooter } from './landing';
-import { PLANS, COMPARISON, loadPlanPrices, type Plan } from '@/data/plans';
+import { PLANS, COMPARISON, comparisonValue, loadPlanPrices, type Plan } from '@/data/plans';
 import { callFunction, isSupabaseConfigured } from '@/lib/supabase';
 import { COMPANY } from '@/data/demo';
 import { cn } from '@/lib/utils';
@@ -301,17 +301,26 @@ export function PricingPage() {
                       {group.rows.map((row) => (
                         <TableRow key={row.label}>
                           <TableCell className="text-charcoal-700">{row.label}</TableCell>
-                          {plans.map((p, i) => (
-                            <TableCell key={p.id} className="text-center">
-                              {row.values[i] === true ? (
-                                <Check className="mx-auto size-4 text-success-600" />
-                              ) : row.values[i] ? (
-                                <span className="text-xs text-charcoal-600">{row.values[i]}</span>
-                              ) : (
-                                <Minus className="mx-auto size-4 text-charcoal-300" />
-                              )}
-                            </TableCell>
-                          ))}
+                          {/*
+                            * Answered from the plan, not from the column it
+                            * happens to sit in. `row.values[i]` handed each
+                            * live plan a *retired* plan's column the moment
+                            * the catalog stopped publishing four of them.
+                            */}
+                          {plans.map((p) => {
+                            const value = comparisonValue(row, p);
+                            return (
+                              <TableCell key={p.id} className="text-center">
+                                {value === true ? (
+                                  <Check className="mx-auto size-4 text-success-600" />
+                                ) : value ? (
+                                  <span className="text-xs text-charcoal-600">{value}</span>
+                                ) : (
+                                  <Minus className="mx-auto size-4 text-charcoal-300" />
+                                )}
+                              </TableCell>
+                            );
+                          })}
                         </TableRow>
                       ))}
                     </Fragment>

@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { COMPARISON, PLANS } from './plans';
+import { COMPARISON, PLANS, comparisonValue, type Plan } from './plans';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 const SEED = readFileSync(join(ROOT, 'supabase/seed/0002_plan_catalog.sql'), 'utf8');
@@ -72,11 +72,19 @@ describe('every entitlement-backed claim matches the catalog', () => {
   });
 
   it('shows a feature as included exactly where the plan grants it', () => {
+    /*
+     * Derived now rather than written beside the catalog, so this checks the
+     * derivation against the seed rather than checking one hand-written array
+     * against another. `values: [false, true, true, true]` was positional, and
+     * the moment the catalog stopped publishing four plans every live plan was
+     * handed a retired plan's column.
+     */
     for (const row of keyed) {
-      COLUMNS.forEach((planId, i) => {
-        expect(row.values[i], `${row.label} / ${planId} (${row.feature})`)
+      for (const planId of COLUMNS) {
+        const plan = { id: planId, features: FEATURES[planId]! } as Plan;
+        expect(comparisonValue(row, plan), `${row.label} / ${planId} (${row.feature})`)
           .toBe(grants(planId, row.feature!));
-      });
+      }
     }
   });
 
@@ -116,7 +124,12 @@ describe('the limits shown match the limits sold', () => {
     // The seed sets 250 / 2,000 / 10,000 / unlimited.
     const credits = COMPARISON.flatMap((g) => g.rows).find((r) => r.label === 'AI credits per month');
     expect(credits).toBeDefined();
-    expect(credits!.values).toEqual(['250', '2,000', '10,000', 'Unlimited']);
+    // Read off each plan's own allowance rather than restated here, so a
+    // change to the catalog moves the page instead of failing this test.
+    expect(credits!.limit).toBe('ai');
+    for (const plan of PLANS) {
+      expect(comparisonValue(credits!, plan), plan.id).toBe(plan.limits.ai);
+    }
     for (const planId of ['starter', 'professional', 'business']) {
       const seeded = SEED.match(new RegExp(`\\('${planId}',[\\s\\S]*?\\n\\s+([\\d, null]+),\\n`))?.[1];
       expect(seeded, planId).toBeTruthy();

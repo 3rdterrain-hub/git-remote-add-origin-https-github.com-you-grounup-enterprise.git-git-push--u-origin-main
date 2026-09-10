@@ -417,6 +417,7 @@ TST-web-overtime-policy,test,web/overtime-policy.test.tsx,apps/web/src/component
 TST-web-time-clock,test,web/time-clock.test.tsx,apps/web/src/components/workforce/time-clock.test.tsx,ENGINE
 TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summary.test.ts,ENGINE
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
+TST-web-plans.live,test,web/plans.live.test.ts,apps/web/src/data/plans.live.test.ts,ENGINE
 TST-web-schedule.check,test,web/schedule.check.test.ts,apps/web/src/data/schedule.check.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
