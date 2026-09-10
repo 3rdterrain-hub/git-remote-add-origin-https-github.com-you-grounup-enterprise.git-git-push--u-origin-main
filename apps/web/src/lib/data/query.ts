@@ -41,12 +41,31 @@ export type Query<T> = (client: NonNullable<typeof supabase>) => Promise<T>;
  */
 export function useQuery<T>(query: Query<T>, deps: readonly unknown[] = []): QueryState<T> & {
   refetch: () => void;
+  /** True while a refetch is in flight and the last good data is still shown. */
+  refreshing: boolean;
 } {
   const [state, setState] = useState<QueryState<T>>(
     isSupabaseConfigured ? { status: 'loading' } : { status: 'demonstration' },
   );
   const [nonce, setNonce] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
   const run = useRef(0);
+  /*
+   * What the last run was for.
+   *
+   * A refetch used to drop straight back to `loading`, and every screen returns
+   * a spinner early when it sees that — so saving a quantity unmounted the
+   * whole estimate and mounted it again a moment later. The flash was the
+   * visible half; the invisible half was every piece of local state going with
+   * it: an open editor, an expanded row, the sentence explaining what changing
+   * a unit had just cost. It was written, and it was gone before it rendered.
+   *
+   * So a refetch keeps what is on screen and revalidates behind it. A *deps*
+   * change is different — that is a different question, and showing the old
+   * answer under it would be showing another estimate's lines — and still
+   * clears to `loading`.
+   */
+  const lastDeps = useRef<string | null>(null);
 
   // The query closure changes identity on every render; the caller's deps are
   // what actually decide when to re-run.
@@ -60,20 +79,39 @@ export function useQuery<T>(query: Query<T>, deps: readonly unknown[] = []): Que
     }
     const ticket = ++run.current;
     let alive = true;
-    setState({ status: 'loading' });
+    const signature = JSON.stringify(deps);
+    const sameQuestion = lastDeps.current === signature;
+    lastDeps.current = signature;
+
+    if (sameQuestion) setRefreshing(true);
+    else setState({ status: 'loading' });
 
     stable.current(supabase).then(
-      (data) => { if (alive && ticket === run.current) setState({ status: 'ready', data }); },
+      (data) => {
+        if (!alive || ticket !== run.current) return;
+        setState({ status: 'ready', data });
+        setRefreshing(false);
+      },
       (err: unknown) => {
         if (!alive || ticket !== run.current) return;
+        /*
+         * A refetch that fails replaces the data with the failure, exactly as a
+         * first read does. Keeping stale rows under an error nobody sees is how
+         * a screen goes on showing yesterday's numbers.
+         */
         setState({ status: 'error', message: messageFor(err) });
+        setRefreshing(false);
       },
     );
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, nonce]);
 
-  return { ...state, refetch: useCallback(() => setNonce((n) => n + 1), []) };
+  return {
+    ...state,
+    refreshing,
+    refetch: useCallback(() => setNonce((n) => n + 1), []),
+  };
 }
 
 /**

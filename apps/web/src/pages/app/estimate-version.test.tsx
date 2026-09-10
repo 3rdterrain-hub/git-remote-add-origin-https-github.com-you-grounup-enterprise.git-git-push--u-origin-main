@@ -33,6 +33,9 @@ const hoisted = vi.hoisted(() => ({
   moved: [] as Array<{ line: string; after: string | null }>,
   inserted: [] as Array<Record<string, unknown>>,
   deleted: [] as string[],
+  /* What `line_unit_note` answers, and who asked it. */
+  unitNote: null as string | null,
+  unitNoteAsked: [] as string[],
   services: [] as Array<Record<string, unknown>>,
   added: [] as Array<Record<string, unknown>>,
   batches: [] as Array<Record<string, unknown>>,
@@ -82,6 +85,10 @@ vi.mock('@/lib/data/estimates', async () => {
     },
     updateLine: async (_c: unknown, id: string, fields: Record<string, unknown>) => {
       hoisted.lineUpdates.push({ id, fields });
+    },
+    lineUnitNote: async (_c: unknown, id: string) => {
+      hoisted.unitNoteAsked.push(id);
+      return hoisted.unitNote;
     },
     reviseVersion: async (_c: unknown, id: string, reason: string) => {
       hoisted.revised.push({ id, reason });
@@ -1206,5 +1213,90 @@ describe('what the line looked like on a real screen', () => {
 
     expect(screen.queryByText(/^net /)).not.toBeInTheDocument();
     expect(screen.queryByText(/after waste and loss/)).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * Bidding a line in a unit its service does not list.
+ *
+ * The picker offers every unit on purpose — a company that bids topsoil by the
+ * load rather than the cubic yard is not making a mistake, and migration 0117
+ * stopped refusing it. What that migration wrote instead was the sentence
+ * saying what the choice costs, and `app.line_unit_note` was called by nothing:
+ * an estimator could move a line from LF to EA and be told nothing about the
+ * production rate that no longer applies to it.
+ */
+describe('changing the unit a line is bid in', () => {
+  beforeEach(() => {
+    hoisted.configured = true; hoisted.fail = null;
+    hoisted.permissions = ['estimates.read', 'estimates.write'];
+    hoisted.version = version();
+    hoisted.lineUpdates = []; hoisted.unitNoteAsked = []; hoisted.unitNote = null;
+  });
+
+  it('saves the unit the estimator picked', async () => {
+    const user = userEvent.setup();
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument());
+    await user.selectOptions(screen.getByLabelText('Unit for Mass excavation'), 'TON');
+    await waitFor(() => expect(hoisted.lineUpdates).toEqual([{ id: 'l-1', fields: { unit: 'TON' } }]));
+  });
+
+  it('says what an off-list unit costs, on the line it was changed on', async () => {
+    hoisted.unitNote = 'Mass excavation is normally measured in CY. This line is bid in TON, '
+      + 'which is your call — but no production rate in the library is measured that way, so '
+      + 'the hours come from the crew and machines on the line rather than from production.';
+    const user = userEvent.setup();
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument());
+    await user.selectOptions(screen.getByLabelText('Unit for Mass excavation'), 'TON');
+
+    await waitFor(() =>
+      expect(screen.getByText(/no production rate in the library is measured that way/))
+        .toBeInTheDocument());
+    expect(hoisted.unitNoteAsked).toEqual(['l-1']);
+  });
+
+  it('says nothing when the unit is one the service lists', async () => {
+    // Null is the ordinary answer and wants no sentence over the row.
+    hoisted.unitNote = null;
+    const user = userEvent.setup();
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument());
+    await user.selectOptions(screen.getByLabelText('Unit for Mass excavation'), 'TON');
+
+    await waitFor(() => expect(hoisted.unitNoteAsked).toEqual(['l-1']));
+    expect(screen.queryByText(/no production rate in the library/)).not.toBeInTheDocument();
+  });
+
+  it('lets the note be dismissed without undoing the unit', async () => {
+    hoisted.unitNote = 'Mass excavation is normally measured in CY.';
+    const user = userEvent.setup();
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument());
+    await user.selectOptions(screen.getByLabelText('Unit for Mass excavation'), 'TON');
+    await waitFor(() =>
+      expect(screen.getByText(/normally measured in CY/)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByText(/normally measured in CY/)).not.toBeInTheDocument();
+    // The unit stayed changed: dismissing a warning is not undoing a decision.
+    expect(hoisted.lineUpdates).toEqual([{ id: 'l-1', fields: { unit: 'TON' } }]);
+  });
+
+  it('keeps the unit when the note cannot be read', async () => {
+    // A warning that failed to load is not worth an error over a saved change.
+    hoisted.unitNote = null;
+    const user = userEvent.setup();
+    renderPage(<EstimateVersionPage />);
+    await waitFor(() =>
+      expect(screen.getByLabelText('Unit for Mass excavation')).toBeInTheDocument());
+    await user.selectOptions(screen.getByLabelText('Unit for Mass excavation'), 'TON');
+    await waitFor(() => expect(hoisted.lineUpdates).toHaveLength(1));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

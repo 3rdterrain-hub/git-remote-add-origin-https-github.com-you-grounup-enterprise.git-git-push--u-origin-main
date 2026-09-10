@@ -45,7 +45,7 @@ import { usePermissions } from '@/lib/data/session';
 import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
-  loadVersion, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
+  loadVersion, lineUnitNote, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
   issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
@@ -630,6 +630,8 @@ function LineTable({
   onChanged: () => void;
 }) {
   const [saving, setSaving] = useState<string | null>(null);
+  /* What bidding a line in an off-list unit costs, per line, once it does. */
+  const [unitNotes, setUnitNotes] = useState<Record<string, string | null>>({});
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string[]>([]);
   /** The line being dragged, and the one it is currently hovering after. */
@@ -656,14 +658,41 @@ function LineTable({
   };
 
   /* The unit, changed where it is read rather than behind the wrench. */
+  /**
+   * Change the unit a line is bid in, and say what that costs.
+   *
+   * The picker offers every unit on purpose — a company that bids topsoil by
+   * the load rather than the cubic yard is not making a mistake, and migration
+   * 0117 stopped refusing it. What that migration wrote instead was the
+   * sentence explaining the consequence, and nothing called it: an estimator
+   * could move a line from LF to EA and be told nothing about the production
+   * rate that no longer applies to it.
+   *
+   * Asked after the write rather than before, because the note is about the
+   * unit the line now carries. Null is the ordinary answer — the unit is one
+   * the service lists — and a failure to fetch it is silent, because the unit
+   * did change and a warning that could not be loaded is not worth an error
+   * over the top of a successful save.
+   */
   const commitUnit = async (lineId: string, unit: string) => {
     setSaving(lineId); setError(null);
-    try { await updateLine(supabase!, lineId, { unit }); onChanged(); }
-    catch (err) { setError(messageFor(err)); }
+    try {
+      await updateLine(supabase!, lineId, { unit });
+      /*
+       * Read before the refetch, and shown before it too. `onChanged` reloads
+       * the version, and a note set after that reload landed on a component
+       * that had already been replaced — so the sentence was fetched, was
+       * correct, and was never seen.
+       */
+      const note = await lineUnitNote(supabase!, lineId).catch(() => null);
+      setUnitNotes((prev) => ({ ...prev, [lineId]: note }));
+      onChanged();
+    } catch (err) { setError(messageFor(err)); }
     finally { setSaving(null); }
   };
 
   const shown = version.lines.filter((l) => !onlyBlocking || l.blocksIssue);
+
   const hiddenByFilter = version.lines.length - shown.length;
 
   /*
@@ -1061,6 +1090,28 @@ function LineTable({
                       ) : null}
                     </div>
                  </div>
+
+                {/*
+                  * What the unit change cost, under the row.
+                  *
+                  * Under it rather than in the unit cell: the sentence runs to
+                  * two lines and a cell that grew to hold it would take the row
+                  * with it, which is exactly the defect that once made one line
+                  * item two lines high.
+                  */}
+                {unitNotes[l.id] ? (
+                  <div className="border-t border-charcoal-100 bg-warn-50/60 px-3 py-2">
+                    <p className="flex items-start gap-2 text-xs leading-relaxed text-charcoal-700">
+                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warn-600" />
+                      <span>{unitNotes[l.id]}</span>
+                      <button type="button"
+                        onClick={() => setUnitNotes((prev) => ({ ...prev, [l.id]: null }))}
+                        className="ml-auto shrink-0 font-medium text-charcoal-500 hover:text-charcoal-900">
+                        Dismiss
+                      </button>
+                    </p>
+                  </div>
+                ) : null}
 
                 {/*
                   * The rate and the markup open inside the card, under the

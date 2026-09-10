@@ -104,3 +104,77 @@ describe('useQuery', () => {
     expect(result.current).not.toHaveProperty('data');
   });
 });
+
+/**
+ * A refetch keeps what is on screen.
+ *
+ * `refetch()` used to drop straight back to `loading`, and every screen returns
+ * a spinner early when it sees that — so saving a quantity unmounted the whole
+ * estimate and mounted it again a moment later. The flash was the visible half.
+ * The invisible half was every piece of local state going with it: an open
+ * editor, an expanded row, the sentence explaining what changing a unit had
+ * just cost. That sentence was fetched, was correct, and was gone before it
+ * rendered, which is how this was found.
+ *
+ * A deps change is a different question and still clears, because showing the
+ * old answer under a new one is showing another estimate's lines.
+ */
+describe('refetching without blanking the screen', () => {
+  beforeEach(() => { hoisted.configured = true; });
+
+  it('keeps the last good data while it revalidates', async () => {
+    let answer = 'first';
+    const query = vi.fn(async () => answer);
+    const { result } = renderHook(() => useQuery(query, []));
+
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    expect((result.current as { data: string }).data).toBe('first');
+
+    answer = 'second';
+    act(() => { result.current.refetch(); });
+
+    // Still ready, still showing what it had, and saying it is refreshing.
+    expect(result.current.status).toBe('ready');
+    expect((result.current as { data: string }).data).toBe('first');
+    expect(result.current.refreshing).toBe(true);
+
+    await waitFor(() => expect((result.current as { data: string }).data).toBe('second'));
+    expect(result.current.refreshing).toBe(false);
+  });
+
+  it('clears to loading when the question itself changes', async () => {
+    // Not stale-while-revalidate across a different query: the old answer under
+    // a new question is another estimate's lines.
+    const query = vi.fn(async () => 'x');
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string }) => useQuery(query, [id]), { initialProps: { id: 'a' } });
+
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    rerender({ id: 'b' });
+    expect(result.current.status).toBe('loading');
+  });
+
+  it('replaces the data with a failure when a refetch fails', async () => {
+    /*
+     * Keeping stale rows under an error nobody sees is how a screen goes on
+     * showing yesterday's numbers.
+     */
+    let fail = false;
+    const query = vi.fn(async () => {
+      if (fail) throw new Error('JWT expired');
+      return 'ok';
+    });
+    const { result } = renderHook(() => useQuery(query, []));
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+
+    fail = true;
+    act(() => { result.current.refetch(); });
+    await waitFor(() => expect(result.current.status).toBe('error'));
+    expect(result.current.refreshing).toBe(false);
+  });
+
+  it('is not refreshing before anything has been asked for', () => {
+    const { result } = renderHook(() => useQuery(vi.fn(async () => 1), []));
+    expect(result.current.refreshing).toBe(false);
+  });
+});

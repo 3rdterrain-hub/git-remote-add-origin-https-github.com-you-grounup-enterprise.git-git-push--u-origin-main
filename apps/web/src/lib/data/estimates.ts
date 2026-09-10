@@ -831,6 +831,26 @@ export async function addLine(
 }
 
 /**
+ * What bidding a line in an off-list unit costs, in a sentence.
+ *
+ * The unit picker offers every unit on every line, deliberately — a company
+ * that bids topsoil by the load rather than the cubic yard is not making a
+ * mistake, and migration 0117 stopped refusing it. What it did instead was
+ * write the sentence that says what the choice costs: no production rate in the
+ * library is measured that way, so the hours stop coming from production and
+ * start coming from whatever crew and machines are on the line.
+ *
+ * `app.line_unit_note` has existed since that migration and nothing ever
+ * called it, so an estimator could change LF to EA on a line and be told
+ * nothing at all. Null when the unit is one the service lists, which is the
+ * ordinary case and wants no sentence.
+ */
+export async function lineUnitNote(client: RpcCapable, lineId: string): Promise<string | null> {
+  const note = await rpc<string | null>(client, 'line_unit_note', { p_line: lineId });
+  return note && note.trim().length > 0 ? note : null;
+}
+
+/**
  * Change a quantity.
  *
  * The measured quantity is the estimator's input and the only quantity they
