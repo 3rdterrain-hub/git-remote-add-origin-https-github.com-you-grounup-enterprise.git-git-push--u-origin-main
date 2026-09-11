@@ -35,6 +35,7 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { useQuery } from '@/lib/data/query';
 import {
   loadMyPlan, loadMySubscription, loadUsage, loadInvoices, loadBillableSeats, STATUS_SAYS,
+  loadBillingTerms, loadRefunds, REFUND_TONE,
   type UsageLine,
 } from '@/lib/data/billing';
 import { callFunction, isSupabaseConfigured } from '@/lib/supabase';
@@ -56,6 +57,19 @@ export function BillingPage() {
   const usageQ = useQuery(loadUsage(companyId), [companyId]);
   const invoicesQ = useQuery(loadInvoices(companyId), [companyId]);
   const seatsQ = useQuery(loadBillableSeats(companyId), [companyId]);
+  /*
+   * Why the invoice is what it is, and what money is coming back.
+   *
+   * `my_billing_terms` (0076) was written with a comment saying a customer
+   * unable to see why their invoice is what it is would be its own defect, and
+   * then nothing read it — a company on a negotiated 20% saw the list price and
+   * never the 20%. `my_refunds` (0085) split what an operator writes from what
+   * a customer reads, and the customer half was never rendered. Both cards go
+   * silent when there is nothing in them, because a billing page carrying two
+   * permanently empty panels is one people stop reading.
+   */
+  const termsQ = useQuery(loadBillingTerms(companyId), [companyId]);
+  const refundsQ = useQuery(loadRefunds(companyId), [companyId]);
 
   const { can } = usePermissions();
   const canManage = can('billing.manage');
@@ -64,6 +78,8 @@ export function BillingPage() {
   const sub = subQ.status === 'ready' ? subQ.data : null;
   const usage: UsageLine[] = usageQ.status === 'ready' ? usageQ.data : [];
   const invoices = invoicesQ.status === 'ready' ? invoicesQ.data : [];
+  const terms = termsQ.status === 'ready' ? termsQ.data : [];
+  const refunds = refundsQ.status === 'ready' ? refundsQ.data : [];
   const billableSeats = seatsQ.status === 'ready' ? seatsQ.data : null;
 
   const demonstration = planQ.status === 'demonstration';
@@ -406,6 +422,95 @@ export function BillingPage() {
           )}
         </CardContent>
       </Card>
+
+      {terms.length > 0 ? (
+        <Card id="your-terms">
+          <CardHeader>
+            <CardTitle>Your terms</CardTitle>
+            <CardDescription>
+              What was agreed for this company, and what it makes a seat cost. Shown because a
+              customer who cannot see why their invoice is what it is has no way to check it.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {terms.map((t) => (
+              <div key={`${t.kind}-${t.createdAt}`} className="space-y-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-medium text-charcoal-900">
+                    {t.kind === 'free' ? 'Free of charge'
+                      : t.kind === 'percent_off' ? `${percent((t.percentOff ?? 0) / 100, 0)} off`
+                      : `${money((t.seatPriceCents ?? 0) / 100)} a seat`}
+                  </span>
+                  <span className="text-xs text-charcoal-500">
+                    agreed {date(t.createdAt)}
+                    {t.validUntil ? `, holds until ${date(t.validUntil)}` : ''}
+                  </span>
+                </div>
+                <p className="text-sm text-charcoal-700">{t.reason}</p>
+                {/*
+                  * Only when there is a price to state. `seat_price_cents`
+                  * answers 0 when no plan price has been published, and
+                  * "a seat costs you $0.00 a month" is the same defect as an
+                  * uncosted material rendered as free.
+                  */}
+                {t.seatPriceMonthCents ? (
+                  <p className="text-sm text-charcoal-600">
+                    A seat costs you{' '}
+                    <span className="tabular">{money(t.seatPriceMonthCents / 100)}</span> a month
+                    {t.seatPriceYearCents ? (
+                      <>, or <span className="tabular">{money(t.seatPriceYearCents / 100)}</span> a year</>
+                    ) : null}.
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {refunds.length > 0 ? (
+        <Card id="refunds-and-credits">
+          <CardHeader>
+            <CardTitle>Refunds and credits</CardTitle>
+            <CardDescription>
+              Money coming back, and how far along it is. A credit is applied to the next invoice;
+              a refund goes back to the card it was taken from.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Requested</TableHead>
+                  <TableHead>Kind</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Standing</TableHead>
+                  <TableHead>Applied</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {refunds.map((r) => (
+                  <TableRow key={`${r.requestedAt}-${r.amountCents}`}>
+                    <TableCell className="text-charcoal-600">{date(r.requestedAt)}</TableCell>
+                    <TableCell>{titleCase(r.kind)}</TableCell>
+                    <TableCell className="tabular text-right">
+                      {money(r.amountCents / 100)}
+                    </TableCell>
+                    <TableCell>
+                      {/* The phrase comes from the view. Two places deciding what
+                        * 'applied' means to a customer is how they come to disagree. */}
+                      <Badge variant={REFUND_TONE[r.standing] ?? 'default'}>{r.standing}</Badge>
+                    </TableCell>
+                    <TableCell className="text-charcoal-600">
+                      {r.appliedAt ? date(r.appliedAt) : '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

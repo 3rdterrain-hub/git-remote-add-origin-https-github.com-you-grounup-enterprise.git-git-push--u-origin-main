@@ -165,6 +165,7 @@
     "vendors": "ENTITY",
     "visit_events": "ENTITY",
     "weather_days": "ENTITY",
+    "weather_now": "ENTITY",
     "work_calendar_exceptions": "LIBRARY",
     "work_calendars": "LIBRARY",
     "work_credential_requirements": "ENTITY",
@@ -361,7 +362,7 @@
       "id": "ENG-032",
       "name": "Quantity Arithmetic",
       "path": "packages/engine/src/arithmetic.ts",
-      "purpose": "Evaluates the arithmetic an estimator types into a quantity cell — a parser over five operators and brackets, never an interpreter, so an estimator’s text is not a code path. Refuses rather than returning a partial answer."
+      "purpose": "Evaluates the arithmetic an estimator types into a quantity cell \u2014 a parser over five operators and brackets, never an interpreter, so an estimator\u2019s text is not a code path. Refuses rather than returning a partial answer."
     }
   ],
   "ai_agents": [

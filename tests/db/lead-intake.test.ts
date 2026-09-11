@@ -271,4 +271,87 @@ describe('public lead intake', () => {
       expect(Number(n!.n)).toBe(1);
     });
   });
+
+  /*
+   * The door, as opposed to the machinery behind it.
+   *
+   * Everything above exercises `app.convert_lead`. What a browser reaches is
+   * `public.convert_lead`, and what a screen reads is a fixed list of columns
+   * on `leads` — neither of which was touched by any test, because for four
+   * migrations neither was touched by any code. This block is the joint.
+   */
+  describe('what the lead inbox reaches', () => {
+    let fresh = '';
+    beforeAll(async () => {
+      fresh = (await h.asUser(owner, () => h.sql<{ id: string }>(
+        `insert into leads (company_id, company_name, contact_name, email, phone,
+                            project_description, estimated_value, city, state_province, source)
+         values ($1, 'Perrysburg Storage', 'Dana Reyes', 'dana@perrysburg.test',
+                 '419-555-0143', 'Pad and stone for a 60x120 shop', 84000,
+                 'Perrysburg', 'OH', 'Website')
+         returning id`, [company])))[0]!.id;
+    });
+
+    it('reads exactly the columns the screen selects, with the form it came through', async () => {
+      const rows = await h.asUser(owner, () => h.sql<Record<string, unknown>>(
+        `select l.id, l.company_name, l.contact_name, l.email, l.phone, l.city,
+                l.state_province, l.project_description, l.estimated_value, l.stage,
+                l.source, l.submitted_at, l.next_follow_up_at, l.notes,
+                l.converted_customer_id, l.converted_at, l.created_at, f.name as form_name
+           from leads l
+           left join lead_intake_forms f on f.id = l.intake_form_id
+          where l.id = $1`, [fresh]));
+      expect(rows).toHaveLength(1);
+      expect(rows[0]!.company_name).toBe('Perrysburg Storage');
+      expect(Number(rows[0]!.estimated_value)).toBe(84000);
+      // Typed in by hand, so it never went through a form and has no submitted_at.
+      expect(rows[0]!.form_name).toBeNull();
+      expect(rows[0]!.submitted_at).toBeNull();
+    });
+
+    it('moves a stage through an ordinary update, which is all the screen does', async () => {
+      await h.asUser(owner, () => h.sql(
+        `update leads set stage = 'contacted' where id = $1`, [fresh]));
+      const [row] = await h.asUser(owner, () => h.sql<{ stage: string }>(
+        `select stage from leads where id = $1`, [fresh]));
+      expect(row!.stage).toBe('contacted');
+    });
+
+    it('refuses `converted` set by hand, which is why the screen never offers it', async () => {
+      /*
+       * The table's own constraint requires a customer on a converted lead, and
+       * the only thing that can attach one is `convert_lead`. A stage select
+       * offering 'converted' would produce a check violation a person could do
+       * nothing about.
+       */
+      await expect(h.asUser(owner, () => h.sql(
+        `update leads set stage = 'converted' where id = $1`, [fresh])))
+        .rejects.toThrow();
+    });
+
+    it('converts through the public function a browser can actually call', async () => {
+      await h.asUser(owner, () => h.sql(
+        `update leads set stage = 'qualified' where id = $1`, [fresh]));
+      const [r] = await h.asUser(owner, () => h.sql<{ id: string }>(
+        `select public.convert_lead($1, 'Perrysburg Storage — pad and stone', 84000) as id`,
+        [fresh]));
+      const [opp] = await h.asUser(owner, () => h.sql<{ name: string; stage: string }>(
+        `select name, stage from opportunities where id = $1`, [r!.id]));
+      expect(opp!.name).toBe('Perrysburg Storage — pad and stone');
+      const [l] = await h.asUser(owner, () => h.sql<{ stage: string; converted_customer_id: string }>(
+        `select stage, converted_customer_id from leads where id = $1`, [fresh]));
+      expect(l!.stage).toBe('converted');
+      expect(l!.converted_customer_id).toBeTruthy();
+    });
+
+    it('is granted to a signed-in person and to nobody else', async () => {
+      const [g] = await h.sql<{ authenticated: boolean; anon: boolean }>(
+        `select has_function_privilege('authenticated',
+                  'public.convert_lead(uuid, text, numeric)', 'execute') as authenticated,
+                has_function_privilege('anon',
+                  'public.convert_lead(uuid, text, numeric)', 'execute') as anon`);
+      expect(g!.authenticated).toBe(true);
+      expect(g!.anon).toBe(false);
+    });
+  });
 });

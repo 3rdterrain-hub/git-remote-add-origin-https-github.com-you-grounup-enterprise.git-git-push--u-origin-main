@@ -1031,3 +1031,48 @@ export const loadPricingProfiles: Query<PricingProfileRow[]> = async (client) =>
     };
   });
 };
+
+export interface UncostedMaterial {
+  id: string;
+  code: string;
+  name: string;
+  category: string | null;
+  unit: string;
+  /** False for a catalog row: pricing it copies it into the company first. */
+  isOwn: boolean;
+  usedOnLines: number;
+  usedOnEstimates: number;
+}
+
+/**
+ * Materials holding no price, worst first.
+ *
+ * `my_uncosted_materials` (migration 0133) is narrower than "every row with a
+ * null cost", and deliberately: a catalog material nobody has ever put on a
+ * line is not a problem to be worked through, it is a catalog of 800 things
+ * most companies will never buy. The view returns a company's own uncosted
+ * materials, plus any catalog row that is actually on somebody's line — and
+ * counts the lines and the estimates, which is what makes an order possible.
+ *
+ * Ordered here rather than in the view because the ordering is a judgment about
+ * what matters — money at risk today before tidiness — and that belongs next to
+ * the screen making the claim.
+ */
+export const loadUncostedMaterials: Query<UncostedMaterial[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_uncosted_materials')
+    .select('id, code, name, category, unit, is_own, used_on_lines, used_on_estimates')
+    .order('used_on_estimates', { ascending: false })
+    .order('used_on_lines', { ascending: false })
+    .order('name', { ascending: true })) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    code: String(r.code),
+    name: String(r.name),
+    category: (r.category as string | null) ?? null,
+    unit: String(r.unit),
+    isOwn: Boolean(r.is_own),
+    usedOnLines: Number(r.used_on_lines ?? 0),
+    usedOnEstimates: Number(r.used_on_estimates ?? 0),
+  }));
+};

@@ -33,9 +33,11 @@ import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { loadCrmCustomers, loadOpportunities, type CustomerRow } from '@/lib/data/crm';
+import { loadLeads } from '@/lib/data/leads';
 import { createCustomer, loadMyCompanyId } from '@/lib/data/estimates';
 import { money, moneyCompact, date, titleCase, plural } from '@/lib/format';
 import { LeadFormsSection } from '@/components/crm/lead-forms';
+import { LeadInboxSection } from '@/components/crm/lead-inbox';
 
 const STAGE_TONE: Record<string, 'default' | 'info' | 'warn' | 'success' | 'danger'> = {
   identified: 'default', qualifying: 'default', estimating: 'info',
@@ -46,6 +48,7 @@ const STAGE_TONE: Record<string, 'default' | 'info' | 'warn' | 'success' | 'dang
 export function CrmLivePage() {
   const customersQ = useQuery(loadCrmCustomers, []);
   const opportunitiesQ = useQuery(loadOpportunities, []);
+  const leadsQ = useQuery(loadLeads, []);
   const { can } = usePermissions();
   const { companyId } = useCompanyId();
   const [query, setQuery] = useState('');
@@ -53,6 +56,15 @@ export function CrmLivePage() {
 
   const customers = customersQ.status === 'ready' ? customersQ.data : [];
   const opportunities = opportunitiesQ.status === 'ready' ? opportunitiesQ.data : [];
+  const leads = leadsQ.status === 'ready' ? leadsQ.data : [];
+  /*
+   * The count on the tab, and the reason the tab exists. `leads` was written by
+   * the public intake from migration 0065 and read by nothing for four
+   * migrations: a lead nobody has spoken to is the one piece of this screen
+   * that costs money by sitting still, so it is counted where it can be seen
+   * without opening anything.
+   */
+  const waitingOnUs = leads.filter((l) => l.stage === 'new').length;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -190,8 +202,28 @@ export function CrmLivePage() {
         <TabsList>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="leads">
+            Leads
+            {waitingOnUs > 0 ? (
+              <Badge variant="info" className="ml-2">{waitingOnUs}</Badge>
+            ) : null}
+          </TabsTrigger>
           <TabsTrigger value="forms">Website form</TabsTrigger>
         </TabsList>
+
+        {/*
+          * What the form on the website brought in. The tab beside this one
+          * could already say a form had taken fourteen leads; there was nowhere
+          * to see one of the fourteen.
+          */}
+        <TabsContent value="leads">
+          {leadsQ.status === 'error'
+            ? <ErrorState message={leadsQ.message} onRetry={leadsQ.refetch} />
+            : leadsQ.status === 'loading'
+              ? <LoadingState label="Reading your leads" />
+              : <LeadInboxSection leads={leads} canEdit={can('crm.write')}
+                  onChanged={leadsQ.refetch} />}
+        </TabsContent>
 
         {/*
           * The public intake. It lives on this screen rather than in settings

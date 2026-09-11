@@ -175,6 +175,47 @@ describe('pricing a catalog material', () => {
       expect(Number(r!.n)).toBe(1);
       expect(r!.is_own).toBe(true);
     });
+
+    it('reads the exact column list the card selects, and counts estimates apart from lines', async () => {
+      /*
+       * `used_on_estimates` is what makes the list orderable by damage rather
+       * than alphabetically — two lines on one estimate is one estimate priced
+       * wrong, and two lines on two estimates is two. The view counted both
+       * from the day it was written and nothing read either, so nothing ever
+       * proved the distinction held.
+       */
+      const src = await catalog('Geotextile Fabric (non-woven)');
+      const put = async (number: string, lines: number) => {
+        const est = (await sql<{ id: string }>(
+          `insert into estimates (company_id, number, name)
+           values ($1,$2,'Separation layer') returning id`, [company, number]))[0]!.id;
+        const version = (await sql<{ id: string }>(
+          `insert into estimate_versions (company_id, estimate_id, version_number)
+           values ($1,$2,1) returning id`, [company, est]))[0]!.id;
+        for (let i = 0; i < lines; i += 1) {
+          const line = (await sql<{ id: string }>(
+            `insert into estimate_line_items (company_id, estimate_version_id, description,
+                                              measured_quantity, unit)
+             values ($1,$2,$3,100,'SY') returning id`,
+            [company, version, `Fabric run ${i + 1}`]))[0]!.id;
+          await sql(
+            `insert into estimate_line_resources (company_id, line_item_id, resource_kind,
+                                                  material_id, quantity, unit_rate)
+             values ($1,$2,'material',$3,100,0)`, [company, line, src.id]);
+        }
+      };
+      await put('EST-GEO-1', 2);
+      await put('EST-GEO-2', 1);
+
+      const [row] = await sql<Record<string, unknown>>(
+        `select id, code, name, category, unit, is_own, used_on_lines, used_on_estimates
+           from my_uncosted_materials where id = $1`, [src.id]);
+      expect(row).toBeDefined();
+      expect(Number(row!.used_on_lines)).toBe(3);
+      expect(Number(row!.used_on_estimates)).toBe(2);
+      expect(row!.is_own).toBe(false);
+      expect(row!.unit).toBeTruthy();
+    });
   });
 
   // ------------------------------------------------------------------- the units

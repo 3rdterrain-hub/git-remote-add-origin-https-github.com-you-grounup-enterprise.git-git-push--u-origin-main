@@ -1,8 +1,16 @@
 /**
  * POST /functions/v1/refresh-weather
  *
- * Fetches the forecast for a company's own yard and caches it, with a verdict
- * on each day: can this be worked, and if not, why not.
+ * Fetches the forecast for a place and caches it, with a verdict on each day:
+ * can this be worked, and if not, why not.
+ *
+ * The place is the company's yard by default, and a job site when `projectId`
+ * is given. That distinction is the whole of migration 0142: `projects` has
+ * carried `site_address`, `latitude` and `longitude` since 0007, and
+ * `app.award_estimate` copies them forward from the estimate — so the
+ * coordinates of the actual site were already in the row, read by nothing. A
+ * contractor in Toledo with a job in Sandusky is sixty miles and one
+ * lake-effect band away from the number on their own daily log.
  *
  * The verdict is the point. `estimate_versions.calendar_efficiency` has existed
  * since migration 0006 and the schedule engine models weather days; both take a
@@ -19,7 +27,7 @@
  * sends the city and state to resolve them once; the forecast call sends two
  * numbers. No company name, no address line, no person.
  */
-import { getCaller, isUuid } from '../_shared/auth.ts';
+import { getCaller, isUuid, type Caller } from '../_shared/auth.ts';
 import { fail, json, preflight } from '../_shared/http.ts';
 
 /**
@@ -47,6 +55,24 @@ const RULES = [
   { test: (d: Day) => d.high !== null && d.high < 32, reason: 'Below freezing all day' },
   { test: (d: Day) => d.gust !== null && d.gust >= 30, reason: 'High wind' },
 ] as const;
+
+/** Where the work is, when the caller named a project. */
+interface Site {
+  id: string;
+  latitude: number | null;
+  longitude: number | null;
+  site_city: string | null;
+  site_state: string | null;
+}
+
+/** What it is doing right now, as opposed to what the day will be. */
+interface Now {
+  observedAt: string;
+  temperature: number | null;
+  wind: number | null;
+  precip: number;
+  code: number | null;
+}
 
 interface Day {
   day: string;
@@ -83,10 +109,15 @@ Deno.serve(async (req) => {
     const caller = await getCaller(req);
     if (!caller) return fail('unauthenticated', 'Sign in to read the forecast.', 401, origin);
 
-    const { companyId, force } = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+    const { companyId, projectId, force } =
+      (await req.json().catch(() => ({}))) as Record<string, unknown>;
     if (!isUuid(companyId)) {
       return fail('bad_request', 'A valid companyId is required.', 400, origin);
     }
+    if (projectId !== undefined && projectId !== null && !isUuid(projectId)) {
+      return fail('bad_request', 'projectId must be a project id.', 400, origin);
+    }
+    const project = (projectId as string | undefined) ?? null;
 
     /*
      * Read through the caller's own client, so row level security decides
@@ -103,18 +134,68 @@ Deno.serve(async (req) => {
     }
     if (!company) return fail('forbidden', 'You are not a member of this company.', 403, origin);
 
+    /*
+     * Where the work is. A project with its own coordinates is asked about
+     * directly; one with only a site city is geocoded like the yard; one with
+     * neither falls back to the yard rather than refusing, because a project
+     * created this morning has no site address yet and a forecast from the
+     * yard is still better than an empty panel. `source` in the reply says
+     * which, so nothing has to guess.
+     */
+    let site: Site | null = null;
+    if (project) {
+      const { data, error } = await caller.client
+        .from('projects')
+        .select('id, latitude, longitude, site_city, site_state')
+        .eq('id', project)
+        .eq('company_id', companyId)
+        .maybeSingle();
+      if (error) {
+        return fail('lookup_failed', 'The project could not be read.', 500, origin, error);
+      }
+      if (!data) return fail('not_found', 'That project is not in this company.', 404, origin);
+      site = data as unknown as Site;
+    }
+
     // Fresh enough? Say so and make no external request.
     if (force !== true) {
-      const { data: recent } = await caller.client
+      let recentQuery = caller.client
         .from('weather_days')
         .select('fetched_at')
-        .eq('company_id', companyId)
+        .eq('company_id', companyId);
+      recentQuery = project
+        ? recentQuery.eq('project_id', project)
+        : recentQuery.is('project_id', null);
+      const { data: recent } = await recentQuery
         .order('fetched_at', { ascending: false })
         .limit(1);
       const at = recent?.[0]?.fetched_at as string | undefined;
       if (at && Date.now() - new Date(at).getTime() < CACHE_MINUTES * 60_000) {
-        return json({ companyId, refreshed: false, reason: 'cached', fetchedAt: at }, 200, origin);
+        return json({ companyId, projectId: project, refreshed: false, reason: 'cached',
+          fetchedAt: at }, 200, origin);
       }
+    }
+
+    /*
+     * A site that already knows where it is needs no geocoding and no company
+     * address at all. This is the ordinary case once a project has been awarded
+     * from an estimate that named a location.
+     */
+    if (site && site.latitude !== null && site.longitude !== null) {
+      return await record(caller, origin, companyId as string, project,
+        Number(site.latitude), Number(site.longitude), 'site');
+    }
+    if (site && site.site_city) {
+      const found = await geocode(site.site_city, site.site_state, null);
+      if (found) {
+        await caller.client.from('projects')
+          .update({ latitude: found.latitude, longitude: found.longitude })
+          .eq('id', site.id);
+        return await record(caller, origin, companyId as string, project,
+          found.latitude, found.longitude, 'site');
+      }
+      // Fall through to the yard rather than refusing: a forecast sixty miles
+      // away, clearly labeled, beats no forecast on a job that is running.
     }
 
     const addressText = [company.city, company.state_province, company.postal_code]
@@ -153,49 +234,81 @@ Deno.serve(async (req) => {
         .eq('id', companyId);
     }
 
-    const days = await forecast(latitude, longitude);
-    if (days.length === 0) {
-      return fail('forecast_failed', 'The forecast service returned nothing.', 502, origin);
-    }
-
-    const fetchedAt = new Date().toISOString();
-    const rows = days.map((d) => {
-      const blocker = RULES.find((r) => r.test(d));
-      return {
-        company_id: companyId,
-        day: d.day,
-        fetched_at: fetchedAt,
-        high_f: d.high, low_f: d.low,
-        precip_inches: d.precip, precip_chance: d.precipChance,
-        snow_inches: d.snow, wind_gust_mph: d.gust,
-        code: d.code,
-        summary: d.code === null ? null : (CONDITIONS[d.code] ?? 'Unsettled'),
-        workable: !blocker,
-        lost_reason: blocker?.reason ?? null,
-      };
-    });
-
-    const { error: writeError } = await caller.client
-      .from('weather_days')
-      .upsert(rows, { onConflict: 'company_id,day' });
-    if (writeError) {
-      return fail('write_failed', 'The forecast could not be saved.', 500, origin, writeError);
-    }
-
-    const workable = rows.filter((r) => r.workable).length;
-    return json({
-      companyId,
-      refreshed: true,
-      fetchedAt,
-      days: rows.length,
-      workable,
-      // The number `calendar_efficiency` has always wanted and never had.
-      efficiency: rows.length === 0 ? null : Number((workable / rows.length).toFixed(4)),
-    }, 200, origin);
+    return await record(caller, origin, companyId as string,
+      // A site that could not be placed on the map reports the yard, and says so.
+      site ? project : null, latitude, longitude, site ? 'yard_for_site' : 'yard');
   } catch (err) {
     return fail('internal_error', 'The forecast could not be refreshed.', 500, origin, err);
   }
 });
+
+/**
+ * Fetch, judge and store the forecast for one set of coordinates.
+ *
+ * The write goes through `record_site_weather` rather than an upsert, because
+ * one place's forecast is replaced wholesale and the two partial unique indexes
+ * migration 0142 uses cannot be named in a PostgREST conflict target. The
+ * function is also what refuses a field name nobody recognizes, which an upsert
+ * of a mistyped key would have written as a null and reported as a success.
+ */
+async function record(
+  caller: Caller,
+  origin: string | null,
+  companyId: string,
+  projectId: string | null,
+  latitude: number,
+  longitude: number,
+  source: 'site' | 'yard' | 'yard_for_site',
+): Promise<Response> {
+  const { days, now } = await forecast(latitude, longitude);
+  if (days.length === 0) {
+    return fail('forecast_failed', 'The forecast service returned nothing.', 502, origin);
+  }
+
+  const rows = days.map((d) => {
+    const blocker = RULES.find((r) => r.test(d));
+    return {
+      day: d.day,
+      high_f: d.high, low_f: d.low,
+      precip_inches: d.precip, precip_chance: d.precipChance,
+      snow_inches: d.snow, wind_gust_mph: d.gust,
+      code: d.code,
+      summary: d.code === null ? null : (CONDITIONS[d.code] ?? 'Unsettled'),
+      workable: !blocker,
+      lost_reason: blocker?.reason ?? null,
+    };
+  });
+
+  const { error } = await caller.client.rpc('record_site_weather', {
+    p_company: companyId,
+    p_project: projectId,
+    p_days: rows,
+    p_now: now === null ? null : {
+      observed_at: now.observedAt,
+      temperature_f: now.temperature,
+      wind_mph: now.wind,
+      precip_inches: now.precip,
+      code: now.code,
+      summary: now.code === null ? null : (CONDITIONS[now.code] ?? 'Unsettled'),
+    },
+  });
+  if (error) {
+    return fail('write_failed', 'The forecast could not be saved.', 500, origin, error);
+  }
+
+  const workable = rows.filter((r) => r.workable).length;
+  return json({
+    companyId,
+    projectId,
+    source,
+    refreshed: true,
+    fetchedAt: new Date().toISOString(),
+    days: rows.length,
+    workable,
+    // The number `calendar_efficiency` has always wanted and never had.
+    efficiency: Number((workable / rows.length).toFixed(4)),
+  }, 200, origin);
+}
 
 /** Resolve a city to coordinates. One request, and only when the address moves. */
 async function geocode(city: string | null, state: string | null, country: string | null) {
@@ -227,8 +340,10 @@ async function geocode(city: string | null, state: string | null, country: strin
   return { latitude: Number(hit.latitude), longitude: Number(hit.longitude) };
 }
 
-/** Seven days, in the units an American jobsite uses. */
-async function forecast(latitude: number, longitude: number): Promise<Day[]> {
+/** Seven days and the current hour, in the units an American jobsite uses. */
+async function forecast(
+  latitude: number, longitude: number,
+): Promise<{ days: Day[]; now: Now | null }> {
   const url = new URL('https://api.open-meteo.com/v1/forecast');
   url.searchParams.set('latitude', String(latitude));
   url.searchParams.set('longitude', String(longitude));
@@ -240,21 +355,48 @@ async function forecast(latitude: number, longitude: number): Promise<Day[]> {
   url.searchParams.set('temperature_unit', 'fahrenheit');
   url.searchParams.set('precipitation_unit', 'inch');
   url.searchParams.set('wind_speed_unit', 'mph');
+  /*
+   * `current=` is one extra parameter on the same request rather than a second
+   * call. A crew standing in it wants to know whether it is raining now, and a
+   * daily high answers a different question — which is why 0142 stores it in
+   * its own table rather than folding it into the day.
+   */
+  url.searchParams.set('current', [
+    'temperature_2m', 'precipitation', 'weather_code', 'wind_speed_10m',
+  ].join(','));
   url.searchParams.set('timezone', 'auto');
   url.searchParams.set('forecast_days', '7');
 
   const res = await fetch(url, { signal: AbortSignal.timeout(8_000) });
-  if (!res.ok) return [];
-  const body = await res.json() as { daily?: Record<string, unknown[]> };
+  if (!res.ok) return { days: [], now: null };
+  const body = await res.json() as {
+    daily?: Record<string, unknown[]>;
+    current?: Record<string, unknown>;
+  };
   const d = body.daily;
-  if (!d || !Array.isArray(d.time)) return [];
+  if (!d || !Array.isArray(d.time)) return { days: [], now: null };
+
+  const c = body.current;
+  const nowNum = (key: string): number | null => {
+    const v = c?.[key];
+    return typeof v === 'number' && Number.isFinite(v) ? v : null;
+  };
+  const now: Now | null = c && typeof c.time === 'string'
+    ? {
+      observedAt: new Date(c.time as string).toISOString(),
+      temperature: nowNum('temperature_2m'),
+      wind: nowNum('wind_speed_10m'),
+      precip: nowNum('precipitation') ?? 0,
+      code: nowNum('weather_code'),
+    }
+    : null;
 
   const at = (key: string, i: number): number | null => {
     const v = (d[key] as unknown[] | undefined)?.[i];
     return typeof v === 'number' && Number.isFinite(v) ? v : null;
   };
 
-  return (d.time as string[]).map((day, i) => ({
+  const days = (d.time as string[]).map((day, i) => ({
     day,
     high: at('temperature_2m_max', i),
     low: at('temperature_2m_min', i),
@@ -265,4 +407,6 @@ async function forecast(latitude: number, longitude: number): Promise<Day[]> {
     gust: at('wind_gusts_10m_max', i),
     code: at('weather_code', i),
   }));
+
+  return { days, now };
 }

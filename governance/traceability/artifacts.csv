@@ -195,6 +195,7 @@ TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overr
 TBL-vendors,table,vendors,supabase/migrations (table vendors),ENTITY
 TBL-visit_events,table,visit_events,supabase/migrations (table visit_events),ENTITY
 TBL-weather_days,table,weather_days,supabase/migrations (table weather_days),ENTITY
+TBL-weather_now,table,weather_now,supabase/migrations (table weather_now),ENTITY
 TBL-work_calendar_exceptions,table,work_calendar_exceptions,supabase/migrations (table work_calendar_exceptions),LIBRARY
 TBL-work_calendars,table,work_calendars,supabase/migrations (table work_calendars),LIBRARY
 TBL-work_credential_requirements,table,work_credential_requirements,supabase/migrations (table work_credential_requirements),ENTITY
@@ -273,6 +274,7 @@ TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGI
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
+TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
@@ -362,6 +364,7 @@ TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/time
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
 TST-db-unit-cost-and-suggestions,test,db/unit-cost-and-suggestions.test.ts,tests/db/unit-cost-and-suggestions.test.ts,ENGINE
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
+TST-db-weather-at-the-job-site,test,db/weather-at-the-job-site.test.ts,tests/db/weather-at-the-job-site.test.ts,ENGINE
 TST-db-what-a-line-sells-for,test,db/what-a-line-sells-for.test.ts,tests/db/what-a-line-sells-for.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
@@ -374,6 +377,7 @@ TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/sub
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
 TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
+TST-gov-every-door-has-a-reader,test,gov/every-door-has-a-reader.test.ts,tests/governance/every-door-has-a-reader.test.ts,ENGINE
 TST-gov-every-stat-tile-does-something,test,gov/every-stat-tile-does-something.test.ts,tests/governance/every-stat-tile-does-something.test.ts,ENGINE
 TST-gov-no-compiled-output-beside-the-source,test,gov/no-compiled-output-beside-the-source.test.ts,tests/governance/no-compiled-output-beside-the-source.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
@@ -384,6 +388,7 @@ TST-gov-the-product-does-not-name-the-model,test,gov/the-product-does-not-name-t
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-units-match-the-enum,test,gov/units-match-the-enum.test.ts,tests/governance/units-match-the-enum.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
+TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
@@ -407,6 +412,7 @@ TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.t
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.tsx,apps/web/src/components/library/services-without-a-breakdown.test.tsx,ENGINE
+TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE
 TST-web-taken-off,test,web/taken-off.test.tsx,apps/web/src/components/takeoff/taken-off.test.tsx,ENGINE

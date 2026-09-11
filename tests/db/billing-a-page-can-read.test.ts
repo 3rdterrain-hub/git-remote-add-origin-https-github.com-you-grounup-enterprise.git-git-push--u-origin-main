@@ -209,4 +209,137 @@ describe('what the billing screen reads', () => {
         .rejects.toThrow();
     });
   });
+
+  /*
+   * Two views that existed for the length of this build with no reader.
+   *
+   * `my_billing_terms` (0076) carries a comment saying, in as many words, that
+   * a customer unable to see why their invoice is what it is would be its own
+   * defect — and then nothing showed it, so a company on a negotiated 20% saw
+   * the list price and never the 20%. `my_refunds` (0085) was built with a
+   * deliberate split between what an operator writes and what a customer reads,
+   * and that split was never rendered to anybody.
+   */
+  describe('why the invoice is what it is', () => {
+    beforeAll(async () => {
+      await h.asService(async () => {
+        /*
+         * A published seat price, which is what a discount is a discount *off*.
+         * Without one `app.seat_price_cents` has nothing to reduce and answers
+         * 0 — and a screen that renders that reads "a seat costs you $0.00",
+         * which is the same defect as an uncosted material priced at nothing.
+         */
+        for (const [interval, cents] of [['month', 4900], ['year', 49000]] as const) {
+          await h.sql(
+            `insert into plan_prices (plan_id, stripe_price_id, interval, unit_amount_cents)
+             select pl.id, $1, $2, $3 from plans pl
+              where pl.is_active and pl.is_public order by pl.id limit 1
+             on conflict (plan_id, interval, usage_type) do update
+               set unit_amount_cents = excluded.unit_amount_cents,
+                   is_active = true, updated_at = now()`,
+            [`price_seat_${interval}`, interval, cents]);
+        }
+        await h.sql(
+          `insert into company_billing_terms (company_id, kind, percent_off, reason, valid_until)
+           values ($1, 'percent_off', 20, 'Negotiated at signing for a three-year term',
+                   now() + interval '2 years')`, [mine]);
+        await h.sql(
+          `insert into company_billing_terms (company_id, kind, percent_off, reason, revoked_at)
+           values ($1, 'percent_off', 50, 'Launch promotion, ended', now() - interval '1 day')`,
+          [mine]);
+        await h.sql(
+          `insert into company_billing_terms (company_id, kind, seat_price_cents, reason)
+           values ($1, 'fixed_seat_price', 1200, 'Rival co, different arrangement entirely')`,
+          [theirs]);
+      });
+    });
+
+    it('reads the terms the page shows, with the seat price they produce', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<Record<string, unknown>>(
+        `select kind, percent_off, seat_price_cents, reason, valid_until, created_at,
+                seat_price_month_cents, seat_price_year_cents
+           from my_billing_terms order by created_at desc`));
+      expect(rows).toHaveLength(1);
+      expect(rows[0]!.kind).toBe('percent_off');
+      expect(Number(rows[0]!.percent_off)).toBe(20);
+      // The reason is the whole point: it is the sentence that answers the question.
+      expect(rows[0]!.reason).toBe('Negotiated at signing for a three-year term');
+      /*
+       * The whole point of showing the terms: 20% off a $49 seat is $39.20, and
+       * the customer can check the arithmetic on their own invoice. A screen
+       * showing the list price beside a discount it never applies is worse than
+       * one showing neither.
+       */
+      expect(Number(rows[0]!.seat_price_month_cents)).toBe(3920);
+      expect(Number(rows[0]!.seat_price_year_cents)).toBe(39200);
+    });
+
+    it('leaves a revoked arrangement out, so nothing claims a discount that ended', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<{ percent_off: string }>(
+        `select percent_off from my_billing_terms`));
+      expect(rows.map((r) => Number(r.percent_off))).not.toContain(50);
+    });
+
+    it('shows one company nothing of another company’s arrangement', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<{ reason: string }>(
+        `select reason from my_billing_terms`));
+      expect(rows.map((r) => r.reason)).not.toContain('Rival co, different arrangement entirely');
+    });
+  });
+
+  describe('money coming back', () => {
+    beforeAll(async () => {
+      await h.asService(async () => {
+        await h.sql(
+          `insert into refund_requests (company_id, kind, amount_cents, reason, state)
+           values ($1, 'refund', 44100, 'Charged twice in the same period', 'requested')`, [mine]);
+        await h.sql(
+          `insert into refund_requests
+             (company_id, kind, amount_cents, reason, state, decided_by, decided_at, applied_at)
+           values ($1, 'credit', 9900, 'Seats billed for two people who had left',
+                   'applied', $2, now(), now())`, [mine, OWNER]);
+        await h.sql(
+          `insert into refund_requests
+             (company_id, kind, amount_cents, reason, state, decided_by, decided_at, decision_note)
+           values ($1, 'refund', 1000, 'Asked for a refund of the annual term',
+                   'rejected', $2, now(), 'Outside the refund window')`, [mine, OWNER]);
+        await h.sql(
+          `insert into refund_requests (company_id, kind, amount_cents, reason, state)
+           values ($1, 'refund', 500, 'Rival co, nothing to do with us', 'requested')`, [theirs]);
+      });
+    });
+
+    it('reads each one in the words the customer is meant to see', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<Record<string, unknown>>(
+        `select kind, amount_cents, currency, standing, requested_at, applied_at
+           from my_refunds order by amount_cents desc`));
+      expect(rows).toHaveLength(2);
+      expect(rows[0]!.standing).toBe('Being reviewed');
+      expect(rows[1]!.standing).toBe('Credited to your next invoice');
+    });
+
+    it('never hands the customer the note the operators wrote about them', async () => {
+      /*
+       * The view selects a fixed column list that excludes `reason`,
+       * `decision_note` and `error`. Asking for one by name is how that stays
+       * true through a later `create or replace view`.
+       */
+      await expect(h.asUser(OWNER, () => h.sql(`select decision_note from my_refunds`)))
+        .rejects.toThrow();
+      await expect(h.asUser(OWNER, () => h.sql(`select error from my_refunds`)))
+        .rejects.toThrow();
+    });
+
+    it('leaves a rejected request out entirely rather than showing a refusal', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<{ amount_cents: number }>(
+        `select amount_cents from my_refunds`));
+      expect(rows.map((r) => Number(r.amount_cents))).not.toContain(1000);
+    });
+
+    it('shows one company nothing of another company’s refunds', async () => {
+      const rows = await h.asUser(OWNER, () => h.sql<{ amount_cents: number }>(
+        `select amount_cents from my_refunds`));
+      expect(rows.map((r) => Number(r.amount_cents))).not.toContain(500);
+    });
+  });
 });

@@ -424,6 +424,12 @@ describe('every table leaves a record of what happened to it', () => {
     // in it originates here, and an estimate that needs to remember what
     // weather it assumed copies the numbers rather than pointing at these.
     weather_days: 'A refreshed forecast cache. Derived, replaceable, and of no evidentiary value.',
+    // The same cache and the same decision. Migration 0143 split the forecast
+    // in two because a day is a range and an observation is a point in time,
+    // and folding one into the other makes "today's high" mean whatever the
+    // temperature was at the last refresh. Splitting a table should not cost an
+    // exemption, which is why the cap below moved by one and not the reasoning.
+    weather_now: 'The other half of the forecast cache. Replaced on every refresh, derived, and of no evidentiary value.',
   };
 
   let tables: { table_name: string; audited: boolean; frozen: boolean }[] = [];
@@ -456,8 +462,9 @@ describe('every table leaves a record of what happened to it', () => {
 
   it('keeps the exemption list short and reasoned', () => {
     // An exemption is a decision somebody has to defend, not a place to put
-    // whatever failed the rule today.
-    expect(Object.keys(EXEMPT).length).toBeLessThanOrEqual(3);
+    // whatever failed the rule today. Four entries, three decisions: the two
+    // weather caches are one table split in half by migration 0143.
+    expect(Object.keys(EXEMPT).length).toBeLessThanOrEqual(4);
     for (const [table, reason] of Object.entries(EXEMPT)) {
       expect(tables.some((t) => t.table_name === table), table).toBe(true);
       expect(reason.length, table).toBeGreaterThan(40);

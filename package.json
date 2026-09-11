@@ -18,7 +18,9 @@
     "counts": "node scripts/build-test-counts.mjs",
     "counts:check": "node scripts/build-test-counts.mjs --check",
     "dev": "npm run dev -w @grounup/web",
-    "docs": "npm run schema:counts && npm run counts && npm run verification && npm run traceability && npm run schema:counts",
+    "docs": "npm run schema:counts && npm run counts && npm run verification && npm run traceability && npm run schema:counts && npm run doors",
+    "doors": "node scripts/build-door-inventory.mjs",
+    "doors:check": "node scripts/build-door-inventory.mjs --check",
     "engine:edge": "node scripts/build-edge-engine.mjs",
     "engine:edge:check": "node scripts/build-edge-engine.mjs --check",
     "functions:deploy": "npx supabase functions deploy --import-map supabase/functions/deno.json",
@@ -42,7 +44,7 @@
     "typecheck": "npm run typecheck -w @grounup/engine && npm run typecheck -w @grounup/pdf && tsc -p apps/web/tsconfig.app.json --noEmit && tsc -p supabase/functions/tsconfig.json",
     "verification": "node scripts/build-verification.mjs",
     "verification:check": "node scripts/build-verification.mjs --check",
-    "verify": "npm run typecheck && npm run engine:edge:check && npm run openapi:check && npm run schema:check && npm run verification:check && npm run traceability:check && npm run test && npm run counts:check && npm run build && npm run bundle:check"
+    "verify": "npm run typecheck && npm run engine:edge:check && npm run openapi:check && npm run schema:check && npm run verification:check && npm run traceability:check && npm run doors:check && npm run test && npm run counts:check && npm run build && npm run bundle:check"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

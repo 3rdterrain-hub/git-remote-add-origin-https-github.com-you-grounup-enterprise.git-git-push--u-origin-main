@@ -25,6 +25,7 @@ import {
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
 import { ImportPriceList } from '@/components/library/import-price-list';
+import { MaterialsWithNoPrice } from '@/components/library/materials-with-no-price';
 import { ImportRateSheet } from '@/components/library/import-rate-sheet';
 import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
@@ -444,6 +445,16 @@ export function LibrariesPage() {
             it went out, so a bid sent in March still reproduces at March&apos;s costs. That is
             what makes editing a rate safe rather than retroactive.
           </Alert>
+
+          {/*
+            * Materials priced at nothing, worst first. `my_uncosted_materials`
+            * counted the lines and the estimates each one was already sitting
+            * on from the day it was written, and nothing read it — so the
+            * number that says *this one is on four live estimates* was never
+            * shown to anybody who could act on it. Silent on a healthy library.
+            */}
+          <MaterialsWithNoPrice companyId={companyId} canEdit={canWrite}
+            onPriced={materialsQ.refetch} />
 
           <Card>
             <CardHeader>

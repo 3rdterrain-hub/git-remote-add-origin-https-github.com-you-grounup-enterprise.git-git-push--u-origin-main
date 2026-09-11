@@ -321,3 +321,99 @@ export const STATUS_SAYS: Record<string, { label: string; tone: 'success' | 'war
   incomplete: { label: 'Never completed', tone: 'warn' },
   incomplete_expired: { label: 'Expired before it started', tone: 'default' },
 };
+
+export interface BillingTerm {
+  kind: string;
+  percentOff: number | null;
+  seatPriceCents: number | null;
+  reason: string | null;
+  validUntil: string | null;
+  createdAt: string;
+  /** What a seat actually costs this company after the terms are applied. */
+  seatPriceMonthCents: number | null;
+  seatPriceYearCents: number | null;
+}
+
+/**
+ * Why this company's invoice is what it is.
+ *
+ * Migration 0076 built `company_billing_terms` — a negotiated discount, a fixed
+ * seat price, a nonprofit rate — and `my_billing_terms` to show it, with a
+ * comment saying in as many words that a customer unable to see why their
+ * invoice is what it is would be its own defect. The view was then read by
+ * nothing for the same reason everything else on this page was: the billing
+ * screen was a fixture. A company with a negotiated 20% could see the list
+ * price and never the 20%.
+ *
+ * Revoked terms are excluded by the view, so anything returned here is live.
+ */
+export const loadBillingTerms: ForCompany<BillingTerm[]> = (companyId) => async (client) => {
+  let query = client
+    .from('my_billing_terms')
+    .select('kind, percent_off, seat_price_cents, reason, valid_until, created_at,'
+      + ' seat_price_month_cents, seat_price_year_cents');
+  if (companyId) query = query.eq('company_id', companyId);
+  const rows = unwrap(await query.order('created_at', { ascending: false })) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    kind: String(r.kind),
+    percentOff: r.percent_off === null || r.percent_off === undefined ? null : Number(r.percent_off),
+    seatPriceCents: r.seat_price_cents === null || r.seat_price_cents === undefined
+      ? null : Number(r.seat_price_cents),
+    reason: (r.reason as string | null) ?? null,
+    validUntil: (r.valid_until as string | null) ?? null,
+    createdAt: String(r.created_at),
+    seatPriceMonthCents: r.seat_price_month_cents === null || r.seat_price_month_cents === undefined
+      ? null : Number(r.seat_price_month_cents),
+    seatPriceYearCents: r.seat_price_year_cents === null || r.seat_price_year_cents === undefined
+      ? null : Number(r.seat_price_year_cents),
+  }));
+};
+
+export interface RefundView {
+  kind: string;
+  amountCents: number;
+  currency: string;
+  /** The state in words. The view writes this; the screen never invents one. */
+  standing: string;
+  requestedAt: string;
+  appliedAt: string | null;
+}
+
+/**
+ * Money coming back, and where it has got to.
+ *
+ * Migration 0085 built refund requests with a deliberate split: the internal
+ * reason and the note between operators stay inside, and the customer sees the
+ * state in plain words — 'Being reviewed', 'Refunded to your card'. Getting that
+ * split right and then never rendering it meant a customer who had been
+ * promised a credit had no way to see it existed, and would ask again.
+ *
+ * The phrase is taken from the view rather than mapped here on purpose: two
+ * places deciding what 'applied' means to a customer is how they come to
+ * disagree.
+ */
+export const loadRefunds: ForCompany<RefundView[]> = (companyId) => async (client) => {
+  let query = client
+    .from('my_refunds')
+    .select('kind, amount_cents, currency, standing, requested_at, applied_at');
+  if (companyId) query = query.eq('company_id', companyId);
+  const rows = unwrap(await query.order('requested_at', { ascending: false })) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    kind: String(r.kind),
+    amountCents: Number(r.amount_cents ?? 0),
+    currency: String(r.currency ?? 'USD'),
+    standing: String(r.standing ?? ''),
+    requestedAt: String(r.requested_at),
+    appliedAt: (r.applied_at as string | null) ?? null,
+  }));
+};
+
+/** How far along a refund is, for the badge beside it. */
+export const REFUND_TONE: Record<string, 'success' | 'warn' | 'danger' | 'default'> = {
+  'Being reviewed': 'warn',
+  'Approved, being processed': 'warn',
+  'Refunded to your card': 'success',
+  'Credited to your next invoice': 'success',
+  'Not approved': 'default',
+  'Could not be processed': 'danger',
+};
