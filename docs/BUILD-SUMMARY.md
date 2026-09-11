@@ -11,9 +11,9 @@
 | Database & function tests | 111 | ~29,900 |
 | Governance & traceability tests | 15 | ~3,800 |
 | Web application (49 routes, 29 app screens) | 259 | ~65,400 |
-| Documentation | 15 | ~5,600 |
+| Documentation | 16 | ~5,900 |
 | Seed & tooling | 12 | ~3,200 |
-| **Total hand-written** | **677** | **~171,100** |
+| **Total hand-written** | **678** | **~171,500** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the

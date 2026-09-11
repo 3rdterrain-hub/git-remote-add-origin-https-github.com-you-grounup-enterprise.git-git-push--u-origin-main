@@ -191,21 +191,80 @@ npm run verify   # typecheck, edge fingerprint, openapi, schema, counts,
 
 ---
 
-## 9. State of the build
+## 9. Technology, structure and conventions
 
-**Green.** The gate passes from a clean tree. The estimator prices labor,
-burden, equipment, mobilization, fuel, material, trucking, disposal, subcontract
-and parametric lines, applies condition modifiers and markup, and writes its
-outputs only through `record_engine_result`.
+**Stack.** PostgreSQL 18 (Supabase) · Deno Edge Functions · TypeScript
+everywhere · React 19 + Vite + Tailwind + shadcn/ui · Vitest + Testing Library ·
+PGlite for database tests.
 
-Recorded here rather than in a plan, because what remains is the honest part:
+**Naming.** Migrations are `NNNN_what_it_does.sql`, named for the thing rather
+than the table. Database identifiers are `snake_case`; TypeScript is `camelCase`;
+the data layer translates at the boundary and nowhere else. A `my_*` view is
+caller-scoped by row level security. A `public.*` function is the browser-facing
+wrapper over an `app.*` implementation.
 
-- **Weather at the job site** is partly built — migration 0105 and the
-  `refresh-weather` function cover the forecast; per-project siting and current
-  conditions are the next slice.
-- **The toolbar** is worked in order. Each section closes with the user told.
+**Data.** 168 tables, 87 views (20 reporting), 148 migrations. Catalog seeds sit
+at 0900+ — which is why `db push` needs `--include-all`.
+
+**Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
+design), an AI provider behind the Edge Functions, Resend for email.
+
+**Security.** Row level security on every tenant table; entitlement gates on
+module heads; the suspension guard on every `company_id` table; engine outputs
+writable only through `record_engine_result`; secrets server-side only, proven
+by the bundle scan in `verify`.
 
 ---
 
-*Kept current by hand. A statement here that stops being true is worse than no
-statement at all — delete it or fix it on the commit that makes it false.*
+## 10. State of the build
+
+**Green.** The gate passes from a clean tree. The estimator prices labor,
+burden, equipment, mobilization, fuel, material, trucking, disposal, subcontract
+and parametric lines, applies condition modifiers and markup, clears the
+confidence gate, and can be approved, issued and awarded into a project that
+carries the bid, the budget, the site and every priced line as a budgeted task.
+
+**Door inventory: 161 doors, 0 with no reader, 0 granted but unreachable.**
+
+### Deployment
+
+The live workspace is `3RD Terrain`, on the `grounup` plan (manual grant, no
+expiry — see `DECISION_LOG.md` D-012). All migrations through 0148 are applied;
+all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
+`PRJ-2026-0003`.
+
+### Known limitations
+
+- The shipped catalog's assemblies reference tasks that carry no crew, equipment
+  or material, so a library line prices at $0 until it is built up. Labor
+  (56/56) and equipment (516/517) rates *are* costed; materials are 5/333.
+- `project-detail`'s Daily report, Change order and New RFI buttons are not
+  wired to writers yet.
+- Three retired plans (`starter`, `professional`, `business`, `enterprise`) and
+  `partner_white_label` remain in `plans` because plans are versioned commercial
+  terms.
+
+### Recommended next actions
+
+1. Work the toolbar in order, saying before each section closes.
+2. Wire the three project-detail actions.
+3. Compose task resources in the catalog, or document that pricing is by hand.
+
+---
+
+## 11. Where the records are
+
+| Record | File |
+|---|---|
+| Current state | `PROJECT_MEMORY.md` — this file |
+| Requirements | `REQUIREMENTS_TRACEABILITY.md` |
+| Decisions | `DECISION_LOG.md` |
+| The protocol | `governance/EXECUTION_PROTOCOL.md` |
+| Doors | `governance/DOORS.md` (generated) |
+| Specification tracing | `governance/traceability/` (generated) |
+
+---
+
+*Kept current by hand, every session that changes what it describes. A statement
+here that stops being true is worse than no statement at all — delete it or fix
+it on the commit that makes it false.*

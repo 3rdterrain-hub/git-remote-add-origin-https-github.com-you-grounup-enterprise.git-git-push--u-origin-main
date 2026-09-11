@@ -15,6 +15,25 @@ Never present a workaround when the real fix exists. Search *before* building.
 When something is asked for, the answer is a finished product — not a plan to
 build one. Time, fatigue and complexity are not excuses.
 
+**`governance/EXECUTION_PROTOCOL.md` is the full statement of this, given
+verbatim on 11 September 2026 and standing from that point. Read it at the start
+of every session, along with this file.** It defines what "done" means, the three
+memory files that must be maintained, the research required before building, the
+testing that is mandatory, the three reviews before delivering, and the shape of
+the final response. Where it and a habit disagree, it wins.
+
+### The three memory files, maintained every session
+
+- `PROJECT_MEMORY.md` — the project's current state, at the repository root.
+- `REQUIREMENTS_TRACEABILITY.md` — every requirement, with its id, source,
+  implementation, covering test and status.
+- `DECISION_LOG.md` — every material decision, with its reason, alternatives,
+  authority and what it superseded.
+
+They are deliverables, not notes. Update them *during* the session that changes
+what they describe. Read all three before starting new work, and continue from
+the last verified state rather than rebuilding what is done.
+
 ---
 
 ## Before building: search
