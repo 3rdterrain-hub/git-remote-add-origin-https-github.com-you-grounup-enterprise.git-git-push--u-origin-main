@@ -353,6 +353,7 @@ TST-db-seed,test,db/seed.test.ts,tests/db/seed.test.ts,ENGINE
 TST-db-semantic,test,db/semantic.test.ts,tests/db/semantic.test.ts,ENGINE
 TST-db-service-units,test,db/service-units.test.ts,tests/db/service-units.test.ts,ENGINE
 TST-db-signup,test,db/signup.test.ts,tests/db/signup.test.ts,ENGINE
+TST-db-six-functions-nobody-could-call,test,db/six-functions-nobody-could-call.test.ts,tests/db/six-functions-nobody-could-call.test.ts,ENGINE
 TST-db-smoke,test,db/smoke.test.ts,tests/db/smoke.test.ts,ENGINE
 TST-db-snapshots,test,db/snapshots.test.ts,tests/db/snapshots.test.ts,ENGINE
 TST-db-social-signin,test,db/social-signin.test.ts,tests/db/social-signin.test.ts,ENGINE
@@ -406,6 +407,7 @@ TST-web-quantity-input,test,web/quantity-input.test.tsx,apps/web/src/components/
 TST-web-resource-picker,test,web/resource-picker.test.tsx,apps/web/src/components/estimate/resource-picker.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-unit-cost,test,web/unit-cost.test.tsx,apps/web/src/components/estimate/unit-cost.test.tsx,ENGINE
+TST-web-closing-the-books,test,web/closing-the-books.test.tsx,apps/web/src/components/finance/closing-the-books.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-nav-names-the-screen,test,web/nav-names-the-screen.test.ts,apps/web/src/components/layout/nav-names-the-screen.test.ts,ENGINE
@@ -416,6 +418,8 @@ TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.t
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.tsx,apps/web/src/components/library/services-without-a-breakdown.test.tsx,ENGINE
+TST-web-what-a-haul-costs,test,web/what-a-haul-costs.test.tsx,apps/web/src/components/library/what-a-haul-costs.test.tsx,ENGINE
+TST-web-search-the-drawings,test,web/search-the-drawings.test.tsx,apps/web/src/components/plans/search-the-drawings.test.tsx,ENGINE
 TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE

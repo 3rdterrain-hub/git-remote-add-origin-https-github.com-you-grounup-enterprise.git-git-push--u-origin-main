@@ -15,7 +15,7 @@
  * analysis does on its way past.
  */
 import { unwrap, type Query } from './query';
-import { callFunction } from '@/lib/supabase';
+import { callFunction, supabase } from '@/lib/supabase';
 
 export interface PlanDocument {
   id: string;
@@ -346,4 +346,50 @@ export async function rejectFinding(
   client: RpcCapable, findingId: string, note: string,
 ): Promise<void> {
   await rpc(client, 'reject_finding', { p_finding: findingId, p_note: note.trim() });
+}
+
+export interface SheetTextHit {
+  documentId: string;
+  documentName: string;
+  versionNumber: number;
+  pageNumber: number;
+  sheetNumber: string | null;
+  /** A window around the first match, so a result shows why it matched. */
+  snippet: string;
+  rank: number;
+}
+
+/**
+ * Search what the drawings say, not only what they are called.
+ *
+ * `document_sheets.extracted_text` has carried a trigram index and a comment
+ * saying it is "used for permission-filtered search across the plan set" since
+ * migration 0036. That migration also wrote `app.search_document_text` to
+ * fulfill it, observing that "nothing queried it" — and then nothing queried the
+ * fix either, for eleven migrations, because it had no `public.` wrapper.
+ *
+ * The global search bar is not the place for this. It matches sheets on number
+ * and title and exists to jump to a record; searching inside a plan set is a
+ * different task with snippets, page numbers and a result you read rather than
+ * click through. 0147 gave the function its door and this is the caller.
+ *
+ * SECURITY INVOKER all the way down, so "permission-filtered" means row level
+ * security rather than a filter somebody remembered to write.
+ */
+export async function searchSheetText(query: string, limit = 25): Promise<SheetTextHit[]> {
+  if (!supabase || query.trim().length < 2) return [];
+  const { data, error } = await supabase.rpc('search_document_text', {
+    p_query: query, p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  const rows = (Array.isArray(data) ? data : []) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    documentId: String(r.document_id),
+    documentName: String(r.document_name),
+    versionNumber: Number(r.version_number ?? 1),
+    pageNumber: Number(r.page_number ?? 0),
+    sheetNumber: (r.sheet_number as string | null) ?? null,
+    snippet: String(r.snippet ?? ''),
+    rank: Number(r.rank ?? 0),
+  }));
 }

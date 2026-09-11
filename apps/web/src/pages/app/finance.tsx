@@ -14,6 +14,8 @@ import {
   demonstrationPayApplications, demonstrationWip, demonstrationPayables, demonstrationCashForecast,
 } from '@/lib/data/finance';
 import { useQuery } from '@/lib/data/query';
+import { usePermissions } from '@/lib/data/session';
+import { ClosingTheBooks } from '@/components/finance/closing-the-books';
 import { DemonstrationNotice, ErrorState, LoadingState, EmptyState } from '@/components/data-state';
 import { money, moneyCompact, percent, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -25,6 +27,7 @@ export function FinancePage() {
    * nothing below to point at, so they explain themselves in place.
    */
   const [tab, setTab] = useState('payapp');
+  const { can } = usePermissions();
   const payAppsQ = useQuery(loadPayApplications, []);
   const wipQ = useQuery(loadWip, []);
   const payablesQ = useQuery(loadPayables, []);
@@ -191,6 +194,7 @@ export function FinancePage() {
           <TabsTrigger value="wip">Work in progress</TabsTrigger>
           <TabsTrigger value="payables">Payables ({openAp.length})</TabsTrigger>
           <TabsTrigger value="cash">Cash forecast</TabsTrigger>
+          <TabsTrigger value="periods">Closing the books</TabsTrigger>
         </TabsList>
 
         {/* ------------------------------------------------ pay application */}
@@ -516,6 +520,15 @@ export function FinancePage() {
         </TabsContent>
 
         {/* ------------------------------------------------------------ cash */}
+        {/*
+          * Closing a period is what makes its total stop changing, and the
+          * whole mechanism — the table, the posting guard, the close with its
+          * check — had no door until 0147.
+          */}
+        <TabsContent value="periods">
+          <ClosingTheBooks canClose={can('finance.write')} />
+        </TabsContent>
+
         <TabsContent value="cash">
           <Card>
             <CardHeader>

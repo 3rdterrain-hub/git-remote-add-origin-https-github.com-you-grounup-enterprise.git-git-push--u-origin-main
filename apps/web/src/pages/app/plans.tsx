@@ -50,6 +50,7 @@ import {
 } from '@/lib/data/plans';
 import { loadEstimates } from '@/lib/data/estimates';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { SearchTheDrawings } from '@/components/plans/search-the-drawings';
 import { date, dateTime, integer, titleCase, money, percent, qty, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -212,8 +213,18 @@ export function PlansPage() {
         <TabsList>
           <TabsTrigger value="findings">AI findings ({pending.length} pending)</TabsTrigger>
           <TabsTrigger value="documents">Document register ({documents.length})</TabsTrigger>
+          <TabsTrigger value="search">Search the drawings</TabsTrigger>
           <TabsTrigger value="pipeline">Ingestion pipeline</TabsTrigger>
         </TabsList>
+
+        {/*
+          * What the sheets say, as opposed to what they are called. The
+          * function behind it was written in 0036 for a column whose own
+          * comment asked for it, and had no door until 0147.
+          */}
+        <TabsContent value="search">
+          <SearchTheDrawings />
+        </TabsContent>
 
         {/* -------------------------------------------------------- findings */}
         <TabsContent value="findings" className="space-y-4">

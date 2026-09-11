@@ -1076,3 +1076,49 @@ export const loadUncostedMaterials: Query<UncostedMaterial[]> = async (client) =
     usedOnEstimates: Number(r.used_on_estimates ?? 0),
   }));
 };
+
+export interface HaulPrice {
+  pricingBasis: string;
+  /** Null on a cycle-priced haul: trips come out of a cycle analysis. */
+  tripsPaid: number | null;
+  /** Null where the basis cannot answer without a cycle analysis. */
+  cost: number | null;
+  effectiveRatePerUnit: number | null;
+  unusedCapacity: number | null;
+}
+
+/**
+ * What a quantity costs on one haul rate's own basis.
+ *
+ * `app.haul_cost` was written in 0067 with its reasoning stated plainly: the
+ * trip arithmetic is duplicated from `packages/engine/src/trucking.ts` rather
+ * than shared, because "the engine cannot be called from SQL, and a company
+ * comparing quotes on a screen should not need an Edge Function round trip per
+ * row". A test runs the same cases through both and fails if they disagree.
+ *
+ * There was no screen. The function had no `public.` wrapper for eighty
+ * migrations, so the round trip it was written to avoid was the only way to get
+ * the number — and nothing took it. Migration 0147 is the door.
+ *
+ * A cycle-priced haul answers null rather than a figure, and that is the point
+ * of asking the database instead of multiplying in the component: inventing a
+ * cost from the hourly rate alone is the shortcut the basis exists to avoid.
+ */
+export async function haulCost(
+  client: Writer, rateId: string, quantity: number,
+): Promise<HaulPrice | null> {
+  const { data, error } = await client.rpc('haul_cost', {
+    p_rate_id: rateId, p_quantity: quantity,
+  });
+  if (error) throw new Error(error.message);
+  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  const maybe = (v: unknown) => (v === null || v === undefined ? null : Number(v));
+  return {
+    pricingBasis: String(row.pricing_basis),
+    tripsPaid: maybe(row.trips_paid),
+    cost: maybe(row.cost),
+    effectiveRatePerUnit: maybe(row.effective_rate_per_unit),
+    unusedCapacity: maybe(row.unused_capacity),
+  };
+}

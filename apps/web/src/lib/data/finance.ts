@@ -13,6 +13,12 @@
  * cases, so the empty and unknown states are exercised without a workspace.
  */
 import { unwrap, type Query } from './query';
+
+/** Anything that can make an RPC — the live client, or a test double. */
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
 import {
   SCHEDULE_OF_VALUES, PAY_APPLICATIONS, WIP, AP_INVOICES, RETAINAGE_PERCENT,
   payApplicationTotals, PROJECT,
@@ -287,3 +293,84 @@ export const demonstrationCashForecast = (): CashMonth[] => {
   return [...buckets.values()].sort((a, b) =>
     a.month == null ? 1 : b.month == null ? -1 : a.month.localeCompare(b.month));
 };
+
+export interface FinancialPeriod {
+  id: string;
+  name: string;
+  periodStart: string;
+  periodEnd: string;
+  status: 'open' | 'closed';
+  closedAt: string | null;
+  closedBy: string | null;
+  /** Pay applications inside it that are still moving. */
+  openPayApplications: number;
+}
+
+/**
+ * The accounting periods, and what is still open inside each.
+ *
+ * `financial_periods` and `app.enforce_open_period` have existed since
+ * migration 0034 — a posting into a closed period is refused, and so is moving
+ * one out of a closed period — and nothing in the application has ever read the
+ * table. A company running a month-end close had the machinery and no way to
+ * see or operate it.
+ *
+ * The count of open pay applications is read alongside because it is the thing
+ * that will refuse the close: a period shut over a draft produces a total that
+ * is going to move, which is the one thing closing is for.
+ */
+export const loadFinancialPeriods: Query<FinancialPeriod[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('financial_periods')
+    .select('id, name, period_start, period_end, status, closed_at, closed_by')
+    .order('period_start', { ascending: false })
+    .limit(24)) as Array<Record<string, unknown>>;
+  if (rows.length === 0) return [];
+
+  /*
+   * One read for every period rather than one per period. `pay_applications`
+   * carries the period it falls in as dates rather than a foreign key, so the
+   * overlap is decided here — and it is decided the same way
+   * `app.close_financial_period` decides it, by `period_end` falling inside.
+   */
+  const open = unwrap(await client
+    .from('pay_applications')
+    .select('period_end, status')
+    .in('status', ['draft', 'submitted'])) as Array<Record<string, unknown>>;
+
+  return rows.map((p) => {
+    const start = String(p.period_start);
+    const end = String(p.period_end);
+    return {
+      id: String(p.id),
+      name: String(p.name),
+      periodStart: start,
+      periodEnd: end,
+      status: p.status === 'closed' ? 'closed' : 'open',
+      closedAt: (p.closed_at as string | null) ?? null,
+      closedBy: (p.closed_by as string | null) ?? null,
+      openPayApplications: open.filter((a) => {
+        const at = String(a.period_end);
+        return at >= start && at <= end;
+      }).length,
+    };
+  });
+};
+
+/**
+ * Close a period, after the database checks nothing inside it is still open.
+ *
+ * `app.close_financial_period` has existed since 0034 and had no `public.`
+ * wrapper until 0147, so no browser could call it. The check it carries is the
+ * reason it is a function rather than an UPDATE: a close that silently leaves a
+ * draft pay application inside produces a period total that is still going to
+ * change.
+ */
+export async function closeFinancialPeriod(
+  client: RpcCapable, periodId: string, note?: string,
+): Promise<void> {
+  const { error } = await client.rpc('close_financial_period', {
+    p_period: periodId, p_note: note?.trim() ? note.trim() : null,
+  });
+  if (error) throw new Error(error.message);
+}

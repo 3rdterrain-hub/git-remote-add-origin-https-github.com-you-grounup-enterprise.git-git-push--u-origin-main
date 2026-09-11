@@ -27,6 +27,7 @@ import { CostCell } from '@/components/library/cost-cell';
 import { ImportPriceList } from '@/components/library/import-price-list';
 import { MaterialsWithNoPrice } from '@/components/library/materials-with-no-price';
 import { ImportRateSheet } from '@/components/library/import-rate-sheet';
+import { WhatAHaulCosts } from '@/components/library/what-a-haul-costs';
 import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
@@ -533,6 +534,13 @@ export function LibrariesPage() {
           {truckingQ.status === 'loading' ? <LoadingState label="Reading haul rates" /> : null}
           {truckingQ.status === 'error'
             ? <ErrorState message={truckingQ.message} onRetry={truckingQ.refetch} /> : null}
+
+          {/*
+            * The comparison `app.haul_cost` was written for in 0067 and never
+            * got a screen: "a company comparing quotes on a screen should not
+            * need an Edge Function round trip per row".
+            */}
+          <WhatAHaulCosts rates={trucking} />
 
           <Card>
             <CardHeader>

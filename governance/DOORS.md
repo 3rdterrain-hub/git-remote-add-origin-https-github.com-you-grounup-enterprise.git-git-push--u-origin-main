@@ -12,12 +12,12 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **157** |
-| Opened by a screen | **139** |
+| Doors | **160** |
+| Opened by a screen | **142** |
 | Opened only by an Edge Function | **3** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
-| Granted but unreachable | **6** |
+| Granted but unreachable | **0** |
 
 ## No reader
 
@@ -31,14 +31,7 @@ with no reader, one layer down. The list is pinned in the script: a new one
 fails the check, and a name that leaves it has either been wired or had its
 grant removed.
 
-| Function | Granted in |
-|---|---|
-| `app.assert_line_open` | 0111_a_signed_estimate_is_signed_all_the_way_down.sql |
-| `app.close_financial_period` | 0034_financial_periods.sql |
-| `app.current_metric_version` | 0040_metric_governance.sql |
-| `app.estimate_is_expired` | 0102_an_estimate_that_expires.sql |
-| `app.haul_cost` | 0067_haul_pricing_bases.sql |
-| `app.search_document_text` | 0036_document_integrity.sql |
+None.
 
 ## Server-side by design
 
@@ -90,6 +83,7 @@ grant removed.
 | `clear_line_unit_cost` | function | lib/data/estimates.ts |
 | `clock_in` | function | lib/data/time-clock.ts |
 | `clock_out` | function | lib/data/time-clock.ts |
+| `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
 | `convert_lead` | function | lib/data/leads.ts |
 | `create_company_for` | function | lib/data/admin.ts |
@@ -109,6 +103,7 @@ grant removed.
 | `earnings` | function | lib/data/admin.ts |
 | `end_break` | function | lib/data/time-clock.ts |
 | `estimate_drift` | function | lib/data/estimates.ts |
+| `haul_cost` | function | lib/data/library.ts |
 | `hire_operator` | function | lib/data/admin.ts |
 | `import_equipment_rates` | function | lib/data/library.ts |
 | `import_materials` | function | lib/data/library.ts |
@@ -176,7 +171,8 @@ grant removed.
 | `save_estimate_template` | function | lib/data/templates.ts |
 | `save_line_resource` | function | lib/data/estimates.ts |
 | `save_line_to_library` | function | lib/data/estimates.ts |
-| `search` | function | components/layout/app-shell.tsx, lib/search.ts |
+| `search` | function | components/layout/app-shell.tsx, lib/data/plans.ts, lib/search.ts +1 |
+| `search_document_text` | function | lib/data/plans.ts |
 | `set_allowance` | function | lib/data/admin.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
 | `set_company_plan` | function | lib/data/admin.ts |

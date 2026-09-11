@@ -135,22 +135,18 @@ for (const file of migrations) {
 /**
  * `app.*` grants that reach nobody, recorded by name rather than fixed today.
  *
- * Each is granted to `authenticated`, called by no other SQL, and invisible to
- * PostgREST — so no browser can reach it. That is the same defect as a door
- * with no reader, one layer down, and the list is pinned so it cannot grow
- * quietly: a seventh fails the check, and removing one means somebody either
- * wired it or took the grant away.
+ * Each would be granted to `authenticated`, called by no other SQL, and
+ * invisible to PostgREST — so no browser could reach it. That is the same
+ * defect as a door with no reader, one layer down, and the list is pinned so it
+ * cannot grow quietly: a new one fails the check, and a name that leaves it has
+ * been wired or had its grant taken away.
  *
- * They are not exceptions and they are not fine. They are a queue.
+ * It is empty, and that is the point of keeping it. Six sat here — three
+ * helpers whose one caller re-implemented them alongside, and three features
+ * with no door at all — and migration 0147 worked through every one. A name
+ * added below without being fixed is a defect being written down.
  */
-const UNREACHABLE_GRANTS = new Set([
-  'assert_line_open',
-  'close_financial_period',
-  'current_metric_version',
-  'estimate_is_expired',
-  'haul_cost',
-  'search_document_text',
-]);
+const UNREACHABLE_GRANTS = new Set([]);
 
 for (const [name, file] of granted) {
   if (doors.has(name)) continue;           // a `public.` wrapper already exposes it
