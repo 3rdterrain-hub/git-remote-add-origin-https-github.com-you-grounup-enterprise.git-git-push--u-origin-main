@@ -50,6 +50,7 @@ import {
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
+import { WhereTheWorkIs } from '@/components/estimate/where-the-work-is';
 import { NewLineRow } from '@/components/estimate/new-line-row';
 import { LineDescription } from '@/components/estimate/line-description';
 import { ClientDescription } from '@/components/estimate/client-description';
@@ -535,6 +536,17 @@ export function EstimateVersionPage() {
 
           <AssumptionsCard version={v} editable={editable && can('estimates.write')}
             onChanged={version.refetch} />
+
+          {/*
+            * Where the work is, off the estimate rather than the version. The
+            * new-estimate dialog asks for it; this is where it is told later,
+            * which is the case `set_estimate_site` exists for — a county and a
+            * parcel become a street address once somebody drives out to look.
+            */}
+          <WhereTheWorkIs estimateId={v.estimateId}
+            address={v.siteAddress} city={v.siteCity} state={v.siteState}
+            editable={editable && can('estimates.write')}
+            onSaved={version.refetch} />
 
           {v.librarySnapshotId ? <DriftCard versionId={v.id} /> : null}
         </div>

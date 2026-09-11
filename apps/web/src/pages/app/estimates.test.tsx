@@ -16,6 +16,9 @@ const hoisted = vi.hoisted(() => ({
   rows: [] as unknown[],
   fail: null as string | null,
   permissions: ['estimates.read', 'estimates.write'] as string[],
+  created: [] as Array<Record<string, unknown>>,
+  sited: [] as Array<{ id: string; site: Record<string, unknown> }>,
+  customers: [] as unknown[],
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -41,6 +44,15 @@ vi.mock('@/lib/data/estimates', async () => {
       if (hoisted.fail) throw new Error(hoisted.fail);
       return hoisted.rows;
     },
+    loadCustomers: async () => hoisted.customers,
+    loadMyCompanyId: async () => 'co-1',
+    createEstimate: async (_c: unknown, input: Record<string, unknown>) => {
+      hoisted.created.push(input);
+      return 'e-new';
+    },
+    setEstimateSite: async (_c: unknown, id: string, site: Record<string, unknown>) => {
+      hoisted.sited.push({ id, site });
+    },
   };
 });
 
@@ -61,6 +73,7 @@ describe('the estimating screen', () => {
     hoisted.configured = true; hoisted.fail = null;
     hoisted.permissions = ['estimates.read', 'estimates.write'];
     hoisted.rows = [estimate()];
+    hoisted.created = []; hoisted.sited = []; hoisted.customers = [];
   });
 
   it('lists the caller\'s own estimates', async () => {
@@ -232,4 +245,91 @@ describe('the estimating screen', () => {
     });
   });
 
+
+  // --------------------------------------------------------- where the work is
+  describe('the site on a new estimate', () => {
+    /*
+     * `estimates.site_address`, `site_city` and `site_state` have existed since
+     * migration 0006 and were asked for by nothing until 0148.
+     * `award_estimate_version` copies them onto the project, so an estimate
+     * that never carried a site produced a project that did not know where it
+     * was — and a weather panel reporting from the yard with no way to change
+     * it. Found by awarding a real estimate and reading the project.
+     */
+    const openDialog = async () => {
+      const user = userEvent.setup();
+      renderPage(<EstimatesPage />);
+      await waitFor(() => expect(screen.getByText('E-2026-0001')).toBeInTheDocument());
+      await user.click(screen.getByRole('button', { name: /New estimate/ }));
+      return user;
+    };
+
+    it('asks for it, and says what it is for', async () => {
+      await openDialog();
+      expect(await screen.findByLabelText('Site address')).toBeInTheDocument();
+      expect(screen.getByLabelText('City')).toBeInTheDocument();
+      expect(screen.getByLabelText('State')).toBeInTheDocument();
+      expect(screen.getByText(/copies the site onto the project/)).toBeInTheDocument();
+    });
+
+    it('carries all three to the database', async () => {
+      const user = await openDialog();
+      await user.type(await screen.findByLabelText('Project name'), 'Sandusky transfer station');
+      await user.type(screen.getByLabelText('Site address'), '1400 Venice Rd');
+      await user.type(screen.getByLabelText('City'), 'Sandusky');
+      await user.type(screen.getByLabelText('State'), 'OH');
+      await user.click(screen.getByRole('button', { name: /Create estimate/ }));
+
+      await waitFor(() => expect(hoisted.created).toHaveLength(1));
+      expect(hoisted.created[0]).toMatchObject({
+        siteAddress: '1400 Venice Rd', siteCity: 'Sandusky', siteState: 'OH',
+      });
+    });
+
+    it('sends null rather than empty strings when nobody says', async () => {
+      // An empty string is a site somebody recorded as blank; null is one
+      // nobody has been asked for yet, and the two mean different things.
+      const user = await openDialog();
+      await user.type(await screen.findByLabelText('Project name'), 'No site yet');
+      await user.click(screen.getByRole('button', { name: /Create estimate/ }));
+
+      await waitFor(() => expect(hoisted.created).toHaveLength(1));
+      expect(hoisted.created[0]).toMatchObject({
+        siteAddress: null, siteCity: null, siteState: null,
+      });
+    });
+
+    it('requires the name and nothing else', async () => {
+      /*
+       * Asked directly, so it is pinned. Nine fields and one of them is
+       * mandatory: the button is disabled under two characters of name and
+       * `create_estimate` refuses the same thing, so a browser cannot get round
+       * it. Everything else is a thing you may not know yet when the invitation
+       * arrives — the number generates, the expiry is optional by design, and
+       * the site can be set once somebody has driven out to look at it.
+       */
+      const user = await openDialog();
+      const create = screen.getByRole('button', { name: /Create estimate/ });
+      expect(create).toBeDisabled();
+
+      await user.type(await screen.findByLabelText('Project name'), 'A');
+      expect(create).toBeDisabled();          // one character is not a name
+
+      await user.type(screen.getByLabelText('Project name'), 'cme quarry');
+      expect(create).toBeEnabled();           // and nothing else was filled in
+
+      await user.click(create);
+      await waitFor(() => expect(hoisted.created).toHaveLength(1));
+      expect(hoisted.created[0]).toMatchObject({
+        name: 'Acme quarry', customerId: null, number: null,
+        bidDueAt: null, expiresAt: null, description: null,
+        siteAddress: null, siteCity: null, siteState: null,
+      });
+    });
+
+    it('holds the state field to two characters', async () => {
+      await openDialog();
+      expect(await screen.findByLabelText('State')).toHaveAttribute('maxlength', '2');
+    });
+  });
 });

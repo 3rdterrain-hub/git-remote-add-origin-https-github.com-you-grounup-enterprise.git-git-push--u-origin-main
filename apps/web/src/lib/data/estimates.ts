@@ -162,6 +162,15 @@ export interface VersionDetail {
   expiresAt: string | null;
   expired: boolean;
   createdAt: string;
+  /*
+   * Where the work is, off the estimate rather than the version. These have
+   * existed since 0006 and were written by nothing until 0148 — and
+   * `award_estimate_version` copies them onto the project, which is what lets
+   * the site forecast be the site's rather than the yard's.
+   */
+  siteAddress: string | null;
+  siteCity: string | null;
+  siteState: string | null;
   versionNumber: number;
   status: EstimateStatus;
   directCost: number;
@@ -294,14 +303,16 @@ export const loadEstimates: Query<EstimateRow[]> = async (client) => {
 export const loadVersion = (versionId: string): Query<VersionDetail | null> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_versions')
-    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, customers(name))')
+    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, site_address, site_city, site_state, customers(name))')
     .eq('id', versionId)
     .limit(1)) as Array<Record<string, unknown>>;
   const v = rows[0];
   if (!v) return null;
 
   const est = one<{ number: string; name: string; expires_at: string | null;
-                   created_at: string; customers: unknown }>(v.estimates);
+                   created_at: string; site_address: string | null;
+                   site_city: string | null; site_state: string | null;
+                   customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
     .select('id, sort_order, line_number, description, service_id, cost_code_id, notes, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, markup_rate, markup_amount, total_price, unit_price, measurement_method, check_primary_source, check_cross_source, check_reconciliation, services(name), cost_codes(code)')
@@ -316,6 +327,9 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
     customerName: one<{ name: string }>(est?.customers)?.name ?? null,
     expiresAt: est?.expires_at ?? null,
     expired: est?.expires_at != null && new Date(est.expires_at) <= new Date(),
+    siteAddress: est?.site_address ?? null,
+    siteCity: est?.site_city ?? null,
+    siteState: est?.site_state ?? null,
     createdAt: est?.created_at ?? '',
     versionNumber: Number(v.version_number),
     status: v.status as EstimateStatus,
@@ -749,7 +763,9 @@ export async function createEstimate(
   client: RpcCapable,
   input: { name: string; customerId?: string | null; number?: string | null;
            bidDueAt?: string | null; companyId?: string | null;
-           expiresAt?: string | null; description?: string | null },
+           expiresAt?: string | null; description?: string | null;
+           siteAddress?: string | null; siteCity?: string | null;
+           siteState?: string | null },
 ): Promise<string> {
   return rpc<string>(client, 'create_estimate', {
     p_name: input.name,
@@ -759,6 +775,34 @@ export async function createEstimate(
     p_company: input.companyId ?? null,
     p_expires_at: input.expiresAt || null,
     p_description: input.description?.trim() || null,
+    p_site_address: input.siteAddress?.trim() || null,
+    p_site_city: input.siteCity?.trim() || null,
+    p_site_state: input.siteState?.trim() || null,
+  });
+}
+
+/**
+ * Set where the work is, after the fact.
+ *
+ * `estimates.site_address`, `site_city` and `site_state` have existed since
+ * migration 0006 and were written by nothing until 0148 — not at creation, not
+ * afterwards. `award_estimate_version` reads all three and copies them onto the
+ * project, so every project ever awarded carried three nulls, and the site
+ * forecast reported from the yard with no way for anybody to change that.
+ *
+ * Separate from creation because the answer often arrives later and changes: a
+ * bid invitation naming a county and a parcel becomes a street address once
+ * somebody drives out to look at it.
+ */
+export async function setEstimateSite(
+  client: RpcCapable, estimateId: string,
+  site: { address?: string | null; city?: string | null; state?: string | null },
+): Promise<void> {
+  await rpc(client, 'set_estimate_site', {
+    p_estimate: estimateId,
+    p_site_address: site.address?.trim() || null,
+    p_site_city: site.city?.trim() || null,
+    p_site_state: site.state?.trim() || null,
   });
 }
 

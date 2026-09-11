@@ -36,7 +36,8 @@ import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import {
   loadEstimates, createEstimate, loadCustomers, createCustomer, loadMyCompanyId,
-  setEstimateExpiry, demonstrationEstimates, type EstimateRow, type CustomerOption,
+  setEstimateExpiry, setEstimateSite, demonstrationEstimates,
+  type EstimateRow, type CustomerOption,
 } from '@/lib/data/estimates';
 import { TemplatePicker, ApplyWarnings, TemplateShelf } from '@/components/estimate/templates';
 import { createEstimateFromTemplate, type ApplyResult } from '@/lib/data/templates';
@@ -308,6 +309,9 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
   const [expiresAt, setExpiresAt] = useState('');
   const [description, setDescription] = useState('');
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [siteAddress, setSiteAddress] = useState('');
+  const [siteCity, setSiteCity] = useState('');
+  const [siteState, setSiteState] = useState('');
   const [applied, setApplied] = useState<ApplyResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -354,6 +358,13 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
         if (expiresAt) {
           await setEstimateExpiry(supabase, id, new Date(expiresAt).toISOString());
         }
+        // The template path takes neither the expiry nor the site, so both are
+        // set after, which is what `set_estimate_site` exists for.
+        if (siteAddress.trim() || siteCity.trim() || siteState.trim()) {
+          await setEstimateSite(supabase, id, {
+            address: siteAddress, city: siteCity, state: siteState,
+          });
+        }
         if (result.warnings.length > 0) {
           setBusy(false);
           return;
@@ -366,10 +377,14 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
           bidDueAt: bidDueAt ? new Date(bidDueAt).toISOString() : null,
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
           description: description.trim() || null,
+          siteAddress: siteAddress.trim() || null,
+          siteCity: siteCity.trim() || null,
+          siteState: siteState.trim() || null,
         });
       }
       setName(''); setNumber(''); setBidDueAt(''); setExpiresAt('');
       setCustomerId(''); setNewClient(''); setDescription(''); setTemplateId(null);
+      setSiteAddress(''); setSiteCity(''); setSiteState('');
       onCreated(id);
     } catch (err) {
       setError(messageFor(err));
@@ -467,6 +482,36 @@ function NewEstimateDialog({ open, onOpenChange, onCreated }: {
             An estimate with no expiry does not expire. Setting one refuses approval and issue
             once it passes, so a price computed against last quarter's rates cannot go out as a
             current bid.
+          </p>
+
+          {/*
+            * Where the work is. These three columns have existed since 0006 and
+            * were asked for by nothing until 0148 — `award_estimate_version`
+            * copies them onto the project, so an estimate that never carried a
+            * site produced a project that did not know where it was, and a
+            * weather panel reporting from the yard.
+            */}
+          <div className="grid gap-4 sm:grid-cols-[2fr_1fr_auto]">
+            <div className="space-y-1.5">
+              <Label htmlFor="est-site">Site address</Label>
+              <Input id="est-site" value={siteAddress} placeholder="1400 Venice Rd"
+                onChange={(e) => setSiteAddress(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="est-city">City</Label>
+              <Input id="est-city" value={siteCity} placeholder="Sandusky"
+                onChange={(e) => setSiteCity(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="est-state">State</Label>
+              <Input id="est-state" className="w-20" value={siteState} placeholder="OH"
+                maxLength={2} onChange={(e) => setSiteState(e.target.value)} />
+            </div>
+          </div>
+          <p className="text-xs text-charcoal-500">
+            Optional, and it carries forward: awarding this estimate copies the site onto the
+            project, which is what lets the forecast be the one at the job rather than the one at
+            your yard. It can be set later from the estimate itself.
           </p>
 
           {error ? <ErrorState message={error} /> : null}

@@ -370,6 +370,7 @@ TST-db-unit-cost-and-suggestions,test,db/unit-cost-and-suggestions.test.ts,tests
 TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.test.ts,ENGINE
 TST-db-weather-at-the-job-site,test,db/weather-at-the-job-site.test.ts,tests/db/weather-at-the-job-site.test.ts,ENGINE
 TST-db-what-a-line-sells-for,test,db/what-a-line-sells-for.test.ts,tests/db/what-a-line-sells-for.test.ts,ENGINE
+TST-db-where-the-work-is,test,db/where-the-work-is.test.ts,tests/db/where-the-work-is.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
 TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE
@@ -407,6 +408,7 @@ TST-web-quantity-input,test,web/quantity-input.test.tsx,apps/web/src/components/
 TST-web-resource-picker,test,web/resource-picker.test.tsx,apps/web/src/components/estimate/resource-picker.test.tsx,ENGINE
 TST-web-templates,test,web/templates.test.tsx,apps/web/src/components/estimate/templates.test.tsx,ENGINE
 TST-web-unit-cost,test,web/unit-cost.test.tsx,apps/web/src/components/estimate/unit-cost.test.tsx,ENGINE
+TST-web-where-the-work-is,test,web/where-the-work-is.test.tsx,apps/web/src/components/estimate/where-the-work-is.test.tsx,ENGINE
 TST-web-closing-the-books,test,web/closing-the-books.test.tsx,apps/web/src/components/finance/closing-the-books.test.tsx,ENGINE
 TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/layout/customize-nav.test.tsx,ENGINE
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
