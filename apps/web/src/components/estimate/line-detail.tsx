@@ -36,6 +36,7 @@ import {
 } from '@/lib/data/estimates';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { ProductionRatePanel } from '@/components/estimate/production-rate';
+import { HowSure } from './how-sure';
 import { UnitCostPanel, ResourceSuggestions } from '@/components/estimate/unit-cost';
 import { HaulCapacity } from '@/components/estimate/haul-capacity';
 import { ResourcePicker } from '@/components/estimate/resource-picker';
@@ -178,6 +179,17 @@ export function LineDetail({ line, editable, onChanged }: {
             onSave={save} onRemove={remove} />
         </TabsContent>
       </Tabs>
+
+      {/*
+        * What has been checked about the quantity. It sits under the build-up
+        * rather than in it, because it is a statement about the number at the
+        * top of the line rather than a cost — and it is the only control on the
+        * screen that can answer "not confident enough to bid", which held every
+        * hand-entered estimate back from ever being issued until 0144.
+        */}
+      <div className="border-t border-charcoal-200 pt-3">
+        <HowSure line={line} editable={editable} onChanged={onChanged} />
+      </div>
 
       {editable ? <LineSettings line={line} onSaved={onChanged} /> : null}
     </div>

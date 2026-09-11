@@ -12,15 +12,33 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **156** |
-| Opened by a screen | **138** |
+| Doors | **157** |
+| Opened by a screen | **139** |
 | Opened only by an Edge Function | **3** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
+| Granted but unreachable | **6** |
 
 ## No reader
 
 None. Every door in the schema is opened by something.
+
+## Granted to a browser, reached by nobody
+
+`app.*` functions granted to `authenticated`, called by no other SQL, and
+invisible to PostgREST — so nothing can call them. The same defect as a door
+with no reader, one layer down. The list is pinned in the script: a new one
+fails the check, and a name that leaves it has either been wired or had its
+grant removed.
+
+| Function | Granted in |
+|---|---|
+| `app.assert_line_open` | 0111_a_signed_estimate_is_signed_all_the_way_down.sql |
+| `app.close_financial_period` | 0034_financial_periods.sql |
+| `app.current_metric_version` | 0040_metric_governance.sql |
+| `app.estimate_is_expired` | 0102_an_estimate_that_expires.sql |
+| `app.haul_cost` | 0067_haul_pricing_bases.sql |
+| `app.search_document_text` | 0036_document_integrity.sql |
 
 ## Server-side by design
 
@@ -64,6 +82,7 @@ None. Every door in the schema is opened by something.
 | `apply_line_resource_suggestions` | function | lib/data/estimates.ts |
 | `apply_takeoff_to_line` | function | lib/data/takeoff.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
+| `award_estimate_version` | function | lib/data/estimates.ts |
 | `claim_first_superadmin` | function | lib/data/admin.ts |
 | `clear_allowance` | function | lib/data/admin.ts |
 | `clear_billing_terms` | function | lib/data/admin.ts |

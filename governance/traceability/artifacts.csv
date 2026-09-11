@@ -310,6 +310,7 @@ TST-db-free-and-terms,test,db/free-and-terms.test.ts,tests/db/free-and-terms.tes
 TST-db-haul-capacity,test,db/haul-capacity.test.ts,tests/db/haul-capacity.test.ts,ENGINE
 TST-db-haul-pricing,test,db/haul-pricing.test.ts,tests/db/haul-pricing.test.ts,ENGINE
 TST-db-hiring-operators,test,db/hiring-operators.test.ts,tests/db/hiring-operators.test.ts,ENGINE
+TST-db-how-sure-are-you-of-that-quantity,test,db/how-sure-are-you-of-that-quantity.test.ts,tests/db/how-sure-are-you-of-that-quantity.test.ts,ENGINE
 TST-db-import-materials,test,db/import-materials.test.ts,tests/db/import-materials.test.ts,ENGINE
 TST-db-labor-cost,test,db/labor-cost.test.ts,tests/db/labor-cost.test.ts,ENGINE
 TST-db-lead-intake,test,db/lead-intake.test.ts,tests/db/lead-intake.test.ts,ENGINE
@@ -359,6 +360,7 @@ TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-inte
 TST-db-suspension,test,db/suspension.test.ts,tests/db/suspension.test.ts,ENGINE
 TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
 TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
+TST-db-the-door-onto-awarding,test,db/the-door-onto-awarding.test.ts,tests/db/the-door-onto-awarding.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
 TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/timecard-from-punches.test.ts,ENGINE
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
@@ -391,6 +393,7 @@ TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification
 TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
+TST-web-how-sure,test,web/how-sure.test.tsx,apps/web/src/components/estimate/how-sure.test.tsx,ENGINE
 TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
 TST-web-line-detail.a11y,test,web/line-detail.a11y.test.tsx,apps/web/src/components/estimate/line-detail.a11y.test.tsx,ENGINE
 TST-web-line-detail,test,web/line-detail.test.tsx,apps/web/src/components/estimate/line-detail.test.tsx,ENGINE

@@ -25,7 +25,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertTriangle, ArrowLeft, Calculator, CheckCircle2,
   Eye, EyeOff, LayoutTemplate, Loader2, Lock, Plus, Search, Send, ShieldCheck,
-  BookmarkPlus, GitBranch, GripVertical, Trash2, Wrench, X,
+  BookmarkPlus, GitBranch, GripVertical, Trash2, Trophy, Wrench, X,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
@@ -46,7 +46,7 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, lineUnitNote, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
-  issueProposal, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
+  issueProposal, awardVersion, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
@@ -173,6 +173,7 @@ export function EstimateVersionPage() {
   const [applyingTemplate, setApplyingTemplate] = useState(false);
   const [applied, setApplied] = useState<ApplyResult | null>(null);
   const [revising, setRevising] = useState(false);
+  const [awarding, setAwarding] = useState(false);
   const [onlyBlocking, setOnlyBlocking] = useState(false);
   /*
    * Which explanation a figure at the top has been asked for. Every number on
@@ -285,6 +286,20 @@ export function EstimateVersionPage() {
             {v.status === 'approved' && can('estimates.issue') ? (
               <Button onClick={() => setIssuing(true)} disabled={busy != null}>
                 <Send className="size-4" /> Issue proposal
+              </Button>
+            ) : null}
+            {/*
+              * The join between estimating and operations, and it had no door
+              * until migration 0145: `app.award_estimate_version` has created
+              * the project and copied every priced line into `project_tasks`
+              * since 0007, granted to `authenticated`, with no `public.`
+              * wrapper — so PostgREST could not see it and nothing ever called
+              * it. The Projects screen said "a project appears here when an
+              * estimate is awarded" and none ever did.
+              */}
+            {['approved', 'issued'].includes(v.status) && can('estimates.write') ? (
+              <Button onClick={() => setAwarding(true)} disabled={busy != null}>
+                <Trophy className="size-4" /> Mark as won
               </Button>
             ) : null}
             {!editable && can('estimates.write') ? (
@@ -552,6 +567,9 @@ export function EstimateVersionPage() {
         onIssued={() => { setIssuing(false); version.refetch(); }} />
       <ReviseDialog open={revising} onOpenChange={setRevising} version={v}
         onRevised={(id) => { setRevising(false); navigate(`/app/estimates/${id}`); }} />
+      {/* Straight to the project, because that is now where the work is. */}
+      <AwardDialog open={awarding} onOpenChange={setAwarding} version={v}
+        onAwarded={(projectId) => { setAwarding(false); navigate(`/app/projects/${projectId}`); }} />
       <SaveTemplateDialog open={savingTemplate} onOpenChange={setSavingTemplate}
         versionId={v.id} lineCount={v.lines.length}
         onSaved={() => {
@@ -1583,6 +1601,94 @@ function Line({ label, value, strong }: { label: string; value: string; strong?:
  * the price moved; the database refuses one shorter than five characters and
  * this says so before the refusal rather than after it.
  */
+/**
+ * Turning a won bid into a project.
+ *
+ * The number and the name are asked for rather than derived, because a project
+ * number is a company's own sequence and the estimate's is not it. Both are
+ * prefilled from the estimate so somebody with nothing to change can press the
+ * button, which is the common case.
+ */
+function AwardDialog({ open, onOpenChange, version, onAwarded }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  version: VersionDetail;
+  onAwarded: (projectId: string) => void;
+}) {
+  const [number, setNumber] = useState('');
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [primed, setPrimed] = useState(false);
+
+  if (open && !primed) {
+    setPrimed(true);
+    setNumber(version.estimateNumber.replace(/^E-/, 'PRJ-'));
+    setName(version.estimateName);
+    setError(null);
+  }
+  if (!open && primed) setPrimed(false);
+
+  const submit = async () => {
+    if (!supabase || !number.trim() || !name.trim()) return;
+    setBusy(true); setError(null);
+    try {
+      const projectId = await awardVersion(supabase, {
+        versionId: version.id, projectNumber: number, projectName: name,
+      });
+      onAwarded(projectId);
+    } catch (err) {
+      setError(messageFor(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Mark as won</DialogTitle>
+          <DialogDescription>
+            This creates the project from version {version.versionNumber} and copies every priced
+            line onto it as a budgeted task, carrying the hours and the cost the engine computed.
+            The estimate becomes read-only history: what the job is measured against is what was
+            bid.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="award-number">Project number</Label>
+            <Input id="award-number" value={number} autoFocus
+              onChange={(e) => setNumber(e.target.value)} />
+            <p className="text-xs text-charcoal-500">
+              Your own sequence. The estimate&apos;s number is offered as a starting point, not as
+              the answer.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="award-name">Project name</Label>
+            <Input id="award-name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          {error ? <ErrorState message={error} /> : null}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
+            Cancel
+          </Button>
+          <Button onClick={() => void submit()}
+            disabled={busy || !number.trim() || !name.trim()}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Trophy className="size-4" />}
+            {busy ? 'Creating the project…' : 'Create the project'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ReviseDialog({ open, onOpenChange, version, onRevised }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;

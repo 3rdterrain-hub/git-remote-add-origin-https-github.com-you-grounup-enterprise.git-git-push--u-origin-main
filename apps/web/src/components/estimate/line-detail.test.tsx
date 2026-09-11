@@ -76,6 +76,8 @@ const line = (over: Partial<LineRow> = {}): LineRow => ({
   parametricCostPerUnit: null, parametricBasis: null,
   confidenceBand: 'high', blocksIssue: false, hasProductionRate: true,
   clientVisible: true, markupOverride: null, wastePercent: 0, quantityExpression: null, productionModifier: 1,
+  measurementMethod: 'explicit_dimension',
+  checkPrimarySource: false, checkCrossSource: false, checkReconciliation: false,
   ...over,
 });
 

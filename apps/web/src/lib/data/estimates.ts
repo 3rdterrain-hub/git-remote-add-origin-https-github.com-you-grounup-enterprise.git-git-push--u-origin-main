@@ -91,6 +91,19 @@ export interface LineRow {
   parametricCostPerUnit: number | null;
   parametricBasis: string | null;
   productionModifier: number;
+  /*
+   * How the quantity was arrived at, and what has been checked about it.
+   *
+   * These are the three inputs the engine scores confidence from, and the score
+   * is what decides whether a line blocks its estimate from being issued. Every
+   * layer between the line and the engine carried them and no screen could set
+   * one, so a hand-entered estimate sat at the score an unverified quantity
+   * deserves and could never be approved, issued or awarded. Migration 0144.
+   */
+  measurementMethod: string;
+  checkPrimarySource: boolean;
+  checkCrossSource: boolean;
+  checkReconciliation: boolean;
 }
 
 /** One crew member, machine, material, truck or subcontract behind a line. */
@@ -291,7 +304,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
                    created_at: string; customers: unknown }>(v.estimates);
   const lines = unwrap(await client
     .from('estimate_line_items')
-    .select('id, sort_order, line_number, description, service_id, cost_code_id, notes, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, markup_rate, markup_amount, total_price, unit_price, services(name), cost_codes(code)')
+    .select('id, sort_order, line_number, description, service_id, cost_code_id, notes, unit, measured_quantity, adjusted_quantity, unit_cost, total_direct_cost, labor_hours, equipment_hours, confidence_band, blocks_issue, production_rate_id, client_visible, markup_override, waste_percent, quantity_expression, production_modifier, parametric_cost_per_unit, parametric_basis, markup_rate, markup_amount, total_price, unit_price, measurement_method, check_primary_source, check_cross_source, check_reconciliation, services(name), cost_codes(code)')
     .eq('estimate_version_id', versionId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
@@ -348,6 +361,10 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       equipmentHours: num(l.equipment_hours),
       confidenceBand: String(l.confidence_band),
       blocksIssue: Boolean(l.blocks_issue),
+      measurementMethod: String(l.measurement_method ?? 'explicit_dimension'),
+      checkPrimarySource: Boolean(l.check_primary_source),
+      checkCrossSource: Boolean(l.check_cross_source),
+      checkReconciliation: Boolean(l.check_reconciliation),
       // A line with no rate cannot be priced from production, and the screen
       // should say so before somebody wonders why the number is zero.
       hasProductionRate: l.production_rate_id != null,
@@ -1250,6 +1267,30 @@ export async function issueProposal(
     p_title: input.title?.trim() || null,
     p_cover_letter: input.coverLetter?.trim() || null,
     p_validity_days: input.validityDays ?? 30,
+  });
+}
+
+/**
+ * Turn a won bid into a project.
+ *
+ * `app.award_estimate_version` has done this since migration 0007: it creates
+ * the project from the version, copies every priced line into `project_tasks`
+ * with its budgeted hours and cost, moves the estimate and the version to
+ * `awarded`, and writes an audit event. It had no `public.` wrapper until 0145,
+ * so PostgREST could not see it and no screen had ever called it — which is why
+ * the Projects page could say "a project appears here when an estimate is
+ * awarded" and none ever did.
+ *
+ * Returns the new project's id, so the caller can open it.
+ */
+export async function awardVersion(
+  client: RpcCapable,
+  input: { versionId: string; projectNumber: string; projectName: string },
+): Promise<string> {
+  return rpc<string>(client, 'award_estimate_version', {
+    p_version_id: input.versionId,
+    p_project_number: input.projectNumber.trim(),
+    p_project_name: input.projectName.trim(),
   });
 }
 

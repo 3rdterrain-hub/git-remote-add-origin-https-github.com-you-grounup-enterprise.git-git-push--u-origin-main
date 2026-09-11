@@ -205,13 +205,29 @@ describe('work in progress and cash', () => {
     });
 
     it('nets a payable off the receivable in the same month', async () => {
-      const [m] = await h.asUser(owner, () => h.sql<{ net: string }>(
-        `select net from reporting_cash_forecast
-         where company_id = $1 and month = date_trunc('month', current_date + 20)::date`, [company]));
-      // Only the unblocked 40,000 leaves; nothing arrives that month unless the
-      // receivable happens to land in it, which the harness date makes uncertain
-      // — so assert the payable is subtracted rather than the exact figure.
-      expect(Number(m!.net)).toBeLessThanOrEqual(0);
+      /*
+       * Asserted as the arithmetic rather than as a sign. The previous version
+       * expected `net <= 0` on the reasoning that nothing arrives that month —
+       * true on most days and false whenever `current_date + 20` crosses into
+       * the month a receivable lands in, which is roughly a third of the
+       * calendar. It failed on the 11th, having passed on the 10th, with
+       * nothing in the schema having changed.
+       *
+       * What the view actually promises is that an unblocked payable is
+       * subtracted and a blocked one is not, and that holds on every date.
+       */
+      const [m] = await h.asUser(owner, () => h.sql<{
+        net: string; inflow: string | null; outflow: string | null; outflow_blocked: string | null;
+      }>(`select net, inflow, outflow, outflow_blocked from reporting_cash_forecast
+          where company_id = $1 and month = date_trunc('month', current_date + 20)::date`,
+      [company]));
+
+      const n = (v: string | null) => Number(v ?? 0);
+      expect(n(m!.outflow)).toBeCloseTo(40000, 2);
+      expect(Number(m!.net)).toBeCloseTo(n(m!.inflow) - n(m!.outflow), 2);
+      // The blocked payable is money that does not leave, so it is not netted.
+      expect(n(m!.outflow_blocked)).toBeCloseTo(15000, 2);
+      expect(Number(m!.net)).toBeGreaterThan(n(m!.inflow) - n(m!.outflow) - n(m!.outflow_blocked));
     });
 
     it("shows one company nothing of another company's cash", async () => {
