@@ -280,6 +280,7 @@ TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
+TST-db-awarding-acceptance,test,db/awarding-acceptance.test.ts,tests/db/awarding-acceptance.test.ts,ENGINE
 TST-db-billing-a-page-can-read,test,db/billing-a-page-can-read.test.ts,tests/db/billing-a-page-can-read.test.ts,ENGINE
 TST-db-billing-governance,test,db/billing-governance.test.ts,tests/db/billing-governance.test.ts,ENGINE
 TST-db-browser-embeds,test,db/browser-embeds.test.ts,tests/db/browser-embeds.test.ts,ENGINE
