@@ -149,6 +149,73 @@ export async function customizeAssembly(assemblyId: string, companyId: string): 
   return String(row?.id ?? '');
 }
 
+/**
+ * Give a service with no work sequence one to fill.
+ *
+ * `customizeAssembly` copies a template that exists. This is the other case:
+ * 465 services arrived from the product master naming sequences the task
+ * library did not contain, so there was nothing to copy and no way to start.
+ *
+ * The block was never the assembly — everything that prices a line resolves
+ * through `services.default_assembly_id`, and a catalog service row is one no
+ * tenant may write. So the door takes the company its own copy of the service
+ * first and attaches an empty sequence to that, in one transaction, because a
+ * company service pointing at nothing is the state it exists to remove.
+ *
+ * Returns the assembly to fill. Asked twice it returns the same one.
+ */
+export async function startABreakdown(serviceId: string, companyId: string): Promise<string> {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await supabase.rpc('start_a_breakdown', {
+    p_service: serviceId, p_company: companyId,
+  });
+  if (error) throw new Error(error.message);
+  const row = data as { id?: string } | null;
+  return String(row?.id ?? '');
+}
+
+export interface ServiceWithoutABreakdown {
+  id: string;
+  code: string;
+  name: string;
+  industry: string | null;
+  category: string | null;
+  defaultUnit: string;
+  /** No sequence at all, as against a sequence with no steps in it. */
+  hasNoAssembly: boolean;
+  steps: number;
+}
+
+/**
+ * Services nobody can price yet.
+ *
+ * A named, CSI-coded service an estimator can build up by hand beats one that
+ * is not there — but the gap belongs on a list rather than in a bid, and until
+ * now the list had no reader. Empty is the ordinary answer and the screen shows
+ * nothing at all for it: a panel reading "0 services need a breakdown" on every
+ * healthy library is a panel people learn to skip, and then skip on the day an
+ * import puts four hundred rows in it.
+ */
+export const loadServicesWithoutABreakdown: Query<ServiceWithoutABreakdown[]> =
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_services_without_a_breakdown')
+      .select('id, code, name, industry, category, default_unit, has_no_assembly, steps')
+      .order('code')
+      .limit(500)) as Array<Record<string, unknown>>;
+
+    return rows.map((r) => ({
+      id: String(r.id),
+      code: String(r.code),
+      name: String(r.name),
+      industry: (r.industry as string | null) ?? null,
+      category: (r.category as string | null) ?? null,
+      defaultUnit: String(r.default_unit),
+      hasNoAssembly: Boolean(r.has_no_assembly),
+      steps: Number(r.steps ?? 0),
+    }));
+  };
+
 export async function addAssemblyStep(
   assemblyId: string, taskId: string, position?: number,
 ): Promise<void> {

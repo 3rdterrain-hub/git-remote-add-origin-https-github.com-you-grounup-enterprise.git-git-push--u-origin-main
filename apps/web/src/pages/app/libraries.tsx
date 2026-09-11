@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Library, Search, Lock, Copy, ShieldCheck, Info, Plus, Archive } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { AssemblyLibrary } from '@/components/library/assemblies';
+import { ServicesWithoutABreakdown } from '@/components/library/services-without-a-breakdown';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -249,6 +250,13 @@ export function LibrariesPage() {
         {/* ---------------------------------------------------------- labor */}
         {/* ------------------------------------------------------- services */}
         <TabsContent value="services" className="space-y-4">
+          {/*
+            * Only when there is something wrong with the library, and on the
+            * tab where somebody would pick one of these services and find it
+            * had nothing to build up from.
+            */}
+          <ServicesWithoutABreakdown companyId={companyId} canEdit={canWrite}
+            onStarted={() => setTab('assemblies')} />
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full space-y-1.5 sm:w-72">
               <Label htmlFor="lib-svc-cat">Filter by category</Label>
