@@ -11,6 +11,36 @@ Newest first.
 
 ---
 
+## D-021 · 2026-09-12 · A generated column is read, and silence is not a low bid
+
+**Decision.** The Procurement page reads `rfq_responses.leveled_amount` and
+`inventory_items.quantity_available` rather than recomputing either, measures
+the reorder point against *available* stock, and takes the low leveled bid only
+across responses that actually arrived.
+
+**Reason.** All three are places where a browser doing its own arithmetic
+diverges from the record.
+
+`leveled_amount` is generated as quoted plus adjustment; a page adding those
+itself is how a page and a database come to hold different opinions about which
+bid was low. `quantity_available` is generated as on hand less reserved, and the
+reorder test has to run against it — stock already spoken for will not be there
+for the next job, so measuring on-hand hides a shortage until somebody walks to
+the yard. And a vendor invited but not yet answering carries a leveled amount of
+zero from that same generated column: taking a plain minimum awards the package
+to silence.
+
+**Also decided.** The New RFQ and Purchase order buttons ship **disabled**.
+Those tables have no writer, and a test pins the buttons as disabled so nobody
+enables them before the writers exist — an enabled control that silently does
+nothing is the defect this build keeps producing.
+
+**Affects.** `lib/data/procurement.ts`, the Procurement page.
+
+**Status.** Active. 15 web tests.
+
+---
+
 ## D-020 · 2026-09-12 · Float is an engine output, and null float is not zero float
 
 **Decision.** Migration 0158 extends 0058's boundary to the schedule: the early

@@ -285,10 +285,9 @@ profiles, and the typed picker on a line finds what a company puts there
 
 ### Recommended next actions
 
-1. Make Procurement, Survey and Claims live — the same shape as Schedule was:
-   real tables (`rfqs`, `purchase_orders`, `deliveries`, `inventory_items`;
-   `surveys`, `surfaces`, `surface_comparisons`; `claims`, `contracts`) read by
-   nothing, with the page on a fixture.
+1. Make Survey and Claims live — the same shape as Schedule and Procurement
+   were: real tables (`surveys`, `surfaces`, `surface_comparisons`; `claims`,
+   `contracts`) read by nothing, with the page on a fixture.
 2. Work the toolbar in order, saying before each section closes.
 3. Compose task resources in the catalog, or document that pricing is by hand.
 

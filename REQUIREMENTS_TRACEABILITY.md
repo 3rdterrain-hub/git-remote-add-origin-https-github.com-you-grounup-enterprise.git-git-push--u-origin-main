@@ -91,7 +91,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-024 | Build the hauling door | user: "build the hauling door" | high | libraries | migration 0156, `haul-profiles.tsx`, `createTruckingRate` brought up to 0067 | `a-haul-rate-you-can-create.test.ts`, `haul-profiles.test.tsx` | tested |
 | C-025 | Wire the project-detail buttons | user: "now wire the project detail buttons" | high | projects | migration 0157, `project-actions.tsx` | `three-buttons-on-a-project.test.ts`, `project-actions.test.tsx` | tested |
 | C-026 | Make Schedule live | user: "now make schedule, procurement, survey and claims live" | high | scheduling | migration 0158, `recalculate-schedule`, `lib/data/schedule.ts`, `schedule.tsx` | `the-door-onto-the-schedule.test.ts`, `schedule.test.tsx` | tested |
-| C-027 | Make Procurement live | same | high | procurement | — | — | open |
+| C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | — | — | open |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
 
