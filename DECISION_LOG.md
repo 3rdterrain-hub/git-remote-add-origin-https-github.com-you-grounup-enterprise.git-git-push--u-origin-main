@@ -11,6 +11,46 @@ Newest first.
 
 ---
 
+## D-020 · 2026-09-12 · Float is an engine output, and null float is not zero float
+
+**Decision.** Migration 0158 extends 0058's boundary to the schedule: the early
+and late dates, total and free float, the critical flag and the calculation link
+on `schedule_activities` are writable only inside
+`app.record_schedule_calculation`, granted to `service_role` alone. The planned
+dates, durations, logic and calendars stay a person's to write. The
+`recalculate-schedule` Edge Function carries the same compiled engine as
+`price-estimate`.
+
+**Reason.** 0058 said pricing "is not a privilege some roles have and others do
+not: it is an operation only one piece of code may perform, however senior the
+person asking." Every word is true of a critical path. 0029 had already required
+float to name the calculation that produced it, but nothing stopped a caller
+writing a calculation row of their own invention and pointing float at it.
+
+**No second CPM.** `packages/engine/src/schedule.ts` implements calendars, all
+four dependency types, lag, constraints and cycle detection. A SQL
+reimplementation would be two passes that eventually disagree about a job
+somebody has already bid, so the Edge Function pattern was chosen over a
+plpgsql one.
+
+**On screen: null float is shown as "not calculated", never as 0.** Zero float
+means an activity is on the critical path. Rendering an uncalculated schedule as
+zeros would state the opposite of the truth on every row, and the critical-path
+tile reads an em dash rather than 0 for the same reason.
+
+**What this superseded.** `data/fleet.ts` held a schedule fixture that ran the
+real engine at module load, and `schedule.check.test.ts` asserted the screen
+showed a calculation rather than typed numbers. Both are deleted: the page reads
+the database, and the property that test asserted about a fixture is now
+enforced by a trigger and proven by `the-door-onto-the-schedule.test.ts`.
+
+**Affects.** Migration 0158, the `recalculate-schedule` function, the Schedule
+page.
+
+**Status.** Active. 16 db tests, 19 web tests.
+
+---
+
 ## D-019 · 2026-09-12 · A project record starts in the state before its workflow, not after
 
 **Decision.** `create_daily_report` leaves the report unsubmitted,

@@ -192,7 +192,10 @@ describe('fleet, workforce and scheduling', () => {
     // never reach the constraint each test is actually about.
     let calculation = '';
     beforeAll(async () => {
-      calculation = (await h.asUser(owner, () => h.sql<{ id: string }>(
+      /* Service role: migration 0158 took `schedule_calculations` away from
+         `authenticated`, because float that names a calculation anybody could
+         write has provenance in name only. */
+      calculation = (await h.asService(() => h.sql<{ id: string }>(
         `insert into schedule_calculations
            (company_id, project_id, data_date, engine_version, project_start, project_finish, duration_working_days)
          values ($1,$2,'2026-09-01','1.0.0','2026-09-01','2026-09-30',22) returning id`,

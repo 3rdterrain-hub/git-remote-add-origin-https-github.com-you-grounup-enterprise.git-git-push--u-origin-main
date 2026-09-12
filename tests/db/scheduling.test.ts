@@ -34,12 +34,12 @@ describe('scheduling governance', () => {
       project = (await h.sql<{ id: string }>(
         `insert into projects (company_id, number, name) values ($1,'PRJ-900','Schedule test')
          returning id`, [ridgeline]))[0]!.id;
-      calculation = (await h.sql<{ id: string }>(
+      calculation = (await h.asService(() => h.sql<{ id: string }>(
         `insert into schedule_calculations
            (company_id, project_id, data_date, engine_version, project_start, project_finish,
             duration_working_days, calculated_by)
          values ($1,$2,'2026-05-04','1.0.0','2026-05-04','2026-05-20',13,$3) returning id`,
-        [ridgeline, project, alice]))[0]!.id;
+        [ridgeline, project, alice])))[0]!.id;
       activity = (await h.sql<{ id: string }>(
         `insert into schedule_activities
            (company_id, project_id, name, planned_start, planned_finish, duration_days)
@@ -182,13 +182,16 @@ describe('scheduling governance', () => {
     it('cannot be edited afterwards', async () => {
       // Somebody acted on the dates this produced. Rewriting it rewrites what
       // the schedule said at the moment they acted.
-      await expect(h.asUser(alice, () => h.sql(
+      /* Through the service role, because 0158 took the table away from
+         `authenticated` entirely — the point of this test is that even the one
+         role permitted to write a run cannot rewrite one. */
+      await expect(h.asService(() => h.sql(
         `update schedule_calculations set project_finish = '2026-06-01' where id = $1`, [calculation])))
         .rejects.toThrow(/append-only/);
     });
 
     it('refuses a finish before its own start', async () => {
-      await expect(h.asUser(alice, () => h.sql(
+      await expect(h.asService(() => h.sql(
         `insert into schedule_calculations
            (company_id, project_id, data_date, engine_version, project_start, project_finish, duration_working_days)
          values ($1,$2,'2026-05-04','1.0.0','2026-05-20','2026-05-04',13)`, [ridgeline, project])))
@@ -196,7 +199,7 @@ describe('scheduling governance', () => {
     });
 
     it('refuses a run against another company project', async () => {
-      await expect(h.asUser(alice, () => h.sql(
+      await expect(h.asService(() => h.sql(
         `insert into schedule_calculations
            (company_id, project_id, data_date, engine_version, project_start, project_finish, duration_working_days)
          values ($1,$2,'2026-05-04','1.0.0','2026-05-04','2026-05-20',13)`, [ridgeline, keslerProject])))
@@ -204,7 +207,7 @@ describe('scheduling governance', () => {
     });
 
     it('keeps the warnings the run produced', async () => {
-      const [row] = await h.asUser(alice, () => h.sql<{ warnings: string[] }>(
+      const [row] = await h.asService(() => h.sql<{ warnings: string[] }>(
         `insert into schedule_calculations
            (company_id, project_id, data_date, engine_version, project_start, project_finish,
             duration_working_days, required_finish, finish_float_days, warnings)

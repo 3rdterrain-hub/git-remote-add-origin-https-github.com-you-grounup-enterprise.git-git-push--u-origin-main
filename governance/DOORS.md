@@ -12,9 +12,9 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **172** |
-| Opened by a screen | **154** |
-| Opened only by an Edge Function | **3** |
+| Doors | **174** |
+| Opened by a screen | **155** |
+| Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
 | Granted but unreachable | **0** |
@@ -58,6 +58,7 @@ None.
 | Door | Called from |
 |---|---|
 | `has_permission` | _shared/auth.ts, get-effective-entitlements/index.ts |
+| `record_schedule_calculation` | recalculate-schedule/index.ts |
 | `record_site_weather` | refresh-weather/index.ts |
 | `seat_price_cents` | create-checkout-session/index.ts |
 
@@ -132,6 +133,7 @@ None.
 | `my_cost_codes` | view | lib/data/estimates.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
+| `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
 | `my_line_conditions` | view | lib/data/estimates.ts |
