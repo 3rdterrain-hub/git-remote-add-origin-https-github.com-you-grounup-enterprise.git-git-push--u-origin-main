@@ -15,6 +15,7 @@
  * snippet to that: no service key, no company id, no session, one endpoint.
  */
 import { unwrap, type Query } from './query';
+import { addCategory } from './categories';
 import { supabase, supabaseUrl, supabaseAnonKey } from '@/lib/supabase';
 
 export interface LeadIntakeForm {
@@ -101,13 +102,17 @@ export async function setLeadFormActive(formId: string, isActive: boolean): Prom
   if (error) throw new Error(error.message);
 }
 
-/** File a new source against the company, through the same guard every library uses. */
+/**
+ * File a new source against the company.
+ *
+ * Through `addCategory`, not a second call to the same function: a lead source
+ * is a library category like any other, and it is now renamed, counted and
+ * removed by the same three doors as the rest (migration 0150). A private copy
+ * here would be a place for the two to drift.
+ */
 export async function addLeadSource(companyId: string, name: string): Promise<void> {
   if (!supabase) throw new Error('No workspace is configured.');
-  const { error } = await supabase.rpc('add_library_category', {
-    p_kind: 'lead_source', p_name: name, p_company: companyId,
-  });
-  if (error) throw new Error(error.message);
+  await addCategory(supabase, { kind: 'lead_source', name, companyId });
 }
 
 /** Where a submission is posted: the one function a stranger may call. */

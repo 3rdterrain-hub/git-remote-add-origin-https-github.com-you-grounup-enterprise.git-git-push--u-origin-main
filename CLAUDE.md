@@ -130,6 +130,27 @@ because it is the field being typed into.
 
 ## Things the user has said once and should not have to say again
 
+### Everything is clickable, and everything is changeable — said four times
+
+This is the one that keeps coming back, so it is written as a rule rather than a
+preference. Applied to **every** screen, not only the one being worked on:
+
+- **A reference is a link.** An asset number, a project number, a customer, an
+  estimate, a sheet, a cost code, a crew, a vendor, a service, a material —
+  wherever one is shown, clicking it opens that record. "In schedule under asset
+  be able to select EX-4412, under project click PRJ-2026-011."
+- **A value is editable where it is shown.** If a person can see it, they can
+  change it there, unless a stated rule forbids it — and then the rule is said
+  on screen. A read-only number with no reason beside it is a defect, not a
+  design. The condition factor reading `1.0x` as plain text is the example:
+  clicking it should offer the conditions.
+- **A choice is a select, not free text.** Categories, units, classes, statuses,
+  bases. And the list is **user-addable** — `add_library_category` exists for
+  exactly that.
+- **One name for one thing.** No duplicate categories, ever. A near-duplicate
+  that differs only by a suffix or by case is a duplicate.
+  `tests/db/one-name-for-one-thing.test.ts` fails the build on one.
+
 - **Nothing is read-only without a reason.** If a person can see it, they can edit
   it there, unless a stated rule forbids it.
 - **All cards collapse.**

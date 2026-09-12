@@ -78,6 +78,10 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-011 | Add site fields to the new-estimate dialog | user | high | estimating | migration 0148, `estimates.tsx` | `estimates.test.tsx` | tested |
 | C-012 | Make the site editable after creation | user | high | estimating | `set_estimate_site`, `where-the-work-is.tsx` | `where-the-work-is.test.tsx`, `where-the-work-is.test.ts` | tested |
 | C-013 | Only the project name is mandatory on a new estimate | user question, 2026-09-11 | medium | estimating | `create_estimate` + button guard | `estimates.test.tsx` | tested |
+| C-014 | A condition should be selectable by clicking the `1.0x` | user, with an example of conditions | high | estimating | migration 0149, `condition-cell.tsx` | `a-condition-you-can-click.test.ts`, `condition-cell.test.tsx` | tested |
+| C-015 | One name for one thing — no duplicate categories | user: "no duplicates please" | high | library catalog | seed `0012_one_name_for_one_thing.sql` | `one-name-for-one-thing.test.ts` | tested |
+| C-016 | Be able to rename, remove and open into any category, everywhere | user: "everything should be clickable and changeable with options" | high | libraries | migration 0150, `category-manager.tsx` | `a-category-you-can-manage.test.ts`, `category-manager.test.tsx` | tested |
+| C-017 | Removing a category moves its items to a category you pick | user: "move them to a category you pick" | high | libraries | `delete_library_category`, `RemoveBox` | 8 db tests + 3 web tests | tested |
 
 ---
 

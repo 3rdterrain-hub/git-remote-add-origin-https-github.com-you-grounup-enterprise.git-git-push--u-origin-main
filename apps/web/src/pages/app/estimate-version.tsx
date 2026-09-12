@@ -51,6 +51,7 @@ import {
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { WhereTheWorkIs } from '@/components/estimate/where-the-work-is';
+import { ConditionCell } from '@/components/estimate/condition-cell';
 import { NewLineRow } from '@/components/estimate/new-line-row';
 import { LineDescription } from '@/components/estimate/line-description';
 import { ClientDescription } from '@/components/estimate/client-description';
@@ -1026,10 +1027,11 @@ function LineTable({
                     * anything else is a decision somebody made about this line
                     * and it should be visible without opening the panel.
                     */}
-                  <div className="tabular min-w-0 text-center text-sm text-charcoal-500">
-                    {l.productionModifier === 1
-                      ? <span className="text-charcoal-400">1.0x</span>
-                      : <span className="font-medium text-charcoal-900">{l.productionModifier}x</span>}
+                  <div className="min-w-0 text-center">
+                    <ConditionCell lineId={l.id} description={l.description}
+                      productionModifier={l.productionModifier}
+                      editable={editable}
+                      onChanged={onChanged} />
                   </div>
                   <div className="min-w-0 text-right">
                     <UnitCostCell

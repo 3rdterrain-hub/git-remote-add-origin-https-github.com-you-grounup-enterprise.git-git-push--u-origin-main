@@ -11,6 +11,52 @@ Newest first.
 
 ---
 
+## D-015 · 2026-09-11 · What names a row lives on the categorized-columns list
+
+**Decision.** `app.categorized_columns()` gains a fifth column, `label_column`:
+the column that names a row in the table a category files things in — `name` for
+a material, `classification` for a labor rate, `company_name` for a lead.
+
+**Reason.** Opening a category has to show the rows behind the count, and naming
+a row differs by table. The alternative was a table-to-label map written in
+TypeScript, which is a second list to forget when a tenth categorized column is
+added — the exact failure `categorized_columns` exists to prevent. The return
+type changes, so the function is dropped and recreated and the view over it goes
+and comes back with it.
+
+**Affects.** `library_category_columns`, `app.library_category_members`, the
+category manager.
+
+**Status.** Active. Eleven rows, nine kinds.
+
+---
+
+## D-014 · 2026-09-11 · Removing a category names where its items go
+
+**Decision.** `delete_library_category(kind, name, move_to)` takes the
+destination as a required argument. There is no form of the call that removes a
+category and leaves its rows behind.
+
+**Reason.** Removing a category is a tidying decision; losing how three hundred
+materials were grouped is not, and the two must not be the same keystroke. A
+removal that stranded rows would also break them: the 0113 guard refuses a
+category that is not on the list, so the next edit to any of those rows would
+fail with a message about a category the person never touched. Where the
+category is empty the argument costs nothing.
+
+The same call is the merge tool — moving everything out of `Compaction` into
+`Compactors` and dropping the emptied name is how two categories become one,
+which is what the shipped catalog needed and had no screen for.
+
+**Authorized by.** The user, asked what should happen to the items in a category
+being deleted: "move them to a category you pick."
+
+**Affects.** Migration 0150, the category manager, every category list.
+
+**Status.** Active. 28 db tests, 15 web tests.
+
+---
+
 ## D-013 · 2026-09-11 · The execution protocol is a repository document
 
 **Decision.** The zero-drop protocol is stored verbatim at

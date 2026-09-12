@@ -271,6 +271,8 @@ TST-engine-trucking,test,engine/trucking.test.ts,packages/engine/tests/trucking.
 TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,ENGINE
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
+TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests/db/a-category-you-can-manage.test.ts,ENGINE
+TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
@@ -325,6 +327,7 @@ TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
 TST-db-notification-preferences,test,db/notification-preferences.test.ts,tests/db/notification-preferences.test.ts,ENGINE
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
+TST-db-one-name-for-one-thing,test,db/one-name-for-one-thing.test.ts,tests/db/one-name-for-one-thing.test.ts,ENGINE
 TST-db-one-plan,test,db/one-plan.test.ts,tests/db/one-plan.test.ts,ENGINE
 TST-db-operations,test,db/operations.test.ts,tests/db/operations.test.ts,ENGINE
 TST-db-operator-activity,test,db/operator-activity.test.ts,tests/db/operator-activity.test.ts,ENGINE
@@ -396,6 +399,7 @@ TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification
 TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
+TST-web-condition-cell,test,web/condition-cell.test.tsx,apps/web/src/components/estimate/condition-cell.test.tsx,ENGINE
 TST-web-how-sure,test,web/how-sure.test.tsx,apps/web/src/components/estimate/how-sure.test.tsx,ENGINE
 TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
 TST-web-line-detail.a11y,test,web/line-detail.a11y.test.tsx,apps/web/src/components/estimate/line-detail.a11y.test.tsx,ENGINE
@@ -415,6 +419,7 @@ TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx
 TST-web-nav-names-the-screen,test,web/nav-names-the-screen.test.ts,apps/web/src/components/layout/nav-names-the-screen.test.ts,ENGINE
 TST-web-page,test,web/page.test.tsx,apps/web/src/components/layout/page.test.tsx,ENGINE
 TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/assemblies.test.tsx,ENGINE
+TST-web-category-manager,test,web/category-manager.test.tsx,apps/web/src/components/library/category-manager.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE

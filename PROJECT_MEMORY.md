@@ -203,7 +203,7 @@ the data layer translates at the boundary and nowhere else. A `my_*` view is
 caller-scoped by row level security. A `public.*` function is the browser-facing
 wrapper over an `app.*` implementation.
 
-**Data.** 168 tables, 87 views (20 reporting), 148 migrations. Catalog seeds sit
+**Data.** 168 tables, 87 views (20 reporting), 149 migrations. Catalog seeds sit
 at 0900+ — which is why `db push` needs `--include-all`.
 
 **Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
@@ -224,12 +224,13 @@ and parametric lines, applies condition modifiers and markup, clears the
 confidence gate, and can be approved, issued and awarded into a project that
 carries the bid, the budget, the site and every priced line as a budgeted task.
 
-**Door inventory: 161 doors, 0 with no reader, 0 granted but unreachable.**
+**Door inventory: 168 doors, 0 with no reader, 0 granted but unreachable.**
 
 ### Deployment
 
 The live workspace is `3RD Terrain`, on the `grounup` plan (manual grant, no
-expiry — see `DECISION_LOG.md` D-012). All migrations through 0148 are applied;
+expiry — see `DECISION_LOG.md` D-012). All migrations through 0150 are applied,
+and `supabase migration list` shows local and remote agreeing on every one;
 all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
 `PRJ-2026-0003`.
 
@@ -238,17 +239,34 @@ all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
 - The shipped catalog's assemblies reference tasks that carry no crew, equipment
   or material, so a library line prices at $0 until it is built up. Labor
   (56/56) and equipment (516/517) rates *are* costed; materials are 5/333.
+- Resource pickers in the wrench panel (Crew, Equipment, Materials, Hauling,
+  Subs) are still free-text name fields rather than selects over the library.
 - `project-detail`'s Daily report, Change order and New RFI buttons are not
   wired to writers yet.
 - Three retired plans (`starter`, `professional`, `business`, `enterprise`) and
   `partner_white_label` remain in `plans` because plans are versioned commercial
   terms.
 
+### Categories, as of migration 0150
+
+The nine category lists are records (0113), the shipped vocabulary was
+consolidated to one name per thing (seed 0012 — 42 material categories to 25, 31
+service to 5, 71 equipment classes to 18), and a person can now count, open,
+rename and remove one from the **Categories** tab on Libraries. Removing one
+names where its items go, which is also how two categories are merged
+(`DECISION_LOG.md` D-014). `app.categorized_columns()` carries what names a row
+in each table, so the drill-in is generic (D-015).
+
+A kind may govern more than one table — `lead_source` governs `leads.source` and
+`lead_intake_forms.source_label` — and every one of these functions loops over
+the columns of a kind rather than picking one.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes.
-2. Wire the three project-detail actions.
-3. Compose task resources in the catalog, or document that pricing is by hand.
+2. Replace the free-text resource names in the wrench panel with library pickers.
+3. Wire the three project-detail actions.
+4. Compose task resources in the catalog, or document that pricing is by hand.
 
 ---
 

@@ -1401,3 +1401,63 @@ export const loadCostCodes: Query<CostCodeOption[]> = async (client) => {
     isOwn: Boolean(c.is_own),
   }));
 };
+
+export interface LineCondition {
+  modifierId: string;
+  code: string;
+  name: string;
+  category: string | null;
+  applicationRule: string;
+  /** The factors as they stood when applied, not as the library holds them now. */
+  appliedFactors: Record<string, number>;
+  justification: string;
+}
+
+/**
+ * The conditions on one line.
+ *
+ * `estimate_line_modifiers` has existed since migration 0006 and the engine has
+ * always read it — `modifiers.combined` multiplies labor, equipment, material,
+ * trucking and disposal cost by what comes out. The only writers were the
+ * template and revision copiers, so the COND. column rendered `1.0x` as plain
+ * text: a number that could never be anything else, on a column that exists to
+ * be changed. Migration 0149 is the door.
+ */
+export const loadLineConditions = (lineId: string): Query<LineCondition[]> => async (client) => {
+  const rows = unwrap(await client
+    .from('my_line_conditions')
+    .select('condition_modifier_id, code, name, category, application_rule, applied_factors, justification')
+    .eq('line_item_id', lineId)
+    .order('code')) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    modifierId: String(r.condition_modifier_id),
+    code: String(r.code),
+    name: String(r.name),
+    category: (r.category as string | null) ?? null,
+    applicationRule: String(r.application_rule ?? ''),
+    appliedFactors: (r.applied_factors ?? {}) as Record<string, number>,
+    justification: String(r.justification ?? ''),
+  }));
+};
+
+/**
+ * Put a condition on a line, with the reason it applies.
+ *
+ * The justification is not politeness: a condition multiplies what the work
+ * costs, and the table refuses one under ten characters. Asking here means
+ * somebody types it once instead of meeting the refusal after choosing.
+ */
+export async function applyLineCondition(
+  client: RpcCapable, lineId: string, modifierId: string, justification: string,
+): Promise<void> {
+  await rpc(client, 'apply_line_condition', {
+    p_line: lineId, p_modifier: modifierId, p_justification: justification.trim(),
+  });
+}
+
+/** Take one off. A condition applied by mistake is not a revision. */
+export async function removeLineCondition(
+  client: RpcCapable, lineId: string, modifierId: string,
+): Promise<void> {
+  await rpc(client, 'remove_line_condition', { p_line: lineId, p_modifier: modifierId });
+}

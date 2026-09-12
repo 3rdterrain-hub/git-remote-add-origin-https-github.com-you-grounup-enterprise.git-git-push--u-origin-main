@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **161** |
-| Opened by a screen | **143** |
+| Doors | **168** |
+| Opened by a screen | **150** |
 | Opened only by an Edge Function | **3** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -69,9 +69,10 @@ None.
 | `add_assembly_step` | function | lib/data/assemblies.ts |
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
-| `add_library_category` | function | lib/data/categories.ts, lib/data/lead-forms.ts |
+| `add_library_category` | function | lib/data/categories.ts |
 | `adopt_profile_markups` | function | lib/data/estimates.ts |
 | `apply_estimate_template` | function | lib/data/templates.ts |
+| `apply_line_condition` | function | lib/data/estimates.ts |
 | `apply_line_resource_suggestions` | function | lib/data/estimates.ts |
 | `apply_takeoff_to_line` | function | lib/data/takeoff.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
@@ -97,6 +98,7 @@ None.
 | `decide_upsell` | function | lib/data/admin.ts |
 | `delete_company` | function | lib/data/admin.ts |
 | `delete_estimate_line` | function | lib/data/estimates.ts |
+| `delete_library_category` | function | lib/data/categories.ts |
 | `delete_line_resource` | function | lib/data/estimates.ts |
 | `dismiss_announcement` | function | lib/data/session.ts |
 | `dismiss_notification` | function | lib/data/session.ts |
@@ -112,6 +114,8 @@ None.
 | `is_superadmin` | function | lib/data/admin.ts |
 | `is_supporting` | function | lib/data/admin.ts |
 | `issue_proposal` | function | lib/data/estimates.ts |
+| `library_category_counts` | function | lib/data/categories.ts |
+| `library_category_members` | function | lib/data/categories.ts |
 | `line_production_options` | function | lib/data/production.ts |
 | `line_unit_note` | function | lib/data/estimates.ts |
 | `mark_notification_read` | function | lib/data/session.ts |
@@ -127,6 +131,7 @@ None.
 | `my_estimate_templates` | view | lib/data/templates.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
+| `my_line_conditions` | view | lib/data/estimates.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
@@ -162,6 +167,8 @@ None.
 | `reject_finding` | function | lib/data/plans.ts |
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
+| `remove_line_condition` | function | lib/data/estimates.ts |
+| `rename_library_category` | function | lib/data/categories.ts |
 | `request_refund` | function | lib/data/admin.ts |
 | `restore_company` | function | lib/data/admin.ts |
 | `retire_library_category` | function | lib/data/categories.ts |

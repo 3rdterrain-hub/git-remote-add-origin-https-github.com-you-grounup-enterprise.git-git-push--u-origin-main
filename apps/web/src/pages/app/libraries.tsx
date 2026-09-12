@@ -33,6 +33,7 @@ import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
+import { CategoryManager } from '@/components/library/category-manager';
 
 export function LibrariesPage() {
   const [q, setQ] = useState('');
@@ -247,7 +248,18 @@ export function LibrariesPage() {
           <TabsTrigger value="production">Production rates</TabsTrigger>
           <TabsTrigger value="modifiers">Condition modifiers</TabsTrigger>
           <TabsTrigger value="pricing">Pricing profiles</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
         </TabsList>
+
+        {/* ----------------------------------------------------- categories */}
+        <TabsContent value="categories" className="space-y-4">
+          {/*
+            * The lists every tab above groups by. They were addable and nothing
+            * else until migration 0150 — which is how the shipped catalog ended
+            * up with `COMPACTION` beside `Compactors` and no screen to fix it.
+            */}
+          <CategoryManager companyId={companyId} canEdit={canWrite} />
+        </TabsContent>
 
         {/* ---------------------------------------------------------- labor */}
         {/* ------------------------------------------------------- services */}
