@@ -28,7 +28,7 @@ export const UNIT_LABEL: Readonly<Record<Unit, string>> = {
   SY: 'Square yards', CY: 'Cubic yards', TON: 'Tons', HR: 'Hours',
   DAY: 'Days', ACRE: 'Acres', GAL: 'Gallons', LB: 'Pounds',
   MO: 'Months', WK: 'Weeks',
-  BF: 'Board feet', SQ: 'Roofing squares', KW: 'Kilowatts',
+  BF: 'Board feet', SQ: 'Roofing squares', KW: 'Kilowatts', CF: 'Cubic feet',
 };
 
 /** Grouped by what they measure, so a list of fourteen reads as four short ones. */

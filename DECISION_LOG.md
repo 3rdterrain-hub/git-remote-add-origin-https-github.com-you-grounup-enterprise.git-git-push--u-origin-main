@@ -11,6 +11,74 @@ Newest first.
 
 ---
 
+## D-017 · 2026-09-12 · Catalog prices are shipped as `estimated`, with the unit they are quoted in
+
+**Decision.** The 173 material prices in the company price library
+(`07_F_P_MATERIAL_LIBRARY`) ship on the platform catalog as `cost_state =
+'estimated'`, and each one carries the unit its own source row states — 133 unit
+corrections, applied in the same statement as the price.
+
+**Reason.** Seed 0009 shipped the catalog uncosted and said why: a price list
+belongs to the company that negotiated it, and a national average is worse than
+nothing. That reasoning was right and its premise was wrong — a second sheet in
+the same workbook had a price on every row. Nothing here is invented, averaged
+or converted.
+
+`estimated` rather than `quoted` because a quote is a number a supplier stands
+behind on a date (0121), and `quoted` would overstate what this is. A company
+that wants its own number clicks the cost and 0133 copies the material into
+their library, which is the point of the three-tier shape.
+
+**The unit is not separable from the price.** 0009 refused to turn `EA` into
+`TON` on a guess — "a per-ton price on a per-each material" makes every estimate
+built on it wrong by a factor nobody spots. The guess was what it refused; the
+price library states the unit beside the price, so the two move together or not
+at all.
+
+**What was deliberately not loaded.** Density except where the source states
+lb/CF (×27, the definition of a cubic yard): the sheet states most densities as
+lb per unit *sold*, which is a different fact, and loading one into the other
+would be the same mistake in another column. 12 of 173 qualify. The 160 catalog
+materials with no row in the price library stay `not_costed`.
+
+**Affects.** Migrations 0152 (`CF` as a unit) and 0153 (`CF`, `SET` synonyms),
+seed 0013, the material library, every estimate that uses one.
+
+**Status.** Active. 14 tests. 155 catalog materials remain uncosted, down from 328.
+
+---
+
+## D-016 · 2026-09-12 · A library link is cleared by sending it, not by omitting it
+
+**Decision.** In `save_line_resource`, the six library links — `labor_rate_id`,
+`equipment_id`, `material_id`, `trucking_rate_id`, `disposal_site_id`,
+`vendor_id` — are applied on update by *key presence* rather than through
+`coalesce`. Sending `material_id: null` removes the link. Every other field
+keeps `coalesce`.
+
+**Reason.** `coalesce(new, old)` cannot express "set this to nothing": null
+means "I did not send this", which is right for a number somebody left alone and
+wrong for a link somebody is removing. A row renamed by hand is no longer the
+library row it came from, and `capture_library_snapshot` reads that link to
+record what priced the version — so a stale link is not untidiness, it is an
+audit trail that names the wrong material as the thing that priced the bid.
+
+**Alternative rejected.** A separate `unlink_line_resource` function. It would
+have made renaming a row two calls that must both succeed, and the second one
+failing would leave exactly the state this is meant to prevent.
+
+**What it superseded.** Migration 0139 listed all six as accepted fields and the
+UPDATE branch mentioned none of them — so sending one returned success and
+changed nothing. That is the same shape as the `markupOverride` defect 0139 was
+written to stop: the guard asks whether a key is *known*, not whether it is
+*applied*.
+
+**Affects.** Migration 0151, `ResourceName`, every wrench-panel tab.
+
+**Status.** Active. 9 db tests, 11 web tests.
+
+---
+
 ## D-015 · 2026-09-11 · What names a row lives on the categorized-columns list
 
 **Decision.** `app.categorized_columns()` gains a fifth column, `label_column`:

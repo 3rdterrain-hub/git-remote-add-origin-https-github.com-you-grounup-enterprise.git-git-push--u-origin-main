@@ -17,9 +17,9 @@
  * BF, SQ and KW arrived with a real materials export: lumber quoted in board
  * feet, shingles in squares, a solar allowance in kilowatts. The importer
  * refused all three kinds, correctly, and the fix was the enum rather than the
- * spreadsheet.
+ * spreadsheet. CF came the same way, from grout sold by the cubic foot.
  */
-export declare const UNITS: readonly ["LS", "EA", "LF", "SF", "SY", "CY", "TON", "HR", "DAY", "ACRE", "GAL", "LB", "MO", "WK", "BF", "SQ", "KW"];
+export declare const UNITS: readonly ["LS", "EA", "LF", "SF", "SY", "CY", "TON", "HR", "DAY", "ACRE", "GAL", "LB", "MO", "WK", "BF", "SQ", "KW", "CF"];
 export type Unit = (typeof UNITS)[number];
 export declare function isUnit(value: string): value is Unit;
 /** Dimension family a unit belongs to. Conversions only happen inside a family. */

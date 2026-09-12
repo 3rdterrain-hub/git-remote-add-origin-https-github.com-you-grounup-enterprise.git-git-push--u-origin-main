@@ -64,6 +64,7 @@ const resource = (over: Partial<LineResource> = {}): LineResource => ({
   capacityUnit: null,
   tonsPerLoad: null, loadMinutes: null, dumpMinutes: null, queueMinutes: null,
   includesDisposal: false,
+  libraryId: null,
   extendedCost: 0,
   ...over,
 });

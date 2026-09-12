@@ -27,11 +27,11 @@ vi.mock('@/lib/data/estimates', async () => {
   return {
     ...actual,
     searchLaborRates: search, searchEquipment: search,
-    searchMaterials: search, searchVendors: search,
+    searchMaterials: search, searchVendors: search, searchTruckingRates: search,
   };
 });
 
-const { ResourcePicker } = await import('./resource-picker');
+const { ResourcePicker, ResourceName } = await import('./resource-picker');
 
 const pick = (over: Partial<LibraryPick> = {}): LibraryPick => ({
   id: 'r-1', code: 'LAB-OP1', name: 'Heavy Equipment Operator I',
@@ -165,5 +165,151 @@ describe('each kind carries its own identifier', () => {
     await userEvent.click(await screen.findAllByRole('option').then((o) => o[0]!));
     await waitFor(() => expect(onPick).toHaveBeenCalledWith(
       expect.objectContaining({ [key]: 'r-1' })));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// What a row already on the line *is*
+// ---------------------------------------------------------------------------
+
+/**
+ * The name of an existing row used to be a plain text box, and that was not a
+ * cosmetic problem. It wrote `description` and nothing else, so renaming
+ * "Crushed stone" to "Pit run" left `material_id` pointing at crushed stone —
+ * and `capture_library_snapshot` reads that link to record what priced the
+ * version, so the audit trail and the line disagreed and the bid went out.
+ *
+ * Migration 0151 made the link writable on update at all; these hold down what
+ * the screen does with that.
+ */
+const named = (over: Partial<Parameters<typeof ResourceName>[0]> = {}) => {
+  const onChange = vi.fn();
+  render(<ResourceName kind="material" label="Material" value="Crushed stone"
+    linked onChange={onChange} {...over} />);
+  return { onChange };
+};
+
+const openName = async (name = /Material: Crushed stone/) =>
+  userEvent.click(await screen.findByRole('button', { name }));
+
+describe('the identity of a row on the line', () => {
+  beforeEach(() => { hoisted.rows = [pick({ id: 'm-2', name: 'Pit run', rate: 18, unit: 'CY' })]; });
+
+  it('shows what it is, and says it is changeable', async () => {
+    named();
+    expect(await screen.findByRole('button', { name: /Material: Crushed stone/ })).toBeTruthy();
+    // Not a text box — the thing it replaced.
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  it('marks a row the library does not stand behind', async () => {
+    named({ linked: false, value: 'Something off the truck' });
+    expect(await screen.findByText('typed')).toBeTruthy();
+  });
+
+  it('moves the link with the name when a library row is picked', async () => {
+    const { onChange } = named();
+    await openName();
+    await userEvent.click(await screen.findByRole('option', { name: /Pit run/ }));
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ description: 'Pit run', material_id: 'm-2' }));
+  });
+
+  it('removes the link when a name is typed by hand', async () => {
+    /*
+     * A row somebody renamed themselves is no longer the library row it came
+     * from, and leaving the old link is the same lie in the other direction.
+     * Null rather than omitted, because 0151 reads these six by key presence.
+     */
+    const { onChange } = named();
+    await openName();
+    const box = await screen.findByRole('combobox');
+    await userEvent.clear(box);
+    await userEvent.type(box, 'Screened sand from the pit{Enter}');
+    expect(onChange).toHaveBeenCalledWith({
+      description: 'Screened sand from the pit', material_id: null,
+    });
+  });
+
+  it('can drop the link and keep the name', async () => {
+    const { onChange } = named();
+    await openName();
+    await userEvent.click(await screen.findByRole('button', { name: /Unlink from the library/ }));
+    expect(onChange).toHaveBeenCalledWith({ material_id: null });
+  });
+
+  it('offers no unlink where there is no link', async () => {
+    named({ linked: false });
+    await openName();
+    expect(screen.queryByRole('button', { name: /Unlink from the library/ })).toBeNull();
+  });
+
+  it('searches the whole list before anything is typed', async () => {
+    // Seeded with the current name, a first search for that name would return
+    // the row it already is — useless to somebody who opened it to change it.
+    named();
+    await openName();
+    expect(await screen.findByRole('option', { name: /Pit run/ })).toBeTruthy();
+  });
+
+  it('changes nothing on Escape', async () => {
+    const { onChange } = named();
+    await openName();
+    await userEvent.keyboard('{Escape}');
+    expect(onChange).not.toHaveBeenCalled();
+    expect(await screen.findByRole('button', { name: /Material: Crushed stone/ })).toBeTruthy();
+  });
+
+  it('is inert on a version that is frozen', async () => {
+    named({ disabled: true });
+    const button = await screen.findByRole('button', { name: /Material: Crushed stone/ });
+    expect(button.hasAttribute('disabled')).toBe(true);
+  });
+});
+
+describe('hauling, which had no typed search at all', () => {
+  beforeEach(() => {
+    hoisted.rows = [pick({
+      id: 't-1', code: 'TRK-QUAD', name: 'Quad-axle dump', rate: 95, unit: 'HR',
+      detail: 'quad · 16 CY', isOwn: true,
+      extra: {
+        truck_capacity: 16, load_minutes: 6, dump_minutes: 2,
+        queue_minutes: 3, average_speed_mph: 32.5,
+      },
+    })];
+  });
+
+  it('brings the truck cycle with the truck', async () => {
+    const onPick = vi.fn();
+    render(<ResourcePicker kind="trucking" label="Add hauling"
+      onPick={onPick} onBlank={vi.fn()} />);
+    await userEvent.click(await screen.findByRole('button', { name: /Add hauling from the library/ }));
+    await userEvent.click(await screen.findByRole('option', { name: /Quad-axle dump/ }));
+    expect(onPick).toHaveBeenCalledWith(expect.objectContaining({
+      trucking_rate_id: 't-1', description: 'Quad-axle dump', unit_rate: 95,
+      truck_capacity: 16, load_minutes: 6, dump_minutes: 2, queue_minutes: 3,
+      average_speed_mph: 32.5,
+      // A row created from a profile is priced by the trip; that is what a
+      // profile is for.
+      haul_mode: 'trip',
+    }));
+  });
+
+  it('leaves an existing row priced however it already was', async () => {
+    /*
+     * Capacity and the load, dump and queue times belong to the machine and
+     * come with it. How the haul is priced, and the route it runs, belong to
+     * the job — choosing a different truck must not overwrite either.
+     */
+    const onChange = vi.fn();
+    render(<ResourceName kind="trucking" label="Truck" value="Tandem" linked
+      onChange={onChange} />);
+    await userEvent.click(await screen.findByRole('button', { name: /Truck: Tandem/ }));
+    await userEvent.click(await screen.findByRole('option', { name: /Quad-axle dump/ }));
+    const sent = onChange.mock.calls[0]![0] as Record<string, unknown>;
+    expect(sent.trucking_rate_id).toBe('t-1');
+    expect(sent.truck_capacity).toBe(16);
+    expect(sent).not.toHaveProperty('haul_mode');
+    expect(sent).not.toHaveProperty('round_trip_miles');
   });
 });

@@ -18,11 +18,11 @@ import { assertNonNegative, assertPositive, qty, factor } from './numeric.js';
  * BF, SQ and KW arrived with a real materials export: lumber quoted in board
  * feet, shingles in squares, a solar allowance in kilowatts. The importer
  * refused all three kinds, correctly, and the fix was the enum rather than the
- * spreadsheet.
+ * spreadsheet. CF came the same way, from grout sold by the cubic foot.
  */
 export const UNITS = [
     'LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB', 'MO', 'WK',
-    'BF', 'SQ', 'KW',
+    'BF', 'SQ', 'KW', 'CF',
 ];
 export function isUnit(value) {
     return UNITS.includes(value);
@@ -45,6 +45,7 @@ export const UNIT_DIMENSION = {
     SQ: 'area',
     BF: 'lumber',
     KW: 'power',
+    CF: 'volume',
 };
 /** Factor to the family's base unit (SF for area, CY for volume, LB for mass, HR for time). */
 const TO_BASE = {
@@ -67,6 +68,17 @@ const TO_BASE = {
     SQ: 100,
     BF: 1,
     KW: 1,
+    /*
+     * A cubic yard is twenty-seven cubic feet. The same kind of fact as the
+     * roofing square — a definition rather than an assumption about the material
+     * — so a *quantity* converts exactly.
+     *
+     * Migration 0152 says CF "converts to nothing", and that is about two other
+     * things and still holds: `app.unit_synonym` will not silently rename CF into
+     * CY on import, and a price of $8.50 per cubic foot is not a price per cubic
+     * yard however the arithmetic works out. This function takes a quantity.
+     */
+    CF: 1 / 27,
 };
 /**
  * Convert between two units in the same dimension.

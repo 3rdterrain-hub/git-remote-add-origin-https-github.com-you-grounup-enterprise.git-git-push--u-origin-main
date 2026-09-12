@@ -74,13 +74,21 @@ describe('pricing a catalog material', () => {
       expect(Number(r!.n)).toBe(333);
     });
 
-    it('prices almost none of them, and says so rather than saying free', async () => {
+    it('says a material is uncosted rather than saying it is free', async () => {
+      /*
+       * 328 of these shipped with no price and this test pinned that number.
+       * Seed 0013 costed 173 of them from the company price library, so the
+       * figure is 155 — but the property it was written for is the other
+       * assertion, and that one has never moved: a material nobody has costed
+       * reads `not_costed`, never `free`, because a price of nothing looks like
+       * a price and bids the job at nothing.
+       */
       const [r] = await sql<{ uncosted: string; free: string }>(
         `select count(*) filter (where cost_state = 'not_costed')::text as uncosted,
                 count(*) filter (where cost_state = 'free')::text      as free
            from materials where company_id is null
             and source = 'GrounUp material catalog v1'`);
-      expect(Number(r!.uncosted)).toBe(328);
+      expect(Number(r!.uncosted)).toBe(155);
       expect(Number(r!.free)).toBe(0);
     });
 
@@ -91,13 +99,36 @@ describe('pricing a catalog material', () => {
       expect(shingles.unit).toBe('SQ');
     });
 
-    it('leaves aggregate filed as each rather than guessing a ton', async () => {
-      const [r] = await sql<{ n: string }>(
-        `select count(*)::text as n from materials m
+    it('corrects a unit only where a source states it, and never by guessing', async () => {
+      /*
+       * 37 materials shipped as `EA` that are sold by the ton or the yard, and
+       * 0009 refused to fix them: "turning EA into TON on a guess puts a
+       * per-ton price on a per-each material and every estimate built on one is
+       * then wrong by a factor nobody will spot."
+       *
+       * What it refused was the *guess*. The company price library states the
+       * unit beside the price, so seed 0013 corrects 31 of the 37 from a stated
+       * source, with the price, in one statement. The 6 that remain have no row
+       * in that library — nobody has said what they are sold by, so they stay
+       * exactly as they arrived and stay flagged for a person.
+       */
+      const [r] = await sql<{ n: string; uncosted: string }>(
+        `select count(*)::text as n,
+                count(*) filter (where m.cost_state = 'not_costed')::text as uncosted
+           from materials m
           where m.company_id is null
             and m.source = 'GrounUp material catalog v1'
             and app.unit_looks_wrong(m.category, m.name, m.unit)`);
-      expect(Number(r!.n)).toBe(37);
+      expect(Number(r!.n)).toBe(6);
+      /*
+       * Three of the six are uncosted — nobody has said what they are sold by.
+       * The other three carry a price and are eaches on purpose: a *bag* of
+       * cold patch, a pavement *marker*, a form *tube*, each tripping a keyword
+       * on its category rather than its unit. `unit_looks_wrong` is a flag for
+       * a person to work through (0127), not a rule, and this is what its false
+       * positives look like.
+       */
+      expect(Number(r!.uncosted)).toBe(3);
     });
 
     it('files every category it used so the picker offers them', async () => {

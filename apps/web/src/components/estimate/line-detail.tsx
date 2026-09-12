@@ -20,7 +20,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Package, Plus, Ruler, ShoppingCart, Trash2, Truck, Users2, Wrench,
+  Package, Ruler, ShoppingCart, Trash2, Truck, Users2, Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +39,7 @@ import { ProductionRatePanel } from '@/components/estimate/production-rate';
 import { HowSure } from './how-sure';
 import { UnitCostPanel, ResourceSuggestions } from '@/components/estimate/unit-cost';
 import { HaulCapacity } from '@/components/estimate/haul-capacity';
-import { ResourcePicker } from '@/components/estimate/resource-picker';
+import { ResourcePicker, ResourceName } from '@/components/estimate/resource-picker';
 import { FromLibrary } from '@/components/estimate/from-library';
 import { money, qty } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -253,16 +253,6 @@ function Text({ label, name, value, onCommit, disabled, width = 'flex-1', placeh
   );
 }
 
-function AddRow({ label, onAdd, disabled }: {
-  label: string; onAdd: () => void; disabled?: boolean;
-}) {
-  return (
-    <Button variant="outline" size="sm" className="mt-2" onClick={onAdd} disabled={disabled}>
-      <Plus className="size-4" /> {label}
-    </Button>
-  );
-}
-
 function Empty({ what }: { what: string }) {
   return <p className="py-3 text-sm text-charcoal-500">Nothing on this line yet — {what}</p>;
 }
@@ -306,10 +296,16 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
                     name={`Role for ${r.description ?? 'this row'}`}
                     placeholder="Operator"
                     onCommit={(v) => { void onSave('labor', { role: v }, r.id); }} /></td>
-                  <td><Text value={r.description} disabled={!editable} width="w-44"
-                    name={`What it is for ${r.description ?? 'this row'}`}
-                    placeholder="Excavator Operator"
-                    onCommit={(v) => { void onSave('labor', { description: v }, r.id); }} /></td>
+                  {/*
+                    * The classification, picked rather than typed. A crew row
+                    * renamed by hand used to keep pointing at the labor rate it
+                    * came from, and that link is what the snapshot records as
+                    * having priced the version.
+                    */}
+                  <td><ResourceName kind="labor" hideLabel width="w-44"
+                    label="Classification" value={r.description} linked={r.libraryId !== null}
+                    disabled={!editable}
+                    onChange={(f) => { void onSave('labor', f, r.id); }} /></td>
                   <td><Num value={r.headcount} disabled={!editable} width="w-16"
                     name={`How many for ${r.description ?? 'this row'}`}
                     onCommit={(v) => { void onSave('labor', { headcount: v ?? 1 }, r.id); }} /></td>
@@ -411,9 +407,9 @@ function EquipmentTab({ rows, editable, busy, hours, onSave, onRemove }: {
         return (
           <div key={r.id} className="rounded-md border border-charcoal-200 bg-white p-3">
             <div className="flex flex-wrap items-end gap-3">
-              <Text label="Machine" value={r.description} disabled={!editable}
-                width="min-w-48 flex-1" placeholder="Dozer D5"
-                onCommit={(v) => { void onSave('equipment', { description: v }, r.id); }} />
+              <ResourceName kind="equipment" label="Machine" value={r.description}
+                linked={r.libraryId !== null} disabled={!editable}
+                onChange={(f) => { void onSave('equipment', f, r.id); }} />
               <div className="space-y-1">
                 <Label className="text-xs text-charcoal-500">Billed by</Label>
                 <select
@@ -518,9 +514,9 @@ function MaterialTab({ rows, editable, busy, onSave, onRemove }: {
       {rows.map((r) => (
         <div key={r.id}
           className="flex flex-wrap items-end gap-3 rounded-md border border-charcoal-200 bg-white p-3">
-          <Text label="Material" value={r.description} disabled={!editable}
-            width="min-w-48 flex-1" placeholder="Aggregate base"
-            onCommit={(v) => { void onSave('material', { description: v }, r.id); }} />
+          <ResourceName kind="material" label="Material" value={r.description}
+            linked={r.libraryId !== null} disabled={!editable}
+            onChange={(f) => { void onSave('material', f, r.id); }} />
           <Num label="Quantity" value={r.quantity || null} disabled={!editable} width="w-24"
             onCommit={(v) => { void onSave('material', { quantity: v ?? 0 }, r.id); }} />
           <div className="space-y-1">
@@ -583,9 +579,14 @@ function HaulTab({ rows, editable, busy, onSave, onRemove, onChanged }: {
         return (
           <div key={r.id} className="rounded-md border border-charcoal-200 bg-white p-3">
             <div className="flex flex-wrap items-end gap-3">
-              <Text label="Truck" value={r.description} disabled={!editable}
-                width="min-w-48 flex-1" placeholder="Quad-Axle Dump Truck"
-                onCommit={(v) => { void onSave('trucking', { description: v }, r.id); }} />
+              {/*
+                * Picking a different truck brings its capacity and its load,
+                * dump and queue times — they belong to the machine. The route
+                * is the job's and is left exactly as it was.
+                */}
+              <ResourceName kind="trucking" label="Truck" value={r.description}
+                linked={r.libraryId !== null} disabled={!editable}
+                onChange={(f) => { void onSave('trucking', f, r.id); }} />
               <div className="space-y-1">
                 <Label className="text-xs text-charcoal-500">Priced by</Label>
                 <select
@@ -674,8 +675,10 @@ function HaulTab({ rows, editable, busy, onSave, onRemove, onChanged }: {
       })}
       {editable ? (
         <div className="flex flex-wrap items-center gap-2">
-          <AddRow label="Add hauling" disabled={busy}
-            onAdd={() => {
+          <ResourcePicker
+            kind="trucking" label="Add hauling" disabled={busy}
+            onPick={(f) => { void onSave('trucking', { quantity: 1, ...f }); }}
+            onBlank={() => {
               void onSave('trucking', { description: '', haul_mode: 'hours', quantity: 1 });
             }} />
           <FromLibrary kind="trucking" disabled={busy} label="From a haul profile"
@@ -697,9 +700,14 @@ function SubTab({ rows, editable, busy, onSave, onRemove }: {
       {rows.map((r) => (
         <div key={r.id}
           className="flex flex-wrap items-end gap-3 rounded-md border border-charcoal-200 bg-white p-3">
-          <Text label="Scope" value={r.description} disabled={!editable}
-            width="min-w-48 flex-1" placeholder="Seeding and erosion control"
-            onCommit={(v) => { void onSave('subcontract', { description: v }, r.id); }} />
+          {/*
+            * Labeled for what it holds. Picking a subcontractor has always put
+            * the vendor's name here — so this is the row's identity, and typing
+            * a scope of your own is still allowed and unlinks the vendor.
+            */}
+          <ResourceName kind="subcontract" label="Subcontract" value={r.description}
+            linked={r.libraryId !== null} disabled={!editable}
+            onChange={(f) => { void onSave('subcontract', f, r.id); }} />
           <Num label="Quoted" value={r.unitRate || null} disabled={!editable} width="w-28"
             onCommit={(v) => { void onSave('subcontract', { unit_rate: v ?? 0 }, r.id); }} />
           <span className="tabular ml-auto pb-2 font-medium"><Cost value={r.extendedCost} /></span>

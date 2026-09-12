@@ -82,6 +82,12 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-015 | One name for one thing — no duplicate categories | user: "no duplicates please" | high | library catalog | seed `0012_one_name_for_one_thing.sql` | `one-name-for-one-thing.test.ts` | tested |
 | C-016 | Be able to rename, remove and open into any category, everywhere | user: "everything should be clickable and changeable with options" | high | libraries | migration 0150, `category-manager.tsx` | `a-category-you-can-manage.test.ts`, `category-manager.test.tsx` | tested |
 | C-017 | Removing a category moves its items to a category you pick | user: "move them to a category you pick" | high | libraries | `delete_library_category`, `RemoveBox` | 8 db tests + 3 web tests | tested |
+| C-018 | Resource pickers in place of free-text names in the wrench panel | user: "now do the wrench panel resource pickers" | high | estimating | `ResourceName` on all five tabs | `resource-picker.test.tsx` | tested |
+| C-019 | Hauling gets the same typed search as every other tab | follows from C-018 | high | estimating | `searchTruckingRates`, `PickKind` gains `trucking` | 2 web tests | tested |
+| C-020 | A repointed row moves its library link with its name | defect found building C-018 | high | estimating + schema | migration 0151 | `a-resource-you-can-repoint.test.ts` | tested |
+| C-021 | A price entered in the library is used as a preset when building, never re-entered | user, 2026-09-12 | high | estimating + libraries | `line_resource_suggestions` → `save_line_resource`; `ResourcePicker`/`ResourceName` carry rate, unit and cycle | `a-resource-you-can-repoint.test.ts`, `resource-picker.test.tsx` | tested |
+| C-022 | Add the material prices to the library | user: "add the material prices to the library" | high | library catalog | seed `0013_material_prices.sql` from `07_F_P_MATERIAL_LIBRARY` | `the-prices-that-were-in-the-file.test.ts` | tested |
+| C-023 | A price and the unit it is quoted in arrive together | follows from C-022; 0009 refused to guess a unit | high | library catalog | seed 0013 corrects 133 units with their prices | 2 tests in the same file | tested |
 
 ---
 

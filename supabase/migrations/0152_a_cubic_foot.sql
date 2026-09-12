@@ -1,0 +1,23 @@
+-- =============================================================================
+-- 0152 — A cubic foot
+--
+-- Migration 0132 added the board foot, the roofing square and the kilowatt for
+-- the same reason this adds the cubic foot: the importer refused a material
+-- because the platform had no such unit, and that is a gap in an enum rather
+-- than a problem with the supplier.
+--
+-- Grout is sold by the cubic foot. `app.unit_synonym` returns null for `CF`,
+-- so the one row carrying it would be refused — and the alternative, folding it
+-- into `CY`, means multiplying somebody's price by 27. That is arithmetic on a
+-- number a person gave us, which is exactly why `MBF` is refused by name rather
+-- than quietly divided by a thousand.
+--
+-- So `CF` becomes a unit and converts to nothing. A cubic yard is 27 cubic
+-- feet, and a price per cubic foot is still not a price per cubic yard until
+-- somebody says so.
+--
+-- This migration adds the value and nothing else. PostgreSQL will not let a new
+-- enum value be used in the transaction that created it, so 0153 does the using.
+-- =============================================================================
+
+alter type app.unit_code add value if not exists 'CF';

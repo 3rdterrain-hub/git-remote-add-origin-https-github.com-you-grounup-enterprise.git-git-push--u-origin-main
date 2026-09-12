@@ -149,6 +149,17 @@ export interface LineResource {
   queueMinutes: number | null;
   includesDisposal: boolean;
 
+  /**
+   * The library record this row stands for, if it stands for one.
+   *
+   * One field rather than six: the kind already says which column holds it, and
+   * what a screen needs to know is whether the library is behind this row at
+   * all. `capture_library_snapshot` reads that link to record what priced the
+   * version, so a row whose name no longer matches it is a bid that cannot be
+   * reproduced — which is why the name is a picker and not a text box.
+   */
+  libraryId: string | null;
+
   /** The engine's, never sent. Zero until the estimate has been priced. */
   extendedCost: number;
 }
@@ -534,11 +545,17 @@ export async function recordProposalOutcome(
 export const loadLineResources = (lineId: string): Query<LineResource[]> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_line_resources')
-    .select('id, resource_kind, sort_order, description, role, notes, quantity, unit, unit_rate, hours, headcount, base_rate, burden_rate, drives_hours, production_per_hour, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, haul_mode, round_trip_miles, average_speed_mph, truck_capacity, capacity_unit, tons_per_load, load_minutes, dump_minutes, queue_minutes, includes_disposal, extended_cost')
+    .select('id, resource_kind, sort_order, description, role, notes, quantity, unit, unit_rate, hours, headcount, base_rate, burden_rate, drives_hours, production_per_hour, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, haul_mode, round_trip_miles, average_speed_mph, truck_capacity, capacity_unit, tons_per_load, load_minutes, dump_minutes, queue_minutes, includes_disposal, extended_cost, labor_rate_id, equipment_id, material_id, trucking_rate_id, disposal_site_id, vendor_id')
     .eq('line_item_id', lineId)
     .order('sort_order')) as Array<Record<string, unknown>>;
 
   const maybeNum = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+
+  /** Which column carries the link, by kind. The row knows; the screen should not have to. */
+  const LINK_COLUMN: Record<string, string> = {
+    labor: 'labor_rate_id', equipment: 'equipment_id', material: 'material_id',
+    trucking: 'trucking_rate_id', disposal: 'disposal_site_id', subcontract: 'vendor_id',
+  };
 
   return rows.map((r) => ({
     id: String(r.id),
@@ -571,6 +588,7 @@ export const loadLineResources = (lineId: string): Query<LineResource[]> => asyn
     dumpMinutes: maybeNum(r.dump_minutes),
     queueMinutes: maybeNum(r.queue_minutes),
     includesDisposal: Boolean(r.includes_disposal),
+    libraryId: (r[LINK_COLUMN[String(r.resource_kind)] ?? ''] as string | null) ?? null,
     extendedCost: num(r.extended_cost),
   }));
 };
@@ -978,6 +996,15 @@ export interface LibraryPick {
   isOwn: boolean;
   /** Said out loud when the library has no rate, rather than showing a zero. */
   unpriced: boolean;
+  /**
+   * Properties of the thing itself, beyond its name and rate.
+   *
+   * Only a haul profile has any: its capacity and its load, dump and queue
+   * times are what the profile exists for, and a picker that took the name and
+   * left them behind would send an estimator back to the dialog to get them.
+   * Keyed as `save_line_resource` spells them, because that is where they go.
+   */
+  extra?: Record<string, number | string>;
 }
 
 const like = (term: string) => `%${term.trim()}%`;
@@ -1050,6 +1077,52 @@ export const searchMaterials = (term: string): Query<LibraryPick[]> => async (cl
     /* Migration 0121: an uncosted material is a different fact from a free one. */
     unpriced: r.cost_state === 'not_costed',
   }));
+};
+
+/**
+ * Haul profiles, by truck type.
+ *
+ * The one library the typed picker could not reach: hauling had a dialog and a
+ * blank row, so "Add hauling" gave an estimator an empty box and left them to
+ * type a truck name from memory — the same thing every other tab stopped doing
+ * in migration 0108.
+ *
+ * The cycle comes with it. A profile exists precisely so nobody re-enters load,
+ * dump and queue times on every haul, and the speeds it carries are loaded and
+ * empty separately where the line holds one average, because that is the number
+ * people know.
+ */
+export const searchTruckingRates = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('trucking_rates')
+    .select('id, code, name, truck_type, capacity, capacity_unit, hourly_rate, '
+          + 'load_minutes, dump_minutes, delay_minutes, loaded_speed_mph, empty_speed_mph, company_id')
+    .eq('status', 'active');
+  if (term.trim()) q = q.or(`name.ilike.${like(term)},truck_type.ilike.${like(term)}`);
+  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => {
+    const loaded = Number(r.loaded_speed_mph ?? 30);
+    const empty = Number(r.empty_speed_mph ?? 35);
+    return {
+      id: String(r.id),
+      code: (r.code as string | null) ?? null,
+      name: String(r.name),
+      rate: Number(r.hourly_rate ?? 0),
+      unit: 'HR',
+      detail: [r.truck_type, `${r.capacity} ${r.capacity_unit}`].filter(Boolean).join(' · '),
+      /* Trucking rates are company records; the shipped catalog has none. */
+      isOwn: true,
+      unpriced: false,
+      extra: {
+        truck_capacity: Number(r.capacity ?? 0),
+        load_minutes: Number(r.load_minutes ?? 0),
+        dump_minutes: Number(r.dump_minutes ?? 0),
+        queue_minutes: Number(r.delay_minutes ?? 0),
+        average_speed_mph: Math.round(((loaded + empty) / 2) * 100) / 100,
+      },
+    };
+  });
 };
 
 /** Subcontractors. No rate until somebody quotes, which is the honest state. */
