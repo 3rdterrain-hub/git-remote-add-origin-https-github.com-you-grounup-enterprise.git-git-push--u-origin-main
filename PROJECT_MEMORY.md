@@ -203,7 +203,7 @@ the data layer translates at the boundary and nowhere else. A `my_*` view is
 caller-scoped by row level security. A `public.*` function is the browser-facing
 wrapper over an `app.*` implementation.
 
-**Data.** 168 tables, 87 views (20 reporting), 154 migrations. Catalog seeds sit
+**Data.** 168 tables, 87 views (20 reporting), 155 migrations. Catalog seeds sit
 at 0900+ — which is why `db push` needs `--include-all`.
 
 **Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
@@ -224,12 +224,12 @@ and parametric lines, applies condition modifiers and markup, clears the
 confidence gate, and can be approved, issued and awarded into a project that
 carries the bid, the budget, the site and every priced line as a budgeted task.
 
-**Door inventory: 169 doors, 0 with no reader, 0 granted but unreachable.**
+**Door inventory: 172 doors, 0 with no reader, 0 granted but unreachable.**
 
 ### Deployment
 
 The live workspace is `3RD Terrain`, on the `grounup` plan (manual grant, no
-expiry — see `DECISION_LOG.md` D-012). All migrations through 0156 are applied,
+expiry — see `DECISION_LOG.md` D-012). All migrations through 0157 are applied,
 and `supabase migration list` shows local and remote agreeing on every one;
 all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
 `PRJ-2026-0003`.
@@ -244,8 +244,6 @@ all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
   row in the price library and are mostly near-duplicates of one that does —
   "#57 Stone", "#57 Stone (import)", "411" — which is a naming problem and not
   one to paper over with a number.
-- `project-detail`'s Daily report, Change order and New RFI buttons are not
-  wired to writers yet.
 - Three retired plans (`starter`, `professional`, `business`, `enterprise`) and
   `partner_white_label` remain in `plans` because plans are versioned commercial
   terms.
@@ -288,8 +286,8 @@ profiles, and the typed picker on a line finds what a company puts there
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes.
-2. Wire the three project-detail actions.
-3. Compose task resources in the catalog, or document that pricing is by hand.
+2. Compose task resources in the catalog, or document that pricing is by hand.
+3. Make Schedule, Procurement, Survey and Claims live.
 
 ---
 

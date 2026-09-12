@@ -609,3 +609,83 @@ export function loadWorkableDays(
     };
   };
 }
+
+// ---------------------------------------------------------------------------
+// The three things a project manager does on a live job
+//
+// `project-detail` shipped with three buttons that did nothing. The tables
+// behind them are fully governed — a submitted daily report freezes its date, an
+// executed change order refuses edits, an answered RFI must carry its answer —
+// and none of them had a writer, so a live project could be read in detail and
+// never actually worked. Migration 0157 is the writer; these are the doors.
+//
+// Each one takes the project and nothing about the company: the function reads
+// the owner off the project, because a browser that can name the company on a
+// write can name a company that is not its own.
+// ---------------------------------------------------------------------------
+
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
+const call = async (client: RpcCapable, fn: string, args: Record<string, unknown>) => {
+  const { data, error } = await client.rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return String(data);
+};
+
+/**
+ * Start the daily report for a date. Unsubmitted, because submitting is what
+ * freezes it — and a report created already frozen could never be filled in.
+ */
+export async function createDailyReport(
+  client: RpcCapable,
+  input: { projectId: string; date: string; workPerformed?: string | null },
+): Promise<string> {
+  return call(client, 'create_daily_report', {
+    p_project: input.projectId,
+    p_date: input.date,
+    p_work_performed: input.workPerformed?.trim() || null,
+  });
+}
+
+/**
+ * Raise a potential change order.
+ *
+ * No cost or schedule impact is sent. Those come from pricing the change, and a
+ * number typed into this dialog would be a number nobody can reproduce.
+ */
+export async function createChangeOrder(
+  client: RpcCapable,
+  input: {
+    projectId: string; title: string; reason: string;
+    origin?: string; description?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'create_change_order', {
+    p_project: input.projectId,
+    p_title: input.title.trim(),
+    p_reason: input.reason.trim(),
+    p_origin: input.origin ?? 'owner_request',
+    p_description: input.description?.trim() || null,
+  });
+}
+
+/** Raise an RFI, in draft: issuing one starts a clock, which is a second decision. */
+export async function createRfi(
+  client: RpcCapable,
+  input: {
+    projectId: string; title: string; question: string;
+    discipline?: string | null; priority?: string; drawingReference?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'create_rfi', {
+    p_project: input.projectId,
+    p_title: input.title.trim(),
+    p_question: input.question.trim(),
+    p_discipline: input.discipline?.trim() || null,
+    p_priority: input.priority ?? 'normal',
+    p_drawing_reference: input.drawingReference?.trim() || null,
+  });
+}

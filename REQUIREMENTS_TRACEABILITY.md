@@ -89,6 +89,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-022 | Add the material prices to the library | user: "add the material prices to the library" | high | library catalog | seed `0013_material_prices.sql` from `07_F_P_MATERIAL_LIBRARY` | `the-prices-that-were-in-the-file.test.ts` | tested |
 | C-023 | A price and the unit it is quoted in arrive together | follows from C-022; 0009 refused to guess a unit | high | library catalog | seed 0013 corrects 133 units with their prices | 2 tests in the same file | tested |
 | C-024 | Build the hauling door | user: "build the hauling door" | high | libraries | migration 0156, `haul-profiles.tsx`, `createTruckingRate` brought up to 0067 | `a-haul-rate-you-can-create.test.ts`, `haul-profiles.test.tsx` | tested |
+| C-025 | Wire the project-detail buttons | user: "now wire the project detail buttons" | high | projects | migration 0157, `project-actions.tsx` | `three-buttons-on-a-project.test.ts`, `project-actions.test.tsx` | tested |
 
 ---
 
@@ -98,5 +99,4 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 |---|---|---|---|
 | O-001 | `E-2026-0001` and `E-2026-0002` are test estimates with a typed rate | A rate-priced line is an allowance and cannot clear the confidence gate (D-008) | Build the lines up, or delete them |
 | O-002 | The shipped catalog's assemblies reference tasks carrying no crew, equipment or material | Catalog depth, not code — a library line prices at $0 until built up | Compose the task resources, or price lines by hand |
-| O-003 | `project-detail` action buttons (Daily report, Change order, New RFI) are not wired | Out of scope of making the page live | Wire each to its writer |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

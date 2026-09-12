@@ -27,8 +27,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  HardHat, CloudRain, Users2, TrendingUp, TrendingDown, FileWarning,
-  HelpCircle, Package, Gauge, CalendarDays, AlertTriangle, CheckCircle2, Clock,
+  HardHat, CloudRain, Users2, TrendingUp, TrendingDown,
+  HelpCircle, Package, Gauge, AlertTriangle, CheckCircle2, Clock,
   MapPin,
 } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
@@ -42,6 +42,7 @@ import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { SiteWeather } from '@/components/project/site-weather';
 import { useQuery } from '@/lib/data/query';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { ProjectActions } from '@/components/project/project-actions';
 import {
   loadProject, loadProjectMoney, loadProjectProgress, loadDailyReports,
   loadChangeOrders, loadProjectRfis, loadProjectSubmittals,
@@ -158,11 +159,20 @@ export function ProjectDetailPage() {
           </span>
         }
         actions={
-          <>
-            <Button variant="outline"><CalendarDays className="size-4" /> Daily report</Button>
-            <Button variant="outline"><FileWarning className="size-4" /> Change order</Button>
-            <Button><HelpCircle className="size-4" /> New RFI</Button>
-          </>
+          /*
+           * Three buttons that did nothing until migration 0157. Each opens the
+           * tab its new record landed on and refetches it, so the thing that
+           * was just made is on screen rather than somewhere to go and find.
+           */
+          <ProjectActions
+            projectId={id}
+            canWrite={can('projects.write')}
+            canRaiseRfi={can('estimates.write')}
+            onCreated={(what) => {
+              if (what === 'daily') { setTab('field'); reportsQ.refetch(); }
+              if (what === 'change') { setTab('changes'); changesQ.refetch(); }
+              if (what === 'rfi') { setTab('rfis'); rfisQ.refetch(); }
+            }} />
         }
       />
 

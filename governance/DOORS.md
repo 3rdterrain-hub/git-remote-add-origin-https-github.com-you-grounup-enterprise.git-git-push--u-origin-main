@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **169** |
-| Opened by a screen | **151** |
+| Doors | **172** |
+| Opened by a screen | **154** |
 | Opened only by an Edge Function | **3** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -87,12 +87,15 @@ None.
 | `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
 | `convert_lead` | function | lib/data/leads.ts |
+| `create_change_order` | function | lib/data/project.ts |
 | `create_company_for` | function | lib/data/admin.ts |
+| `create_daily_report` | function | lib/data/project.ts |
 | `create_estimate` | function | lib/data/estimates.ts |
 | `create_estimate_from_template` | function | lib/data/templates.ts |
 | `create_my_company` | function | lib/data/session.ts |
 | `create_plan` | function | lib/data/admin.ts |
 | `create_platform_role` | function | lib/data/admin.ts |
+| `create_rfi` | function | lib/data/project.ts |
 | `customize_assembly` | function | lib/data/assemblies.ts |
 | `decide_refund` | function | lib/data/admin.ts |
 | `decide_upsell` | function | lib/data/admin.ts |

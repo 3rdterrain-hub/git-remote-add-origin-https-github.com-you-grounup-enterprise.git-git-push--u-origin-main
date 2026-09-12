@@ -369,6 +369,7 @@ TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
 TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
 TST-db-the-door-onto-awarding,test,db/the-door-onto-awarding.test.ts,tests/db/the-door-onto-awarding.test.ts,ENGINE
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
+TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
 TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/timecard-from-punches.test.ts,ENGINE
 TST-db-traffic,test,db/traffic.test.ts,tests/db/traffic.test.ts,ENGINE
@@ -431,6 +432,7 @@ TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/compo
 TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.tsx,apps/web/src/components/library/services-without-a-breakdown.test.tsx,ENGINE
 TST-web-what-a-haul-costs,test,web/what-a-haul-costs.test.tsx,apps/web/src/components/library/what-a-haul-costs.test.tsx,ENGINE
 TST-web-search-the-drawings,test,web/search-the-drawings.test.tsx,apps/web/src/components/plans/search-the-drawings.test.tsx,ENGINE
+TST-web-project-actions,test,web/project-actions.test.tsx,apps/web/src/components/project/project-actions.test.tsx,ENGINE
 TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE

@@ -11,6 +11,36 @@ Newest first.
 
 ---
 
+## D-019 · 2026-09-12 · A project record starts in the state before its workflow, not after
+
+**Decision.** `create_daily_report` leaves the report unsubmitted,
+`create_change_order` leaves it `potential` and priced at zero, and `create_rfi`
+leaves it `draft`. None of the three dialogs asks for a cost.
+
+**Reason.** Each of those states is what makes the next step meaningful.
+Submitting a daily report is what freezes its date (0013), so a report created
+submitted could never be filled in. A change nobody has priced is not yet a
+claim on anybody. Issuing an RFI starts a clock somebody answers against, and
+that is a decision separate from writing the question down. Creating a record in
+the state that ends its own workflow is the workflow having no steps.
+
+The cost is the sharpest case: a change order's impact comes from pricing the
+change through the same deterministic engine as the base estimate, so a number
+typed into a dialog would be a price nobody can reproduce — the same rule as
+`record_engine_result` and RULE-008.
+
+**Also decided.** The company is read off the project rather than taken as an
+argument, because a caller who can name the company on a write can name one that
+is not theirs; and "no such project" is the answer both for a project that does
+not exist and one the caller is not a member of, because distinguishing them
+tells a stranger whether an id is real.
+
+**Affects.** Migration 0157, the three buttons on `project-detail`.
+
+**Status.** Active. 18 db tests, 12 web tests. Closes O-003.
+
+---
+
 ## D-018 · 2026-09-12 · A haul rate is entered, never shipped
 
 **Decision.** The platform ships no haul rates and never will. The company
