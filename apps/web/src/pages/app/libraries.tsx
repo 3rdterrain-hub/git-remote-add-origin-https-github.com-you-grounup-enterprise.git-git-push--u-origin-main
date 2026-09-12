@@ -34,6 +34,7 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import { CategoryManager } from '@/components/library/category-manager';
+import { HaulProfiles } from '@/components/library/haul-profiles';
 
 export function LibrariesPage() {
   const [q, setQ] = useState('');
@@ -553,6 +554,14 @@ export function LibrariesPage() {
             * need an Edge Function round trip per row".
             */}
           <WhatAHaulCosts rates={trucking} />
+
+          {/*
+            * The door. `trucking_rates` had six readers and no writer — the
+            * platform cannot ship a haul rate, because `company_id` is not
+            * null, and nothing on any screen could create one either.
+            */}
+          <HaulProfiles rates={trucking} companyId={companyId} canEdit={canWrite}
+            onChanged={() => truckingQ.refetch()} />
 
           <Card>
             <CardHeader>

@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **168** |
-| Opened by a screen | **150** |
+| Doors | **169** |
+| Opened by a screen | **151** |
 | Opened only by an Edge Function | **3** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -152,6 +152,7 @@ None.
 | `my_unrated_equipment` | view | lib/data/estimates.ts |
 | `my_weather` | view | lib/data/dashboard.ts, lib/data/project.ts |
 | `my_weather_now` | view | lib/data/project.ts |
+| `next_company_haul_code` | function | lib/data/library.ts |
 | `open_support_session` | function | lib/data/admin.ts |
 | `operator_can` | function | lib/data/admin.ts |
 | `override_line_production` | function | lib/data/production.ts |

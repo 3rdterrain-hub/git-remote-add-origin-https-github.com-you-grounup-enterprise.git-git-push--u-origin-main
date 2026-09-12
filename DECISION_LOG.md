@@ -11,6 +11,39 @@ Newest first.
 
 ---
 
+## D-018 · 2026-09-12 · A haul rate is entered, never shipped
+
+**Decision.** The platform ships no haul rates and never will. The company
+enters its own, through the Hauling tab, and migration 0156 supplies only the
+code generator.
+
+**Reason.** It is not a policy, it is the schema: `trucking_rates.company_id` is
+`not null`, so a catalog row cannot exist. That was right — a haul rate is a
+position negotiated with a specific trucker, and there is no national default
+for one — but it left the table with six readers and no writer. The Hauling tab,
+`app.haul_cost`, the haul-profile dialog, `WhatAHaulCosts`, the fleet view and
+0151's typed picker all read a table nothing could fill.
+
+**What the screen has to know.** 0067 gave the table three pricing bases and a
+constraint that each carries its own figure. The form shows only the figure the
+chosen basis prices from — offering all three would invite somebody to fill in
+two and wonder which one the bid used — and it says what is missing before the
+save, because being told by a CHECK constraint after the fact is worse.
+
+**Why a migration at all.** Only for `app.next_company_haul_code`. Two people
+adding a profile at the same moment would read the same highest code and collide
+on the unique index. Same shape as `next_company_material_code` in 0127.
+
+**Retire, not delete.** An estimate priced from a rate keeps its library
+snapshot, and a profile that vanished would leave those rows pointing at
+something nobody could look up.
+
+**Affects.** Migration 0156, the Hauling tab, the trucking picker on every line.
+
+**Status.** Active. 14 db tests, 18 web tests.
+
+---
+
 ## D-017 · 2026-09-12 · Catalog prices are shipped as `estimated`, with the unit they are quoted in
 
 **Decision.** The 173 material prices in the company price library

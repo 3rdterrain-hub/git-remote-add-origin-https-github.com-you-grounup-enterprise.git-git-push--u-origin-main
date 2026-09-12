@@ -88,6 +88,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-021 | A price entered in the library is used as a preset when building, never re-entered | user, 2026-09-12 | high | estimating + libraries | `line_resource_suggestions` → `save_line_resource`; `ResourcePicker`/`ResourceName` carry rate, unit and cycle | `a-resource-you-can-repoint.test.ts`, `resource-picker.test.tsx` | tested |
 | C-022 | Add the material prices to the library | user: "add the material prices to the library" | high | library catalog | seed `0013_material_prices.sql` from `07_F_P_MATERIAL_LIBRARY` | `the-prices-that-were-in-the-file.test.ts` | tested |
 | C-023 | A price and the unit it is quoted in arrive together | follows from C-022; 0009 refused to guess a unit | high | library catalog | seed 0013 corrects 133 units with their prices | 2 tests in the same file | tested |
+| C-024 | Build the hauling door | user: "build the hauling door" | high | libraries | migration 0156, `haul-profiles.tsx`, `createTruckingRate` brought up to 0067 | `a-haul-rate-you-can-create.test.ts`, `haul-profiles.test.tsx` | tested |
 
 ---
 

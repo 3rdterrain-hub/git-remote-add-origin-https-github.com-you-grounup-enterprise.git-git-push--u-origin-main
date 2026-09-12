@@ -274,6 +274,7 @@ TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGI
 TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests/db/a-category-you-can-manage.test.ts,ENGINE
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
+TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
@@ -424,6 +425,7 @@ TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/
 TST-web-category-manager,test,web/category-manager.test.tsx,apps/web/src/components/library/category-manager.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE
 TST-web-editor,test,web/editor.test.tsx,apps/web/src/components/library/editor.test.tsx,ENGINE
+TST-web-haul-profiles,test,web/haul-profiles.test.tsx,apps/web/src/components/library/haul-profiles.test.tsx,ENGINE
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.tsx,apps/web/src/components/library/services-without-a-breakdown.test.tsx,ENGINE

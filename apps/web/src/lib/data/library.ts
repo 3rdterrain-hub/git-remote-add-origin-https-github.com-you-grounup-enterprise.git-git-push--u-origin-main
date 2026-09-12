@@ -374,11 +374,56 @@ export async function createVendor(client: Writer, input: VendorInput): Promise<
   return String((data as { id: string }).id);
 }
 
+/**
+ * A haul rate, in whichever of the three shapes it was bought in.
+ *
+ * Migration 0067 gave the table three pricing bases and a constraint that each
+ * one carries its own figure — a trip-priced rate with no trip price is not a
+ * rate. This interface predated that and named only the cycle figures, which is
+ * half the reason nothing could create a usable row.
+ */
 export interface TruckingRateInput {
   companyId: string; code: string; name: string; truckType: string;
-  capacity: number; capacityUnit: string; hourlyRate: number;
+  capacity: number; capacityUnit: string;
+  /** cycle: hourly, with a real cycle. per_trip: a price a load. per_unit: preliminary. */
+  pricingBasis: 'cycle' | 'per_trip' | 'per_unit';
+  hourlyRate: number;
+  ratePerTrip?: number | null;
+  preliminaryUnitRate?: number | null;
+  /** Billed per trip whether or not the truck is filled. Defaults to capacity. */
+  minimumBillableQuantity?: number | null;
+  /** True is what "per trip" means; a quote that prorates is worth stating. */
+  chargesWholeTrips?: boolean;
   loadMinutes: number; dumpMinutes: number; delayMinutes: number;
   loadedSpeedMph: number; emptySpeedMph: number;
+  vendorId?: string | null;
+}
+
+/** The columns a haul rate writes, shared by create and update. */
+function haulBody(input: Partial<TruckingRateInput>): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  if (input.code !== undefined) body.code = input.code.trim();
+  if (input.name !== undefined) body.name = input.name.trim();
+  if (input.truckType !== undefined) body.truck_type = input.truckType.trim();
+  if (input.capacity !== undefined) body.capacity = input.capacity;
+  if (input.capacityUnit !== undefined) body.capacity_unit = input.capacityUnit;
+  if (input.pricingBasis !== undefined) body.pricing_basis = input.pricingBasis;
+  if (input.hourlyRate !== undefined) body.hourly_rate = input.hourlyRate;
+  if (input.ratePerTrip !== undefined) body.rate_per_trip = input.ratePerTrip;
+  if (input.preliminaryUnitRate !== undefined) {
+    body.preliminary_unit_rate = input.preliminaryUnitRate;
+  }
+  if (input.minimumBillableQuantity !== undefined) {
+    body.minimum_billable_quantity = input.minimumBillableQuantity;
+  }
+  if (input.chargesWholeTrips !== undefined) body.charges_whole_trips = input.chargesWholeTrips;
+  if (input.loadMinutes !== undefined) body.load_minutes = input.loadMinutes;
+  if (input.dumpMinutes !== undefined) body.dump_minutes = input.dumpMinutes;
+  if (input.delayMinutes !== undefined) body.delay_minutes = input.delayMinutes;
+  if (input.loadedSpeedMph !== undefined) body.loaded_speed_mph = input.loadedSpeedMph;
+  if (input.emptySpeedMph !== undefined) body.empty_speed_mph = input.emptySpeedMph;
+  if (input.vendorId !== undefined) body.vendor_id = input.vendorId || null;
+  return body;
 }
 
 export async function createTruckingRate(
@@ -386,16 +431,48 @@ export async function createTruckingRate(
 ): Promise<string> {
   const { data, error } = await client.from('trucking_rates').insert({
     company_id: input.companyId,
-    code: input.code.trim(), name: input.name.trim(),
-    truck_type: input.truckType,
-    capacity: input.capacity, capacity_unit: input.capacityUnit,
-    hourly_rate: input.hourlyRate,
-    load_minutes: input.loadMinutes, dump_minutes: input.dumpMinutes,
-    delay_minutes: input.delayMinutes,
-    loaded_speed_mph: input.loadedSpeedMph, empty_speed_mph: input.emptySpeedMph,
+    ...haulBody(input),
+    /*
+     * `hourly_rate` is not null on the table, and a trip- or unit-priced haul
+     * has no hourly figure. Zero is the honest value there: the basis says
+     * which number prices it, and 0067's constraint refuses a basis whose own
+     * figure is missing.
+     */
+    hourly_rate: input.hourlyRate ?? 0,
   }).select('id').single();
   if (error) throw new Error(error.message);
   return String((data as { id: string }).id);
+}
+
+/** Change one. Sends only what was given, so nothing unmentioned is blanked. */
+export async function updateTruckingRate(
+  client: Writer, id: string, patch: Partial<TruckingRateInput>,
+): Promise<void> {
+  const { error } = await client.from('trucking_rates').update(haulBody(patch)).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Stop offering one.
+ *
+ * Archived rather than deleted: an estimate priced from this rate keeps its
+ * library snapshot, and a haul profile that vanished would leave the rows that
+ * referenced it pointing at nothing anybody could look up.
+ */
+export async function retireTruckingRate(client: Writer, id: string): Promise<void> {
+  const { error } = await client.from('trucking_rates').update({ status: 'archived' }).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/** The next HAUL-0000 for this company, from the database so two people cannot collide. */
+export async function nextHaulCode(
+  client: { rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }> },
+  companyId: string,
+): Promise<string> {
+  const { data, error } = await client.rpc('next_company_haul_code', { p_company: companyId });
+  if (error) throw new Error(error.message);
+  return String(data);
 }
 
 // ---------------------------------------------------------------------------

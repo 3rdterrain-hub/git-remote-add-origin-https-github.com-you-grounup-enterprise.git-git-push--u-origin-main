@@ -224,12 +224,12 @@ and parametric lines, applies condition modifiers and markup, clears the
 confidence gate, and can be approved, issued and awarded into a project that
 carries the bid, the budget, the site and every priced line as a budgeted task.
 
-**Door inventory: 168 doors, 0 with no reader, 0 granted but unreachable.**
+**Door inventory: 169 doors, 0 with no reader, 0 granted but unreachable.**
 
 ### Deployment
 
 The live workspace is `3RD Terrain`, on the `grounup` plan (manual grant, no
-expiry — see `DECISION_LOG.md` D-012). All migrations through 0155 are applied,
+expiry — see `DECISION_LOG.md` D-012). All migrations through 0156 are applied,
 and `supabase migration list` shows local and remote agreeing on every one;
 all fourteen Edge Functions are deployed. `E-2026-0003` is awarded to
 `PRJ-2026-0003`.
@@ -276,6 +276,14 @@ That last half was impossible until 0151: `save_line_resource` wrote the six
 library links on insert, listed them as accepted fields, and never mentioned
 them in the UPDATE branch, so sending one returned success and changed nothing
 (`DECISION_LOG.md` D-016).
+
+### Hauling, as of migration 0156
+
+`trucking_rates` held no rows and could not: `company_id` is `not null`, so the
+platform cannot ship a haul rate, and nothing on any screen could create one
+either — six readers, no writer. The Hauling tab now adds and edits haul
+profiles, and the typed picker on a line finds what a company puts there
+(`DECISION_LOG.md` D-018).
 
 ### Recommended next actions
 
