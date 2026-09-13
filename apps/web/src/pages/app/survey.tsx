@@ -1,56 +1,109 @@
+/**
+ * Survey and earthwork, live.
+ *
+ * This page read `SURVEYS`, `MC_FILES`, `SURFACE_COMPARISON` and two elevation
+ * grids from `@/data/survey`, and ran the real cut/fill analysis over them —
+ * the same shape as the Schedule page before it: a correct calculation of a job
+ * that does not exist.
+ *
+ * Five governed tables sat behind it with no reader: `surveys`, `surfaces`,
+ * `surface_comparisons`, `machine_control_files`, `machine_assignments`.
+ *
+ * Three things this page is careful about.
+ *
+ * **The volumes are the record's, not the browser's.** `surface_comparisons`
+ * stores the cut, the fill, the net and the areas as they were computed. The
+ * page reads them. Behind that record stands `enforce_surface_datum_match`,
+ * strengthened by migration 0047, which refuses a comparison whose two surfaces
+ * do not belong to the same project, or differ in vertical datum, horizontal
+ * datum, coordinate system, units or grid. The vertical datum alone would put
+ * the volume out by the offset between them; the horizontal one is worse,
+ * because NAD27 and NAD83 differ by tens of meters and two grids on different
+ * horizontal datums do not cover the same ground even when their origins read
+ * the same.
+ *
+ * **The soil properties are the company's, and the one nobody recorded is not
+ * invented.** Swell and shrink come from `companies`. No column holds an
+ * unsuitable fraction; it is a judgment about a particular site, so the balance
+ * assumes none and says so. The fixture assumed six percent, which on a real
+ * job moves thousands of yards of import on a number nobody chose.
+ *
+ * **The cross-sections tab is gone.** It ran the engine's average-end-area and
+ * prismoidal comparison over invented road sections, and there is no alignment
+ * or cross-section table anywhere in the schema. The engine capability is real
+ * and tested; the storage does not exist, so the tab was a picture. Building the
+ * alignment model is a feature, and it is recorded as one rather than faked.
+ */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Mountain, Plane, Radio, Upload, AlertTriangle, CheckCircle2, Layers, Ruler, TriangleAlert,
+  Mountain, Layers, Radio, MapPin, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
-import { PageHeader, StatTile, Field, useAnswerBelow } from '@/components/layout/page';
+import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Progress, Separator } from '@/components/ui/misc';
+import { Alert, Separator, EmptyState } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
+import { useQuery } from '@/lib/data/query';
 import {
-  SURVEYS, MC_FILES, SURFACE_COMPARISON, SURFACE_PROGRESS, ROAD_AEA, ROAD_PRISMOIDAL,
-  EXISTING_SURFACE, DESIGN_SURFACE,
-} from '@/data/survey';
-import { analyzeCutFill } from '@grounup/engine';
+  loadSurveys, loadSurfaceComparisons, loadSurfaceGrid, loadMachineFiles, loadSoilDefaults,
+  loadAsBuiltSurfaceId,
+} from '@/lib/data/survey';
+import { analyzeCutFill, progressAgainstDesign } from '@grounup/engine';
 import { qty, integer, percent, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
-/**
- * The measured volume converted into the states an estimate prices in.
- *
- * The surface produces bank cut and compacted fill from geometry; this applies
- * the soil properties the surface knows nothing about. Keeping the two steps
- * separate is the whole reason a surveyor's number and an estimator's number
- * can both be right.
- */
-const BALANCE = analyzeCutFill({
-  cutBcy: SURFACE_COMPARISON.cutBcy,
-  fillCcy: SURFACE_COMPARISON.fillCcy,
-  unsuitablePercent: 0.06,
-  swellPercent: 0.25,
-  shrinkPercent: 0.1,
-});
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <span className="text-charcoal-600">{label}</span>
+      <span className={cn('tabular', strong ? 'font-medium text-charcoal-900' : 'text-charcoal-700')}>
+        {value}
+      </span>
+    </div>
+  );
+}
 
-/** A coarse heat map of the cut/fill depths, drawn from the actual grids. */
-function DepthMap() {
-  const { rows, cols } = EXISTING_SURFACE;
-  const depths: (number | null)[] = EXISTING_SURFACE.elevations.map((e, i) => {
-    const d = DESIGN_SURFACE.elevations[i];
+/** A coarse heat map of the cut and fill depths, drawn from the two real grids. */
+function DepthMap({ existingId, designId }: { existingId: string; designId: string }) {
+  const a = useQuery(loadSurfaceGrid(existingId), [existingId]);
+  const b = useQuery(loadSurfaceGrid(designId), [designId]);
+
+  if (a.status === 'error') return <ErrorState message={a.message} onRetry={a.refetch} />;
+  if (b.status === 'error') return <ErrorState message={b.message} onRetry={b.refetch} />;
+  if (a.status !== 'ready' || b.status !== 'ready') {
+    return <LoadingState label="Reading the surfaces" />;
+  }
+  const existing = a.data;
+  const design = b.data;
+  if (!existing || !design || existing.elevations.length === 0) {
+    return (
+      <p className="text-sm text-charcoal-500">
+        The surfaces behind this comparison carry no elevation grid, so there is no depth map
+        to draw. The volumes above still stand — they were computed when the comparison was made.
+      </p>
+    );
+  }
+
+  const depths = existing.elevations.map((e, i) => {
+    const d = design.elevations[i];
     if (e === null || d === null || d === undefined) return null;
     return e - d;
   });
-  const maxCut = SURFACE_COMPARISON.maxCutDepth || 1;
-  const maxFill = SURFACE_COMPARISON.maxFillDepth || 1;
+  const cuts = depths.filter((d): d is number => d !== null && d > 0);
+  const fills = depths.filter((d): d is number => d !== null && d < 0);
+  const maxCut = cuts.length ? Math.max(...cuts) : 1;
+  const maxFill = fills.length ? Math.max(...fills.map((d) => -d)) : 1;
 
   return (
     <div>
       <div
         className="grid w-full max-w-md gap-px rounded-md bg-charcoal-200 p-px"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${existing.cols}, minmax(0, 1fr))` }}
         role="img"
-        aria-label={`Cut and fill depth map, ${rows} by ${cols} cells at ${EXISTING_SURFACE.cellSize} ft`}
+        aria-label={`Cut and fill depth map, ${existing.rows} by ${existing.cols} cells at ${existing.cellSizeFt} ft`}
       >
         {depths.map((d, i) => {
           if (d === null) {
@@ -63,430 +116,555 @@ function DepthMap() {
             ? `rgba(246, 193, 1, ${0.15 + t * 0.85})`
             : `rgba(37, 99, 235, ${0.15 + t * 0.85})`;
           return (
-            <span
-              key={i}
-              className="aspect-square"
-              style={{ backgroundColor: color }}
-              title={`${d > 0 ? 'Cut' : 'Fill'} ${Math.abs(d).toFixed(2)} ft`}
-            />
+            <span key={i} className="aspect-square" style={{ backgroundColor: color }}
+              title={`${d > 0 ? 'Cut' : 'Fill'} ${Math.abs(d).toFixed(2)} ft`} />
           );
         })}
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-charcoal-500">
         <span className="flex items-center gap-1.5">
           <span className="size-3 rounded-sm" style={{ backgroundColor: 'rgba(246,193,1,1)' }} />
-          Cut, to {SURFACE_COMPARISON.maxCutDepth} ft
+          Cut, to {qty(maxCut, 2)} ft
         </span>
         <span className="flex items-center gap-1.5">
           <span className="size-3 rounded-sm" style={{ backgroundColor: 'rgba(37,99,235,1)' }} />
-          Fill, to {SURFACE_COMPARISON.maxFillDepth} ft
+          Fill, to {qty(maxFill, 2)} ft
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded-sm bg-charcoal-100" />
-          No data
-        </span>
+        <span>{existing.rows} × {existing.cols} at {qty(existing.cellSizeFt, 0)} ft</span>
       </div>
+      {/*
+        * What the database guarantees about these two grids, and what it does
+        * not. `enforce_surface_datum_match` refuses a comparison across
+        * different vertical datums, units or grid shapes, so the cells line up
+        * one for one. It does not hold a georeference — no easting or northing
+        * is stored — so the engine reports that alignment is unverified on any
+        * calculation over them, and that warning is shown rather than swallowed.
+        * Two grids of equal shape over different ground produce a volume that is
+        * entirely fictitious and entirely plausible.
+        */}
+      <p className="mt-1 text-[11px] text-charcoal-400">
+        Same project, datums, coordinate system, units and grid — the database refuses a
+        comparison otherwise.
+        {existing.origin && design.origin
+          ? ' Both surfaces carry a georeference, so the engine can tell whether they cover the same ground.'
+          : ' Neither surface carries a georeference, so alignment is not verified: two grids of the same shape over different ground would look identical here.'}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Progress against design, with over-excavation kept out of it.
+ *
+ * A cell cut below design grade is not a hundred and ten percent finished. It is
+ * fill that has to be brought back and recompacted, and counting it as progress
+ * is how a job reports ninety-five percent complete and then loses a week. The
+ * engine separates the two; this shows both.
+ */
+function ProgressPanel({ existingId, designId, asBuiltId }: {
+  existingId: string; designId: string; asBuiltId: string;
+}) {
+  const a = useQuery(loadSurfaceGrid(existingId), [existingId]);
+  const d = useQuery(loadSurfaceGrid(designId), [designId]);
+  const b = useQuery(loadSurfaceGrid(asBuiltId), [asBuiltId]);
+
+  if ([a, d, b].some((q) => q.status === 'error')) {
+    return <ErrorState message="A surface could not be read." />;
+  }
+  if (a.status !== 'ready' || d.status !== 'ready' || b.status !== 'ready') {
+    return <LoadingState label="Reading the as-built" />;
+  }
+  if (!a.data || !d.data || !b.data) {
+    return (
+      <p className="text-sm text-charcoal-500">
+        Progress compares the original ground, the design and the as-built. One of the three
+        carries no grid, so there is nothing to compare.
+      </p>
+    );
+  }
+
+  /*
+   * The georeference goes with the grid. Migration 0047 added it precisely so
+   * two grids of the same shape over different ground can be told apart — the
+   * engine refuses that comparison instead of returning a volume that is,
+   * in 0047's words, entirely fictitious and entirely plausible.
+   */
+  const asGrid = (g: NonNullable<typeof a.data>) => ({
+    rows: g.rows, cols: g.cols, cellSize: g.cellSizeFt, elevations: g.elevations,
+    ...(g.origin ? { origin: g.origin } : {}),
+  });
+
+  let progress;
+  try {
+    progress = progressAgainstDesign(asGrid(a.data), asGrid(b.data), asGrid(d.data));
+  } catch (err) {
+    return (
+      <p className="text-sm text-charcoal-500">
+        {err instanceof Error ? err.message : 'The surfaces could not be compared.'}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3 text-sm">
+      <Row label="Complete" value={percent(progress.percentComplete, 1)} strong />
+      <Row label="Cells at grade" value={`${integer(progress.cellsAtGrade)}`} />
+      <Separator />
+      <Row label="Cut past design grade" value={`${integer(progress.cellsOverExcavated)} cells`} />
+      <Row label="To bring back and recompact"
+        value={`${qty(progress.overExcavationBcy, 0)} BCY`} strong />
+      <p className="rounded-md bg-charcoal-50 p-3 text-[11px] leading-relaxed text-charcoal-600">
+        Over-excavation is not progress. A cell cut below design grade is fill that has to come
+        back, and counting it would report a job further along than it is.
+      </p>
+      {progress.warnings.length > 0 ? (
+        <ul className="list-disc space-y-0.5 pl-4 text-xs text-warn-700">
+          {progress.warnings.map((w) => <li key={w}>{w}</li>)}
+        </ul>
+      ) : null}
     </div>
   );
 }
 
 export function SurveyPage() {
-  /*
-   * The boxes across the top are the earthwork figures the rest of this page
-   * derives. Three of them have a card below that shows the working, so they go
-   * to it; the other two are unit conversions with nothing to point at, so they
-   * say what they are made of in place. Bank yards and compacted yards are not
-   * the same yard, and that is the thing this screen most needs to say out loud.
-   */
   const [tab, setTab] = useState('volumes');
-  const { showing, show } = useAnswerBelow();
-  const [mcFilter, setMcFilter] = useState<'all' | 'published' | 'superseded'>('all');
-  const published = MC_FILES.filter((f) => f.status === 'published');
-  const superseded = MC_FILES.filter((f) => f.status === 'superseded');
-  const assigned = MC_FILES.flatMap((f) => f.assignedTo);
-  const shownFiles = mcFilter === 'published' ? published
-    : mcFilter === 'superseded' ? superseded : MC_FILES;
+  /* Which card on the volumes tab a tile is pointing at, carried over from the
+     page this replaces: a number on a tile answers the question it raises. */
+  const [showing, setShowing] = useState<string | null>(null);
+  /* Machine control files that are live, versus every version ever published —
+     the superseded ones stay visible because a machine may still be on one. */
+  const [publishedOnly, setPublishedOnly] = useState(false);
+  const surveysQ = useQuery(loadSurveys, []);
+  const comparisonsQ = useQuery(loadSurfaceComparisons, []);
+  const filesQ = useQuery(loadMachineFiles, []);
+  const soilQ = useQuery(loadSoilDefaults, []);
 
-  /* A tile above the fold both opens the volumes tab and goes to its card. */
-  const showVolume = (id: string) => { setTab('volumes'); show(id); };
+  const surveys = surveysQ.status === 'ready' ? surveysQ.data : [];
+  const comparisons = comparisonsQ.status === 'ready' ? comparisonsQ.data : [];
+  const files = filesQ.status === 'ready' ? filesQ.data : [];
+  const soil = soilQ.status === 'ready' ? soilQ.data : null;
+
+  const [chosen, setChosen] = useState<string | null>(null);
+  const comparison = comparisons.find((c) => c.id === chosen) ?? comparisons[0] ?? null;
+  const asBuiltQ = useQuery(loadAsBuiltSurfaceId(comparison?.projectId ?? ''),
+    [comparison?.projectId]);
+  const asBuiltId = asBuiltQ.status === 'ready' ? asBuiltQ.data : null;
+
+  const published = files.filter((f) => f.status === 'published' && f.supersededById === null);
+  const unacknowledged = files.flatMap((f) =>
+    f.assignedTo.filter((m) => !m.acknowledged).map((m) => ({ file: f.name, asset: m.assetCode })));
+
+  /*
+   * The balance, from the stored volumes and the company's own soil. Swell and
+   * shrink are read; the unsuitable fraction is left at zero because no column
+   * holds one and assuming a number here buys dirt nobody asked for.
+   */
+  const balance = comparison && soil
+    ? analyzeCutFill({
+      cutBcy: comparison.cutBcy,
+      fillCcy: comparison.fillCcy,
+      swellPercent: soil.swellPercent,
+      shrinkPercent: soil.shrinkPercent,
+    })
+    : null;
+
+  if (surveysQ.status === 'demonstration') {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Survey & Grade"
+          description="What was measured on the ground, and what it means for moving dirt." />
+        <DemonstrationNotice />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Survey & Grade Control"
-        description="A drone flight or a rover survey becomes a quantity here. The volume comes from the same deterministic engine that prices the work, so a measured yard and an estimated yard are the same yard."
-        actions={
-          <>
-            <Button variant="outline"><Upload className="size-4" /> Import surface</Button>
-            <Button><Plane className="size-4" /> New survey</Button>
-          </>
-        }
+        title="Survey & Grade"
+        description="What was measured on the ground, and what it means for moving dirt. A surface produces bank cut and compacted fill from geometry; the soil properties are applied after, because a surface knows nothing about them."
       />
 
-      {SURFACE_PROGRESS.overExcavationBcy > 0 ? (
-        <Alert tone="warn" icon={<TriangleAlert className="size-4" />}
-          title={`${qty(SURFACE_PROGRESS.overExcavationBcy, 0)} BCY cut below design grade`}>
-          {plural(SURFACE_PROGRESS.cellsOverExcavated, 'cell')} on the latest flight sit more than
-          {' '}{SURFACE_PROGRESS.toleranceFt} ft below subgrade. That is material to bring back and recompact — it is
-          excluded from progress rather than counted as being ahead.
+      {unacknowledged.length ? (
+        <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
+          title={`${plural(unacknowledged.length, 'machine')} has not acknowledged its file`}>
+          {unacknowledged.map((u) => `${u.asset} (${u.file})`).join('; ')}. Sent and acknowledged are
+          different facts — a file the machine has not confirmed is a file the operator may not be
+          cutting to.
         </Alert>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatTile label="Cut" value={`${integer(SURFACE_COMPARISON.cutBcy)} BCY`} icon={<Mountain className="size-4" />}
-          hint={`avg ${SURFACE_COMPARISON.averageCutDepth} ft over ${integer(SURFACE_COMPARISON.cutAreaSf / 43_560)} acres`}
-          onClick={() => showVolume('measured-to-priced')}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatTile label="Cut" value={comparison ? `${integer(comparison.cutBcy)} BCY` : '—'}
+          icon={<Mountain className="size-4" />}
+          hint={comparison ? `bank yards over ${integer(comparison.cutAreaSf)} sf` : 'no comparison yet'}
+          onClick={() => { setTab('volumes'); setShowing('measured-to-priced'); }}
           active={tab === 'volumes' && showing === 'measured-to-priced'}
           actionLabel="Show how the measured cut becomes a priced quantity" />
-        <StatTile label="Fill" value={`${integer(SURFACE_COMPARISON.fillCcy)} CCY`}
-          hint={`avg ${SURFACE_COMPARISON.averageFillDepth} ft over ${integer(SURFACE_COMPARISON.fillAreaSf / 43_560)} acres`}
-          detail={
+        {/*
+          * Carried over from the page this replaces, and the most useful thing
+          * on it: bank, compacted and loose yards are three units of the same
+          * dirt, which is why a job with equal cut and fill is not balanced.
+          */}
+        <StatTile label="Fill" value={comparison ? `${integer(comparison.fillCcy)} CCY` : '—'}
+          icon={<Layers className="size-4" />}
+          hint={comparison ? `over ${integer(comparison.fillAreaSf)} sf` : 'no comparison yet'}
+          detail={comparison ? (
             <div className="space-y-2">
               <p>
                 Compacted cubic yards — the hole the fill has to fill, measured in place after
-                compaction. The cut beside it is <em>bank</em> yards, the ground as it sits, and the
-                two are different units of the same dirt.
+                compaction. The cut beside it is <em>bank</em> yards, the ground as it sits, and
+                the two are different units of the same dirt.
               </p>
               <p>
                 That is why a job with equal cut and fill is not balanced.
-                {' '}{integer(SURFACE_COMPARISON.cutBcy)} BCY of cut, less what is unsuitable, shrinks
-                to {qty(BALANCE.reusableAsCompactedCcy, 0)} CCY once it is placed and rolled — and it is
-                that number, not the cut, that is set against this one.
+                {' '}{integer(comparison.cutBcy)} BCY of cut shrinks
+                to {balance ? qty(balance.reusableAsCompactedCcy, 0) : '—'} CCY once it is placed
+                and rolled — and it is that number, not the cut, that is set against this one.
               </p>
             </div>
-          } />
-        <StatTile label="Balance" value={titleCase(BALANCE.condition)}
-          tone={BALANCE.condition === 'balanced' ? 'success' : 'warn'}
-          hint={BALANCE.exportBcy ? `${integer(BALANCE.exportBcy)} BCY to export` : `${integer(BALANCE.importCcy)} CCY to import`}
-          detail={
+          ) : undefined} />
+        <StatTile label="Balance" value={balance ? titleCase(balance.condition) : '—'}
+          tone={balance?.condition === 'balanced' ? 'success' : 'warn'}
+          icon={<Mountain className="size-4" />}
+          hint={balance
+            ? (balance.exportBcy > 0 ? `${integer(balance.exportBcy)} BCY to export`
+              : balance.importCcy > 0 ? `${integer(balance.importCcy)} CCY to import`
+                : 'the reusable cut makes the fill')
+            : 'no comparison yet'}
+          detail={balance && soil ? (
             <div className="space-y-2">
               <p>
-                Whether the site's own dirt makes its own fill, after the two adjustments that decide
-                it: {qty(BALANCE.unsuitableBcy, 0)} BCY of the cut is unsuitable and cannot be
-                reused, and what is left shrinks when it is compacted.
+                Whether the site&apos;s own dirt makes its own fill, after the adjustment that
+                decides it: what is cut shrinks when it is compacted, at this
+                company&apos;s {percent(soil.shrinkPercent, 0)}.
               </p>
               <p>
-                {BALANCE.exportBcy > 0
-                  ? `The surplus is ${qty(BALANCE.exportBcy, 0)} BCY, which trucks as ${qty(BALANCE.exportLcy, 0)} LCY once it is loose in the bed — a third unit again, and the one the haul is actually priced in.`
-                  : BALANCE.importCcy > 0
-                    ? `The shortfall is ${qty(BALANCE.importCcy, 0)} CCY placed, which is ${qty(BALANCE.importBcy, 0)} BCY to buy, because a supplier sells bank yards and the job needs compacted ones.`
+                {balance.exportBcy > 0
+                  ? `The surplus is ${qty(balance.exportBcy, 0)} BCY, which trucks as ${qty(balance.exportLcy, 0)} LCY once it is loose in the bed — a third unit again, and the one the haul is actually priced in.`
+                  : balance.importCcy > 0
+                    ? `The shortfall is ${qty(balance.importCcy, 0)} CCY placed, which is ${qty(balance.importBcy, 0)} BCY to buy, because a supplier sells bank yards and the job needs compacted ones.`
                     : 'Neither export nor import is needed: the reusable cut makes the fill.'}
               </p>
+              <p>
+                No unsuitable fraction is subtracted first. Nothing records one for this site, and
+                a number chosen here would import or export dirt nobody decided on.
+              </p>
             </div>
-          } />
-        <StatTile label="Progress to grade" value={percent(SURFACE_PROGRESS.percentComplete, 1)}
-          icon={<Ruler className="size-4" />}
-          hint={`${integer(SURFACE_PROGRESS.cellsAtGrade)} cells at grade ±${SURFACE_PROGRESS.toleranceFt} ft`}
-          onClick={() => showVolume('progress-against-design')}
-          active={tab === 'volumes' && showing === 'progress-against-design'}
-          actionLabel="Show the latest flight against design grade" />
-        <StatTile label="Survey coverage" value={percent(SURFACE_COMPARISON.coverage, 1)}
-          tone={SURFACE_COMPARISON.coverage >= 0.85 ? 'success' : 'danger'}
-          icon={<Layers className="size-4" />}
-          hint={`${integer(SURFACE_COMPARISON.cellsSkipped)} cells outside the boundary`}
-          onClick={() => showVolume('cut-and-fill-depth')}
-          active={tab === 'volumes' && showing === 'cut-and-fill-depth'}
-          actionLabel="Show which cells the survey reached" />
+          ) : undefined} />
+        <StatTile label="Surveys" value={surveys.length} icon={<MapPin className="size-4" />}
+          hint={`${plural(published.length, 'live machine file')}`}
+          onClick={() => setTab('surveys')} active={tab === 'surveys'}
+          actionLabel="Show the survey captures" />
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => { setTab(v); if (v !== 'machine') setMcFilter('all'); }}>
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="volumes">Surface volumes</TabsTrigger>
-          <TabsTrigger value="sections">Cross sections</TabsTrigger>
-          <TabsTrigger value="surveys">Surveys ({SURVEYS.length})</TabsTrigger>
+          <TabsTrigger value="surveys">Surveys ({surveys.length})</TabsTrigger>
           <TabsTrigger value="machine">Machine control ({published.length} live)</TabsTrigger>
         </TabsList>
 
         {/* ---------------------------------------------------------- volumes */}
         <TabsContent value="volumes" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-            <Card id="cut-and-fill-depth">
-              <CardHeader>
-                <CardTitle>Cut and fill depth</CardTitle>
-                <CardDescription>
-                  Existing ground against design subgrade, {EXISTING_SURFACE.rows} × {EXISTING_SURFACE.cols} cells
-                  at {EXISTING_SURFACE.cellSize} ft. Hover any cell for its depth.
-                </CardDescription>
-              </CardHeader>
-              <CardContent><DepthMap /></CardContent>
-            </Card>
+          {comparisonsQ.status === 'loading' ? <LoadingState label="Reading the comparisons" /> : null}
+          {comparisonsQ.status === 'error'
+            ? <ErrorState message={comparisonsQ.message} onRetry={comparisonsQ.refetch} /> : null}
+          {comparisonsQ.status === 'ready' && comparisons.length === 0 ? (
+            <EmptyState title="No surface comparison yet"
+              description="A comparison is an existing surface measured against a design one, and the database refuses the ones that would be wrong: surfaces from different projects, different datums, a different coordinate system, different units or a different grid." />
+          ) : null}
 
-            <Card id="measured-to-priced">
-              <CardHeader>
-                <CardTitle>Measured to priced</CardTitle>
-                <CardDescription>
-                  The surface produces bank cut and compacted fill from geometry. The soil properties — swell,
-                  shrink, what is unsuitable — are applied after, because a surface knows nothing about them.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <Row label="Measured cut" value={`${qty(SURFACE_COMPARISON.cutBcy, 0)} BCY`} />
-                <Row label="Measured fill" value={`${qty(SURFACE_COMPARISON.fillCcy, 0)} CCY`} />
-                <Separator />
-                <Row label="Unsuitable at 6%" value={`${qty(BALANCE.unsuitableBcy, 0)} BCY`} />
-                <Row label="Reusable cut" value={`${qty(BALANCE.reusableCutBcy, 0)} BCY`} />
-                <Row label="Makes compacted at 10% shrink" value={`${qty(BALANCE.reusableAsCompactedCcy, 0)} CCY`} strong />
-                <Separator />
-                <Row label="Condition" value={titleCase(BALANCE.condition)} strong />
-                {BALANCE.exportBcy > 0 ? (
-                  <>
-                    <Row label="Export" value={`${qty(BALANCE.exportBcy, 0)} BCY`} />
-                    <Row label="To truck at 25% swell" value={`${qty(BALANCE.exportLcy, 0)} LCY`} strong />
-                  </>
-                ) : null}
-                {BALANCE.importCcy > 0 ? (
-                  <Row label="Import" value={`${qty(BALANCE.importCcy, 0)} CCY (${qty(BALANCE.importBcy, 0)} BCY to buy)`} strong />
-                ) : null}
-                <p className="rounded-md bg-charcoal-50 p-3 font-mono text-[11px] leading-relaxed text-charcoal-600">
-                  {BALANCE.derivation}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card id="progress-against-design">
-            <CardHeader>
-              <CardTitle>Progress against design</CardTitle>
-              <CardDescription>
-                The latest flight compared against subgrade. Cutting below design is rework, not progress — it is
-                separated out rather than counted toward completion.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-baseline justify-between text-sm">
-                  <span className="text-charcoal-600">Earthwork complete</span>
-                  <span className="tabular font-semibold">{percent(SURFACE_PROGRESS.percentComplete, 1)}</span>
-                </div>
-                <Progress value={SURFACE_PROGRESS.percentComplete * 100} className="mt-1.5"
-                  indicatorClassName="bg-success-600" />
-              </div>
-              <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <Field label="Completed cut">{qty(SURFACE_PROGRESS.completedCutBcy, 0)} BCY</Field>
-                <Field label="Remaining cut">{qty(SURFACE_PROGRESS.remainingCutBcy, 0)} BCY</Field>
-                <Field label="Cells at grade">{integer(SURFACE_PROGRESS.cellsAtGrade)}</Field>
-                <Field label="Over-excavated">
-                  <span className={SURFACE_PROGRESS.overExcavationBcy > 0 ? 'text-warn-700' : ''}>
-                    {qty(SURFACE_PROGRESS.overExcavationBcy, 0)} BCY
-                  </span>
-                </Field>
-              </dl>
-              <p className="rounded-md bg-charcoal-50 p-3 font-mono text-[11px] leading-relaxed text-charcoal-600">
-                {SURFACE_PROGRESS.derivation}
-              </p>
-            </CardContent>
-          </Card>
-
-          {SURFACE_COMPARISON.warnings.length ? (
-            <div className="space-y-2">
-              {SURFACE_COMPARISON.warnings.slice(0, 5).map((w, i) => (
-                <Alert key={i} tone="warn" icon={<AlertTriangle className="size-4" />}>{w}</Alert>
+          {comparisons.length > 1 ? (
+            <select aria-label="Which comparison"
+              value={comparison?.id ?? ''}
+              onChange={(e) => setChosen(e.target.value)}
+              className="h-9 rounded-md border border-charcoal-200 bg-white px-2 text-sm">
+              {comparisons.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}{c.projectNumber ? ` — ${c.projectNumber}` : ''}
+                </option>
               ))}
+            </select>
+          ) : null}
+
+          {comparison ? (
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+              <Card id="cut-and-fill-depth">
+                <CardHeader>
+                  <CardTitle>Cut and fill depth</CardTitle>
+                  <CardDescription>
+                    {comparison.existingSurfaceName ?? 'Existing'} against{' '}
+                    {comparison.designSurfaceName ?? 'design'}. Hover any cell for its depth.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DepthMap existingId={comparison.existingSurfaceId}
+                    designId={comparison.designSurfaceId} />
+                </CardContent>
+              </Card>
+
+              <Card id="measured-to-priced">
+                <CardHeader>
+                  <CardTitle>Measured to priced</CardTitle>
+                  <CardDescription>
+                    The volumes are as computed when the comparison was made, on{' '}
+                    {date(comparison.computedAt)}. The soil properties are applied after, because a
+                    surface knows nothing about them.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <Row label="Measured cut" value={`${qty(comparison.cutBcy, 0)} BCY`} />
+                  <Row label="Measured fill" value={`${qty(comparison.fillCcy, 0)} CCY`} />
+                  {comparison.maxCutDepthFt !== null ? (
+                    <Row label="Deepest cut" value={`${qty(comparison.maxCutDepthFt, 2)} ft`} />
+                  ) : null}
+                  {comparison.maxFillDepthFt !== null ? (
+                    <Row label="Deepest fill" value={`${qty(comparison.maxFillDepthFt, 2)} ft`} />
+                  ) : null}
+                  {/*
+                    * Said out loud, because a volume over four fifths of a site
+                    * is not a volume for the site and nothing else on the page
+                    * would reveal it.
+                    */}
+                  <Row label="Survey coverage" value={percent(comparison.coverage, 1)}
+                    strong={comparison.coverage < 1} />
+                  <Separator />
+                  {balance && soil ? (
+                    <>
+                      <Row label={`Makes compacted at ${percent(soil.shrinkPercent, 0)} shrink`}
+                        value={`${qty(balance.reusableAsCompactedCcy, 0)} CCY`} strong />
+                      <Row label="Condition" value={titleCase(balance.condition)} strong />
+                      {balance.exportBcy > 0 ? (
+                        <>
+                          <Row label="Export" value={`${qty(balance.exportBcy, 0)} BCY`} />
+                          <Row label={`To truck at ${percent(soil.swellPercent, 0)} swell`}
+                            value={`${qty(balance.exportLcy, 0)} LCY`} strong />
+                        </>
+                      ) : null}
+                      {balance.importCcy > 0 ? (
+                        <Row label="Import"
+                          value={`${qty(balance.importCcy, 0)} CCY (${qty(balance.importBcy, 0)} BCY to buy)`}
+                          strong />
+                      ) : null}
+                      <p className="rounded-md bg-charcoal-50 p-3 text-[11px] leading-relaxed text-charcoal-600">
+                        Swell and shrink are this company&apos;s own figures. No unsuitable fraction
+                        is assumed: nothing records one for this site, and a number chosen here
+                        would import or export dirt nobody decided on.
+                      </p>
+                      {/*
+                        * The engine publishes how it got there. Shown because a
+                        * balance figure somebody cannot reproduce is a number to
+                        * argue with rather than a number to act on.
+                        */}
+                      <p className="rounded-md bg-charcoal-50 p-3 font-mono text-[11px] leading-relaxed text-charcoal-600">
+                        {balance.derivation}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-charcoal-500">
+                      The balance needs the company&apos;s swell and shrink figures, which have not
+                      been read.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {asBuiltId ? (
+                <Card id="progress-to-grade" className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Progress to grade</CardTitle>
+                    <CardDescription>
+                      The as-built against the design, with what was cut too deep kept separate
+                      from what is finished.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ProgressPanel existingId={comparison.existingSurfaceId}
+                      designId={comparison.designSurfaceId} asBuiltId={asBuiltId} />
+                  </CardContent>
+                </Card>
+              ) : null}
             </div>
           ) : null}
         </TabsContent>
 
-        {/* --------------------------------------------------------- sections */}
-        <TabsContent value="sections">
+        {/* ---------------------------------------------------------- surveys */}
+        <TabsContent value="surveys">
           <Card>
             <CardHeader>
-              <CardTitle>Entrance drive — cross-section volumes</CardTitle>
+              <CardTitle>Survey captures</CardTitle>
               <CardDescription>
-                Average end area is the default because it is what a DOT earthwork summary uses, so the number
-                reconciles against the engineer's. Prismoidal only differs where a mid-section was actually
-                surveyed — substituting the mean of the two ends reduces the formula back to average end area.
+                Every capture carries its horizontal and vertical datum, its coordinate system and
+                its units, because a comparison across any mismatch is wrong rather than
+                approximate — and the database refuses it rather than reporting a number. Earthwork
+                quantity is what a heavy civil bid is won or lost on.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Segment</TableHead>
-                    <TableHead className="text-right">Length</TableHead>
-                    <TableHead className="text-right">Cut</TableHead>
-                    <TableHead className="text-right">Fill</TableHead>
-                    <TableHead>Method</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ROAD_PRISMOIDAL.segments.map((s) => (
-                    <TableRow key={`${s.fromStation}-${s.toStation}`}>
-                      <TableCell className="font-mono text-xs text-charcoal-700">
-                        {(s.fromStation / 100).toFixed(2).replace('.', '+')} – {(s.toStation / 100).toFixed(2).replace('.', '+')}
-                      </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">{integer(s.lengthFt)} ft</TableCell>
-                      <TableCell className="tabular text-right">{s.cutBcy ? `${qty(s.cutBcy, 1)} BCY` : '—'}</TableCell>
-                      <TableCell className="tabular text-right">{s.fillCcy ? `${qty(s.fillCcy, 1)} CCY` : '—'}</TableCell>
-                      <TableCell>
-                        <Badge variant={s.method === 'prismoidal' ? 'success' : 'default'}>
-                          {s.method === 'prismoidal' ? 'Prismoidal' : 'Average end area'}
-                        </Badge>
-                      </TableCell>
+              {surveysQ.status === 'loading' ? <LoadingState label="Reading the captures" /> : null}
+              {surveysQ.status === 'error'
+                ? <ErrorState message={surveysQ.message} onRetry={surveysQ.refetch} /> : null}
+              {surveysQ.status === 'ready' && surveys.length === 0 ? (
+                <div className="p-6">
+                  <EmptyState title="No surveys yet"
+                    description="A survey is a capture of the ground on a date, by a method, on a stated datum." />
+                </div>
+              ) : null}
+              {surveys.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Survey</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Captured</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Datum</TableHead>
+                      <TableHead className="text-right">Points</TableHead>
+                      <TableHead>Surfaces</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow className="hover:bg-charcoal-50">
-                    <TableCell>Total ({ROAD_PRISMOIDAL.stations} sections)</TableCell>
-                    <TableCell className="tabular text-right">{integer(ROAD_PRISMOIDAL.lengthFt)} ft</TableCell>
-                    <TableCell className="tabular text-right">{qty(ROAD_PRISMOIDAL.cutBcy, 1)} BCY</TableCell>
-                    <TableCell className="tabular text-right">{qty(ROAD_PRISMOIDAL.fillCcy, 1)} CCY</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableFooter>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {surveys.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-medium text-charcoal-900">{s.name}</TableCell>
+                        <TableCell className="font-mono text-xs text-charcoal-600">
+                          {s.projectId && s.projectNumber ? (
+                            <Link to={`/app/projects/${s.projectId}`} className="hover:underline">
+                              {s.projectNumber}
+                            </Link>
+                          ) : (s.projectNumber ?? '—')}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-charcoal-600">
+                          {date(s.capturedOn)}
+                          {s.capturedBy ? <span className="block text-xs">{s.capturedBy}</span> : null}
+                        </TableCell>
+                        <TableCell><Badge variant="outline">{titleCase(s.captureMethod)}</Badge></TableCell>
+                        <TableCell className="text-xs text-charcoal-600">
+                          {s.horizontalDatum} / {s.verticalDatum}
+                          <span className="block text-charcoal-400">{titleCase(s.units)}</span>
+                        </TableCell>
+                        <TableCell className="tabular text-right text-charcoal-600">
+                          {s.pointCount === null ? '—' : integer(s.pointCount)}
+                        </TableCell>
+                        <TableCell className="text-xs text-charcoal-600">
+                          {s.surfaces.length === 0 ? '—'
+                            : s.surfaces.map((f) => `${f.name} (${titleCase(f.role)})`).join(', ')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : null}
             </CardContent>
           </Card>
-
-          <Alert tone="info" className="mt-4" icon={<Ruler className="size-4" />}
-            title="What the mid-section is worth">
-            Average end area gives {qty(ROAD_AEA.fillCcy, 1)} CCY of fill across this run; with the one surveyed
-            mid-section the prismoidal method gives {qty(ROAD_PRISMOIDAL.fillCcy, 1)} CCY. The difference is real —
-            average end area overstates wherever a section changes shape between stations, and understates where it
-            pinches. {plural(ROAD_PRISMOIDAL.segmentsWithoutMidSection, 'segment')} here still lack a mid-section
-            and fall back to average end area.
-          </Alert>
-        </TabsContent>
-
-        {/* ---------------------------------------------------------- surveys */}
-        <TabsContent value="surveys">
-          <Card><CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Survey</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Captured</TableHead>
-                  <TableHead>By</TableHead>
-                  <TableHead>Datum</TableHead>
-                  <TableHead className="text-right">Points</TableHead>
-                  <TableHead className="text-right">Area</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {SURVEYS.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell>
-                      <p className="font-medium text-charcoal-900">{s.name}</p>
-                      <p className="text-xs text-charcoal-500">{s.surfaces.join(', ')}</p>
-                    </TableCell>
-                    <TableCell><Badge variant="outline">{titleCase(s.method)}</Badge></TableCell>
-                    <TableCell className="whitespace-nowrap text-charcoal-600">{date(s.capturedOn)}</TableCell>
-                    <TableCell className="text-charcoal-600">{s.capturedBy}</TableCell>
-                    <TableCell className="font-mono text-xs text-charcoal-700">{s.verticalDatum}</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{integer(s.pointCount)}</TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">{qty(s.areaSf / 43_560, 1)} ac</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent></Card>
-
-          <Alert tone="neutral" className="mt-4" icon={<CheckCircle2 className="size-4" />}
-            title="Why the datum column matters">
-            A volume computed between two surfaces on different vertical datums is wrong by the offset between
-            them, and looks entirely plausible. The database refuses the comparison rather than returning a
-            confident wrong number.
-          </Alert>
         </TabsContent>
 
         {/* ---------------------------------------------------- machine control */}
         <TabsContent value="machine">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Radio className="size-4" /> Machine control files</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Radio className="size-4" /> Machine control files
+              </CardTitle>
               <CardDescription>
-                A superseded design must name its replacement, so an operator can always be told which file is
-                current. A stale file left live on a dozer is how a crew builds last week's grade.
+                What each machine is cutting to. A published file supersedes the one before it, and
+                a machine that has not acknowledged the current version may still be working to the
+                old one.
               </CardDescription>
-              {mcFilter !== 'all' ? (
-                <div className="flex flex-wrap items-center gap-3 pt-2 text-sm text-charcoal-600">
-                  <span>Showing the {mcFilter} designs.</span>
-                  <Button variant="outline" size="sm" onClick={() => setMcFilter('all')}>
-                    Show all {MC_FILES.length}
-                  </Button>
-                </div>
-              ) : null}
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Design</TableHead>
-                    <TableHead>Format</TableHead>
-                    <TableHead className="text-right">Version</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Published</TableHead>
-                    <TableHead>On machines</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {shownFiles.map((f) => (
-                    <TableRow key={f.id} className={cn(f.status === 'superseded' && 'opacity-55')}>
-                      <TableCell className="font-medium text-charcoal-900">{f.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono text-[10px]">{f.format.toUpperCase()}</Badge>
-                        <span className="ml-1.5 text-xs text-charcoal-500">{titleCase(f.vendor)}</span>
-                      </TableCell>
-                      <TableCell className="tabular text-right">v{f.version}</TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          f.status === 'published' ? 'success' : f.status === 'draft' ? 'default' : 'warn'
-                        }>{titleCase(f.status)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-charcoal-600">
-                        {f.publishedAt ? <>{date(f.publishedAt)}<br /><span className="text-charcoal-400">{f.publishedBy}</span></> : '—'}
-                      </TableCell>
-                      <TableCell>
-                        {f.assignedTo.length ? (
-                          <div className="flex flex-wrap gap-1">
-                            {f.assignedTo.map((a) => (
-                              <Badge key={a} variant="info" className="font-mono text-[10px]">{a}</Badge>
-                            ))}
-                          </div>
-                        ) : <span className="text-xs text-charcoal-400">—</span>}
-                      </TableCell>
+              {filesQ.status === 'loading' ? <LoadingState label="Reading the files" /> : null}
+              {filesQ.status === 'error'
+                ? <ErrorState message={filesQ.message} onRetry={filesQ.refetch} /> : null}
+              {filesQ.status === 'ready' && files.length === 0 ? (
+                <div className="p-6">
+                  <EmptyState title="No machine control files"
+                    description="A machine control file is a design surface in a format a grader or dozer can read." />
+                </div>
+              ) : null}
+              {files.length > 0 ? (
+                <>
+                  <div className="flex flex-wrap items-center gap-3 px-6 pb-3 text-sm text-charcoal-600">
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" checked={publishedOnly}
+                        onChange={(e) => setPublishedOnly(e.target.checked)} />
+                      Only the files a machine could be cutting to
+                    </label>
+                    <span className="text-xs text-charcoal-500">
+                      {published.length} of {files.length} published and not superseded
+                    </span>
+                  </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>File</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Surface</TableHead>
+                      <TableHead>Format</TableHead>
+                      <TableHead>Version</TableHead>
+                      <TableHead>On machines</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {(publishedOnly ? published : files).map((f) => (
+                      <TableRow key={f.id} className={cn(f.supersededById && 'opacity-60')}>
+                        <TableCell>
+                          <p className="font-medium text-charcoal-900">{f.name}</p>
+                          <Badge variant={f.status === 'published' ? 'success'
+                            : f.status === 'draft' ? 'outline' : 'warn'}>
+                            {titleCase(f.status)}
+                          </Badge>
+                          {f.supersededById ? (
+                            <Badge variant="outline" className="ml-1">Superseded</Badge>
+                          ) : null}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-charcoal-600">
+                          {f.projectNumber ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-charcoal-600">{f.surfaceName ?? '—'}</TableCell>
+                        <TableCell className="text-xs text-charcoal-600">
+                          {f.fileFormat.toUpperCase()}
+                          {f.vendor ? <span className="block">{titleCase(f.vendor)}</span> : null}
+                        </TableCell>
+                        <TableCell className="tabular text-charcoal-600">
+                          v{f.version}
+                          {f.publishedAt ? (
+                            <span className="block text-xs">{date(f.publishedAt)}</span>
+                          ) : null}
+                        </TableCell>
+                        <TableCell>
+                          {f.assignedTo.length === 0
+                            ? <span className="text-xs text-charcoal-400">not sent</span>
+                            : (
+                              <ul className="space-y-0.5 text-xs">
+                                {f.assignedTo.map((m) => (
+                                  <li key={m.assetId} className="flex items-center gap-1.5">
+                                    {m.acknowledged
+                                      ? <CheckCircle2 className="size-3 text-success-600" />
+                                      : <AlertTriangle className="size-3 text-warn-600" />}
+                                    {m.assetId ? (
+                                      <Link to={`/app/fleet?asset=${m.assetId}`}
+                                        className="font-mono hover:underline">{m.assetCode}</Link>
+                                    ) : <span className="font-mono">{m.assetCode}</span>}
+                                    <span className="text-charcoal-400">
+                                      {m.acknowledged ? 'acknowledged' : 'not acknowledged'}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                </>
+              ) : null}
             </CardContent>
           </Card>
-
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <StatTile label="Published designs" value={published.length} tone="success"
-              onClick={() => setMcFilter((c) => (c === 'published' ? 'all' : 'published'))}
-              active={mcFilter === 'published'}
-              actionLabel="List the published designs" />
-            <StatTile label="Superseded" value={superseded.length}
-              hint="retained, each naming its replacement"
-              onClick={() => setMcFilter((c) => (c === 'superseded' ? 'all' : 'superseded'))}
-              active={mcFilter === 'superseded'}
-              actionLabel="List the superseded designs" />
-            <StatTile label="Machines running a design" value={new Set(assigned).size}
-              hint="one current file per machine, enforced"
-              detail={
-                <p>
-                  Distinct machines carrying a file, counted across every design in the table above —{' '}
-                  {assigned.length === new Set(assigned).size
-                    ? 'each on exactly one, which is what the rule requires'
-                    : 'and a machine appearing against two designs is the stale-file case the rule exists to catch'}.
-                  A design is not work until it is on a machine, so this is the number that says the
-                  grade the crew is building is the grade that was published.
-                </p>
-              } />
-          </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div className={cn('flex items-baseline justify-between gap-4', strong && 'border-t border-charcoal-200 pt-2')}>
-      <span className={strong ? 'font-medium text-charcoal-900' : 'text-charcoal-600'}>{label}</span>
-      <span className={cn('tabular', strong ? 'font-semibold text-charcoal-900' : 'text-charcoal-700')}>{value}</span>
     </div>
   );
 }
