@@ -47,10 +47,16 @@ const SOURCE_TONE: Record<ProductionSource, 'success' | 'info' | 'warn' | 'defau
   estimator_judgment: 'warn',
 };
 
-export function ProductionRatePanel({ lineId, editable, onChanged }: {
+export function ProductionRatePanel({ lineId, editable, onChanged, superseded }: {
   lineId: string;
   editable: boolean;
   onChanged: () => void;
+  /**
+   * Set when rows on the line drive the hours, which takes this rate out of the
+   * pricing. Two rates on one screen and no word about which one counts is how
+   * an estimator ends up reading the wrong one.
+   */
+  superseded?: { ratePerHour: number; unit: string; rows: number } | null;
 }) {
   const [refresh, setRefresh] = useState(0);
   const [picking, setPicking] = useState(false);
@@ -98,7 +104,15 @@ export function ProductionRatePanel({ lineId, editable, onChanged }: {
   const list = options.status === 'ready' ? options.data : [];
 
   return (
-    <div className="space-y-2 rounded-lg border border-charcoal-200 bg-white p-3">
+    <div className={cn('space-y-2 rounded-lg border p-3',
+      superseded ? 'border-charcoal-200 bg-charcoal-50/70' : 'border-charcoal-200 bg-white')}>
+      {superseded ? (
+        <p className="text-xs text-charcoal-600">
+          <strong>Not in force.</strong> {superseded.rows === 1 ? 'A row' : `${superseded.rows} rows`}
+          {' '}below drive the hours at {qty(superseded.ratePerHour)} {superseded.unit}/hr, and that
+          is what this line prices at. Untick them to come back to this rate.
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-charcoal-900">
@@ -112,7 +126,9 @@ export function ProductionRatePanel({ lineId, editable, onChanged }: {
               </>
             ) : (
               <span className="font-normal text-charcoal-500">
-                No production rate on this line, so its hours come from the crew and machines below.
+                No production rate on this line. Its hours come from the rows below — tick
+                <em> drives hours</em> on a machine or a crew row and say at what rate, or type
+                the hours on a row and they will be taken as they stand.
               </span>
             )}
             {p.sourceType ? (

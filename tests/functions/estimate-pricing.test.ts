@@ -651,3 +651,167 @@ describe('a line priced at a typed rate', () => {
     expect(problems.map((p) => p.field)).toContain('parametric_basis');
   });
 });
+
+/**
+ * The box that governed the hours, and the engine that never looked at it.
+ *
+ * `drives_hours` and `production_per_hour` arrived in migration 0107 with the
+ * intent written into the column comment — "two dozers at 100 units an hour are
+ * 200 between them and every other row works those same hours" — a check
+ * constraint refusing a driver with no rate, an index, and writers in 0108,
+ * 0139 and 0151. This file selected both columns into `ResourceRow` and read
+ * neither.
+ *
+ * Found by building a four-line estimate in a browser. Line 1 was set to 75
+ * CY/hr from the library; line 2 was given a three-man crew at 110 CY/hr a man,
+ * all three ticked, and the panel answered "fleet rate 330.00 CY/hr, about 7.88
+ * hr for 2,600 CY". Both lines came out at the same unit cost — $3.0378 and
+ * $3.0379 — because both priced off the library's 75. Line 2 was charged 147
+ * labor hours against the 28 its own screen implied.
+ *
+ * Three answers exist about how long a line takes and these fix the order:
+ * ticked rows, then the catalog rate, then hours somebody typed.
+ */
+describe('the rows that drive the hours', () => {
+  const crewRow = (over: Partial<ResourceRow> = {}): ResourceRow => ({
+    id: 'res-crew-1', line_item_id: 'line-1', resource_kind: 'labor',
+    description: 'Heavy Equipment Operator', quantity: '1', unit: 'HR',
+    unit_rate: '0', hours: '0', headcount: 1, quote_reference: null,
+    sort_order: 0, role: 'Operator', drives_hours: null, production_per_hour: null,
+    base_rate: '40', burden_rate: '14', rate_basis: 'hour',
+    mobilization_cost: '0', standby_days: '0', minimum_hours: null, is_owned: true,
+    haul_mode: 'hours', round_trip_miles: null, average_speed_mph: null,
+    truck_capacity: null, tons_per_load: null, load_minutes: null,
+    dump_minutes: null, queue_minutes: null, includes_disposal: false,
+    equipment: null, materials: null, labor_rates: null,
+    ...over,
+  });
+
+  /** 1,200 CY, library rate 60 CY/hr at 83% utilization, no crew of its own. */
+  const bare = (over: Partial<LineRow> = {}): LineRow => line({ crews: null, ...over });
+
+  it('prices at what the ticked rows produce, not at the library rate', () => {
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ drives_hours: true, production_per_hour: '150' })],
+    }), ASOF);
+    const rate = input.lines[0]!.productionRate!;
+    expect(rate.ratePerHour).toBe(150);
+    expect(rate.id).toBe('line-fleet');
+    // Taken as typed. A catalog rate carries a measured utilization; a figure
+    // the estimator entered is already what they believe the spread produces.
+    expect(rate.utilizationFactor).toBe(1);
+  });
+
+  it('adds the rows up, and multiplies each by its count', () => {
+    // Three operators at 110 an hour, and a second row of two machines at 20.
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [
+        crewRow({ id: 'r1', drives_hours: true, production_per_hour: '110', headcount: 3 }),
+        crewRow({ id: 'r2', drives_hours: true, production_per_hour: '20', headcount: 2 }),
+      ],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.ratePerHour).toBe(110 * 3 + 20 * 2);
+  });
+
+  it('counts a row the way the line panel counts it', () => {
+    // The panel falls back to `quantity` when there is no headcount, and the
+    // two have to agree or the screen and the price are two different numbers.
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({
+        drives_hours: true, production_per_hour: '50', headcount: null, quantity: '4',
+      })],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.ratePerHour).toBe(200);
+  });
+
+  it('records the fleet rate as the estimator judgment it is', () => {
+    // So the confidence engine weights it at what one person's figure is
+    // worth, rather than at a catalog rate's reliability.
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ drives_hours: true, production_per_hour: '90' })],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.sourceType).toBe('estimator_judgment');
+  });
+
+  it('leaves the library rate in force when no row drives the line', () => {
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ production_per_hour: '150' })],
+    }), ASOF);
+    const rate = input.lines[0]!.productionRate!;
+    expect(rate.ratePerHour).toBe(60);
+    expect(rate.utilizationFactor).toBe(0.83);
+  });
+
+  it('changes the hours the line is charged, which is the whole point', () => {
+    const off = priceEstimate(snapshot({
+      lines: [bare()], resources: [crewRow({ production_per_hour: '150' })],
+    }), ASOF);
+    const on = priceEstimate(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ drives_hours: true, production_per_hour: '150' })],
+    }), ASOF);
+    expect(off.problems).toEqual([]);
+    expect(on.problems).toEqual([]);
+    // 150 an hour against 60 x 0.83 = 49.8: the ticked row is three times
+    // quicker, and the line has to cost less than it did.
+    expect(on.result.totalLaborHours).toBeLessThan(off.result.totalLaborHours);
+    expect(on.result.totalDirectCost).toBeLessThan(off.result.totalDirectCost);
+  });
+
+  it('takes typed hours when nothing else says how long the line takes', () => {
+    /*
+     * The `Hours` box was read for hourly trucking and for nothing else. On a
+     * line with no rate the engine warned that hours could not be derived and
+     * priced it at zero, with the typed figure on screen beside the blank.
+     */
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare({ production_rates: null })],
+      resources: [crewRow({ hours: '40' })],
+    }), ASOF);
+    const rate = input.lines[0]!.productionRate!;
+    expect(rate.id).toBe('line-typed-hours');
+    // 1,200 CY in 40 hours is 30 CY/hr, and pricing it back gives the 40 hours.
+    expect(rate.ratePerHour).toBe(30);
+  });
+
+  it('gives the longest row, because a line takes as long as its slowest part', () => {
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare({ production_rates: null })],
+      resources: [crewRow({ id: 'r1', hours: '24' }), crewRow({ id: 'r2', hours: '40' })],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.ratePerHour).toBe(30);
+  });
+
+  it('keeps typed hours behind both of the others', () => {
+    // A catalog rate is governed and approved under RULE-003; an estimator who
+    // wants their own hours to win can change or clear it on the panel.
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ hours: '40' })],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.ratePerHour).toBe(60);
+  });
+
+  it('no longer calls a line with a crew and typed hours unpriceable', () => {
+    const { problems } = buildEstimateInput(snapshot({
+      lines: [bare({ production_rates: null })],
+      resources: [crewRow({ hours: '40' })],
+    }), ASOF);
+    expect(problems.map((p) => p.field)).not.toContain('resources');
+  });
+
+  it('ignores a ticked row that names no rate', () => {
+    // `elr_driver_needs_production` refuses one at the database, and a row that
+    // slipped through must not contribute a zero to the fleet rate.
+    const { input } = buildEstimateInput(snapshot({
+      lines: [bare()],
+      resources: [crewRow({ drives_hours: true, production_per_hour: null })],
+    }), ASOF);
+    expect(input.lines[0]!.productionRate!.ratePerHour).toBe(60);
+  });
+});

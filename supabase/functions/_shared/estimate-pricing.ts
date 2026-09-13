@@ -26,7 +26,7 @@
  *      number on a page that nothing supports.
  */
 import {
-  calculateEstimate, resolveEquipmentRate, ENGINE_VERSION,
+  calculateEstimate, resolveEquipmentRate, ENGINE_VERSION, SOURCE_RELIABILITY,
   type EstimateInput, type EstimateLineInput, type EstimateResult,
   type PricingProfile, type ProductionRate, type Crew, type EquipmentItem,
   type MaterialRequirement, type ConditionModifier, type EquipmentRateCandidate,
@@ -560,6 +560,94 @@ function toProductionRate(p: ProductionRateRow, fallbackShiftHours: number): Pro
   };
 }
 
+/**
+ * The rate the rows somebody ticked produce between them.
+ *
+ * `drives_hours` and `production_per_hour` have been on
+ * `estimate_line_resources` since migration 0107, which said exactly what they
+ * mean — "two dozers at 100 units an hour are 200 between them and every other
+ * row works those same hours" — and gave them a check constraint, an index and
+ * three writers. This function is the first thing that ever read them.
+ *
+ * Until it existed an estimator ticked the box, typed a rate, watched the panel
+ * answer "fleet rate 330.00 CY/hr, about 7.88 hr for 2,600 CY", and the line
+ * priced off the library rate instead: 147 labor hours against the 28 the
+ * screen implied. Two numbers on one panel and the engine used neither of the
+ * ones on show.
+ *
+ * **Counted the way the panel counts it** — rate times count, summed across the
+ * driving rows — so the figure on screen and the figure that prices are the
+ * same arithmetic rather than two opinions about it.
+ *
+ * **Taken as typed.** A catalog rate carries its own utilization because that
+ * is a measured property of the catalog row. A rate the estimator entered is
+ * already what they believe the spread produces, and derating it by a factor
+ * nobody chose would move the hours by twenty percent with nothing on screen
+ * saying so.
+ */
+function fleetProductionRate(
+  resources: ResourceRow[], unit: string, shiftHours: number,
+): ProductionRate | null {
+  const drivers = resources.filter(
+    (r) => r.drives_hours === true && n(r.production_per_hour) > 0);
+  if (drivers.length === 0) return null;
+  const ratePerHour = drivers.reduce(
+    (a, r) => a + n(r.production_per_hour)
+      * Math.max(1, r.headcount ?? Math.round(n(r.quantity, 1))), 0);
+  if (!(ratePerHour > 0)) return null;
+  return {
+    id: 'line-fleet',
+    ratePerHour,
+    unit,
+    utilizationFactor: 1,
+    shiftHours,
+    sourceType: 'estimator_judgment',
+    // The platform's own trust weighting for a figure one person entered,
+    // rather than a confidence invented for the occasion.
+    confidence: SOURCE_RELIABILITY.estimator_judgment,
+    approvalStatus: 'approved',
+  };
+}
+
+/**
+ * Hours somebody typed, on a line where nothing else says how long it takes.
+ *
+ * The `Hours` box has been on every crew and equipment row since 0107 and the
+ * engine read it for hourly trucking and nothing else. On a line with a library
+ * rate that is harmless — the rate governs and the screen now says so. On a
+ * line with no rate at all it was the difference between an estimate and a
+ * blank: the engine warned "crew and equipment hours cannot be derived from
+ * quantity" and priced the line at zero hours, with the typed figure sitting
+ * on screen beside it.
+ *
+ * Converted to a rate rather than added as fixed hours, because `fixedHours` is
+ * setup and teardown on top of production and this is production. The longest
+ * row governs: a line takes as long as the row that works longest on it.
+ *
+ * Last in precedence, behind the ticked rows and behind the library rate. A
+ * catalog rate is a governed figure under RULE-003; an estimator who wants
+ * their own hours to win can change or clear the rate on the panel above.
+ */
+function typedHoursProductionRate(
+  resources: ResourceRow[], quantity: number, unit: string, shiftHours: number,
+): ProductionRate | null {
+  if (!(quantity > 0)) return null;
+  const longest = resources
+    .filter((r) => r.resource_kind === 'labor' || r.resource_kind === 'equipment')
+    .reduce((a, r) => Math.max(a, n(r.hours, 0)), 0);
+  if (!(longest > 0)) return null;
+  return {
+    id: 'line-typed-hours',
+    ratePerHour: quantity / longest,
+    unit,
+    utilizationFactor: 1,
+    shiftHours,
+    sourceType: 'estimator_judgment',
+    confidence: SOURCE_RELIABILITY.estimator_judgment,
+    approvalStatus: 'approved',
+  };
+}
+
 function toModifiers(rows: ModifierRow[] | null) {
   return (rows ?? [])
     .map((r) => {
@@ -639,6 +727,17 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
       const crewRow = one(l.crews);
       const crew = crewRow ? toCrew(crewRow, shiftHours) : crewFromResources(l.id, rs, shiftHours);
       const rate = one(l.production_rates);
+      /*
+       * Which of the three answers about how long this line takes is in force.
+       *
+       * Ticked rows first: ticking one is a deliberate statement about this
+       * bid, the way a markup typed on a line is. Then the catalog rate, which
+       * is governed and approved under RULE-003. Then hours somebody typed,
+       * which is all there is when neither of the other two exists.
+       */
+      const productionRate = fleetProductionRate(rs, l.unit ?? 'EA', shiftHours)
+        ?? (rate ? toProductionRate(rate, shiftHours) : null)
+        ?? typedHoursProductionRate(rs, n(l.measured_quantity), l.unit ?? 'EA', shiftHours);
 
       const equipment = rs.filter((r) => r.resource_kind === 'equipment')
         .map((r) => toEquipment(r, asOf, problems))
@@ -693,7 +792,7 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         });
       }
 
-      if (!rate && !crew && equipment.length === 0 && materials.length === 0
+      if (!productionRate && !crew && equipment.length === 0 && materials.length === 0
           && !haul && subcontractCost === 0 && otherDirectCost === 0
           && parametricCostPerUnit === 0) {
         problems.push({
@@ -712,7 +811,7 @@ export function buildEstimateInput(s: EstimateSnapshot, asOf: string): BuiltInpu
         ...(l.discipline ? { discipline: l.discipline } : {}),
         quantity: toQuantity(l),
         modifiers: toModifiers(l.estimate_line_modifiers),
-        ...(rate ? { productionRate: toProductionRate(rate, shiftHours) } : {}),
+        ...(productionRate ? { productionRate } : {}),
         ...(crew ? { crew } : {}),
         ...(equipment.length ? { equipment } : {}),
         ...(materials.length ? { materials } : {}),

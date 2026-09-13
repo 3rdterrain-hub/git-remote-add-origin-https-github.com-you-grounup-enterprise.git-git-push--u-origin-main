@@ -137,11 +137,32 @@ describe('the build-up behind a line', () => {
     expect(screen.getByText(/9\.19 hr for 1,837\.00 LF/)).toBeInTheDocument();
   });
 
-  it('says plainly when nothing drives the hours', async () => {
+  it('says the fleet rate is the one that prices, because it now is', async () => {
+    /*
+     * It was not. The pricing function selected `drives_hours` and
+     * `production_per_hour` and read neither, so this panel answered one number
+     * and the engine charged another off the library rate — 147 labor hours on
+     * a line whose own screen said 28. The panel has to name the winner.
+     */
+    show([
+      resource({ id: 'e-1', kind: 'equipment', description: 'Dozer D5',
+        drivesHours: true, productionPerHour: 100, quantity: 2, headcount: null }),
+    ]);
+    await waitFor(() =>
+      expect(screen.getByText(/This is the rate the line prices at/)).toBeInTheDocument());
+    expect(screen.getByText(/library rate below is\s+set aside/)).toBeInTheDocument();
+  });
+
+  it('says where the hours come from when nothing drives them', async () => {
+    /*
+     * The old copy said "hours are entered by hand, so the line total does not
+     * move when the quantity changes". Both halves were untrue: the line's
+     * library production rate decides the hours, and it moves with quantity.
+     */
     show([resource()]);
     await waitFor(() =>
-      expect(screen.getByText(/hours are entered by hand/)).toBeInTheDocument());
-    expect(screen.getByText(/does not move when the quantity changes/)).toBeInTheDocument();
+      expect(screen.getByText(/the rate below decides the hours/)).toBeInTheDocument());
+    expect(screen.getByText(/they move with the quantity/)).toBeInTheDocument();
   });
 
   it('gives a production rate to a row somebody ticks, because the database demands one',

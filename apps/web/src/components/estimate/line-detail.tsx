@@ -91,6 +91,13 @@ export function LineDetail({ line, editable, onChanged }: {
    * dozers at 100 an hour are 200, and every other row on the line works those
    * same hours. Shown, not stored — the hours the estimate is priced at are the
    * engine's, computed from the same inputs.
+   *
+   * That last sentence was untrue for as long as this panel existed. The
+   * pricing function selected `drives_hours` and `production_per_hour` and read
+   * neither, so the line priced off the library rate and this read as a second
+   * opinion nobody had asked for. It is the same arithmetic on both sides now,
+   * which is why the counting below has to stay identical to the counting in
+   * `fleetProductionRate`.
    */
   const drivers = resources.filter((r) => r.drivesHours && r.productionPerHour);
   const fleetRate = drivers.reduce(
@@ -110,11 +117,13 @@ export function LineDetail({ line, editable, onChanged }: {
             {impliedHours != null ? (
               <> ≈ {qty(impliedHours, 2)} hr for {qty(line.measuredQuantity)} {line.unit}</>
             ) : null}
+            {' '}<strong>This is the rate the line prices at</strong> — the library rate below is
+            set aside while a row drives it.
           </span>
         ) : (
           <span className="text-charcoal-500">
-            Off — hours are entered by hand, so the line total does not move when the quantity
-            changes. Tick a machine or a crew row below to drive the hours from the quantity.
+            Off — the rate below decides the hours, and they move with the quantity. Tick a
+            machine or a crew row to price this line at what your own spread produces instead.
           </span>
         )}
       </div>
@@ -122,9 +131,13 @@ export function LineDetail({ line, editable, onChanged }: {
       {/*
         * The library rate under the line, beside the fleet rate the rows below
         * imply. They answer the same question two ways, and an estimator needs
-        * to see both to know which one is deciding the hours.
+        * to see both — and to be told which one is deciding the hours, which is
+        * what `superseded` carries down.
         */}
-      <ProductionRatePanel lineId={line.id} editable={editable} onChanged={onChanged} />
+      <ProductionRatePanel lineId={line.id} editable={editable} onChanged={onChanged}
+        superseded={drivers.length > 0
+          ? { ratePerHour: fleetRate, unit: line.unit, rows: drivers.length }
+          : null} />
 
       {/*
         * The two ways of pricing a line, above the build-up rather than inside
