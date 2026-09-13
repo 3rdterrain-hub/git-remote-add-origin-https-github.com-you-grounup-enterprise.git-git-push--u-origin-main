@@ -11,6 +11,35 @@ Newest first.
 
 ---
 
+## D-022 · 2026-09-12 · The unsuitable fraction is not assumed, and the cross-sections tab is removed
+
+**Decision.** The Survey page reads the stored volumes from
+`surface_comparisons`, takes swell and shrink from the company, and passes **no**
+unsuitable fraction to `analyzeCutFill`. The Cross sections tab is deleted.
+
+**Reason.** The fixture assumed six percent unsuitable. No column records one —
+it is a judgment about a particular site — and on a real job that assumption
+moves thousands of yards of import on a number nobody chose. The page says it
+assumes none rather than letting a reader think it was considered.
+
+The volumes are read rather than recomputed from the grids, because a browser
+recomputing them would eventually disagree with the record the company kept.
+Behind that record stands `enforce_surface_datum_match`, which refuses to
+compare surfaces on different vertical datums — the volume between them would be
+wrong by exactly the datum offset.
+
+**The cross-sections tab had nothing behind it.** It ran the engine's
+average-end-area and prismoidal comparison over invented road sections, and no
+alignment, station or cross-section table exists anywhere in the schema. The
+engine capability is real and tested; the storage does not exist. Removed and
+recorded as O-005 rather than left as a picture of a calculation.
+
+**Affects.** `lib/data/survey.ts`, the Survey page.
+
+**Status.** Active. 16 web tests. O-005 open.
+
+---
+
 ## D-021 · 2026-09-12 · A generated column is read, and silence is not a low bid
 
 **Decision.** The Procurement page reads `rfq_responses.leveled_amount` and

@@ -63,6 +63,28 @@ function toDate(value: string | Date): Date {
   return new Date(value);
 }
 
+/**
+ * A calendar day, as the reader's own clock sees it: `YYYY-MM-DD`.
+ *
+ * Not `toISOString().slice(0, 10)`. That is the UTC day, and west of Greenwich
+ * it becomes tomorrow in the last hours of every evening — so a comparison
+ * against a `date` column silently moved on at eight o'clock. Every date column
+ * in this schema holds a calendar day with no timezone in it, so the thing
+ * compared against one has to be a calendar day too.
+ *
+ * Found when the dashboard calendar put a bid due this evening on tomorrow.
+ */
+export function localDay(value: string | number | Date = new Date()): string {
+  const d = value instanceof Date ? value : new Date(value);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** `localDay`, `days` from now. Negative counts backwards. */
+export function dayFromNow(days: number): string {
+  return localDay(Date.now() + days * 86_400_000);
+}
+
 export function date(value: string | Date | null | undefined): string {
   if (!value) return '—';
   const d = toDate(value);

@@ -15,6 +15,7 @@
  */
 import { unwrap, type Query } from './query';
 import { INCIDENTS, TOOLBOX_TALKS, OBSERVATIONS, INSPECTIONS, DEFICIENCIES } from '@/data/safety';
+import { supabase } from '@/lib/supabase';
 
 export interface IncidentRow {
   id: string; number: string; occurredAt: string; type: string; severity: string;
@@ -292,3 +293,69 @@ export const demonstrationDeficiencies = (): DeficiencyRow[] =>
     identifiedOn: d.identifiedOn, dueOn: d.dueOn, status: d.status,
     verificationNote: d.verificationNote, responsible: d.responsible,
   }));
+
+// ---------------------------------------------------------------------------
+// What happened, and the talk before the shift
+//
+// "Report incident" and "Toolbox talk" both had no handler. `safety_incidents`
+// and `toolbox_talks` have been governed since 0021 and the page already read
+// both — it could show a safety record and could not add to one.
+// ---------------------------------------------------------------------------
+
+export interface NewIncident {
+  occurredAt: string;
+  incidentType: string;
+  description: string;
+  severity?: string;
+  projectId?: string | null;
+  location?: string | null;
+}
+
+/**
+ * Record an incident, with its investigation open.
+ *
+ * OSHA recordability is deliberately not set here. Whether a medical-treatment
+ * case is recordable is a determination a person makes against the rule, and a
+ * form that decided it from the incident type would be inventing a regulatory
+ * finding.
+ */
+export async function createSafetyIncident(
+  companyId: string, incident: NewIncident,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_safety_incident', {
+    p_company: companyId,
+    p_occurred_at: incident.occurredAt,
+    p_incident_type: incident.incidentType,
+    p_description: incident.description,
+    p_severity: incident.severity ?? 'low',
+    p_project_id: incident.projectId ?? null,
+    p_location: incident.location ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+export interface NewToolboxTalk {
+  heldOn: string;
+  topic: string;
+  attendeeCount?: number;
+  projectId?: string | null;
+}
+
+/** Record a toolbox talk and who was at it. */
+export async function createToolboxTalk(
+  companyId: string, talk: NewToolboxTalk,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_toolbox_talk', {
+    p_company: companyId,
+    p_held_on: talk.heldOn,
+    p_topic: talk.topic,
+    p_attendee_count: talk.attendeeCount ?? 0,
+    p_project_id: talk.projectId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+

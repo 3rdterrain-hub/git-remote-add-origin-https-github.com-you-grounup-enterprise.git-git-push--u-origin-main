@@ -97,6 +97,19 @@ const money = {
   contractValue: 1_500_000, activeProjects: 2,
 };
 
+/**
+ * A local calendar day, 'offset' days from now.
+ *
+ * Not `toISOString().slice(0, 10)`: that is the UTC date, which after eight in
+ * the evening in Toledo is already tomorrow — and the calendar these tests are
+ * about places things on local days.
+ */
+const localDay = (offset = 0) => {
+  const d = new Date(Date.now() + offset * 86_400_000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 describe('the dashboard', () => {
   beforeEach(() => {
     hoisted.configured = true;
@@ -169,10 +182,10 @@ describe('the dashboard', () => {
      * The figure `calendar_efficiency` has always taken from a guess. Five
      * workable days out of seven is 71%, and it is countable.
      */
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDay();
     hoisted.weather = Array.from({ length: 7 }, (_, i) => ({
       day: i === 0 ? today
-        : new Date(Date.now() + i * 86_400_000).toISOString().slice(0, 10),
+        : localDay(i),
       highF: 62, lowF: 44, precipInches: i < 2 ? 0.4 : 0, precipChance: 80,
       summary: i < 2 ? 'Rain' : 'Partly cloudy',
       workable: i >= 2, lostReason: i < 2 ? 'Rain' : null,
@@ -227,7 +240,7 @@ describe('the dashboard', () => {
      * The pairing is the reason the strip exists. A bid due Thursday is a
      * different problem when Thursday is the day it rains.
      */
-    const third = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+    const third = localDay(3);
     hoisted.weather = [{
       day: third, highF: 48, lowF: 38, precipInches: 0.6, precipChance: 90,
       summary: 'Rain', workable: false, lostReason: 'Rain',
@@ -237,9 +250,12 @@ describe('the dashboard', () => {
     /*
      * The bid and the reason that day is lost sit in the same cell. The merge
      * itself is asserted against `buildWeek` in week-ahead.test.tsx; this
-     * checks the strip actually renders both halves.
+     * checks the calendar actually renders both halves. The calendar opens on
+     * the month now rather than a seven-day strip, and a month grid always
+     * carries six weeks, so a day two out is present wherever in the month
+     * today happens to fall.
      */
-    const cell = screen.getAllByText('E-2026-0001')[1]!.closest('li[class*="min-h-28"]');
+    const cell = screen.getAllByText('E-2026-0001')[1]!.closest('li[class*="min-h-24"]');
     expect(cell?.textContent).toContain('Rain');
   });
 
@@ -282,7 +298,7 @@ describe('the dashboard', () => {
     });
 
     it("says today's weather in the greeting, not behind a tab", async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = localDay();
       hoisted.weather = [{
         day: today, highF: 62, lowF: 44, precipInches: 0, precipChance: 10,
         summary: 'Partly cloudy', workable: true, lostReason: null,
@@ -292,7 +308,7 @@ describe('the dashboard', () => {
     });
 
     it('says why a day is not workable rather than only that it is not', async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = localDay();
       hoisted.weather = [{
         day: today, highF: 41, lowF: 33, precipInches: 0.8, precipChance: 90,
         summary: 'Rain', workable: false, lostReason: 'Rain over half an inch',
@@ -304,9 +320,9 @@ describe('the dashboard', () => {
 
     it('counts the workable days in the week beside it', async () => {
       const day = (i: number) =>
-        new Date(Date.now() + i * 86_400_000).toISOString().slice(0, 10);
+        localDay(i);
       hoisted.weather = Array.from({ length: 7 }, (_, i) => ({
-        day: i === 0 ? new Date().toISOString().slice(0, 10) : day(i),
+        day: i === 0 ? localDay() : day(i),
         highF: 60, lowF: 40, precipInches: i < 2 ? 0.5 : 0, precipChance: 50,
         summary: i < 2 ? 'Rain' : 'Clear', workable: i >= 2,
         lostReason: i < 2 ? 'Rain' : null,

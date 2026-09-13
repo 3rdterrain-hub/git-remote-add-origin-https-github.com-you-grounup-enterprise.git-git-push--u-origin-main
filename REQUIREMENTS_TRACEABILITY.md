@@ -92,7 +92,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-025 | Wire the project-detail buttons | user: "now wire the project detail buttons" | high | projects | migration 0157, `project-actions.tsx` | `three-buttons-on-a-project.test.ts`, `project-actions.test.tsx` | tested |
 | C-026 | Make Schedule live | user: "now make schedule, procurement, survey and claims live" | high | scheduling | migration 0158, `recalculate-schedule`, `lib/data/schedule.ts`, `schedule.tsx` | `the-door-onto-the-schedule.test.ts`, `schedule.test.tsx` | tested |
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
-| C-028 | Make Survey live | same | high | survey | — | — | open |
+| C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
 
 ---
@@ -103,4 +103,6 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 |---|---|---|---|
 | O-001 | `E-2026-0001` and `E-2026-0002` are test estimates with a typed rate | A rate-priced line is an allowance and cannot clear the confidence gate (D-008) | Build the lines up, or delete them |
 | O-002 | The shipped catalog's assemblies reference tasks carrying no crew, equipment or material | Catalog depth, not code — a library line prices at $0 until built up | Compose the task resources, or price lines by hand |
+| O-006 | Global search indexes fixtures, not records | `lib/search.ts` imports ESTIMATES, PROJECTS, CUSTOMERS, DOCUMENTS, ASSETS, EMPLOYEES and PURCHASE_ORDERS from `@/data/*`, so the search bar finds invented rows on a live workspace | Point each source at its table, the way the pages now are |
+| O-005 | No alignment or cross-section model exists | The engine's average-end-area and prismoidal comparison are real and tested; nothing stores a station, a template or a section, so the tab was removed rather than left showing invented road | Build the alignment model, or leave earthwork to surfaces |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

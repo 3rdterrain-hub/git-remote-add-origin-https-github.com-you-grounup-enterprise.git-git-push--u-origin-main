@@ -11,7 +11,7 @@ import {
   loadChurnReasons, loadChurnByMonth, loadCancellations, loadFailingPayments,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
-import { ExportButton } from '@/components/admin/export-button';
+import { ExportButton } from '@/components/export-button';
 import { Button } from '@/components/ui/button';
 import { CompanyLink } from '@/components/admin/company-link';
 import { money, integer, date, dateTime } from '@/lib/format';

@@ -23,6 +23,7 @@
  * they are read together rather than one at a time.
  */
 import { unwrap, type Query } from './query';
+import { supabase } from '@/lib/supabase';
 
 const num = (v: unknown): number => (v === null || v === undefined ? 0 : Number(v));
 const maybeNum = (v: unknown): number | null =>
@@ -219,3 +220,54 @@ export const loadInventory: Query<InventoryRow[]> = async (client) => {
     };
   });
 };
+
+// ---------------------------------------------------------------------------
+// Buying something, and asking several vendors what it costs
+//
+// Both header buttons shipped with no handler, so a company could not raise a
+// single purchase order — and with none raised, the committed-cost figure that
+// makes an overrun visible before the invoice arrives was always zero.
+// ---------------------------------------------------------------------------
+
+export interface NewPurchaseOrder {
+  vendorId: string;
+  title: string;
+  poType?: string;
+  projectId?: string | null;
+}
+
+/** Raise a purchase order in draft. Issuing it is what commits the money. */
+export async function createPurchaseOrder(
+  companyId: string, order: NewPurchaseOrder,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_purchase_order', {
+    p_company: companyId,
+    p_vendor: order.vendorId,
+    p_title: order.title,
+    p_po_type: order.poType ?? 'material',
+    p_project_id: order.projectId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+export interface NewRfq {
+  title: string;
+  dueAt?: string | null;
+  projectId?: string | null;
+}
+
+/** Start a request for quotation, in draft. */
+export async function createRfq(companyId: string, rfq: NewRfq): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_rfq', {
+    p_company: companyId,
+    p_title: rfq.title,
+    p_due_at: rfq.dueAt ?? null,
+    p_project_id: rfq.projectId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+

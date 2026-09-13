@@ -19,12 +19,19 @@ import {
 } from '@/lib/data/safety';
 import { date, dateTime, qty, titleCase, plural, percent } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { ReportIncidentDialog, ToolboxTalkDialog } from '@/components/safety/report-incident';
+import { useCompanyId } from '@/lib/data/session';
 
 const SEVERITY: Record<string, 'default' | 'warn' | 'danger'> = {
   low: 'default', moderate: 'warn', high: 'danger', critical: 'danger',
 };
 
 export function SafetyPage() {
+  /* Neither header button had a handler, so the recordable-incident rate this
+     screen reports was necessarily zero. */
+  const [reporting, setReporting] = useState(false);
+  const [talking, setTalking] = useState(false);
+  const { companyId } = useCompanyId();
   /*
    * The five boxes across the top each counted rows one of the five tabs below
    * already lists, and none of them went there. Two of them count incidents in
@@ -86,10 +93,27 @@ export function SafetyPage() {
         description="Incidents, observations, tests and punch items. These are the records produced in an inspection or a defect claim, so the database insists they are complete rather than merely present."
         actions={
           <>
-            <Button variant="outline"><ClipboardCheck className="size-4" /> Toolbox talk</Button>
-            <Button><Plus className="size-4" /> Report incident</Button>
+            <Button variant="outline" onClick={() => setTalking(true)}>
+              <ClipboardCheck className="size-4" /> Toolbox talk
+            </Button>
+            <Button onClick={() => setReporting(true)}>
+              <Plus className="size-4" /> Report incident
+            </Button>
           </>
         }
+      />
+
+      <ReportIncidentDialog
+        open={reporting}
+        onOpenChange={setReporting}
+        companyId={companyId}
+        onCreated={() => { incidentsQ.refetch(); ratesQ.refetch(); }}
+      />
+      <ToolboxTalkDialog
+        open={talking}
+        onOpenChange={setTalking}
+        companyId={companyId}
+        onCreated={() => talksQ.refetch()}
       />
 
       {demo ? <DemonstrationNotice what="this page" /> : null}

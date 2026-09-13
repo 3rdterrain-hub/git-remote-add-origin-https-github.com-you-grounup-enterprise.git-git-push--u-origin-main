@@ -28,15 +28,20 @@ import { ImportPriceList } from '@/components/library/import-price-list';
 import { MaterialsWithNoPrice } from '@/components/library/materials-with-no-price';
 import { ImportRateSheet } from '@/components/library/import-rate-sheet';
 import { WhatAHaulCosts } from '@/components/library/what-a-haul-costs';
-import { loadMemberships } from '@/lib/data/session';
 import { ServiceForm, TaskForm } from '@/components/library/editor';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { usePermissions } from '@/lib/data/session';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { CategoryManager } from '@/components/library/category-manager';
+import { AddMaterialDialog, AddVendorDialog } from '@/components/library/add-library-row';
 import { HaulProfiles } from '@/components/library/haul-profiles';
 
 export function LibrariesPage() {
+  /* `createMaterial` and `createVendor` have been in the data layer since the
+     import paths were built, and nothing called either — so the catalog could
+     be priced and never added to. */
+  const [addingMaterial, setAddingMaterial] = useState(false);
+  const [addingVendor, setAddingVendor] = useState(false);
   const [q, setQ] = useState('');
   /*
    * Which tab is open, so the four boxes across the top can open the one that
@@ -68,7 +73,6 @@ export function LibrariesPage() {
   const profilesQ = useQuery(loadPricingProfiles, []);
   const laborQ = useQuery(loadLaborRates, []);
   const countsQ = useQuery(loadLibraryCounts, []);
-  const membershipsQ = useQuery(loadMemberships, []);
   const { can } = usePermissions();
   const canWrite = can('libraries.write');
 
@@ -78,7 +82,7 @@ export function LibrariesPage() {
 
   const services = servicesQ.status === 'ready' ? servicesQ.data : [];
   const tasks = tasksQ.status === 'ready' ? tasksQ.data : [];
-  const companyId = membershipsQ.status === 'ready' ? membershipsQ.data[0]?.companyId ?? null : null;
+  const { companyId } = useCompanyId();
   const trucking = truckingQ.status === 'ready' ? truckingQ.data : [];
   const disposal = disposalQ.status === 'ready' ? disposalQ.data : [];
   const vendors = vendorsQ.status === 'ready' ? vendorsQ.data : [];
@@ -201,6 +205,19 @@ export function LibrariesPage() {
         actions={<Button variant="outline"><Copy className="size-4" /> Copy to company scope</Button>}
       />
 
+      <AddMaterialDialog
+        open={addingMaterial}
+        onOpenChange={setAddingMaterial}
+        companyId={companyId}
+        onAdded={() => { materialsQ.refetch(); countsQ.refetch(); }}
+      />
+      <AddVendorDialog
+        open={addingVendor}
+        onOpenChange={setAddingVendor}
+        companyId={companyId}
+        onAdded={() => { vendorsQ.refetch(); countsQ.refetch(); }}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Services" value={count(counts?.services)} icon={<Library className="size-4" />}
           hint="the catalog and your own, together"
@@ -249,18 +266,9 @@ export function LibrariesPage() {
           <TabsTrigger value="production">Production rates</TabsTrigger>
           <TabsTrigger value="modifiers">Condition modifiers</TabsTrigger>
           <TabsTrigger value="pricing">Pricing profiles</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
         </TabsList>
 
         {/* ----------------------------------------------------- categories */}
-        <TabsContent value="categories" className="space-y-4">
-          {/*
-            * The lists every tab above groups by. They were addable and nothing
-            * else until migration 0150 — which is how the shipped catalog ended
-            * up with `COMPACTION` beside `Compactors` and no screen to fix it.
-            */}
-          <CategoryManager companyId={companyId} canEdit={canWrite} />
-        </TabsContent>
 
         {/* ---------------------------------------------------------- labor */}
         {/* ------------------------------------------------------- services */}
@@ -353,6 +361,9 @@ export function LibrariesPage() {
               ) : null}
             </CardContent>
           </Card>
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="service_category" />
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="service_subcategory" />
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="industry" />
         </TabsContent>
 
         {/* ---------------------------------------------------------- tasks */}
@@ -443,10 +454,16 @@ export function LibrariesPage() {
               ) : null}
             </CardContent>
           </Card>
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="task_category" />
         </TabsContent>
 
         {/* ------------------------------------------------------ materials */}
         <TabsContent value="materials" className="space-y-4">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => setAddingMaterial(true)}>
+              <Plus className="size-4" /> Add material
+            </Button>
+          </div>
           {materialsQ.status === 'loading' ? <LoadingState label="Reading materials" /> : null}
           {materialsQ.status === 'error'
             ? <ErrorState message={materialsQ.message} onRetry={materialsQ.refetch} /> : null}
@@ -540,6 +557,7 @@ export function LibrariesPage() {
             </CardContent>
           </Card>
 
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="material_category" />
         </TabsContent>
 
         {/* -------------------------------------------------------- hauling */}
@@ -687,6 +705,11 @@ export function LibrariesPage() {
 
         {/* --------------------------------------------------- subcontractors */}
         <TabsContent value="subs" className="space-y-4">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => setAddingVendor(true)}>
+              <Plus className="size-4" /> Add vendor
+            </Button>
+          </div>
           {vendorsQ.status === 'loading' ? <LoadingState label="Reading subcontractors" /> : null}
           {vendorsQ.status === 'error'
             ? <ErrorState message={vendorsQ.message} onRetry={vendorsQ.refetch} /> : null}
@@ -826,6 +849,7 @@ export function LibrariesPage() {
               ) : null}
             </CardContent>
           </Card>
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="labor_group" />
         </TabsContent>
 
         <TabsContent value="equipment" className="space-y-4">
@@ -904,6 +928,7 @@ export function LibrariesPage() {
             was effective — so reopening a historical estimate reprices against the rate that was
             actually in force, not today's.
           </Alert>
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="equipment_class" />
         </TabsContent>
 
         {/* ----------------------------------------------------------- crews */}
@@ -975,6 +1000,7 @@ export function LibrariesPage() {
           {!crews.length && crewsQ.status === 'ready' ? (
             <EmptyState title={q ? 'Nothing matches that' : 'No crews yet'} />
           ) : null}
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="crew_discipline" />
         </TabsContent>
 
         {/* ------------------------------------------------------ production */}
@@ -1130,6 +1156,7 @@ export function LibrariesPage() {
             the work takes longer. A cost factor multiplies that bucket, so 1.15 means it costs 15%
             more. Production impediments compound; independent cost causes add.
           </Alert>
+          <CategoryManager companyId={companyId} canEdit={canWrite} only="modifier_category" />
         </TabsContent>
 
         {/* --------------------------------------------------------- pricing */}

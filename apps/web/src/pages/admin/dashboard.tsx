@@ -13,7 +13,7 @@ import {
   loadRevenue, loadRevenueByCompany, loadGrowth, loadRecentSignups, loadEarningsBy,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
-import { ExportButton } from '@/components/admin/export-button';
+import { ExportButton } from '@/components/export-button';
 import { money, integer, date } from '@/lib/format';
 import type { OperatorContext } from './shell';
 

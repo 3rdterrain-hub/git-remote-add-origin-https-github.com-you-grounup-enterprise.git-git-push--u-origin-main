@@ -15,7 +15,7 @@
 import { Link } from 'react-router-dom';
 import {
   AlarmClock, AlertTriangle, ArrowRight, CalendarClock, Calculator, CircleDollarSign,
-  CloudRain, HardHat, LayoutGrid, Loader2, RefreshCw, Send, Sun,
+  ChevronDown, CloudRain, HardHat, LayoutGrid, Loader2, RefreshCw, Send, Sun,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader, StatTile, useAnswerBelow } from '@/components/layout/page';
@@ -36,6 +36,7 @@ import { loadRateVariance, type RateVarianceView } from '@/lib/data/project-view
 import { WeekAhead } from '@/components/dashboard/week-ahead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomizeDashboard } from '@/components/dashboard/customize';
+import { ShortcutsPanel } from '@/components/dashboard/shortcuts';
 import {
   BidPerformancePanel, BillingPanel, CredentialsPanel, SafetyPanel, SchedulePanel,
 } from '@/components/dashboard/panels';
@@ -44,7 +45,7 @@ import {
 } from '@/lib/dashboard-panels';
 import { loadDashboardPreference } from '@/lib/data/preferences';
 import { PunchCard } from '@/components/workforce/time-clock';
-import { money, moneyCompact, date, integer, percent, plural } from '@/lib/format';
+import { money, moneyCompact, date, integer, percent, plural, localDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export function DashboardLivePage() {
@@ -77,7 +78,7 @@ export function DashboardLivePage() {
   const cash = moneyQ.status === 'ready' ? moneyQ.data : null;
   const rates = variance.status === 'ready' ? variance.data : [];
 
-  const today = forecast.find((d) => d.day === new Date().toISOString().slice(0, 10))
+  const today = forecast.find((d) => d.day === localDay())
     ?? forecast[0] ?? null;
   const { showing, show } = useAnswerBelow();
   const thisWeek = dueBids.filter((b) => b.daysAway <= 7);
@@ -96,13 +97,19 @@ export function DashboardLivePage() {
    * cached: a company with no address configured should see the reason, not a
    * request retrying forever.
    */
+  /* Why the automatic fetch failed, which used to be discarded by an empty
+     catch — so the comment above promising the reason would be shown was the
+     one thing the code made impossible. */
+  const [autoFetchError, setAutoFetchError] = useState<string | null>(null);
   const fetchedOnce = useRef(false);
   useEffect(() => {
     if (fetchedOnce.current) return;
     if (weather.status !== 'ready' || weather.data.length > 0) return;
     if (!companyId) return;
     fetchedOnce.current = true;
-    refreshWeather(callFunction, companyId).then(() => weather.refetch()).catch(() => {});
+    refreshWeather(callFunction, companyId)
+      .then(() => weather.refetch())
+      .catch((err) => setAutoFetchError(messageFor(err)));
   }, [weather.status, weather.status === 'ready' ? weather.data.length : 0, companyId]);
 
   const panels = visiblePanels(preference, can);
@@ -115,6 +122,7 @@ export function DashboardLivePage() {
    */
   const renderPanel = (key: string) => {
     switch (key) {
+      case 'shortcuts': return <ShortcutsPanel can={can} />;
       case 'due': return <DuePanel bids={dueBids} state={bids.status} />;
       case 'clock': return (
         <Card>
@@ -139,7 +147,8 @@ export function DashboardLivePage() {
         <div className="space-y-6">
           <WeatherCard days={forecast} state={weather.status}
             readError={weather.status === 'error' ? weather.message : null}
-            onRefreshed={() => weather.refetch()} />
+            fetchError={autoFetchError}
+            onRefreshed={() => { setAutoFetchError(null); weather.refetch(); }} />
           <WeekAhead bids={dueBids} weather={forecast} />
         </div>
       );
@@ -479,19 +488,27 @@ function DueRow({ bid }: { bid: DueBid }) {
  * weather days the schedule engine models. Both have always taken a figure
  * somebody guessed. This is the first thing that can say what it actually is.
  */
-function WeatherCard({ days, state, readError, onRefreshed }: {
+function WeatherCard({ days, state, readError, fetchError, onRefreshed }: {
   days: WeatherDay[];
   state: 'demonstration' | 'loading' | 'error' | 'ready';
   /** Why the forecast could not be read, when that is what happened. */
   readError: string | null;
+  /** Why the automatic refresh on opening the page failed, if it did. */
+  fetchError: string | null;
   onRefreshed: () => void;
 }) {
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  /* Which day is open, by date. One at a time: seven expanded rows is the list
+     again, only longer. */
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [ownError, setError] = useState<string | null>(null);
+  /* Whichever failure actually happened: the one from pressing the button, or
+     the one from the attempt made on opening the page. */
+  const error = ownError ?? fetchError;
   const companyQ = useQuery(loadMyCompanyId, []);
   const companyId = companyQ.status === 'ready' ? companyQ.data : null;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const ahead = days.filter((d) => d.day >= today);
   const workable = ahead.filter((d) => d.workable).length;
 
@@ -547,26 +564,91 @@ function WeatherCard({ days, state, readError, onRefreshed }: {
 
         {ahead.length > 0 ? (
           <ul className="space-y-1.5">
-            {ahead.slice(0, 7).map((d) => (
-              <li key={d.day} className="flex items-center gap-3">
-                <span className="w-9 shrink-0 text-xs font-medium text-charcoal-600">
-                  {new Date(`${d.day}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short' })}
-                </span>
-                {d.workable
-                  ? <Sun className="size-4 shrink-0 text-yellow-500" />
-                  : <CloudRain className="size-4 shrink-0 text-charcoal-400" />}
-                <span className="min-w-0 flex-1 truncate text-sm text-charcoal-700">
-                  {d.summary ?? '—'}
-                  {d.lostReason ? (
-                    <span className="ml-1 text-xs text-danger-600">· {d.lostReason}</span>
+            {ahead.slice(0, 7).map((d) => {
+              const open = expanded === d.day;
+              return (
+                <li key={d.day}>
+                  {/*
+                    * A forecast row is a summary of a day, and the day has more
+                    * in it than fits on one line: how much rain, how likely,
+                    * and the reason a day is unworkable rather than only that
+                    * it is. Opening the row says the rest rather than sending
+                    * somebody to another screen for it.
+                    */}
+                  <button type="button"
+                    onClick={() => setExpanded(open ? null : d.day)}
+                    aria-expanded={open}
+                    className="flex w-full items-center gap-3 rounded px-1 py-1 text-left
+                               transition-colors hover:bg-charcoal-100">
+                    <span className="w-9 shrink-0 text-xs font-medium text-charcoal-600">
+                      {new Date(`${d.day}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short' })}
+                    </span>
+                    {d.workable
+                      ? <Sun className="size-4 shrink-0 text-yellow-500" />
+                      : <CloudRain className="size-4 shrink-0 text-charcoal-400" />}
+                    <span className="min-w-0 flex-1 truncate text-sm text-charcoal-700">
+                      {d.summary ?? '—'}
+                      {d.lostReason ? (
+                        <span className="ml-1 text-xs text-danger-600">· {d.lostReason}</span>
+                      ) : null}
+                    </span>
+                    <span className="tabular shrink-0 text-xs text-charcoal-500">
+                      {d.highF == null ? '—' : `${Math.round(d.highF)}°`}
+                      {d.lowF == null ? '' : ` / ${Math.round(d.lowF)}°`}
+                    </span>
+                    <ChevronDown className={cn('size-3.5 shrink-0 text-charcoal-400 transition-transform',
+                      open && 'rotate-180')} />
+                  </button>
+
+                  {open ? (
+                    <div className="mb-1 ml-9 rounded-md bg-charcoal-50 p-3">
+                      <p className="mb-2 text-xs font-medium text-charcoal-700">
+                        {new Date(`${d.day}T12:00:00`).toLocaleDateString('en-US',
+                          { weekday: 'long', month: 'long', day: 'numeric' })}
+                      </p>
+                      <dl className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
+                        <div>
+                          <dt className="text-xs text-charcoal-500">High</dt>
+                          <dd className="text-sm font-medium text-charcoal-900">
+                            {d.highF == null ? '—' : `${Math.round(d.highF)}°F`}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-charcoal-500">Low</dt>
+                          <dd className="text-sm font-medium text-charcoal-900">
+                            {d.lowF == null ? '—' : `${Math.round(d.lowF)}°F`}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-charcoal-500">Precipitation</dt>
+                          <dd className="text-sm font-medium text-charcoal-900">
+                            {d.precipInches == null ? '—' : `${d.precipInches.toFixed(2)}"`}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-charcoal-500">Chance</dt>
+                          <dd className="text-sm font-medium text-charcoal-900">
+                            {d.precipChance == null ? '—' : `${Math.round(d.precipChance)}%`}
+                          </dd>
+                        </div>
+                      </dl>
+                      {/*
+                        * The verdict, and what it costs. A day the engine calls
+                        * unworkable is a day taken out of the calendar
+                        * efficiency an estimate is priced with, which is the
+                        * only reason this forecast is in the platform at all.
+                        */}
+                      <p className={cn('mt-2 text-xs',
+                        d.workable ? 'text-charcoal-600' : 'text-danger-600')}>
+                        {d.workable
+                          ? 'Workable — this day counts toward the calendar an estimate is priced with.'
+                          : `Not workable${d.lostReason ? ` — ${d.lostReason}` : ''}. This day is taken out of the calendar an estimate is priced with.`}
+                      </p>
+                    </div>
                   ) : null}
-                </span>
-                <span className="tabular shrink-0 text-xs text-charcoal-500">
-                  {d.highF == null ? '—' : `${Math.round(d.highF)}°`}
-                  {d.lowF == null ? '' : ` / ${Math.round(d.lowF)}°`}
-                </span>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         ) : null}
       </CardContent>

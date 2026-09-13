@@ -25,7 +25,7 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { useQuery } from '@/lib/data/query';
 import { loadMetrics, formatMetric, metricTone, metricsToCsv, type MetricValue } from '@/lib/data/reports';
 import { loadProjects, type ProjectView } from '@/lib/data/project-view';
-import { money, percent, titleCase } from '@/lib/format';
+import { money, percent, titleCase, localDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export function ReportsPage() {
@@ -154,7 +154,7 @@ function ExportButton({ rows, disabled, demo }: {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `grounup-metrics-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `grounup-metrics-${localDay()}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();

@@ -15,6 +15,8 @@
  * are handled by prefixing an apostrophe, which spreadsheets read as "this is
  * text" and which survives being pasted somewhere else.
  */
+import { localDay } from '@/lib/format';
+
 export interface CsvColumn<T> {
   header: string;
   value: (row: T) => string | number | boolean | null | undefined;
@@ -56,7 +58,7 @@ export function downloadCsv(filename: string, contents: string): void {
 
 /** A stable, sortable filename: what it is, and the day it was taken. */
 export function csvFilename(what: string): string {
-  const day = new Date().toISOString().slice(0, 10);
+  const day = localDay();
   return `grounup-${what.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${day}.csv`;
 }
 

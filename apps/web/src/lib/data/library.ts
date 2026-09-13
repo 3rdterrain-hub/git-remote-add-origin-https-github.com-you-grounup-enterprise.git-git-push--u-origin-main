@@ -12,6 +12,8 @@
  * letting somebody discover it when their change silently does nothing.
  */
 import { unwrap, type Query } from './query';
+import { localDay } from '@/lib/format';
+import { supabase } from '@/lib/supabase';
 
 /** Matches the three tiers the rest of the application already names. */
 export type Scope = 'global' | 'group' | 'company';
@@ -328,7 +330,7 @@ export const loadVendors: Query<VendorRow[]> = async (client) => {
     .select('id, code, name, vendor_type, contact_name, email, phone, city, state_province, insurance_expires_on, is_qualified, performance_score, status')
     .order('name')
     .limit(1000)) as Array<Record<string, unknown>>;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   return rows.map((v) => {
     const expires = (v.insurance_expires_on as string | null) ?? null;
     return {
@@ -1198,4 +1200,82 @@ export async function haulCost(
     effectiveRatePerUnit: maybe(row.effective_rate_per_unit),
     unusedCapacity: maybe(row.unused_capacity),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Adding a material and a vendor, through the database rather than an insert
+//
+// `createMaterial` and `createVendor` above build the row in the browser and
+// take a code with them. Both have been here since the import paths were built
+// and neither was ever called by a screen — and a screen could not safely call
+// them, because materials and vendors are unique on (company_id, code) and a
+// browser picking a code is two people colliding on an index the moment a
+// company has two estimators.
+//
+// Migration 0162 generates the code and inserts in one statement. These are the
+// calls to it. The originals stay for the import paths that hand in a code they
+// already have from a supplier's price list.
+// ---------------------------------------------------------------------------
+
+export interface NewMaterial {
+  name: string;
+  unit: string;
+  unitCost: number;
+  category?: string | null;
+  /** A fraction, not a percentage: 0.05 is five percent. */
+  defaultWastePercent?: number;
+  wasteBasis?: string | null;
+  specification?: string | null;
+}
+
+/** Add a material to the company's own library. Returns its id. */
+export async function createMaterialRow(
+  companyId: string, material: NewMaterial,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_material', {
+    p_company: companyId,
+    p_name: material.name,
+    p_unit: material.unit,
+    p_unit_cost: material.unitCost,
+    p_category: material.category ?? null,
+    p_default_waste_percent: material.defaultWastePercent ?? 0,
+    p_waste_basis: material.wasteBasis ?? null,
+    p_specification: material.specification ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+export interface NewVendor {
+  name: string;
+  vendorType?: string;
+  contactName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  stateProvince?: string | null;
+}
+
+/**
+ * Add a vendor. Returns their id.
+ *
+ * They start unqualified — qualification is a finding about insurance, safety
+ * record and performance, and a form that set it would be asserting one nobody
+ * made.
+ */
+export async function createVendorRow(companyId: string, vendor: NewVendor): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_vendor', {
+    p_company: companyId,
+    p_name: vendor.name,
+    p_vendor_type: vendor.vendorType ?? 'supplier',
+    p_contact_name: vendor.contactName ?? null,
+    p_email: vendor.email ?? null,
+    p_phone: vendor.phone ?? null,
+    p_city: vendor.city ?? null,
+    p_state_province: vendor.stateProvince ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
 }

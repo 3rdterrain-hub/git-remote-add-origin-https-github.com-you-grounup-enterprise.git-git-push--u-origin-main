@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Receipt, TrendingUp, TrendingDown, Banknote, AlertTriangle, Lock, FileCheck, Plus, CircleDollarSign,
+  AlertTriangle, Banknote, CircleDollarSign, FileCheck, Loader2, Lock, Plus, Receipt, TrendingDown, TrendingUp,
 } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -17,10 +17,19 @@ import { useQuery } from '@/lib/data/query';
 import { usePermissions } from '@/lib/data/session';
 import { ClosingTheBooks } from '@/components/finance/closing-the-books';
 import { DemonstrationNotice, ErrorState, LoadingState, EmptyState } from '@/components/data-state';
-import { money, moneyCompact, percent, date, titleCase, plural } from '@/lib/format';
+import { money, moneyCompact, percent, date, titleCase, plural, dayFromNow } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { NewPayApplicationDialog } from '@/components/finance/pay-application';
+import { ExportButton } from '@/components/export-button';
+import { submitPayApplication } from '@/lib/data/finance';
 
 export function FinancePage() {
+  /* Three buttons, none of which had a handler: a company could read a
+     schedule of values traced back to the estimate that priced it, and could
+     not ask to be paid against it. */
+  const [opening, setOpening] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   /*
    * Which tab the five boxes above it open. Three of them are totals of a
    * table on one of these tabs; the other two are accounting definitions with
@@ -88,7 +97,7 @@ export function FinancePage() {
    */
   const scheduled = CASH.filter((m) => m.month != null) as Array<typeof CASH[number] & { month: string }>;
   const unscheduled = CASH.find((m) => m.month == null);
-  const horizon = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  const horizon = dayFromNow(30);
   const next30 = CASH.reduce((a, m) => {
     // A month bucket is dated at its first day, so a month that has started
     // counts toward the next thirty days only up to the horizon. Bucketing by
@@ -116,10 +125,37 @@ export function FinancePage() {
         description="Billing, cash and work-in-progress. The schedule of values comes from the awarded estimate, so what you bill traces back to what you priced."
         actions={
           <>
-            <Button variant="outline"><FileCheck className="size-4" /> Export to accounting</Button>
-            <Button><Plus className="size-4" /> Pay application</Button>
+            {/*
+              * The generic export: it takes the rows the screen already has
+              * rather than widening a query, and records what left in the
+              * ledger. Work-in-progress is what accounting reconciles revenue
+              * against, so that is what this hands over.
+              */}
+            <ExportButton
+              what="work-in-progress"
+              rows={WIP}
+              columns={[
+                { header: 'Project', value: (w) => w.projectNumber },
+                { header: 'Name', value: (w) => w.projectName },
+                { header: 'Contract', value: (w) => w.contractValue },
+                { header: 'Approved budget', value: (w) => w.approvedBudget },
+                { header: 'Cost to date', value: (w) => w.actualCost },
+                { header: 'Billed to date', value: (w) => w.billedToDate },
+                { header: 'Percent complete', value: (w) => w.percentComplete ?? '' },
+              ]}
+            />
+            <Button onClick={() => setOpening(true)}>
+              <Plus className="size-4" /> Pay application
+            </Button>
           </>
         }
+      />
+
+      {submitError ? <Alert tone="danger" title="That did not submit">{submitError}</Alert> : null}
+      <NewPayApplicationDialog
+        open={opening}
+        onOpenChange={setOpening}
+        onCreated={() => payAppsQ.refetch()}
       />
 
       {demonstration ? <DemonstrationNotice /> : null}
@@ -208,7 +244,29 @@ export function FinancePage() {
                     : 'No application on file'}
                 </CardDescription>
               </div>
-              <Button><FileCheck className="size-4" /> Submit</Button>
+              {/*
+                * Submitting is what freezes the application — after it, almost
+                * nothing on the row may change — so it asks first and says what
+                * it is about to do.
+                */}
+              <Button
+                disabled={!draft || draft.status !== 'draft' || submitting}
+                title={draft && draft.status !== 'draft'
+                  ? 'This application has already been submitted.'
+                  : 'Submit it. After this the figures are frozen.'}
+                onClick={async () => {
+                  if (!draft) return;
+                  setSubmitting(true); setSubmitError(null);
+                  try {
+                    await submitPayApplication(draft.id);
+                    payAppsQ.refetch();
+                  } catch (err) {
+                    setSubmitError(err instanceof Error ? err.message : 'That did not submit.');
+                  } finally { setSubmitting(false); }
+                }}>
+                {submitting ? <Loader2 className="size-4 animate-spin" /> : <FileCheck className="size-4" />}
+                Submit
+              </Button>
             </CardHeader>
             <CardContent className="p-0">
               <Table>

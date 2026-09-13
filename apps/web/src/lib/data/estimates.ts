@@ -17,6 +17,7 @@
  * time somebody added a screen.
  */
 import { unwrap, type Query } from './query';
+import { chooseCompany, rememberedCompany } from '@/lib/active-company';
 import { ESTIMATES } from '@/data/operations';
 
 export type EstimateStatus =
@@ -836,18 +837,28 @@ export async function setEstimateExpiry(
 /**
  * The company the caller is working in.
  *
- * There is no company switcher yet, so this is the sole active membership. Two
- * memberships is a question rather than a default — guessing would file a
- * client under the wrong company, which is the kind of mistake nobody notices
- * until an invoice goes to the wrong place.
+ * This used to answer `null` for anybody with two memberships, on the reasoning
+ * that two is a question rather than a default and that guessing would file a
+ * client under the wrong company. The reasoning was right and the consequence
+ * was not: nothing ever asked the question. The null traveled into the
+ * dashboard, the clock, the CRM and the estimate screens, where it disabled
+ * controls with no explanation — a person in two companies could not refresh
+ * the forecast and could not clock in, and nothing on screen said why. A silent
+ * refusal is a worse answer than a stated default.
+ *
+ * So the question is asked, in the company switcher in the shell, and the
+ * answer is remembered per browser. Guessing is still not allowed: what is
+ * chosen is always one of the caller's own companies, and row level security
+ * restricts every read and write to those regardless of what is stored.
  */
 export const loadMyCompanyId: Query<string | null> = async (client) => {
   const rows = unwrap(await client
     .from('company_memberships')
     .select('company_id')
     .eq('status', 'active')
-    .limit(2)) as Array<{ company_id: string }>;
-  return rows.length === 1 ? rows[0]!.company_id : null;
+    .order('created_at', { ascending: true })
+    .limit(50)) as Array<{ company_id: string }>;
+  return chooseCompany(rows.map((r) => r.company_id), rememberedCompany());
 };
 
 export interface CustomerOption { id: string; code: string; name: string; city: string | null }

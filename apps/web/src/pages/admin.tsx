@@ -20,7 +20,7 @@ import {
   createCompanyFor, type AdminCompany,
 } from '@/lib/data/admin';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
-import { ExportButton } from '@/components/admin/export-button';
+import { ExportButton } from '@/components/export-button';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { date, dateTime, integer, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';

@@ -46,10 +46,17 @@ import {
   money, moneyCompact, percent, qty, date, titleCase, plural, relativeDays,
 } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { NewPurchaseOrderDialog, NewRfqDialog } from '@/components/procurement/new-order';
+import { useCompanyId } from '@/lib/data/session';
 
 const OPEN_PO = ['draft', 'issued', 'partially_received', 'received'];
 
 export function ProcurementPage() {
+  /* Both header buttons shipped disabled with no handler behind them, so the
+     committed cost that makes an overrun visible was always zero. */
+  const [raisingPo, setRaisingPo] = useState(false);
+  const [startingRfq, setStartingRfq] = useState(false);
+  const { companyId } = useCompanyId();
   const [tab, setTab] = useState('rfqs');
   const rfqsQ = useQuery(loadRfqs, []);
   const posQ = useQuery(loadPurchaseOrders, []);
@@ -87,10 +94,27 @@ export function ProcurementPage() {
         description="Quotes, commitments and stock. A purchase order commits cost before an invoice arrives, which is what makes a budget overrun visible while there is still time to act on it."
         actions={
           <>
-            <Button variant="outline" disabled><Scale className="size-4" /> New RFQ</Button>
-            <Button disabled><Plus className="size-4" /> Purchase order</Button>
+            <Button variant="outline" onClick={() => setStartingRfq(true)}>
+              <Scale className="size-4" /> New RFQ
+            </Button>
+            <Button onClick={() => setRaisingPo(true)}>
+              <Plus className="size-4" /> Purchase order
+            </Button>
           </>
         }
+      />
+
+      <NewPurchaseOrderDialog
+        open={raisingPo}
+        onOpenChange={setRaisingPo}
+        companyId={companyId}
+        onCreated={() => posQ.refetch()}
+      />
+      <NewRfqDialog
+        open={startingRfq}
+        onOpenChange={setStartingRfq}
+        companyId={companyId}
+        onCreated={() => rfqsQ.refetch()}
       />
 
       {belowReorder.length ? (

@@ -42,6 +42,12 @@ export interface PanelDefinition {
 
 export const PANELS: readonly PanelDefinition[] = [
   {
+    key: 'shortcuts',
+    title: 'Jump to',
+    blurb: "What a day usually starts with, and every section of the platform one click away. A toolbar of eighteen items asks you to remember which one holds the thing you are about to do.",
+    tab: 'Today', permission: 'estimates.read', defaultOn: true, width: 'full',
+  },
+  {
     key: 'due',
     title: 'What is due',
     blurb: 'Bid deadlines and estimate expiries — the dates after which doing nothing costs you the job.',

@@ -23,6 +23,8 @@ import {
   SCHEDULE_OF_VALUES, PAY_APPLICATIONS, WIP, AP_INVOICES, RETAINAGE_PERCENT,
   payApplicationTotals, PROJECT,
 } from '@/data/finance';
+import { localDay } from '@/lib/format';
+import { supabase } from '@/lib/supabase';
 
 const one = <T,>(v: unknown): T | null =>
   (Array.isArray(v) ? (v as T[])[0] : (v as T | null)) ?? null;
@@ -276,7 +278,7 @@ export const demonstrationCashForecast = (): CashMonth[] => {
   // One receivable: the draft application, dated net 30 from its period end.
   const due = new Date(`${PAY_APPLICATIONS[0]!.periodEnd}T00:00:00Z`);
   due.setUTCDate(due.getUTCDate() + 30);
-  const inb = bucket(monthOf(due.toISOString().slice(0, 10)));
+  const inb = bucket(monthOf(localDay(due)));
   inb.inflow += t.currentDue;
   inb.receivableCount += 1;
 
@@ -371,6 +373,51 @@ export async function closeFinancialPeriod(
 ): Promise<void> {
   const { error } = await client.rpc('close_financial_period', {
     p_period: periodId, p_note: note?.trim() ? note.trim() : null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+// ---------------------------------------------------------------------------
+// Asking to be paid, and handing the ledger to accounting
+//
+// "Pay application" had no handler, and "Export to accounting" had none either
+// — though `record_export` has existed and been tested since 0043 and nothing
+// in the application ever called it. The same defect twice on one screen.
+// ---------------------------------------------------------------------------
+
+/**
+ * Open the next pay application on a project.
+ *
+ * No company is passed and no contract sum: both are read off the project in
+ * the database. That figure is what the whole application is measured against,
+ * and a browser that could name it could ask to be paid against a contract that
+ * does not exist.
+ */
+export async function createPayApplication(
+  projectId: string, periodStart: string, periodEnd: string,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_pay_application', {
+    p_project: projectId,
+    p_period_start: periodStart,
+    p_period_end: periodEnd,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/**
+ * Submit a draft pay application.
+ *
+ * Leaving draft is what freezes it, so this is the last moment its figures can
+ * change. Nothing is passed but the id: what was completed, what is stored and
+ * what is held as retainage are the claim being made, and a call that adjusted
+ * them on the way out would be submitting something other than what was read.
+ */
+export async function submitPayApplication(applicationId: string): Promise<void> {
+  if (!supabase) throw new Error('Not connected.');
+  const { error } = await supabase.rpc('submit_pay_application', {
+    p_application: applicationId,
   });
   if (error) throw new Error(error.message);
 }

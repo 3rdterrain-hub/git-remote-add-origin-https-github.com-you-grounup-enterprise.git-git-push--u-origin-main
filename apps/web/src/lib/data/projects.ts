@@ -13,6 +13,7 @@
  * which they would the moment this file started summing `project_costs` itself.
  */
 import { unwrap, type Query } from './query';
+import { supabase } from '@/lib/supabase';
 
 export interface ProjectRow {
   id: string;
@@ -87,3 +88,42 @@ export const listMetrics: Query<MetricValue[]> = async (client) =>
       .order('domain', { ascending: true })
       .order('name', { ascending: true }),
   );
+
+// ---------------------------------------------------------------------------
+// Opening a job that never had an estimate
+//
+// "Create project" sat in the Projects header with no handler. Awarding an
+// estimate has always been the ordinary path — it copies every priced line onto
+// the project as a budgeted activity — but work arrives without a bid too, and
+// there was no way in for it at all.
+// ---------------------------------------------------------------------------
+
+export interface NewProject {
+  name: string;
+  customerId?: string | null;
+  siteAddress?: string | null;
+  siteCity?: string | null;
+  siteState?: string | null;
+}
+
+/**
+ * Open a project directly. Returns its id.
+ *
+ * Its budget is zero because nothing has priced it. That is the honest figure:
+ * a project claiming a budget nobody estimated makes every variance report
+ * wrong from its first day.
+ */
+export async function createProject(companyId: string, project: NewProject): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_project', {
+    p_company: companyId,
+    p_name: project.name,
+    p_customer_id: project.customerId ?? null,
+    p_site_address: project.siteAddress ?? null,
+    p_site_city: project.siteCity ?? null,
+    p_site_state: project.siteState ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+

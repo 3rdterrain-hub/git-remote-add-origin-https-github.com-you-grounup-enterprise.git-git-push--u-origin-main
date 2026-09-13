@@ -109,13 +109,21 @@ export function StatTile({
     </>
   );
 
+  /*
+   * A stable handle on the whole tile.
+   *
+   * The label sits two elements inside the root, so a test reaching for "the
+   * tile that says Notice at risk" walked up to the wrapper holding the label
+   * and the icon — which does not contain the number. Naming the root once here
+   * fixes that for every tile on every screen rather than once per assertion.
+   */
   const shell = 'rounded-[--radius-card] border bg-white p-4 text-left shadow-sm';
   const interactive =
     'w-full transition-colors focus-visible:outline-none focus-visible:ring-2 '
     + 'focus-visible:ring-yellow-500 focus-visible:ring-offset-2';
 
   if (!onClick && !detail) {
-    return <div className={cn(shell, 'border-charcoal-200')}>{body}</div>;
+    return <div data-stat-tile={label} className={cn(shell, 'border-charcoal-200')}>{body}</div>;
   }
 
   /*
@@ -124,7 +132,7 @@ export function StatTile({
    */
   if (detail && !onClick) {
     return (
-      <div className={cn(shell, showing ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-charcoal-200')}>
+      <div data-stat-tile={label} className={cn(shell, showing ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-charcoal-200')}>
         <button
           type="button"
           onClick={() => setShowing((v) => !v)}
@@ -150,6 +158,7 @@ export function StatTile({
   return (
     <button
       type="button"
+      data-stat-tile={label}
       onClick={onClick}
       aria-pressed={active}
       aria-label={actionLabel}

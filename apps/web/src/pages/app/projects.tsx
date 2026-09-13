@@ -30,6 +30,8 @@ import {
 } from '@/lib/data/project-view';
 import { money, moneyCompact, percent, titleCase } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { NewProjectDialog } from '@/components/project/new-project';
+import { useCompanyId } from '@/lib/data/session';
 
 const STATUS_TONE: Record<string, 'default' | 'success' | 'warn' | 'info'> = {
   preconstruction: 'default', active: 'info', on_hold: 'warn',
@@ -71,6 +73,10 @@ const FOCUS_EMPTY: Record<Focus, string> = {
 };
 
 export function ProjectsPage() {
+  /* The header button had no handler, so the only way a project could exist
+     was by awarding an estimate — and work arrives without a bid. */
+  const [opening, setOpening] = useState(false);
+  const { companyId } = useCompanyId();
   const projects = useQuery(loadProjects, []);
   const rates = useQuery(loadRateVariance, []);
   const [focus, setFocus] = useState<Focus>('all');
@@ -86,7 +92,18 @@ export function ProjectsPage() {
       <PageHeader
         title="Projects & Operations"
         description="Awarded estimates become projects without re-entry. Cost, commitment and billing are read from the same governed view the public API serves, so the number on this page is the number in the report."
-        actions={<Button><Plus className="size-4" /> Create project</Button>}
+        actions={(
+          <Button onClick={() => setOpening(true)}>
+            <Plus className="size-4" /> Create project
+          </Button>
+        )}
+      />
+
+      <NewProjectDialog
+        open={opening}
+        onOpenChange={setOpening}
+        companyId={companyId}
+        onCreated={() => projects.refetch()}
       />
 
       {demo ? <DemonstrationNotice what="this page" /> : null}

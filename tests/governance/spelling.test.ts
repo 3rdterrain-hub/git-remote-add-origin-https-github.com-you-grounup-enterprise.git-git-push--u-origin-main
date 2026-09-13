@@ -29,7 +29,17 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage', '.vite']);
+/*
+ * `.test-results` is this run's own output.
+ *
+ * It is gitignored, it is rewritten by every run, and it holds serialized DOM
+ * from the web suite — so it contained `aria-labelledby`, a correct HTML
+ * attribute, and this test failed on it. A spelling test whose result depends
+ * on what the previous run happened to serialize is not a spelling test.
+ */
+const SKIP_DIRS = new Set([
+  'node_modules', '.git', 'dist', 'build', 'coverage', '.vite', '.test-results',
+]);
 const SCANNED = /\.(ts|tsx|js|jsx|mjs|cjs|sql|json|md|css|html)$/;
 // This file is the one exemption, and it has to be: it names every British
 // spelling in order to reject it, so scanning itself it would always fail.

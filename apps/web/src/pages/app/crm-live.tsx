@@ -32,6 +32,7 @@ import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { CategoryManager } from '@/components/library/category-manager';
 import { loadCrmCustomers, loadOpportunities, type CustomerRow } from '@/lib/data/crm';
 import { loadLeads } from '@/lib/data/leads';
 import { createCustomer, loadMyCompanyId } from '@/lib/data/estimates';
@@ -223,6 +224,9 @@ export function CrmLivePage() {
               ? <LoadingState label="Reading your leads" />
               : <LeadInboxSection leads={leads} canEdit={can('crm.write')}
                   onChanged={leadsQ.refetch} />}
+          <div className="mt-4">
+            <CategoryManager companyId={companyId} canEdit={can('crm.write')} only="lead_source" />
+          </div>
         </TabsContent>
 
         {/*

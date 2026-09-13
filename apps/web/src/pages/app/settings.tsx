@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Building2, Users, Palette, Sliders, ShieldCheck, Plug, Save, Info, Bot, Cpu } from 'lucide-react';
-import { PageHeader, StatTile } from '@/components/layout/page';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Users, Palette, ShieldCheck, Save, Info } from 'lucide-react';
+import { PageHeader } from '@/components/layout/page';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,12 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Alert, Switch, Separator } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotificationSettings } from '@/components/settings/notifications';
+import { CompanyProfileSettings } from '@/components/settings/company-profile';
+import { AiRegistrySettings, ConnectorSettings } from '@/components/settings/ai-and-connectors';
+import { useQuery } from '@/lib/data/query';
+import { loadShellIdentity } from '@/lib/data/company';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { COMPANY, USER } from '@/data/demo';
-import { AI_MODELS, AI_PROMPTS } from '@/data/field';
-import { CONNECTORS } from '@/data/safety';
-import { percent, date, dateTime, titleCase, integer } from '@/lib/format';
 
 /**
  * Security controls this platform actually enforces, each naming what enforces
@@ -95,20 +94,9 @@ const ROLES = [
 ];
 
 export function SettingsPage() {
+  const meQ = useQuery(loadShellIdentity, []);
+  const me = meQ.status === 'ready' ? meQ.data : null;
   const [dirty, setDirty] = useState(false);
-  /*
-   * The four boxes over the connector table counted rows in it by status and
-   * left the reader to match each count against a column of badges. They are
-   * the filter for that table now.
-   */
-  const [connectorStatus, setConnectorStatus] = useState<string | null>(null);
-  const shownConnectors = connectorStatus
-    ? CONNECTORS.filter((c) => c.status === connectorStatus)
-    : CONNECTORS;
-  const connectorTile = (status: string) => ({
-    onClick: () => setConnectorStatus((c) => (c === status ? null : status)),
-    active: connectorStatus === status,
-  });
   const touch = () => setDirty(true);
 
   return (
@@ -133,98 +121,12 @@ export function SettingsPage() {
 
         {/* --------------------------------------------------------- company */}
         <TabsContent value="company" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Building2 className="size-4" /> Company profile</CardTitle>
-              <CardDescription>Used on proposals, reports and the customer portal.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2">
-              <FieldInput label="Company name" defaultValue={COMPANY.name} onChange={touch} />
-              <FieldInput label="Legal name" defaultValue="Ridgeline Excavating LLC" onChange={touch} />
-              <FieldInput label="City" defaultValue={COMPANY.city} onChange={touch} />
-              <FieldInput label="State" defaultValue={COMPANY.state} onChange={touch} />
-              <FieldInput label="Phone" defaultValue="(419) 555-0100" onChange={touch} />
-              <FieldInput label="Email" type="email" defaultValue="office@ridgeline.test" onChange={touch} />
-              <div className="space-y-1.5">
-                <Label>Currency</Label>
-                <Select defaultValue="USD" onValueChange={touch}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="USD">USD — US Dollar</SelectItem><SelectItem value="CAD">CAD — Canadian Dollar</SelectItem></SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Time zone</Label>
-                <Select defaultValue="America/New_York" onValueChange={touch}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="America/New_York">Eastern</SelectItem>
-                    <SelectItem value="America/Chicago">Central</SelectItem>
-                    <SelectItem value="America/Denver">Mountain</SelectItem>
-                    <SelectItem value="America/Los_Angeles">Pacific</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Terminology</CardTitle>
-              <CardDescription>
-                Rename what GrounUp calls things so the platform speaks your company's vocabulary
-                rather than the other way round.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3">
-              <FieldInput label="Estimate is called" defaultValue="Estimate" onChange={touch} />
-              <FieldInput label="Customer is called" defaultValue="Customer" onChange={touch} />
-              <FieldInput label="Project is called" defaultValue="Project" onChange={touch} />
-            </CardContent>
-          </Card>
+          <CompanyProfileSettings section="company" />
         </TabsContent>
 
         {/* ------------------------------------------------------ estimating */}
         <TabsContent value="estimating" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sliders className="size-4" /> Estimating defaults</CardTitle>
-              <CardDescription>
-                Applied to every new estimate. A line may override any of them, and the override is
-                recorded on the line.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <FieldInput label="Shift hours" type="number" defaultValue="8" onChange={touch}
-                hint="Hours per working shift" />
-              <FieldInput label="Calendar efficiency" type="number" step="0.01" defaultValue="0.85" onChange={touch}
-                hint="Fraction of days actually worked" />
-              <FieldInput label="Fuel price ($/gal)" type="number" step="0.01" defaultValue="4.25" onChange={touch} />
-              <FieldInput label="DEF price ($/gal)" type="number" step="0.01" defaultValue="12.00" onChange={touch} />
-              <FieldInput label="Swell factor" type="number" step="0.01" defaultValue="0.25" onChange={touch}
-                hint="Bank to loose volume increase" />
-              <FieldInput label="Shrink factor" type="number" step="0.01" defaultValue="0.10" onChange={touch}
-                hint="Bank to compacted volume decrease" />
-              <FieldInput label="Bid rounding increment" type="number" defaultValue="500" onChange={touch}
-                hint="Bids round up, never down" />
-              <div className="space-y-1.5">
-                <Label>Default pricing profile</Label>
-                <Select defaultValue="PP-AVG" onValueChange={touch}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PP-AVG">Average Market (parallel)</SelectItem>
-                    <SelectItem value="PP-UNION">Union (stacked)</SelectItem>
-                    <SelectItem value="PP-CUSTOM">Custom Company (parallel + bond)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Alert tone="info" icon={<Info className="size-4" />}>
-                Changing a default does not reprice an existing estimate. Estimates carry the values
-                they were priced with, so a historical bid stays reproducible.
-              </Alert>
-            </CardFooter>
-          </Card>
+          <CompanyProfileSettings section="estimating" />
 
           <Card>
             <CardHeader>
@@ -342,7 +244,11 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><ShieldCheck className="size-4" /> Security</CardTitle>
-              <CardDescription>Signed in as {USER.name} ({USER.role}, approval tier {USER.approvalTier}).</CardDescription>
+              <CardDescription>
+                {/* Whoever is actually signed in. This read "Dana Whitfield" for
+                    every user of the platform, on the screen about security. */}
+                {me ? `Signed in as ${me.personName ?? me.email ?? ''}${me.roleName ? ` (${me.roleName})` : ''}.` : ''}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-charcoal-600">
@@ -413,237 +319,15 @@ export function SettingsPage() {
 
         {/* -------------------------------------------------------- AI registry */}
         <TabsContent value="ai" className="space-y-6">
-          <Alert tone="neutral" icon={<ShieldCheck className="size-4" />} title="Agents draft; they never decide">
-            Every agent is capped at draft-and-recommend authority, must cite its sources, and requires human
-            approval for anything consequential. The database refuses to store an agent configured any other way —
-            it is not a setting that can be turned off here.
-          </Alert>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Cpu className="size-4" /> Models</CardTitle>
-              <CardDescription>
-                Which models the platform may route to, and what each costs. Pricing is per million tokens.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Provider</TableHead>
-                    <TableHead>Capabilities</TableHead>
-                    <TableHead className="text-right">Context</TableHead>
-                    <TableHead className="text-right">In / Out</TableHead>
-                    <TableHead>State</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {AI_MODELS.map((m) => (
-                    <TableRow key={m.id}>
-                      <TableCell>
-                        <p className="font-medium text-charcoal-900">{m.displayName}</p>
-                        <p className="font-mono text-xs text-charcoal-400">{m.id}</p>
-                      </TableCell>
-                      <TableCell className="text-charcoal-600">{m.provider}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {m.capabilities.map((c) => (
-                            <Badge key={c} variant="outline" className="text-[10px]">{c.replace(/_/g, ' ')}</Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {(m.contextTokens / 1000).toFixed(0)}K
-                      </TableCell>
-                      <TableCell className="tabular whitespace-nowrap text-right text-charcoal-600">
-                        ${m.inputCost} / ${m.outputCost}
-                      </TableCell>
-                      <TableCell>
-                        {m.isDefault ? <Badge variant="success">Default</Badge> : <Badge variant="default">Enabled</Badge>}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Bot className="size-4" /> Prompt versions</CardTitle>
-              <CardDescription>
-                A prompt cannot go live without an evaluation result and a named person who promoted it — RULE-008
-                applied to the agents themselves. Exactly one version per agent is active at a time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Agent</TableHead>
-                    <TableHead>Version</TableHead>
-                    <TableHead>Scope</TableHead>
-                    <TableHead className="text-right">Eval pass rate</TableHead>
-                    <TableHead className="text-right">Sample</TableHead>
-                    <TableHead>State</TableHead>
-                    <TableHead>Promoted by</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {AI_PROMPTS.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell>
-                        <p className="font-medium text-charcoal-900">{p.agentName}</p>
-                        <p className="font-mono text-xs text-charcoal-400">{p.agentId}</p>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-charcoal-700">{p.version}</TableCell>
-                      <TableCell>
-                        <Badge variant={p.scope === 'GrounUp' ? 'default' : 'info'}>{p.scope}</Badge>
-                      </TableCell>
-                      <TableCell className="tabular text-right">
-                        {p.evalPassRate != null ? (
-                          <span className={p.evalPassRate >= 0.9 ? 'text-success-700' : 'text-warn-700'}>
-                            {percent(p.evalPassRate, 1)}
-                          </span>
-                        ) : <span className="text-charcoal-400">not evaluated</span>}
-                      </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">{p.evalSampleSize ?? '—'}</TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          p.state === 'active' ? 'success' : p.state === 'evaluating' ? 'warn' : 'default'
-                        }>{titleCase(p.state)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-charcoal-600">
-                        {p.activatedBy ? <>{p.activatedBy}<br /><span className="text-charcoal-400">{date(p.activatedAt)}</span></> : '—'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <AiRegistrySettings />
         </TabsContent>
 
         {/* ---------------------------------------------------- integrations */}
         <TabsContent value="integrations" className="space-y-4">
-          <Alert tone="neutral" icon={<ShieldCheck className="size-4" />} title="Where the credentials live">
-            A connector stores a <em>handle</em> into the platform secret store, never the secret itself. Reading
-            this table yields nothing anyone could authenticate with, and a connector cannot be enabled without a
-            credential to run as.
-          </Alert>
-
-          <div className="grid gap-4 sm:grid-cols-4">
-            <StatTile label="Connected" value={CONNECTORS.filter((c) => c.status === 'connected').length}
-              tone="success" hint={`of ${CONNECTORS.length} available`}
-              {...connectorTile('connected')}
-              actionLabel="List the connectors that are working" />
-            <StatTile label="Degraded" value={CONNECTORS.filter((c) => c.status === 'degraded').length}
-              tone={CONNECTORS.some((c) => c.status === 'degraded') ? 'warn' : 'success'}
-              hint="last run did not fully succeed"
-              {...connectorTile('degraded')}
-              actionLabel="List the connectors whose last run did not fully succeed" />
-            <StatTile label="Failed" value={CONNECTORS.filter((c) => c.status === 'failed').length}
-              tone={CONNECTORS.some((c) => c.status === 'failed') ? 'danger' : 'success'}
-              hint="three consecutive failures"
-              {...connectorTile('failed')}
-              actionLabel="List the connectors that have failed" />
-            <StatTile label="Not connected" value={CONNECTORS.filter((c) => c.status === 'not_connected').length}
-              hint="available but not set up"
-              {...connectorTile('not_connected')}
-              actionLabel="List the connectors that are available but not set up" />
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Plug className="size-4" /> Connector runtime</CardTitle>
-              <CardDescription>
-                Health is derived from each connector's own run history, so a connector that quietly stopped
-                working shows as degraded rather than continuing to look connected.
-              </CardDescription>
-              {connectorStatus ? (
-                <div className="flex flex-wrap items-center gap-3 pt-2 text-sm text-charcoal-600">
-                  <span>Showing the {titleCase(connectorStatus)} connectors.</span>
-                  <Button variant="outline" size="sm" onClick={() => setConnectorStatus(null)}>
-                    Show all {CONNECTORS.length}
-                  </Button>
-                </div>
-              ) : null}
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Connector</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Schedule</TableHead>
-                    <TableHead>Last run</TableHead>
-                    <TableHead>Records</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {shownConnectors.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell>
-                        <p className="font-medium text-charcoal-900">{c.provider}</p>
-                        <p className="text-xs text-charcoal-500">{c.name}</p>
-                      </TableCell>
-                      <TableCell><Badge variant="outline">{titleCase(c.type)}</Badge></TableCell>
-                      <TableCell className="font-mono text-xs text-charcoal-600">
-                        {c.schedule ?? <span className="font-sans text-charcoal-400">—</span>}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-charcoal-600">
-                        {c.lastRunAt ? dateTime(c.lastRunAt) : <span className="text-charcoal-400">never</span>}
-                      </TableCell>
-                      <TableCell className="text-xs text-charcoal-600">
-                        {c.lastRun ? (
-                          <>
-                            <span className="tabular">
-                              {integer(c.lastRun.recordsRead)} read · {integer(c.lastRun.recordsWritten)} written
-                              {c.lastRun.recordsSkipped ? ` · ${integer(c.lastRun.recordsSkipped)} skipped` : ''}
-                            </span>
-                            {c.lastRun.error ? (
-                              <p className="mt-0.5 max-w-72 text-warn-700">{c.lastRun.error}</p>
-                            ) : null}
-                          </>
-                        ) : '—'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          c.status === 'connected' ? 'success'
-                          : c.status === 'degraded' ? 'warn'
-                          : c.status === 'failed' ? 'danger' : 'default'
-                        }>{titleCase(c.status)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="outline">
-                          {c.status === 'not_connected' ? 'Connect' : 'Configure'}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <ConnectorSettings />
         </TabsContent>
 
       </Tabs>
-    </div>
-  );
-}
-
-function FieldInput({
-  label, hint, onChange, ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
-  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} onChange={onChange} {...props} />
-      {hint ? <p className="text-xs text-charcoal-500">{hint}</p> : null}
     </div>
   );
 }

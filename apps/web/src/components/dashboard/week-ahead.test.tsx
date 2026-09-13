@@ -12,6 +12,20 @@ import type { DueBid, WeatherDay } from '@/lib/data/dashboard';
 const day = (offset: number) =>
   new Date(Date.now() + offset * 86_400_000).toISOString();
 
+/**
+ * The same instant, as the local calendar day.
+ *
+ * `toISOString` gives the UTC date, and west of Greenwich that is tomorrow for
+ * the last hours of every evening — so these tests passed all afternoon and
+ * failed at eight. A calendar places things on local days, so the fixture has
+ * to speak in them too.
+ */
+const dayKey = (offset: number) => {
+  const d = new Date(Date.now() + offset * 86_400_000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 const bid = (over: Partial<DueBid> = {}): DueBid => ({
   id: 'e-1', versionId: 'v-1', number: 'E-1', name: 'Haul road',
   customerName: 'Maumee', dueAt: day(2), dueKind: 'bid', status: 'draft',
@@ -19,7 +33,7 @@ const bid = (over: Partial<DueBid> = {}): DueBid => ({
 });
 
 const weather = (offset: number, over: Partial<WeatherDay> = {}): WeatherDay => ({
-  day: day(offset).slice(0, 10), highF: 62, lowF: 44, precipInches: 0,
+  day: dayKey(offset), highF: 62, lowF: 44, precipInches: 0,
   precipChance: 10, summary: 'Partly cloudy', workable: true, lostReason: null, ...over,
 });
 

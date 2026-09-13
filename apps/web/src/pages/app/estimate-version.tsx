@@ -108,8 +108,16 @@ const COST_LABELS: Record<string, string> = {
  * column, which is the `1fr` and is 590px wide at this window either way.
  */
 const LINE_GRID =
-  'grid grid-cols-[9rem_minmax(18rem,1fr)_2rem_5.5rem_5rem_3.5rem_7rem_4.5rem_6rem_8rem_7.5rem] '
+  'grid grid-cols-[9rem_minmax(18rem,1fr)_2rem_5.5rem_5rem_3.5rem_7rem_4.5rem_6rem_8rem_4rem] '
   + 'items-center gap-x-3 px-3 py-2';
+
+/**
+ * The bands worth marking on the row.
+ *
+ * Below these the engine is confident enough that saying so on every line would
+ * be noise — a row that flags everything flags nothing.
+ */
+const LOW_CONFIDENCE = new Set(['do_not_price', 'uncertain', 'assumption']);
 
 /** One column name. */
 function Col({ children, right, center }: {
@@ -908,9 +916,24 @@ function LineTable({
                     </button>
                   </div>
                   <div className="flex min-w-0 items-center gap-1.5">
-                      {l.blocksIssue ? (
-                        <AlertTriangle className="size-3.5 shrink-0 text-danger-600"
-                          aria-label="This line blocks issue" />
+                      {/*
+                        * The accessible name a screen reader has always read for
+                        * a blocking line is unchanged. The confidence band goes
+                        * in the tooltip, where it is new information rather than
+                        * a renamed control.
+                        */}
+                      {l.blocksIssue || LOW_CONFIDENCE.has(l.confidenceBand) ? (
+                        <span
+                          title={l.blocksIssue
+                            ? `${titleCase(l.confidenceBand)} — this line blocks issue`
+                            : `${titleCase(l.confidenceBand)} — priced, and worth checking`}
+                          aria-label={l.blocksIssue
+                            ? 'This line blocks issue'
+                            : `${titleCase(l.confidenceBand)} — priced, and worth checking`}
+                          className="flex shrink-0 items-center">
+                          <AlertTriangle className={cn('size-3.5',
+                            l.blocksIssue ? 'text-danger-600' : 'text-warn-600')} />
+                        </span>
                       ) : null}
                       <div className="min-w-0 flex-1">
                         <LineDescription
@@ -1080,10 +1103,16 @@ function LineTable({
                     ) : null}
                   </div>
                   <div className="flex items-center justify-end gap-1">
-                      <Badge variant={l.confidenceBand === 'do_not_price' ? 'danger'
-                        : l.confidenceBand === 'high' ? 'success' : 'warn'}>
-                        {titleCase(l.confidenceBand)}
-                      </Badge>
+                      {/*
+                        * The confidence band was a 91px badge here and it
+                        * overlapped the total it sat beside. It also said the
+                        * row's own warning triangle over again, and the tile
+                        * above says it a third time. The verdict itself is
+                        * load-bearing: do_not_price is what sets
+                        * blocks_issue, and stops a bid going out on a
+                        * materially incomplete line — so it moves onto the
+                        * triangle rather than going away.
+                        */}
                       {/* What is left at the end: disclosure, and removal. */}
                       {/*
                         * What the eye does, in words. An icon that toggles
@@ -1091,11 +1120,11 @@ function LineTable({
                         * is priced either way, and what changes is whether the
                         * customer's copy itemizes it.
                         */}
-                      {!l.clientVisible ? (
-                        <Badge variant="default" className="whitespace-nowrap">
-                          not on proposal
-                        </Badge>
-                      ) : null}
+                      {/*
+                        * "not on proposal" said what the crossed-out eye at the
+                        * start of the row already shows, and the eye can be
+                        * clicked to change it, which the badge could not.
+                        */}
                       {editable ? (
                         confirming === l.id ? (
                           <span className="flex items-center gap-1">

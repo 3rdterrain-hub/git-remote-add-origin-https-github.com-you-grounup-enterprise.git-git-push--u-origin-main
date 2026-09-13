@@ -300,6 +300,8 @@ TST-db-company-controls,test,db/company-controls.test.ts,tests/db/company-contro
 TST-db-custom-plans,test,db/custom-plans.test.ts,tests/db/custom-plans.test.ts,ENGINE
 TST-db-deleting-a-company,test,db/deleting-a-company.test.ts,tests/db/deleting-a-company.test.ts,ENGINE
 TST-db-documents,test,db/documents.test.ts,tests/db/documents.test.ts,ENGINE
+TST-db-doors-for-the-people-and-the-machines,test,db/doors-for-the-people-and-the-machines.test.ts,tests/db/doors-for-the-people-and-the-machines.test.ts,ENGINE
+TST-db-doors-for-the-rest-of-the-toolbar,test,db/doors-for-the-rest-of-the-toolbar.test.ts,tests/db/doors-for-the-rest-of-the-toolbar.test.ts,ENGINE
 TST-db-editable-templates,test,db/editable-templates.test.ts,tests/db/editable-templates.test.ts,ENGINE
 TST-db-email,test,db/email.test.ts,tests/db/email.test.ts,ENGINE
 TST-db-engine-outputs,test,db/engine-outputs.test.ts,tests/db/engine-outputs.test.ts,ENGINE
@@ -449,6 +451,7 @@ TST-web-demo.summary,test,web/demo.summary.test.ts,apps/web/src/data/demo.summar
 TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.test.ts,ENGINE
 TST-web-plans.live,test,web/plans.live.test.ts,apps/web/src/data/plans.live.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
+TST-web-active-company,test,web/active-company.test.ts,apps/web/src/lib/active-company.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
 TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,apps/web/src/lib/data/equipment-rate-precedence.test.ts,ENGINE

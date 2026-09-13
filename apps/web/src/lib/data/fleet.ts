@@ -10,6 +10,7 @@
  */
 import { unwrap, type Query } from './query';
 import { rateInForce } from './library';
+import { supabase } from '@/lib/supabase';
 import { ASSETS, MAINTENANCE_DUE, WORK_ORDERS, FUEL_TRANSACTIONS } from '@/data/fleet';
 
 export interface AssetRow {
@@ -256,3 +257,77 @@ export const demonstrationFuel = (): FuelRow[] =>
     totalCost: f.gallons * f.pricePerGallon, location: f.location, source: f.source,
     project: null, exception: f.exception ?? null, operator: f.operator ?? null,
   }));
+
+// ---------------------------------------------------------------------------
+// Adding a machine, and raising a work order against one
+//
+// Both buttons shipped in the Fleet header with no handler at all, so a company
+// could not record the first machine it owns — and with no assets, every figure
+// on the screen was zero and every tab was empty. Migration 0161 added the
+// writers; these are the calls.
+// ---------------------------------------------------------------------------
+
+export interface NewAsset {
+  name: string;
+  assetClass?: string | null;
+  make?: string | null;
+  model?: string | null;
+  modelYear?: number | null;
+  serialNumber?: string | null;
+  ownership?: string;
+  meterType?: string;
+  fuelType?: string | null;
+  acquisitionCost?: number | null;
+  acquiredOn?: string | null;
+  /** The catalog rate this machine is estimated at. Optional, and a later decision. */
+  equipmentId?: string | null;
+}
+
+/** Record a machine the company owns. Returns its id. */
+export async function createAsset(companyId: string, asset: NewAsset): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_asset', {
+    p_company: companyId,
+    p_name: asset.name,
+    p_asset_class: asset.assetClass ?? null,
+    p_make: asset.make ?? null,
+    p_model: asset.model ?? null,
+    p_model_year: asset.modelYear ?? null,
+    p_serial_number: asset.serialNumber ?? null,
+    p_ownership: asset.ownership ?? 'owned',
+    p_meter_type: asset.meterType ?? 'hours',
+    p_fuel_type: asset.fuelType ?? null,
+    p_acquisition_cost: asset.acquisitionCost ?? null,
+    p_acquired_on: asset.acquiredOn ?? null,
+    p_equipment_id: asset.equipmentId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+export interface NewWorkOrder {
+  assetId: string;
+  title: string;
+  workOrderType?: string;
+  priority?: string;
+  description?: string | null;
+}
+
+/**
+ * Raise a work order against one machine.
+ *
+ * No company is passed: it is read off the asset in the database, because a
+ * work order that is not about a specific machine is not a work order.
+ */
+export async function createWorkOrder(order: NewWorkOrder): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_work_order', {
+    p_asset: order.assetId,
+    p_title: order.title,
+    p_work_order_type: order.workOrderType ?? 'corrective',
+    p_priority: order.priority ?? 'normal',
+    p_description: order.description ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}

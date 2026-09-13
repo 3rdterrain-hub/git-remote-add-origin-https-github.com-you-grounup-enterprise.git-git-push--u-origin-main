@@ -17,6 +17,8 @@ import {
 } from '@/lib/data/fleet';
 import { money, moneyCompact, qty, integer, dateTime, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { AddAssetDialog, AddWorkOrderDialog } from '@/components/fleet/add-asset';
+import { useCompanyId } from '@/lib/data/session';
 
 const STATUS_TONE: Record<string, 'success' | 'info' | 'warn' | 'danger'> = {
   available: 'success', assigned: 'info', in_maintenance: 'warn', down: 'danger',
@@ -31,6 +33,12 @@ export function FleetPage() {
    * an operator has to find by reading every status badge.
    */
   const [tab, setTab] = useState('assets');
+  /* Both header buttons shipped with no handler, so a company could not record
+     the first machine it owns — and with no assets every figure on this screen
+     read zero, which looks like a platform with nothing in it. */
+  const [addingAsset, setAddingAsset] = useState(false);
+  const [raisingWorkOrder, setRaisingWorkOrder] = useState(false);
+  const { companyId } = useCompanyId();
   const [downOnly, setDownOnly] = useState(false);
   const assetsQ = useQuery(loadAssets, []);
   const maintenanceQ = useQuery(loadMaintenanceDue, []);
@@ -87,8 +95,12 @@ export function FleetPage() {
         description="Every machine is tied to the catalog rate it is estimated at, so utilization, fuel and maintenance can be read against the rate that priced the work."
         actions={
           <>
-            <Button variant="outline"><Wrench className="size-4" /> Work order</Button>
-            <Button><Plus className="size-4" /> Add asset</Button>
+            <Button variant="outline" onClick={() => setRaisingWorkOrder(true)}>
+              <Wrench className="size-4" /> Work order
+            </Button>
+            <Button onClick={() => setAddingAsset(true)}>
+              <Plus className="size-4" /> Add asset
+            </Button>
           </>
         }
       />
@@ -517,6 +529,19 @@ export function FleetPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AddAssetDialog
+        open={addingAsset}
+        onOpenChange={setAddingAsset}
+        companyId={companyId}
+        onAdded={() => assetsQ.refetch()}
+      />
+      <AddWorkOrderDialog
+        open={raisingWorkOrder}
+        onOpenChange={setRaisingWorkOrder}
+        assets={ASSETS}
+        onAdded={() => { workOrdersQ.refetch(); assetsQ.refetch(); }}
+      />
     </div>
   );
 }

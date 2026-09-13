@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, FileStack, HardHat, Users, Library,
-  BarChart3, Settings, CreditCard, Menu, X, Bell, Search, ChevronDown, Bot,
+  BarChart3, Settings, CreditCard, Menu, X, Bell, Search, Bot,
   FileSignature, ArrowRight, CalendarDays, Truck, Users2, ShoppingCart, Banknote, ShieldAlert,
   Mountain, Gavel, Network, KeyRound, Ruler, SlidersHorizontal,
   PanelLeftClose, PanelLeftOpen
@@ -11,7 +11,6 @@ import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { COMPANY, USER } from '@/data/demo';
 import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
@@ -27,6 +26,8 @@ import {
 } from '@/lib/data/preferences';
 import { CustomizeNavDialog, type NavChoice } from './customize-nav';
 import { loadBlockedCount } from '@/lib/data/dashboard';
+import { loadShellIdentity } from '@/lib/data/company';
+import { rememberCompany, rememberedCompany } from '@/lib/active-company';
 
 /**
  * Every screen the application has, in the order it ships in.
@@ -57,7 +58,7 @@ type Group = (typeof GROUPS)[number];
  * drawing, not to an estimate — `applied_line_item_id` is nullable — so it can
  * be traced before any estimate exists and can feed several.
  */
-const NAV: ReadonlyArray<{
+export const NAV: ReadonlyArray<{
   to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; group: Group;
 }> = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true, group: '' },
@@ -84,7 +85,7 @@ const NAV: ReadonlyArray<{
   { to: '/app/network', label: 'GrounUp Network', icon: Network, group: 'Reference' },
 ];
 
-const ADMIN_NAV: ReadonlyArray<{
+export const ADMIN_NAV: ReadonlyArray<{
   to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; group: Group;
 }> = [
   { to: '/app/settings', label: 'Company Settings', icon: Settings, group: 'Administration' },
@@ -111,6 +112,19 @@ export function AppShell() {
    * signed up. Send them somewhere they can do something about it.
    */
   const memberships = useQuery(loadMemberships, []);
+  /*
+   * Who this actually is, and which company they are actually in.
+   *
+   * The sidebar rendered `COMPANY.name`, `COMPANY.city`, `COMPANY.planName`,
+   * `USER.name` and `USER.role` from the demonstration fixture, so every person
+   * signed into the platform was shown the same invented company and signed as
+   * the same invented estimator. The name of the company you are working in is
+   * the one thing on screen that confirms a write is going to land in the right
+   * tenant, and it was decoration.
+   */
+  const identityQ = useQuery(loadShellIdentity, []);
+  const identity = identityQ.status === 'ready' ? identityQ.data : null;
+  const companies = memberships.status === 'ready' ? memberships.data : [];
   const suspensionQ = useQuery(loadMySuspension, []);
   const suspension = suspensionQ.status === 'ready' ? suspensionQ.data : null;
   const paymentQ = useQuery(loadMyPaymentProblem, []);
@@ -143,7 +157,7 @@ export function AppShell() {
    * guarded, because a private window throws on storage rather than returning
    * nothing.
    */
-  const [iconsOnly, setIconsOnly] = useState(() => {
+  const [iconsOnlyPreference, setIconsOnly] = useState(() => {
     try { return window.localStorage.getItem('grounup.nav.iconsOnly') === 'yes'; }
     catch { return false; }
   });
@@ -177,6 +191,16 @@ export function AppShell() {
     .filter(([, items]) => items.length > 0);
   const choices: NavChoice[] = [...withKeys(NAV), ...withKeys(ADMIN_NAV)]
     .map(({ key, label, icon, group }) => ({ key, label, icon, group }));
+  /*
+   * The estimate line is eleven columns and the last of them is money. Measured
+   * at a 1349px window the row needs more than the page can give it while the
+   * bar is 256px wide, and what falls off the end is the total. The bar narrows
+   * itself on that one screen, and only while the window is too narrow to do
+   * both — the saved preference is not touched, so leaving the estimate puts it
+   * back the way it was.
+   */
+  const narrowForTheLine = useNarrowForTheEstimateLine(here.pathname);
+  const iconsOnly = iconsOnlyPreference || narrowForTheLine;
   const onTop = navPref.placement === 'top';
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<SearchHit[]>([]);
@@ -300,8 +324,8 @@ export function AppShell() {
             <Logo subdued />
           </NavLink>
           <button
-            onClick={() => narrow(!iconsOnly)}
-            title={iconsOnly ? 'Widen the bar' : 'Narrow the bar to icons'}
+            onClick={() => narrow(!iconsOnlyPreference)}
+            title={iconsOnlyPreference ? 'Widen the bar' : 'Narrow the bar to icons'}
             aria-label={iconsOnly ? 'Widen the navigation' : 'Narrow the navigation to icons'}
             aria-pressed={iconsOnly}
             className="hidden rounded-md p-1.5 text-charcoal-400 hover:bg-charcoal-800
@@ -313,28 +337,13 @@ export function AppShell() {
           </Button>
         </div>
 
-        <div className={cn('border-b border-charcoal-800 py-3', iconsOnly ? 'px-2' : 'px-4')}>
-          <button
-            title={iconsOnly ? COMPANY.name : undefined}
-            className={cn(
-              'flex w-full items-center rounded-md py-1.5 text-left transition-colors hover:bg-charcoal-800',
-              iconsOnly ? 'justify-center px-0' : 'justify-between px-2')}>
-            {iconsOnly ? (
-              <span className="flex size-8 items-center justify-center rounded-md bg-charcoal-800
-                               text-xs font-bold text-white">
-                {COMPANY.name.slice(0, 2).toUpperCase()}
-              </span>
-            ) : (
-              <>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-white">{COMPANY.name}</span>
-                  <span className="block text-xs text-charcoal-400">{COMPANY.city}, {COMPANY.state} · {COMPANY.planName}</span>
-                </span>
-                <ChevronDown className="size-4 shrink-0 text-charcoal-500" />
-              </>
-            )}
-          </button>
-        </div>
+        <CompanyBlock
+          iconsOnly={iconsOnly}
+          name={identity?.companyName ?? null}
+          place={identity?.place ?? null}
+          planName={identity?.planName ?? null}
+          companies={companies}
+        />
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {sections.map(([group, items]) => (
@@ -376,16 +385,26 @@ export function AppShell() {
             <SlidersHorizontal className="size-4 shrink-0" />
             {iconsOnly ? null : <span className="flex-1 text-left">Arrange this bar</span>}
           </button>
+          {/*
+            * Signed as whoever is actually signed in. A name that has not
+            * arrived yet is left blank rather than filled with somebody else's
+            * — the old fixture signed every user of the platform as the same
+            * invented estimator.
+            */}
           <div className={cn('flex items-center rounded-md py-2',
             iconsOnly ? 'justify-center px-0' : 'gap-3 px-2')}
-            title={iconsOnly ? USER.name : undefined}>
+            title={iconsOnly ? (identity?.personName ?? undefined) : undefined}>
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-xs font-bold text-charcoal-900">
-              {USER.name.split(' ').map((n) => n[0]).join('')}
+              {initialsOf(identity?.personName ?? null)}
             </span>
             {iconsOnly ? null : (
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-white">{USER.name}</span>
-                <span className="block truncate text-xs text-charcoal-400">{USER.role}</span>
+                <span className="block truncate text-sm font-medium text-white">
+                  {identity?.personName ?? '—'}
+                </span>
+                <span className="block truncate text-xs text-charcoal-400">
+                  {identity?.roleName ?? identity?.email ?? ''}
+                </span>
               </span>
             )}
           </div>
@@ -723,4 +742,110 @@ function NavItem({
       ) : null}
     </NavLink>
   );
+}
+
+/** Initials from whatever name we have. Two letters, or nothing legible. */
+function initialsOf(name: string | null): string {
+  if (!name) return '—';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
+/**
+ * The company you are working in, and a way to change it.
+ *
+ * The chevron on this block used to be decoration on a `<button>` with no
+ * handler — it promised a switcher that did not exist, above a company name
+ * that was not yours. Where somebody belongs to one company there is nothing to
+ * switch between, so it is a link to the settings for that company; where they
+ * belong to several it is a real select, and choosing one reloads so every
+ * screen behind it refetches against the company that was chosen rather than
+ * showing the previous one's rows until something happens to refresh.
+ */
+function CompanyBlock({ iconsOnly, name, place, planName, companies }: {
+  iconsOnly: boolean;
+  name: string | null;
+  place: string | null;
+  planName: string | null;
+  companies: ReadonlyArray<{ companyId: string; name: string }>;
+}) {
+  const subtitle = [place, planName].filter(Boolean).join(' · ');
+  const shown = name ?? '—';
+  const many = companies.length > 1;
+
+  if (iconsOnly) {
+    return (
+      <div className="border-b border-charcoal-800 px-2 py-3">
+        <NavLink to="/app/settings" title={shown}
+          className="flex items-center justify-center rounded-md py-1.5 transition-colors hover:bg-charcoal-800">
+          <span className="flex size-8 items-center justify-center rounded-md bg-charcoal-800
+                           text-xs font-bold text-white">
+            {shown === '—' ? '—' : shown.slice(0, 2).toUpperCase()}
+          </span>
+        </NavLink>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-b border-charcoal-800 px-4 py-3">
+      {many ? (
+        <label className="block">
+          <span className="sr-only">Company</span>
+          <select
+            value={rememberedCompany() ?? companies[0]!.companyId}
+            onChange={(e) => { rememberCompany(e.target.value); window.location.reload(); }}
+            className="w-full rounded-md bg-charcoal-800 px-2 py-1.5 text-sm font-semibold
+                       text-white outline-none focus:ring-2 focus:ring-yellow-500">
+            {companies.map((c) => (
+              <option key={c.companyId} value={c.companyId}>{c.name}</option>
+            ))}
+          </select>
+          {subtitle ? (
+            <span className="mt-1 block px-2 text-xs text-charcoal-400">{subtitle}</span>
+          ) : null}
+        </label>
+      ) : (
+        <NavLink to="/app/settings"
+          className="flex w-full items-center justify-between rounded-md px-2 py-1.5
+                     text-left transition-colors hover:bg-charcoal-800">
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-white">{shown}</span>
+            {subtitle ? (
+              <span className="block truncate text-xs text-charcoal-400">{subtitle}</span>
+            ) : null}
+          </span>
+          <Settings className="size-4 shrink-0 text-charcoal-500" />
+        </NavLink>
+      )}
+    </div>
+  );
+}
+
+
+/**
+ * Whether the navigation should stand aside for the estimate line.
+ *
+ * One screen, one width, and no preference written: this is the shell noticing
+ * that a row of money will not fit rather than a setting somebody has to find.
+ * A person who has already narrowed the bar sees no change at all.
+ */
+function useNarrowForTheEstimateLine(pathname: string): boolean {
+  /* /app/estimates/<id> — the workspace. The list above it is not affected. */
+  const onAnEstimate = /^\/app\/estimates\/[^/]+$/.test(pathname);
+  const [tooNarrow, setTooNarrow] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 1600);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const query = window.matchMedia('(max-width: 1599px)');
+    const read = () => setTooNarrow(query.matches);
+    read();
+    query.addEventListener('change', read);
+    return () => query.removeEventListener('change', read);
+  }, []);
+
+  return onAnEstimate && tooNarrow;
 }

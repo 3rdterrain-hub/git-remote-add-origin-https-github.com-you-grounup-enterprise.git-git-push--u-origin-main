@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **174** |
-| Opened by a screen | **155** |
+| Doors | **186** |
+| Opened by a screen | **167** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -88,15 +88,26 @@ None.
 | `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
 | `convert_lead` | function | lib/data/leads.ts |
+| `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_company_for` | function | lib/data/admin.ts |
 | `create_daily_report` | function | lib/data/project.ts |
+| `create_employee` | function | lib/data/workforce.ts |
 | `create_estimate` | function | lib/data/estimates.ts |
 | `create_estimate_from_template` | function | lib/data/templates.ts |
+| `create_material` | function | lib/data/library.ts |
 | `create_my_company` | function | lib/data/session.ts |
+| `create_pay_application` | function | lib/data/finance.ts |
 | `create_plan` | function | lib/data/admin.ts |
 | `create_platform_role` | function | lib/data/admin.ts |
+| `create_project` | function | lib/data/projects.ts |
+| `create_purchase_order` | function | lib/data/procurement.ts |
 | `create_rfi` | function | lib/data/project.ts |
+| `create_rfq` | function | lib/data/procurement.ts |
+| `create_safety_incident` | function | lib/data/safety.ts |
+| `create_toolbox_talk` | function | lib/data/safety.ts |
+| `create_vendor` | function | lib/data/library.ts |
+| `create_work_order` | function | lib/data/fleet.ts |
 | `customize_assembly` | function | lib/data/assemblies.ts |
 | `decide_refund` | function | lib/data/admin.ts |
 | `decide_upsell` | function | lib/data/admin.ts |
@@ -129,7 +140,7 @@ None.
 | `my_announcements` | view | lib/data/session.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
-| `my_companies` | view | lib/data/session.ts |
+| `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
@@ -141,7 +152,7 @@ None.
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
 | `my_payment_problem` | view | lib/data/session.ts |
-| `my_plan` | view | lib/data/billing.ts, lib/data/takeoff.ts |
+| `my_plan` | view | lib/data/billing.ts, lib/data/company.ts, lib/data/takeoff.ts |
 | `my_plan_sets_without_sheets` | view | lib/data/takeoff.ts |
 | `my_preferences` | view | lib/data/preferences.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
@@ -215,6 +226,7 @@ None.
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |
 | `submit_lead` | function | lib/data/lead-forms.ts |
+| `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |
 | `suspend_company` | function | lib/data/admin.ts |
 | `update_estimate_line` | function | lib/data/estimates.ts |

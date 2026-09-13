@@ -218,16 +218,25 @@ describe('inventory', () => {
 describe('what has no writer yet', () => {
   it('offers no button that would do nothing', async () => {
     /*
-     * `rfqs` and `purchase_orders` have no writer. A disabled control that says
-     * what it needs is honest; an enabled one that silently does nothing is the
-     * defect this codebase keeps producing.
+     * These two were disabled because `rfqs` and `purchase_orders` had no
+     * writer — honest, and still a screen a company could read and not use.
+     * Migration 0162 gave both a writer, so the honest thing is now the
+     * opposite: enabled, and opening something.
+     *
+     * What the test holds down is unchanged. A control on this page either does
+     * something or says why it cannot; what it may never be is enabled and
+     * inert, which is the defect this codebase keeps producing.
      */
+    const user = userEvent.setup();
     show();
     await waitFor(() => expect(screen.getByRole('button', { name: /New RFQ/i })).toBeTruthy());
-    expect(screen.getByRole('button', { name: /New RFQ/i }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: /New RFQ/i }).hasAttribute('disabled')).toBe(false);
     /* Exact, because "Purchase orders" is also the name of a tab. */
-    expect(screen.getByRole('button', { name: 'Purchase order' }).hasAttribute('disabled'))
-      .toBe(true);
+    const raise = screen.getByRole('button', { name: 'Purchase order' });
+    expect(raise.hasAttribute('disabled')).toBe(false);
+
+    await user.click(raise);
+    expect(await screen.findByRole('dialog')).toBeTruthy();
   });
 });
 

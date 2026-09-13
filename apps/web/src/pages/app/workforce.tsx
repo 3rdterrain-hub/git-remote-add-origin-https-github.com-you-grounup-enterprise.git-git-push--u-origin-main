@@ -18,11 +18,16 @@ import {
 } from '@/lib/data/workforce';
 import { money, percent, qty, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { AddEmployeeDialog } from '@/components/workforce/add-employee';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { TimeClockSection } from '@/components/workforce/time-clock';
 import { loadTimeClock, duration as clockDuration } from '@/lib/data/time-clock';
 
 export function WorkforcePage() {
+  /* The button in the header had no handler at all, so a company could not
+     record a single member of staff — and the clock, which matches a punch to a
+     login through employees.user_id, had nothing to match. */
+  const [addingEmployee, setAddingEmployee] = useState(false);
   const { companyId } = useCompanyId();
   const clockQ = useQuery(loadTimeClock, []);
   const clockRows = clockQ.status === 'ready' ? clockQ.data : [];
@@ -94,7 +99,11 @@ export function WorkforcePage() {
       <PageHeader
         title="Workforce"
         description="Employees, the credentials that let them do the work, and the time that becomes job cost. A timecard posts to the same cost code the estimate priced."
-        actions={<Button><Plus className="size-4" /> Add employee</Button>}
+        actions={(
+          <Button onClick={() => setAddingEmployee(true)}>
+            <Plus className="size-4" /> Add employee
+          </Button>
+        )}
       />
 
       {demo ? <DemonstrationNotice what="this page" /> : null}
@@ -362,6 +371,13 @@ export function WorkforcePage() {
           </p>
         </TabsContent>
       </Tabs>
+
+      <AddEmployeeDialog
+        open={addingEmployee}
+        onOpenChange={setAddingEmployee}
+        companyId={companyId}
+        onAdded={() => { employeesQ.refetch(); clockQ.refetch(); }}
+      />
     </div>
   );
 }

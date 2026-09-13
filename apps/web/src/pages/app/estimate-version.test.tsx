@@ -1140,16 +1140,26 @@ describe('what the line looked like on a real screen', () => {
     expect(box.className).not.toContain('w-24');
   });
 
-  it('leaves the last column wide enough for the badge that lives in it', async () => {
+  it('keeps the last column for the controls, and the badge off the row', async () => {
     /*
-     * The confidence badge is 91px on its own and shared a 4rem track with the
-     * delete button. It spilled 53px to its left, over the total — "not priced"
-     * rendered as "not", and on a priced line it would have covered the last
-     * digits of the money.
+     * The confidence badge used to live in this track. It is 91px on its own,
+     * it shared the track with the delete button, and it spilled to its left
+     * over the total — "not priced" rendered as "not", and on a priced line it
+     * covered the last digits of the money.
+     *
+     * Widening the track was the first answer and the wrong one: the row is
+     * eleven columns and the last of them is money, so every rem spent here
+     * comes off the description. The badge said what the warning triangle
+     * beside the description already says and what the banner above says
+     * again, so it is gone from the row and its wording is on the triangle.
+     * The verdict itself is untouched — it is what blocks the bid.
      *
      * The header and the rows have to carry the same eleven tracks or the
      * columns do not line up down the estimate, so both are checked.
      */
+    hoisted.version = version({
+      lines: [line({ blocksIssue: true, confidenceBand: 'do_not_price' })],
+    });
     renderPage(<EstimateVersionPage />);
     await waitFor(() =>
       expect(document.querySelector('[data-line-header]')).not.toBeNull());
@@ -1162,10 +1172,14 @@ describe('what the line looked like on a real screen', () => {
       expect(template).toBeTruthy();
       const tracks = template!.split('_');
       expect(tracks).toHaveLength(11);
-      // The quantity, and the cluster at the end.
+      // The quantity, and the cluster at the end — now only the controls.
       expect(tracks[3]).toBe('5.5rem');
-      expect(tracks[10]).toBe('7.5rem');
+      expect(tracks[10]).toBe('4rem');
     }
+
+    // The wording moved onto the triangle; it is not text on the row.
+    expect(screen.queryByText('Do Not Price')).toBeNull();
+    expect(screen.getByLabelText('This line blocks issue')).toBeInTheDocument();
   });
 
   it('says nothing about waste before the engine has computed any', async () => {

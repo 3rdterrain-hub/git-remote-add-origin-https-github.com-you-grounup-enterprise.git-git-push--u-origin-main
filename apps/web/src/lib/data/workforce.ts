@@ -16,6 +16,7 @@
 import { unwrap, type Query } from './query';
 import { supabase } from '@/lib/supabase';
 import { EMPLOYEES, TIME_ENTRIES } from '@/data/fleet';
+import { localDay } from '@/lib/format';
 
 export interface EmployeeRow {
   id: string; employeeNumber: string; name: string; classification: string | null;
@@ -55,7 +56,7 @@ const embedded = <T,>(v: unknown): T | null => {
  * question start disagreeing — anything the view does not list is current.
  */
 export const loadEmployees: Query<EmployeeRow[]> = async (client) => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const [people, lapsed, assignments] = await Promise.all([
     unwrap(await client
       .from('employees')
@@ -196,3 +197,53 @@ export const demonstrationTimeEntries = (): TimeEntryRow[] =>
     costCode: t.costCode, straight: t.straight, overtime: t.overtime, doubletime: 0,
     approvalState: t.approvalState, exported: t.exported,
   }));
+
+// ---------------------------------------------------------------------------
+// Adding somebody
+//
+// "Add employee" sat in the Workforce header with no handler from the day the
+// screen shipped, so a company could not record a single member of staff. That
+// is not only a Workforce gap: the clock matches a punch to a login through
+// `employees.user_id` (migration 0122), so the person who created the company
+// had nothing to punch and the dashboard told them so every morning.
+// ---------------------------------------------------------------------------
+
+export interface NewEmployee {
+  firstName: string;
+  lastName: string;
+  email?: string | null;
+  phone?: string | null;
+  employmentType?: string;
+  classification?: string | null;
+  hourlyRate?: number | null;
+  hireDate?: string | null;
+  /** Attach this record to the caller's own login, so they can clock in. */
+  linkMe?: boolean;
+}
+
+/**
+ * Add somebody who works here, and return their id.
+ *
+ * The employee number is generated in the database rather than here: employees
+ * is unique on (company_id, employee_number), so two people adding staff at the
+ * same moment would otherwise collide on the index.
+ */
+export async function createEmployee(
+  companyId: string, employee: NewEmployee,
+): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_employee', {
+    p_company: companyId,
+    p_first_name: employee.firstName,
+    p_last_name: employee.lastName,
+    p_email: employee.email ?? null,
+    p_phone: employee.phone ?? null,
+    p_employment_type: employee.employmentType ?? 'full_time',
+    p_classification: employee.classification ?? null,
+    p_hourly_rate: employee.hourlyRate ?? null,
+    p_hire_date: employee.hireDate ?? null,
+    p_link_me: employee.linkMe ?? false,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}

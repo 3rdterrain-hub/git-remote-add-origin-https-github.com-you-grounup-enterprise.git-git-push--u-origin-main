@@ -17,7 +17,7 @@ import {
   loadCompanyActivity, loadExpiring, loadEarningsBy, loadProposals, loadAdminCompanies,
   decideUpsell, type EarningsGrain,
 } from '@/lib/data/admin';
-import { ExportButton } from '@/components/admin/export-button';
+import { ExportButton } from '@/components/export-button';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { CompanyLink } from '@/components/admin/company-link';
 import { money, integer, date, dateTime } from '@/lib/format';

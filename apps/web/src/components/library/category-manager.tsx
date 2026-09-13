@@ -47,10 +47,20 @@ import { cn } from '@/lib/utils';
 /** A category on the list, with what is filed under it. */
 interface Row extends CategoryOption { inUse: number; mine: number }
 
-export function CategoryManager({ companyId, canEdit }: {
+export function CategoryManager({ companyId, canEdit, only }: {
   companyId: string | null;
   /** `libraries.write`. Without it the lists are readable and nothing else. */
   canEdit: boolean;
+  /**
+   * Show one list rather than all of them.
+   *
+   * This began as its own tab, which put "Categories" in a row that otherwise
+   * names things a company buys and hires — and made somebody wanting to tidy
+   * the material categories leave the materials to do it. Pinned to a kind, the
+   * same control sits under the library it governs, which is where the question
+   * is asked.
+   */
+  only?: CategoryKind;
 }) {
   const kinds = useQuery(loadCategoryKinds, []);
   const [kind, setKind] = useState<CategoryKind | null>(null);
@@ -68,21 +78,27 @@ export function CategoryManager({ companyId, canEdit }: {
   /* One tab per list. `lead_source` governs two tables and is one list, so the
      tabs are the distinct kinds rather than the rows. */
   const tabs = kinds.data.filter(
-    (k, i, all) => all.findIndex((o) => o.kind === k.kind) === i);
-  const active = kind ?? tabs[0]?.kind ?? null;
-  if (!active) return null;
+    (k, i, all) => all.findIndex((o) => o.kind === k.kind) === i)
+    .filter((k) => !only || k.kind === only);
+  const active = only ?? kind ?? tabs[0]?.kind ?? null;
+  /* Pinned to a kind this schema does not have: say nothing rather than draw an
+     empty card, because the tab around it is about something else. */
+  if (!active || (only && tabs.length === 0)) return null;
+  const label = tabs.find((t) => t.kind === active)?.label ?? 'Categories';
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Categories</CardTitle>
+        <CardTitle>{only ? label : 'Categories'}</CardTitle>
         <CardDescription>
-          The lists your libraries group by. Rename one and everything filed under it
-          moves with the name; remove one and you say where its items go.
+          {only
+            ? 'How this library is grouped. Rename one and everything filed under it moves with the name; remove one and you say where its items go.'
+            : 'The lists your libraries group by. Rename one and everything filed under it moves with the name; remove one and you say where its items go.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Category lists">
+        <div className={cn('flex flex-wrap gap-1.5', only && 'hidden')}
+          role="tablist" aria-label="Category lists">
           {tabs.map((t) => (
             <button
               key={t.kind}
