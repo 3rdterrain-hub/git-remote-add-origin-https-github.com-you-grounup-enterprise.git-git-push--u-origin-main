@@ -27,6 +27,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WhatItTakes } from '@/components/estimate/what-it-takes';
 import { LoadingState, ErrorState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
@@ -55,6 +56,7 @@ const TABS: Array<{ kind: LineResource['kind']; icon: typeof Users2 }> = [
   { kind: 'material', icon: Package },
   { kind: 'trucking', icon: Truck },
   { kind: 'subcontract', icon: ShoppingCart },
+  { kind: 'disposal', icon: Trash2 },
 ];
 
 /** How many hours a rented period covers, for the note under an equipment row. */
@@ -146,6 +148,16 @@ export function LineDetail({ line, editable, onChanged }: {
       {resourcesQ.status === 'error'
         ? <ErrorState message={resourcesQ.message} onRetry={resourcesQ.refetch} /> : null}
 
+      {/*
+        * What the service implies, before the tabs that hold what it has. The
+        * library has known this since 0004 and nothing asked it, so every line
+        * was built by hand from a catalog that already had the answer.
+        */}
+      <WhatItTakes lineId={line.id} editable={editable} onApplied={() => {
+        resourcesQ.refetch();
+        onChanged();
+      }} />
+
       <Tabs defaultValue="labor">
         <TabsList>
           {TABS.map(({ kind, icon: Icon }) => (
@@ -176,6 +188,10 @@ export function LineDetail({ line, editable, onChanged }: {
         </TabsContent>
         <TabsContent value="subcontract">
           <SubTab rows={of('subcontract')} editable={editable} busy={busy}
+            onSave={save} onRemove={remove} />
+        </TabsContent>
+        <TabsContent value="disposal">
+          <DisposalTab rows={of('disposal')} editable={editable} busy={busy}
             onSave={save} onRemove={remove} />
         </TabsContent>
       </Tabs>
@@ -281,6 +297,7 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
               <th className="font-medium">Burden</th>
               <th className="font-medium">Loaded</th>
               <th className="font-medium">Hours</th>
+              <th className="font-medium">Prod/hr</th>
               <th className="font-medium">Drives hours</th>
               <th className="text-right font-medium">Cost</th>
               <th />
@@ -323,14 +340,31 @@ function CrewTab({ rows, editable, busy, hours, onSave, onRemove }: {
                         onCommit={(v) => { void onSave('labor', { hours: v ?? 0 }, r.id); }} />
                     )}
                   </td>
+                  {/*
+                    * The rate the crew works at, which had no box.
+                    *
+                    * Equipment rows have carried a production rate since they
+                    * were built; crew rows could be ticked to drive the hours
+                    * and had nowhere to say at what rate, so the tick defaulted
+                    * to one unit an hour. On a line measured in yards that read
+                    * "8,400 hr for 8,400 CY" beside a benchmark of 75 CY/hr —
+                    * visibly absurd, and unfixable from the screen.
+                    */}
+                  <td><Num value={r.productionPerHour} disabled={!editable} width="w-20"
+                    name={`Production rate for ${r.description ?? 'this row'}`}
+                    onCommit={(v) => { void onSave('labor', {
+                      production_per_hour: v,
+                      // A rate of nothing cannot drive anything.
+                      drives_hours: v != null && v > 0 && r.drivesHours,
+                    }, r.id); }} /></td>
                   <td className="px-2">
                     <input type="checkbox" checked={r.drivesHours} disabled={!editable}
                       aria-label={`${r.description ?? 'This row'} drives the hours`}
                       onChange={(e) => { void onSave('labor', {
                         drives_hours: e.target.checked,
                         // A driver has to say at what rate; the database refuses
-                        // one that does not, so a default is offered rather than
-                        // an error thrown at somebody ticking a box.
+                        // one that does not. Whatever the row already carries is
+                        // kept, so ticking never overwrites a rate somebody set.
                         production_per_hour: e.target.checked
                           ? (r.productionPerHour ?? 1) : r.productionPerHour,
                       }, r.id); }} />
@@ -731,6 +765,67 @@ function SubTab({ rows, editable, busy, onSave, onRemove }: {
       <p className="text-xs text-charcoal-500">
         A subcontract is a price rather than a build-up, so the engine takes it as direct cost and
         does not resolve resources behind it.
+      </p>
+    </div>
+  );
+}
+
+
+function DisposalTab({ rows, editable, busy, onSave, onRemove }: {
+  rows: LineResource[]; editable: boolean; busy: boolean;
+  onSave: SaveFn; onRemove: (id: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      {rows.length === 0 ? <Empty what="say where the spoil goes and what it costs to tip." /> : null}
+      {rows.map((r) => (
+        <div key={r.id}
+          className="flex flex-wrap items-end gap-3 rounded-md border border-charcoal-200 bg-white p-3">
+          {/*
+            * The site is the row's identity, the same way a vendor is on a
+            * subcontract. Typing a name of your own is still allowed and
+            * unlinks the site — a tip nobody has a library entry for is still
+            * a cost that belongs on the line.
+            */}
+          <ResourceName kind="disposal" label="Site" value={r.description}
+            linked={r.libraryId !== null} disabled={!editable}
+            onChange={(f) => { void onSave('disposal', f, r.id); }} />
+          <Num label="Quantity" value={r.quantity || null} disabled={!editable} width="w-24"
+            onCommit={(v) => { void onSave('disposal', { quantity: v ?? 0 }, r.id); }} />
+          <div className="w-24 space-y-1">
+            <Label className="text-xs text-charcoal-500">Unit</Label>
+            <UnitSelect value={r.unit} disabled={!editable}
+              onChange={(u) => { void onSave('disposal', { unit: u }, r.id); }} />
+          </div>
+          {/*
+            * The tipping fee, in whatever the site charges by. A site billing
+            * by the ton and a line measured in yards is a conversion somebody
+            * has to make deliberately — the engine will not invent a density
+            * to bridge them.
+            */}
+          <Num label="Tipping fee" value={r.unitRate || null} disabled={!editable} width="w-28"
+            onCommit={(v) => { void onSave('disposal', { unit_rate: v ?? 0 }, r.id); }} />
+          <span className="tabular ml-auto pb-2 font-medium"><Cost value={r.extendedCost} /></span>
+          {editable ? (
+            <Button variant="ghost" size="icon" className="mb-1 size-7"
+              aria-label={`Remove ${r.description ?? 'this disposal'}`}
+              onClick={() => onRemove(r.id)}>
+              <Trash2 className="size-3.5" />
+            </Button>
+          ) : null}
+        </div>
+      ))}
+      {editable ? (
+        <ResourcePicker
+          kind="disposal" label="Add disposal" disabled={busy}
+          onPick={(f) => { void onSave('disposal', { quantity: 1, unit_rate: 0, ...f }); }}
+          onBlank={() => {
+            void onSave('disposal', { description: '', unit_rate: 0, quantity: 1 });
+          }} />
+      ) : null}
+      <p className="text-xs text-charcoal-500">
+        Disposal is its own cost bucket under RULE-001 — never folded into trucking, because
+        what the haul costs and what the tip costs move for different reasons.
       </p>
     </div>
   );

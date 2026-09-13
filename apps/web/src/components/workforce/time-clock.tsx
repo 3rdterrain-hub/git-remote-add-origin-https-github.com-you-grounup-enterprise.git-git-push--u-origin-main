@@ -72,8 +72,20 @@ const STANDING_TONE: Record<string, string> = {
 };
 
 /** The card a person punches from. */
-export function PunchCard({ companyId, compact = false }: { companyId: string; compact?: boolean }) {
-  const mine = useQuery(loadMyClock, [companyId]);
+export function PunchCard({ companyId, compact = false, refreshKey = 0 }: {
+  companyId: string;
+  compact?: boolean;
+  /**
+   * Bumped by whatever outside this card changes who the caller is.
+   *
+   * The card asks "which employee is this login" and holds the answer. Adding
+   * yourself on the roster changes that answer, and the card had no way to
+   * know — so the screen said "you have no employee record" next to the row it
+   * had just created, until the page was reloaded.
+   */
+  refreshKey?: number;
+}) {
+  const mine = useQuery(loadMyClock, [companyId, refreshKey]);
   const [busy, setBusy] = useState<PunchKind | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -172,8 +184,12 @@ export function PunchCard({ companyId, compact = false }: { companyId: string; c
 }
 
 /** Who is on the clock right now. */
-export function TimeClockBoard({ companyId }: { companyId: string }) {
-  const board = useQuery(loadTimeClock, [companyId]);
+export function TimeClockBoard({ companyId, refreshKey = 0 }: {
+  companyId: string;
+  /** As above: a new employee belongs on the board straight away. */
+  refreshKey?: number;
+}) {
+  const board = useQuery(loadTimeClock, [companyId, refreshKey]);
 
   if (board.status === 'loading') return <LoadingState label="Reading the board" />;
   if (board.status === 'error') return <ErrorState message={board.message} onRetry={board.refetch} />;
@@ -428,7 +444,11 @@ export function UnpostedDays() {
 }
 
 /** The whole thing, as it appears on the Workforce screen. */
-export function TimeClockSection({ companyId }: { companyId: string }) {
+export function TimeClockSection({ companyId, refreshKey = 0 }: {
+  companyId: string;
+  /** Passed through: adding an employee can change whose clock this is. */
+  refreshKey?: number;
+}) {
   const { can } = usePermissions();
   return (
     <div className="grid gap-4 lg:grid-cols-3">
@@ -439,7 +459,7 @@ export function TimeClockSection({ companyId }: { companyId: string }) {
           </CardTitle>
           <CardDescription>Punch in, take a break, punch out.</CardDescription>
         </CardHeader>
-        <CardContent><PunchCard companyId={companyId} /></CardContent>
+        <CardContent><PunchCard companyId={companyId} refreshKey={refreshKey} /></CardContent>
       </Card>
 
       <Card className="lg:col-span-2">
@@ -449,7 +469,7 @@ export function TimeClockSection({ companyId }: { companyId: string }) {
           </CardTitle>
           <CardDescription>Everybody active, whether or not they have punched today.</CardDescription>
         </CardHeader>
-        <CardContent><TimeClockBoard companyId={companyId} /></CardContent>
+        <CardContent><TimeClockBoard companyId={companyId} refreshKey={refreshKey} /></CardContent>
       </Card>
 
       <Card className="lg:col-span-3">

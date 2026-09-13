@@ -812,7 +812,15 @@ export interface CrewPreset {
   id: string;
   code: string;
   name: string;
-  description: string | null;
+  /**
+   * What trade the crew is, from `crews.discipline`.
+   *
+   * This read `description`, which is not a column on `crews` and never has
+   * been — so every crew-preset picker in the application answered with
+   * `column crews.description does not exist` and the feature had simply never
+   * run. Found by pressing the button.
+   */
+  discipline: string | null;
   shiftHours: number;
   members: CrewPresetMember[];
   scope: Scope;
@@ -821,7 +829,7 @@ export interface CrewPreset {
 export const loadCrews: Query<CrewPreset[]> = async (client) => {
   const rows = unwrap(await client
     .from('crews')
-    .select('id, code, name, description, shift_hours, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
+    .select('id, code, name, discipline, shift_hours, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
     .eq('status', 'active')
     .order('name')
     .limit(300)) as Array<Record<string, unknown>>;
@@ -830,7 +838,7 @@ export const loadCrews: Query<CrewPreset[]> = async (client) => {
     id: String(c.id),
     code: String(c.code),
     name: String(c.name),
-    description: (c.description as string | null) ?? null,
+    discipline: (c.discipline as string | null) ?? null,
     shiftHours: Number(c.shift_hours ?? 8),
     scope: scopeOf(c.company_id, c.enterprise_group_id),
     members: ((c.crew_members ?? []) as Array<Record<string, unknown>>).map((m) => {

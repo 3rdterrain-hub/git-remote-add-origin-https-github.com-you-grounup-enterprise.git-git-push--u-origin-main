@@ -66,11 +66,15 @@ const markup = (over: Partial<EstimateMarkup> = {}): EstimateMarkup => ({
  */
 const show = async (editable = true, cost?: {
   directCost?: number; indirectCost?: number; storedPrice?: number;
+  contingency?: { recommended: number; override?: number | null };
+  confidence?: number | null;
 }) => {
   const r = render(<MarkupPanel versionId="v-1" editable={editable}
     directCost={cost?.directCost ?? 0}
     indirectCost={cost?.indirectCost ?? 0}
-    storedPrice={cost?.storedPrice ?? 0} />);
+    storedPrice={cost?.storedPrice ?? 0}
+    confidence={cost?.confidence ?? null}
+    {...(cost?.contingency ? { contingency: cost.contingency } : {})} />);
   await userEvent.click(
     await screen.findByRole('button', { name: /markup and adjustments/i }));
   return r;
@@ -295,5 +299,67 @@ describe('markup and adjustments', () => {
     await show(false);
     await waitFor(() => expect(screen.getByLabelText('Apply Overhead')).toBeDisabled());
     expect(screen.getByLabelText('Overhead percent')).toBeDisabled();
+  });
+});
+
+/**
+ * The contingency on screen is not always the one being charged.
+ *
+ * E-2026-0005 priced at 30% markup against a panel reading `CONT 3%` — the
+ * engine had raised contingency to the 8% a weighted confidence of 70.6
+ * justifies, and the panel neither said so nor previewed it. It previewed 25%
+ * and then told the estimator the correct recorded price was stale.
+ */
+describe('the contingency the engine will actually charge', () => {
+  beforeEach(() => {
+    hoisted.markups = [
+      markup(),
+      markup({ code: 'PROFIT', label: 'Profit', percent: 0.12, sequence: 20 }),
+      markup({ code: 'CONT', label: 'Contingency', percent: 0.03, sequence: 30 }),
+    ];
+    hoisted.fromProfile = true;
+  });
+
+  it('names the rate that prices on the collapsed header, not the one on file', async () => {
+    render(<MarkupPanel versionId="v-1" editable
+      directCost={25_517.91} indirectCost={0} storedPrice={33_173.28}
+      confidence={70.6} contingency={{ recommended: 0.08 }} />);
+    expect(await screen.findByText(/CONT 8%/)).toBeInTheDocument();
+    expect(screen.queryByText(/CONT 3%/)).not.toBeInTheDocument();
+  });
+
+  it('says on the contingency box why the engine is charging more', async () => {
+    await show(true, {
+      directCost: 25_517.91, storedPrice: 33_173.28,
+      confidence: 70.6, contingency: { recommended: 0.08 },
+    });
+    expect(await screen.findByText(/engine charges 8% here/i)).toBeInTheDocument();
+    expect(screen.getByText(/weighted confidence of 70.6/i)).toBeInTheDocument();
+  });
+
+  it('stops calling the recorded price stale when it was right all along', async () => {
+    await show(true, {
+      directCost: 25_517.91, storedPrice: 33_173.28,
+      confidence: 70.6, contingency: { recommended: 0.08 },
+    });
+    await waitFor(() => expect(screen.getByText('$33,173.28')).toBeInTheDocument());
+    expect(screen.queryByText(/price it again/i)).not.toBeInTheDocument();
+  });
+
+  it('says nothing extra when the profile already carries the higher figure', async () => {
+    hoisted.markups = hoisted.markups.map(
+      (m) => (m.code === 'CONT' ? { ...m, percent: 0.20 } : m));
+    await show(true, { directCost: 100_000, contingency: { recommended: 0.08 } });
+    expect(await screen.findByText(/on cost\. the engine charges the higher/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText(/engine charges/i)?.textContent)
+      .not.toMatch(/here/);
+  });
+
+  it('says an approved override is what stands, whatever the box holds', async () => {
+    await show(true, {
+      directCost: 100_000, contingency: { recommended: 0.12, override: 0.05 },
+    });
+    expect(await screen.findByText(/approved override charges 5%/i)).toBeInTheDocument();
   });
 });

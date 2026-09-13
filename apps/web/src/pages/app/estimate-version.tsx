@@ -565,7 +565,14 @@ export function EstimateVersionPage() {
         editable={editable && can('estimates.write')} onChanged={version.refetch} />
 
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
-        directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice} />
+        directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice}
+        confidence={v.confidence}
+        {...(v.calculatedAt ? {
+          contingency: {
+            recommended: v.recommendedContingency,
+            override: v.contingencyOverride,
+          },
+        } : {})} />
 
       <AddLinesDialog open={browsing} onOpenChange={setBrowsing} versionId={v.id}
         onAdded={(n) => {
@@ -672,7 +679,16 @@ function LineTable({
   /* What bidding a line in an off-list unit costs, per line, once it does. */
   const [unitNotes, setUnitNotes] = useState<Record<string, string | null>>({});
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState<string[]>([]);
+  /*
+   * One wrench at a time.
+   *
+   * It was a list, so every line opened stayed open: work three lines and the
+   * estimate is three panels deep, and the row you wanted next is somewhere
+   * below a crew table, an equipment table and a haul profile. A panel is for
+   * working on *this* line, so opening one closes the last — and clicking the
+   * same wrench again closes it, because that is what a toggle does.
+   */
+  const [open, setOpen] = useState<string | null>(null);
   /** The line being dragged, and the one it is currently hovering after. */
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -814,7 +830,7 @@ function LineTable({
             </div>
           ) : null}
           {shown.map((l, i) => {
-            const expanded = open.includes(l.id);
+            const expanded = open === l.id;
             return (
               <Fragment key={l.id}>
                 <div
@@ -969,8 +985,7 @@ function LineTable({
                     */}
                   <div className="shrink-0">
                     <button
-                      onClick={() => setOpen((o) =>
-                        o.includes(l.id) ? o.filter((x) => x !== l.id) : [...o, l.id])}
+                      onClick={() => setOpen((o) => (o === l.id ? null : l.id))}
                       aria-label={expanded
                         ? `Hide the crew, equipment, material and haul on ${l.description}`
                         : `Crew, equipment, material and haul on ${l.description}`}

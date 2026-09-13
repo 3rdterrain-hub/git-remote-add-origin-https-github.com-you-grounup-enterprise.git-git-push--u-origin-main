@@ -99,7 +99,16 @@ function Picker({ kind, onPick, onPickCrew, onClose }: {
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-2xl">
+      {/*
+        * Room to actually read the library.
+        *
+        * This was 42rem with a 20rem list — about six rows visible out of a
+        * catalog of several thousand, on a monitor with room for thirty. You
+        * search a library by scanning it, and a window that shows six rows
+        * makes you search by typing instead, which only works when you
+        * already know what the thing is called.
+        */}
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle>{TITLE[kind]}</DialogTitle>
           <DialogDescription>{BLURB[kind]}</DialogDescription>
@@ -111,7 +120,8 @@ function Picker({ kind, onPick, onPickCrew, onClose }: {
         {active.status === 'loading' ? <LoadingState label={`Loading ${TITLE[kind]}`} /> : null}
         {active.status === 'error' ? <ErrorState message={active.message} /> : null}
 
-        <div className="max-h-80 overflow-y-auto rounded-[--radius-card] border border-charcoal-200">
+        {/* As tall as the window allows, rather than a fixed twenty rem. */}
+        <div className="max-h-[60vh] min-h-64 overflow-y-auto rounded-[--radius-card] border border-charcoal-200">
           {kind === 'labor' && labor.status === 'ready' ? (
             <Rows
               rows={labor.data.filter((l) => matches(`${l.classification} ${l.code}`))}

@@ -54,14 +54,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@/lib/data/query';
 import {
-  searchLaborRates, searchEquipment, searchMaterials, searchVendors, searchTruckingRates,
+  searchLaborRates,
+  searchEquipment,
+  searchMaterials,
+  searchVendors,
+  searchTruckingRates,
   type LibraryPick,
+  LIBRARY_PICKER_ROWS,
+  searchDisposalSites,
 } from '@/lib/data/estimates';
 import { money } from '@/lib/format';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-export type PickKind = 'labor' | 'equipment' | 'material' | 'subcontract' | 'trucking';
+export type PickKind =
+  | 'labor' | 'equipment' | 'material' | 'subcontract' | 'trucking' | 'disposal';
 
 const SEARCH = {
   labor: searchLaborRates,
@@ -69,6 +76,7 @@ const SEARCH = {
   material: searchMaterials,
   subcontract: searchVendors,
   trucking: searchTruckingRates,
+  disposal: searchDisposalSites,
 } as const;
 
 const PLACEHOLDER: Record<PickKind, string> = {
@@ -77,6 +85,7 @@ const PLACEHOLDER: Record<PickKind, string> = {
   material: 'Type a material — stone, pipe, cement',
   subcontract: 'Type a subcontractor',
   trucking: 'Type a truck — tandem, quad, tri-axle',
+  disposal: 'Type a site — landfill, transfer station, clean fill',
 };
 
 /**
@@ -91,6 +100,7 @@ const LINK: Record<PickKind, keyof PickedResource> = {
   material: 'material_id',
   subcontract: 'vendor_id',
   trucking: 'trucking_rate_id',
+  disposal: 'disposal_site_id',
 };
 
 /** What the picked row becomes on the line. */
@@ -104,6 +114,7 @@ export interface PickedResource {
   material_id?: string;
   vendor_id?: string;
   trucking_rate_id?: string;
+  disposal_site_id?: string;
   /** A haul profile brings its own cycle; `extra` on the pick carries them. */
   [field: string]: string | number | undefined;
 }
@@ -122,6 +133,7 @@ function asFields(kind: PickKind, p: LibraryPick): PickedResource {
     case 'equipment': base.equipment_id = p.id; return base;
     case 'material': base.material_id = p.id; return base;
     case 'subcontract': base.vendor_id = p.id; return base;
+    case 'disposal': base.disposal_site_id = p.id; return base;
     case 'trucking':
       base.trucking_rate_id = p.id;
       /*
@@ -158,8 +170,28 @@ function Combobox({
   const [term, setTerm] = useState(seed);
   const [cursor, setCursor] = useState(-1);
   const field = useRef<HTMLInputElement>(null);
+  const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => { field.current?.focus(); field.current?.select(); }, []);
+
+  /*
+   * Clicking away closes it.
+   *
+   * Escape was the only way out, which is the shortcut somebody who already
+   * knows the screen uses. Somebody who opened the wrong picker reaches for
+   * the obvious thing — click off it — and nothing happened, so the list sat
+   * over the row underneath and the mistake felt sticky.
+   *
+   * On `mousedown` rather than `click`, so it closes on the press instead of
+   * waiting for a release that may land somewhere else entirely.
+   */
+  useEffect(() => {
+    const away = (e: MouseEvent) => {
+      if (box.current && !box.current.contains(e.target as Node)) onCancel();
+    };
+    document.addEventListener('mousedown', away);
+    return () => document.removeEventListener('mousedown', away);
+  }, [onCancel]);
 
   /*
    * Seeded with the current name, the first search would be for that name and
@@ -186,7 +218,7 @@ function Combobox({
   };
 
   return (
-    <div className="relative">
+    <div ref={box} className="relative">
       <Input
         ref={field}
         value={term}
@@ -201,9 +233,19 @@ function Combobox({
         onChange={(e) => { setTerm(e.target.value); setCursor(-1); }}
         onKeyDown={onKeyDown} />
 
+      {/*
+        * The list is sized for reading, not for the box that opened it.
+        *
+        * It was `left-0 right-0`, so it took the width of its trigger — and
+        * the crew picker sits in a table cell pinned to `w-44`. Equipment and
+        * materials open in a flexible column and looked generous; crew opened
+        * at 176px and looked broken, from one component. A minimum width here
+        * makes all five the same, and `right-auto` lets it exceed the cell it
+        * hangs off rather than being squeezed back into it.
+        */}
       {showing ? (
         <div role="listbox" aria-label={`Matching ${kind}`}
-          className="absolute left-0 right-0 top-9 z-30 max-h-60 overflow-y-auto rounded-md
+          className="absolute left-0 right-auto top-9 z-30 max-h-80 min-w-[26rem] overflow-y-auto rounded-md
                      border border-charcoal-200 bg-white shadow-lg">
           {rows.map((p, i) => (
             <button key={p.id} type="button" role="option" aria-selected={i === cursor}
@@ -237,6 +279,19 @@ function Combobox({
       ) : null}
 
       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-charcoal-500">
+        {/*
+          * Said, rather than left to be assumed.
+          *
+          * A capped list that does not admit it is a search that looks broken:
+          * the same rows come back however you scroll, and the thing you wanted
+          * appears not to exist. This is the one sentence that turns "it is not
+          * in here" into "keep typing".
+          */}
+        {rows.length >= LIBRARY_PICKER_ROWS ? (
+          <span className="text-warn-700">
+            First {LIBRARY_PICKER_ROWS}. Keep typing to narrow it.
+          </span>
+        ) : null}
         {footer}
       </div>
     </div>

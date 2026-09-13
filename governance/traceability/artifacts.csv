@@ -281,6 +281,7 @@ TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
+TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
 TST-db-api-surface,test,db/api-surface.test.ts,tests/db/api-surface.test.ts,ENGINE
 TST-db-audit-context,test,db/audit-context.test.ts,tests/db/audit-context.test.ts,ENGINE
@@ -381,6 +382,7 @@ TST-db-usage-allowance,test,db/usage-allowance.test.ts,tests/db/usage-allowance.
 TST-db-weather-at-the-job-site,test,db/weather-at-the-job-site.test.ts,tests/db/weather-at-the-job-site.test.ts,ENGINE
 TST-db-what-a-line-sells-for,test,db/what-a-line-sells-for.test.ts,tests/db/what-a-line-sells-for.test.ts,ENGINE
 TST-db-where-the-work-is,test,db/where-the-work-is.test.ts,tests/db/where-the-work-is.test.ts,ENGINE
+TST-db-which-job-you-are-standing-on,test,db/which-job-you-are-standing-on.test.ts,tests/db/which-job-you-are-standing-on.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
 TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE

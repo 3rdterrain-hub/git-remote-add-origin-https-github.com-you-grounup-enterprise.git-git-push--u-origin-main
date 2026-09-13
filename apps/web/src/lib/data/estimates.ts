@@ -194,6 +194,14 @@ export interface VersionDetail {
   totalEquipmentHours: number;
   blockedFromIssue: boolean;
   confidence: number | null;
+  /**
+   * The contingency the confidence band justifies, written by the engine.
+   * `calculateEstimate` charges the higher of this and the profile's, so the
+   * rate on the markup panel is not on its own the rate that prices.
+   */
+  recommendedContingency: number;
+  /** An approved contingency override, or null — reason and approver required. */
+  contingencyOverride: number | null;
   engineVersion: string | null;
   calculatedAt: string | null;
   /** Set once the version is approved; what makes the price reproducible. */
@@ -315,7 +323,7 @@ export const loadEstimates: Query<EstimateRow[]> = async (client) => {
 export const loadVersion = (versionId: string): Query<VersionDetail | null> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_versions')
-    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, site_address, site_city, site_state, customers(name))')
+    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, recommended_contingency, applied_contingency, contingency_source, contingency_override_reason, contingency_approved_by, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, site_address, site_city, site_state, customers(name))')
     .eq('id', versionId)
     .limit(1)) as Array<Record<string, unknown>>;
   const v = rows[0];
@@ -354,6 +362,17 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
     totalEquipmentHours: num(v.total_equipment_hours),
     blockedFromIssue: Boolean(v.blocked_from_issue),
     confidence: v.weighted_confidence == null ? null : Number(v.weighted_confidence),
+    /*
+     * The contingency the engine derives from confidence, and the estimator's
+     * own only when it is an approved override — migration 0006 requires a
+     * reason and an approver for one, and the Edge Function honors it on the
+     * same terms. Read here so the markup panel can preview what will actually
+     * be charged rather than what is on file.
+     */
+    recommendedContingency: num(v.recommended_contingency),
+    contingencyOverride: v.contingency_source === 'override'
+      && v.contingency_override_reason && v.contingency_approved_by
+      ? num(v.applied_contingency) : null,
     engineVersion: (v.engine_version as string | null) ?? null,
     calculatedAt: (v.calculated_at as string | null) ?? null,
     librarySnapshotId: (v.library_snapshot_id as string | null) ?? null,
@@ -1021,13 +1040,29 @@ export interface LibraryPick {
 const like = (term: string) => `%${term.trim()}%`;
 
 /** Crew: the classifications, priced at the burdened hourly cost a line pays. */
+/**
+ * How much of a library a picker may hand back.
+ *
+ * It was 25. A catalog with several thousand materials in it answered a picker
+ * with the first twenty-five alphabetically, so "the whole library" was a
+ * promise the box could not keep — and worse, the twenty-five were the same
+ * twenty-five every time, which reads as a broken search rather than a capped
+ * one.
+ *
+ * Not unbounded either: a select holding four thousand rows is a select nobody
+ * can use and a payload nobody asked for. The screen says when it has hit the
+ * ceiling, so a person knows to keep typing rather than assuming the rest does
+ * not exist.
+ */
+export const LIBRARY_PICKER_ROWS = 250;
+
 export const searchLaborRates = (term: string): Query<LibraryPick[]> => async (client) => {
   let q = client
     .from('labor_rates')
     .select('id, code, classification, labor_group, burdened_cost_per_hour, company_id')
     .eq('status', 'active');
   if (term.trim()) q = q.ilike('classification', like(term));
-  const rows = unwrap(await q.order('classification').limit(25)) as unknown as
+  const rows = unwrap(await q.order('classification').limit(LIBRARY_PICKER_ROWS)) as unknown as
     Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
@@ -1054,7 +1089,7 @@ export const searchEquipment = (term: string): Query<LibraryPick[]> => async (cl
     .from('my_unrated_equipment')
     .select('id, code, name, equipment_class, brand, model, hourly_rate, rate_state, company_id');
   if (term.trim()) q = q.ilike('name', like(term));
-  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+  const rows = unwrap(await q.order('name').limit(LIBRARY_PICKER_ROWS)) as unknown as
     Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
@@ -1075,7 +1110,7 @@ export const searchMaterials = (term: string): Query<LibraryPick[]> => async (cl
     .select('id, code, name, category, unit, unit_cost, cost_state, company_id')
     .eq('status', 'active');
   if (term.trim()) q = q.ilike('name', like(term));
-  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+  const rows = unwrap(await q.order('name').limit(LIBRARY_PICKER_ROWS)) as unknown as
     Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
@@ -1088,6 +1123,45 @@ export const searchMaterials = (term: string): Query<LibraryPick[]> => async (cl
     /* Migration 0121: an uncosted material is a different fact from a free one. */
     unpriced: r.cost_state === 'not_costed',
   }));
+};
+
+/**
+ * Disposal sites, by what it costs to tip there.
+ *
+ * The last of the six resource kinds with no picker. `disposal_site_id` has
+ * been a column on `estimate_line_resources` all along and 0151 already writes
+ * and repoints it — there was simply no way to choose one, so disposal was a
+ * bucket RULE-001 keeps separate and nothing could put anything in.
+ *
+ * The tipping fee is the rate and its own unit comes with it: sites charge by
+ * the ton, by the yard or by the load, and converting one to another here is
+ * exactly the invented number this platform refuses to make.
+ */
+export const searchDisposalSites = (term: string): Query<LibraryPick[]> => async (client) => {
+  let q = client
+    .from('disposal_sites')
+    .select('id, code, name, tipping_fee, fee_unit, city, state_province, '
+      + 'material_types, company_id')
+    .eq('status', 'active');
+  if (term.trim()) q = q.ilike('name', like(term));
+  const rows = unwrap(await q.order('name').limit(LIBRARY_PICKER_ROWS)) as unknown as
+    Array<Record<string, unknown>>;
+  return rows.map((r) => {
+    const where = [r.city, r.state_province].filter(Boolean).join(', ');
+    const takes = ((r.material_types as string[] | null) ?? []).join(', ');
+    return {
+      id: String(r.id),
+      code: (r.code as string | null) ?? null,
+      name: String(r.name),
+      rate: Number(r.tipping_fee ?? 0),
+      unit: (r.fee_unit as string | null) ?? null,
+      /* Where it is, and what it will take — the two things that decide
+         whether a site is usable for this spoil at all. */
+      detail: [where, takes].filter(Boolean).join(' · ') || null,
+      isOwn: r.company_id !== null,
+      unpriced: Number(r.tipping_fee ?? 0) === 0,
+    };
+  });
 };
 
 /**
@@ -1110,7 +1184,7 @@ export const searchTruckingRates = (term: string): Query<LibraryPick[]> => async
           + 'load_minutes, dump_minutes, delay_minutes, loaded_speed_mph, empty_speed_mph, company_id')
     .eq('status', 'active');
   if (term.trim()) q = q.or(`name.ilike.${like(term)},truck_type.ilike.${like(term)}`);
-  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+  const rows = unwrap(await q.order('name').limit(LIBRARY_PICKER_ROWS)) as unknown as
     Array<Record<string, unknown>>;
   return rows.map((r) => {
     const loaded = Number(r.loaded_speed_mph ?? 30);
@@ -1145,7 +1219,7 @@ export const searchVendors = (term: string): Query<LibraryPick[]> => async (clie
     /* A subcontract line wants subcontractors, not the gravel pit. */
     .in('vendor_type', ['subcontractor', 'service']);
   if (term.trim()) q = q.ilike('name', like(term));
-  const rows = unwrap(await q.order('name').limit(25)) as unknown as
+  const rows = unwrap(await q.order('name').limit(LIBRARY_PICKER_ROWS)) as unknown as
     Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),

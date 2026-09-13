@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **186** |
-| Opened by a screen | **167** |
+| Doors | **190** |
+| Opened by a screen | **171** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -139,11 +139,13 @@ None.
 | `my_ai_findings` | view | lib/data/plans.ts |
 | `my_announcements` | view | lib/data/session.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
+| `my_assignments` | view | lib/data/field-work.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
+| `my_jobs_nearby` | function | lib/data/field-work.ts |
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
@@ -156,7 +158,8 @@ None.
 | `my_plan_sets_without_sheets` | view | lib/data/takeoff.ts |
 | `my_preferences` | view | lib/data/preferences.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
-| `my_project` | view | lib/data/project.ts |
+| `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
+| `my_project_tasks` | view | lib/data/field-work.ts |
 | `my_refunds` | view | lib/data/billing.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_site_weather` | view | lib/data/project.ts |
@@ -222,6 +225,7 @@ None.
 | `set_plan_price` | function | lib/data/admin.ts |
 | `set_plan_trial` | function | lib/data/admin.ts |
 | `set_plan_visibility` | function | lib/data/admin.ts |
+| `set_project_geofence` | function | lib/data/field-work.ts |
 | `set_role_permissions` | function | lib/data/admin.ts |
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |

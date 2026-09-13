@@ -31,7 +31,10 @@ import {
   loadDiscount, setEstimateDiscount,
   type EstimateMarkup,
 } from '@/lib/data/estimates';
-import { previewPrice, previewDiffersFromStored } from '@/lib/data/price-preview';
+import {
+  previewPrice, previewDiffersFromStored, resolveContingency,
+  type ContingencyContext, type AppliedContingency,
+} from '@/lib/data/price-preview';
 import { money } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -51,14 +54,16 @@ const STANDARD: Array<{
   { code: 'PROFIT', label: 'Profit', basis: 'profile_default', sequence: 20, disclosed: false,
     hint: 'On cost, beside overhead.' },
   { code: 'CONT', label: 'Contingency', basis: 'profile_default', sequence: 30, disclosed: false,
-    hint: 'On cost. The engine also derives one from confidence.' },
+    hint: 'On cost. The engine charges the higher of this and what confidence justifies.' },
   { code: 'BOND', label: 'Bond / permit', basis: 'marked_up_total', sequence: 40, disclosed: true,
     hint: 'On the marked-up total, in a second pass.' },
   { code: 'TAX', label: 'Tax', basis: 'marked_up_total', sequence: 50, disclosed: true,
     hint: 'On the marked-up total, in a second pass.' },
 ];
 
-export function MarkupPanel({ versionId, editable, directCost, indirectCost, storedPrice }: {
+export function MarkupPanel({
+  versionId, editable, directCost, indirectCost, storedPrice, contingency, confidence,
+}: {
   versionId: string;
   editable: boolean;
   /**
@@ -69,6 +74,13 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
   directCost?: number;
   indirectCost?: number;
   storedPrice?: number;
+  /**
+   * What the engine will charge for contingency, which is not always what this
+   * panel holds. Omitted before the estimate has ever been priced.
+   */
+  contingency?: ContingencyContext;
+  /** The weighted confidence the recommendation came from, for the wording. */
+  confidence?: number | null;
 }) {
   const markupsQ = useQuery(loadEstimateMarkups(versionId), [versionId]);
   const [error, setError] = useState<string | null>(null);
@@ -108,9 +120,25 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
   });
 
   const enabled = state.markups.filter((m) => m.enabled);
-  const summary = enabled.length === 0
-    ? 'none on this bid'
-    : enabled.map((m) => `${m.code} ${Math.round(m.percent * 1000) / 10}%`).join(' · ');
+  /*
+   * The collapsed line has to name the rates that price, not the ones on file.
+   * It read `CONT 3%` on a bid the engine was charging 8% for, which is the
+   * same figure being wrong in the one place somebody reads without opening
+   * anything.
+   */
+  const applied: AppliedContingency | null = contingency
+    ? resolveContingency(contingency, enabled.find((m) => m.code === 'CONT')?.percent ?? null)
+    : null;
+  const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
+  const summaryParts = enabled
+    .filter((m) => m.code !== 'CONT' || applied === null || applied.applied > 0)
+    .map((m) => (m.code === 'CONT' && applied !== null
+      ? `CONT ${pct(applied.applied)}`
+      : `${m.code} ${pct(m.percent)}`));
+  if (applied !== null && applied.applied > 0 && !enabled.some((m) => m.code === 'CONT')) {
+    summaryParts.push(`CONT ${pct(applied.applied)}`);
+  }
+  const summary = summaryParts.length === 0 ? 'none on this bid' : summaryParts.join(' · ');
 
   return (
     <CollapsibleCard
@@ -179,6 +207,17 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
                   ) : null}
                 </div>
                 <p className="mt-1 text-xs text-charcoal-500">{s.hint}</p>
+                {s.code === 'CONT' && applied !== null && applied.source !== 'profile' ? (
+                  <p className="mt-1 text-xs text-warn-700">
+                    {applied.source === 'override'
+                      ? `An approved override charges ${pct(applied.applied)} on this bid, `
+                        + 'whatever this box holds.'
+                      : `The engine charges ${pct(applied.applied)} here`
+                        + `${confidence == null ? '' : `: a weighted confidence of ${confidence}`}`
+                        + ` justifies ${pct(applied.recommended)}, and the higher of the two is `
+                        + 'what prices. Raise this above it to price at your own figure.'}
+                  </p>
+                ) : null}
                 {s.disclosed ? (
                   <Badge variant="default" className="mt-1">shown to the customer</Badge>
                 ) : null}
@@ -210,6 +249,7 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
           directCost={directCost ?? 0}
           indirectCost={indirectCost ?? 0}
           storedPrice={storedPrice ?? 0}
+          {...(contingency ? { contingency } : {})}
         />
       </div>
     </CollapsibleCard>
@@ -228,7 +268,7 @@ export function MarkupPanel({ versionId, editable, directCost, indirectCost, sto
  * preview read as the bid is worse than no preview at all.
  */
 function LivePrice({
-  versionId, markups, discountNonce, directCost, indirectCost, storedPrice,
+  versionId, markups, discountNonce, directCost, indirectCost, storedPrice, contingency,
 }: {
   versionId: string;
   markups: readonly EstimateMarkup[];
@@ -236,12 +276,16 @@ function LivePrice({
   directCost: number;
   indirectCost: number;
   storedPrice: number;
+  contingency?: ContingencyContext;
 }) {
   const discountQ = useQuery(loadDiscount(versionId), [versionId, discountNonce]);
   const discount = discountQ.status === 'ready'
     ? discountQ.data : { percent: 0, amount: 0, reason: null };
 
-  const preview = previewPrice({ directCost, indirectCost, markups, discount });
+  const preview = previewPrice({
+    directCost, indirectCost, markups, discount,
+    ...(contingency ? { contingency } : {}),
+  });
   if (!preview) {
     return (
       <p className="text-xs text-charcoal-500">

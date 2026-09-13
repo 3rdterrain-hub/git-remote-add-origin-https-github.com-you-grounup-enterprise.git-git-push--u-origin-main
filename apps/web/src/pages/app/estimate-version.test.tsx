@@ -303,15 +303,20 @@ describe('the estimate workspace', () => {
       expect(a).toMatch(/grid-cols-\[/);
     });
 
-    it('gives the description the room that is left, rather than a fixed slice', async () => {
+    it('gives the description the room that is left, with a floor under it', async () => {
       hoisted.version = version();
       const { container } = renderPage(<EstimateVersionPage />);
       await screen.findByRole('button', { name: 'Unit cost for Mass excavation' });
       const row = (cardOf(container).firstElementChild as HTMLElement).className;
       /*
-       * `1fr` on the service column, with a real floor under it: the field
-       * being typed into is the one that grows, and it never gets squeezed
-       * below something a line description can be read in.
+       * `1fr` with a real floor under it, and the width it is a fraction *of*
+       * is bounded by the shell rather than by the monitor.
+       *
+       * Rationing this column to a fraction was tried and undone. It fixed the
+       * sprawl on a wide screen by leaving a void after the total, which is the
+       * same problem wearing a different coat. Capping the page fixes both: the
+       * row fills its container, and "everything spare" is a sensible column
+       * instead of half the glass.
        */
       const service = row.match(/grid-cols-\[[^_]+_([^_]+)_/)![1]!;
       expect(service).toMatch(/^minmax\(\d+rem,1fr\)$/);
@@ -1138,6 +1143,45 @@ describe('what the line looked like on a real screen', () => {
     const box = screen.getAllByLabelText(/^Quantity for /)[0]!;
     expect(box.className).toContain('w-full');
     expect(box.className).not.toContain('w-24');
+  });
+
+  it('opens one wrench at a time, and closes the one before it', async () => {
+    /*
+     * Every panel opened used to stay open. Work three lines and the estimate
+     * is three panels deep — a crew table, an equipment table and a haul
+     * profile between you and the row you wanted next. A panel is for working
+     * on *this* line.
+     */
+    const user = userEvent.setup();
+    hoisted.version = version({
+      lines: [
+        line({ id: 'l-1', description: 'Mass excavation' }),
+        line({ id: 'l-2', sortOrder: 20, description: 'Fine grading' }),
+      ],
+    });
+    renderPage(<EstimateVersionPage />);
+
+    /* The label says "Hide the crew…" once it is open, so the matcher has to
+       accept both halves of the toggle. */
+    const wrench = async (name: string) =>
+      screen.getByRole('button',
+        { name: new RegExp(`crew, equipment, material and haul on ${name}$`, 'i') });
+    const isOpen = async (name: string) =>
+      (await wrench(name)).getAttribute('aria-expanded') === 'true';
+
+    await waitFor(async () => expect(await wrench('Mass excavation')).toBeTruthy());
+    expect(await isOpen('Mass excavation')).toBe(false);
+
+    await user.click(await wrench('Mass excavation'));
+    expect(await isOpen('Mass excavation')).toBe(true);
+
+    await user.click(await wrench('Fine grading'));
+    expect(await isOpen('Fine grading')).toBe(true);
+    expect(await isOpen('Mass excavation'), 'the first panel stayed open').toBe(false);
+
+    // The same wrench again closes it, because that is what a toggle does.
+    await user.click(await wrench('Fine grading'));
+    expect(await isOpen('Fine grading')).toBe(false);
   });
 
   it('keeps the last column for the controls, and the badge off the row', async () => {

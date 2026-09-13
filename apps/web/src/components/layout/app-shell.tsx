@@ -596,7 +596,18 @@ export function AppShell() {
           </nav>
         ) : null}
 
-        <main key={location.pathname} className="min-w-0 flex-1 p-4 lg:p-6">
+        {/*
+          * A ceiling on the reading width.
+          *
+          * Nothing capped this, so on a wide monitor every screen stretched to
+          * the glass: an estimate line spread one description across half the
+          * width while its numbers sat marooned at the far right, and a
+          * paragraph ran to two hundred characters a line. Capped, the lines
+          * still take the full width of the page — it is the page that stops
+          * growing.
+          */}
+        <main key={location.pathname}
+          className="mx-auto w-full min-w-0 max-w-[1600px] flex-1 p-4 lg:p-6">
           {/*
             * Said here rather than discovered on a refusal. Somebody who spends
             * a morning on an estimate and only then learns their account is

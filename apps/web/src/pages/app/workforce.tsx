@@ -28,6 +28,10 @@ export function WorkforcePage() {
      record a single member of staff — and the clock, which matches a punch to a
      login through employees.user_id, had nothing to match. */
   const [addingEmployee, setAddingEmployee] = useState(false);
+  /* Bumped when somebody is added, so the punch card asks again whose
+     clock it is. Adding yourself used to leave the card saying you had no
+     employee record, beside the row it had just created. */
+  const [rosterChanged, setRosterChanged] = useState(0);
   const { companyId } = useCompanyId();
   const clockQ = useQuery(loadTimeClock, []);
   const clockRows = clockQ.status === 'ready' ? clockQ.data : [];
@@ -188,7 +192,7 @@ export function WorkforcePage() {
           */}
         <TabsContent value="clock" className="space-y-4">
           {companyId
-            ? <TimeClockSection companyId={companyId} />
+            ? <TimeClockSection companyId={companyId} refreshKey={rosterChanged} />
             : <LoadingState label="Finding your company" />}
         </TabsContent>
 
@@ -376,7 +380,11 @@ export function WorkforcePage() {
         open={addingEmployee}
         onOpenChange={setAddingEmployee}
         companyId={companyId}
-        onAdded={() => { employeesQ.refetch(); clockQ.refetch(); }}
+        onAdded={() => {
+          employeesQ.refetch();
+          clockQ.refetch();
+          setRosterChanged((n) => n + 1);
+        }}
       />
     </div>
   );
