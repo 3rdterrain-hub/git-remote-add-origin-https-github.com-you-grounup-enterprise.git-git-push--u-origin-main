@@ -37,6 +37,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, Progress, Separator } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RecordComments } from '@/components/comments/record-comments';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { SiteWeather } from '@/components/project/site-weather';
@@ -269,6 +270,7 @@ export function ProjectDetailPage() {
           <TabsTrigger value="weather">Weather</TabsTrigger>
           <TabsTrigger value="changes">Change orders ({changeOrders.length})</TabsTrigger>
           <TabsTrigger value="rfis">RFIs &amp; submittals ({openRfis.length + openSubmittals.length})</TabsTrigger>
+          <TabsTrigger value="discussion">Discussion</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
         </TabsList>
 
@@ -832,6 +834,16 @@ export function ProjectDetailPage() {
         </TabsContent>
 
         {/* ======================================================== overview */}
+        {/*
+          * Crew and office, talking on the job rather than in somebody's phone.
+          * Mounted here first because a project is the record most people have
+          * a question about; the same panel goes on a change order, an RFI, a
+          * daily report or a safety incident unchanged.
+          */}
+        <TabsContent value="discussion" className="space-y-4">
+          <RecordComments subjectKind="project" subjectId={id} />
+        </TabsContent>
+
         <TabsContent value="overview">
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>

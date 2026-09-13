@@ -150,9 +150,12 @@ TBL-project_costs,table,project_costs,supabase/migrations (table project_costs),
 TBL-project_tasks,table,project_tasks,supabase/migrations (table project_tasks),ENTITY
 TBL-projects,table,projects,supabase/migrations (table projects),ENTITY
 TBL-proposal_line_items,table,proposal_line_items,supabase/migrations (table proposal_line_items),ENTITY
+TBL-proposal_share_links,table,proposal_share_links,supabase/migrations (table proposal_share_links),ENTITY
+TBL-proposal_signatures,table,proposal_signatures,supabase/migrations (table proposal_signatures),ENTITY
 TBL-proposals,table,proposals,supabase/migrations (table proposals),ENTITY
 TBL-purchase_order_items,table,purchase_order_items,supabase/migrations (table purchase_order_items),ENTITY
 TBL-purchase_orders,table,purchase_orders,supabase/migrations (table purchase_orders),ENTITY
+TBL-record_comments,table,record_comments,supabase/migrations (table record_comments),ENTITY
 TBL-refund_requests,table,refund_requests,supabase/migrations (table refund_requests),ENTITY
 TBL-regional_factors,table,regional_factors,supabase/migrations (table regional_factors),LIBRARY
 TBL-resource_assignments,table,resource_assignments,supabase/migrations (table resource_assignments),ENTITY
@@ -280,6 +283,7 @@ TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
+TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
@@ -369,9 +373,12 @@ TST-db-support-sessions,test,db/support-sessions.test.ts,tests/db/support-sessio
 TST-db-surface-integrity,test,db/surface-integrity.test.ts,tests/db/surface-integrity.test.ts,ENGINE
 TST-db-suspension,test,db/suspension.test.ts,tests/db/suspension.test.ts,ENGINE
 TST-db-takeoff,test,db/takeoff.test.ts,tests/db/takeoff.test.ts,ENGINE
+TST-db-talking-about-the-work,test,db/talking-about-the-work.test.ts,tests/db/talking-about-the-work.test.ts,ENGINE
 TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
+TST-db-the-certificate-that-lapses,test,db/the-certificate-that-lapses.test.ts,tests/db/the-certificate-that-lapses.test.ts,ENGINE
 TST-db-the-door-onto-awarding,test,db/the-door-onto-awarding.test.ts,tests/db/the-door-onto-awarding.test.ts,ENGINE
 TST-db-the-door-onto-the-schedule,test,db/the-door-onto-the-schedule.test.ts,tests/db/the-door-onto-the-schedule.test.ts,ENGINE
+TST-db-the-library-that-was-in-a-spreadsheet,test,db/the-library-that-was-in-a-spreadsheet.test.ts,tests/db/the-library-that-was-in-a-spreadsheet.test.ts,ENGINE
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
 TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
@@ -405,6 +412,7 @@ TST-gov-the-product-does-not-name-the-model,test,gov/the-product-does-not-name-t
 TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability.test.ts,ENGINE
 TST-gov-units-match-the-enum,test,gov/units-match-the-enum.test.ts,tests/governance/units-match-the-enum.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
+TST-web-record-comments,test,web/record-comments.test.tsx,apps/web/src/components/comments/record-comments.test.tsx,ENGINE
 TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
@@ -435,6 +443,7 @@ TST-web-haul-profiles,test,web/haul-profiles.test.tsx,apps/web/src/components/li
 TST-web-import-price-list,test,web/import-price-list.test.tsx,apps/web/src/components/library/import-price-list.test.tsx,ENGINE
 TST-web-import-rate-sheet,test,web/import-rate-sheet.test.tsx,apps/web/src/components/library/import-rate-sheet.test.tsx,ENGINE
 TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.tsx,apps/web/src/components/library/services-without-a-breakdown.test.tsx,ENGINE
+TST-web-starter-library,test,web/starter-library.test.tsx,apps/web/src/components/library/starter-library.test.tsx,ENGINE
 TST-web-what-a-haul-costs,test,web/what-a-haul-costs.test.tsx,apps/web/src/components/library/what-a-haul-costs.test.tsx,ENGINE
 TST-web-search-the-drawings,test,web/search-the-drawings.test.tsx,apps/web/src/components/plans/search-the-drawings.test.tsx,ENGINE
 TST-web-project-actions,test,web/project-actions.test.tsx,apps/web/src/components/project/project-actions.test.tsx,ENGINE

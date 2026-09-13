@@ -35,6 +35,7 @@ import { Logo } from '@/components/layout/logo';
 import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
+import { SendForSignature } from '@/components/proposal/send-for-signature';
 import {
   loadProposals, loadVersion, recordProposalOutcome,
   type ProposalRow, type VersionDetail,
@@ -281,7 +282,15 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
           </CardDescription>
         </div>
         {proposal.status === 'issued' && canAnswer ? (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {/*
+              * The customer answering for themselves, beside the older path
+              * where somebody here types what they said. Both are kept: a
+              * signed link is better evidence, and a customer who answers by
+              * telephone still has to be recorded somewhere.
+              */}
+            <SendForSignature proposalId={proposal.id} proposalNumber={proposal.number}
+              defaultName={proposal.customerName ?? null} />
             <Button size="sm" variant="outline" onClick={() => onAnswer('declined')}>
               <ThumbsDown className="size-4" /> Declined
             </Button>

@@ -190,13 +190,60 @@ describe('a drawing becomes a quantity', () => {
         .rejects.toThrow(/already been accepted/i);
     });
 
-    it('refuses a finding that is not a quantity', async () => {
+    it('takes a scope item at zero, because a scope is not a measurement', async () => {
+      /*
+       * Widened in 0168. A scope read out of an email — "regrade the lot and
+       * replace the drive" — names real work and no dimensions, and refusing it
+       * refused the case the feature exists for. It arrives at zero, and the
+       * approval gate refuses an unmeasured line before it can reach a bid.
+       */
       const f = await finding({ finding_type: 'scope_item', payload: {} });
-      await expect(asChief(`select app.accept_finding_as_line($1,$2)`, [f, version]))
-        .rejects.toThrow(/only a quantity candidate/i);
+      const [row] = await asChief<{ accept_finding_as_line: string }>(
+        `select app.accept_finding_as_line($1,$2)`, [f, version]);
+      expect(row!.accept_finding_as_line).toBeTruthy();
     });
 
-    it('refuses a quantity candidate with no usable quantity', async () => {
+    it('still refuses a kind that is not work at all', async () => {
+      const f = await finding({ finding_type: 'risk', payload: { quantity: 10, unit: 'LF' } });
+      await expect(asChief(`select app.accept_finding_as_line($1,$2)`, [f, version]))
+        .rejects.toThrow(/does not become a line/i);
+    });
+
+    it('refuses to approve an estimate carrying work nobody measured', async () => {
+      /*
+       * The hole the scope item opened, and the reason it was safe to open it.
+       * Approval already refused a line with a quantity and no price; it did
+       * not refuse the opposite — a line with a crew and a machine on it and no
+       * quantity, which prices to zero and sits in the total contributing
+       * nothing. Nothing could create one before, so nobody had noticed.
+       */
+      // Its own estimate: the shared one already carries lines from earlier
+      // tests that trip the older "quantity and no price" check first, which
+      // would pass this test for the wrong reason.
+      const [est] = await asChief<{ id: string }>(
+        `select app.create_estimate('Unmeasured scope', null, null, null, $1) as id`, [company]);
+      const [ev] = await asChief<{ v: string }>(
+        `select current_version_id as v from estimates where id = $1`, [est!.id]);
+      const own = ev!.v;
+
+      const f = await finding({ finding_type: 'scope_item', payload: {} });
+      const [line] = await asChief<{ accept_finding_as_line: string }>(
+        `select app.accept_finding_as_line($1,$2)`, [f, own]);
+      const lineId = line!.accept_finding_as_line;
+
+      await asChief(
+        `select app.save_line_resource($1,'labor',
+           jsonb_build_object('description','Operator','base_rate',40,'headcount',1))`,
+        [lineId]);
+
+      await expect(asChief(
+        `select app.set_estimate_status($1,'approved'::app.estimate_status,'ready')`, [own]))
+        .rejects.toThrow(/carry a build-up and no quantity/i);
+    });
+
+    it('still refuses a quantity candidate carrying no quantity', async () => {
+      // A quantity candidate claims a measurement. One with no number is a
+      // broken finding, and that has not changed.
       const f = await finding({ payload: { unit: 'LF' } });
       await expect(asChief(`select app.accept_finding_as_line($1,$2)`, [f, version]))
         .rejects.toThrow(/no usable quantity/i);

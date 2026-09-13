@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Users2, ShieldAlert, Clock, CheckCircle2, Plus, Lock, AlertTriangle, BadgeCheck,
 } from 'lucide-react';
+import { StaffingGaps } from '@/components/workforce/staffing-gaps';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,6 +112,14 @@ export function WorkforcePage() {
       />
 
       {demo ? <DemonstrationNotice what="this page" /> : null}
+
+      {/*
+        * The question the assignment control never asked. It refuses to put
+        * somebody on work they are not credentialed for, on the day it is
+        * asked; this is whether the people already out there are still
+        * qualified tomorrow.
+        */}
+      <StaffingGaps />
       {employeesQ.status === 'loading' ? <LoadingState label="Loading the roster" /> : null}
       {employeesQ.status === 'error'
         ? <ErrorState message={employeesQ.message} onRetry={employeesQ.refetch} /> : null}

@@ -3,6 +3,7 @@ import { Library, Search, Lock, Copy, ShieldCheck, Info, Plus, Archive } from 'l
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { AssemblyLibrary } from '@/components/library/assemblies';
 import { ServicesWithoutABreakdown } from '@/components/library/services-without-a-breakdown';
+import { StarterLibrary } from '@/components/library/starter-library';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -217,6 +218,14 @@ export function LibrariesPage() {
         companyId={companyId}
         onAdded={() => { vendorsQ.refetch(); countsQ.refetch(); }}
       />
+
+      {/*
+        * The door onto `install_earthwork_starter_library`. Built without one
+        * first, and the door inventory caught it — which is the check that
+        * exists because this is the defect this build produces most.
+        */}
+      <StarterLibrary companyId={companyId}
+        onInstalled={() => { countsQ.refetch(); servicesQ.refetch(); }} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Services" value={count(counts?.services)} icon={<Library className="size-4" />}

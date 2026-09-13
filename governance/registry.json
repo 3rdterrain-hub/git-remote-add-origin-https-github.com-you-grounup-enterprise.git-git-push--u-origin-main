@@ -120,9 +120,12 @@
     "project_tasks": "ENTITY",
     "projects": "ENTITY",
     "proposal_line_items": "ENTITY",
+    "proposal_share_links": "ENTITY",
+    "proposal_signatures": "ENTITY",
     "proposals": "ENTITY",
     "purchase_order_items": "ENTITY",
     "purchase_orders": "ENTITY",
+    "record_comments": "ENTITY",
     "refund_requests": "ENTITY",
     "regional_factors": "LIBRARY",
     "resource_assignments": "ENTITY",
@@ -362,7 +365,7 @@
       "id": "ENG-032",
       "name": "Quantity Arithmetic",
       "path": "packages/engine/src/arithmetic.ts",
-      "purpose": "Evaluates the arithmetic an estimator types into a quantity cell \u2014 a parser over five operators and brackets, never an interpreter, so an estimator\u2019s text is not a code path. Refuses rather than returning a partial answer."
+      "purpose": "Evaluates the arithmetic an estimator types into a quantity cell — a parser over five operators and brackets, never an interpreter, so an estimator’s text is not a code path. Refuses rather than returning a partial answer."
     }
   ],
   "ai_agents": [

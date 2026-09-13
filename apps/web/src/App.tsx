@@ -14,6 +14,7 @@ import { LandingPage } from '@/pages/landing';
 const AppShell = lazy(() => import('@/components/layout/app-shell').then((m) => ({ default: m.AppShell })));
 const AuthPage = lazy(() => import('@/pages/auth').then((m) => ({ default: m.AuthPage })));
 const AdminShell = lazy(() => import('@/pages/admin/shell').then((m) => ({ default: m.AdminShell })));
+const SignProposalPage = lazy(() => import('@/pages/sign-proposal').then((m) => ({ default: m.SignProposalPage })));
 const AdminLoginPage = lazy(() => import('@/pages/admin/login').then((m) => ({ default: m.AdminLoginPage })));
 const AdminDashboard = lazy(() => import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboard })));
 const AdminCompanies = lazy(() => import('@/pages/admin').then((m) => ({ default: m.AdminCompanies })));
@@ -111,6 +112,13 @@ export function App() {
             * is exchanged.
             */}
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          {/*
+            * Where a customer signs. Outside the shell on purpose: whoever
+            * opens this is not a member of anything and should not be shown a
+            * navigation bar for a platform they do not use. The token in the
+            * address is their whole credential.
+            */}
+          <Route path="/sign/:token" element={<SignProposalPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminShell />}>
             <Route index element={<AdminDashboard />} />

@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **190** |
-| Opened by a screen | **171** |
+| Doors | **201** |
+| Opened by a screen | **182** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -101,6 +101,7 @@ None.
 | `create_plan` | function | lib/data/admin.ts |
 | `create_platform_role` | function | lib/data/admin.ts |
 | `create_project` | function | lib/data/projects.ts |
+| `create_proposal_share_link` | function | lib/data/proposal-links.ts |
 | `create_purchase_order` | function | lib/data/procurement.ts |
 | `create_rfi` | function | lib/data/project.ts |
 | `create_rfq` | function | lib/data/procurement.ts |
@@ -118,6 +119,7 @@ None.
 | `dismiss_announcement` | function | lib/data/session.ts |
 | `dismiss_notification` | function | lib/data/session.ts |
 | `earnings` | function | lib/data/admin.ts |
+| `edit_comment` | function | lib/data/comments.ts |
 | `end_break` | function | lib/data/time-clock.ts |
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `haul_cost` | function | lib/data/library.ts |
@@ -125,6 +127,7 @@ None.
 | `import_equipment_rates` | function | lib/data/library.ts |
 | `import_materials` | function | lib/data/library.ts |
 | `insert_estimate_line_after` | function | lib/data/estimates.ts |
+| `install_earthwork_starter_library` | function | lib/data/library.ts |
 | `is_platform_admin` | function | lib/data/admin.ts |
 | `is_superadmin` | function | lib/data/admin.ts |
 | `is_supporting` | function | lib/data/admin.ts |
@@ -160,9 +163,11 @@ None.
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
 | `my_project_tasks` | view | lib/data/field-work.ts |
+| `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_site_weather` | view | lib/data/project.ts |
+| `my_staffing_gaps` | view | lib/data/staffing.ts |
 | `my_suspension` | view | lib/data/session.ts |
 | `my_time_clock` | view | lib/data/time-clock.ts |
 | `my_time_punches` | view | lib/data/time-clock.ts |
@@ -172,12 +177,15 @@ None.
 | `my_weather` | view | lib/data/dashboard.ts, lib/data/project.ts |
 | `my_weather_now` | view | lib/data/project.ts |
 | `next_company_haul_code` | function | lib/data/library.ts |
+| `open_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `open_support_session` | function | lib/data/admin.ts |
 | `operator_can` | function | lib/data/admin.ts |
 | `override_line_production` | function | lib/data/production.ts |
+| `post_comment` | function | lib/data/comments.ts |
 | `post_punches_to_timecard` | function | lib/data/time-clock.ts |
 | `propose_upsell` | function | lib/data/admin.ts |
 | `publish_announcement` | function | lib/data/admin.ts |
+| `qualified_and_available` | function | lib/data/staffing.ts |
 | `record_export` | function | lib/data/admin.ts |
 | `record_production_actual` | function | lib/data/production.ts |
 | `record_proposal_outcome` | function | lib/data/estimates.ts |
@@ -190,11 +198,14 @@ None.
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `request_refund` | function | lib/data/admin.ts |
+| `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `restore_company` | function | lib/data/admin.ts |
 | `retire_library_category` | function | lib/data/categories.ts |
 | `retract_announcement` | function | lib/data/admin.ts |
+| `retract_comment` | function | lib/data/comments.ts |
 | `revise_estimate_version` | function | lib/data/estimates.ts |
 | `revoke_operator` | function | lib/data/admin.ts |
+| `revoke_proposal_share_link` | function | lib/data/proposal-links.ts |
 | `save_estimate_template` | function | lib/data/templates.ts |
 | `save_line_resource` | function | lib/data/estimates.ts |
 | `save_line_to_library` | function | lib/data/estimates.ts |

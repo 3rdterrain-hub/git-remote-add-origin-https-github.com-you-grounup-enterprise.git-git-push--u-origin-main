@@ -1287,3 +1287,41 @@ export async function createVendorRow(companyId: string, vendor: NewVendor): Pro
   if (error) throw new Error(error.message);
   return String(data);
 }
+
+// ---------------------------------------------------------------------------
+// A library to start from
+// ---------------------------------------------------------------------------
+
+/** What an install put in. */
+export interface StarterLibraryResult {
+  crews: number; machines: number; assemblies: number; components: number; rates: number;
+}
+
+/**
+ * Install the earthwork starter library.
+ *
+ * A company with an empty library can price nothing, and the shipped catalog —
+ * which has services and rates — carries no assembly with a *resource* in it,
+ * so picking a service tells you what to do and never what it takes. This puts
+ * in crews, machines, and assemblies whose components are labor and equipment,
+ * which is what makes a service suggest its own build-up.
+ *
+ * Safe to run twice: every row is matched on its code and updated rather than
+ * added again, and a category that already exists is reused rather than
+ * duplicated.
+ */
+export async function installStarterLibrary(companyId?: string | null): Promise<StarterLibraryResult> {
+  if (!supabase) throw new Error('Not connected');
+  const { data, error } = await supabase.rpc('install_earthwork_starter_library', {
+    p_company: companyId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | null;
+  return {
+    crews: Number(row?.crews ?? 0),
+    machines: Number(row?.machines ?? 0),
+    assemblies: Number(row?.assemblies ?? 0),
+    components: Number(row?.components ?? 0),
+    rates: Number(row?.rates ?? 0),
+  };
+}

@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/misc';
+import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/components/data-state';
 import { useQuery } from '@/lib/data/query';
@@ -281,7 +282,16 @@ function ProjectTable({ rows, focus, onClearFocus }: {
               return (
                 <TableRow key={p.id}>
                   <TableCell className="max-w-72">
-                    <p className="font-medium text-charcoal-900">{p.number}</p>
+                    {/*
+                      * The reference is a link. `ProjectDetailPage` is nine
+                      * hundred lines behind `projects/:projectId` and the only
+                      * way to reach it was to type a UUID into the address bar:
+                      * the project number on this list was plain text.
+                      */}
+                    <Link to={`/app/projects/${p.id}`}
+                      className="font-medium text-charcoal-900 underline-offset-2 hover:underline">
+                      {p.number}
+                    </Link>
                     <p className="truncate text-xs text-charcoal-500">{p.name}</p>
                     {p.customer ? <p className="text-xs text-charcoal-400">{p.customer}</p> : null}
                   </TableCell>
