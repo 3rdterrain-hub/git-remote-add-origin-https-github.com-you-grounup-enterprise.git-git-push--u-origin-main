@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **209** |
-| Opened by a screen | **190** |
+| Doors | **218** |
+| Opened by a screen | **199** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -87,6 +87,7 @@ None.
 | `clock_out` | function | lib/data/time-clock.ts |
 | `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
+| `complete_crm_activity` | function | lib/data/crm-pipeline.ts |
 | `conflict_to_rfi` | function | lib/data/conflicts.ts |
 | `convert_lead` | function | lib/data/leads.ts |
 | `create_asset` | function | lib/data/fleet.ts |
@@ -138,16 +139,20 @@ None.
 | `library_category_members` | function | lib/data/categories.ts |
 | `line_production_options` | function | lib/data/production.ts |
 | `line_unit_note` | function | lib/data/estimates.ts |
+| `log_crm_activity` | function | lib/data/crm-pipeline.ts |
 | `mark_notification_read` | function | lib/data/session.ts |
 | `move_assembly_step` | function | lib/data/assemblies.ts |
 | `move_estimate_line` | function | lib/data/estimates.ts |
+| `move_opportunity_stage` | function | lib/data/crm-pipeline.ts |
 | `my_ai_findings` | view | lib/data/plans.ts |
 | `my_announcements` | view | lib/data/session.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_assignments` | view | lib/data/field-work.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
+| `my_contacts` | view | lib/data/crm-pipeline.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
+| `my_crm_activities` | view | lib/data/crm-pipeline.ts |
 | `my_document_conflicts` | view | lib/data/conflicts.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
@@ -160,6 +165,7 @@ None.
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
 | `my_payment_problem` | view | lib/data/session.ts |
+| `my_pipeline` | view | lib/data/crm-pipeline.ts |
 | `my_plan` | view | lib/data/billing.ts, lib/data/company.ts, lib/data/sheets.ts +1 |
 | `my_plan_sets_without_sheets` | view | lib/data/takeoff.ts |
 | `my_plan_sheets` | view | lib/data/sheets.ts |
@@ -208,12 +214,14 @@ None.
 | `resolve_document_conflict` | function | lib/data/conflicts.ts |
 | `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `restore_company` | function | lib/data/admin.ts |
+| `retire_contact` | function | lib/data/crm-pipeline.ts |
 | `retire_library_category` | function | lib/data/categories.ts |
 | `retract_announcement` | function | lib/data/admin.ts |
 | `retract_comment` | function | lib/data/comments.ts |
 | `revise_estimate_version` | function | lib/data/estimates.ts |
 | `revoke_operator` | function | lib/data/admin.ts |
 | `revoke_proposal_share_link` | function | lib/data/proposal-links.ts |
+| `save_contact` | function | lib/data/crm-pipeline.ts |
 | `save_estimate_template` | function | lib/data/templates.ts |
 | `save_line_resource` | function | lib/data/estimates.ts |
 | `save_line_to_library` | function | lib/data/estimates.ts |
@@ -254,5 +262,6 @@ None.
 | `suspend_company` | function | lib/data/admin.ts |
 | `update_estimate_line` | function | lib/data/estimates.ts |
 | `update_estimate_version` | function | lib/data/estimates.ts |
+| `update_opportunity` | function | lib/data/crm-pipeline.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
 | `workable_days_at` | function | lib/data/project.ts |

@@ -11,6 +11,7 @@
  * on the twelfth is a renewal to book. Listing them together would bury the
  * first in the second.
  */
+import { useState } from 'react';
 import { AlertTriangle, CalendarClock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +57,14 @@ export function StaffingGaps() {
   const now = all.filter((g) => g.alreadyLapsed);
   const soon = all.filter((g) => !g.alreadyLapsed);
 
+  /*
+   * Controlled rather than `defaultOpen`, which is read once at mount — before
+   * the query has answered. A card told to open itself when somebody is on site
+   * uncovered would mount shut and stay shut on precisely the day it mattered.
+   */
+  const [openedByHand, setOpenedByHand] = useState<boolean | null>(null);
+  const showing = openedByHand ?? (gaps.status === 'ready' && now.length > 0);
+
   return (
     <CollapsibleCard
       title={<span className="flex items-center gap-2">
@@ -64,7 +73,8 @@ export function StaffingGaps() {
       description="Assignments whose mandatory credentials do not last as long as the work does. The assignment check asks whether somebody may start; this asks whether they can finish."
       summary={all.length === 0 ? 'everyone covered'
         : `${now.length} on site uncovered · ${soon.length} lapsing mid-job`}
-      defaultOpen={now.length > 0}
+      open={showing}
+      onOpenChange={setOpenedByHand}
     >
       <div className="space-y-4">
         {gaps.status === 'loading' ? <LoadingState label="Checking the next ninety days" /> : null}

@@ -279,6 +279,7 @@ TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
+TST-db-a-pipeline-that-can-be-worked,test,db/a-pipeline-that-can-be-worked.test.ts,tests/db/a-pipeline-that-can-be-worked.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
@@ -418,7 +419,10 @@ TST-gov-traceability,test,gov/traceability.test.ts,tests/governance/traceability
 TST-gov-units-match-the-enum,test,gov/units-match-the-enum.test.ts,tests/governance/units-match-the-enum.test.ts,ENGINE
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-record-comments,test,web/record-comments.test.tsx,apps/web/src/components/comments/record-comments.test.tsx,ENGINE
+TST-web-activity-log,test,web/activity-log.test.tsx,apps/web/src/components/crm/activity-log.test.tsx,ENGINE
+TST-web-contacts-panel,test,web/contacts-panel.test.tsx,apps/web/src/components/crm/contacts-panel.test.tsx,ENGINE
 TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
+TST-web-pipeline-board,test,web/pipeline-board.test.tsx,apps/web/src/components/crm/pipeline-board.test.tsx,ENGINE
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-condition-cell,test,web/condition-cell.test.tsx,apps/web/src/components/estimate/condition-cell.test.tsx,ENGINE

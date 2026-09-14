@@ -49,6 +49,8 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | R-029 | A proposal carries the sending company's logo and colors, set once in Company Settings | user, 2026-09-13 ("put the branding in company settings"); the columns existed unread since 0002 | high | `companies` | migration 0173, `components/settings/branding.tsx`, `sign-proposal.tsx` | `branding.test.tsx` | tested |
 | R-030 | A proposal can be downloaded as a PDF, by the company and by the customer | user — "the header of the proposal... maybe a download or a upload" | high | proposals | `lib/data/proposal-pdf.ts`, `packages/pdf` `renderProposal` | `proposal-pdf.test.ts` | tested |
 | R-031 | The estimator chooses what the customer sees of the estimate, at the moment of issuing | user — "everything can be shown to the client"; both flags were unreachable | high | proposals | `app.issue_proposal` (0174), `estimate-version.tsx` issue dialog | `the-words-the-estimator-chose.test.ts` | tested |
+| R-032 | An opportunity moves through its stages, and a loss records why and to whom | user — Customers section; three tables unreachable since 0005 | high | `opportunities`, `contacts`, `crm_activities` | migration 0175, `components/crm/*` | `a-pipeline-that-can-be-worked.test.ts`, `pipeline-board.test.tsx`, `contacts-panel.test.tsx`, `activity-log.test.tsx` | tested |
+| R-033 | A card that opens on loaded data is controlled, not `defaultOpen` | this session — found three times | medium | `apps/web/src` | `DECISION_LOG.md` D-033 | `activity-log.test.tsx` | tested |
 
 ---
 
@@ -117,6 +119,5 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-007 | Proposals cannot be drafted, so `commercial_terms` and `payment_terms` are unwritable | `issue_proposal` inserts at status `issued`; the immutability trigger's `draft` branch is unreachable | Add a draft state, or drop the two columns |
 | O-008 | `proposal_line_items` holds no rows | Not a defect — 0111 freezes the estimate lines, so the live read is safe. It is the home for proposal alternates and options, which are unbuilt | Build alternates/options, or retire the table and `proposal_base_total` |
 | O-009 | `proposals.template_key` is referenced nowhere | Defaulted to `'standard'` since 0006 and read by nothing | Build proposal templates, or drop the column |
-| O-010 | `contacts`, `crm_activities` and the opportunity stages have no writers | Customers section; migration and data layer drafted, not yet landed | Land the Customers build |
 | O-011 | `loadSignatures` and `noteOnLead` are exported and never imported | A signature the customer gave is never shown back; a lead's notes and follow-up date cannot be written | Give each a door |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

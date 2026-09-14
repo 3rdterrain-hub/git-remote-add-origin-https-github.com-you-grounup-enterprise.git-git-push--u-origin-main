@@ -11,6 +11,68 @@ Newest first.
 
 ---
 
+## D-033 · 2026-09-13 · A card that opens on a condition is controlled, never `defaultOpen`
+
+**Decision.** Any `CollapsibleCard` whose open state depends on loaded data
+holds it in state — `openedByHand ?? (query.status === 'ready' && condition)` —
+and passes `open` / `onOpenChange`. `defaultOpen` is for a fixed choice only.
+
+**Reason.** `Card` reads `defaultCollapsed` once, in `useState(!defaultCollapsed)`.
+At mount the query has not answered, so the condition is false, so the card
+mounts shut **and never opens** — on precisely the record that met the
+condition. Found three times in one evening: the document conflicts panel, the
+activity log, and the staffing gaps card, where a card meant to open when
+somebody is on site uncovered would stay shut on the day it mattered.
+
+**Considered.** Making `Card` react to a changed `defaultCollapsed`. Rejected:
+that changes behavior for every card in the application, including ones a person
+has deliberately shut, and "default" that keeps re-asserting itself is not a
+default.
+
+**Affects.** `components/estimate/document-conflicts.tsx`,
+`components/crm/activity-log.tsx`, `components/workforce/staffing-gaps.tsx`.
+No other conditional `defaultOpen` remains in the tree.
+
+**Status.** Active.
+
+---
+
+## D-032 · 2026-09-13 · The pipeline is worked, and a loss says why
+
+**Decision.** Migration 0175 gives `opportunities`, `contacts` and
+`crm_activities` their writers: `move_opportunity_stage`, `update_opportunity`,
+`save_contact`, `retire_contact`, `log_crm_activity`, `complete_crm_activity`,
+read through `my_pipeline`, `my_contacts` and `my_crm_activities`. Closing one
+as **lost requires a reason**, and the winning competitor is captured beside it.
+
+**Reason.** All three tables date from migration 0005 and were unreachable.
+`opportunities` has eight stages in a check constraint and one writer in the
+entire system — `convert_lead`, which inserts at `identified` — so every
+opportunity sat where it was born, the win-rate tile could only ever read zero,
+and the loss-reason line beneath it never rendered for anybody. `contacts` had a
+customer-or-vendor constraint, a one-primary partial unique index and two
+indexes, and never held a row, while the plan blurb sells "customers, contacts
+and the lead intake form". `crm_activities` had an index on
+`(company_id, due_at) where completed_at is null` — built to answer "what is due
+next" for a list nobody wrote.
+
+A loss with no reason is the only figure in a contractor's CRM that never
+improves, because the reason is the sole data that answers whether the number
+was wrong or the relationship was. The database refuses it, rather than the form.
+
+**Details worth keeping.** The previous primary contact is stood down **before**
+the new one is written — the partial unique index fires on the insert itself, so
+doing it afterwards means the database refuses the new primary and the tidy-up
+never runs. A contact is archived rather than deleted. `days_in_stage` is
+computed in the view, because six weeks in "proposed" is what a pipeline review
+hunts for and it is a function of two dates, not a column somebody maintains.
+
+**Affects.** `crm-live.tsx`, `lib/data/crm-pipeline.ts`, three new components.
+
+**Status.** Active. Migration 0175, 19 db tests, 24 web tests.
+
+---
+
 ## D-031 · 2026-09-13 · What the customer sees is decided when the proposal is issued
 
 **Decision.** `app.issue_proposal` takes `p_show_line_detail` and

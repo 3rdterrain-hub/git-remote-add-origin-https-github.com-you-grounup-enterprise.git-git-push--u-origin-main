@@ -27,6 +27,9 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PipelineBoard } from '@/components/crm/pipeline-board';
+import { ContactsPanel } from '@/components/crm/contacts-panel';
+import { ActivityLog } from '@/components/crm/activity-log';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
@@ -209,6 +212,7 @@ export function CrmLivePage() {
               <Badge variant="info" className="ml-2">{waitingOnUs}</Badge>
             ) : null}
           </TabsTrigger>
+          <TabsTrigger value="activity">Follow-ups</TabsTrigger>
           <TabsTrigger value="forms">Website form</TabsTrigger>
         </TabsList>
 
@@ -235,6 +239,15 @@ export function CrmLivePage() {
           * reading the pipeline, and "what came in" and "what is bringing it
           * in" are the same question.
           */}
+        <TabsContent value="activity">
+          {/*
+            * Everything owed across every customer, which is what the index on
+            * `(company_id, due_at) where completed_at is null` was built for in
+            * migration 0005 and nothing ever read.
+            */}
+          <ActivityLog editable={can('crm.write')} />
+        </TabsContent>
+
         <TabsContent value="forms">
           {companyId
             ? <LeadFormsSection companyId={companyId} canEdit={can('crm.write')} />
@@ -274,7 +287,10 @@ export function CrmLivePage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((c) => <CustomerRowView key={c.id} customer={c} />)}
+                    {filtered.map((c) => (
+                      <CustomerRowView key={c.id} customer={c}
+                        editable={can('crm.write')} />
+                    ))}
                   </TableBody>
                 </Table>
               )}
@@ -282,7 +298,14 @@ export function CrmLivePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="pipeline">
+        <TabsContent value="pipeline" className="space-y-6">
+          {/*
+            * The board that can actually move an opportunity. Until migration
+            * 0175 the only writer was lead conversion, so the table below could
+            * show a pipeline and nothing could work it.
+            */}
+          <PipelineBoard editable={can('crm.write')} />
+
           <Card>
             <CardHeader>
               <CardTitle>Opportunities</CardTitle>
@@ -365,11 +388,25 @@ export function CrmLivePage() {
   );
 }
 
-function CustomerRowView({ customer: c }: { customer: CustomerRow }) {
+function CustomerRowView({ customer: c, editable }: {
+  customer: CustomerRow; editable: boolean;
+}) {
+  /*
+   * Open to see who to ring. `contacts` has existed since migration 0005 with
+   * a one-primary-per-customer index and has never held a row, so this column
+   * could only ever show the company's own switchboard number.
+   */
+  const [open, setOpen] = useState(false);
+
   return (
+    <>
     <TableRow>
       <TableCell>
-        <p className="font-medium text-charcoal-900">{c.name}</p>
+        <button type="button" onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="text-left font-medium text-charcoal-900 underline-offset-2 hover:underline">
+          {c.name}
+        </button>
         <p className="text-xs text-charcoal-500">
           {c.code} · {titleCase(c.customerType.replace(/_/g, ' '))}
           {c.city ? ` · ${c.city}${c.state ? `, ${c.state}` : ''}` : ''}
@@ -413,6 +450,17 @@ function CustomerRowView({ customer: c }: { customer: CustomerRow }) {
         {c.lastActivityAt ? date(c.lastActivityAt) : '—'}
       </TableCell>
     </TableRow>
+    {open ? (
+      <TableRow className="hover:bg-transparent">
+        <TableCell colSpan={6} className="bg-charcoal-50/60">
+          <div className="space-y-6 py-2">
+            <ContactsPanel customerId={c.id} editable={editable} />
+            <ActivityLog customerId={c.id} editable={editable} />
+          </div>
+        </TableCell>
+      </TableRow>
+    ) : null}
+    </>
   );
 }
 
