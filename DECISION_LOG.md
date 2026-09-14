@@ -11,6 +11,55 @@ Newest first.
 
 ---
 
+## D-031 · 2026-09-13 · What the customer sees is decided when the proposal is issued
+
+**Decision.** `app.issue_proposal` takes `p_show_line_detail` and
+`p_show_unit_prices`, and the issue dialog asks. `open_proposal_by_token` shows
+the estimator's client wording — `estimate_line_items.notes` — falling back to
+the line's own description.
+
+**Reason.** Two dead controls, found together.
+
+`proposals.show_line_detail` is `not null default false`, `issue_proposal` never
+set it, and `enforce_proposal_immutability` permits only status and the
+acceptance fields to change afterwards. **So the flag was false on every
+proposal ever issued, permanently**, and the branch of `open_proposal_by_token`
+that renders lines had never executed for anybody. Every proposal this platform
+sent was a lump sum, whether or not that was anybody's intention.
+
+And the estimate line's "Description for client…" box writes `notes`, while
+every customer-facing path rendered `description` — so an estimator rewording a
+line for a client changed nothing the client would see. The value was in the
+database the whole time, read by nobody.
+
+The flags are frozen on issue, correctly, which is exactly why the dialog is
+where the question belongs: it is the only moment the answer can be given.
+
+**Considered.** Making the columns editable after issue. Refused — RULE-009, and
+the acceptance signature's `document_hash` is a hash of what was on screen.
+
+**A wrong turn, recorded because it cost an hour.** This began as a fix for a
+believed immutability hole: `open_proposal_by_token` reads `estimate_line_items`
+live, so an issued proposal looked like it could change underneath the customer.
+**It cannot.** Migration 0111 froze every child of an approved version,
+including against the direct PostgREST write that goes around every function
+check — which is the precise route its own header says it was written to close.
+A snapshot into `proposal_line_items` was built and then removed. That table
+stays empty honestly: it is the right home for proposal alternates and options,
+and `app.proposal_base_total` and 0045's integrity check are waiting for it.
+
+The lesson is the repository's own standing one: **search before building.**
+0111 and 0045 both existed, and both were found only after the work was done.
+
+**Affects.** `app.issue_proposal` (the four-argument overload is dropped, not
+left beside the new one — a silent resolution to the old body is worse than a
+missing function), `public.issue_proposal`, `open_proposal_by_token`,
+`estimate-version.tsx`.
+
+**Status.** Active. Migration 0174, 7 db tests.
+
+---
+
 ## D-030 · 2026-09-13 · The proposal PDF is the renderer that was already written
 
 **Decision.** `lib/data/proposal-pdf.ts` assembles what the Proposals screen

@@ -383,6 +383,7 @@ TST-db-the-drawing-says-one-thing,test,db/the-drawing-says-one-thing.test.ts,tes
 TST-db-the-drawings-nobody-could-search,test,db/the-drawings-nobody-could-search.test.ts,tests/db/the-drawings-nobody-could-search.test.ts,ENGINE
 TST-db-the-library-that-was-in-a-spreadsheet,test,db/the-library-that-was-in-a-spreadsheet.test.ts,tests/db/the-library-that-was-in-a-spreadsheet.test.ts,ENGINE
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
+TST-db-the-words-the-estimator-chose,test,db/the-words-the-estimator-chose.test.ts,tests/db/the-words-the-estimator-chose.test.ts,ENGINE
 TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
 TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/timecard-from-punches.test.ts,ENGINE

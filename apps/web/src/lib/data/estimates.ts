@@ -1462,13 +1462,27 @@ export async function reviseVersion(
 
 export async function issueProposal(
   client: RpcCapable,
-  input: { versionId: string; title?: string; coverLetter?: string; validityDays?: number },
+  input: {
+    versionId: string; title?: string; coverLetter?: string; validityDays?: number;
+    /**
+     * What the customer is shown of the estimate behind it.
+     *
+     * Decided here because this is the only moment it can be: the columns are
+     * frozen the instant the proposal is issued. They defaulted to false and
+     * were never set, so no proposal this platform ever sent showed a customer
+     * a single line.
+     */
+    showLineDetail?: boolean;
+    showUnitPrices?: boolean;
+  },
 ): Promise<string> {
   return rpc<string>(client, 'issue_proposal', {
     p_version: input.versionId,
     p_title: input.title?.trim() || null,
     p_cover_letter: input.coverLetter?.trim() || null,
     p_validity_days: input.validityDays ?? 30,
+    p_show_line_detail: input.showLineDetail ?? true,
+    p_show_unit_prices: input.showUnitPrices ?? true,
   });
 }
 

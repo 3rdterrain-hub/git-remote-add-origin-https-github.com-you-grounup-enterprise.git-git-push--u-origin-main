@@ -48,6 +48,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | R-028 | A plan set's text is read at upload, so the drawings can be searched | this session — the search column had no writer since 0005 | high | `document_sheets`, `document_extractions` | `app.record_plan_set_text` (0172), `readPdf`, `components/plans/text-coverage.tsx` | `the-drawings-nobody-could-search.test.ts`, `read-pdf.test.ts`, `text-coverage.test.tsx` | tested |
 | R-029 | A proposal carries the sending company's logo and colors, set once in Company Settings | user, 2026-09-13 ("put the branding in company settings"); the columns existed unread since 0002 | high | `companies` | migration 0173, `components/settings/branding.tsx`, `sign-proposal.tsx` | `branding.test.tsx` | tested |
 | R-030 | A proposal can be downloaded as a PDF, by the company and by the customer | user — "the header of the proposal... maybe a download or a upload" | high | proposals | `lib/data/proposal-pdf.ts`, `packages/pdf` `renderProposal` | `proposal-pdf.test.ts` | tested |
+| R-031 | The estimator chooses what the customer sees of the estimate, at the moment of issuing | user — "everything can be shown to the client"; both flags were unreachable | high | proposals | `app.issue_proposal` (0174), `estimate-version.tsx` issue dialog | `the-words-the-estimator-chose.test.ts` | tested |
 
 ---
 
@@ -113,4 +114,9 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-002 | The shipped catalog's assemblies reference tasks carrying no crew, equipment or material | Catalog depth, not code — a library line prices at $0 until built up | Compose the task resources, or price lines by hand |
 | O-006 | Global search indexes fixtures, not records | `lib/search.ts` imports ESTIMATES, PROJECTS, CUSTOMERS, DOCUMENTS, ASSETS, EMPLOYEES and PURCHASE_ORDERS from `@/data/*`, so the search bar finds invented rows on a live workspace | Point each source at its table, the way the pages now are |
 | O-005 | No alignment or cross-section model exists | The engine's average-end-area and prismoidal comparison are real and tested; nothing stores a station, a template or a section, so the tab was removed rather than left showing invented road | Build the alignment model, or leave earthwork to surfaces |
+| O-007 | Proposals cannot be drafted, so `commercial_terms` and `payment_terms` are unwritable | `issue_proposal` inserts at status `issued`; the immutability trigger's `draft` branch is unreachable | Add a draft state, or drop the two columns |
+| O-008 | `proposal_line_items` holds no rows | Not a defect — 0111 freezes the estimate lines, so the live read is safe. It is the home for proposal alternates and options, which are unbuilt | Build alternates/options, or retire the table and `proposal_base_total` |
+| O-009 | `proposals.template_key` is referenced nowhere | Defaulted to `'standard'` since 0006 and read by nothing | Build proposal templates, or drop the column |
+| O-010 | `contacts`, `crm_activities` and the opportunity stages have no writers | Customers section; migration and data layer drafted, not yet landed | Land the Customers build |
+| O-011 | `loadSignatures` and `noteOnLead` are exported and never imported | A signature the customer gave is never shown back; a lead's notes and follow-up date cannot be written | Give each a door |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

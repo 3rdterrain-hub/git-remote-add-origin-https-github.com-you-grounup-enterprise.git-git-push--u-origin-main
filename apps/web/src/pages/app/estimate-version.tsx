@@ -1433,6 +1433,14 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
   const [title, setTitle] = useState('');
   const [cover, setCover] = useState('');
   const [validity, setValidity] = useState('30');
+  /*
+   * What the customer is shown. Frozen the instant the proposal is issued, so
+   * this dialog is the only place the decision can be made — and until now it
+   * was not made anywhere: both columns defaulted to false and nothing ever set
+   * them, so no proposal ever showed a customer a line.
+   */
+  const [showLines, setShowLines] = useState(true);
+  const [showUnitPrices, setShowUnitPrices] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1443,6 +1451,8 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
       await issueProposal(supabase, {
         versionId: version.id, title, coverLetter: cover,
         validityDays: Number(validity) || 30,
+        showLineDetail: showLines,
+        showUnitPrices: showLines && showUnitPrices,
       });
       onIssued();
     } catch (err) { setError(messageFor(err)); }
@@ -1479,6 +1489,44 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
           </div>
           {error ? <ErrorState message={error} /> : null}
         </div>
+          {/*
+            * Per-item visibility is decided on the lines themselves; this is
+            * whether the customer sees any of them at all. A lump sum with the
+            * build-up withheld is a real choice, and until now it was the only
+            * one this platform could make.
+            */}
+          <fieldset className="space-y-2 rounded-md border border-charcoal-200 p-3">
+            <legend className="px-1 text-sm font-medium text-charcoal-900">
+              What the customer sees
+            </legend>
+            <label className="flex items-start gap-2 text-sm text-charcoal-700">
+              <input type="checkbox" className="mt-0.5" checked={showLines}
+                onChange={(e) => setShowLines(e.target.checked)} />
+              <span>
+                The scope, line by line
+                <span className="block text-xs text-charcoal-500">
+                  Only lines marked visible to the client. Unticked, they receive the
+                  total alone.
+                </span>
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-charcoal-700">
+              <input type="checkbox" className="mt-0.5" checked={showUnitPrices}
+                disabled={!showLines}
+                onChange={(e) => setShowUnitPrices(e.target.checked)} />
+              <span>
+                Unit prices against each line
+                <span className="block text-xs text-charcoal-500">
+                  Quantities and amounts either way; this is the rate behind them.
+                </span>
+              </span>
+            </label>
+            <p className="text-xs text-charcoal-500">
+              Frozen when the proposal is issued — this cannot be changed afterwards,
+              because it is part of what the customer was sent.
+            </p>
+          </fieldset>
+
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
