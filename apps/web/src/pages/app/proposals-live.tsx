@@ -16,7 +16,7 @@
  */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, FileText, Lock, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { CheckCircle2, Download, FileText, Lock, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { PageHeader, StatTile, Field } from '@/components/layout/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,8 @@ import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import { SendForSignature } from '@/components/proposal/send-for-signature';
+import { loadCompanyProfile, logoUrl } from '@/lib/data/company';
+import { downloadProposalPdf } from '@/lib/data/proposal-pdf';
 import {
   loadProposals, loadVersion, recordProposalOutcome,
   type ProposalRow, type VersionDetail,
@@ -247,6 +249,14 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
   onAnswer: (o: 'accepted' | 'declined') => void;
 }) {
   const version = useQuery(loadVersion(proposal.estimateVersionId), [proposal.estimateVersionId]);
+  /*
+   * Who is sending it. The preview drew the platform's own logo, so every
+   * proposal on every company's screen was headed GrounUp — and the three
+   * branding columns behind this have been on `companies` since 0002 with
+   * nothing reading them.
+   */
+  const companyQ = useQuery(loadCompanyProfile, []);
+  const company = companyQ.status === 'ready' ? companyQ.data : null;
   const v: VersionDetail | null = version.status === 'ready' ? version.data : null;
 
   const sections = useMemo(() => {
@@ -271,6 +281,47 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
   }, [v, proposal.totalPrice]);
 
   const frozen = proposal.status !== 'draft';
+  const brandLogo = logoUrl(company?.logoPath ?? null);
+
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  /**
+   * The document, as the customer would keep it.
+   *
+   * Built from the same sections the preview shows and the same frozen total,
+   * so the file and the screen cannot disagree — and it honors the proposal's
+   * own line-detail and unit-price settings, because a customer shown a lump
+   * sum must not receive a PDF itemizing it.
+   */
+  const download = async () => {
+    if (!company || downloading) return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      downloadProposalPdf({
+        number: proposal.number,
+        title: proposal.title,
+        customerName: proposal.customerName,
+        issuedAt: proposal.issuedAt,
+        validityDays: proposal.validityDays,
+        totalPrice: proposal.totalPrice,
+        coverLetter: proposal.coverLetter,
+        paymentTerms: proposal.paymentTerms,
+        showLineDetail: proposal.showLineDetail,
+        showUnitPrices: proposal.showUnitPrices,
+        lines: sections.map((s) => ({
+          description: s.name,
+          quantity: s.quantity,
+          unit: s.unit,
+          unitPrice: s.quantity > 0 ? s.amount / s.quantity : null,
+          total: s.amount,
+        })),
+      }, company);
+    } catch (e) {
+      setDownloadError(e instanceof Error ? e.message : 'That file could not be made.');
+    } finally { setDownloading(false); }
+  };
 
   return (
     <Card>
@@ -280,6 +331,18 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
           <CardDescription>
             From {proposal.estimateNumber} version {proposal.estimateVersion}
           </CardDescription>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {/*
+            * `renderProposal` has been in `packages/pdf` since the package was
+            * written — letterhead, line table, terms, and a theme it takes from
+            * the company's colors — and its only callers were its own tests.
+            * The button that stood here was labeled "PDF" and had no handler.
+            */}
+          <Button size="sm" variant="outline" disabled={!company || downloading}
+            onClick={() => void download()}>
+            <Download className="size-4" /> {downloading ? 'Preparing' : 'Download PDF'}
+          </Button>
         </div>
         {proposal.status === 'issued' && canAnswer ? (
           <div className="flex flex-wrap gap-2">
@@ -301,6 +364,10 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
         ) : null}
       </CardHeader>
       <CardContent className="space-y-4">
+        {downloadError
+          ? <Alert tone="danger" title="That file could not be made">{downloadError}</Alert>
+          : null}
+
         {proposal.status === 'accepted' ? (
           <Alert tone="success" icon={<CheckCircle2 className="size-4" />} title="Accepted">
             Signed by {proposal.acceptedByName}
@@ -323,12 +390,24 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
 
         <div className="rounded-md border border-charcoal-300 bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between gap-4 border-b border-charcoal-200 pb-4">
-            <Logo />
+            {/* The sending company's mark, falling back to its name. */}
+            {brandLogo ? (
+              <img src={brandLogo} alt={company?.name ?? ''}
+                className="max-h-12 max-w-48 object-contain" />
+            ) : (
+              <p className="text-lg font-semibold text-charcoal-900">
+                {company?.name ?? <Logo />}
+              </p>
+            )}
             <div className="text-right text-xs text-charcoal-500">
               <p className="mt-1 font-semibold text-charcoal-900">{proposal.number}</p>
               <p>{proposal.issuedAt ? date(proposal.issuedAt) : 'Draft'}</p>
             </div>
           </div>
+          {company ? (
+            <div className="h-1.5 -mx-6 mt-4"
+              style={{ backgroundColor: company.accentColor }} />
+          ) : null}
 
           <div className="grid gap-4 py-4 sm:grid-cols-2">
             <Field label="Prepared for">{proposal.customerName ?? '—'}</Field>

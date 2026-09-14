@@ -17,7 +17,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { CheckCircle2, XCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Download, XCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,9 @@ import {
   type SignableProposal,
 } from '@/lib/data/proposal-links';
 import { money, qty, date } from '@/lib/format';
+import { logoUrl } from '@/lib/data/company';
+import { downloadProposalPdf } from '@/lib/data/proposal-pdf';
+import { readableOn } from '@/components/settings/branding';
 
 type Stage =
   | { at: 'loading' }
@@ -128,21 +131,90 @@ export function SignProposalPage() {
   }
 
   const d = stage.doc;
+  const brandLogo = logoUrl(d.company.logoPath);
   return (
     <Shell>
-      <header className="border-b border-charcoal-200 pb-4">
-        <p className="text-sm font-medium text-charcoal-700">{d.company.name}</p>
-        {d.company.city ? (
-          <p className="text-xs text-charcoal-500">
-            {d.company.city}{d.company.state ? `, ${d.company.state}` : ''}
+      {/*
+        * The sender's own mark and colors, not the platform's. This page is
+        * the one a customer actually receives — it is opened from an emailed
+        * link with no account and no session — and it carried no branding at
+        * all, because the three columns behind it had been on `companies`
+        * since migration 0002 and were read by nothing.
+        *
+        * The logo is a public object for exactly this reason: a signed URL
+        * that expires is a letterhead that disappears from a document the
+        * customer keeps.
+        */}
+      <header className="overflow-hidden rounded-lg border border-charcoal-200">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-5"
+          style={{
+            backgroundColor: d.company.primaryColor,
+            color: readableOn(d.company.primaryColor),
+          }}>
+          <div className="flex min-w-0 items-center gap-3">
+            {brandLogo ? (
+              <img src={brandLogo} alt={d.company.name}
+                className="max-h-12 max-w-48 object-contain" />
+            ) : (
+              <div className="min-w-0">
+                <p className="truncate text-lg font-semibold">{d.company.name}</p>
+                {d.company.city ? (
+                  <p className="text-xs opacity-80">
+                    {d.company.city}{d.company.state ? `, ${d.company.state}` : ''}
+                  </p>
+                ) : null}
+              </div>
+            )}
+          </div>
+          <div className="text-right text-xs">
+            <p className="font-medium tracking-wide">PROPOSAL</p>
+            <p className="opacity-80">{d.number}</p>
+          </div>
+        </div>
+        <div className="h-1.5" style={{ backgroundColor: d.company.accentColor }} />
+        <div className="p-5">
+          {brandLogo ? (
+            <p className="text-sm font-medium text-charcoal-700">
+              {d.company.name}
+              {d.company.city
+                ? ` · ${d.company.city}${d.company.state ? `, ${d.company.state}` : ''}`
+                : ''}
+            </p>
+          ) : null}
+          <h1 className="mt-1 text-xl font-semibold text-charcoal-900">{d.title}</h1>
+          <p className="mt-0.5 text-sm text-charcoal-500">
+            {d.issuedAt ? `Issued ${date(d.issuedAt)} · ` : ''}
+            {`this link expires ${date(d.expiresAt)}`}
           </p>
-        ) : null}
-        <h1 className="mt-3 text-xl font-semibold text-charcoal-900">{d.title}</h1>
-        <p className="mt-0.5 text-sm text-charcoal-500">
-          Proposal {d.number}
-          {d.issuedAt ? ` · issued ${date(d.issuedAt)}` : ''}
-          {` · this link expires ${date(d.expiresAt)}`}
-        </p>
+          {/*
+            * A copy to keep. The link expires and the page behind it stops
+            * answering; a proposal somebody accepted and can no longer read is
+            * not a record of anything.
+            */}
+          <Button variant="outline" size="sm" className="mt-3"
+            onClick={() => downloadProposalPdf({
+              number: d.number,
+              title: d.title,
+              customerName: d.recipientName,
+              issuedAt: d.issuedAt,
+              validityDays: d.validityDays,
+              totalPrice: d.totalPrice,
+              coverLetter: d.coverLetter,
+              commercialTerms: d.commercialTerms,
+              paymentTerms: d.paymentTerms,
+              showLineDetail: d.showLineDetail,
+              showUnitPrices: d.showUnitPrices,
+              lines: d.lines,
+            }, {
+              name: d.company.name,
+              primaryColor: d.company.primaryColor,
+              accentColor: d.company.accentColor,
+              city: d.company.city,
+              stateProvince: d.company.state,
+            })}>
+            <Download className="mr-1.5 size-3.5" aria-hidden /> Download a copy
+          </Button>
+        </div>
       </header>
 
       {d.coverLetter ? (

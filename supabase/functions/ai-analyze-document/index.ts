@@ -109,6 +109,26 @@ Deno.serve(async (req) => {
       );
     }
 
+    /*
+     * And refuse a set nothing has read.
+     *
+     * `document_sheets.extracted_text` had no writer at all until migration
+     * 0172, so every run before it substituted "(no text extracted from this
+     * sheet)" for every sheet and asked the model to analyze a plan set it
+     * could not see — a credit spent to be told nothing, every time. Reading
+     * the text is free and happens at upload; a set that still has none is a
+     * scan, and the answer is OCR rather than another analysis.
+     */
+    if (!sheets.some((s) => (s.extracted_text ?? '').trim() !== '')) {
+      return fail(
+        'not_extracted',
+        'None of this document\'s sheets have any text to read. '
+          + 'A plan set gets its text at upload; one that has none is a scan and needs OCR. '
+          + 'Analyzing it would spend a credit to read nothing.',
+        409, origin,
+      );
+    }
+
     // Claim the job so concurrent requests do not both bill the model.
     const { data: job, error: jobError } = await admin
       .from('ingestion_jobs')

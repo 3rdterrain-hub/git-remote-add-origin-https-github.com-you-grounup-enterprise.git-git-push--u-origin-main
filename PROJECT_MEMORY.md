@@ -85,10 +85,18 @@ These are not open for re-litigation. Each cost something to arrive at.
 **A working feature with no door.** A tested database function, granted to
 `authenticated`, that nothing in the application calls.
 
-Found **eleven times**: lead intake (0065), assemblies, unit cost, resource
+Found **thirteen times**: lead intake (0065), assemblies, unit cost, resource
 suggestions, the equipment-rate importer, `document_sheets`, the parametric
-rate, the line-price write-back, Plans & Specs, `line_unit_note`, and services
-with no breakdown.
+rate, the line-price write-back, Plans & Specs, `line_unit_note`, services with
+no breakdown, the title-block fields on a sheet (0005 → 0171), and
+`document_conflicts` (0006 → 0170).
+
+The last is the most expensive one found so far, because it was not a missing
+screen but a systematically wrong number: the confidence engine has taken
+twenty-two points off a line for every unresolved conflict since 0033, and
+nothing could record a conflict — so every bid this platform ever priced was
+priced as though the plans, the specifications, the geotechnical report and the
+addenda all agreed with each other.
 
 Not one was caught by a test, and every layer was green each time: the migration
 was tested, the function was tested, the payload was tested, the component was
@@ -224,7 +232,7 @@ and parametric lines, applies condition modifiers and markup, clears the
 confidence gate, and can be approved, issued and awarded into a project that
 carries the bid, the budget, the site and every priced line as a budgeted task.
 
-**Door inventory: 173 doors, 0 with no reader, 0 granted but unreachable.**
+**Door inventory: 207 doors, 0 with no reader, 0 granted but unreachable.**
 
 ### Deployment
 
@@ -282,6 +290,73 @@ platform cannot ship a haul rate, and nothing on any screen could create one
 either — six readers, no writer. The Hauling tab now adds and edits haul
 profiles, and the typed picker on a line finds what a company puts there
 (`DECISION_LOG.md` D-018).
+
+### Plans, sheets and conflicts, as of migrations 0170–0171
+
+A sheet now knows what it is. `app.identify_sheet` writes the six title-block
+fields that have been on `document_sheets` since 0005 and that nothing ever
+wrote, and `my_plan_sheets` builds the display label once so the picker, the
+search and anything printed call a sheet the same thing. An agent may fill a
+blank field and never overwrite a person's (`DECISION_LOG.md` D-023). The
+takeoff picker reads that view — `takeoff.ts`'s own `loadSheets` was deleted, so
+there is one sheet reader rather than two.
+
+Where the documents disagree is recordable, from both sides, on the line it
+lands on, and turns into an RFI carrying both sides across (D-024).
+
+### Takeoff, as of this session
+
+Three defects, all of the same family as the doorless function — a screen that
+looked right over machinery that was not doing what the screen said.
+
+- **The page crashed** for any company that had saved a measurement: a derived
+  value read `sheetId` above its own `const`, and `Array.filter` runs during the
+  render. A governance test now walks the tree for that shape (D-026).
+- **Applying a kept measurement sent `1`.** The panel read
+  `appliedQuantity ?? multiplier × countPer` and nothing writes
+  `applied_quantity` until a measurement is already applied. The quantity is now
+  recomputed through the same engine call that drew it (D-025), which also gives
+  `loadCalibrations` its first reader.
+- **Deduct subtracted nothing** — the outline was cleared going in and the
+  openings coming back (D-027).
+
+The engine's refusals are also shown now. `measure` refuses a volume with no
+depth rather than guessing; the screen used to swallow that and render nothing,
+which reads as a dead button rather than as an answer.
+
+### Plans & Specs, as of migration 0172
+
+**"Search the drawings" could only ever return nothing.** The column it reads
+has carried a trigram index since 0005 and a search function since 0036, and
+nothing in the repository wrote it — four layers, each tested, each green.
+`document_extractions` had never held a row either, despite RLS, a tenant
+trigger, a supersede trigger and two indexes.
+
+Both now have a writer, and it is the PDF's own text layer rather than a model:
+deterministic, exact, no key, and free on a pass the upload already makes
+(`DECISION_LOG.md` D-028). `my_sheet_text_coverage` says which sets are readable
+and which are scans that need OCR, and reads the ones already in storage.
+`ai-analyze-document` now refuses a set nothing has read instead of spending a
+credit to be told nothing.
+
+### Proposals and branding, as of migration 0173
+
+Three columns on `companies` — `logo_path`, `primary_color`, `accent_color` —
+have existed since migration 0002 with a hex constraint and a comment, and
+appeared in exactly one file: the migration that created them. Every proposal
+went out in the platform's colors under the platform's logo. They are now edited
+in Company Settings, carried to the customer inside `open_proposal_by_token`,
+and rendered on both the internal preview and the signing page
+(`DECISION_LOG.md` D-029). The logo bucket is public on purpose: the customer
+opening an emailed link has no session.
+
+`renderProposal` in `packages/pdf` was complete, tested, and called only by its
+own tests, while the screen's "PDF" button had no handler. Both the company and
+the customer can now download it (D-030).
+
+The Branding tab that stood there was the clearest example of the second defect
+this build produces: hard-coded `defaultValue` colors, swatches painted by a CSS
+class rather than by the value, and a Save button that set a flag to false.
 
 ### Recommended next actions
 

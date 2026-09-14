@@ -18,7 +18,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { applySavedMeasurement, deleteMeasurement, type MeasurementRow } from '@/lib/data/takeoff';
+import {
+  applySavedMeasurement, deleteMeasurement,
+  type CalibrationRow, type MeasurementRow,
+} from '@/lib/data/takeoff';
+import { quantityOf } from '@/lib/takeoff-quantity';
 import { supabase } from '@/lib/supabase';
 import { messageFor } from '@/lib/data/query';
 import { qty } from '@/lib/format';
@@ -26,8 +30,13 @@ import { ENGINE_VERSION } from '@grounup/engine';
 
 export interface OpenLine { id: string; description: string; unit: string }
 
-export function TakenOff({ measurements, lines, editable, onChanged }: {
+export function TakenOff({ measurements, calibrations, lines, editable, onChanged }: {
   measurements: readonly MeasurementRow[];
+  /**
+   * The calibrations these were traced against. Without them a kept shape is
+   * a number of pixels, so the quantity column says so rather than guessing.
+   */
+  calibrations: readonly CalibrationRow[];
   /** Estimate lines still open enough to receive a quantity. */
   lines: readonly OpenLine[];
   editable: boolean;
@@ -40,20 +49,32 @@ export function TakenOff({ measurements, lines, editable, onChanged }: {
 
   if (measurements.length === 0) return null;
 
+  /**
+   * What each kept shape measures, through the same engine call that drew it.
+   *
+   * This used to read `m.appliedQuantity ?? m.multiplier * m.countPer`, and
+   * nothing writes `applied_quantity` until a measurement is applied — so every
+   * apply from this panel sent `1`. A traced four thousand square foot pad
+   * landed on the estimate as one square foot, and the estimate said so
+   * without complaint.
+   */
+  const resolvedFor = (m: MeasurementRow) =>
+    quantityOf(m, calibrations.find((c) => c.id === m.calibrationId) ?? null);
+
   async function apply(m: MeasurementRow) {
     const lineItemId = pick[m.id];
     if (!supabase || !lineItemId) {
       setError('Choose the line this belongs on first.');
       return;
     }
+    const resolved = resolvedFor(m);
+    if ('error' in resolved) {
+      setError(`${m.name} cannot be put on a line: ${resolved.error}`);
+      return;
+    }
     setBusy(m.id); setError(null); setDone(null);
     try {
-      /*
-       * The quantity the measurement already resolved to. It is not recomputed
-       * here: the geometry, the calibration and the method are on the row, and
-       * a second arithmetic path is a second answer waiting to disagree.
-       */
-      const quantity = m.appliedQuantity ?? m.multiplier * m.countPer;
+      const quantity = resolved.quantity;
       await applySavedMeasurement(supabase, {
         measurementId: m.id, lineItemId, quantity, engineVersion: ENGINE_VERSION,
       });
@@ -107,9 +128,31 @@ export function TakenOff({ measurements, lines, editable, onChanged }: {
                 <p className="text-xs text-charcoal-500">{m.kind}</p>
               </TableCell>
               <TableCell className="tabular text-right text-charcoal-700">
-                {m.appliedQuantity != null
-                  ? <span>{`${qty(m.appliedQuantity)} ${m.unit}`}</span>
-                  : <span className="text-charcoal-400">not applied</span>}
+                {/*
+                  * What it measures, whether or not it has been applied. This
+                  * column read "not applied" on every kept shape, which is the
+                  * one thing a takeoff list must never say about a measurement
+                  * somebody has already traced.
+                  */}
+                {(() => {
+                  const r = resolvedFor(m);
+                  if ('error' in r) {
+                    return <span className="text-xs text-danger-700" title={r.error}>
+                      no scale
+                    </span>;
+                  }
+                  return (
+                    <span>
+                      {`${qty(r.quantity)} ${r.unit}`}
+                      {m.appliedQuantity != null
+                        && Math.abs(m.appliedQuantity - r.quantity) > 0.005 ? (
+                        <span className="block text-xs text-warn-700">
+                          {`line has ${qty(m.appliedQuantity)}`}
+                        </span>
+                      ) : null}
+                    </span>
+                  );
+                })()}
               </TableCell>
               <TableCell>
                 {m.appliedLineItemId ? (

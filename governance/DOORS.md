@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **201** |
-| Opened by a screen | **182** |
+| Doors | **209** |
+| Opened by a screen | **190** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -87,6 +87,7 @@ None.
 | `clock_out` | function | lib/data/time-clock.ts |
 | `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
+| `conflict_to_rfi` | function | lib/data/conflicts.ts |
 | `convert_lead` | function | lib/data/leads.ts |
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
@@ -124,6 +125,7 @@ None.
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `haul_cost` | function | lib/data/library.ts |
 | `hire_operator` | function | lib/data/admin.ts |
+| `identify_sheet` | function | lib/data/sheets.ts |
 | `import_equipment_rates` | function | lib/data/library.ts |
 | `import_materials` | function | lib/data/library.ts |
 | `insert_estimate_line_after` | function | lib/data/estimates.ts |
@@ -146,6 +148,7 @@ None.
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
+| `my_document_conflicts` | view | lib/data/conflicts.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
 | `my_jobs_nearby` | function | lib/data/field-work.ts |
@@ -157,8 +160,9 @@ None.
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
 | `my_payment_problem` | view | lib/data/session.ts |
-| `my_plan` | view | lib/data/billing.ts, lib/data/company.ts, lib/data/takeoff.ts |
+| `my_plan` | view | lib/data/billing.ts, lib/data/company.ts, lib/data/sheets.ts +1 |
 | `my_plan_sets_without_sheets` | view | lib/data/takeoff.ts |
+| `my_plan_sheets` | view | lib/data/sheets.ts |
 | `my_preferences` | view | lib/data/preferences.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
@@ -166,6 +170,7 @@ None.
 | `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
+| `my_sheet_text_coverage` | view | lib/data/plans.ts |
 | `my_site_weather` | view | lib/data/project.ts |
 | `my_staffing_gaps` | view | lib/data/staffing.ts |
 | `my_suspension` | view | lib/data/session.ts |
@@ -186,7 +191,9 @@ None.
 | `propose_upsell` | function | lib/data/admin.ts |
 | `publish_announcement` | function | lib/data/admin.ts |
 | `qualified_and_available` | function | lib/data/staffing.ts |
+| `raise_document_conflict` | function | lib/data/conflicts.ts |
 | `record_export` | function | lib/data/admin.ts |
+| `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
 | `record_proposal_outcome` | function | lib/data/estimates.ts |
 | `record_signup_attempt` | function | lib/analytics.ts |
@@ -198,6 +205,7 @@ None.
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `request_refund` | function | lib/data/admin.ts |
+| `resolve_document_conflict` | function | lib/data/conflicts.ts |
 | `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `restore_company` | function | lib/data/admin.ts |
 | `retire_library_category` | function | lib/data/categories.ts |

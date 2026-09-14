@@ -283,6 +283,7 @@ TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
+TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
@@ -378,6 +379,8 @@ TST-db-templates,test,db/templates.test.ts,tests/db/templates.test.ts,ENGINE
 TST-db-the-certificate-that-lapses,test,db/the-certificate-that-lapses.test.ts,tests/db/the-certificate-that-lapses.test.ts,ENGINE
 TST-db-the-door-onto-awarding,test,db/the-door-onto-awarding.test.ts,tests/db/the-door-onto-awarding.test.ts,ENGINE
 TST-db-the-door-onto-the-schedule,test,db/the-door-onto-the-schedule.test.ts,tests/db/the-door-onto-the-schedule.test.ts,ENGINE
+TST-db-the-drawing-says-one-thing,test,db/the-drawing-says-one-thing.test.ts,tests/db/the-drawing-says-one-thing.test.ts,ENGINE
+TST-db-the-drawings-nobody-could-search,test,db/the-drawings-nobody-could-search.test.ts,tests/db/the-drawings-nobody-could-search.test.ts,ENGINE
 TST-db-the-library-that-was-in-a-spreadsheet,test,db/the-library-that-was-in-a-spreadsheet.test.ts,tests/db/the-library-that-was-in-a-spreadsheet.test.ts,ENGINE
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
 TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
@@ -398,6 +401,7 @@ TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENG
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
+TST-gov-a-value-is-not-read-before-it-exists,test,gov/a-value-is-not-read-before-it-exists.test.ts,tests/governance/a-value-is-not-read-before-it-exists.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
 TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
@@ -417,6 +421,7 @@ TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead
 TST-web-customize,test,web/customize.test.tsx,apps/web/src/components/dashboard/customize.test.tsx,ENGINE
 TST-web-week-ahead,test,web/week-ahead.test.tsx,apps/web/src/components/dashboard/week-ahead.test.tsx,ENGINE
 TST-web-condition-cell,test,web/condition-cell.test.tsx,apps/web/src/components/estimate/condition-cell.test.tsx,ENGINE
+TST-web-document-conflicts,test,web/document-conflicts.test.tsx,apps/web/src/components/estimate/document-conflicts.test.tsx,ENGINE
 TST-web-how-sure,test,web/how-sure.test.tsx,apps/web/src/components/estimate/how-sure.test.tsx,ENGINE
 TST-web-line-description,test,web/line-description.test.tsx,apps/web/src/components/estimate/line-description.test.tsx,ENGINE
 TST-web-line-detail.a11y,test,web/line-detail.a11y.test.tsx,apps/web/src/components/estimate/line-detail.a11y.test.tsx,ENGINE
@@ -446,10 +451,13 @@ TST-web-services-without-a-breakdown,test,web/services-without-a-breakdown.test.
 TST-web-starter-library,test,web/starter-library.test.tsx,apps/web/src/components/library/starter-library.test.tsx,ENGINE
 TST-web-what-a-haul-costs,test,web/what-a-haul-costs.test.tsx,apps/web/src/components/library/what-a-haul-costs.test.tsx,ENGINE
 TST-web-search-the-drawings,test,web/search-the-drawings.test.tsx,apps/web/src/components/plans/search-the-drawings.test.tsx,ENGINE
+TST-web-text-coverage,test,web/text-coverage.test.tsx,apps/web/src/components/plans/text-coverage.test.tsx,ENGINE
 TST-web-project-actions,test,web/project-actions.test.tsx,apps/web/src/components/project/project-actions.test.tsx,ENGINE
 TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
+TST-web-branding,test,web/branding.test.tsx,apps/web/src/components/settings/branding.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE
+TST-web-sheet-identity,test,web/sheet-identity.test.tsx,apps/web/src/components/takeoff/sheet-identity.test.tsx,ENGINE
 TST-web-taken-off,test,web/taken-off.test.tsx,apps/web/src/components/takeoff/taken-off.test.tsx,ENGINE
 TST-web-takeoff,test,web/takeoff.test.tsx,apps/web/src/components/takeoff/takeoff.test.tsx,ENGINE
 TST-web-unsheeted-plan-sets,test,web/unsheeted-plan-sets.test.tsx,apps/web/src/components/takeoff/unsheeted-plan-sets.test.tsx,ENGINE
@@ -469,9 +477,12 @@ TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,app
 TST-web-fleet-rate,test,web/fleet-rate.test.ts,apps/web/src/lib/data/fleet-rate.test.ts,ENGINE
 TST-web-lead-forms,test,web/lead-forms.test.ts,apps/web/src/lib/data/lead-forms.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
+TST-web-proposal-pdf,test,web/proposal-pdf.test.ts,apps/web/src/lib/data/proposal-pdf.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE
+TST-web-read-pdf,test,web/read-pdf.test.ts,apps/web/src/lib/data/read-pdf.test.ts,ENGINE
 TST-web-session,test,web/session.test.ts,apps/web/src/lib/data/session.test.ts,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
+TST-web-takeoff-tools,test,web/takeoff-tools.test.ts,apps/web/src/lib/takeoff-tools.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE
 TST-web-api-access,test,web/api-access.test.tsx,apps/web/src/pages/app/api-access.test.tsx,ENGINE

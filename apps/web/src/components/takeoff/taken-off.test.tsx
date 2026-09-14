@@ -11,7 +11,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { MeasurementRow } from '@/lib/data/takeoff';
+import type { CalibrationRow, MeasurementRow } from '@/lib/data/takeoff';
 import { TakenOff } from './taken-off';
 
 const hoisted = vi.hoisted(() => ({
@@ -37,13 +37,29 @@ vi.mock('@/lib/data/takeoff', async () => {
   };
 });
 
+/*
+ * One foot per point, so the traced rectangle below is 40 ft by 31 ft and the
+ * quantity is arithmetic a reader can check: 1,240 SF.
+ */
+const calibration = (over: Partial<CalibrationRow> = {}): CalibrationRow => ({
+  id: 'c-1', sheetId: 's-1',
+  from: { x: 0, y: 0 }, to: { x: 100, y: 0 },
+  knownDistanceFeet: 100, basis: 'known_dimension',
+  reference: '100\' property line', measurementMethod: 'scaled_from_dimension',
+  ...over,
+} as CalibrationRow);
+
+const RECTANGLE = [
+  { x: 0, y: 0 }, { x: 40, y: 0 }, { x: 40, y: 31 }, { x: 0, y: 31 },
+];
+
 const measurement = (over: Partial<MeasurementRow> = {}): MeasurementRow => ({
   id: 'm-1', sheetId: 's-1', calibrationId: 'c-1',
   name: 'Slab, north bay', trade: null, kind: 'area', unit: 'SF',
-  geometry: [], deductions: [], isClosed: true,
+  geometry: RECTANGLE, deductions: [], isClosed: true,
   pitchRise: null, pitchRun: null, depthFeet: null, widthFeet: null,
-  countPer: 1, multiplier: 1,
-  appliedLineItemId: null, appliedQuantity: 1240, appliedAt: null,
+  countPer: 1, multiplier: 1, lifts: [], freeboardFeet: null,
+  appliedLineItemId: null, appliedQuantity: null, appliedAt: null,
   ...over,
 } as MeasurementRow);
 
@@ -59,8 +75,9 @@ beforeEach(() => {
   onChanged.mockClear();
 });
 
-const panel = (ms: MeasurementRow[], editable = true) =>
-  render(<TakenOff measurements={ms} lines={lines} editable={editable} onChanged={onChanged} />);
+const panel = (ms: MeasurementRow[], editable = true, cs: CalibrationRow[] = [calibration()]) =>
+  render(<TakenOff measurements={ms} calibrations={cs} lines={lines}
+    editable={editable} onChanged={onChanged} />);
 
 describe('measurements kept on a sheet', () => {
   it('says nothing at all when none have been taken', () => {
@@ -68,11 +85,71 @@ describe('measurements kept on a sheet', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('names each one and what it measured', () => {
+  it('names each one and what it measured, before it is on any line', () => {
+    /*
+     * This column read "not applied" on every kept shape, which is the one
+     * thing a takeoff list must never say about something already traced.
+     */
     panel([measurement()]);
     expect(screen.getByText('Slab, north bay')).toBeInTheDocument();
     expect(screen.getByText('area')).toBeInTheDocument();
     expect(screen.getByText('1,240.00 SF')).toBeInTheDocument();
+  });
+
+  it('measures the shape rather than sending the repeat count', async () => {
+    /*
+     * The defect this replaced: `appliedQuantity ?? multiplier * countPer`,
+     * and nothing writes `applied_quantity` until a measurement is applied —
+     * so every apply from this panel sent 1. A traced 1,240 SF pad went onto
+     * the estimate as one square foot, and the estimate did not complain.
+     */
+    panel([measurement()]);
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Line for Slab, north bay' }), 'l-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await waitFor(() => expect(hoisted.applied).toHaveLength(1));
+    expect(hoisted.applied[0]!.quantity).toBeCloseTo(1240, 6);
+  });
+
+  it('subtracts the openings that were banked with it', async () => {
+    panel([measurement({ deductions: [[
+      { x: 5, y: 5 }, { x: 15, y: 5 }, { x: 15, y: 15 }, { x: 5, y: 15 },
+    ]] })]);
+    expect(screen.getByText('1,140.00 SF')).toBeInTheDocument();
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Line for Slab, north bay' }), 'l-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await waitFor(() => expect(hoisted.applied).toHaveLength(1));
+    expect(hoisted.applied[0]!.quantity).toBeCloseTo(1140, 6);
+  });
+
+  it('says so rather than guessing when the calibration behind it is gone', async () => {
+    // A length with no scale is a number of pixels.
+    panel([measurement()], true, []);
+    expect(screen.getByText('no scale')).toBeInTheDocument();
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Line for Slab, north bay' }), 'l-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    expect(await screen.findByText(/cannot be put on a line/)).toBeInTheDocument();
+    expect(hoisted.applied).toEqual([]);
+  });
+
+  it('needs no calibration to count markers', () => {
+    panel([measurement({
+      kind: 'count', unit: 'EA', isClosed: false, countPer: 3, multiplier: 2,
+    })], true, []);
+    // Four markers, three fixtures each, on two identical elevations.
+    expect(screen.getByText('24.00 EA')).toBeInTheDocument();
+  });
+
+  it('says when the line disagrees with what the shape now measures', () => {
+    /*
+     * A shape retraced after it was applied. The line still carries the old
+     * number, and the difference is the whole reason to look.
+     */
+    panel([measurement({ appliedQuantity: 900, appliedAt: '2026-09-08T10:00:00Z' })]);
+    expect(screen.getByText('1,240.00 SF')).toBeInTheDocument();
+    expect(screen.getByText('line has 900.00')).toBeInTheDocument();
   });
 
   it('offers the open estimate lines to put it on', () => {
@@ -90,9 +167,8 @@ describe('measurements kept on a sheet', () => {
       screen.getByRole('combobox', { name: 'Line for Slab, north bay' }), 'l-1');
     await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
     await waitFor(() => expect(hoisted.applied).toHaveLength(1));
-    expect(hoisted.applied[0]).toMatchObject({
-      measurementId: 'm-1', lineItemId: 'l-1', quantity: 1240,
-    });
+    expect(hoisted.applied[0]).toMatchObject({ measurementId: 'm-1', lineItemId: 'l-1' });
+    expect(hoisted.applied[0]!.quantity).toBeCloseTo(1240, 6);
   });
 
   it('refuses to apply before a line is chosen, rather than guessing one', async () => {

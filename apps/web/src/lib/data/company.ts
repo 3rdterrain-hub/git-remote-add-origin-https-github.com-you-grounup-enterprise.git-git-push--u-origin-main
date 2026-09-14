@@ -44,6 +44,17 @@ export type CompanyProfile = {
   bidRoundingIncrement: number;
   /** `{"estimate":"Bid"}` — what this company calls things. */
   terminology: Record<string, string>;
+  /**
+   * The mark and colors this company puts on what it sends.
+   *
+   * All three have existed since migration 0002, with a hex check constraint on
+   * the colors and a comment saying the logo is a storage path and never a
+   * blob. Nothing read them and nothing wrote them, so every proposal went out
+   * in the platform's colors with no mark of the company sending it.
+   */
+  logoPath: string | null;
+  primaryColor: string;
+  accentColor: string;
 };
 
 const num = (v: unknown, fallback: number): number =>
@@ -53,7 +64,8 @@ const COLUMNS =
   'id, name, legal_name, tax_id, phone, email, website, address_line1, address_line2, ' +
   'city, state_province, postal_code, country, timezone, currency, ' +
   'default_shift_hours, default_calendar_efficiency, default_swell_percent, ' +
-  'default_shrink_percent, default_fuel_price, bid_rounding_increment, terminology';
+  'default_shrink_percent, default_fuel_price, bid_rounding_increment, terminology, ' +
+  'logo_path, primary_color, accent_color';
 
 const shape = (r: Record<string, unknown>): CompanyProfile => ({
   id: String(r.id),
@@ -78,6 +90,10 @@ const shape = (r: Record<string, unknown>): CompanyProfile => ({
   defaultFuelPrice: num(r.default_fuel_price, 4.25),
   bidRoundingIncrement: num(r.bid_rounding_increment, 0),
   terminology: (r.terminology as Record<string, string> | null) ?? {},
+  logoPath: (r.logo_path as string | null) ?? null,
+  /* The column defaults are the company's, not this module's guess at one. */
+  primaryColor: String(r.primary_color ?? '#111827'),
+  accentColor: String(r.accent_color ?? '#F6C101'),
 });
 
 /**
@@ -122,6 +138,9 @@ const COLUMN_FOR: Record<keyof CompanyProfileEdit, string> = {
   defaultFuelPrice: 'default_fuel_price',
   bidRoundingIncrement: 'bid_rounding_increment',
   terminology: 'terminology',
+  logoPath: 'logo_path',
+  primaryColor: 'primary_color',
+  accentColor: 'accent_color',
 };
 
 /**
@@ -169,6 +188,77 @@ export async function saveCompanyProfile(
     throw new Error('You do not have permission to change company settings.');
   }
   return shape(row);
+}
+
+/**
+ * Put a logo in the branding bucket and point the company row at it.
+ *
+ * The bucket is public, which is the point: the logo has to render in a
+ * proposal opened from an emailed link by somebody with no account, and a
+ * signed URL that expires is a letterhead that vanishes from a document the
+ * customer keeps. Writing is still gated on `company.manage`.
+ *
+ * The path carries the company id first, so the storage policy can tell whose
+ * file it is from the name alone, and a timestamp, so replacing a logo is not
+ * fighting a CDN over a cached object at a reused name.
+ */
+export async function uploadCompanyLogo(
+  companyId: string, file: File,
+): Promise<CompanyProfile> {
+  if (!supabase) throw new Error('Not connected.');
+  if (!/^image\//.test(file.type)) {
+    throw new Error('A logo is an image — PNG, JPEG, WebP or SVG.');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('That logo is over 5MB. A letterhead is a mark, not a brochure.');
+  }
+  const safe = file.name.replace(/[^A-Za-z0-9._-]/g, '-');
+  const path = `${companyId}/${Date.now()}-${safe}`;
+
+  const { error } = await supabase.storage
+    .from(BRANDING_BUCKET)
+    .upload(path, file, { contentType: file.type || undefined, upsert: false });
+  if (error) throw new Error(error.message);
+
+  return saveCompanyProfile(companyId, { logoPath: path });
+}
+
+/** The bucket a company's mark lives in. Public to read, `company.manage` to write. */
+export const BRANDING_BUCKET = 'company-branding';
+
+/**
+ * Where a stored logo can actually be fetched from.
+ *
+ * Public rather than signed, so the same URL works in the app, in a proposal an
+ * anonymous customer opens, and in a PDF they keep.
+ */
+export function logoUrl(logoPath: string | null): string | null {
+  if (!logoPath || !supabase) return null;
+  const { data } = supabase.storage.from(BRANDING_BUCKET).getPublicUrl(logoPath);
+  return data?.publicUrl ?? null;
+}
+
+/**
+ * Take the logo off, and out of storage.
+ *
+ * The row is cleared first: a company row pointing at an object that is gone
+ * renders a broken image on every proposal, which is worse than no logo. If the
+ * delete then fails, an orphaned object in a bucket costs five kilobytes and
+ * nothing else.
+ */
+export async function removeCompanyLogo(
+  companyId: string, logoPath: string | null,
+): Promise<CompanyProfile> {
+  if (!supabase) throw new Error('Not connected.');
+  const saved = await saveCompanyProfile(companyId, { logoPath: null });
+  if (logoPath) {
+    try {
+      await supabase.storage.from(BRANDING_BUCKET).remove([logoPath]);
+    } catch {
+      /* An orphaned object costs five kilobytes; a broken image costs a bid. */
+    }
+  }
+  return saved;
 }
 
 /**

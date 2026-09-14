@@ -241,14 +241,15 @@ export async function uploadPlanSet(
    * and apply-to-line all sat behind an empty list. The browser renders these
    * pages with PDF.js a moment later; it always knew the number.
    */
-  const pageCount = await countPdfPages(input.file);
+  const reading = await readPdf(input.file);
+  const pageCount = reading.pages;
 
   const { error } = await client.storage
     .from('project-documents')
     .upload(path, input.file, { contentType: input.file.type || undefined, upsert: false });
   if (error) throw new Error(error.message);
 
-  return rpc<string>(client, 'register_document_version', {
+  const documentId = await rpc<string>(client, 'register_document_version', {
     p_company: input.companyId,
     p_name: input.name?.trim() || input.file.name,
     p_storage_path: path,
@@ -259,6 +260,21 @@ export async function uploadPlanSet(
     p_estimate_id: input.estimateId ?? null,
     p_page_count: pageCount,
   });
+
+  /*
+   * And what the pages say, now that there are sheets to hang it on. Never
+   * allowed to fail the upload: a set whose text did not get written is still
+   * a set you can take off, and `my_sheet_text_coverage` is where it says so.
+   */
+  if (reading.text.length > 0) {
+    try {
+      await recordPlanSetText(client, documentId, reading.text);
+    } catch {
+      /* The set is uploaded and takeoffable either way. Coverage says so. */
+    }
+  }
+
+  return documentId;
 }
 
 /**
@@ -272,18 +288,102 @@ export async function uploadPlanSet(
  * upload of a plan set over a page count would be a worse trade.
  */
 export async function countPdfPages(file: File): Promise<number | null> {
-  if (!/pdf/i.test(file.type) && !/\.pdf$/i.test(file.name)) return null;
+  return (await readPdf(file)).pages;
+}
+
+/** One page of a plan set, as the file itself says it. */
+export interface PageText { page: number; text: string }
+
+export interface PdfReading {
+  pages: number | null;
+  /**
+   * The text layer, page by page. Empty for a scan: a drawing plotted to paper
+   * and photographed carries no text, and that is a fact about the sheet rather
+   * than a failure to read it.
+   */
+  text: PageText[];
+}
+
+/**
+ * Open a PDF once and take from it the two things a plan set needs.
+ *
+ * The page count turns a file into sheets a takeoff can be taken on. The text
+ * layer is what makes those sheets findable: `document_sheets.extracted_text`
+ * has carried a GIN trigram index since migration 0005 and a search function
+ * since 0036, and until now nothing wrote it — so "Search the drawings" could
+ * only ever return nothing, on every company, for every term.
+ *
+ * Done here rather than by a model because it needs no judgment and no key. A
+ * set plotted out of CAD carries its annotation as real text, and reading it is
+ * exact. A model may supersede this later with a better reading of a scan;
+ * `document_extractions` keeps both and says which produced which.
+ *
+ * Opened once. Counting the pages and reading them used to be two passes over
+ * the same bytes.
+ */
+export async function readPdf(file: File): Promise<PdfReading> {
+  if (!/pdf/i.test(file.type) && !/\.pdf$/i.test(file.name)) {
+    return { pages: null, text: [] };
+  }
   try {
     const pdfjs = await import('pdfjs-dist');
-    pdfjs.GlobalWorkerOptions.workerSrc =
-      new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+    /*
+     * Left alone if something has already chosen one. The bundled worker is
+     * resolved against this module's URL, which is right in a browser and
+     * wrong anywhere the module is loaded over http by a Node loader — so a
+     * caller that knows better says so rather than having this overwrite it.
+     */
+    if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+      pdfjs.GlobalWorkerOptions.workerSrc =
+        new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+    }
     const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
     const pages = doc.numPages;
+    const text: PageText[] = [];
+    for (let n = 1; n <= pages; n += 1) {
+      try {
+        const page = await doc.getPage(n);
+        const content = await page.getTextContent();
+        /*
+         * Items in the order the file lists them, which for a drawing is the
+         * order they were plotted rather than the order they read. That is
+         * enough for a search: the index is trigram and the panel shows a
+         * window around the hit, so what matters is that the words are present
+         * and attached to the right sheet.
+         */
+        const words = content.items
+          .map((i) => (typeof i === 'object' && i && 'str' in i ? String(i.str) : ''))
+          .filter((w) => w.trim() !== '');
+        text.push({ page: n, text: words.join(' ').replace(/\s+/g, ' ').trim() });
+        page.cleanup();
+      } catch {
+        /* One unreadable page does not cost the other three hundred. */
+        text.push({ page: n, text: '' });
+      }
+    }
     await doc.destroy();
-    return pages > 0 ? pages : null;
+    return { pages: pages > 0 ? pages : null, text };
   } catch {
-    return null;
+    return { pages: null, text: [] };
   }
+}
+
+/**
+ * Record what a plan set's pages say.
+ *
+ * Separate from the upload, and never allowed to fail it: a set whose text did
+ * not get written is still a set you can take off, and losing the upload over
+ * the search index would be the worse trade. What it cost is reported instead,
+ * so `my_sheet_text_coverage` is the thing that says a set needs OCR rather
+ * than another search term.
+ */
+export async function recordPlanSetText(
+  client: RpcCapable, documentId: string, text: PageText[],
+): Promise<number> {
+  if (text.length === 0) return 0;
+  return rpc<number>(client, 'record_plan_set_text', {
+    p_document: documentId, p_pages: text, p_source: 'pdf_text_layer',
+  });
 }
 
 export interface AnalysisOutcome {
@@ -346,6 +446,86 @@ export async function rejectFinding(
   client: RpcCapable, findingId: string, note: string,
 ): Promise<void> {
   await rpc(client, 'reject_finding', { p_finding: findingId, p_note: note.trim() });
+}
+
+/** How much of one plan set can be searched, and what last read it. */
+export interface TextCoverage {
+  documentVersionId: string;
+  documentId: string;
+  documentName: string;
+  sheets: number;
+  sheetsWithText: number;
+  sheetsWithoutText: number;
+  /** Where the file is, so a set uploaded before 0172 can be read now. */
+  storageBucket: string;
+  storagePath: string;
+  lastReadAt: string | null;
+  lastReadBy: string | null;
+}
+
+/**
+ * Which plan sets can be searched, and which are pictures of drawings.
+ *
+ * A set with no text layer does not announce itself — the search simply never
+ * finds it, which reads as "there is no silt fence on this job" rather than as
+ * "nobody has read this set". Everything uploaded before migration 0172 is in
+ * that position, because until then nothing wrote the column at all.
+ */
+export const loadTextCoverage: Query<TextCoverage[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_sheet_text_coverage')
+    .select('document_version_id, document_id, document_name, storage_bucket, storage_path, sheets, sheets_with_text, sheets_without_text, last_read_at, last_read_by')
+    .order('document_name')
+    .limit(200)) as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    documentVersionId: String(r.document_version_id),
+    documentId: String(r.document_id),
+    documentName: String(r.document_name ?? ''),
+    sheets: Number(r.sheets ?? 0),
+    sheetsWithText: Number(r.sheets_with_text ?? 0),
+    sheetsWithoutText: Number(r.sheets_without_text ?? 0),
+    storageBucket: String(r.storage_bucket ?? 'project-documents'),
+    storagePath: String(r.storage_path ?? ''),
+    lastReadAt: (r.last_read_at as string | null) ?? null,
+    lastReadBy: (r.last_read_by as string | null) ?? null,
+  }));
+};
+
+/**
+ * Read a plan set already in storage, and record what its pages say.
+ *
+ * Everything uploaded before migration 0172 has no text, because until then
+ * nothing wrote the column — so the way forward is not enough on its own. The
+ * file is fetched back through a signed URL, read with the same text layer the
+ * upload path uses, and written through the same function, so a set read today
+ * is indistinguishable from one read at upload.
+ */
+export async function readStoredPlanSet(
+  client: RpcCapable & {
+    storage: { from: (b: string) => { createSignedUrl: (p: string, s: number) =>
+      PromiseLike<{ data: { signedUrl: string } | null; error: { message: string } | null }> } };
+  },
+  input: { documentId: string; bucket: string; storagePath: string; fileName: string },
+): Promise<{ pages: number; withText: number }> {
+  const { data, error } = await client.storage
+    .from(input.bucket).createSignedUrl(input.storagePath, 3600);
+  if (error) throw new Error(error.message);
+  if (!data?.signedUrl) throw new Error('That plan set has no file behind it.');
+
+  const response = await fetch(data.signedUrl);
+  if (!response.ok) throw new Error(`That file could not be fetched (${response.status}).`);
+  const blob = await response.blob();
+  const file = new File([blob], input.fileName, { type: 'application/pdf' });
+
+  const reading = await readPdf(file);
+  if (reading.text.length === 0) {
+    throw new Error('That file could not be read as a PDF.');
+  }
+  await recordPlanSetText(client, input.documentId, reading.text);
+  return {
+    pages: reading.text.length,
+    withText: reading.text.filter((t) => t.text.trim() !== '').length,
+  };
 }
 
 export interface SheetTextHit {

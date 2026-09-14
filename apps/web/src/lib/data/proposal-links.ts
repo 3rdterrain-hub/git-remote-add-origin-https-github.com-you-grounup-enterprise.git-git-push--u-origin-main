@@ -154,7 +154,19 @@ export interface SignableProposal {
     description: string; quantity: number | null; unit: string | null;
     unitPrice: number | null; total: number | null;
   }>;
-  company: { name: string; city: string | null; state: string | null };
+  /**
+   * Who is sending it, and what they look like.
+   *
+   * The branding travels with the proposal rather than being fetched
+   * separately, because the person reading this page has no account and no
+   * session: a second call would have nothing to authorize it. It is also the
+   * only place tenant data reaches an anonymous caller, so what is here is
+   * deliberate — a name, a mark and two colors.
+   */
+  company: {
+    name: string; city: string | null; state: string | null;
+    logoPath: string | null; primaryColor: string; accentColor: string;
+  };
   recipientName: string;
   expiresAt: string;
 }
@@ -184,7 +196,18 @@ export async function openProposalByToken(token: string): Promise<SignablePropos
       unitPrice: l.unitPrice == null ? null : Number(l.unitPrice),
       total: l.total == null ? null : Number(l.total),
     })),
-    company: (d.company as SignableProposal['company']),
+    company: (() => {
+      const c = (d.company ?? {}) as Record<string, unknown>;
+      return {
+        name: String(c.name ?? ''),
+        city: (c.city as string | null) ?? null,
+        state: (c.state as string | null) ?? null,
+        logoPath: (c.logoPath as string | null) ?? null,
+        /* The company row's own defaults, not this module's guess at one. */
+        primaryColor: String(c.primaryColor ?? '#111827'),
+        accentColor: String(c.accentColor ?? '#F6C101'),
+      };
+    })(),
     recipientName: String(d.recipientName),
     expiresAt: String(d.expiresAt),
   };

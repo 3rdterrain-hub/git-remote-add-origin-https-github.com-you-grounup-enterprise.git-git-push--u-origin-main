@@ -60,6 +60,7 @@ import { MarkupCell } from '@/components/estimate/markup-cell';
 import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
+import { DocumentConflicts } from '@/components/estimate/document-conflicts';
 import { CategorySelect } from '@/components/ui/category-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import {
@@ -563,6 +564,15 @@ export function EstimateVersionPage() {
 
       <PlanTakeoffPanel versionId={v.id} estimateId={v.estimateId} companyId={companyId}
         editable={editable && can('estimates.write')} onChanged={version.refetch} />
+
+      {/*
+        * The confidence engine has deducted twenty-two points per unresolved
+        * conflict since migration 0033 and nothing could record one, so every
+        * bid priced here assumed the documents agreed. This is the door.
+        */}
+      <DocumentConflicts versionId={v.id}
+        lines={v.lines.map((l) => ({ id: l.id, description: l.description }))}
+        editable={editable && can('estimates.write')} />
 
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
         directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice}

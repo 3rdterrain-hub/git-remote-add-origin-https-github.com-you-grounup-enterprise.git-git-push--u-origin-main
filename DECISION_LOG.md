@@ -11,6 +11,266 @@ Newest first.
 
 ---
 
+## D-030 · 2026-09-13 · The proposal PDF is the renderer that was already written
+
+**Decision.** `lib/data/proposal-pdf.ts` assembles what the Proposals screen
+already holds into `renderProposal`'s input and hands the bytes to the browser.
+Both the internal screen and the customer's signing page download it. No
+arithmetic: the total is the frozen figure the engine wrote.
+
+**Reason.** `renderProposal` has been in `packages/pdf` since the package was
+written — letterhead, line table, inclusions, exclusions, terms, and a theme
+taken from `Branding.primary` / `Branding.accent`. It is complete and tested,
+and **its only callers were its own tests.** The Proposals screen carried a
+button labeled "PDF" with no `onClick` on it at all, and `proposals.storage_path`
+has existed since 0006 unwritten.
+
+The customer gets the download too, because the share link expires and the page
+behind it stops answering. A proposal somebody accepted and can no longer read
+is not a record of anything.
+
+**Considered.** Rendering server-side into `proposals.storage_path`. Deferred
+rather than rejected — the function is pure and takes a clock, so the same
+proposal regenerates byte-identically years later, which is the property that
+makes storing it optional rather than urgent. A test pins that property.
+
+**Affects.** `proposals-live.tsx`, `sign-proposal.tsx`, `packages/pdf`.
+
+**Status.** Active. 11 tests.
+
+---
+
+## D-029 · 2026-09-13 · Branding belongs to the company, and the proposal reads it
+
+**Decision.** `logo_path`, `primary_color` and `accent_color` on `companies` are
+edited in Company Settings and read by everything that renders the company's
+mark. The logo lives in a **public** `company-branding` bucket (migration 0173),
+writable only with `company.manage`. `open_proposal_by_token` carries the three
+values to the customer inside the payload it already returns.
+
+**Reason.** All three columns have existed since migration 0002, with a hex
+check constraint and a comment saying the logo is a storage path and never a
+blob. Across the repository they appeared in exactly one file: the migration
+that created them. Every proposal this platform sent went out in the platform's
+colors, headed with the platform's logo.
+
+Set on the company rather than per proposal, on the user's instruction ("put the
+branding in company settings"), and because two proposals sent the same week
+must not disagree about what the company looks like.
+
+**The bucket is public deliberately.** `project-documents` is private because a
+plan set is a customer's competitive position. A logo is the opposite — it is
+the mark on the side of the trucks — and it has to render for somebody with no
+account opening an emailed link. A signed URL that expires is a letterhead that
+vanishes from a document the customer keeps.
+
+**Considered.** A `my_company_branding` view. Written and then removed before
+the migration was applied: the columns are already on the row
+`loadCompanyProfile` reads, and an anonymous caller cannot select from a view at
+all. A second way to ask one question is how two screens come to show different
+colors.
+
+**Superseded.** The Branding tab in Company Settings, which had
+`defaultValue="#111827"` in the markup, swatches painted by a fixed CSS class
+rather than by the color, and a Save button whose handler set a dirty flag to
+false. The page-level "Save changes" button went with it — it existed only for
+those boxes.
+
+**Affects.** `companies`, `open_proposal_by_token`, `components/settings/branding.tsx`,
+`sign-proposal.tsx`, `proposals-live.tsx`, `lib/data/company.ts`.
+
+**Status.** Active. Migration 0173, 12 tests.
+
+---
+
+## D-028 · 2026-09-13 · A sheet's text is read by the file, not by a model
+
+**Decision.** `document_sheets.extracted_text` is written by
+`record_plan_set_text` (migration 0172) from the PDF's own text layer, extracted
+in the browser with the `pdfjs-dist` already loaded to count pages.
+`document_extractions` records each run — what read the sheet, what it
+concluded, what it found — and the two are written in one call so they cannot
+drift. A reading that found nothing records the run and **does not** blank text
+an earlier run read.
+
+**Reason.** The column has carried a GIN trigram index since migration 0005 and
+a snippet-building search function since 0036, and was given a public wrapper
+and a screen in 0147. **Nothing has ever written it.** "Search the drawings"
+returned nothing for every company, for every term, for the life of the
+platform — and a search that finds nothing looks exactly like a job with no silt
+fence on it, which is why four green layers never caught it.
+`ai-analyze-document` was substituting the literal string "(no text extracted
+from this sheet)" for every sheet, so the model was being asked to analyze a
+plan set it could not see, and billed for it.
+
+The text layer is deterministic, exact, needs no key, and costs nothing on a
+pass the upload already makes. A set plotted out of CAD carries its annotation
+as real text. A model may supersede that later with a better reading of a scan;
+`document_extractions` keeps both and says which produced which — which is what
+its own header asked for in 0019 and never got.
+
+**Considered.** Having the model do the extraction. Rejected as the first
+writer: it needs a key that is not set, it costs money per page, and it would
+make the searchability of a drawing depend on a judgment. Also considered
+pulling sheet numbers out of the extracted text with a pattern — rejected under
+"never invent a number"; naming a sheet stays the manual path of D-023.
+
+**Affects.** `lib/data/plans.ts` (`readPdf` replaces `countPdfPages`, one pass
+instead of two), `components/plans/text-coverage.tsx`, `ai-analyze-document`
+(now refuses a set nothing has read rather than spending a credit to read
+nothing).
+
+**Status.** Active. Migration 0172, 11 db tests, 11 web tests.
+
+---
+
+## D-027 · 2026-09-13 · A tool change keeps the work the next tool needs
+
+**Decision.** `afterToolChange` in `lib/takeoff-tools.ts` owns what survives a
+change of takeoff tool: stepping into Deduct parks the outline and starts a
+fresh ring, stepping back to an area or a volume restores the outline and keeps
+what was banked, and stepping anywhere else drops all three.
+
+**Reason.** The page cleared `points` going into Deduct — losing the outline the
+opening was being cut out of — and cleared `deductions` coming back. Between the
+two, an opening could never reach `measure`, so the Deduct tool subtracted
+nothing and the "2 opening(s) will be subtracted" line under it was never true.
+
+**Considered.** Fixing it in place in the event handler. Rejected: a rule inside
+a handler is a rule with no test, and this one has three cases.
+
+**Affects.** `pages/app/takeoff.tsx`.
+
+**Status.** Active. 7 tests.
+
+---
+
+## D-026 · 2026-09-13 · A callback that runs now may not read a binding from later
+
+**Decision.** `tests/governance/a-value-is-not-read-before-it-exists.test.ts`
+walks the syntax tree of every file under `apps/web/src` and fails the build
+when a callback passed to an immediately-invoking array method reads a
+block-scoped binding declared further down the same function body.
+
+**Reason.** `takeoff.tsx` derived the sheet's measurements eight lines above the
+`const [sheetId]` it filtered on. `Array.filter` runs its callback during the
+component body, so every render in which the query had answered threw
+`ReferenceError: Cannot access 'sheetId' before initialization`. **The takeoff
+screen crashed for every company that had ever saved a measurement and worked
+perfectly for every company that had not** — which is why it survived a green
+gate.
+
+TypeScript cannot catch this: it refuses a direct read before a declaration
+(TS2448) and deliberately permits one inside a closure, because in general a
+closure runs later. The listed array methods are the case where it does not.
+
+**Considered.** A one-off test rendering the takeoff page. Rejected as the
+smaller half of the fix — it would prove this instance and nothing about the
+next one. There is no ESLint in this repository; governance tests are how rules
+are enforced here.
+
+**Affects.** Every file under `apps/web/src`. Found one further candidate on the
+first run (`import-panel.tsx:141`), which proved to be a local shadowing a later
+outer name — the check now stops at nested function boundaries.
+
+**Status.** Active. 3 tests, including one that fails on the original shape.
+
+---
+
+## D-025 · 2026-09-13 · A saved measurement's quantity is recomputed, never remembered
+
+**Decision.** `lib/takeoff-quantity.ts` resolves what a kept measurement comes
+to by calling the same `measure` / `measureBasin` that produced it, from the
+geometry, deductions, pitch, depth, width, count and repeats on the row plus the
+calibration it was traced against. `TakenOff` shows that number and applies that
+number. `loadCalibrations` — written since the takeoff screen was built and
+called by nothing — is what makes it possible.
+
+**Reason.** The panel applied `appliedQuantity ?? multiplier × countPer`, and
+nothing writes `applied_quantity` until a measurement is *already* applied. So
+every apply from that panel sent `1`. **A traced 1,240 SF pad went onto the
+estimate as one square foot**, and the Quantity column read "not applied" on
+every kept shape — the one thing a takeoff list must never say about something
+already traced.
+
+This is D-013's rule again ("derive, don't store"): the answer is not a column,
+it is a function of the inputs, and the inputs are all on the row.
+
+**Considered.** Writing the resolved quantity to the row at save time. Rejected:
+a shape can be retraced, and a stored quantity then disagrees with its own
+geometry with nothing to say which is right. Where a line *has* been given a
+quantity and the shape has since moved, the column now shows both and says so.
+
+**Affects.** `components/takeoff/taken-off.tsx`, `lib/data/takeoff.ts`
+(`lifts` and `freeboard_feet` now carried, because a basin is prismoidal and
+cannot be recovered from its outline), `pages/app/takeoff.tsx` — which now
+shares the basin unit mapping rather than keeping a second copy.
+
+**Status.** Active. 16 tests.
+
+---
+
+## D-024 · 2026-09-13 · A conflict is stated from both sides or not at all
+
+**Decision.** `app.raise_document_conflict` refuses a conflict unless all four
+of `source_a`, `source_a_says`, `source_b`, `source_b_says` are given, and
+`app.resolve_document_conflict` refuses to close one with no resolution text.
+`app.conflict_to_rfi` writes the question from both sides and sets
+`rfis.conflict_id`, which has pointed at `document_conflicts` since 0006 and was
+never written.
+
+**Reason.** The confidence engine has deducted twenty-two points per unresolved
+conflict on a line since migration 0033, and nothing in the platform could
+record one — so **every bid ever priced here was priced as though the plans, the
+specifications, the geotechnical report and the addenda all agreed.** That is
+the door defect at its most expensive: not a missing screen, a systematically
+optimistic number.
+
+Both sides, because a conflict stated from one side is an opinion and nobody but
+its author can settle it. A resolution, because a conflict closed with no answer
+is one somebody finds again on the next revision and settles differently.
+
+**Considered.** Letting a conflict be raised free-text on the estimate as a
+whole. Rejected: only a conflict naming a line moves that line's confidence, so
+an unplaced one records the worry and changes no number. The form says this.
+
+**Affects.** `document_conflicts`, `rfis`, the confidence engine's inputs,
+`components/estimate/document-conflicts.tsx`.
+
+**Status.** Active. Migration 0170, 8 db tests, 12 web tests.
+
+---
+
+## D-023 · 2026-09-13 · The sheet name is typed by the person looking at the title block
+
+**Decision.** `app.identify_sheet` writes `sheet_number`, `sheet_title`,
+`discipline`, `drawing_scale`, `revision` and `revision_date`. Null leaves a
+field alone. `p_source = 'ai_agent'` may fill a blank and may **never** overwrite
+what a person put there. `my_plan_sheets` builds the display label once, in the
+view, so the picker, the search and anything printed call a sheet the same
+thing.
+
+**Reason.** Those six columns have been on `document_sheets` since migration
+0005, with an index on `(company_id, sheet_number)` for finding a sheet by the
+number printed on it. Nothing ever wrote one. A fourteen-sheet civil set listed
+as "p.1" through "p.14", so the estimator had to remember which page was the
+site plan — and one omission had four consequences: no name, no printed scale to
+start from, nothing to compare across revisions, and nothing to search.
+
+**Considered.** Waiting for the model to read title blocks. Rejected as the
+*first* build: it needs a key the user has not set, and typing what is on the
+drawing in front of you takes ten seconds a sheet. Authorized by the user —
+"build the manual path first". The agent path is the same function with
+`p_source = 'ai_agent'`, and RULE-008 is enforced inside it rather than trusted.
+
+**Affects.** `document_sheets`, the takeoff sheet picker, `lib/data/sheets.ts`.
+`takeoff.ts` no longer has its own sheet reader — `loadSheets` was deleted and
+the picker reads `my_plan_sheets`, so one label is built in one place.
+
+**Status.** Active. Migration 0171, 7 db tests, 7 web tests.
+
+---
+
 ## D-022 · 2026-09-12 · The unsuitable fraction is not assumed, and the cross-sections tab is removed
 
 **Decision.** The Survey page reads the stored volumes from

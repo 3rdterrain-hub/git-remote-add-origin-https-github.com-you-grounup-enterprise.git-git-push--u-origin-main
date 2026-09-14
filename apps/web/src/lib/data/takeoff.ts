@@ -9,25 +9,14 @@
 import { unwrap, type Query } from './query';
 import type { Point } from '@grounup/engine';
 
-export interface SheetRow {
-  id: string;
-  /**
-   * The sheet's own company. A measurement belongs to the same one, and
-   * `enforce_tenant_parent` refuses the insert if it does not — so this is read
-   * from the sheet rather than assumed from whichever membership the caller
-   * happens to have first.
-   */
-  companyId: string;
-  documentName: string;
-  documentVersionId: string;
-  storagePath: string;
-  storageBucket: string;
-  pageNumber: number;
-  sheetNumber: string | null;
-  sheetTitle: string | null;
-  discipline: string | null;
-  statedScale: string | null;
-}
+/**
+ * A sheet, as the picker and the viewer both see it.
+ *
+ * Read from `my_plan_sheets` (migration 0171) so the name shown here, the name
+ * in search and the name on anything printed are one string built in one place.
+ */
+export type { PlanSheet } from './sheets';
+export { loadPlanSheets } from './sheets';
 
 export interface CalibrationRow {
   id: string;
@@ -62,6 +51,15 @@ export interface MeasurementRow {
   widthFeet: number | null;
   countPer: number;
   multiplier: number;
+  /**
+   * The cuts of a basin, floor upward. Carried because a basin's quantity is
+   * prismoidal and cannot be recovered from the outline alone.
+   */
+  lifts: Array<{
+    depth_feet: number; side_slope_run: number;
+    bench_width_feet?: number; label?: string;
+  }>;
+  freeboardFeet: number | null;
   appliedLineItemId: string | null;
   appliedQuantity: number | null;
   appliedAt: string | null;
@@ -93,31 +91,6 @@ type RpcCapable = {
     PromiseLike<{ data: unknown; error: { message: string } | null }>;
 };
 
-export const loadSheets: Query<SheetRow[]> = async (client) => {
-  const rows = unwrap(await client
-    .from('document_sheets')
-    .select('id, company_id, page_number, sheet_number, sheet_title, discipline, drawing_scale, document_version_id, document_versions(storage_path, storage_bucket, documents(name))')
-    .order('page_number')
-    .limit(500)) as Array<Record<string, unknown>>;
-  return rows.map((s) => {
-    const ver = one<{ storage_path: string; storage_bucket: string; documents: unknown }>(
-      s.document_versions);
-    return {
-      id: String(s.id),
-      companyId: String(s.company_id),
-      documentName: one<{ name: string }>(ver?.documents)?.name ?? 'Untitled document',
-      documentVersionId: String(s.document_version_id),
-      storagePath: ver?.storage_path ?? '',
-      storageBucket: ver?.storage_bucket ?? 'project-documents',
-      pageNumber: Number(s.page_number),
-      sheetNumber: (s.sheet_number as string | null) ?? null,
-      sheetTitle: (s.sheet_title as string | null) ?? null,
-      discipline: (s.discipline as string | null) ?? null,
-      statedScale: (s.drawing_scale as string | null) ?? null,
-    };
-  });
-};
-
 export const loadCalibrations: Query<CalibrationRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('takeoff_calibrations')
@@ -138,7 +111,7 @@ export const loadCalibrations: Query<CalibrationRow[]> = async (client) => {
 export const loadMeasurements: Query<MeasurementRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('takeoff_measurements')
-    .select('id, document_sheet_id, calibration_id, name, trade, kind, unit, geometry, deductions, is_closed, pitch_rise, pitch_run, depth_feet, width_feet, count_per, multiplier, applied_line_item_id, applied_quantity, applied_at, updated_at')
+    .select('id, document_sheet_id, calibration_id, name, trade, kind, unit, geometry, deductions, is_closed, pitch_rise, pitch_run, depth_feet, width_feet, count_per, multiplier, lifts, freeboard_feet, applied_line_item_id, applied_quantity, applied_at, updated_at')
     .order('created_at', { ascending: false })
     .limit(500)) as Array<Record<string, unknown>>;
   return rows.map((m) => ({
@@ -158,6 +131,8 @@ export const loadMeasurements: Query<MeasurementRow[]> = async (client) => {
     widthFeet: m.width_feet == null ? null : Number(m.width_feet),
     countPer: Number(m.count_per ?? 1),
     multiplier: Number(m.multiplier ?? 1),
+    lifts: (m.lifts as MeasurementRow['lifts']) ?? [],
+    freeboardFeet: m.freeboard_feet == null ? null : Number(m.freeboard_feet),
     appliedLineItemId: (m.applied_line_item_id as string | null) ?? null,
     appliedQuantity: m.applied_quantity == null ? null : Number(m.applied_quantity),
     appliedAt: (m.applied_at as string | null) ?? null,

@@ -51,6 +51,7 @@ import {
 import { loadEstimates } from '@/lib/data/estimates';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { SearchTheDrawings } from '@/components/plans/search-the-drawings';
+import { TextCoveragePanel } from '@/components/plans/text-coverage';
 import { date, dateTime, integer, titleCase, money, percent, qty, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -222,8 +223,14 @@ export function PlansPage() {
           * function behind it was written in 0036 for a column whose own
           * comment asked for it, and had no door until 0147.
           */}
-        <TabsContent value="search">
+        <TabsContent value="search" className="space-y-4">
           <SearchTheDrawings />
+          {/*
+            * And what is actually searchable, which is the question a search
+            * returning nothing raises. Until 0172 the answer was "none of it",
+            * on every company — the column the search reads had no writer.
+            */}
+          <TextCoveragePanel />
         </TabsContent>
 
         {/* -------------------------------------------------------- findings */}

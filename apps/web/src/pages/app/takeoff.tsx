@@ -21,10 +21,13 @@ import {
 import { ApplyPanel } from '@/components/takeoff/apply-panel';
 import { useQuery } from '@/lib/data/query';
 import {
-  loadSheets, loadOpenEstimateLines, sheetUrl, applyMeasurement, saveCalibration,
+  loadPlanSheets, loadOpenEstimateLines, loadCalibrations, sheetUrl, applyMeasurement, saveCalibration,
   loadPlanSetsWithoutSheets, loadMeasurements, saveMeasurement,
 } from '@/lib/data/takeoff';
 import { UnsheetedPlanSets } from '@/components/takeoff/unsheeted-plan-sets';
+import { basinQuantity } from '@/lib/takeoff-quantity';
+import { afterToolChange } from '@/lib/takeoff-tools';
+import { SheetIdentity } from '@/components/takeoff/sheet-identity';
 import { TakenOff } from '@/components/takeoff/taken-off';
 import { DemonstrationNotice, ErrorState } from '@/components/data-state';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -74,7 +77,7 @@ export function TakeoffPage() {
   const [params] = useSearchParams();
   const forLine = params.get('line');
 
-  const sheetsQ = useQuery(loadSheets, []);
+  const sheetsQ = useQuery(loadPlanSheets, []);
   /*
    * Anything uploaded before migration 0135 has no sheets and so cannot appear
    * in the picker. Listing those is the difference between fixing this going
@@ -90,8 +93,15 @@ export function TakeoffPage() {
    * which is how a room gets taken off twice.
    */
   const measurementsQ = useQuery(loadMeasurements, []);
-  const measurements = measurementsQ.status === 'ready'
-    ? measurementsQ.data.filter((m) => m.sheetId === sheetId) : [];
+  /*
+   * What has been calibrated on each sheet.
+   *
+   * `loadCalibrations` has existed since the takeoff screen was built and
+   * nothing called it, so a scale was written once and never read back: the
+   * shapes kept on a sheet had no scale behind them the next time it opened,
+   * and the quantity a saved measurement came to could not be recovered.
+   */
+  const calibrationsQ = useQuery(loadCalibrations, []);
   const linesQ = useQuery(loadOpenEstimateLines, []);
   const demonstration = sheetsQ.status === 'demonstration';
 
@@ -99,6 +109,16 @@ export function TakeoffPage() {
   const lines = linesQ.status === 'ready' ? linesQ.data : [];
 
   const [sheetId, setSheetId] = useState('');
+  /*
+   * Derived below `sheetId` rather than above it. The filter callback runs
+   * while this function body is still executing, so reading `sheetId` before
+   * its `const` threw `ReferenceError: Cannot access 'sheetId' before
+   * initialization` on every render where the query had answered — which is to
+   * say on every company that had ever saved a measurement.
+   */
+  const measurements = measurementsQ.status === 'ready'
+    ? measurementsQ.data.filter((m) => m.sheetId === sheetId) : [];
+  const calibrations = calibrationsQ.status === 'ready' ? calibrationsQ.data : [];
   const [source, setSource] = useState('');
   const [sourceError, setSourceError] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
@@ -115,6 +135,11 @@ export function TakeoffPage() {
   const [lifts, setLifts] = useState<Lift[]>([{ depthFeet: 8, sideSlopeRun: 3 }]);
   const [freeboardFeet, setFreeboardFeet] = useState('');
   const [deductions, setDeductions] = useState<Point[][]>([]);
+  /*
+   * The shape the openings are cut out of, parked while one is traced. Without
+   * it, stepping into the Deduct tool lost the outline it was deducting from.
+   */
+  const [outline, setOutline] = useState<Point[]>([]);
   const [shapeName, setShapeName] = useState('');
   const [saving, setSaving] = useState(false);
   const [sheetSize, setSheetSize] = useState({ width: 1224, height: 792 });
@@ -140,7 +165,7 @@ export function TakeoffPage() {
     if (!sheet || !supabase) { setSource(''); return; }
     let canceled = false;
     setSourceError(null);
-    void sheetUrl(supabase, 'project-documents', sheet.storagePath)
+    void sheetUrl(supabase, sheet.storageBucket, sheet.storagePath)
       .then((u) => { if (!canceled) setSource(u); })
       .catch((e: Error) => { if (!canceled) { setSource(''); setSourceError(e.message); } });
     return () => { canceled = true; };
@@ -153,10 +178,25 @@ export function TakeoffPage() {
   const displayWidth = Math.round(900 * zoom);
   const num = (v: string) => (v.trim() === '' ? undefined : Number(v));
 
+  /**
+   * Switch tools without throwing away the work in progress.
+   *
+   * This used to clear `points` on the way *into* deduct — losing the outline
+   * you were cutting the opening out of — and clear `deductions` on the way
+   * back out. Between the two, an opening could never reach `measure`, so the
+   * Deduct tool subtracted nothing and the "2 opening(s) will be subtracted"
+   * notice under it was never true.
+   *
+   * Going into deduct parks the outline and starts a fresh ring. Coming back to
+   * the shape restores the outline and keeps what was banked. Going anywhere
+   * else is a different measurement, and drops both.
+   */
   function chooseTool(next: Tool) {
+    const after = afterToolChange(tool, next, { points, outline, deductions });
+    setPoints(after.points as Point[]);
+    setOutline(after.outline as Point[]);
+    setDeductions(after.deductions as Point[][]);
     setTool(next);
-    setPoints([]);
-    if (next !== 'deduct') setDeductions([]);
     const allowed = UNITS_FOR[next];
     if (allowed && !allowed.includes(unit)) setUnit(allowed[0]!);
   }
@@ -201,20 +241,16 @@ export function TakeoffPage() {
           ...(num(freeboardFeet) === undefined ? {} : { freeboardFeet: num(freeboardFeet) }),
           ...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) }),
         });
-        const quantity =
-          unit === 'CY' ? b.excavationBankCubicYards
-          : unit === 'SF' ? b.slopeFaceAreaSquareFeet
-          : unit === 'SY' ? b.slopeFaceAreaSquareFeet / 9
-          : unit === 'ACRE' ? b.topAreaSquareFeet / 43_560
-          : unit === 'GAL' ? b.storageCubicFeet * 7.48052
-          : b.excavationBankCubicYards;
+        const quantity = basinQuantity(b, unit);
         return {
           quantity,
           measurementMethod: scale.measurementMethod,
           derivation: b.derivation,
           warnings: b.warnings,
         };
-      } catch { return null; }
+      } catch (e) {
+        return { refusal: e instanceof Error ? e.message : 'That basin cannot be measured.' };
+      }
     }
     try {
       return measure({
@@ -231,12 +267,23 @@ export function TakeoffPage() {
         ...(num(countPer) === undefined ? {} : { countPer: num(countPer) }),
         ...(num(multiplier) === undefined ? {} : { multiplier: num(multiplier) }),
       });
-    } catch { return null; }
+    } catch (e) {
+      return { refusal: e instanceof Error ? e.message : 'That shape cannot be measured.' };
+    }
   }, [tool, points, unit, scale, deductions, widthFeet, depthFeet, pitchRise, countPer,
       multiplier, lifts, freeboardFeet]);
 
+  /*
+   * The engine refuses rather than guesses — a volume with no depth, a unit
+   * that does not suit the kind, a ring that crosses itself. It said so, and
+   * this screen swallowed it and showed nothing, which reads as a dead button
+   * rather than as an answer.
+   */
+  const measureRefusal = measured && 'refusal' in measured ? measured.refusal : null;
+  const measuredOk = measured && !('refusal' in measured) ? measured : null;
+
   async function apply(input: { name: string; trade: string; lineItemId: string }) {
-    if (!supabase || !measured || !sheet) return;
+    if (!supabase || !measuredOk || !sheet) return;
     setApplying(true);
     setApplyError(null);
     try {
@@ -267,10 +314,10 @@ export function TakeoffPage() {
           })),
           freeboardFeet: num(freeboardFeet) ?? null,
         } : {}),
-        lineItemId: input.lineItemId, quantity: measured.quantity,
+        lineItemId: input.lineItemId, quantity: measuredOk.quantity,
         engineVersion: ENGINE_VERSION,
       });
-      setApplied({ name: input.name, quantity: measured.quantity, unit });
+      setApplied({ name: input.name, quantity: measuredOk.quantity, unit });
       setPoints([]);
       setDeductions([]);
       linesQ.refetch();
@@ -292,7 +339,7 @@ export function TakeoffPage() {
    * that order: you measure what is in front of you, then decide where it goes.
    */
   async function finishShape() {
-    if (!supabase || !measured || !sheet || saving) return;
+    if (!supabase || !measuredOk || !sheet || saving) return;
     if (tool === 'calibrate' || tool === 'deduct' || tool === 'none') return;
     setSaving(true); setApplyError(null);
     try {
@@ -343,7 +390,7 @@ export function TakeoffPage() {
    * finishable on its own.
    */
   const canFinish = Boolean(
-    measured && sheetId && tool !== 'calibrate' && tool !== 'deduct' && tool !== 'none');
+    measuredOk && sheetId && tool !== 'calibrate' && tool !== 'deduct' && tool !== 'none');
 
   function bankDeduction() {
     if (points.length < 3) return;
@@ -388,18 +435,29 @@ export function TakeoffPage() {
               <SelectContent>
                 {sheets.map((sh) => (
                   <SelectItem key={sh.id} value={sh.id}>
-                    {sh.sheetNumber ?? `p.${sh.pageNumber}`} — {sh.sheetTitle ?? sh.documentName}
-                    {sh.statedScale ? ` (${sh.statedScale})` : ''}
+                    {sh.label} — {sh.documentName}
+                    {sh.drawingScale ? ` (${sh.drawingScale})` : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          {sheet?.statedScale ? (
+          {sheet?.drawingScale ? (
             <p className="pb-2 text-xs text-charcoal-500">
-              Title block states {sheet.statedScale}. Calibrate against a printed dimension
+              Title block states {sheet.drawingScale}. Calibrate against a printed dimension
               rather than trusting it.
             </p>
+          ) : null}
+          {/*
+            * What the sheet is called, editable where it is shown. Every field
+            * behind this has been on `document_sheets` since migration 0005 and
+            * nothing ever wrote one, so a fourteen-sheet set read "p.1" to
+            * "p.14" and the estimator had to remember which page was which.
+            */}
+          {sheet ? (
+            <div className="w-full">
+              <SheetIdentity sheet={sheet} onSaved={() => { void sheetsQ.refetch(); }} />
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -508,9 +566,12 @@ export function TakeoffPage() {
           */}
         <TakenOff
           measurements={measurements}
+          calibrations={calibrations}
           lines={lines.map((l) => ({ id: l.id, description: l.description, unit: l.unit }))}
           editable={isSupabaseConfigured && Boolean(sheetId)}
-          onChanged={() => { measurementsQ.refetch(); linesQ.refetch(); }} />
+          onChanged={() => {
+            measurementsQ.refetch(); linesQ.refetch(); calibrationsQ.refetch();
+          }} />
 
 
         {/* -------------------------------------------------------- the panel */}
@@ -634,10 +695,14 @@ export function TakeoffPage() {
             </Card>
           ) : null}
 
-          {isSupabaseConfigured && measured && sheetId ? (
+          {measureRefusal ? (
+            <Alert tone="warn" title="That cannot be measured yet">{measureRefusal}</Alert>
+          ) : null}
+
+          {isSupabaseConfigured && measuredOk && sheetId ? (
             <ApplyPanel
-              quantity={measured.quantity} unit={unit}
-              measurementMethod={measured.measurementMethod}
+              quantity={measuredOk.quantity} unit={unit}
+              measurementMethod={measuredOk.measurementMethod}
               {...(forLine ? { defaultLineItemId: forLine } : {})}
               lines={lines} linesLoading={linesQ.status === 'loading'}
               busy={applying} onApply={apply} applied={applied} error={applyError} />

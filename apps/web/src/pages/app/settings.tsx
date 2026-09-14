@@ -1,15 +1,12 @@
-import { useState } from 'react';
-import { Users, Palette, ShieldCheck, Save, Info } from 'lucide-react';
+import { Users, ShieldCheck, Info } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, Switch, Separator } from '@/components/ui/misc';
+import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotificationSettings } from '@/components/settings/notifications';
 import { CompanyProfileSettings } from '@/components/settings/company-profile';
+import { BrandingSettings } from '@/components/settings/branding';
 import { AiRegistrySettings, ConnectorSettings } from '@/components/settings/ai-and-connectors';
 import { useQuery } from '@/lib/data/query';
 import { loadShellIdentity } from '@/lib/data/company';
@@ -96,16 +93,19 @@ const ROLES = [
 export function SettingsPage() {
   const meQ = useQuery(loadShellIdentity, []);
   const me = meQ.status === 'ready' ? meQ.data : null;
-  const [dirty, setDirty] = useState(false);
-  const touch = () => setDirty(true);
-
   return (
     <div className="space-y-6">
       <PageHeader
         title="Company Settings"
         description="GrounUp adapts to how your company operates. Change what you need — every change is versioned, attributed and auditable."
-        actions={dirty ? <Button onClick={() => setDirty(false)}><Save className="size-4" /> Save changes</Button> : null}
       />
+      {/*
+        * No page-level "Save changes" button. There was one, and it existed
+        * only for the branding boxes below it: its handler set a dirty flag to
+        * false and wrote nothing. Each section here saves its own values and
+        * says so, which is the only arrangement in which a Save button means
+        * anything.
+        */}
 
       <Tabs defaultValue="company">
         <TabsList>
@@ -202,38 +202,7 @@ export function SettingsPage() {
 
         {/* -------------------------------------------------------- branding */}
         <TabsContent value="branding">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Palette className="size-4" /> Branding</CardTitle>
-              <CardDescription>Applied to proposals, reports and — on the Enterprise plan — the whole application.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Primary color</Label>
-                  <div className="flex items-center gap-2">
-                    <span className="size-10 shrink-0 rounded-md border border-charcoal-300 bg-charcoal-900" />
-                    <Input defaultValue="#111827" className="font-mono" onChange={touch} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Accent color</Label>
-                  <div className="flex items-center gap-2">
-                    <span className="size-10 shrink-0 rounded-md border border-charcoal-300 bg-yellow-500" />
-                    <Input defaultValue="#F6C101" className="font-mono" onChange={touch} />
-                  </div>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-charcoal-900">White label</p>
-                  <p className="text-xs text-charcoal-500">Remove GrounUp branding entirely. Requires the Enterprise plan.</p>
-                </div>
-                <Switch disabled aria-label="White label" />
-              </div>
-            </CardContent>
-          </Card>
+          <BrandingSettings />
         </TabsContent>
 
         {/* -------------------------------------------------------- security */}
