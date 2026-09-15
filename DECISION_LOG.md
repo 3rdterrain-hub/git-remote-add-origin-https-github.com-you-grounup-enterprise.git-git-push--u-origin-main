@@ -11,6 +11,52 @@ Newest first.
 
 ---
 
+## D-038 · 2026-09-14 · The field says what it did, in quantity and hours
+
+**Decision.** `app.report_production` (migration 0180) is the only writer of
+`production_actuals`: one crew, one task, one day — quantity installed and the
+crew hours it took. The unit comes from the task, never from the caller. One
+report per task per day, enforced by a partial unique index; a second amends the
+first rather than stacking on it. `withdraw_production_report` takes a day back.
+
+**Reason.** Migration 0179 made progress real — actuals roll up onto the task
+and the earned-value view stays silent until something is reported — and left
+the loop open at the top. **Nothing anywhere inserted a `production_actuals`
+row.** The rollup had no source, so every project would have stayed unreported
+forever and 0179 would have fixed the false alarm by making the screen
+permanently blank instead.
+
+`record_production_actual` (0115) looks like the writer and is not: despite the
+name it records a production *rate into the library* — quantity per hour, sample
+size, utilization. That is a different act, by a different person, for a
+different purpose. A superintendent closing out a day is not calibrating a
+library.
+
+**The hours are required.** A quantity with no hours against it cannot become a
+production rate, and the rate is the one thing this platform has never had: what
+this company's own crews actually achieve, as opposed to what a catalog says
+they should. `actual_per_hour` is generated on the row so it cannot disagree
+with its own inputs, and `my_production_reports` sets it beside the budgeted
+rate — which is the whole of production reporting. Not "are we done" but "are we
+going at the speed the price assumed".
+
+**The unit is taken from the task.** A day reported in feet against a task
+budgeted in cubic yards rolls up into a percentage that means nothing, and the
+person typing has no reason to be the one who gets that right.
+
+**Considered.** Letting a day stack, so two entries sum. Rejected: somebody
+remembering another forty yards at five o'clock is correcting the day, not
+having a second one, and a stacking model makes a correction indistinguishable
+from a duplicate.
+
+**Affects.** `production_actuals`, `components/project/budgeted-work.tsx`
+(reporting), `components/project/reported-days.tsx` (reading back).
+
+**Status.** Active. Migration 0180, 12 db tests. This closes the loop opened by
+D-037 and gives the production-learning path its first real input.
+
+---
+
 ## D-037 · 2026-09-14 · An index computed from nothing is an accusation, not a measurement
 
 **Decision.** `project_tasks.percent_complete`, `installed_quantity` and

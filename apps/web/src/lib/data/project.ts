@@ -758,3 +758,80 @@ export const loadProjectTasks = (projectId: string): Query<TaskProgress[]> =>
       lastReportedOn: (t.last_reported_on as string | null) ?? null,
     }));
   };
+
+/** What the field reported on one day against one task. */
+export interface ProductionReport {
+  id: string;
+  projectId: string;
+  projectTaskId: string;
+  taskName: string;
+  workDate: string;
+  quantityInstalled: number;
+  unit: string;
+  crewHours: number;
+  equipmentHours: number;
+  crewSize: number | null;
+  /** Generated on the row, so it cannot disagree with its own inputs. */
+  actualPerHour: number | null;
+  budgetedPerHour: number | null;
+  notes: string | null;
+}
+
+/** What has been reported against a project, newest day first. */
+export const loadProductionReports = (projectId: string): Query<ProductionReport[]> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_production_reports')
+      .select('id, project_id, project_task_id, task_name, work_date, quantity_installed, unit, crew_hours, equipment_hours, crew_size, actual_per_hour, budgeted_per_hour, notes')
+      .eq('project_id', projectId)
+      .order('work_date', { ascending: false })
+      .limit(200)) as Array<Record<string, unknown>>;
+
+    return rows.map((r) => ({
+      id: String(r.id),
+      projectId: String(r.project_id),
+      projectTaskId: String(r.project_task_id),
+      taskName: String(r.task_name ?? ''),
+      workDate: String(r.work_date),
+      quantityInstalled: Number(r.quantity_installed ?? 0),
+      unit: String(r.unit ?? ''),
+      crewHours: Number(r.crew_hours ?? 0),
+      equipmentHours: Number(r.equipment_hours ?? 0),
+      crewSize: r.crew_size == null ? null : Number(r.crew_size),
+      actualPerHour: r.actual_per_hour == null ? null : Number(r.actual_per_hour),
+      budgetedPerHour: r.budgeted_per_hour == null ? null : Number(r.budgeted_per_hour),
+      notes: (r.notes as string | null) ?? null,
+    }));
+  };
+
+/**
+ * Report a day's production against a task.
+ *
+ * One crew, one task, one day: what was installed and the hours it took. The
+ * unit comes from the task, never from here — a day reported in the wrong one
+ * rolls up into a percentage that means nothing.
+ */
+export async function reportProduction(
+  client: RpcCapable,
+  input: {
+    taskId: string; quantity: number; crewHours: number; workDate?: string;
+    equipmentHours?: number; crewSize?: number | null; notes?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'report_production', {
+    p_task: input.taskId,
+    p_quantity: input.quantity,
+    p_crew_hours: input.crewHours,
+    ...(input.workDate ? { p_work_date: input.workDate } : {}),
+    p_equipment_hours: input.equipmentHours ?? 0,
+    p_crew_size: input.crewSize ?? null,
+    p_notes: input.notes ?? null,
+  });
+}
+
+/** Take a day back — reported against the wrong task, or rained out. */
+export async function withdrawProductionReport(
+  client: RpcCapable, reportId: string,
+): Promise<void> {
+  await call(client, 'withdraw_production_report', { p_report: reportId });
+}

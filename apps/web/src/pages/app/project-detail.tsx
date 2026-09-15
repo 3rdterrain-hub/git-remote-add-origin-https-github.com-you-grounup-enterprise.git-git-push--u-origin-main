@@ -25,6 +25,7 @@
  * earned an amount nobody can compute, and those are different answers.
  */
 import { useMemo, useState } from 'react';
+import { ReportedDays } from '@/components/project/reported-days';
 import { BudgetedWork } from '@/components/project/budgeted-work';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -298,7 +299,7 @@ export function ProjectDetailPage() {
             * The estimate's whole content crossed over at award and was
             * invisible from that moment. This is the door.
             */}
-          <BudgetedWork projectId={id ?? ''} />
+          <BudgetedWork projectId={id ?? ''} editable={can('projects.write')} />
         </TabsContent>
 
         <TabsContent value="field" className="space-y-4">
@@ -470,7 +471,14 @@ export function ProjectDetailPage() {
         </TabsContent>
 
         {/* ====================================================== production */}
-        <TabsContent value="production">
+        <TabsContent value="production" className="space-y-6">
+          {/*
+            * The days the field reported, which nothing could write before
+            * migration 0180 and so nothing could read. Above the
+            * estimate-versus-actual comparison below, because the comparison is
+            * only worth reading once there is something to compare.
+            */}
+          <ReportedDays projectId={id ?? ''} editable={can('projects.write')} />
           <Card>
             <CardHeader>
               <CardTitle>Installed production against estimate</CardTitle>

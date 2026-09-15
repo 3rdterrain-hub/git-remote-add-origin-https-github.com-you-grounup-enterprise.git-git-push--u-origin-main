@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **230** |
-| Opened by a screen | **211** |
+| Doors | **233** |
+| Opened by a screen | **214** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -176,6 +176,7 @@ None.
 | `my_plan_sheets` | view | lib/data/sheets.ts |
 | `my_preferences` | view | lib/data/preferences.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
+| `my_production_reports` | view | lib/data/project.ts |
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
 | `my_project_task_progress` | view | lib/data/project.ts |
 | `my_project_tasks` | view | lib/data/field-work.ts |
@@ -219,6 +220,7 @@ None.
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
+| `report_production` | function | lib/data/project.ts |
 | `request_refund` | function | lib/data/admin.ts |
 | `resolve_document_conflict` | function | lib/data/conflicts.ts |
 | `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
@@ -276,4 +278,5 @@ None.
 | `update_proposal` | function | lib/data/estimates.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
+| `withdraw_production_report` | function | lib/data/project.ts |
 | `workable_days_at` | function | lib/data/project.ts |
