@@ -172,16 +172,26 @@ export const loadResourceAssignments = (projectId: string): Query<ResourceAssign
   async (client) => {
     const rows = unwrap(await client
       .from('resource_assignments')
-      .select('id, schedule_activity_id, resource_kind, starts_on, ends_on, allocation, notes, '
-        + 'crews(name), employees(first_name, last_name), assets(code, name), vendors(name), '
-        + 'schedule_activities(name)')
+      /*
+       * `assets(asset_number, ...)`, not `assets(code, ...)`. The column is
+       * `asset_number` and always has been; the wrong name made PostgREST
+       * refuse the whole request, so this reader returned nothing from the day
+       * it was written. Invisible until 0183, because the table had no writer
+       * and an erroring query and an empty one look identical on screen.
+       *
+       * `asset_id` is selected because the row maps it into a link to the
+       * machine. It was read and never asked for, so every asset link was dead.
+       */
+      .select('id, schedule_activity_id, asset_id, resource_kind, starts_on, ends_on, '
+        + 'allocation, notes, crews(name), employees(first_name, last_name), '
+        + 'assets(asset_number, name), vendors(name), schedule_activities(name)')
       .eq('project_id', projectId)
       .order('starts_on')) as unknown as Array<Record<string, unknown>>;
 
     return rows.map((r) => {
       const crew = one<{ name: string }>(r.crews);
       const emp = one<{ first_name: string; last_name: string }>(r.employees);
-      const asset = one<{ code: string; name: string }>(r.assets);
+      const asset = one<{ asset_number: string; name: string }>(r.assets);
       const vendor = one<{ name: string }>(r.vendors);
       const kind = r.resource_kind as ResourceAssignmentRow['kind'];
       return {
@@ -194,7 +204,7 @@ export const loadResourceAssignments = (projectId: string): Query<ResourceAssign
             : kind === 'employee' ? (emp ? `${emp.first_name} ${emp.last_name}` : null)
               : kind === 'asset' ? asset?.name ?? null
                 : vendor?.name ?? null,
-        assetCode: asset?.code ?? null,
+        assetCode: asset?.asset_number ?? null,
         assetId: (r.asset_id as string | null) ?? null,
         startsOn: String(r.starts_on),
         endsOn: String(r.ends_on),

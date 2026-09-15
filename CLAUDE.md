@@ -70,8 +70,20 @@ returned success. `markup_override` was then read by no part of the engine, so
 even a value that landed priced nothing. Labor hours were charged on a *rounded
 schedule figure*, so a line's labor could not be reproduced from its own hours.
 
+**A reader that asks for a column that is not there.** One layer down again.
+`loadResourceAssignments` selected `assets(code, name)`; the column is
+`asset_number`. PostgREST refuses the *whole* request when one column in it is
+unknown, so that reader returned nothing from the day it was written, and the
+screen showed an empty list — which is exactly what it shows when there is
+genuinely nothing to list. `loadMachineFiles` had the same mistake against the
+same table. Both were found by putting the first real row into the table and
+noticing it did not appear. `tests/governance/a-select-names-columns-that-exist.test.ts`
+now fails the build on one.
+
 When adding a function, ask who calls it. When adding a field, ask what reads it.
 When a screen shows a number, ask whether that is the number that prices.
+**When a list is empty, ask whether it is empty or broken** — the two look
+identical, so open the door, put one real row through it, and watch it arrive.
 
 ---
 

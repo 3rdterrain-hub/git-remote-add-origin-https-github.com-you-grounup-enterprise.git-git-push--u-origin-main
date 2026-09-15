@@ -412,6 +412,7 @@ TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENG
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
+TST-gov-a-select-names-columns-that-exist,test,gov/a-select-names-columns-that-exist.test.ts,tests/governance/a-select-names-columns-that-exist.test.ts,ENGINE
 TST-gov-a-value-is-not-read-before-it-exists,test,gov/a-value-is-not-read-before-it-exists.test.ts,tests/governance/a-value-is-not-read-before-it-exists.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
 TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE

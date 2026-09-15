@@ -216,6 +216,57 @@ describe('building a schedule', () => {
     expect(row!.project_id).toBe(project);
   });
 
+  it('refuses the same crew on the same activity over the same days', async () => {
+    const crew = (await h.asService(() => h.sql<{ id: string }>(
+      `insert into crews (company_id, code, name, status, approved_by, approved_at)
+       values ($1,'C2','Base crew','active',$2, now()) returning id`,
+      [company, OWNER])))[0]!.id;
+    const a = (await activities())[0]!;
+    await h.asUser(OWNER, () => h.sql(
+      `select public.assign_resource($1,'crew', p_crew => $2)`, [a.id, crew]));
+    /* A double booking counts one crew as two on every loading report. */
+    await expect(h.asUser(OWNER, () => h.sql(
+      `select public.assign_resource($1,'crew', p_crew => $2)`, [a.id, crew])))
+      .rejects.toThrow(/already on this activity/i);
+  });
+
+  it('allows the same crew back on a span that does not overlap', async () => {
+    const crew = (await h.asService(() => h.sql<{ id: string }>(
+      `insert into crews (company_id, code, name, status, approved_by, approved_at)
+       values ($1,'C3','Return crew','active',$2, now()) returning id`,
+      [company, OWNER])))[0]!.id;
+    const a = (await activities())[0]!;
+    await h.asUser(OWNER, () => h.sql(
+      `select public.assign_resource($1,'crew', p_crew => $2,
+         p_starts_on => '2026-04-06', p_ends_on => '2026-04-10')`, [a.id, crew]));
+    /* Two weeks on, a fortnight away, two weeks back is three spans, not a clash. */
+    await h.asUser(OWNER, () => h.sql(
+      `select public.assign_resource($1,'crew', p_crew => $2,
+         p_starts_on => '2026-04-27', p_ends_on => '2026-05-01')`, [a.id, crew]));
+    const [{ n }] = await h.asUser(OWNER, () => h.sql<{ n: string }>(
+      `select count(*) as n from resource_assignments
+        where schedule_activity_id = $1 and crew_id = $2`, [a.id, crew]));
+    expect(Number(n)).toBe(2);
+  });
+
+  it('refuses a move that lands on top of the same crew\u2019s other span', async () => {
+    const crew = (await h.asService(() => h.sql<{ id: string }>(
+      `insert into crews (company_id, code, name, status, approved_by, approved_at)
+       values ($1,'C4','Moved crew','active',$2, now()) returning id`,
+      [company, OWNER])))[0]!.id;
+    const a = (await activities())[0]!;
+    await h.asUser(OWNER, () => h.sql(
+      `select public.assign_resource($1,'crew', p_crew => $2,
+         p_starts_on => '2026-06-01', p_ends_on => '2026-06-05')`, [a.id, crew]));
+    const second = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
+      `select public.assign_resource($1,'crew', p_crew => $2,
+         p_starts_on => '2026-07-01', p_ends_on => '2026-07-05') as id`, [a.id, crew])))[0]!.id;
+    await expect(h.asUser(OWNER, () => h.sql(
+      `select public.update_resource_assignment($1, p_starts_on => '2026-06-03',
+         p_ends_on => '2026-06-08')`, [second])))
+      .rejects.toThrow(/already on this activity/i);
+  });
+
   it('refuses an assignment whose kind and reference disagree', async () => {
     const a = (await activities())[0]!;
     await expect(h.asUser(OWNER, () => h.sql(

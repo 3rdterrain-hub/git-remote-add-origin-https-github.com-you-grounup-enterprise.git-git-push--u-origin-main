@@ -113,6 +113,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
+| C-031 | A reader must ask for columns that exist | found by driving the live page after C-030 | high | governance | `lib/data/schedule.ts`, `lib/data/survey.ts`, migration 0184 | `a-select-names-columns-that-exist.test.ts`, `a-schedule-you-can-build.test.ts` (20) | tested |
 | C-030 | Give the scheduling section its writers | user: "start on schedule" | high | scheduling | migration 0183, `components/schedule/*`, the door half of `lib/data/schedule.ts` | `a-schedule-you-can-build.test.ts` (17), `schedule.test.tsx` (30) | tested |
 
 ---

@@ -11,6 +11,64 @@ Newest first.
 
 ---
 
+## D-044 · 2026-09-15 · An empty list and a broken query look identical, so the selects are checked
+
+**Decision.** `tests/governance/a-select-names-columns-that-exist.test.ts`
+parses every embedded relation in `apps/web/src/lib/data/*.ts` and fails the
+build when one names a column its table does not have.
+
+**Reason.** `loadResourceAssignments` asked for `assets(code, name)`. The column
+is `asset_number`. PostgREST refuses the whole request when one column in it is
+unknown, so that reader returned nothing from the day it was written, and the
+Resource-loading tab showed an empty list — which is exactly what it shows when
+nobody is on the job. `loadMachineFiles` had the same mistake against the same
+table. Neither was caught by a test, because a component test mocks the loader,
+and neither was caught by eye. Both were found by putting the first real row
+into `resource_assignments` and noticing it did not arrive.
+
+**Alternatives.** Generate the data layer from the schema — larger than the
+problem. Check top-level column lists too — rejected: they are aliased, renamed
+and computed often enough that the parser would produce more noise than
+findings, and the embed is where the mistake actually happens, because the table
+name is right there to be read and the column list gets copied from whichever
+loader was nearest.
+
+**Authorized by.** The standing instruction that the permanent solve is taken
+when it is within reach.
+
+**Affects.** `lib/data/schedule.ts`, `lib/data/survey.ts`, the governance suite,
+`CLAUDE.md`.
+
+**Status.** Active. Proven against the bug it was written for by reintroducing
+it and watching the test fail.
+
+---
+
+## D-045 · 2026-09-15 · A split span is allowed; a double booking is not
+
+**Decision.** `assign_resource` and `update_resource_assignment` refuse a span
+that overlaps one the same resource already has on the same activity.
+`app.assert_resource_is_free` is the check, in the writer rather than in a
+constraint.
+
+**Reason.** Found by using 0183 rather than reading it: assigning the same crew
+twice was accepted silently, and two rows each claiming 100% of one crew over
+the same days make every loading report count one crew as two. The refusal is
+deliberately narrow — a resource genuinely appears more than once on an
+activity, because two weeks on, a fortnight away and two weeks back is three
+spans. What cannot be true is two spans that overlap.
+
+**Alternatives.** An exclusion constraint — tidier, but it needs `btree_gist`
+and a `daterange`, and the table stores two date columns that five readers
+already select by name. The check in the writer can also say which resource and
+which days rather than naming a constraint.
+
+**Affects.** Migration 0184.
+
+**Status.** Active.
+
+---
+
 ## D-043 · 2026-09-15 · A hand edit does not clear the float
 
 **Decision.** `app.update_schedule_activity` writes no engine output. Moving a

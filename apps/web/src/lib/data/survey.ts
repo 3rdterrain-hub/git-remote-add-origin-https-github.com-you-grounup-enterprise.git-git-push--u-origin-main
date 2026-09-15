@@ -209,7 +209,9 @@ export const loadMachineFiles: Query<MachineFileRow[]> = async (client) => {
     .from('machine_control_files')
     .select('id, name, file_format, vendor, version, status, published_at, superseded_by_id, '
       + 'projects(number), surfaces(name), '
-      + 'machine_assignments(is_current, acknowledged_at, assets(id, code))')
+      /* `asset_number`, not `code`: the wrong name makes PostgREST refuse the
+         whole request, so this list came back empty rather than wrong. */
+      + 'machine_assignments(is_current, acknowledged_at, assets(id, asset_number))')
     .order('name')) as unknown as Array<Record<string, unknown>>;
 
   return rows.map((f) => {
@@ -227,10 +229,10 @@ export const loadMachineFiles: Query<MachineFileRow[]> = async (client) => {
       projectNumber: one<{ number: string }>(f.projects)?.number ?? null,
       surfaceName: one<{ name: string }>(f.surfaces)?.name ?? null,
       assignedTo: assignments.map((a) => {
-        const asset = one<{ id: string; code: string }>(a.assets);
+        const asset = one<{ id: string; asset_number: string }>(a.assets);
         return {
           assetId: asset?.id ?? '',
-          assetCode: asset?.code ?? '—',
+          assetCode: asset?.asset_number ?? '—',
           /*
            * Sent and acknowledged are different facts. A file the machine has
            * not confirmed is a file the operator may not be cutting to.
