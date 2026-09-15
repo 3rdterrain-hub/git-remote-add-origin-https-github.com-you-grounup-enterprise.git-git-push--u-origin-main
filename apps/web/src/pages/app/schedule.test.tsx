@@ -18,6 +18,7 @@ import { MemoryRouter } from 'react-router-dom';
 import type {
   ScheduleActivityRow, ScheduleCalculationRow, ResourceAssignmentRow, ProjectOption,
   ScheduleDependencyRow, AssignableResource, SchedulableProject,
+  ScheduleBaselineRow, ScheduleVarianceRow,
 } from '@/lib/data/schedule';
 
 const hoisted = vi.hoisted(() => ({
@@ -32,6 +33,8 @@ const hoisted = vi.hoisted(() => ({
   dependencies: [] as ScheduleDependencyRow[],
   resources: [] as AssignableResource[],
   schedulable: null as SchedulableProject | null,
+  baselines: [] as ScheduleBaselineRow[],
+  variance: [] as ScheduleVarianceRow[],
   /* What the page actually asked the database to do, in order. */
   wrote: [] as Array<[string, unknown]>,
 }));
@@ -58,6 +61,11 @@ vi.mock('@/lib/data/schedule', async () => {
     loadAssignableResources: async () => hoisted.resources,
     loadSchedulable: () => async () => hoisted.schedulable,
     loadWorkCalendars: async () => [],
+    loadScheduleBaselines: () => async () => hoisted.baselines,
+    loadScheduleVariance: () => async () => hoisted.variance,
+    takeScheduleBaseline: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['baseline', input]); return 'new-b';
+    },
     buildScheduleFromTasks: async (_c: unknown, project: string, start: string | null) => {
       hoisted.wrote.push(['build', { project, start }]);
       return 3;
@@ -128,6 +136,7 @@ beforeEach(() => {
   hoisted.recalculated = []; hoisted.fail = null;
   hoisted.dependencies = []; hoisted.resources = [];
   hoisted.schedulable = null; hoisted.wrote = [];
+  hoisted.baselines = []; hoisted.variance = [];
 });
 
 describe('a schedule nobody has calculated', () => {
@@ -454,5 +463,79 @@ describe('building a schedule that did not exist', () => {
     show();
     await user.click(await screen.findByRole('tab', { name: /Working week/i }));
     expect(await screen.findByText(/refuses to calculate a schedule without it/i)).toBeTruthy();
+  });
+});
+
+/**
+ * A baseline somebody took.
+ *
+ * `reporting_schedule_variance` has existed since 0029 and returned no rows on
+ * every project, because it joins the current baseline and nothing could take
+ * one.
+ */
+describe('baselining', () => {
+  const openBaseline = async (user: ReturnType<typeof userEvent.setup>) => {
+    show();
+    await user.click(await screen.findByRole('tab', { name: /Against the baseline/i }));
+  };
+
+  it('will not offer a baseline of a schedule nobody has calculated', async () => {
+    const user = userEvent.setup();
+    await openBaseline(user);
+    const button = await screen.findByRole('button', { name: /Take a baseline/i });
+    expect(button.hasAttribute('disabled')).toBe(true);
+    expect(button.getAttribute('title')).toMatch(/Calculate the schedule first/i);
+  });
+
+  it('takes one once the method has run, and insists on a reason', async () => {
+    hoisted.activities = [activity({ calculationId: 'calc-1', totalFloatDays: 0, isCritical: true })];
+    hoisted.calculation = {
+      id: 'calc-1', dataDate: '2026-05-04', engineVersion: 'engine@1',
+      projectStart: '2026-05-04', projectFinish: '2026-05-22',
+      durationWorkingDays: 15, requiredFinish: null, finishFloatDays: null,
+      criticalPath: [], warnings: [], calculatedAt: '2026-05-05T12:00:00Z',
+    };
+    const user = userEvent.setup();
+    await openBaseline(user);
+    await user.click(await screen.findByRole('button', { name: /Take a baseline/i }));
+    await user.type(screen.getByLabelText(/Call it/i), 'Original');
+
+    /* Eight characters is the floor: "why" is not a reason six months later. */
+    const take = screen.getByRole('button', { name: /Take the baseline/i });
+    expect(take.hasAttribute('disabled')).toBe(true);
+
+    await user.type(screen.getByLabelText(/Why it is being taken/i), 'Contract award baseline');
+    await user.click(screen.getByRole('button', { name: /Take the baseline/i }));
+    await waitFor(() => expect(hoisted.wrote[0]?.[0]).toBe('baseline'));
+    expect(hoisted.wrote[0]![1]).toMatchObject({
+      projectId: 'p-1', name: 'Original', reason: 'Contract award baseline',
+    });
+  });
+
+  it('says a slip on the critical path is the finish date moving', async () => {
+    hoisted.variance = [{
+      activityId: 'a-1', activityName: 'Strip topsoil', wbsCode: '1.1',
+      baselineStart: '2026-05-04', baselineFinish: '2026-05-08',
+      currentStart: '2026-05-11', currentFinish: '2026-05-15',
+      startVarianceDays: 7, finishVarianceDays: 7, status: 'behind',
+      isCritical: true, percentComplete: 0.25,
+    }];
+    const user = userEvent.setup();
+    await openBaseline(user);
+    expect(await screen.findByText(/that slip is the finish date moving/i)).toBeTruthy();
+    expect(screen.getByText('+7')).toBeTruthy();
+  });
+
+  it('marks an activity added after the baseline rather than calling it on time', async () => {
+    hoisted.variance = [{
+      activityId: 'a-2', activityName: 'Await permit', wbsCode: null,
+      baselineStart: null, baselineFinish: null,
+      currentStart: '2026-06-01', currentFinish: '2026-06-05',
+      startVarianceDays: null, finishVarianceDays: null, status: 'not_in_baseline',
+      isCritical: false, percentComplete: 0,
+    }];
+    const user = userEvent.setup();
+    await openBaseline(user);
+    expect(await screen.findByText('Added since')).toBeTruthy();
   });
 });

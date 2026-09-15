@@ -57,6 +57,7 @@ import { BuildSchedule } from '@/components/schedule/build-schedule';
 import { AddActivity } from '@/components/schedule/add-activity';
 import { ActivityEditor } from '@/components/schedule/activity-editor';
 import { WorkingWeek } from '@/components/schedule/working-week';
+import { Baselines } from '@/components/schedule/baselines';
 import { percent, qty, date, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -271,6 +272,7 @@ export function SchedulePage() {
         <TabsList>
           <TabsTrigger value="gantt">Schedule</TabsTrigger>
           <TabsTrigger value="resources">Resource loading</TabsTrigger>
+          <TabsTrigger value="baseline">Against the baseline</TabsTrigger>
           <TabsTrigger value="calendar">Working week</TabsTrigger>
         </TabsList>
 
@@ -559,6 +561,11 @@ export function SchedulePage() {
               ) : null}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="baseline">
+          <Baselines projectId={projectId} canWrite={canWrite}
+            calculated={calculated.length > 0} />
         </TabsContent>
 
         <TabsContent value="calendar">

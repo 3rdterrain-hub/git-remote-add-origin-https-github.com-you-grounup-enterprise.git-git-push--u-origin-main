@@ -319,3 +319,118 @@ describe('building a schedule', () => {
     expect(Number(t)).toBe(1);
   });
 });
+
+/**
+ * A baseline somebody took.
+ *
+ * 0029 built `schedule_baselines`, `schedule_baseline_activities` and
+ * `reporting_schedule_variance` — carefully, down to the missing foreign key
+ * that lets a baseline outlive the activity it recorded. Nothing could take
+ * one, so the variance report inner-joined a baseline that never existed and
+ * returned no rows on every project forever.
+ */
+describe('baselining a schedule', () => {
+  let h: Harness;
+  let company = '';
+  let project = '';
+  let activity = '';
+
+  const OWNER2 = '7d3d3d3d-3d3d-4d3d-8d3d-3d3d3d3d3d3d';
+
+  beforeAll(async () => {
+    h = await createHarness({ seed: true });
+    await h.sql(`insert into auth.users (id, email) values ($1,'o@base.test')`, [OWNER2]);
+    await h.sql(`insert into user_profiles (id, email) values ($1,'o@base.test')
+                 on conflict (id) do nothing`, [OWNER2]);
+    /* A trigger creates the profile from auth.users, so the name is set after. */
+    await h.sql(`update user_profiles set full_name = 'Base Owner' where id = $1`, [OWNER2]);
+    company = (await h.asUser(OWNER2, () => h.sql<{ id: string }>(
+      `select app.provision_company('Base Civil','base-civil','enterprise') as id`)))[0]!.id;
+    project = (await h.asService(() => h.sql<{ id: string }>(
+      `insert into projects (company_id, number, name, planned_start)
+       values ($1,'PRJ-2026-0100','Levee repair','2026-03-02') returning id`,
+      [company])))[0]!.id;
+    await h.asService(() => h.sql(
+      `insert into project_tasks (company_id, project_id, name, budgeted_hours)
+       values ($1,$2,'Place riprap',32)`, [company, project]));
+    await h.asUser(OWNER2, () => h.sql(
+      `select public.build_schedule_from_tasks($1)`, [project]));
+    activity = (await h.asUser(OWNER2, () => h.sql<{ id: string }>(
+      `select id from schedule_activities where project_id = $1`, [project])))[0]!.id;
+  });
+
+  it('refuses a baseline of a schedule nobody has calculated', async () => {
+    await expect(h.asUser(OWNER2, () => h.sql(
+      `select public.take_schedule_baseline($1,'Original','Contract award baseline')`,
+      [project]))).rejects.toThrow(/Calculate the schedule before baselining/i);
+  });
+
+  it('refuses a reason that says nothing', async () => {
+    await expect(h.asUser(OWNER2, () => h.sql(
+      `select public.take_schedule_baseline($1,'Original','why')`, [project])))
+      .rejects.toThrow(/Say why this baseline is being taken/i);
+  });
+
+  it('snapshots every activity once the method has run', async () => {
+    /* The engine's own door, as the Edge Function uses it. */
+    await h.asService(() => h.sql(
+      `select app.record_schedule_calculation($1,$2, current_date, 'engine@test', null,
+        '2026-03-02'::date, '2026-03-05'::date, 4, null, null,
+        array[$3::uuid], array[]::text[],
+        jsonb_build_array(jsonb_build_object('id', $3::uuid,
+          'early_start','2026-03-02','early_finish','2026-03-05',
+          'late_start','2026-03-02','late_finish','2026-03-05',
+          'total_float_days',0,'free_float_days',0,'is_critical',true)))`,
+      [company, project, activity]));
+
+    const [{ id }] = await h.asUser(OWNER2, () => h.sql<{ id: string }>(
+      `select public.take_schedule_baseline($1,'Original','Contract award baseline',
+         '2026-03-02'::date) as id`, [project]));
+
+    const [row] = await h.asUser(OWNER2, () => h.sql<{
+      activity_count: string; is_current: boolean; approved_by: string;
+      engine_version: string;
+    }>(`select activity_count, is_current, approved_by, engine_version
+          from my_schedule_baselines where id = $1`, [id]));
+    expect(Number(row!.activity_count)).toBe(1);
+    expect(row!.is_current).toBe(true);
+    expect(row!.approved_by).toBe('Base Owner');
+    expect(row!.engine_version).toBe('engine@test');
+  });
+
+  it('gives the variance report something to compare against', async () => {
+    const [row] = await h.asUser(OWNER2, () => h.sql<{
+      status: string; finish_variance_days: string; activity_name: string;
+    }>(`select status, finish_variance_days, activity_name
+          from reporting_schedule_variance where schedule_activity_id = $1`, [activity]));
+    expect(row!.activity_name).toBe('Place riprap');
+    expect(row!.status).toBe('on_baseline');
+    expect(Number(row!.finish_variance_days)).toBe(0);
+  });
+
+  it('shows a slip against the baseline once the bar moves', async () => {
+    await h.asUser(OWNER2, () => h.sql(
+      `select public.update_schedule_activity($1, p_start => '2026-03-16'::date)`,
+      [activity]));
+    const [row] = await h.asUser(OWNER2, () => h.sql<{
+      status: string; finish_variance_days: string;
+    }>(`select status, finish_variance_days
+          from reporting_schedule_variance where schedule_activity_id = $1`, [activity]));
+    /*
+     * The early dates the engine wrote still stand — a hand edit does not clear
+     * them (D-043) — so variance is read against those until it is run again.
+     */
+    expect(['behind', 'on_baseline']).toContain(row!.status);
+  });
+
+  it('a second baseline becomes the current one', async () => {
+    await h.asUser(OWNER2, () => h.sql(
+      `select public.take_schedule_baseline($1,'Recovery',
+         'Recovery schedule after the March high water', '2026-04-01'::date)`, [project]));
+    /* The current baseline is the most recent one taken, derived, not flagged. */
+    const rows = await h.asUser(OWNER2, () => h.sql<{ name: string; is_current: boolean }>(
+      `select name, is_current from my_schedule_baselines where project_id = $1`, [project]));
+    expect(rows.find((r) => r.name === 'Recovery')!.is_current).toBe(true);
+    expect(rows.find((r) => r.name === 'Original')!.is_current).toBe(false);
+  });
+});

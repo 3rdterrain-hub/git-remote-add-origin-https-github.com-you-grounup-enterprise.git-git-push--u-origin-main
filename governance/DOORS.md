@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **254** |
-| Opened by a screen | **235** |
+| Doors | **256** |
+| Opened by a screen | **237** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -192,6 +192,7 @@ None.
 | `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
 | `my_schedulable_projects` | view | lib/data/schedule.ts |
+| `my_schedule_baselines` | view | lib/data/schedule.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_sheet_text_coverage` | view | lib/data/plans.ts |
 | `my_site_weather` | view | lib/data/project.ts |
@@ -288,6 +289,7 @@ None.
 | `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |
 | `suspend_company` | function | lib/data/admin.ts |
+| `take_schedule_baseline` | function | lib/data/schedule.ts |
 | `unapply_takeoff` | function | lib/data/takeoff.ts |
 | `update_estimate_line` | function | lib/data/estimates.ts |
 | `update_estimate_version` | function | lib/data/estimates.ts |

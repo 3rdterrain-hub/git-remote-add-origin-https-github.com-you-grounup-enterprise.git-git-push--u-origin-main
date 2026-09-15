@@ -11,6 +11,31 @@ Newest first.
 
 ---
 
+## D-046 · 2026-09-15 · A baseline may only be taken from a calculated schedule
+
+**Decision.** `app.take_schedule_baseline` refuses a project with no
+`schedule_calculations` row, and records which calculation the snapshot came
+from. The dates it stores are the engine's early dates where they exist, falling
+back to the planned ones.
+
+**Reason.** A baseline is what every variance figure is measured against for the
+rest of the job, and what a delay claim is eventually built from. Planned dates
+somebody typed are a proposal; freezing them would make each later variance a
+comparison against a guess, and the report would look identical either way. The
+same reasoning 0029 gave for float — asserted, not computed — applies to the
+dates a baseline preserves.
+
+**Alternatives.** Allow it and warn — rejected, because a warning is not read
+six months later by the person reading the variance. Require it only for the
+first baseline — rejected: a recovery schedule is exactly when the number
+matters most.
+
+**Affects.** Migration 0185, `components/schedule/baselines.tsx`, O-019 (closed).
+
+**Status.** Active.
+
+---
+
 ## D-044 · 2026-09-15 · An empty list and a broken query look identical, so the selects are checked
 
 **Decision.** `tests/governance/a-select-names-columns-that-exist.test.ts`

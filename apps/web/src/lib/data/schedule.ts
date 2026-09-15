@@ -642,3 +642,104 @@ export const loadAssignableResources: Query<AssignableResource[]> = async (clien
     })),
   ];
 };
+
+export interface ScheduleBaselineRow {
+  id: string;
+  name: string;
+  takenOn: string;
+  reason: string;
+  approvedBy: string | null;
+  engineVersion: string | null;
+  baselinedFinish: string | null;
+  activityCount: number;
+  /** Derived from the ordering, because an append-only table cannot carry a flag. */
+  isCurrent: boolean;
+}
+
+/** The baselines on a project, newest first. */
+export const loadScheduleBaselines = (projectId: string): Query<ScheduleBaselineRow[]> =>
+  async (client) => {
+    if (!projectId) return [];
+    const rows = unwrap(await client
+      .from('my_schedule_baselines')
+      .select('id, name, taken_on, reason, approved_by, engine_version, '
+        + 'baselined_finish, activity_count, is_current')
+      .eq('project_id', projectId)
+      .order('taken_on', { ascending: false })) as unknown as Array<Record<string, unknown>>;
+    return rows.map((b) => ({
+      id: String(b.id),
+      name: String(b.name),
+      takenOn: String(b.taken_on),
+      reason: String(b.reason),
+      approvedBy: (b.approved_by as string | null) ?? null,
+      engineVersion: (b.engine_version as string | null) ?? null,
+      baselinedFinish: (b.baselined_finish as string | null) ?? null,
+      activityCount: num(b.activity_count),
+      isCurrent: b.is_current === true,
+    }));
+  };
+
+/**
+ * Take a baseline: the schedule as approved, kept so today can be read against
+ * it. Refused on a schedule nobody has calculated — a baseline of typed dates
+ * would be a guess to measure every later variance against.
+ */
+export async function takeScheduleBaseline(
+  client: RpcCapable,
+  input: { projectId: string; name: string; reason: string; takenOn?: string | null },
+): Promise<string> {
+  return call(client, 'take_schedule_baseline', {
+    p_project: input.projectId,
+    p_name: input.name.trim(),
+    p_reason: input.reason.trim(),
+    p_taken_on: input.takenOn || null,
+  });
+}
+
+export interface ScheduleVarianceRow {
+  activityId: string;
+  activityName: string;
+  wbsCode: string | null;
+  baselineStart: string | null;
+  baselineFinish: string | null;
+  currentStart: string;
+  currentFinish: string;
+  startVarianceDays: number | null;
+  finishVarianceDays: number | null;
+  status: 'behind' | 'ahead' | 'on_baseline' | 'not_in_baseline';
+  isCritical: boolean;
+  percentComplete: number;
+}
+
+/**
+ * Every activity against the project's current baseline.
+ *
+ * `reporting_schedule_variance` has existed since 0029 and returned no rows on
+ * every project, because it joins the current baseline and nothing could take
+ * one. Variance is in calendar days here; working-day variance is the engine's,
+ * which knows the calendar.
+ */
+export const loadScheduleVariance = (projectId: string): Query<ScheduleVarianceRow[]> =>
+  async (client) => {
+    if (!projectId) return [];
+    const rows = unwrap(await client
+      .from('reporting_schedule_variance')
+      .select('schedule_activity_id, activity_name, wbs_code, baseline_start, '
+        + 'baseline_finish, current_start, current_finish, start_variance_days, '
+        + 'finish_variance_days, status, is_critical, percent_complete')
+      .eq('project_id', projectId)) as unknown as Array<Record<string, unknown>>;
+    return rows.map((v) => ({
+      activityId: String(v.schedule_activity_id),
+      activityName: String(v.activity_name),
+      wbsCode: (v.wbs_code as string | null) ?? null,
+      baselineStart: (v.baseline_start as string | null) ?? null,
+      baselineFinish: (v.baseline_finish as string | null) ?? null,
+      currentStart: String(v.current_start),
+      currentFinish: String(v.current_finish),
+      startVarianceDays: maybeNum(v.start_variance_days),
+      finishVarianceDays: maybeNum(v.finish_variance_days),
+      status: v.status as ScheduleVarianceRow['status'],
+      isCritical: v.is_critical === true,
+      percentComplete: num(v.percent_complete),
+    }));
+  };
