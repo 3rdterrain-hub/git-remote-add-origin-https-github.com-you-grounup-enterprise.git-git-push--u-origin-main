@@ -18,6 +18,7 @@
  *     The fields are read-only here, and the database refuses them anyway.
  */
 import { useState } from 'react';
+import { QuantityBreakdown } from '@/components/estimate/quantity-breakdown';
 import { Link } from 'react-router-dom';
 import {
   Package, Ruler, ShoppingCart, Trash2, Truck, Users2, Wrench,
@@ -106,6 +107,14 @@ export function LineDetail({ line, editable, onChanged }: {
 
   return (
     <div className="space-y-3 border-t border-charcoal-200 bg-charcoal-50/60 p-4">
+      {/*
+        * Where the quantity came from, when it came off a drawing. A total
+        * nobody can break down is a total nobody can check — and before
+        * migration 0177 there was nothing to break down, because a line held
+        * whichever measurement was applied last rather than their sum.
+        */}
+      <QuantityBreakdown lineItemId={line.id} unit={line.unit} />
+
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="font-medium text-charcoal-700">Production rate</span>
         {drivers.length > 0 ? (

@@ -162,6 +162,8 @@ export interface ProjectProgress {
   actualHours: number;
   earnedValue: number | null;
   percentComplete: number | null;
+  /** How many tasks anybody has reported production against. */
+  tasksReported: number;
   costPerformanceIndex: number | null;
   hoursPerformanceIndex: number | null;
 }
@@ -171,7 +173,8 @@ export const loadProjectProgress: ForProject<ProjectProgress | null> =
     const found = unwrap(await client
       .from('reporting_project_earned_value')
       .select('tasks, tasks_complete, budgeted_cost, budgeted_hours, actual_hours,'
-        + ' earned_value, percent_complete, cost_performance_index, hours_performance_index')
+        + ' earned_value, percent_complete, cost_performance_index, hours_performance_index,'
+        + ' tasks_reported')
       .eq('project_id', projectId)
       .maybeSingle()) as unknown as Record<string, unknown> | null;
     if (!found) return null;
@@ -183,6 +186,12 @@ export const loadProjectProgress: ForProject<ProjectProgress | null> =
       actualHours: num(found.actual_hours),
       earnedValue: maybe(found.earned_value),
       percentComplete: maybe(found.percent_complete),
+      /*
+       * How many tasks anybody has reported production against. Zero means
+       * nothing is known, which is a different sentence from "nothing done" —
+       * and the difference is a red alarm that used to fire on every job.
+       */
+      tasksReported: Number(found.tasks_reported ?? 0),
       costPerformanceIndex: maybe(found.cost_performance_index),
       hoursPerformanceIndex: maybe(found.hours_performance_index),
     };
@@ -689,3 +698,63 @@ export async function createRfi(
     p_drawing_reference: input.drawingReference?.trim() || null,
   });
 }
+
+/** One budgeted task on a project, and how it is going. */
+export interface TaskProgress {
+  id: string;
+  projectId: string;
+  name: string;
+  status: string;
+  unit: string;
+  budgetedQuantity: number;
+  installedQuantity: number;
+  percentComplete: number;
+  budgetedHours: number;
+  actualHours: number;
+  budgetedCost: number;
+  actualCost: number;
+  costCode: string | null;
+  costCodeName: string | null;
+  /** Whether anybody has reported production against it at all. */
+  reported: boolean;
+  hoursIndex: number | null;
+  lastReportedOn: string | null;
+}
+
+/**
+ * The work an award carried onto a project.
+ *
+ * `award_estimate_version` has copied every priced line onto the project as a
+ * budgeted task since migration 0007 — quantity, hours, cost, cost code, crew.
+ * Nothing had ever listed them, so the work carried across from the estimate
+ * was invisible on the project it was carried to.
+ */
+export const loadProjectTasks = (projectId: string): Query<TaskProgress[]> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_project_task_progress')
+      .select('id, project_id, name, status, unit, budgeted_quantity, installed_quantity, percent_complete, budgeted_hours, actual_hours, budgeted_cost, actual_cost, cost_code, cost_code_name, reported, hours_index, last_reported_on')
+      .eq('project_id', projectId)
+      .order('cost_code', { nullsFirst: false })
+      .order('name')) as Array<Record<string, unknown>>;
+
+    return rows.map((t) => ({
+      id: String(t.id),
+      projectId: String(t.project_id),
+      name: String(t.name),
+      status: String(t.status),
+      unit: String(t.unit ?? ''),
+      budgetedQuantity: Number(t.budgeted_quantity ?? 0),
+      installedQuantity: Number(t.installed_quantity ?? 0),
+      percentComplete: Number(t.percent_complete ?? 0),
+      budgetedHours: Number(t.budgeted_hours ?? 0),
+      actualHours: Number(t.actual_hours ?? 0),
+      budgetedCost: Number(t.budgeted_cost ?? 0),
+      actualCost: Number(t.actual_cost ?? 0),
+      costCode: (t.cost_code as string | null) ?? null,
+      costCodeName: (t.cost_code_name as string | null) ?? null,
+      reported: Boolean(t.reported),
+      hoursIndex: t.hours_index == null ? null : Number(t.hours_index),
+      lastReportedOn: (t.last_reported_on as string | null) ?? null,
+    }));
+  };

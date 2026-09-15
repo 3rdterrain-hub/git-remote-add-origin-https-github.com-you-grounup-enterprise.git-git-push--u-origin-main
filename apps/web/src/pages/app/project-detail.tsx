@@ -25,9 +25,10 @@
  * earned an amount nobody can compute, and those are different answers.
  */
 import { useMemo, useState } from 'react';
+import { BudgetedWork } from '@/components/project/budgeted-work';
 import { Link, useParams } from 'react-router-dom';
 import {
-  HardHat, CloudRain, Users2, TrendingUp, TrendingDown,
+  HardHat, CloudRain, Users2, TrendingUp, TrendingDown, ClipboardList,
   HelpCircle, Package, Gauge, AlertTriangle, CheckCircle2, Clock,
   MapPin,
 } from 'lucide-react';
@@ -177,6 +178,23 @@ export function ProjectDetailPage() {
         }
       />
 
+      {/*
+        * Nothing reported is not nothing done. `percent_complete` had no writer
+        * until migration 0179, so this read 0% and the alarm below fired on
+        * every awarded job from the first cost that posted. Now the view
+        * declines to answer until the field has said something, and this says
+        * which it is.
+        */}
+      {progress && progress.tasksReported === 0 && progress.tasks > 0 ? (
+        <Alert tone="info" icon={<ClipboardList className="size-4" />}
+          title="No production reported on this job yet">
+          {integer(progress.tasks)} budgeted task{progress.tasks === 1 ? '' : 's'} came across
+          from the estimate. Earned value and cost performance stay blank until somebody
+          reports what has been installed — an index computed from nothing is an accusation,
+          not a measurement.
+        </Alert>
+      ) : null}
+
       {cpi !== null && cpi < 1 && earned !== null && finances ? (
         <Alert tone="danger" icon={<TrendingDown className="size-4" />}
           title={`Cost performance index ${cpi.toFixed(2)} — spending faster than the work is earning`}>
@@ -275,6 +293,14 @@ export function ProjectDetailPage() {
         </TabsList>
 
         {/* ==================================================== field reports */}
+        <TabsContent value="work">
+          {/*
+            * The estimate's whole content crossed over at award and was
+            * invisible from that moment. This is the door.
+            */}
+          <BudgetedWork projectId={id ?? ''} />
+        </TabsContent>
+
         <TabsContent value="field" className="space-y-4">
           {reportsQ.status === 'loading' ? <LoadingState label="Reading the field reports" /> : null}
           {reportsQ.status === 'error'

@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/misc';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
-  applySavedMeasurement, deleteMeasurement,
+  applySavedMeasurement, deleteMeasurement, unapplyTakeoff,
   type CalibrationRow, type MeasurementRow,
 } from '@/lib/data/takeoff';
 import { quantityOf } from '@/lib/takeoff-quantity';
@@ -79,6 +79,23 @@ export function TakenOff({ measurements, calibrations, lines, editable, onChange
         measurementId: m.id, lineItemId, quantity, engineVersion: ENGINE_VERSION,
       });
       setDone(m.name);
+      onChanged();
+    } catch (err) {
+      setError(messageFor(err));
+    } finally { setBusy(null); }
+  }
+
+  /**
+   * Take it back off the line, keeping the tracing.
+   *
+   * The line is the sum of what was applied to it (migration 0177), so this
+   * drops the line by exactly this measurement and leaves the shape drawn.
+   */
+  async function unapply(m: MeasurementRow) {
+    if (!supabase) return;
+    setBusy(m.id); setError(null); setDone(null);
+    try {
+      await unapplyTakeoff(supabase, m.id);
       onChanged();
     } catch (err) {
       setError(messageFor(err));
@@ -156,9 +173,18 @@ export function TakenOff({ measurements, calibrations, lines, editable, onChange
               </TableCell>
               <TableCell>
                 {m.appliedLineItemId ? (
-                  <Badge variant="success">
-                    <Check className="mr-1 size-3" />on the estimate
-                  </Badge>
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <Badge variant="success">
+                      <Check className="mr-1 size-3" />on the estimate
+                    </Badge>
+                    {editable ? (
+                      <Button size="sm" variant="ghost" disabled={busy === m.id}
+                        title="Take it off the line — the tracing stays"
+                        onClick={() => void unapply(m)}>
+                        Take off
+                      </Button>
+                    ) : null}
+                  </span>
                 ) : editable ? (
                   /*
                     * A native select, like the unit picker and the cost code

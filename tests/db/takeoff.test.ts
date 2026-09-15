@@ -290,6 +290,7 @@ describe('takeoff', () => {
     let calibration = '';
     let statedCalibration = '';
     let line = '';
+    let countLineId = '';
     let linear = '';
     let counted = '';
 
@@ -307,6 +308,16 @@ describe('takeoff', () => {
           `insert into estimate_line_items (company_id, estimate_version_id, description,
              measured_quantity, unit, measurement_method, source_references)
            values ($1,$2,'Storm main',0,'LF','estimator_allowance',array['C-301 note'])
+           returning id`, [company, ver]))[0]!.id;
+        /*
+         * A line of its own for the count. Since 0177 a line is the sum of
+         * what is applied to it, so it holds one unit — counting fixtures onto
+         * a line measured in feet is refused, which is the point of that rule.
+         */
+        countLineId = (await h.sql<{ id: string }>(
+          `insert into estimate_line_items (company_id, estimate_version_id, description,
+             measured_quantity, unit, measurement_method)
+           values ($1,$2,'Yard hydrants',0,'EA','estimator_allowance')
            returning id`, [company, ver]))[0]!.id;
         linear = (await h.sql<{ id: string }>(
           `insert into takeoff_measurements
@@ -370,10 +381,15 @@ describe('takeoff', () => {
     it('calls a count derived rather than scaled', async () => {
       // Counting does not depend on the calibration being right, so it should
       // not inherit the calibration's uncertainty.
+      //
+      // On its own line: since 0177 a line is the *sum* of what is applied to
+      // it, so it holds one unit. Counting fixtures onto a line measured in
+      // feet is refused now, which is the point of that rule.
       await h.asUser(owner, () => h.sql(
-        `select app.apply_takeoff_to_line($1,$2,2,'1.0.0')`, [counted, line]));
+        `select app.apply_takeoff_to_line($1,$2,2,'1.0.0')`, [counted, countLineId]));
       const [l] = await h.asUser(owner, () => h.sql<{ measurement_method: string }>(
-        `select measurement_method from estimate_line_items where id = $1`, [line]));
+        `select measurement_method from estimate_line_items where id = $1`,
+        [countLineId]));
       expect(l!.measurement_method).toBe('derived');
     });
 

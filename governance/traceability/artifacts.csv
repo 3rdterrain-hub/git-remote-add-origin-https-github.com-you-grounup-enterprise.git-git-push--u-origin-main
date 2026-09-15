@@ -184,6 +184,7 @@ TBL-surface_comparisons,table,surface_comparisons,supabase/migrations (table sur
 TBL-surfaces,table,surfaces,supabase/migrations (table surfaces),ENTITY
 TBL-surveys,table,surveys,supabase/migrations (table surveys),ENTITY
 TBL-takeoff_calibrations,table,takeoff_calibrations,supabase/migrations (table takeoff_calibrations),ENTITY
+TBL-takeoff_conditions,table,takeoff_conditions,supabase/migrations (table takeoff_conditions),LIBRARY
 TBL-takeoff_measurements,table,takeoff_measurements,supabase/migrations (table takeoff_measurements),ENTITY
 TBL-task_dependencies,table,task_dependencies,supabase/migrations (table task_dependencies),LIBRARY
 TBL-tasks,table,tasks,supabase/migrations (table tasks),LIBRARY
@@ -278,10 +279,12 @@ TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
+TST-db-a-line-is-the-sum-of-what-fed-it,test,db/a-line-is-the-sum-of-what-fed-it.test.ts,tests/db/a-line-is-the-sum-of-what-fed-it.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
 TST-db-a-pipeline-that-can-be-worked,test,db/a-pipeline-that-can-be-worked.test.ts,tests/db/a-pipeline-that-can-be-worked.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
+TST-db-a-proposal-you-can-draft,test,db/a-proposal-you-can-draft.test.ts,tests/db/a-proposal-you-can-draft.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
@@ -384,6 +387,7 @@ TST-db-the-drawing-says-one-thing,test,db/the-drawing-says-one-thing.test.ts,tes
 TST-db-the-drawings-nobody-could-search,test,db/the-drawings-nobody-could-search.test.ts,tests/db/the-drawings-nobody-could-search.test.ts,ENGINE
 TST-db-the-library-that-was-in-a-spreadsheet,test,db/the-library-that-was-in-a-spreadsheet.test.ts,tests/db/the-library-that-was-in-a-spreadsheet.test.ts,ENGINE
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
+TST-db-the-thing-being-measured,test,db/the-thing-being-measured.test.ts,tests/db/the-thing-being-measured.test.ts,ENGINE
 TST-db-the-words-the-estimator-chose,test,db/the-words-the-estimator-chose.test.ts,tests/db/the-words-the-estimator-chose.test.ts,ENGINE
 TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
@@ -395,6 +399,7 @@ TST-db-weather-at-the-job-site,test,db/weather-at-the-job-site.test.ts,tests/db/
 TST-db-what-a-line-sells-for,test,db/what-a-line-sells-for.test.ts,tests/db/what-a-line-sells-for.test.ts,ENGINE
 TST-db-where-the-work-is,test,db/where-the-work-is.test.ts,tests/db/where-the-work-is.test.ts,ENGINE
 TST-db-which-job-you-are-standing-on,test,db/which-job-you-are-standing-on.test.ts,tests/db/which-job-you-are-standing-on.test.ts,ENGINE
+TST-db-work-reported-rather-than-assumed,test,db/work-reported-rather-than-assumed.test.ts,tests/db/work-reported-rather-than-assumed.test.ts,ENGINE
 TST-fn-api-gateway,test,fn/api-gateway.test.ts,tests/functions/api-gateway.test.ts,ENGINE
 TST-fn-connectors,test,fn/connectors.test.ts,tests/functions/connectors.test.ts,ENGINE
 TST-fn-dependency-pinning,test,fn/dependency-pinning.test.ts,tests/functions/dependency-pinning.test.ts,ENGINE
@@ -459,8 +464,10 @@ TST-web-search-the-drawings,test,web/search-the-drawings.test.tsx,apps/web/src/c
 TST-web-text-coverage,test,web/text-coverage.test.tsx,apps/web/src/components/plans/text-coverage.test.tsx,ENGINE
 TST-web-project-actions,test,web/project-actions.test.tsx,apps/web/src/components/project/project-actions.test.tsx,ENGINE
 TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
+TST-web-draft-editor,test,web/draft-editor.test.tsx,apps/web/src/components/proposal/draft-editor.test.tsx,ENGINE
 TST-web-branding,test,web/branding.test.tsx,apps/web/src/components/settings/branding.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
+TST-web-condition-list,test,web/condition-list.test.tsx,apps/web/src/components/takeoff/condition-list.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE
 TST-web-sheet-identity,test,web/sheet-identity.test.tsx,apps/web/src/components/takeoff/sheet-identity.test.tsx,ENGINE
 TST-web-taken-off,test,web/taken-off.test.tsx,apps/web/src/components/takeoff/taken-off.test.tsx,ENGINE
@@ -476,6 +483,7 @@ TST-web-plans.check,test,web/plans.check.test.ts,apps/web/src/data/plans.check.t
 TST-web-plans.live,test,web/plans.live.test.ts,apps/web/src/data/plans.live.test.ts,ENGINE
 TST-web-survey.check,test,web/survey.check.test.ts,apps/web/src/data/survey.check.test.ts,ENGINE
 TST-web-active-company,test,web/active-company.test.ts,apps/web/src/lib/active-company.test.ts,ENGINE
+TST-web-canvas-navigation,test,web/canvas-navigation.test.ts,apps/web/src/lib/canvas-navigation.test.ts,ENGINE
 TST-web-csv,test,web/csv.test.ts,apps/web/src/lib/csv.test.ts,ENGINE
 TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dashboard-panels.test.ts,ENGINE
 TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,apps/web/src/lib/data/equipment-rate-precedence.test.ts,ENGINE

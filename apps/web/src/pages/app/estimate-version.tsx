@@ -32,7 +32,7 @@ import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert } from '@/components/ui/misc';
 import {
@@ -46,7 +46,7 @@ import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
 import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, lineUnitNote, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
-  issueProposal, awardVersion, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
+  draftProposal, issueProposal, awardVersion, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
 import { LineDetail } from '@/components/estimate/line-detail';
@@ -1441,6 +1441,10 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
    */
   const [showLines, setShowLines] = useState(true);
   const [showUnitPrices, setShowUnitPrices] = useState(true);
+  const [commercial, setCommercial] = useState('');
+  const [payment, setPayment] = useState('');
+  /* Compose and send, or compose and keep. Both end at the same document. */
+  const [asDraft, setAsDraft] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1448,12 +1452,27 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
     if (!supabase) return;
     setBusy(true); setError(null);
     try {
-      await issueProposal(supabase, {
-        versionId: version.id, title, coverLetter: cover,
-        validityDays: Number(validity) || 30,
-        showLineDetail: showLines,
-        showUnitPrices: showLines && showUnitPrices,
-      });
+      if (asDraft) {
+        /*
+         * Compose it now, send it later. The draft state has been legal since
+         * migration 0006 and unreachable until 0176, which is why the two terms
+         * fields below were written by nothing.
+         */
+        await draftProposal(supabase, {
+          versionId: version.id, title, coverLetter: cover,
+          commercialTerms: commercial, paymentTerms: payment,
+          validityDays: Number(validity) || 30,
+          showLineDetail: showLines,
+          showUnitPrices: showLines && showUnitPrices,
+        });
+      } else {
+        await issueProposal(supabase, {
+          versionId: version.id, title, coverLetter: cover,
+          validityDays: Number(validity) || 30,
+          showLineDetail: showLines,
+          showUnitPrices: showLines && showUnitPrices,
+        });
+      }
       onIssued();
     } catch (err) { setError(messageFor(err)); }
     finally { setBusy(false); }
@@ -1495,6 +1514,26 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
             * build-up withheld is a real choice, and until now it was the only
             * one this platform could make.
             */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="i-commercial">Commercial terms</Label>
+              <Textarea id="i-commercial" rows={2} value={commercial}
+                placeholder="Price held 30 days. Rock excavation excluded."
+                onChange={(e) => setCommercial(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="i-payment">Payment terms</Label>
+              <Textarea id="i-payment" rows={2} value={payment}
+                placeholder="Net 30. Monthly progress billing."
+                onChange={(e) => setPayment(e.target.value)} />
+            </div>
+          </div>
+          <p className="text-xs text-charcoal-500">
+            Both are kept on a draft and frozen when it is sent. Nothing wrote either
+            column before — there was no point in the lifecycle at which a proposal
+            could be edited.
+          </p>
+
           <fieldset className="space-y-2 rounded-md border border-charcoal-200 p-3">
             <legend className="px-1 text-sm font-medium text-charcoal-900">
               What the customer sees
@@ -1528,10 +1567,21 @@ function IssueDialog({ open, onOpenChange, version, onIssued }: {
           </fieldset>
 
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
-          <Button onClick={submit} disabled={busy}>
-            <Send className="size-4" /> {busy ? 'Issuing…' : `Issue at ${money(version.bidPrice)}`}
+        <DialogFooter className="flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
+            Cancel
+          </Button>
+          {/*
+            * Keep it as a draft, or send it now. Both write the same document;
+            * the difference is whether it is frozen yet.
+            */}
+          <Button variant="outline" disabled={busy}
+            onClick={() => { setAsDraft(true); void submit(); }}>
+            {busy && asDraft ? 'Saving…' : 'Save as a draft'}
+          </Button>
+          <Button onClick={() => { setAsDraft(false); void submit(); }} disabled={busy}>
+            <Send className="size-4" />
+            {busy && !asDraft ? 'Issuing…' : `Issue at ${money(version.bidPrice)}`}
           </Button>
         </DialogFooter>
       </DialogContent>

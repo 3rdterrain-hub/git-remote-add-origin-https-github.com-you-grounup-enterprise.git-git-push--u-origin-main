@@ -60,6 +60,8 @@ export interface MeasurementRow {
     bench_width_feet?: number; label?: string;
   }>;
   freeboardFeet: number | null;
+  /** The thing this shape measures, which decides the color it is drawn in. */
+  conditionId: string | null;
   appliedLineItemId: string | null;
   appliedQuantity: number | null;
   appliedAt: string | null;
@@ -111,7 +113,7 @@ export const loadCalibrations: Query<CalibrationRow[]> = async (client) => {
 export const loadMeasurements: Query<MeasurementRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('takeoff_measurements')
-    .select('id, document_sheet_id, calibration_id, name, trade, kind, unit, geometry, deductions, is_closed, pitch_rise, pitch_run, depth_feet, width_feet, count_per, multiplier, lifts, freeboard_feet, applied_line_item_id, applied_quantity, applied_at, updated_at')
+    .select('id, document_sheet_id, calibration_id, name, trade, kind, unit, geometry, deductions, is_closed, pitch_rise, pitch_run, depth_feet, width_feet, count_per, multiplier, lifts, freeboard_feet, condition_id, applied_line_item_id, applied_quantity, applied_at, updated_at')
     .order('created_at', { ascending: false })
     .limit(500)) as Array<Record<string, unknown>>;
   return rows.map((m) => ({
@@ -133,6 +135,7 @@ export const loadMeasurements: Query<MeasurementRow[]> = async (client) => {
     multiplier: Number(m.multiplier ?? 1),
     lifts: (m.lifts as MeasurementRow['lifts']) ?? [],
     freeboardFeet: m.freeboard_feet == null ? null : Number(m.freeboard_feet),
+    conditionId: (m.condition_id as string | null) ?? null,
     appliedLineItemId: (m.applied_line_item_id as string | null) ?? null,
     appliedQuantity: m.applied_quantity == null ? null : Number(m.applied_quantity),
     appliedAt: (m.applied_at as string | null) ?? null,
@@ -162,6 +165,63 @@ export async function saveCalibration(
   return String((data as { id: string }).id);
 }
 
+/** One measurement behind a line's quantity. */
+export interface LineMeasurement {
+  id: string;
+  lineItemId: string;
+  name: string;
+  kind: string;
+  unit: string;
+  appliedQuantity: number;
+  appliedAt: string | null;
+  sheetLabel: string;
+  documentName: string;
+  /** The tracing moved after it was applied, so the line may be behind it. */
+  retracedSinceApplied: boolean;
+}
+
+/**
+ * What a line's quantity is made of.
+ *
+ * A total nobody can break down is a total nobody can check. Before migration
+ * 0177 a line held whichever measurement was applied last, so there was nothing
+ * to break down — and this is also the list that shows the same run was traced
+ * twice.
+ */
+export const loadLineMeasurements = (lineItemId: string): Query<LineMeasurement[]> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_line_measurements')
+      .select('id, line_item_id, name, kind, unit, applied_quantity, applied_at, sheet_label, document_name, retraced_since_applied')
+      .eq('line_item_id', lineItemId)
+      .order('applied_at')) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: String(r.id),
+      lineItemId: String(r.line_item_id),
+      name: String(r.name),
+      kind: String(r.kind),
+      unit: String(r.unit),
+      appliedQuantity: Number(r.applied_quantity ?? 0),
+      appliedAt: (r.applied_at as string | null) ?? null,
+      sheetLabel: String(r.sheet_label ?? ''),
+      documentName: String(r.document_name ?? ''),
+      retracedSinceApplied: Boolean(r.retraced_since_applied),
+    }));
+  };
+
+/**
+ * Take a measurement back off its line, keeping the tracing.
+ *
+ * The shape stays on the sheet and stays measured; the line falls by that much.
+ * Without it, correcting a misapplied measurement meant deleting the tracing.
+ */
+export async function unapplyTakeoff(
+  client: RpcCapable, measurementId: string,
+): Promise<void> {
+  const { error } = await client.rpc('unapply_takeoff', { p_measurement: measurementId });
+  if (error) throw new Error(error.message);
+}
+
 /**
  * A URL the viewer can fetch for a sheet's document.
  *
@@ -186,6 +246,8 @@ export async function sheetUrl(
 /** Estimate lines a measurement can be applied to. */
 export interface LineOption {
   id: string;
+  /** The version it belongs to, so the screen knows which estimate it is on. */
+  estimateVersionId: string;
   description: string;
   estimateNumber: string;
   versionNumber: number;
@@ -196,7 +258,7 @@ export interface LineOption {
 export const loadOpenEstimateLines: Query<LineOption[]> = async (client) => {
   const rows = unwrap(await client
     .from('estimate_line_items')
-    .select('id, description, unit, measured_quantity, estimate_versions!inner(version_number, status, estimates!estimate_versions_estimate_id_fkey(number))')
+    .select('id, estimate_version_id, description, unit, measured_quantity, estimate_versions!inner(version_number, status, estimates!estimate_versions_estimate_id_fkey(number))')
     // Only a draft can take a quantity: an issued version is frozen by RULE-009
     // and offering it would produce a refusal the estimator cannot act on.
     .eq('estimate_versions.status', 'draft')
@@ -206,6 +268,7 @@ export const loadOpenEstimateLines: Query<LineOption[]> = async (client) => {
     const ver = one<{ version_number: number; estimates: unknown }>(l.estimate_versions);
     return {
       id: String(l.id),
+      estimateVersionId: String(l.estimate_version_id),
       description: String(l.description),
       estimateNumber: one<{ number: string }>(ver?.estimates)?.number ?? '—',
       versionNumber: Number(ver?.version_number ?? 0),

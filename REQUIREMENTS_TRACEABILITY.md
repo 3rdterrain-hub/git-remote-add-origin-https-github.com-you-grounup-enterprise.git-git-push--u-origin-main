@@ -51,6 +51,10 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | R-031 | The estimator chooses what the customer sees of the estimate, at the moment of issuing | user — "everything can be shown to the client"; both flags were unreachable | high | proposals | `app.issue_proposal` (0174), `estimate-version.tsx` issue dialog | `the-words-the-estimator-chose.test.ts` | tested |
 | R-032 | An opportunity moves through its stages, and a loss records why and to whom | user — Customers section; three tables unreachable since 0005 | high | `opportunities`, `contacts`, `crm_activities` | migration 0175, `components/crm/*` | `a-pipeline-that-can-be-worked.test.ts`, `pipeline-board.test.tsx`, `contacts-panel.test.tsx`, `activity-log.test.tsx` | tested |
 | R-033 | A card that opens on loaded data is controlled, not `defaultOpen` | this session — found three times | medium | `apps/web/src` | `DECISION_LOG.md` D-033 | `activity-log.test.tsx` | tested |
+| R-034 | An estimate line's quantity is the sum of every measurement applied to it | this session — it overwrote, so a sidewalk traced twelve times priced as one | high | takeoff | migration 0177, `quantity-breakdown.tsx` | `a-line-is-the-sum-of-what-fed-it.test.ts` | tested |
+| R-035 | The drawing zooms about the cursor and pans by hand | user, 2026-09-14 ("add mouse wheel zoom and pan") | high | takeoff | `lib/canvas-navigation.ts`, `pages/app/takeoff.tsx` | `canvas-navigation.test.ts` | tested |
+| R-036 | A takeoff condition is measured in many places and priced once | user, 2026-09-14 ("build stage two too"); industry model from OST/PlanSwift/STACK | high | takeoff | migration 0178, `components/takeoff/condition-list.tsx` | `the-thing-being-measured.test.ts`, `condition-list.test.tsx` | tested |
+| R-037 | Progress is reported by the field, and an unreported project says so rather than showing zero | this session — a permanent false margin-fade alarm on every awarded job | high | `project_tasks`, `production_actuals` | migration 0179, `components/project/budgeted-work.tsx` | `work-reported-rather-than-assumed.test.ts` | tested |
 
 ---
 
@@ -119,5 +123,11 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-007 | Proposals cannot be drafted, so `commercial_terms` and `payment_terms` are unwritable | `issue_proposal` inserts at status `issued`; the immutability trigger's `draft` branch is unreachable | Add a draft state, or drop the two columns |
 | O-008 | `proposal_line_items` holds no rows | Not a defect — 0111 freezes the estimate lines, so the live read is safe. It is the home for proposal alternates and options, which are unbuilt | Build alternates/options, or retire the table and `proposal_base_total` |
 | O-009 | `proposals.template_key` is referenced nowhere | Defaulted to `'standard'` since 0006 and read by nothing | Build proposal templates, or drop the column |
+| O-014 | `record_production_actual` still has no screen | Migration 0179 makes the rollup work, but the only writer of `production_actuals` is an RPC nothing calls. Reporting production has to be a form on the field report | Build the production entry form |
+| O-015 | `change_order_items` has no writer, so every change order is worth $0 | `create_change_order` deliberately prices nothing; nothing adds items afterwards | Build change order pricing |
+| O-016 | `daily_report_labor` and `daily_report_equipment` have no writer | A field report can be created and never filled in | Build the field report detail |
+| O-017 | `project_costs` has no reader | Triggers post job cost into it from labor, fleet and commitments; nothing displays it | Show job cost against budget |
+| O-012 | A condition cannot yet carry sections across several sheets | PlanSwift's "Continue With": one thing traced on C-101 and C-102 with a running total. The pieces exist — a condition already spans sheets — but nothing names it or totals it per sheet | Build "Continue With" |
+| O-013 | Conditions are per estimate, not reusable from the library | `takeoff_conditions.estimate_version_id` is nullable for this; nothing writes or reads a null one yet | Build library reuse, as agreed |
 | O-011 | `loadSignatures` and `noteOnLead` are exported and never imported | A signature the customer gave is never shown back; a lead's notes and follow-up date cannot be written | Give each a door |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

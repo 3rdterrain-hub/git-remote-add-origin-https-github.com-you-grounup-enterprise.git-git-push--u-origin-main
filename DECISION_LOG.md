@@ -11,6 +11,177 @@ Newest first.
 
 ---
 
+## D-037 · 2026-09-14 · An index computed from nothing is an accusation, not a measurement
+
+**Decision.** `project_tasks.percent_complete`, `installed_quantity` and
+`actual_hours` are recomputed by trigger from `production_actuals` — what the
+field reported, summed, never incremented. `reporting_project_earned_value`
+returns **null** for earned value, percent complete and both performance indices
+until production has been reported against at least one task, and exposes
+`tasks_reported` so a screen can say which case it is in.
+`my_project_task_progress` lists the budgeted work.
+
+**Reason.** `percent_complete` is `not null default 0` and **nothing had ever
+written it** — no migration, trigger, function or screen. The view guarded on
+`sum(budgeted_cost) > 0`, which is true of every awarded project from the moment
+it is awarded. So on every job the company ever won: earned value $0, progress
+0%, and the instant any cost posted — one timesheet, one fuel burn — a cost
+performance index of 0.00 and a red banner reading *"spending faster than the
+work is earning… that gap is margin fade"*.
+
+**A permanent false alarm on every job**, saying the work was losing money when
+it was saying nothing at all. A screen that cries wolf on every project teaches
+the people reading it to stop reading it, which costs more than the missing
+feature ever did.
+
+Two faults, both fixed: the number had no writer, and silence was being reported
+as zero. The path already existed unjoined — `production_actuals` records
+quantity installed and crew hours against a task, `record_production_actual`
+writes one, and nothing rolled them up.
+
+**Considered.** Silencing the banner alone. Rejected: the banner is right to
+exist, and a number with no writer would still have rendered 0% everywhere else.
+Also considered letting a person type a percentage. Rejected under "derive,
+don't store" — a percentage typed by hand disagrees with the quantities the
+field reported the first time anybody corrects a day.
+
+**Details.** Status moves not-started → in-progress → complete from the reports,
+but a status set deliberately (`blocked`, `on_hold`) is never overruled: the
+field saying "we did 40 feet" is not the field saying "carry on". The percentage
+is capped at 1 while the quantity is not, because a task can exceed its budgeted
+quantity and a percentage over 100 breaks both the check constraint and every
+chart reading it. `tasks_reported` had to be appended to the view rather than
+placed where it reads best — `create or replace view` can only add columns at
+the end.
+
+**Affects.** `reporting_project_earned_value`, `project_tasks`,
+`pages/app/project-detail.tsx`, `components/project/budgeted-work.tsx`.
+
+**Status.** Active. Migration 0179, 10 db tests.
+
+---
+
+## D-036 · 2026-09-14 · The thing being measured is not the shape that measures it
+
+**Decision.** `takeoff_conditions` (migration 0178) is the object between a
+traced shape and an estimate line. It owns the name, the style, the unit, the
+**color**, and the dimensions a drawing does not supply. Creating one creates
+the line it prices on. Many shapes file under one condition; the line is their
+sum. `reassign_measurement` moves a shape between conditions and corrects both
+lines.
+
+**Reason.** A site plan is not forty estimate lines. It is eight or ten things —
+six-inch sidewalk, curb and gutter, light-duty pavement — each traced in several
+places. Applying a shape straight to a line made the estimator repeat that
+association once per shape and left forty lines to merge.
+
+Research across On-Screen Takeoff, PlanSwift, STACK, eTakeoff and Procore found
+all five have this object and all five make you pick it **before** tracing. That
+order is forced, not stylistic:
+
+  * the condition owns the **color**, and forty overlapping traces are
+    unreadable unless each already knows what color it is — coloring by *kind*,
+    as this platform did, makes every area on a sheet the same violet
+  * it owns the **depth**, and no traced polygon becomes cubic yards without
+    one; asking afterwards means asking once per shape
+
+On-Screen Takeoff's governing rule is the one to keep: **each unique object on a
+plan is one condition.** One "6-inch sidewalk", traced twelve times, one
+quantity.
+
+**Considered.** Making the condition a master-library record first. The user
+chose per-estimate first, then library reuse. `estimate_version_id` is nullable
+for exactly that: not null is this estimate's, null is the library's — the same
+table, no migration when reuse is built.
+
+**Also considered** trace-then-assign as the main path. Rejected on the evidence:
+every product has it only as a *correction* (OST "reassign to a different
+Condition", eTakeoff "T to set the trace"). `reassign_measurement` is that, and
+is not the door tracing goes through.
+
+**Depends on D-034.** The line is the sum of its measurements. Without that, a
+condition traced twelve times would still have priced as one.
+
+**Affects.** `takeoff_measurements.condition_id`, `pages/app/takeoff.tsx`,
+`components/takeoff/condition-list.tsx`, `components/takeoff/overlay.tsx` — where
+a per-condition color has to come through `style` rather than an SVG attribute,
+because a Tailwind `stroke-*` class beats a presentation attribute and would
+have silently won.
+
+**Status.** Active. Migration 0178, 13 db tests, 13 web tests. Open: "Continue
+With" — one condition carrying sections across several sheets with a running
+total — and library reuse.
+
+---
+
+## D-035 · 2026-09-14 · The wheel zooms about the cursor, and the space bar grabs the sheet
+
+**Decision.** `lib/canvas-navigation.ts` owns the arithmetic: `zoomAt` keeps the
+point under the cursor still, `fitToWidth` shows the whole sheet, `wheelFactor`
+turns a notch into a factor, `panBy` moves the paper with the hand. The wheel
+zooms, space or the middle button pans, ⌘+/−/0 work, and a sheet opens fitted.
+
+**Reason.** Zoom was two buttons stepping 25%, and the sheet scrolled in a plain
+container. On a 24×36 civil sheet that is unusable: every step pushed what you
+were looking at toward the edge, because the container grows from its top-left
+corner and the thing under your cursor is nowhere near it. Research across
+On-Screen Takeoff, PlanSwift, Bluebeam Revu, eTakeoff and STACK found
+zoom-to-cursor to be the one behavior all of them share.
+
+A sheet also opened at 100%, which on a full-size civil drawing is a corner of
+the title block with no way to tell which way north points.
+
+**Considered.** Hijacking the wheel entirely. Shift+wheel is left as a sideways
+scroll, and a native listener is used because React's `onWheel` is passive and
+cannot `preventDefault` — without which the page scrolls under the zoom.
+
+**Affects.** `pages/app/takeoff.tsx`.
+
+**Status.** Active. 16 tests, including that zoom in then out returns to the
+same place.
+
+---
+
+## D-034 · 2026-09-14 · A line is the sum of the measurements applied to it
+
+**Decision.** `apply_takeoff_to_line` no longer writes the line's quantity at
+all. A trigger on `takeoff_measurements` recomputes
+`estimate_line_items.measured_quantity` as the sum of every measurement pointing
+at that line. `unapply_takeoff` takes one back off, keeping the tracing.
+Measurements in a different unit from the ones already on a line are refused.
+
+**Reason.** It overwrote. Trace the six-inch sidewalk in twelve runs, apply each
+to the sidewalk line, and the line held the twelfth — silently. **A number that
+looks right and is not.**
+
+The function's own author knew a line takes more than one measurement: the
+comment above `source_references` reads "Appended rather than replaced: a line
+may be supported by more than one measurement, and dropping the others would
+lose the argument." The citations accumulated and the quantity did not.
+
+Measuring one thing in several places is not an edge case, it is what a site
+plan is — a sidewalk in twelve runs, curb on four streets, pavement in three
+lots. Every takeoff product built for estimators accumulates.
+
+**Recomputed, never incremented** — D-026's rule and 0170's. An increment drifts
+the first time anything is deleted, retraced or applied twice, and a trigger
+means no writer can go round it. `my_line_measurements` breaks the total down
+sheet by sheet, because a quantity nobody can break down is a quantity nobody
+can check, and because two identical rows on one sheet is a run traced twice
+and no total would ever say so.
+
+**Considered.** Summing in a view rather than storing. Rejected: the engine
+prices from `measured_quantity`, and a generated column cannot be written by
+`update_estimate_line`, which an estimator still needs for a quantity that did
+not come off a drawing.
+
+**Affects.** `apply_takeoff_to_line`, `takeoff_measurements`,
+`components/takeoff/taken-off.tsx`, `components/estimate/quantity-breakdown.tsx`.
+
+**Status.** Active. Migration 0177, 9 db tests.
+
+---
+
 ## D-033 · 2026-09-13 · A card that opens on a condition is controlled, never `defaultOpen`
 
 **Decision.** Any `CollapsibleCard` whose open state depends on loaded data

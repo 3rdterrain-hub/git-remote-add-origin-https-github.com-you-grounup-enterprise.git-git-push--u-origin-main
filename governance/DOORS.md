@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **218** |
-| Opened by a screen | **199** |
+| Doors | **230** |
+| Opened by a screen | **211** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -108,6 +108,7 @@ None.
 | `create_rfi` | function | lib/data/project.ts |
 | `create_rfq` | function | lib/data/procurement.ts |
 | `create_safety_incident` | function | lib/data/safety.ts |
+| `create_takeoff_condition` | function | lib/data/conditions.ts |
 | `create_toolbox_talk` | function | lib/data/safety.ts |
 | `create_vendor` | function | lib/data/library.ts |
 | `create_work_order` | function | lib/data/fleet.ts |
@@ -118,8 +119,10 @@ None.
 | `delete_estimate_line` | function | lib/data/estimates.ts |
 | `delete_library_category` | function | lib/data/categories.ts |
 | `delete_line_resource` | function | lib/data/estimates.ts |
+| `discard_proposal_draft` | function | lib/data/estimates.ts |
 | `dismiss_announcement` | function | lib/data/session.ts |
 | `dismiss_notification` | function | lib/data/session.ts |
+| `draft_proposal` | function | lib/data/estimates.ts |
 | `earnings` | function | lib/data/admin.ts |
 | `edit_comment` | function | lib/data/comments.ts |
 | `end_break` | function | lib/data/time-clock.ts |
@@ -134,6 +137,7 @@ None.
 | `is_platform_admin` | function | lib/data/admin.ts |
 | `is_superadmin` | function | lib/data/admin.ts |
 | `is_supporting` | function | lib/data/admin.ts |
+| `issue_drafted_proposal` | function | lib/data/estimates.ts |
 | `issue_proposal` | function | lib/data/estimates.ts |
 | `library_category_counts` | function | lib/data/categories.ts |
 | `library_category_members` | function | lib/data/categories.ts |
@@ -161,6 +165,7 @@ None.
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
 | `my_line_conditions` | view | lib/data/estimates.ts |
+| `my_line_measurements` | view | lib/data/takeoff.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
@@ -172,6 +177,7 @@ None.
 | `my_preferences` | view | lib/data/preferences.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
+| `my_project_task_progress` | view | lib/data/project.ts |
 | `my_project_tasks` | view | lib/data/field-work.ts |
 | `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
@@ -180,6 +186,7 @@ None.
 | `my_site_weather` | view | lib/data/project.ts |
 | `my_staffing_gaps` | view | lib/data/staffing.ts |
 | `my_suspension` | view | lib/data/session.ts |
+| `my_takeoff_conditions` | view | lib/data/conditions.ts |
 | `my_time_clock` | view | lib/data/time-clock.ts |
 | `my_time_punches` | view | lib/data/time-clock.ts |
 | `my_uncosted_materials` | view | lib/data/library.ts |
@@ -198,6 +205,8 @@ None.
 | `publish_announcement` | function | lib/data/admin.ts |
 | `qualified_and_available` | function | lib/data/staffing.ts |
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
+| `reassign_measurement` | function | lib/data/conditions.ts |
+| `record_condition_takeoff` | function | lib/data/conditions.ts |
 | `record_export` | function | lib/data/admin.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
@@ -260,8 +269,11 @@ None.
 | `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |
 | `suspend_company` | function | lib/data/admin.ts |
+| `unapply_takeoff` | function | lib/data/takeoff.ts |
 | `update_estimate_line` | function | lib/data/estimates.ts |
 | `update_estimate_version` | function | lib/data/estimates.ts |
 | `update_opportunity` | function | lib/data/crm-pipeline.ts |
+| `update_proposal` | function | lib/data/estimates.ts |
+| `update_takeoff_condition` | function | lib/data/conditions.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
 | `workable_days_at` | function | lib/data/project.ts |

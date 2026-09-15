@@ -36,6 +36,7 @@ import { useQuery, messageFor } from '@/lib/data/query';
 import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import { SendForSignature } from '@/components/proposal/send-for-signature';
+import { ProposalDraftEditor } from '@/components/proposal/draft-editor';
 import { loadCompanyProfile, logoUrl } from '@/lib/data/company';
 import { downloadProposalPdf } from '@/lib/data/proposal-pdf';
 import {
@@ -219,6 +220,7 @@ export function ProposalsLivePage() {
             proposal={selected}
             canAnswer={can('estimates.issue')}
             onAnswer={setAnswering}
+            onChanged={() => { proposals.refetch(); }}
           />
         </div>
       ) : null}
@@ -243,10 +245,11 @@ export function ProposalsLivePage() {
  * against, and the sections sum to the frozen price rather than to a fresh
  * recomputation of it.
  */
-function ProposalDocument({ proposal, canAnswer, onAnswer }: {
+function ProposalDocument({ proposal, canAnswer, onAnswer, onChanged }: {
   proposal: ProposalRow;
   canAnswer: boolean;
   onAnswer: (o: 'accepted' | 'declined') => void;
+  onChanged: () => void;
 }) {
   const version = useQuery(loadVersion(proposal.estimateVersionId), [proposal.estimateVersionId]);
   /*
@@ -364,6 +367,14 @@ function ProposalDocument({ proposal, canAnswer, onAnswer }: {
         ) : null}
       </CardHeader>
       <CardContent className="space-y-4">
+        {/*
+          * A draft, which until migration 0176 could not exist: the status was
+          * legal since 0006 and unreachable since 0006, so `commercial_terms`
+          * and `payment_terms` were written by nothing at all.
+          */}
+        <ProposalDraftEditor proposal={proposal} editable={canAnswer}
+          onChanged={onChanged} />
+
         {downloadError
           ? <Alert tone="danger" title="That file could not be made">{downloadError}</Alert>
           : null}

@@ -33,7 +33,20 @@ export interface OverlayProps {
   points: readonly Point[];
   onPointsChange: (points: Point[]) => void;
   /** Completed shapes drawn behind the one in progress. */
-  existing?: readonly { id: string; points: readonly Point[]; kind: Tool; label?: string }[];
+  /*
+   * `color` overrides the per-kind default. A condition owns its color, and it
+   * is the only thing that keeps forty overlapping traces on one sheet
+   * readable — colored by kind, every area on the sheet is the same violet.
+   *
+   * `dim` is for everything that is not the condition being pointed at, so
+   * hovering one in the list lights its shapes and quiets the rest. That is
+   * On-Screen Takeoff's "Select Objects", which is how an estimator audits a
+   * number they do not believe.
+   */
+  existing?: readonly {
+    id: string; points: readonly Point[]; kind: Tool; label?: string;
+    color?: string; dim?: boolean;
+  }[];
   className?: string;
 
   /**
@@ -229,12 +242,22 @@ export function MeasurementOverlay({
         <g key={s.id}>
           <path d={path(s.points, s.kind === 'area' || s.kind === 'volume'
             || s.kind === 'basin' || s.kind === 'deduct')}
-            className={cn('fill-none', SHAPE_COLOR[s.kind])}
-            strokeWidth={2 * scale} strokeOpacity={0.55} />
+            /*
+              * The class carries the per-kind default; a condition's own color
+              * comes through `style`, because a Tailwind `stroke-*` class beats
+              * a presentation attribute and would win over it silently.
+              */
+            className={cn('fill-none', s.color ? undefined : SHAPE_COLOR[s.kind])}
+            strokeWidth={2 * scale}
+            strokeOpacity={s.dim ? 0.12 : 0.55}
+            {...(s.color ? { style: { stroke: s.color } } : {})} />
           {s.kind === 'count'
             ? s.points.map((p, i) => (
                 <circle key={i} cx={p.x} cy={p.y} r={4 * scale}
-                  className="fill-sky-600/60" />
+                  className={s.color ? undefined : 'fill-sky-600/60'}
+                  {...(s.color
+                    ? { style: { fill: s.color, fillOpacity: s.dim ? 0.12 : 0.6 } }
+                    : {})} />
               ))
             : null}
         </g>

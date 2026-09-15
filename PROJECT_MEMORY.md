@@ -358,6 +358,27 @@ The Branding tab that stood there was the clearest example of the second defect
 this build produces: hard-coded `defaultValue` colors, swatches painted by a CSS
 class rather than by the value, and a Save button that set a flag to false.
 
+### Takeoff, as of migrations 0177–0178
+
+Two defects and one missing object, found by researching how estimators
+actually work rather than by reading the code.
+
+**A line overwrote instead of summing.** `apply_takeoff_to_line` wrote
+`measured_quantity = p_quantity`, so a sidewalk traced in twelve runs priced as
+the twelfth — silently. The line is now the sum of the measurements applied to
+it, recomputed by trigger (D-034), and `my_line_measurements` breaks any total
+down sheet by sheet.
+
+**There was no object between a shape and a line.** Every takeoff product has
+one and all of them make you pick it before tracing, because it owns the color
+that keeps forty traces legible and the depth a drawing cannot supply (D-036).
+`takeoff_conditions` is that object, per estimate now and reusable from the
+library next.
+
+**The drawing could not be navigated.** Zoom was two buttons stepping 25% about
+the container's corner. The wheel now zooms about the cursor, space or the
+middle button pans, and a sheet opens fitted (D-035).
+
 ### Recommended next actions
 
 1. Make Survey and Claims live — the same shape as Schedule and Procurement

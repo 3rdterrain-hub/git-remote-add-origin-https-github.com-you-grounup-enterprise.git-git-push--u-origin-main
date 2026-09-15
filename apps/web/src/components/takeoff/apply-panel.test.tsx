@@ -14,7 +14,7 @@ import { ApplyPanel } from './apply-panel';
 import type { LineOption } from '@/lib/data/takeoff';
 
 const lines: LineOption[] = [
-  { id: 'l-1', description: 'Storm main', estimateNumber: 'EST-2026-0184',
+  { id: 'l-1', estimateVersionId: 'ev-1', description: 'Storm main', estimateNumber: 'EST-2026-0184',
     versionNumber: 3, unit: 'LF', measuredQuantity: 0 },
 ];
 

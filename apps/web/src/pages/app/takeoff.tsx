@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Ruler, MousePointerClick, Minus, Square, Box, Hash, Undo2, Trash2, Scissors, Waves, Plus,
-  Loader2,
+  Loader2, Maximize2,
 } from 'lucide-react';
 import type { Point } from '@grounup/engine';
 import { PageHeader } from '@/components/layout/page';
@@ -26,7 +26,14 @@ import {
 } from '@/lib/data/takeoff';
 import { UnsheetedPlanSets } from '@/components/takeoff/unsheeted-plan-sets';
 import { basinQuantity } from '@/lib/takeoff-quantity';
+import {
+  zoomAt, zoomByStep, fitToWidth, wheelFactor, panBy,
+} from '@/lib/canvas-navigation';
 import { afterToolChange } from '@/lib/takeoff-tools';
+import {
+  loadConditions, recordConditionTakeoff, type ConditionRow,
+} from '@/lib/data/conditions';
+import { ConditionList } from '@/components/takeoff/condition-list';
 import { SheetIdentity } from '@/components/takeoff/sheet-identity';
 import { TakenOff } from '@/components/takeoff/taken-off';
 import { DemonstrationNotice, ErrorState } from '@/components/data-state';
@@ -108,6 +115,37 @@ export function TakeoffPage() {
   const sheets = sheetsQ.status === 'ready' ? sheetsQ.data : [];
   const lines = linesQ.status === 'ready' ? linesQ.data : [];
 
+  /**
+   * Which estimate this takeoff is for.
+   *
+   * From the line the estimator arrived on, when they came from one; otherwise
+   * the version the open lines belong to. A takeoff is always for an estimate —
+   * a measurement with nowhere to go is a number nobody finds again.
+   */
+  const versionId = useMemo(() => {
+    if (forLine) {
+      const l = lines.find((x) => x.id === forLine);
+      if (l) return l.estimateVersionId;
+    }
+    return lines[0]?.estimateVersionId ?? null;
+  }, [forLine, lines]);
+
+  /*
+   * Read here as well as in the panel, so a shape already on the sheet can be
+   * drawn in the color of the thing it measures.
+   */
+  const conditionsQ = useQuery(loadConditions(versionId ?? ''), [versionId]);
+  const conditions: ConditionRow[] =
+    conditionsQ.status === 'ready' ? conditionsQ.data : [];
+
+  /** A traced shape wears the color of the thing it measures. */
+  const conditionColor = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of conditions) m.set(c.id, c.color);
+    return m;
+  }, [conditions]);
+  const colorOf = (id: string | null) => (id ? conditionColor.get(id) ?? null : null);
+
   const [sheetId, setSheetId] = useState('');
   /*
    * Derived below `sheetId` rather than above it. The filter callback runs
@@ -144,6 +182,153 @@ export function TakeoffPage() {
   const [saving, setSaving] = useState(false);
   const [sheetSize, setSheetSize] = useState({ width: 1224, height: 792 });
   const [zoom, setZoom] = useState(1);
+  /*
+   * What is being measured. Chosen before tracing, because the condition owns
+   * the color that keeps a busy sheet readable and the depth a drawing does not
+   * supply — asking for either afterwards means asking once per shape.
+   */
+  const [condition, setCondition] = useState<ConditionRow | null>(null);
+  const [highlighted, setHighlighted] = useState<string | null>(null);
+
+  /*
+   * Moving around the sheet.
+   *
+   * The wheel zooms about the cursor, which is what every PDF viewer, CAD tool
+   * and takeoff product does and the thing people only notice when it is
+   * missing: without it each step pushes what you were looking at toward the
+   * edge, and at 300% on a 24×36 sheet you lose your place on every notch.
+   *
+   * Panning is the space bar or the middle button, so a drag with the left
+   * button stays what it has always been — tracing.
+   */
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [spaceHeld, setSpaceHeld] = useState(false);
+  const [panning, setPanning] = useState(false);
+  const panFrom = useRef<{ x: number; y: number } | null>(null);
+
+  const viewportOf = (el: HTMLDivElement) => ({
+    clientWidth: el.clientWidth, clientHeight: el.clientHeight,
+    scrollLeft: el.scrollLeft, scrollTop: el.scrollTop,
+  });
+
+  /*
+   * A native listener, because React's onWheel is passive and cannot call
+   * preventDefault — without which the browser scrolls the page underneath the
+   * zoom and the sheet jumps.
+   */
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.shiftKey) return;            /* shift+wheel stays a sideways scroll */
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const next = zoomAt(zoom, wheelFactor(e.deltaY),
+        e.clientX - rect.left, e.clientY - rect.top, viewportOf(el));
+      setZoom(next.zoom);
+      el.scrollLeft = next.scrollLeft;
+      el.scrollTop = next.scrollTop;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [zoom]);
+
+  /* Space to grab the sheet. Ignored while typing, or a name box cannot hold one. */
+  useEffect(() => {
+    const typing = (t: EventTarget | null) =>
+      t instanceof HTMLElement
+      && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+    const down = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !typing(e.target)) { e.preventDefault(); setSpaceHeld(true); }
+    };
+    const up = (e: KeyboardEvent) => { if (e.code === 'Space') setSpaceHeld(false); };
+    /* A window that loses focus mid-drag must not come back still grabbing. */
+    const blur = () => { setSpaceHeld(false); setPanning(false); panFrom.current = null; };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', blur);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', blur);
+    };
+  }, []);
+
+  const startPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    /* Middle button, or space held. The left button is for tracing. */
+    if (e.button !== 1 && !(e.button === 0 && spaceHeld)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    panFrom.current = { x: e.clientX, y: e.clientY };
+    setPanning(true);
+  };
+
+  const movePan = (e: React.PointerEvent<HTMLDivElement>) => {
+    const from = panFrom.current;
+    const el = scrollRef.current;
+    if (!from || !el) return;
+    const next = panBy(viewportOf(el), e.clientX - from.x, e.clientY - from.y);
+    el.scrollLeft = next.scrollLeft;
+    el.scrollTop = next.scrollTop;
+    panFrom.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const endPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!panFrom.current) return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    panFrom.current = null;
+    setPanning(false);
+  };
+
+  /** Zoom a step about the middle, the way the buttons always have. */
+  const stepZoom = (direction: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) { setZoom((z) => Math.min(8, Math.max(0.25, z * (direction === 1 ? 1.25 : 0.8)))); return; }
+    const next = zoomByStep(zoom, direction, viewportOf(el));
+    setZoom(next.zoom);
+    el.scrollLeft = next.scrollLeft;
+    el.scrollTop = next.scrollTop;
+  };
+
+  /*
+   * The usual three, on the usual keys. An estimator who zooms with the
+   * keyboard in every other tool should not have to reach for a button here.
+   */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === '=' || e.key === '+') { e.preventDefault(); stepZoom(1); }
+      else if (e.key === '-' || e.key === '_') { e.preventDefault(); stepZoom(-1); }
+      else if (e.key === '0') { e.preventDefault(); fitWidth(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  /*
+   * A sheet opens showing the whole sheet. Landing at 100% on a 24×36 drawing
+   * puts you in a corner of the title block with no idea which way the north
+   * arrow points.
+   */
+  useEffect(() => {
+    if (!sheetId) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    setZoom(fitToWidth(el.clientWidth));
+    el.scrollLeft = 0;
+    el.scrollTop = 0;
+  }, [sheetId]);
+
+  /** The whole sheet, which is where a takeoff starts and what you return to. */
+  const fitWidth = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setZoom(fitToWidth(el.clientWidth));
+    el.scrollLeft = 0;
+    el.scrollTop = 0;
+  };
 
   const [scaleState, setScaleState] = useState<ScaleState | null>(null);
   const [knownFeet, setKnownFeet] = useState('20');
@@ -353,10 +538,13 @@ export function TakeoffPage() {
           reference: scaleState.reference.trim() || null,
         });
       }
-      await saveMeasurement(supabase, {
+      const measurementId = await saveMeasurement(supabase, {
         companyId: sheet.companyId, sheetId, calibrationId,
         name: shapeName.trim()
-          || `${tool.charAt(0).toUpperCase()}${tool.slice(1)} ${measurements.length + 1}`,
+          || (condition
+            ? `${condition.name} ${measurements.filter(
+                (m) => m.conditionId === condition.id).length + 1}`
+            : `${tool.charAt(0).toUpperCase()}${tool.slice(1)} ${measurements.length + 1}`),
         trade: null,
         kind: tool as 'count' | 'linear' | 'area' | 'volume' | 'basin',
         unit, geometry: points, deductions,
@@ -373,6 +561,18 @@ export function TakeoffPage() {
           freeboardFeet: num(freeboardFeet) ?? null,
         } : {}),
       });
+      /*
+       * Filed under the thing it measures, and onto that thing's line, in one
+       * call. This is the point of picking first: trace it wherever it appears
+       * without answering the same questions again.
+       */
+      if (condition) {
+        await recordConditionTakeoff(
+          supabase, condition.id, measurementId, measuredOk.quantity, ENGINE_VERSION);
+        conditionsQ.refetch();
+        linesQ.refetch();
+      }
+
       setShapeName('');
       setPoints([]);
       setDeductions([]);
@@ -405,11 +605,17 @@ export function TakeoffPage() {
         description="Measure quantities off the drawings. Every measurement records the scale it was taken at and what that scale was checked against, because a quantity scaled off an unverified print is not the same claim as one checked against a printed dimension."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}>−</Button>
+            <Button variant="outline" size="sm" title="Zoom out (⌘−)"
+              onClick={() => stepZoom(-1)}>−</Button>
             <span className="tabular w-12 text-center text-sm text-charcoal-600">
               {Math.round(zoom * 100)}%
             </span>
-            <Button variant="outline" size="sm" onClick={() => setZoom((z) => Math.min(4, z + 0.25))}>+</Button>
+            <Button variant="outline" size="sm" title="Zoom in (⌘+)"
+              onClick={() => stepZoom(1)}>+</Button>
+            <Button variant="outline" size="sm" title="Fit the whole sheet (⌘0)"
+              onClick={fitWidth}>
+              <Maximize2 className="size-4" /> Fit
+            </Button>
           </div>
         }
       />
@@ -424,11 +630,51 @@ export function TakeoffPage() {
           onSheeted={() => { sheetsQ.refetch(); unsheetedQ.refetch(); }} />
       ) : null}
 
+      {/*
+        * What you are measuring, ahead of the tools — the arrangement every
+        * takeoff product uses, for the reason above.
+        */}
+      {isSupabaseConfigured && versionId ? (
+        <ConditionList
+          versionId={versionId}
+          selectedId={condition?.id ?? null}
+          onSelect={(c) => {
+            setCondition(c);
+            if (c) {
+              /* The thing decides the tool and the unit, so neither is retyped. */
+              chooseTool(c.style as Tool);
+              setUnit(c.unit);
+              if (c.depthFeet != null) setDepthFeet(String(c.depthFeet));
+              if (c.widthFeet != null) setWidthFeet(String(c.widthFeet));
+            }
+          }}
+          onHighlight={setHighlighted}
+          editable={isSupabaseConfigured}
+        />
+      ) : null}
+
       {isSupabaseConfigured ? (
         <div className="flex flex-wrap items-end gap-3 rounded-[--radius-card] border border-charcoal-200 bg-white p-4">
           <div className="min-w-64 flex-1 space-y-1.5">
             <Label htmlFor="sheet">Sheet</Label>
-            <Select value={sheetId} onValueChange={(v) => { setSheetId(v); setPoints([]); }}>
+            {/*
+              * Switching sheets used to drop a half-traced shape with no
+              * warning — a long outline gone on a misclick, which is how
+              * somebody stops trusting the tool. Now it asks, and only when
+              * there is something to lose.
+              */}
+            <Select value={sheetId} onValueChange={(v) => {
+              if (points.length > 0
+                && !window.confirm(
+                  `${points.length} point${points.length === 1 ? '' : 's'} have been placed `
+                  + 'and are not part of a saved measurement yet. Leave this sheet and lose them?')) {
+                return;
+              }
+              setSheetId(v);
+              setPoints([]);
+              setDeductions([]);
+              setOutline([]);
+            }}>
               <SelectTrigger id="sheet">
                 <SelectValue placeholder={sheets.length ? 'Choose a sheet' : 'No sheets uploaded yet'} />
               </SelectTrigger>
@@ -513,7 +759,15 @@ export function TakeoffPage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="overflow-auto bg-charcoal-100 p-4">
+          <CardContent
+            ref={scrollRef}
+            className={cn('overflow-auto bg-charcoal-100 p-4',
+              panning ? 'cursor-grabbing' : spaceHeld ? 'cursor-grab' : undefined)}
+            onPointerDown={startPan}
+            onPointerMove={movePan}
+            onPointerUp={endPan}
+            onPointerCancel={endPan}
+          >
             <div className="relative mx-auto" style={{ width: displayWidth }}>
               <SheetCanvas source={source} pageNumber={sheet?.pageNumber ?? 1}
                 displayWidth={displayWidth} onSize={setSheetSize} />
@@ -535,6 +789,14 @@ export function TakeoffPage() {
                     points: m.geometry,
                     kind: m.kind as Tool,
                     label: m.name,
+                    /*
+                      * Its own thing's color, so forty traces on one sheet can
+                      * be told apart. Dimmed when a different thing is being
+                      * pointed at in the list, which is how you see at a glance
+                      * what fed a number you do not believe.
+                      */
+                    ...(colorOf(m.conditionId) ? { color: colorOf(m.conditionId)! } : {}),
+                    ...(highlighted && m.conditionId !== highlighted ? { dim: true } : {}),
                   })),
                   ...deductions.map((d, i) => (
                     { id: `d-${i}`, points: d, kind: 'deduct' as Tool })),

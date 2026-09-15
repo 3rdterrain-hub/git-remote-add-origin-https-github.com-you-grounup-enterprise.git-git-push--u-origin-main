@@ -487,6 +487,7 @@ export interface ProposalRow {
   totalPrice: number;
   validityDays: number;
   coverLetter: string | null;
+  commercialTerms: string | null;
   paymentTerms: string | null;
   showLineDetail: boolean;
   showUnitPrices: boolean;
@@ -504,7 +505,7 @@ export interface ProposalRow {
 export const loadProposals: Query<ProposalRow[]> = async (client) => {
   const rows = unwrap(await client
     .from('proposals')
-    .select('id, number, title, status, total_price, validity_days, cover_letter, payment_terms, show_line_detail, show_unit_prices, issued_at, viewed_at, accepted_at, accepted_by_name, declined_at, estimate_version_id, customers(name), estimate_versions(version_number, estimates!estimate_versions_estimate_id_fkey(number))')
+    .select('id, number, title, status, total_price, validity_days, cover_letter, commercial_terms, payment_terms, show_line_detail, show_unit_prices, issued_at, viewed_at, accepted_at, accepted_by_name, declined_at, estimate_version_id, customers(name), estimate_versions(version_number, estimates!estimate_versions_estimate_id_fkey(number))')
     .order('created_at', { ascending: false })
     .limit(200)) as Array<Record<string, unknown>>;
 
@@ -519,6 +520,7 @@ export const loadProposals: Query<ProposalRow[]> = async (client) => {
       totalPrice: num(p.total_price),
       validityDays: Number(p.validity_days ?? 30),
       coverLetter: (p.cover_letter as string | null) ?? null,
+      commercialTerms: (p.commercial_terms as string | null) ?? null,
       paymentTerms: (p.payment_terms as string | null) ?? null,
       showLineDetail: Boolean(p.show_line_detail),
       showUnitPrices: Boolean(p.show_unit_prices),
@@ -1484,6 +1486,71 @@ export async function issueProposal(
     p_show_line_detail: input.showLineDetail ?? true,
     p_show_unit_prices: input.showUnitPrices ?? true,
   });
+}
+
+/**
+ * Start a proposal without sending it.
+ *
+ * `proposals.status` has allowed `'draft'` since migration 0006 and the
+ * immutability trigger has had a `draft` branch since 0013 — both unreachable,
+ * because `issue_proposal` inserts straight at `'issued'`. There was no moment
+ * at which a proposal was editable, which is why `commercial_terms` and
+ * `payment_terms` were written by nothing at all.
+ */
+export async function draftProposal(
+  client: RpcCapable,
+  input: {
+    versionId: string; title?: string; coverLetter?: string;
+    commercialTerms?: string; paymentTerms?: string; validityDays?: number;
+    showLineDetail?: boolean; showUnitPrices?: boolean;
+  },
+): Promise<string> {
+  return rpc<string>(client, 'draft_proposal', {
+    p_version: input.versionId,
+    p_title: input.title?.trim() || null,
+    p_cover_letter: input.coverLetter?.trim() || null,
+    p_commercial_terms: input.commercialTerms?.trim() || null,
+    p_payment_terms: input.paymentTerms?.trim() || null,
+    p_validity_days: input.validityDays ?? 30,
+    p_show_line_detail: input.showLineDetail ?? true,
+    p_show_unit_prices: input.showUnitPrices ?? true,
+  });
+}
+
+/** Change a draft. Undefined leaves a field where it was. */
+export async function updateProposal(
+  client: RpcCapable,
+  proposalId: string,
+  edit: {
+    title?: string; coverLetter?: string | null;
+    commercialTerms?: string | null; paymentTerms?: string | null;
+    validityDays?: number; showLineDetail?: boolean; showUnitPrices?: boolean;
+  },
+): Promise<void> {
+  await rpc(client, 'update_proposal', {
+    p_proposal: proposalId,
+    p_title: edit.title?.trim() || null,
+    p_cover_letter: edit.coverLetter ?? null,
+    p_commercial_terms: edit.commercialTerms ?? null,
+    p_payment_terms: edit.paymentTerms ?? null,
+    p_validity_days: edit.validityDays ?? null,
+    p_show_line_detail: edit.showLineDetail ?? null,
+    p_show_unit_prices: edit.showUnitPrices ?? null,
+  });
+}
+
+/** Send a drafted proposal. The estimate is re-checked, because a draft can sit. */
+export async function issueDraftedProposal(
+  client: RpcCapable, proposalId: string,
+): Promise<void> {
+  await rpc(client, 'issue_drafted_proposal', { p_proposal: proposalId });
+}
+
+/** Throw away one that was never sent. An issued one is withdrawn instead. */
+export async function discardProposalDraft(
+  client: RpcCapable, proposalId: string,
+): Promise<void> {
+  await rpc(client, 'discard_proposal_draft', { p_proposal: proposalId });
 }
 
 /**
