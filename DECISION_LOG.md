@@ -11,6 +11,73 @@ Newest first.
 
 ---
 
+## D-040 · 2026-09-15 · A field report can be filled in, and handed in
+
+**Decision.** Migration 0182 gives `daily_report_labor` and
+`daily_report_equipment` their first writers, and `submit_daily_report`
+performs the freeze. A submitted report refuses further change; an empty one
+cannot be submitted.
+
+**Reason.** `create_daily_report` made the header and said why it left it open —
+"submitting is what freezes it, and a report created already frozen could never
+be filled in." Nothing was ever built on that. **No writer for the crews, none
+for the machines, and nothing that could set `submitted_at`**, so a
+superintendent could create a day and then do nothing else with it.
+
+The cost was larger than the missing form. `reporting_labor_reconciliation`
+(0044) compares the hours a field report claims against approved timecards and
+**is read by the Workforce screen**. With no writer on the report side it could
+only ever answer "no daily report" — for every project, every day — a
+reconciliation with one side permanently blank, presented as a finding.
+
+**Details.** A crew line takes a classification rather than a person: a daily
+report is what a superintendent writes at the end of the day, and naming every
+individual is the timecard's job — asking for it here is how a field report
+stops being filled in. Operating, idle and down hours are kept apart because
+only one of the three is productive; a machine that idled for six hours cost
+money and moved nothing, and folding them together loses the distinction that
+makes the number worth recording.
+
+**Considered.** `my_report_labor` and `my_report_equipment` views. Written and
+removed before the migration was applied: the crews and machines already come
+back embedded on the report `loadDailyReports` reads, and a second way to read
+the same rows is how two screens come to disagree about one day.
+
+**Affects.** `daily_reports`, `components/project/field-report-detail.tsx`.
+
+**Status.** Active. Migration 0182, 11 db tests.
+
+---
+
+## D-041 · 2026-09-15 · A form is not reset by a refetch, and a tab is not rendered without a trigger
+
+**Decision.** Two guards, both from defects found by driving the running app
+rather than by reading it.
+
+**A tab body with no trigger fails the build.**
+`tests/governance/every-tab-can-be-reached.test.ts` walks every `.tsx` file and
+refuses a `TabsContent` with no matching `TabsTrigger`, or a trigger opening
+onto nothing.
+
+**Reason.** The project page grew a "Budgeted work" tab whose content rendered
+into a tab nobody could select — an edit that silently matched nothing. Nothing
+failed: the page looked complete, 5,000 tests passed, and the feature was
+invisible. That is the door defect in different clothes — a door with no reader
+is a function nothing calls; a tab body with no trigger is a screen nothing
+opens — so it gets the same treatment as `build-door-inventory.mjs`.
+
+**A form keyed on a query result is keyed on its id, not the object.**
+`BrandingSettings` reset its fields whenever the company object's identity
+changed, and `refetch()` hands back a new object every time — so a refetch
+landing mid-typing wiped what had been typed back to the stored value. It
+surfaced as an intermittently failing test, which is the cheap version of the
+same bug: in the application it is somebody's edit disappearing under them.
+
+**Status.** Active. 3 governance tests; the branding suite green on three
+consecutive runs.
+
+---
+
 ## D-039 · 2026-09-15 · A change order is worth the sum of its lines
 
 **Decision.** `app.add_change_order_item` is the only writer of

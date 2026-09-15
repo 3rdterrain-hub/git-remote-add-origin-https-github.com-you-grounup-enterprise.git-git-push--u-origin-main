@@ -57,6 +57,8 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | R-037 | Progress is reported by the field, and an unreported project says so rather than showing zero | this session — a permanent false margin-fade alarm on every awarded job | high | `project_tasks`, `production_actuals` | migration 0179, `components/project/budgeted-work.tsx` | `work-reported-rather-than-assumed.test.ts` | tested |
 | R-038 | The field reports a day's production in quantity and hours, against a budgeted task | this session — 0179's rollup had no source | high | `production_actuals` | migration 0180, `components/project/reported-days.tsx` | `the-field-says-what-it-did.test.ts` | tested |
 | R-039 | A change order is priced, and is worth the sum of its lines | this session — every change order was worth $0 forever | high | `change_order_items` | migration 0181, `components/project/change-order-pricing.tsx` | `a-change-order-that-is-worth-something.test.ts` | tested |
+| R-040 | A field report records its crews and machines, and is handed in | this session — created, never fillable, never submittable | high | `daily_reports` | migration 0182, `components/project/field-report-detail.tsx` | `a-field-report-you-can-fill-in.test.ts` | tested |
+| R-041 | No tab renders without a way to open it | this session — the budgeted work tab had no trigger | medium | `apps/web/src` | `tests/governance/every-tab-can-be-reached.test.ts` | same | tested |
 
 ---
 
@@ -125,7 +127,6 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-007 | Proposals cannot be drafted, so `commercial_terms` and `payment_terms` are unwritable | `issue_proposal` inserts at status `issued`; the immutability trigger's `draft` branch is unreachable | Add a draft state, or drop the two columns |
 | O-008 | `proposal_line_items` holds no rows | Not a defect — 0111 freezes the estimate lines, so the live read is safe. It is the home for proposal alternates and options, which are unbuilt | Build alternates/options, or retire the table and `proposal_base_total` |
 | O-009 | `proposals.template_key` is referenced nowhere | Defaulted to `'standard'` since 0006 and read by nothing | Build proposal templates, or drop the column |
-| O-016 | `daily_report_labor` and `daily_report_equipment` have no writer | A field report can be created and never filled in | Build the field report detail |
 | O-017 | `project_costs` has no reader | Triggers post job cost into it from labor, fleet and commitments; nothing displays it | Show job cost against budget |
 | O-012 | A condition cannot yet carry sections across several sheets | PlanSwift's "Continue With": one thing traced on C-101 and C-102 with a running total. The pieces exist — a condition already spans sheets — but nothing names it or totals it per sheet | Build "Continue With" |
 | O-013 | Conditions are per estimate, not reusable from the library | `takeoff_conditions.estimate_version_id` is nullable for this; nothing writes or reads a null one yet | Build library reuse, as agreed |

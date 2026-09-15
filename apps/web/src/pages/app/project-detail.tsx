@@ -25,6 +25,7 @@
  * earned an amount nobody can compute, and those are different answers.
  */
 import { useMemo, useState } from 'react';
+import { FieldReportDetail } from '@/components/project/field-report-detail';
 import { ChangeOrderPricing } from '@/components/project/change-order-pricing';
 import { ReportedDays } from '@/components/project/reported-days';
 import { BudgetedWork } from '@/components/project/budgeted-work';
@@ -351,6 +352,14 @@ export function ProjectDetailPage() {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/*
+                    * Filling the day in and handing it in. `create_daily_report`
+                    * has described this freeze since it was written, and until
+                    * migration 0182 nothing could fill a report in or submit one.
+                    */}
+                  <FieldReportDetail report={r} editable={can('projects.write')}
+                    onChanged={() => { reportsQ.refetch(); }} />
+
                   {r.workPerformed ? (
                     <p className="text-sm leading-relaxed text-charcoal-700">{r.workPerformed}</p>
                   ) : null}

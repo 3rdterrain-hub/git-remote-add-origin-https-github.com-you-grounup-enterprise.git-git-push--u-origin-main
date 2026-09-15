@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **236** |
-| Opened by a screen | **217** |
+| Doors | **240** |
+| Opened by a screen | **221** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -72,6 +72,8 @@ None.
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
 | `add_library_category` | function | lib/data/categories.ts |
+| `add_report_equipment` | function | lib/data/project.ts |
+| `add_report_labor` | function | lib/data/project.ts |
 | `adopt_profile_markups` | function | lib/data/estimates.ts |
 | `apply_estimate_template` | function | lib/data/templates.ts |
 | `apply_line_condition` | function | lib/data/estimates.ts |
@@ -222,6 +224,7 @@ None.
 | `remove_change_order_item` | function | lib/data/project.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
+| `remove_report_line` | function | lib/data/project.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
 | `request_refund` | function | lib/data/admin.ts |
@@ -270,6 +273,7 @@ None.
 | `set_role_permissions` | function | lib/data/admin.ts |
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |
+| `submit_daily_report` | function | lib/data/project.ts |
 | `submit_lead` | function | lib/data/lead-forms.ts |
 | `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |

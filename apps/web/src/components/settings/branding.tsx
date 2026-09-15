@@ -133,11 +133,20 @@ export function BrandingSettings() {
   const [saved, setSaved] = useState(false);
   const file = useRef<HTMLInputElement>(null);
 
+  /*
+   * Keyed on the company's id, not the object.
+   *
+   * `profileQ.refetch()` hands back a new object every time, and keying on that
+   * meant any refetch landing while somebody was typing would wipe what they
+   * had typed back to the stored value. After a save the fields are set
+   * explicitly from what the database returned, so this only has to run when
+   * the company itself arrives or changes.
+   */
   useEffect(() => {
     if (!company) return;
     setPrimary(company.primaryColor);
     setAccent(company.accentColor);
-  }, [company]);
+  }, [company?.id]);
 
   const changed = Boolean(company
     && (company.primaryColor !== primary || company.accentColor !== accent));

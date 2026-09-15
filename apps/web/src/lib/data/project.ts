@@ -200,6 +200,8 @@ export const loadProjectProgress: ForProject<ProjectProgress | null> =
 // ---------------------------------------------------------------- field record
 
 export interface LaborLine {
+  /** Carried so a line can be taken back off a report that is still open. */
+  id: string;
   classification: string;
   headcount: number;
   straightHours: number;
@@ -207,6 +209,7 @@ export interface LaborLine {
 }
 
 export interface EquipmentLine {
+  id: string;
   description: string;
   units: number;
   operatingHours: number;
@@ -265,8 +268,8 @@ export const loadDailyReports: ForProject<DailyReportRow[]> = (projectId) => asy
     .from('daily_reports')
     .select('id, report_date, weather_summary, temperature_f, precipitation_in,'
       + ' work_performed, delays, delay_hours, visitors, safety_notes, crew_count, submitted_at,'
-      + ' daily_report_labor(classification, headcount, straight_hours, overtime_hours),'
-      + ' daily_report_equipment(description, units, operating_hours, idle_hours, down_hours, fuel_gallons),'
+      + ' daily_report_labor(id, classification, headcount, straight_hours, overtime_hours),'
+      + ' daily_report_equipment(id, description, units, operating_hours, idle_hours, down_hours, fuel_gallons),'
       + ' production_actuals(id, work_date, quantity_installed, unit, crew_hours, crew_size,'
       + ' actual_per_hour, notes, project_tasks(name),'
       + ' production_rates(code, method_code, rate_per_hour, utilization_factor))')
@@ -288,12 +291,14 @@ export const loadDailyReports: ForProject<DailyReportRow[]> = (projectId) => asy
     crewCount: num(r.crew_count),
     submittedAt: text(r.submitted_at),
     labor: rows(r.daily_report_labor).map((l) => ({
+      id: String(l.id),
       classification: String(l.classification),
       headcount: num(l.headcount),
       straightHours: num(l.straight_hours),
       overtimeHours: num(l.overtime_hours),
     })),
     equipment: rows(r.daily_report_equipment).map((e) => ({
+      id: String(e.id),
       description: String(e.description),
       units: num(e.units),
       operatingHours: num(e.operating_hours),
@@ -920,4 +925,73 @@ export async function removeChangeOrderItem(
   client: RpcCapable, itemId: string,
 ): Promise<void> {
   await call(client, 'remove_change_order_item', { p_item: itemId });
+}
+
+/**
+ * Put a crew on a field report.
+ *
+ * A classification rather than a person: a daily report is what a
+ * superintendent writes at the end of the day — "four operators, ten hours" —
+ * and it is reconciled against timecards afterwards rather than being one.
+ */
+export async function addReportLabor(
+  client: RpcCapable,
+  input: {
+    reportId: string; classification: string; headcount: number;
+    straightHours: number; overtimeHours?: number; notes?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'add_report_labor', {
+    p_report: input.reportId,
+    p_classification: input.classification.trim(),
+    p_headcount: input.headcount,
+    p_straight_hours: input.straightHours,
+    p_overtime_hours: input.overtimeHours ?? 0,
+    p_notes: input.notes ?? null,
+  });
+}
+
+/**
+ * Put a machine on a field report.
+ *
+ * Operating, idle and down are three different facts and only one is
+ * productive — a machine that idled cost money and moved nothing.
+ */
+export async function addReportEquipment(
+  client: RpcCapable,
+  input: {
+    reportId: string; description: string; operatingHours: number;
+    units?: number; idleHours?: number; downHours?: number;
+    fuelGallons?: number; notes?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'add_report_equipment', {
+    p_report: input.reportId,
+    p_description: input.description.trim(),
+    p_operating_hours: input.operatingHours,
+    p_units: input.units ?? 1,
+    p_idle_hours: input.idleHours ?? 0,
+    p_down_hours: input.downHours ?? 0,
+    p_fuel_gallons: input.fuelGallons ?? 0,
+    p_notes: input.notes ?? null,
+  });
+}
+
+/** Take a crew or machine line back off a report that has not been handed in. */
+export async function removeReportLine(
+  client: RpcCapable, lineId: string, kind: 'labor' | 'equipment',
+): Promise<void> {
+  await call(client, 'remove_report_line', { p_line: lineId, p_kind: kind });
+}
+
+/**
+ * Hand the day in, which is what freezes it.
+ *
+ * `create_daily_report` has described this freeze since it was written and
+ * nothing could perform it, so no field report had ever been submitted.
+ */
+export async function submitDailyReport(
+  client: RpcCapable, reportId: string,
+): Promise<void> {
+  await call(client, 'submit_daily_report', { p_report: reportId });
 }

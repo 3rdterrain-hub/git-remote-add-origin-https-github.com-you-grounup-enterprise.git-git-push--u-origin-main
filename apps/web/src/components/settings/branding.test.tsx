@@ -160,6 +160,13 @@ describe('the branding tab', () => {
     const user = userEvent.setup();
     render(<BrandingSettings />);
     const accent = await screen.findByLabelText('Accent color');
+    /*
+     * Wait for the company to land before typing. The box exists before the
+     * query answers, and typing into it first meant the arriving value
+     * overwrote what was typed — the Save button then stayed disabled and this
+     * test failed intermittently rather than always.
+     */
+    await waitFor(() => expect(accent).toHaveValue('#F6C101'));
     await user.clear(accent);
     await user.type(accent, '#C2410C');
     await user.click(screen.getByRole('button', { name: 'Save branding' }));
