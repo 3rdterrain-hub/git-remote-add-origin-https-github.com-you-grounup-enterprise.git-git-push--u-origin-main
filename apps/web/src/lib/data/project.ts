@@ -338,7 +338,14 @@ export const loadDailyReports: ForProject<DailyReportRow[]> = (projectId) => asy
 
 // --------------------------------------------------------------- change orders
 
-export interface ChangeOrderItem {
+/**
+ * A change order line as the list embeds it.
+ *
+ * Thinner than `ChangeOrderItem` below, which comes from `my_change_order_items`
+ * and carries the id and the margin. The embed exists so the list can show what
+ * a change order is made of without a second query per row.
+ */
+export interface EmbeddedChangeOrderItem {
   description: string;
   quantity: number;
   unit: string | null;
@@ -360,7 +367,7 @@ export interface ChangeOrderRow {
   submittedAt: string | null;
   decidedAt: string | null;
   executedAt: string | null;
-  items: ChangeOrderItem[];
+  items: EmbeddedChangeOrderItem[];
 }
 
 export const loadChangeOrders: ForProject<ChangeOrderRow[]> = (projectId) => async (client) => {
@@ -834,4 +841,83 @@ export async function withdrawProductionReport(
   client: RpcCapable, reportId: string,
 ): Promise<void> {
   await call(client, 'withdraw_production_report', { p_report: reportId });
+}
+
+/** One priced line of a change order. */
+export interface ChangeOrderItem {
+  id: string;
+  changeOrderId: string;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  unitPrice: number;
+  costAmount: number;
+  priceAmount: number;
+  /** What the owner is asked for, less what the work takes. */
+  margin: number;
+  costCode: string | null;
+}
+
+/**
+ * The priced lines of a change order.
+ *
+ * `change_order_items` has existed since migration 0013 and held no rows until
+ * 0181, so every change order was worth $0.00 — and a change order at zero does
+ * not look broken, it looks unpriced.
+ */
+export const loadChangeOrderItems = (changeOrderId: string): Query<ChangeOrderItem[]> =>
+  async (client) => {
+    const rows = unwrap(await client
+      .from('my_change_order_items')
+      .select('id, change_order_id, description, quantity, unit, unit_price, cost_amount, price_amount, margin, cost_code')
+      .eq('change_order_id', changeOrderId)
+      .order('sort_order')) as Array<Record<string, unknown>>;
+
+    return rows.map((i) => ({
+      id: String(i.id),
+      changeOrderId: String(i.change_order_id),
+      description: String(i.description),
+      quantity: Number(i.quantity ?? 0),
+      unit: (i.unit as string | null) ?? null,
+      unitPrice: Number(i.unit_price ?? 0),
+      costAmount: Number(i.cost_amount ?? 0),
+      priceAmount: Number(i.price_amount ?? 0),
+      margin: Number(i.margin ?? 0),
+      costCode: (i.cost_code as string | null) ?? null,
+    }));
+  };
+
+/**
+ * Put a priced line on a change order.
+ *
+ * Cost and price are different questions: the cost is what the work takes, the
+ * price is what the owner is asked for, and the gap is the margin on the
+ * change. Left out, the price becomes the cost — a change order done for
+ * nothing, which is at least visible, rather than a silent zero.
+ */
+export async function addChangeOrderItem(
+  client: RpcCapable,
+  input: {
+    changeOrderId: string; description: string; costAmount: number;
+    priceAmount?: number | null; quantity?: number | null; unit?: string | null;
+    unitPrice?: number | null; costCodeId?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'add_change_order_item', {
+    p_change_order: input.changeOrderId,
+    p_description: input.description.trim(),
+    p_cost_amount: input.costAmount,
+    p_price_amount: input.priceAmount ?? null,
+    p_quantity: input.quantity ?? null,
+    p_unit: input.unit ?? null,
+    p_unit_price: input.unitPrice ?? null,
+    p_cost_code: input.costCodeId ?? null,
+  });
+}
+
+/** Take a line off. The change order's impact falls with it. */
+export async function removeChangeOrderItem(
+  client: RpcCapable, itemId: string,
+): Promise<void> {
+  await call(client, 'remove_change_order_item', { p_item: itemId });
 }

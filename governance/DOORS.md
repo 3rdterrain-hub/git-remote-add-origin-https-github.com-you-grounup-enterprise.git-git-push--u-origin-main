@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **233** |
-| Opened by a screen | **214** |
+| Doors | **236** |
+| Opened by a screen | **217** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -68,6 +68,7 @@ None.
 |---|---|---|
 | `accept_finding_as_line` | function | lib/data/plans.ts |
 | `add_assembly_step` | function | lib/data/assemblies.ts |
+| `add_change_order_item` | function | lib/data/project.ts |
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
 | `add_library_category` | function | lib/data/categories.ts |
@@ -153,6 +154,7 @@ None.
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_assignments` | view | lib/data/field-work.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
+| `my_change_order_items` | view | lib/data/project.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_contacts` | view | lib/data/crm-pipeline.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
@@ -217,6 +219,7 @@ None.
 | `register_document_version` | function | lib/data/plans.ts |
 | `reject_finding` | function | lib/data/plans.ts |
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
+| `remove_change_order_item` | function | lib/data/project.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `rename_library_category` | function | lib/data/categories.ts |

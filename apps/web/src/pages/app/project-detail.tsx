@@ -25,6 +25,7 @@
  * earned an amount nobody can compute, and those are different answers.
  */
 import { useMemo, useState } from 'react';
+import { ChangeOrderPricing } from '@/components/project/change-order-pricing';
 import { ReportedDays } from '@/components/project/reported-days';
 import { BudgetedWork } from '@/components/project/budgeted-work';
 import { Link, useParams } from 'react-router-dom';
@@ -284,6 +285,11 @@ export function ProjectDetailPage() {
 
       <Tabs value={tab} onValueChange={showTab}>
         <TabsList>
+          {/*
+            * The work the award carried across. First, because it is what the
+            * job is — the other tabs are what has happened to it since.
+            */}
+          <TabsTrigger value="work">Budgeted work</TabsTrigger>
           <TabsTrigger value="field">Field reports ({reports.length})</TabsTrigger>
           <TabsTrigger value="production">Production</TabsTrigger>
           <TabsTrigger value="weather">Weather</TabsTrigger>
@@ -638,6 +644,15 @@ export function ProjectDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Alert tone="neutral" title="Reason">{c.reason}</Alert>
+
+                  {/*
+                    * Pricing it. `change_order_items` has existed since 0013
+                    * and held no rows until 0181, so every change order was
+                    * worth $0.00 — which reads as unpriced and counts as zero.
+                    */}
+                  <ChangeOrderPricing changeOrderId={c.id} status={c.status}
+                    editable={can('projects.write')}
+                    onChanged={() => { changesQ.refetch(); }} />
 
                   {c.items.length > 0 ? (
                     <Table>

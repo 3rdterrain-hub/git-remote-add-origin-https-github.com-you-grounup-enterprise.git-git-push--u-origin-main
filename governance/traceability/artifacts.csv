@@ -276,6 +276,7 @@ TST-engine-units,test,engine/units.test.ts,packages/engine/tests/units.test.ts,E
 TST-pdf-documents,test,pdf/documents.test.ts,packages/pdf/tests/documents.test.ts,ENGINE
 TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGINE
 TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests/db/a-category-you-can-manage.test.ts,ENGINE
+TST-db-a-change-order-that-is-worth-something,test,db/a-change-order-that-is-worth-something.test.ts,tests/db/a-change-order-that-is-worth-something.test.ts,ENGINE
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
@@ -415,6 +416,7 @@ TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrat
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
 TST-gov-every-door-has-a-reader,test,gov/every-door-has-a-reader.test.ts,tests/governance/every-door-has-a-reader.test.ts,ENGINE
 TST-gov-every-stat-tile-does-something,test,gov/every-stat-tile-does-something.test.ts,tests/governance/every-stat-tile-does-something.test.ts,ENGINE
+TST-gov-every-tab-can-be-reached,test,gov/every-tab-can-be-reached.test.ts,tests/governance/every-tab-can-be-reached.test.ts,ENGINE
 TST-gov-no-compiled-output-beside-the-source,test,gov/no-compiled-output-beside-the-source.test.ts,tests/governance/no-compiled-output-beside-the-source.test.ts,ENGINE
 TST-gov-pipeline,test,gov/pipeline.test.ts,tests/governance/pipeline.test.ts,ENGINE
 TST-gov-registry,test,gov/registry.test.ts,tests/governance/registry.test.ts,ENGINE

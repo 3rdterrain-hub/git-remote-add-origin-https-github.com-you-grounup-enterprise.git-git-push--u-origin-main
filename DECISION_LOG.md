@@ -11,6 +11,52 @@ Newest first.
 
 ---
 
+## D-039 · 2026-09-15 · A change order is worth the sum of its lines
+
+**Decision.** `app.add_change_order_item` is the only writer of
+`change_order_items`, and a trigger recomputes `change_orders.cost_impact` and
+`price_impact` as the sum of them. Cost and price are asked separately. Pricing
+stops when the change order is approved or executed.
+
+**Reason.** Both header columns have existed since migration 0007 under a
+comment reading "Priced by the same deterministic engine as the base estimate",
+and `change_order_items` since 0013 with row level security, a tenant trigger
+and an index. **Nothing ever wrote an item.** `create_change_order` prices
+nothing — correctly, since a change order is raised before anybody knows what it
+costs — and nothing was ever built to price it afterwards.
+
+So every change order this platform raised was worth **$0.00, permanently**. A
+change order at zero does not look broken: it looks like one nobody has priced
+yet, on a screen offering no way to price it, while rolling into the revised
+contract value as a real zero.
+
+**Recomputed, never typed** — the rule from 0170, D-034 and D-037. A typed
+impact stops agreeing with its own detail the first time a line changes.
+
+**Cost and price are separate questions.** The cost is what the work takes; the
+price is what the owner is asked for; the gap is the margin on the change, and
+it is exactly the number that disappears when only a total is shown. Leaving the
+price out gives a change order done *at cost* — a real decision, and visible —
+rather than defaulting to zero, which would make "done for nothing" and "not
+priced yet" the same number and reintroduce the defect being fixed.
+
+**A line prices from its rate where it has one.** A line stating both a rate and
+a total can disagree with itself, so quantity times unit price wins.
+
+**And it stops when the change order does.** `forbid_executed_change_order_edit`
+(0032) freezes the impact of an approved or executed change order because that
+figure is the amendment to the contract. Items cannot be added or removed
+either, and the recompute leaves a frozen header alone rather than fighting the
+trigger protecting it — a trigger arguing with a trigger produces a message
+about neither.
+
+**Affects.** `change_order_items`, `change_orders`,
+`components/project/change-order-pricing.tsx`.
+
+**Status.** Active. Migration 0181, 11 db tests.
+
+---
+
 ## D-038 · 2026-09-14 · The field says what it did, in quantity and hours
 
 **Decision.** `app.report_production` (migration 0180) is the only writer of
