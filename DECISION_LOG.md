@@ -11,6 +11,61 @@ Newest first.
 
 ---
 
+## D-043 · 2026-09-15 · A hand edit does not clear the float
+
+**Decision.** `app.update_schedule_activity` writes no engine output. Moving a
+bar leaves `total_float_days`, `free_float_days`, `is_critical` and
+`calculation_id` exactly as the last calculation left them, and the screen
+reports the float as stale by comparing the activity's `updated_at` to the
+calculation's `calculated_at`.
+
+**Reason.** The obvious alternative was to blank them on an edit so nothing
+stale is ever shown. That is still *writing* an engine output, and migration
+0158's trigger refuses it — correctly. A function that talked its way past the
+guard would be the hole the guard exists to close. And a blanked float cannot be
+judged: "not calculated" and "calculated before you moved this" are different
+facts, and only one of them tells a scheduler to press the button.
+
+**Alternatives.** Clear the float inside `app.engine_is_writing()`; add a
+`float_is_stale` column; refuse the edit until recalculated.
+
+**Authorized by.** Migration 0158's own reasoning, applied as written.
+
+**Affects.** `update_schedule_activity`, `schedule.tsx`, the activity editor.
+
+**Status.** Active.
+
+---
+
+## D-042 · 2026-09-15 · One activity per task, joined by the key that was always there
+
+**Decision.** `project_tasks` is the cost object — budget, actual hours, percent
+complete. `schedule_activities` is the time object — dates, duration, float,
+critical path. `app.build_schedule_from_tasks` creates one activity per task and
+fills in `schedule_activities.project_task_id`, which has referenced
+`project_tasks` since migration 0015 and had never been populated by anything.
+`task_dependencies` (0007) is left unused rather than given a second writer.
+
+**Reason.** The two tables had been drifting into duplicates: `project_tasks`
+carries `planned_start`, `planned_finish` and `is_critical_path`, and
+`task_dependencies` duplicates `schedule_dependencies` field for field. Two
+tables answering "when does this happen" is two answers, and the one nobody
+calculates wins by accident. Splitting them on cost versus time keeps each
+answer in one place, and the FK that joins them already existed.
+
+**Alternatives.** Schedule `project_tasks` directly and retire
+`schedule_activities` — rejected: the engine, the baselines, the calculations
+and the variance report are all written against `schedule_activities`. Keep both
+dependency tables — rejected for the same reason.
+
+**Authorized by.** Stated to the user before building, at "start on schedule".
+
+**Affects.** Migration 0183, the schedule page, O-018.
+
+**Status.** Active.
+
+---
+
 ## D-040 · 2026-09-15 · A field report can be filled in, and handed in
 
 **Decision.** Migration 0182 gives `daily_report_labor` and

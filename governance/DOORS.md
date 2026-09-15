@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **240** |
-| Opened by a screen | **221** |
+| Doors | **254** |
+| Opened by a screen | **235** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -74,13 +74,17 @@ None.
 | `add_library_category` | function | lib/data/categories.ts |
 | `add_report_equipment` | function | lib/data/project.ts |
 | `add_report_labor` | function | lib/data/project.ts |
+| `add_schedule_activity` | function | lib/data/schedule.ts |
+| `add_schedule_dependency` | function | lib/data/schedule.ts |
 | `adopt_profile_markups` | function | lib/data/estimates.ts |
 | `apply_estimate_template` | function | lib/data/templates.ts |
 | `apply_line_condition` | function | lib/data/estimates.ts |
 | `apply_line_resource_suggestions` | function | lib/data/estimates.ts |
 | `apply_takeoff_to_line` | function | lib/data/takeoff.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
+| `assign_resource` | function | lib/data/schedule.ts |
 | `award_estimate_version` | function | lib/data/estimates.ts |
+| `build_schedule_from_tasks` | function | lib/data/schedule.ts |
 | `claim_first_superadmin` | function | lib/data/admin.ts |
 | `clear_allowance` | function | lib/data/admin.ts |
 | `clear_billing_terms` | function | lib/data/admin.ts |
@@ -129,6 +133,7 @@ None.
 | `earnings` | function | lib/data/admin.ts |
 | `edit_comment` | function | lib/data/comments.ts |
 | `end_break` | function | lib/data/time-clock.ts |
+| `ensure_work_calendar` | function | lib/data/schedule.ts |
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `haul_cost` | function | lib/data/library.ts |
 | `hire_operator` | function | lib/data/admin.ts |
@@ -186,6 +191,7 @@ None.
 | `my_project_tasks` | view | lib/data/field-work.ts |
 | `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
+| `my_schedulable_projects` | view | lib/data/schedule.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_sheet_text_coverage` | view | lib/data/plans.ts |
 | `my_site_weather` | view | lib/data/project.ts |
@@ -199,6 +205,7 @@ None.
 | `my_unrated_equipment` | view | lib/data/estimates.ts |
 | `my_weather` | view | lib/data/dashboard.ts, lib/data/project.ts |
 | `my_weather_now` | view | lib/data/project.ts |
+| `my_work_calendars` | view | lib/data/schedule.ts |
 | `next_company_haul_code` | function | lib/data/library.ts |
 | `open_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `open_support_session` | function | lib/data/admin.ts |
@@ -220,11 +227,14 @@ None.
 | `record_visit` | function | lib/analytics.ts |
 | `register_document_version` | function | lib/data/plans.ts |
 | `reject_finding` | function | lib/data/plans.ts |
+| `release_resource` | function | lib/data/schedule.ts |
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
 | `remove_change_order_item` | function | lib/data/project.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `remove_report_line` | function | lib/data/project.ts |
+| `remove_schedule_activity` | function | lib/data/schedule.ts |
+| `remove_schedule_dependency` | function | lib/data/schedule.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
 | `request_refund` | function | lib/data/admin.ts |
@@ -283,7 +293,11 @@ None.
 | `update_estimate_version` | function | lib/data/estimates.ts |
 | `update_opportunity` | function | lib/data/crm-pipeline.ts |
 | `update_proposal` | function | lib/data/estimates.ts |
+| `update_resource_assignment` | function | lib/data/schedule.ts |
+| `update_schedule_activity` | function | lib/data/schedule.ts |
+| `update_schedule_dependency` | function | lib/data/schedule.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |
+| `update_work_calendar` | function | lib/data/schedule.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
 | `withdraw_production_report` | function | lib/data/project.ts |
 | `workable_days_at` | function | lib/data/project.ts |

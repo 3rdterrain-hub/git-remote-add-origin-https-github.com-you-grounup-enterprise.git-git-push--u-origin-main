@@ -288,6 +288,7 @@ TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-proposal-you-can-draft,test,db/a-proposal-you-can-draft.test.ts,tests/db/a-proposal-you-can-draft.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
+TST-db-a-schedule-you-can-build,test,db/a-schedule-you-can-build.test.ts,tests/db/a-schedule-you-can-build.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE

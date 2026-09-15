@@ -17,6 +17,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type {
   ScheduleActivityRow, ScheduleCalculationRow, ResourceAssignmentRow, ProjectOption,
+  ScheduleDependencyRow, AssignableResource, SchedulableProject,
 } from '@/lib/data/schedule';
 
 const hoisted = vi.hoisted(() => ({
@@ -28,6 +29,11 @@ const hoisted = vi.hoisted(() => ({
   recalculated: [] as Array<[string, string]>,
   fail: null as string | null,
   can: true,
+  dependencies: [] as ScheduleDependencyRow[],
+  resources: [] as AssignableResource[],
+  schedulable: null as SchedulableProject | null,
+  /* What the page actually asked the database to do, in order. */
+  wrote: [] as Array<[string, unknown]>,
 }));
 
 vi.mock('@/lib/supabase', () => ({
@@ -48,6 +54,38 @@ vi.mock('@/lib/data/schedule', async () => {
     loadScheduleActivities: () => async () => hoisted.activities,
     loadLatestScheduleCalculation: () => async () => hoisted.calculation,
     loadResourceAssignments: () => async () => hoisted.assignments,
+    loadScheduleDependencies: () => async () => hoisted.dependencies,
+    loadAssignableResources: async () => hoisted.resources,
+    loadSchedulable: () => async () => hoisted.schedulable,
+    loadWorkCalendars: async () => [],
+    buildScheduleFromTasks: async (_c: unknown, project: string, start: string | null) => {
+      hoisted.wrote.push(['build', { project, start }]);
+      return 3;
+    },
+    addScheduleActivity: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['add-activity', input]); return 'new-a';
+    },
+    updateScheduleActivity: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['update-activity', input]);
+    },
+    removeScheduleActivity: async (_c: unknown, id: unknown) => {
+      hoisted.wrote.push(['remove-activity', id]);
+    },
+    addScheduleDependency: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['link', input]); return 'new-d';
+    },
+    updateScheduleDependency: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['relink', input]);
+    },
+    removeScheduleDependency: async (_c: unknown, id: unknown) => {
+      hoisted.wrote.push(['unlink', id]);
+    },
+    assignResource: async (_c: unknown, input: unknown) => {
+      hoisted.wrote.push(['assign', input]); return 'new-r';
+    },
+    releaseResource: async (_c: unknown, id: unknown) => {
+      hoisted.wrote.push(['release', id]);
+    },
     recalculateSchedule: async (c: string, p: string) => {
       if (hoisted.fail) throw new Error(hoisted.fail);
       hoisted.recalculated.push([c, p]);
@@ -67,7 +105,8 @@ const activity = (over: Partial<ScheduleActivityRow> = {}): ScheduleActivityRow 
   earlyStart: null, earlyFinish: null, lateStart: null, lateFinish: null,
   calculationId: null,
   isCritical: false, isMilestone: false, crewName: null,
-  constraintType: null, constraintDate: null, sortOrder: 10, ...over,
+  constraintType: null, constraintDate: null, sortOrder: 10,
+  projectTaskId: null, updatedAt: '2026-05-01T00:00:00Z', ...over,
 });
 
 const calculation = (over: Partial<ScheduleCalculationRow> = {}): ScheduleCalculationRow => ({
@@ -82,11 +121,13 @@ const show = () => render(<MemoryRouter><SchedulePage /></MemoryRouter>);
 beforeEach(() => {
   hoisted.configured = true;
   hoisted.can = true;
-  hoisted.projects = [{ id: 'p-1', number: 'PRJ-2026-0011', name: 'Maumee Commerce Park', status: 'active' }];
+  hoisted.projects = [{ id: 'p-1', number: 'PRJ-2026-0011', name: 'Maumee Commerce Park', status: 'active', plannedStart: '2026-05-04' }];
   hoisted.activities = [activity()];
   hoisted.calculation = null;
   hoisted.assignments = [];
   hoisted.recalculated = []; hoisted.fail = null;
+  hoisted.dependencies = []; hoisted.resources = [];
+  hoisted.schedulable = null; hoisted.wrote = [];
 });
 
 describe('a schedule nobody has calculated', () => {
@@ -276,5 +317,142 @@ describe('without a workspace', () => {
     hoisted.configured = false;
     show();
     await waitFor(() => expect(screen.queryByText('Strip topsoil')).toBeNull());
+  });
+});
+
+/**
+ * The doors, added by migration 0183.
+ *
+ * Until it, nothing anywhere wrote an activity, a dependency, a resource
+ * assignment or a working week. The engine was finished, tested and deployed,
+ * the governance around it was written twice, and the page that showed the
+ * result could never have anything to show.
+ */
+describe('building a schedule that did not exist', () => {
+  it('offers to build activities from the tasks that were budgeted', async () => {
+    hoisted.activities = [];
+    hoisted.schedulable = { taskCount: 3, unscheduledTaskCount: 3, activityCount: 0 };
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Build 3 activities/i }));
+    await waitFor(() => expect(hoisted.wrote[0]![0]).toBe('build'));
+    expect(hoisted.wrote[0]![1]).toMatchObject({ project: 'p-1' });
+  });
+
+  it('does not offer when every task already has an activity', async () => {
+    hoisted.schedulable = { taskCount: 3, unscheduledTaskCount: 0, activityCount: 3 };
+    show();
+    await screen.findByText('Strip topsoil');
+    expect(screen.queryByRole('button', { name: /Build .* activit/i })).toBeNull();
+  });
+
+  it('offers to add an activity that came from no priced line', async () => {
+    hoisted.activities = [];
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Add an activity/i }));
+    await user.type(screen.getByLabelText(/What it is/i), 'Await permit');
+    await user.click(screen.getByLabelText(/a milestone/i));
+    await user.click(screen.getByRole('button', { name: /^Add it$/i }));
+    await waitFor(() => expect(hoisted.wrote[0]![0]).toBe('add-activity'));
+    expect(hoisted.wrote[0]![1]).toMatchObject({ name: 'Await permit', isMilestone: true });
+  });
+
+  it('opens the activity under its own row', async () => {
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Strip topsoil/ }));
+    expect((await screen.findByLabelText('Activity')).getAttribute('value')).toBe('Strip topsoil');
+  });
+
+  it('saves a moved bar without touching the float', async () => {
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Strip topsoil/ }));
+    await user.click(await screen.findByRole('button', { name: /Save the activity/i }));
+    await waitFor(() => expect(hoisted.wrote[0]![0]).toBe('update-activity'));
+    const sent = hoisted.wrote[0]![1] as Record<string, unknown>;
+    /* The engine owns these. A form that sent one would be the hole 0158 closes. */
+    expect(Object.keys(sent)).not.toContain('totalFloatDays');
+    expect(Object.keys(sent)).not.toContain('isCritical');
+    expect(Object.keys(sent)).not.toContain('calculationId');
+  });
+
+  it('links one activity to another', async () => {
+    hoisted.activities = [activity(), activity({ id: 'a-2', name: 'Place base', wbsCode: '1.2' })];
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Strip topsoil/ }));
+    await user.selectOptions(await screen.findByLabelText(/Add a predecessor/i), 'a-2');
+    await user.click(screen.getByRole('button', { name: /^Link$/i }));
+    await waitFor(() => expect(hoisted.wrote[0]![0]).toBe('link'));
+    expect(hoisted.wrote[0]![1]).toMatchObject({
+      predecessorId: 'a-2', successorId: 'a-1', type: 'finish_to_start',
+    });
+  });
+
+  it('says what an activity waits on, and what waits on it', async () => {
+    hoisted.activities = [activity(), activity({ id: 'a-2', name: 'Place base' })];
+    hoisted.dependencies = [{
+      id: 'd-1', predecessorId: 'a-1', successorId: 'a-2',
+      dependencyType: 'finish_to_start', lagDays: 2,
+    }];
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Strip topsoil/ }));
+    expect(await screen.findByText(/1 activity waits on this one: Place base/i)).toBeTruthy();
+  });
+
+  it('puts a crew on an activity', async () => {
+    hoisted.resources = [{ id: 'c-1', kind: 'crew', label: 'Dirt crew', code: 'C1' }];
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('button', { name: /Strip topsoil/ }));
+    await user.selectOptions(await screen.findByLabelText(/Put somebody on it/i), 'crew:c-1');
+    await user.click(screen.getByRole('button', { name: /^Assign$/i }));
+    await waitFor(() => expect(hoisted.wrote[0]![0]).toBe('assign'));
+    expect(hoisted.wrote[0]![1]).toMatchObject({
+      activityId: 'a-1', kind: 'crew', crewId: 'c-1', allocation: 1,
+    });
+  });
+
+  it('says the float is from an earlier plan rather than blanking it', async () => {
+    hoisted.activities = [activity({
+      calculationId: 'calc-1', totalFloatDays: 4,
+      updatedAt: '2026-05-10T12:00:00Z',
+    })];
+    hoisted.calculation = {
+      id: 'calc-1', dataDate: '2026-05-04', engineVersion: 'engine@1',
+      projectStart: '2026-05-04', projectFinish: '2026-05-22',
+      durationWorkingDays: 15, requiredFinish: null, finishFloatDays: null,
+      criticalPath: [], warnings: [], calculatedAt: '2026-05-05T12:00:00Z',
+    };
+    show();
+    expect(await screen.findByText(/changed since the last calculation/i)).toBeTruthy();
+    /* The number itself is still on screen. Old and readable beats erased. */
+    await waitFor(() => expect(screen.getAllByText('4').length).toBeGreaterThan(0));
+  });
+
+  it('does not call a float stale when nobody has moved it', async () => {
+    hoisted.activities = [activity({
+      calculationId: 'calc-1', totalFloatDays: 4,
+      updatedAt: '2026-05-05T12:00:00Z',
+    })];
+    hoisted.calculation = {
+      id: 'calc-1', dataDate: '2026-05-04', engineVersion: 'engine@1',
+      projectStart: '2026-05-04', projectFinish: '2026-05-22',
+      durationWorkingDays: 15, requiredFinish: null, finishFloatDays: null,
+      criticalPath: [], warnings: [], calculatedAt: '2026-05-05T12:00:00Z',
+    };
+    show();
+    await screen.findByText('Strip topsoil');
+    expect(screen.queryByText(/changed since the last calculation/i)).toBeNull();
+  });
+
+  it('opens the working week, which the engine refuses to calculate without', async () => {
+    const user = userEvent.setup();
+    show();
+    await user.click(await screen.findByRole('tab', { name: /Working week/i }));
+    expect(await screen.findByText(/refuses to calculate a schedule without it/i)).toBeTruthy();
   });
 });

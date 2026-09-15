@@ -59,6 +59,15 @@ export interface ScheduleActivityRow {
   constraintType: string | null;
   constraintDate: string | null;
   sortOrder: number;
+  /** The task this was budgeted from, so an activity opens the cost it carries. */
+  projectTaskId: string | null;
+  /**
+   * When somebody last changed it. Read against the calculation's own
+   * `calculatedAt` this says whether the float on screen is still the float the
+   * engine produced. 0158 forbids clearing an engine output by hand and is
+   * right to, so staleness is shown rather than blanked.
+   */
+  updatedAt: string;
 }
 
 export interface ScheduleDependencyRow {
@@ -99,7 +108,8 @@ export const loadScheduleActivities = (projectId: string): Query<ScheduleActivit
       .select('id, wbs_code, name, planned_start, planned_finish, actual_start, actual_finish, '
         + 'duration_days, percent_complete, total_float_days, free_float_days, '
         + 'early_start, early_finish, late_start, late_finish, calculation_id, '
-        + 'is_critical, is_milestone, constraint_type, constraint_date, sort_order, crews(name)')
+        + 'is_critical, is_milestone, constraint_type, constraint_date, sort_order, '
+        + 'project_task_id, updated_at, crews(name)')
       .eq('project_id', projectId)
       .order('sort_order')
       .order('planned_start')) as unknown as Array<Record<string, unknown>>;
@@ -127,6 +137,8 @@ export const loadScheduleActivities = (projectId: string): Query<ScheduleActivit
       constraintType: (a.constraint_type as string | null) ?? null,
       constraintDate: (a.constraint_date as string | null) ?? null,
       sortOrder: Number(a.sort_order ?? 0),
+      projectTaskId: (a.project_task_id as string | null) ?? null,
+      updatedAt: String(a.updated_at),
     }));
   };
 
@@ -268,17 +280,355 @@ export const loadLatestScheduleCalculation = (projectId: string): Query<Schedule
     };
   };
 
-export interface ProjectOption { id: string; number: string; name: string; status: string }
+export interface ProjectOption {
+  id: string; number: string; name: string; status: string;
+  /** Offered as the day the first activity starts, so built dates mean something. */
+  plannedStart: string | null;
+}
 
 /** The projects a schedule could be read for, newest first. */
 export const loadScheduleProjects: Query<ProjectOption[]> = async (client) => {
   const rows = unwrap(await client
     .from('projects')
-    .select('id, number, name, status')
+    .select('id, number, name, status, planned_start')
     .in('status', ['preconstruction', 'active', 'on_hold'])
     .order('number', { ascending: false })) as Array<Record<string, unknown>>;
   return rows.map((p) => ({
     id: String(p.id), number: String(p.number),
     name: String(p.name), status: String(p.status),
+    plannedStart: (p.planned_start as string | null) ?? null,
   }));
+};
+
+// -----------------------------------------------------------------------------
+// The doors
+//
+// Everything above this line reads. Until migration 0183 there was nothing
+// below it: no screen, no function and no migration wrote `work_calendars`,
+// `schedule_activities`, `schedule_dependencies` or `resource_assignments`, so
+// the engine had never run on a real job and the "Calculate the schedule"
+// button was disabled on a condition that could never be false.
+// -----------------------------------------------------------------------------
+
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
+const call = async (client: RpcCapable, fn: string, args: Record<string, unknown>) => {
+  const { data, error } = await client.rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+export interface SchedulableProject {
+  taskCount: number;
+  /** Budgeted tasks with no activity yet — what "build the schedule" would make. */
+  unscheduledTaskCount: number;
+  activityCount: number;
+}
+
+/**
+ * How much work on this project is waiting to be scheduled.
+ *
+ * Counted in the database rather than in the browser, so the offer and the
+ * function that fulfills it read the same rows through the same rules.
+ */
+export const loadSchedulable = (projectId: string): Query<SchedulableProject | null> =>
+  async (client) => {
+    if (!projectId) return null;
+    const rows = unwrap(await client
+      .from('my_schedulable_projects')
+      .select('task_count, unscheduled_task_count, activity_count')
+      .eq('project_id', projectId)
+      .limit(1)) as unknown as Array<Record<string, unknown>>;
+    const r = rows[0];
+    if (!r) return null;
+    return {
+      taskCount: num(r.task_count),
+      unscheduledTaskCount: num(r.unscheduled_task_count),
+      activityCount: num(r.activity_count),
+    };
+  };
+
+/**
+ * Build one activity per budgeted task.
+ *
+ * Returns how many were made. Zero is a real answer and the page says so: it
+ * means every task already has an activity, which is what running it twice
+ * should do.
+ */
+export async function buildScheduleFromTasks(
+  client: RpcCapable, projectId: string, start?: string | null,
+): Promise<number> {
+  return Number(await call(client, 'build_schedule_from_tasks', {
+    p_project: projectId, p_start: start || null,
+  }));
+}
+
+/** Add an activity that came from no priced line — a permit, a cure, a milestone. */
+export async function addScheduleActivity(
+  client: RpcCapable,
+  input: {
+    projectId: string; name: string; start: string; durationDays?: number;
+    isMilestone?: boolean; wbsCode?: string | null; crewId?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'add_schedule_activity', {
+    p_project: input.projectId,
+    p_name: input.name.trim(),
+    p_start: input.start,
+    p_duration: input.durationDays ?? 1,
+    p_milestone: input.isMilestone ?? false,
+    p_wbs_code: input.wbsCode?.trim() || null,
+    p_crew: input.crewId ?? null,
+  });
+}
+
+/**
+ * Change an activity.
+ *
+ * Nothing here touches float, the critical flag or the calculation link. Those
+ * are engine outputs and 0158 refuses a write to one, which is the point: a
+ * plan moved by hand leaves the last calculation standing and visibly stale
+ * rather than silently blanked.
+ */
+export async function updateScheduleActivity(
+  client: RpcCapable,
+  input: {
+    activityId: string; name?: string | null; start?: string | null;
+    finish?: string | null; durationDays?: number | null; crewId?: string | null;
+    isMilestone?: boolean | null; wbsCode?: string | null;
+    percentComplete?: number | null; actualStart?: string | null;
+    actualFinish?: string | null; constraintType?: string | null;
+    constraintDate?: string | null; clearConstraint?: boolean;
+  },
+): Promise<void> {
+  await call(client, 'update_schedule_activity', {
+    p_activity: input.activityId,
+    p_name: input.name?.trim() || null,
+    p_start: input.start || null,
+    p_finish: input.finish || null,
+    p_duration: input.durationDays ?? null,
+    p_crew: input.crewId ?? null,
+    p_milestone: input.isMilestone ?? null,
+    p_wbs_code: input.wbsCode?.trim() || null,
+    p_percent: input.percentComplete ?? null,
+    p_actual_start: input.actualStart || null,
+    p_actual_finish: input.actualFinish || null,
+    p_constraint_type: input.constraintType || null,
+    p_constraint_date: input.constraintDate || null,
+    p_clear_constraint: input.clearConstraint ?? false,
+  });
+}
+
+/** Remove an activity. Its logic goes with it; the task it was built from stays. */
+export async function removeScheduleActivity(
+  client: RpcCapable, activityId: string,
+): Promise<void> {
+  await call(client, 'remove_schedule_activity', { p_activity: activityId });
+}
+
+/** Say that one activity follows another. */
+export async function addScheduleDependency(
+  client: RpcCapable,
+  input: {
+    predecessorId: string; successorId: string;
+    type?: ScheduleDependencyRow['dependencyType']; lagDays?: number;
+  },
+): Promise<string> {
+  return call(client, 'add_schedule_dependency', {
+    p_predecessor: input.predecessorId,
+    p_successor: input.successorId,
+    p_type: input.type ?? 'finish_to_start',
+    p_lag_days: input.lagDays ?? 0,
+  });
+}
+
+/** Change a link's type or its lag without removing and re-adding it. */
+export async function updateScheduleDependency(
+  client: RpcCapable,
+  input: {
+    linkId: string; type?: ScheduleDependencyRow['dependencyType'] | null;
+    lagDays?: number | null;
+  },
+): Promise<void> {
+  await call(client, 'update_schedule_dependency', {
+    p_link: input.linkId,
+    p_type: input.type ?? null,
+    p_lag_days: input.lagDays ?? null,
+  });
+}
+
+/** Unlink two activities. */
+export async function removeScheduleDependency(
+  client: RpcCapable, linkId: string,
+): Promise<void> {
+  await call(client, 'remove_schedule_dependency', { p_link: linkId });
+}
+
+/**
+ * Put a crew, a person, a machine or a subcontractor on an activity.
+ *
+ * Dates default to the activity's own, because the common case is "this crew on
+ * this activity" and asking for them again invites two answers to one question.
+ */
+export async function assignResource(
+  client: RpcCapable,
+  input: {
+    activityId: string; kind: ResourceAssignmentRow['kind'];
+    crewId?: string | null; employeeId?: string | null; assetId?: string | null;
+    vendorId?: string | null; startsOn?: string | null; endsOn?: string | null;
+    allocation?: number; notes?: string | null;
+  },
+): Promise<string> {
+  return call(client, 'assign_resource', {
+    p_activity: input.activityId,
+    p_kind: input.kind,
+    p_crew: input.crewId ?? null,
+    p_employee: input.employeeId ?? null,
+    p_asset: input.assetId ?? null,
+    p_vendor: input.vendorId ?? null,
+    p_starts_on: input.startsOn || null,
+    p_ends_on: input.endsOn || null,
+    p_allocation: input.allocation ?? 1,
+    p_notes: input.notes?.trim() || null,
+  });
+}
+
+/** Change the dates, the share or the note on an assignment. */
+export async function updateResourceAssignment(
+  client: RpcCapable,
+  input: {
+    assignmentId: string; startsOn?: string | null; endsOn?: string | null;
+    allocation?: number | null; notes?: string | null;
+  },
+): Promise<void> {
+  await call(client, 'update_resource_assignment', {
+    p_assignment: input.assignmentId,
+    p_starts_on: input.startsOn || null,
+    p_ends_on: input.endsOn || null,
+    p_allocation: input.allocation ?? null,
+    p_notes: input.notes?.trim() || null,
+  });
+}
+
+/** Take a crew, a person or a machine back off an activity. */
+export async function releaseResource(
+  client: RpcCapable, assignmentId: string,
+): Promise<void> {
+  await call(client, 'release_resource', { p_assignment: assignmentId });
+}
+
+export interface WorkCalendarRow {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  /** 0 is Sunday, matching every date library anyone will read this beside. */
+  workingWeekdays: number[];
+  hoursPerDay: number;
+  isDefault: boolean;
+  /** How much work is scheduled on it, so changing the day is a visible decision. */
+  activityCount: number;
+}
+
+/** The company's working weeks. */
+export const loadWorkCalendars: Query<WorkCalendarRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_work_calendars')
+    .select('id, code, name, description, working_weekdays, hours_per_day, '
+      + 'is_default, activity_count')
+    .order('is_default', { ascending: false })
+    .order('code')) as unknown as Array<Record<string, unknown>>;
+  return rows.map((c) => ({
+    id: String(c.id),
+    code: String(c.code),
+    name: String(c.name),
+    description: (c.description as string | null) ?? null,
+    workingWeekdays: ((c.working_weekdays as number[] | null) ?? []).map(Number),
+    hoursPerDay: num(c.hours_per_day),
+    isDefault: c.is_default === true,
+    activityCount: num(c.activity_count),
+  }));
+};
+
+/**
+ * Give the company a working week if it has none.
+ *
+ * The Edge Function refuses to calculate without one, and it is right to:
+ * dates produced from a week nobody agreed to are dates nobody can be held to.
+ */
+export async function ensureWorkCalendar(
+  client: RpcCapable, companyId: string,
+): Promise<string> {
+  return call(client, 'ensure_work_calendar', { p_company: companyId });
+}
+
+/** Change a working week. */
+export async function updateWorkCalendar(
+  client: RpcCapable,
+  input: {
+    calendarId: string; name?: string | null; description?: string | null;
+    workingWeekdays?: number[] | null; hoursPerDay?: number | null;
+    isDefault?: boolean | null;
+  },
+): Promise<void> {
+  await call(client, 'update_work_calendar', {
+    p_calendar: input.calendarId,
+    p_name: input.name?.trim() || null,
+    p_description: input.description ?? null,
+    p_weekdays: input.workingWeekdays ?? null,
+    p_hours: input.hoursPerDay ?? null,
+    p_is_default: input.isDefault ?? null,
+  });
+}
+
+export interface AssignableResource {
+  id: string;
+  kind: ResourceAssignmentRow['kind'];
+  /** What a person would call it: the crew's name, the operator's, the machine's. */
+  label: string;
+  /** The asset number or the crew code, shown beside the name so two alike are told apart. */
+  code: string | null;
+}
+
+/**
+ * Everything that can be put on an activity, in one list.
+ *
+ * Four lightweight reads rather than the full fleet and roster loaders, because
+ * a picker needs a name and an id and nothing else, and pulling meter readings
+ * and credential expiry to fill a dropdown is how a fast screen becomes a slow
+ * one.
+ */
+export const loadAssignableResources: Query<AssignableResource[]> = async (client) => {
+  const [crews, employees, assets, vendors] = await Promise.all([
+    unwrap(await client.from('crews').select('id, code, name')
+      .eq('status', 'active').order('name').limit(300)) as Array<Record<string, unknown>>,
+    unwrap(await client.from('employees').select('id, employee_number, full_name')
+      .neq('status', 'terminated').order('full_name').limit(500)) as Array<Record<string, unknown>>,
+    unwrap(await client.from('assets').select('id, asset_number, name')
+      .is('disposed_on', null).order('asset_number').limit(500)) as Array<Record<string, unknown>>,
+    unwrap(await client.from('vendors').select('id, name')
+      .eq('status', 'active').order('name').limit(500)) as Array<Record<string, unknown>>,
+  ]);
+
+  return [
+    ...crews.map((c) => ({
+      id: String(c.id), kind: 'crew' as const,
+      label: String(c.name), code: (c.code as string | null) ?? null,
+    })),
+    ...employees.map((e) => ({
+      id: String(e.id), kind: 'employee' as const,
+      label: String(e.full_name), code: (e.employee_number as string | null) ?? null,
+    })),
+    ...assets.map((a) => ({
+      id: String(a.id), kind: 'asset' as const,
+      label: String(a.name), code: (a.asset_number as string | null) ?? null,
+    })),
+    ...vendors.map((v) => ({
+      id: String(v.id), kind: 'subcontractor' as const,
+      label: String(v.name), code: null,
+    })),
+  ];
 };

@@ -113,6 +113,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
+| C-030 | Give the scheduling section its writers | user: "start on schedule" | high | scheduling | migration 0183, `components/schedule/*`, the door half of `lib/data/schedule.ts` | `a-schedule-you-can-build.test.ts` (17), `schedule.test.tsx` (30) | tested |
 
 ---
 
@@ -131,4 +132,8 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-012 | A condition cannot yet carry sections across several sheets | PlanSwift's "Continue With": one thing traced on C-101 and C-102 with a running total. The pieces exist — a condition already spans sheets — but nothing names it or totals it per sheet | Build "Continue With" |
 | O-013 | Conditions are per estimate, not reusable from the library | `takeoff_conditions.estimate_version_id` is nullable for this; nothing writes or reads a null one yet | Build library reuse, as agreed |
 | O-011 | `loadSignatures` and `noteOnLead` are exported and never imported | A signature the customer gave is never shown back; a lead's notes and follow-up date cannot be written | Give each a door |
+| O-018 | `task_dependencies` (0007) is unused | It duplicates `schedule_dependencies` field for field. 0183 gave the latter its writer and deliberately left the former alone, so there is one dependency table and not two | Drop `task_dependencies`, or state what it is for |
+| O-019 | `schedule_baselines` still has no writer | 0029 built baselines and `reporting_schedule_variance` reads them; nothing takes one. A variance report against a baseline nobody can take shows every activity as `not_in_baseline` | Build "take a baseline" beside the calculate button |
+| O-020 | `schedule_of_values` has no writer | Billing reads it; nothing creates a line | Build the SOV when billing is worked |
+| O-021 | `work_calendar_exceptions` has no writer | The engine reads holidays and shutdowns out of it; the working-week editor sets the weekly pattern only | Add holidays to the working-week tab |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

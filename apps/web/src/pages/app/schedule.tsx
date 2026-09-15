@@ -31,10 +31,11 @@
  *     and a schedule that hid them would be a picture of a plan rather than a
  *     plan.
  */
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CalendarDays, AlertTriangle, Flag, Users2, Truck, Loader2, Calculator, CircleSlash,
+  ChevronDown, ChevronRight, History,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -48,9 +49,14 @@ import { useQuery, messageFor } from '@/lib/data/query';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import {
   loadScheduleProjects, loadScheduleActivities, loadLatestScheduleCalculation,
-  loadResourceAssignments, recalculateSchedule,
+  loadResourceAssignments, loadScheduleDependencies, loadAssignableResources,
+  recalculateSchedule,
   type ScheduleActivityRow,
 } from '@/lib/data/schedule';
+import { BuildSchedule } from '@/components/schedule/build-schedule';
+import { AddActivity } from '@/components/schedule/add-activity';
+import { ActivityEditor } from '@/components/schedule/activity-editor';
+import { WorkingWeek } from '@/components/schedule/working-week';
 import { percent, qty, date, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -83,13 +89,18 @@ export function SchedulePage() {
   const activitiesQ = useQuery(loadScheduleActivities(projectId), [projectId, nonce]);
   const calcQ = useQuery(loadLatestScheduleCalculation(projectId), [projectId, nonce]);
   const assignmentsQ = useQuery(loadResourceAssignments(projectId), [projectId, nonce]);
+  const dependenciesQ = useQuery(loadScheduleDependencies(projectId), [projectId, nonce]);
+  const resourcesQ = useQuery(loadAssignableResources, []);
 
   const activities = activitiesQ.status === 'ready' ? activitiesQ.data : [];
   const calculation = calcQ.status === 'ready' ? calcQ.data : null;
   const assignments = assignmentsQ.status === 'ready' ? assignmentsQ.data : [];
+  const dependencies = dependenciesQ.status === 'ready' ? dependenciesQ.data : [];
+  const resources = resourcesQ.status === 'ready' ? resourcesQ.data : [];
 
   const [tab, setTab] = useState('gantt');
   const [criticalOnly, setCriticalOnly] = useState(false);
+  const [openActivity, setOpenActivity] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,6 +113,15 @@ export function SchedulePage() {
   const calculated = activities.filter((a) => a.calculationId !== null);
   const critical = activities.filter((a) => a.isCritical);
   const shown = criticalOnly ? critical : activities;
+  /*
+   * A bar somebody moved after the last run. 0158 forbids clearing the float by
+   * hand — rightly, because a blanked engine output cannot be read as anything —
+   * so the page says the float is old rather than pretending it was never there.
+   */
+  const stale = (a: ScheduleActivityRow) =>
+    a.calculationId !== null && calculation !== null
+    && new Date(a.updatedAt).getTime() > new Date(calculation.calculatedAt).getTime() + 1000;
+  const staleCount = activities.filter(stale).length;
   const complete = activities.filter((a) => a.percentComplete >= 1);
   const inProgress = activities.filter((a) => a.percentComplete > 0 && a.percentComplete < 1);
   const criticalInProgress = critical.filter((a) => a.percentComplete > 0 && a.percentComplete < 1);
@@ -114,6 +134,7 @@ export function SchedulePage() {
     setBusy(true); setError(null);
     try {
       await recalculateSchedule(companyId, projectId);
+      setOpenActivity(null);
       setNonce((n) => n + 1);
     } catch (err) {
       setError(messageFor(err));
@@ -156,7 +177,10 @@ export function SchedulePage() {
             ) : null}
             <Button disabled={!canWrite || busy || activities.length === 0}
               onClick={() => void recalculate()}
-              title={canWrite ? undefined : 'Needs permission to change the project'}>
+              title={!canWrite ? 'Needs permission to change the project'
+                : activities.length === 0
+                  ? 'There is nothing to calculate until the schedule has activities on it'
+                  : undefined}>
               {busy ? <Loader2 className="size-4 animate-spin" /> : <Calculator className="size-4" />}
               Calculate the schedule
             </Button>
@@ -182,6 +206,22 @@ export function SchedulePage() {
           <ul className="list-disc space-y-0.5 pl-4">
             {calculation.warnings.map((w) => <li key={w}>{w}</li>)}
           </ul>
+        </Alert>
+      ) : null}
+
+      {projectId ? (
+        <BuildSchedule projectId={projectId} plannedStart={project?.plannedStart ?? null}
+          canWrite={canWrite}
+          onBuilt={() => setNonce((n) => n + 1)} />
+      ) : null}
+
+      {staleCount > 0 ? (
+        <Alert tone="warn" icon={<History className="size-4" />}
+          title={`${plural(staleCount, 'activity', 'activities')} changed since the last calculation`}>
+          The float and the critical path on screen were computed from the plan as it stood
+          on {date(calculation!.calculatedAt)}. They are not wrong so much as old, and they
+          are shown rather than blanked because a number with a date on it can be judged and
+          a number somebody quietly erased cannot. Calculate again to bring them up to date.
         </Alert>
       ) : null}
 
@@ -231,6 +271,7 @@ export function SchedulePage() {
         <TabsList>
           <TabsTrigger value="gantt">Schedule</TabsTrigger>
           <TabsTrigger value="resources">Resource loading</TabsTrigger>
+          <TabsTrigger value="calendar">Working week</TabsTrigger>
         </TabsList>
 
         <TabsContent value="gantt">
@@ -283,9 +324,12 @@ export function SchedulePage() {
               {activitiesQ.status === 'error'
                 ? <ErrorState message={activitiesQ.message} onRetry={activitiesQ.refetch} /> : null}
               {activitiesQ.status === 'ready' && activities.length === 0 ? (
-                <div className="p-6">
+                <div className="space-y-4 p-6">
                   <EmptyState title="No activities on this project"
-                    description="A schedule is built from the project's tasks. Until there are activities there is nothing to calculate." />
+                    description="A schedule is built from the project's tasks — award an estimate and each priced line becomes one. Anything else the job waits on can be added here by hand." />
+                  <AddActivity projectId={projectId}
+                    defaultStart={project?.plannedStart ?? null} canWrite={canWrite}
+                    onAdded={() => setNonce((n) => n + 1)} />
                 </div>
               ) : null}
 
@@ -310,19 +354,37 @@ export function SchedulePage() {
                         // A milestone has no span; give it a visible minimum width.
                         const width = bounds
                           ? Math.max(((e - s) / bounds.span) * 100, 0.8) : 0.8;
+                        const isOpen = openActivity === a.id;
+                        const waitsOn = dependencies.filter((d) => d.successorId === a.id).length;
+                        const onIt = assignments.filter((r) => r.activityId === a.id).length;
                         return (
-                          <tr key={a.id} className="border-b border-charcoal-200 last:border-0 hover:bg-charcoal-50/70">
+                          <Fragment key={a.id}>
+                          <tr className={cn(
+                            'border-b border-charcoal-200 last:border-0 hover:bg-charcoal-50/70',
+                            isOpen && 'bg-charcoal-50')}>
                             <td className="px-3 py-2.5 font-mono text-xs text-charcoal-500">
                               {a.wbsCode ?? '—'}
                             </td>
                             <td className="px-3 py-2.5">
-                              <p className="flex items-center gap-1.5 font-medium text-charcoal-900">
+                              {/*
+                                * The row opens itself. Everything a scheduler changes about an
+                                * activity — its dates, what it waits on, who is on it — is one
+                                * decision, and three screens is how a schedule stops being kept.
+                                */}
+                              <button type="button"
+                                onClick={() => setOpenActivity(isOpen ? null : a.id)}
+                                aria-expanded={isOpen}
+                                className="flex items-center gap-1.5 text-left font-medium text-charcoal-900 hover:underline">
+                                {isOpen ? <ChevronDown className="size-3.5 shrink-0 text-charcoal-400" />
+                                  : <ChevronRight className="size-3.5 shrink-0 text-charcoal-400" />}
                                 {a.isMilestone ? <Flag className="size-3.5 text-yellow-600" /> : null}
                                 {a.name}
-                              </p>
-                              <p className="text-xs text-charcoal-500">
+                              </button>
+                              <p className="pl-5 text-xs text-charcoal-500">
                                 {date(a.plannedStart)} → {date(a.plannedFinish)}
                                 {a.crewName ? ` · ${a.crewName}` : ''}
+                                {waitsOn > 0 ? ` · waits on ${waitsOn}` : ''}
+                                {onIt > 0 ? ` · ${plural(onIt, 'assignment')}` : ''}
                               </p>
                             </td>
                             <td className="tabular px-3 py-2.5 text-right text-charcoal-600">
@@ -369,13 +431,35 @@ export function SchedulePage() {
                               </div>
                               <p className="tabular mt-1 text-xs text-charcoal-500">
                                 {a.isMilestone ? 'Milestone' : `${percent(a.percentComplete, 0)} complete`}
+                                {stale(a) ? ' · float is from an earlier plan' : ''}
                               </p>
                             </td>
                           </tr>
+                          {isOpen ? (
+                            <tr>
+                              <td colSpan={5} className="p-0">
+                                <ActivityEditor
+                                  activity={a}
+                                  activities={activities}
+                                  dependencies={dependencies}
+                                  assignments={assignments}
+                                  resources={resources}
+                                  canWrite={canWrite}
+                                  onChanged={() => setNonce((n) => n + 1)}
+                                  onClose={() => setOpenActivity(null)} />
+                              </td>
+                            </tr>
+                          ) : null}
+                          </Fragment>
                         );
                       })}
                     </tbody>
                   </table>
+                  <div className="border-t border-charcoal-200 p-3">
+                    <AddActivity projectId={projectId}
+                      defaultStart={bounds?.start ?? project?.plannedStart ?? null}
+                      canWrite={canWrite} onAdded={() => setNonce((n) => n + 1)} />
+                  </div>
                 </div>
               ) : null}
             </CardContent>
@@ -475,6 +559,10 @@ export function SchedulePage() {
               ) : null}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="calendar">
+          <WorkingWeek companyId={companyId} canWrite={canWrite} />
         </TabsContent>
       </Tabs>
     </div>
