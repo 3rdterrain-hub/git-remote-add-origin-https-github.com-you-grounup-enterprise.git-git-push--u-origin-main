@@ -374,7 +374,7 @@ export async function readPdf(file: File): Promise<PdfReading> {
  * Separate from the upload, and never allowed to fail it: a set whose text did
  * not get written is still a set you can take off, and losing the upload over
  * the search index would be the worse trade. What it cost is reported instead,
- * so `my_sheet_text_coverage` is the thing that says a set needs OCR rather
+ * so `my_sheet_text_coverage` is the thing that says a set is a scan rather
  * than another search term.
  */
 export async function recordPlanSetText(

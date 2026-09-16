@@ -25,7 +25,7 @@
  * it: an awarded RFQ names the vendor *and* the reason, and a delivery that was
  * not accepted carries a discrepancy note.
  */
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ShoppingCart, Package, Scale, Plus, TrendingDown, Boxes, AlertTriangle,
@@ -41,7 +41,12 @@ import {
 } from '@/components/ui/table';
 import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
 import { useQuery } from '@/lib/data/query';
-import { loadRfqs, loadPurchaseOrders, loadInventory } from '@/lib/data/procurement';
+import { loadRfqs, loadPurchaseOrders, loadInventory ,
+  loadPurchaseOrderSummaries,
+} from '@/lib/data/procurement';
+import { usePermissions } from '@/lib/data/session';
+import { PurchaseOrderLines } from '@/components/procurement/purchase-order-lines';
+import { BidLeveling } from '@/components/procurement/bid-leveling';
 import {
   money, moneyCompact, percent, qty, date, titleCase, plural, relativeDays,
 } from '@/lib/format';
@@ -52,6 +57,15 @@ import { useCompanyId } from '@/lib/data/session';
 const OPEN_PO = ['draft', 'issued', 'partially_received', 'received'];
 
 export function ProcurementPage() {
+  const { can } = usePermissions();
+  /* A row opens onto what the order is actually for, and what came back. */
+  const [openPo, setOpenPo] = useState<string | null>(null);
+  const [openRfq, setOpenRfq] = useState<string | null>(null);
+  /* Line counts, so an order with nothing on it is visible before it is issued. */
+  const summariesQ = useQuery(loadPurchaseOrderSummaries, []);
+  const lineCounts = new Map(
+    (summariesQ.status === 'ready' ? summariesQ.data : []).map((x) => [x.id, x]),
+  );
   /* Both header buttons shipped disabled with no handler behind them, so the
      committed cost that makes an overrun visible was always zero. */
   const [raisingPo, setRaisingPo] = useState(false);
@@ -213,12 +227,27 @@ export function ProcurementPage() {
                     {r.responded} of {plural(r.invited, 'invitation')} answered
                   </CardDescription>
                 </div>
-                <Badge variant={r.status === 'awarded' ? 'success'
-                  : r.status === 'leveling' ? 'warn' : 'default'}>
-                  {titleCase(r.status)}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={r.status === 'awarded' ? 'success'
+                    : r.status === 'leveling' ? 'warn' : 'default'}>
+                    {titleCase(r.status)}
+                  </Badge>
+                  {/*
+                    * The board that records a quote and awards one. Before 0191
+                    * `rfq_responses` had no writer, so an RFQ could be sent and
+                    * nothing could ever come back.
+                    */}
+                  <Button size="sm" variant="outline"
+                    onClick={() => setOpenRfq(openRfq === r.id ? null : r.id)}>
+                    {openRfq === r.id ? 'Close' : 'Level the bids'}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3 p-0">
+                {openRfq === r.id ? (
+                  <BidLeveling rfqId={r.id} rfqStatus={r.status}
+                    canWrite={can('procurement.write')} onChanged={rfqsQ.refetch} />
+                ) : null}
                 {r.responses.length === 0 ? (
                   <p className="px-6 pb-4 text-sm text-charcoal-500">
                     Nobody has been invited to this package yet.
@@ -337,10 +366,20 @@ export function ProcurementPage() {
                     {pos.map((p) => {
                       const pct = p.committedAmount ? p.invoicedAmount / p.committedAmount : 0;
                       return (
-                        <TableRow key={p.id}>
+                        <Fragment key={p.id}>
+                        <TableRow className={openPo === p.id ? 'bg-charcoal-50' : undefined}>
                           <TableCell>
-                            <p className="font-mono text-xs font-medium text-charcoal-900">{p.number}</p>
+                            {/* Until 0191 nothing could put a line on an order, so every
+                                one was worth $0.00 and the signing limit passed for all. */}
+                            <button type="button" aria-expanded={openPo === p.id}
+                              onClick={() => setOpenPo(openPo === p.id ? null : p.id)}
+                              className="font-mono text-xs font-medium text-charcoal-900 hover:underline">
+                              {p.number}
+                            </button>
                             <p className="max-w-48 truncate text-xs text-charcoal-500">{p.title}</p>
+                            {lineCounts.get(p.id)?.lineCount === 0 ? (
+                              <p className="text-xs text-yellow-700">nothing on it yet</p>
+                            ) : null}
                           </TableCell>
                           <TableCell className="text-charcoal-700">{p.vendorName ?? '—'}</TableCell>
                           <TableCell className="font-mono text-xs text-charcoal-600">
@@ -379,6 +418,16 @@ export function ProcurementPage() {
                             ) : null}
                           </TableCell>
                         </TableRow>
+                        {openPo === p.id ? (
+                          <TableRow>
+                            <TableCell colSpan={9} className="p-0">
+                              <PurchaseOrderLines purchaseOrderId={p.id} status={p.status}
+                                canWrite={can('procurement.write')}
+                                onChanged={posQ.refetch} />
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                        </Fragment>
                       );
                     })}
                   </TableBody>

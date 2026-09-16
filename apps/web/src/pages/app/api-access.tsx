@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyRound, Plus, ShieldCheck, Activity, Ban, Copy, BookOpen, Gauge } from 'lucide-react';
+import { KeyRound, ShieldCheck, Activity, Ban, Copy, BookOpen, Gauge } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,22 +8,14 @@ import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { integer, date, dateTime, percent, plural } from '@/lib/format';
+import { LoadingState, ErrorState } from '@/components/data-state';
+import { EmptyState } from '@/components/ui/misc';
+import { useQuery, messageFor } from '@/lib/data/query';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { loadApiKeys, revokeApiKey } from '@/lib/data/api-keys';
+import { IssueApiKey } from '@/components/settings/issue-api-key';
 import { cn } from '@/lib/utils';
 import spec from '@/data/openapi.json';
-
-interface ApiKey {
-  id: string; name: string; prefix: string; scopes: string[];
-  createdOn: string; createdBy: string; lastUsedAt: string | null;
-  expiresOn: string | null; rateLimitPerMinute: number; revokedOn: string | null;
-  calls30d: number; errorRate: number;
-}
-
-const KEYS: ApiKey[] = [
-  { id: 'k1', name: 'Sage Intacct sync', prefix: 'gu_live_7Kd2', scopes: ['projects:read', 'finance:read', 'finance:write'], createdOn: '2026-05-14', createdBy: 'Dana Whitfield', lastUsedAt: '2026-09-02T06:15:00Z', expiresOn: null, rateLimitPerMinute: 120, revokedOn: null, calls30d: 41_882, errorRate: 0.004 },
-  { id: 'k2', name: 'VisionLink telematics pull', prefix: 'gu_live_QpX9', scopes: ['fleet:read', 'fleet:write'], createdOn: '2026-06-02', createdBy: 'Marcus Ruiz', lastUsedAt: '2026-09-02T05:45:00Z', expiresOn: null, rateLimitPerMinute: 60, revokedOn: null, calls30d: 12_960, errorRate: 0.001 },
-  { id: 'k3', name: 'Power BI — executive dashboard', prefix: 'gu_live_3mNv', scopes: ['metrics:read'], createdOn: '2026-07-21', createdBy: 'Dana Whitfield', lastUsedAt: '2026-09-01T23:00:00Z', expiresOn: '2027-07-21', rateLimitPerMinute: 30, revokedOn: null, calls30d: 744, errorRate: 0 },
-  { id: 'k4', name: 'Estimating spreadsheet (legacy)', prefix: 'gu_live_8bTr', scopes: ['estimates:read'], createdOn: '2026-02-10', createdBy: 'Alice Okafor', lastUsedAt: '2026-06-30T14:22:00Z', expiresOn: null, rateLimitPerMinute: 30, revokedOn: '2026-07-01', calls30d: 0, errorRate: 0 },
-];
 
 /**
  * The published endpoints, read from the OpenAPI spec.
@@ -55,9 +47,23 @@ const METHOD_TONE: Record<string, string> = {
 export function ApiAccessPage() {
   /* Which tab the two countable boxes above open. */
   const [tab, setTab] = useState('keys');
-  const active = KEYS.filter((k) => !k.revokedOn);
-  const calls = KEYS.reduce((a, k) => a + k.calls30d, 0);
-  const errors = KEYS.reduce((a, k) => a + k.calls30d * k.errorRate, 0);
+  const { can } = usePermissions();
+  const { companyId } = useCompanyId();
+  const canManage = can('company.manage');
+
+  /*
+   * This page listed five invented keys on a live route while `api_keys` — a
+   * hash-only table with scopes, a rate limit and a rewrite guard — had no
+   * writer anywhere, so the API this platform sells could not be used at all.
+   */
+  const [nonce, setNonce] = useState(0);
+  const keysQ = useQuery(loadApiKeys, [nonce]);
+  const KEYS = keysQ.status === 'ready' ? keysQ.data : [];
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+
+  const active = KEYS.filter((k) => !k.isRevoked);
+  const calls = KEYS.reduce((a, k) => a + k.requests30Days, 0);
+  const errors = KEYS.reduce((a, k) => a + k.errors30Days, 0);
 
   return (
     <div className="space-y-6">
@@ -82,10 +88,8 @@ export function ApiAccessPage() {
             }}>
               <BookOpen className="size-4" /> OpenAPI spec
             </Button>
-            <Button disabled
-              title="Issuing a key needs the key store connected — this page is showing sample keys.">
-              <Plus className="size-4" /> Create key
-            </Button>
+            <IssueApiKey companyId={companyId} canManage={canManage}
+              onIssued={() => setNonce((n) => n + 1)} />
           </>
         }
       />
@@ -134,7 +138,18 @@ export function ApiAccessPage() {
           <TabsTrigger value="endpoints">Endpoints</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="keys">
+        <TabsContent value="keys" className="space-y-4">
+          {keysQ.status === 'loading' ? <LoadingState label="Reading your keys" /> : null}
+          {keysQ.status === 'error'
+            ? <ErrorState message={keysQ.message} onRetry={keysQ.refetch} /> : null}
+          {revokeError ? <Alert tone="danger" title="That key was not revoked">{revokeError}</Alert> : null}
+          {keysQ.status === 'ready' && KEYS.length === 0 ? (
+            <Card><CardContent className="p-6">
+              <EmptyState title="No keys yet"
+                description="A key is how an outside system — accounting, telematics, a BI job — reads this company's data. It carries its own scopes and rate limit, and it is shown once." />
+            </CardContent></Card>
+          ) : null}
+          {KEYS.length > 0 ? (
           <Card><CardContent className="p-0">
             <Table>
               <TableHeader>
@@ -149,17 +164,21 @@ export function ApiAccessPage() {
               </TableHeader>
               <TableBody>
                 {KEYS.map((k) => (
-                  <TableRow key={k.id} className={cn(k.revokedOn && 'opacity-55')}>
+                  <TableRow key={k.id} className={cn(k.isRevoked && 'opacity-55')}>
                     <TableCell>
                       <p className="font-medium text-charcoal-900">{k.name}</p>
-                      <p className="flex items-center gap-1.5 font-mono text-xs text-charcoal-500">
-                        {k.prefix}…<Copy className="size-3" />
-                      </p>
+                      <button type="button"
+                        onClick={() => { void navigator.clipboard?.writeText(k.keyPrefix); }}
+                        className="flex items-center gap-1.5 font-mono text-xs text-charcoal-500 hover:text-charcoal-900"
+                        title="Copy the prefix. It identifies this key in a log and authenticates nothing.">
+                        {k.keyPrefix}…<Copy className="size-3" />
+                      </button>
                       <p className="mt-0.5 text-xs text-charcoal-400">
-                        {k.revokedOn
-                          ? `Revoked ${date(k.revokedOn)}`
-                          : `Created ${date(k.createdOn)} by ${k.createdBy}`}
-                        {k.expiresOn && !k.revokedOn ? ` · expires ${date(k.expiresOn)}` : ''}
+                        {k.isRevoked
+                          ? `Revoked ${date(k.revokedAt!)}${k.revokeReason ? ` — ${k.revokeReason}` : ''}`
+                          : `Created ${date(k.createdAt)}${k.createdBy ? ` by ${k.createdBy}` : ''}`}
+                        {k.expiresAt && !k.isRevoked
+                          ? ` · ${k.isExpired ? 'expired' : 'expires'} ${date(k.expiresAt)}` : ''}
                       </p>
                     </TableCell>
                     <TableCell>
@@ -174,20 +193,32 @@ export function ApiAccessPage() {
                       {k.rateLimitPerMinute}/min
                     </TableCell>
                     <TableCell className="tabular text-right">
-                      {integer(k.calls30d)}
-                      {k.errorRate > 0 ? (
-                        <span className="block text-xs text-warn-700">{percent(k.errorRate, 2)} errors</span>
+                      {integer(k.requests30Days)}
+                      {k.errors30Days > 0 ? (
+                        <span className="block text-xs text-warn-700">
+                          {percent(k.errors30Days / Math.max(k.requests30Days, 1), 2)} errors
+                        </span>
                       ) : null}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs text-charcoal-600">
                       {k.lastUsedAt ? dateTime(k.lastUsedAt) : <span className="text-charcoal-400">never used</span>}
                     </TableCell>
                     <TableCell className="text-right">
-                      {k.revokedOn
+                      {k.isRevoked
                         ? <Badge variant="danger"><Ban className="size-3" /> Revoked</Badge>
                         : (
-                          <Button size="sm" variant="outline" disabled
-                            title="Revoking needs the key store connected — this page is showing sample keys.">
+                          <Button size="sm" variant="outline" disabled={!canManage}
+                            title={canManage ? undefined
+                              : 'Revoking a key needs the company.manage permission'}
+                            onClick={() => {
+                              const why = window.prompt(
+                                `Why is "${k.name}" being revoked? The next person reads this.`);
+                              if (!why || why.trim().length < 3) return;
+                              setRevokeError(null);
+                              void revokeApiKey(k.id, why)
+                                .then(() => setNonce((n) => n + 1))
+                                .catch((e) => setRevokeError(messageFor(e)));
+                            }}>
                             Revoke
                           </Button>
                         )}
@@ -197,13 +228,16 @@ export function ApiAccessPage() {
               </TableBody>
             </Table>
           </CardContent></Card>
+          ) : null}
 
-          <Alert tone="neutral" className="mt-4" icon={<Activity className="size-4" />}
-            title="Revoked keys are kept">
-            {plural(KEYS.length - active.length, 'revoked key is', 'revoked keys are')} retained rather than
-            deleted, so the request log still resolves to the key that made each call. Answering "what did that
-            integration read last March" needs the key record to survive its revocation.
-          </Alert>
+          {KEYS.length > active.length ? (
+            <Alert tone="neutral" icon={<Activity className="size-4" />}
+              title="Revoked keys are kept">
+              {plural(KEYS.length - active.length, 'revoked key is', 'revoked keys are')} retained rather than
+              deleted, so the request log still resolves to the key that made each call. Answering "what did that
+              integration read last March" needs the key record to survive its revocation.
+            </Alert>
+          ) : null}
         </TabsContent>
 
         <TabsContent value="endpoints">

@@ -144,11 +144,32 @@ describe('finance and procurement', () => {
     });
 
     it('computes line extended price', async () => {
+      /*
+       * Its own order, with nothing invoiced against it.
+       *
+       * Migration 0191 made `committed_amount` the sum of the lines, recomputed
+       * by trigger — before it, nothing could write that column at all, so a
+       * purchase order was worth $0.00 when the signing limit was checked. The
+       * order used by the tests above carries a hand-set committed amount and
+       * an invoiced total, a combination real code can no longer produce:
+       * adding a line to it now recomputes committed below what is invoiced and
+       * `purchase_orders_not_over_invoiced` refuses it, correctly.
+       */
+      const [own] = await h.asUser(owner, () =>
+        h.sql<{ id: string }>(
+          `insert into purchase_orders (company_id, project_id, vendor_id, number, title)
+           values ($1,$2,$3,'PO-EXT-0001','Extended price') returning id`,
+          [company, project, vendor]));
       const [i] = await h.asUser(owner, () =>
         h.sql<{ extended: string }>(
           `insert into purchase_order_items (company_id, purchase_order_id, description, quantity, unit_price)
-           values ($1,$2,'ODOT 304',5100,18.75) returning extended`, [company, po]));
+           values ($1,$2,'ODOT 304',5100,18.75) returning extended`, [company, own!.id]));
       expect(Number(i!.extended)).toBe(95_625);
+
+      /* And the order is now worth exactly that, which is the point of 0191. */
+      const [o] = await h.asUser(owner, () => h.sql<{ committed_amount: string }>(
+        `select committed_amount from purchase_orders where id = $1`, [own!.id]));
+      expect(Number(o!.committed_amount)).toBe(95_625);
     });
 
     it('requires a note when a delivery is not accepted', async () => {

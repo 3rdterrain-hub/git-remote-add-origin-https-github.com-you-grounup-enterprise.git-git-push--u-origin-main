@@ -17,10 +17,13 @@ import {
   demonstrationIncidents, demonstrationObservations, demonstrationTalks,
   demonstrationInspections, demonstrationDeficiencies, demonstrationRates,
 } from '@/lib/data/safety';
+import { IncidentInvestigation } from '@/components/safety/incident-investigation';
+import { RecordObservation } from '@/components/safety/record-observation';
+import { RecordInspection } from '@/components/safety/record-inspection';
 import { date, dateTime, qty, titleCase, plural, percent } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { ReportIncidentDialog, ToolboxTalkDialog } from '@/components/safety/report-incident';
-import { useCompanyId } from '@/lib/data/session';
+import { useCompanyId, usePermissions } from '@/lib/data/session';
 
 const SEVERITY: Record<string, 'default' | 'warn' | 'danger'> = {
   low: 'default', moderate: 'warn', high: 'danger', critical: 'danger',
@@ -32,6 +35,7 @@ export function SafetyPage() {
   const [reporting, setReporting] = useState(false);
   const [talking, setTalking] = useState(false);
   const { companyId } = useCompanyId();
+  const { can } = usePermissions();
   /*
    * The five boxes across the top each counted rows one of the five tabs below
    * already lists, and none of them went there. Two of them count incidents in
@@ -240,6 +244,22 @@ export function SafetyPage() {
                     Investigation still open. A root cause and a corrective action are required before it can close.
                   </Alert>
                 )}
+
+                {/*
+                  * Until migration 0192 nothing could move an investigation
+                  * along or close it, so every incident this platform recorded
+                  * stayed open forever — including the recordables it notified
+                  * the company about.
+                  */}
+                <IncidentInvestigation
+                  incidentId={i.id}
+                  investigationState={i.investigationState}
+                  isOshaRecordable={i.isOshaRecordable}
+                  oshaCaseNumber={i.oshaCaseNumber}
+                  daysOpen={i.investigationState === 'closed' ? null
+                    : Math.floor((Date.now() - new Date(i.occurredAt).getTime()) / 86_400_000)}
+                  canWrite={can('safety.write')}
+                  onChanged={incidentsQ.refetch} />
               </CardContent>
             </Card>
           ))}
@@ -247,6 +267,13 @@ export function SafetyPage() {
 
         {/* ---------------------------------------------------- observations */}
         <TabsContent value="observations" className="space-y-4">
+          {/*
+            * safety_observations had no writer, so the leading indicators — the
+            * observations a company records are the incidents it does not have —
+            * could not be captured at all.
+            */}
+          <RecordObservation companyId={companyId} canWrite={can('safety.write')}
+            onRecorded={observationsQ.refetch} />
           {unsafeOpen.length ? (
             <Alert tone="warn" icon={<Eye className="size-4" />}
               title={`${plural(unsafeOpen.length, 'unsafe condition')} not corrected on site`}>
@@ -316,7 +343,13 @@ export function SafetyPage() {
         </TabsContent>
 
         {/* ----------------------------------------------------- inspections */}
-        <TabsContent value="inspections">
+        <TabsContent value="inspections" className="space-y-4">
+          {/*
+            * inspections had no writer: no compaction test, concrete break,
+            * pipe test or proof roll could be recorded at all.
+            */}
+          <RecordInspection canWrite={can('quality.write')}
+            onRecorded={inspectionsQ.refetch} />
           <Card>
             <CardHeader>
               <CardTitle>Tests and inspections</CardTitle>

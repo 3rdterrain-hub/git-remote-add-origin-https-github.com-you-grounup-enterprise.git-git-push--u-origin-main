@@ -113,6 +113,10 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
+| C-040 | An incident you can close | working the toolbar in order | critical | safety | migration 0192, `incident-investigation.tsx`, `record-observation.tsx`, `record-inspection.tsx` | `an-incident-you-can-close.test.ts` (14) | tested |
+| C-039 | A purchase order worth something | working the toolbar in order | high | procurement | migration 0191, `purchase-order-lines.tsx`, `bid-leveling.tsx` | `a-purchase-order-worth-something.test.ts` (12) | tested |
+| C-038 | Read a scanned plan set by eye | user: "build the vision fallback for scanned plans" | high | plans | `ai-analyze-document` document blocks, `text-coverage.tsx` | `text-coverage.test.tsx` (7) | tested |
+| C-037 | A key you are shown once | owner: "build the system to a top tier level" | high | api | migration 0190, `lib/data/api-keys.ts`, `issue-api-key.tsx`, `api-access.tsx` made live | `a-key-you-are-shown-once.test.ts` (10) | tested |
 | C-036 | A price you enter once | owner: pricing a real line and getting $0.00 | critical | libraries | migration 0189, `no-cost-buildup.tsx`, `estimate-version.tsx` | `a-price-you-enter-once.test.ts` (7) | tested |
 | C-035 | Every button does something | owner: "why when I check it things are not working for me" | high | governance | `every-button-does-something.test.ts`, six buttons made honest or wired | that test | tested |
 | C-034 | The work comes in by phone | same | high | crm | migration 0188, `add-lead.tsx`, `add-opportunity.tsx`, `add-customer.tsx` | `the-work-comes-in-by-phone.test.ts` (10), `add-lead.test.tsx` (5), `add-opportunity.test.tsx` (3) | tested |
@@ -141,10 +145,8 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-018 | `task_dependencies` (0007) is unused | It duplicates `schedule_dependencies` field for field. 0183 gave the latter its writer and deliberately left the former alone, so there is one dependency table and not two | Drop `task_dependencies`, or state what it is for |
 | O-020 | `schedule_of_values` has no writer | Billing reads it; nothing creates a line | Build the SOV when billing is worked |
 | O-021 | `work_calendar_exceptions` has no writer | The engine reads holidays and shutdowns out of it; the working-week editor sets the weekly pattern only | Add holidays to the working-week tab |
-| O-024 | API keys cannot be issued or revoked | `api_keys` is well designed — hash only, prefix, scopes, rate limit, revoke with a reason — and has no function behind it, so the API this platform sells cannot be used at all. The page shows sample keys | Build create_api_key / revoke_api_key and make the page live |
 | O-025 | GrounUp Network is a fixture | `network.tsx` reads NETWORK_VENDORS from `@/data/survey` on a live route, and "Publish a vendor" is now disabled with that said on it | Build the network, or retire the page |
 | O-026 | A shipped library row cannot be copied into company scope | The button is disabled with the reason; adding your own row works | Build copy-to-company |
 | O-027 | Workforce has no screens for its new doors | 0187 gave credentials, work requirements and crews their first writers; the Workforce page does not call them yet | Build the Workforce doors |
 | O-022 | `machine_assignments` has no writer | Survey's machine-control-file list reads it; nothing sends a file to a machine | Build "send this file to that machine" in Survey |
-| O-023 | `inspections` has no writer | Read by the safety section; nothing records one | Build it when Safety is worked |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

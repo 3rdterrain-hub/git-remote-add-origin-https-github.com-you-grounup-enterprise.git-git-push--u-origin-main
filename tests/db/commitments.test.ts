@@ -128,17 +128,29 @@ describe('commitments and vendor cost reach the job', () => {
     });
 
     it('adds to the commitment exactly, with the last line taking the remainder', async () => {
-      // Three equal thirds of 100 do not divide evenly. Rows that add to 99.99
-      // would understate the commitment by a cent on every such order.
+      /*
+       * Rows that add to 99.99 would understate the commitment by a cent on
+       * every such order, which is what the remainder logic in 0046 prevents.
+       *
+       * The committed amount is no longer asserted independently of the lines:
+       * migration 0191 recomputes it from them, because nothing could write the
+       * column before and every order was therefore worth $0.00 at the moment
+       * the signing limit was checked. So the invariant under test is the one
+       * that still matters — the allocation rows add to the commitment exactly,
+       * whatever it is — rather than a total typed beside the lines.
+       */
       const p = await po(100);
       await h.asUser(owner, () => h.sql(
         `insert into purchase_order_items (company_id, purchase_order_id, sort_order,
            description, quantity, unit_price)
-         values ($1,$2,1,'A',1,1), ($1,$2,2,'B',1,1), ($1,$2,3,'C',1,1)`,
+         values ($1,$2,1,'A',1,33.333), ($1,$2,2,'B',1,33.333), ($1,$2,3,'C',1,33.334)`,
         [company, p.id]));
+      const [order] = await h.asUser(owner, () => h.sql<{ committed_amount: string }>(
+        `select committed_amount from purchase_orders where id = $1`, [p.id]));
       const rows = await costs(`purchase_order:${p.id}`);
       expect(rows).toHaveLength(3);
-      expect(rows.reduce((t, r) => t + Number(r.amount), 0)).toBe(100);
+      expect(rows.reduce((t, r) => t + Number(r.amount), 0))
+        .toBeCloseTo(Number(order!.committed_amount), 2);
     });
   });
 

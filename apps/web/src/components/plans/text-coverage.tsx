@@ -9,7 +9,7 @@
  *
  * Going forward the text is read at upload. That is not enough on its own:
  * every set already in storage is still unread, and a set with no text layer
- * still needs OCR. This says which is which, and reads the ones that can be
+ * has no text at all. This says which is which, and reads the ones that can be
  * read.
  */
 import { useState } from 'react';
@@ -40,8 +40,8 @@ function Row({ c, onRead, busy }: {
         </p>
         {unread ? (
           <p className="mt-0.5 text-xs text-charcoal-500">
-            Nothing in this set can be found by searching. Either it has not been read,
-            or it is a scan and needs OCR.
+            Nothing in this set can be found by searching — it is a scan, so there is no text
+            in the file to index. AI review still reads it, from the drawings themselves.
           </p>
         ) : null}
       </div>
@@ -83,7 +83,8 @@ export function TextCoveragePanel() {
         fileName: c.documentName,
       });
       setDone(out.withText === 0
-        ? `${c.documentName} has no text layer on any page — it is a scan, and needs OCR.`
+        ? `${c.documentName} has no text layer on any page — it is a scan. `
+          + 'Searching will not find anything in it, and AI review reads it from the images instead.'
         : `${c.documentName}: ${integer(out.withText)} of ${integer(out.pages)} pages read.`);
       coverageQ.refetch();
     } catch (e) {

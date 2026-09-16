@@ -11,6 +11,180 @@ Newest first.
 
 ---
 
+## D-056 · 2026-09-15 · An investigation closes with a cause and an action, or not at all
+
+**Decision.** `app.close_safety_incident` is a separate function from
+`update_safety_incident` and requires a root cause and a corrective action of at
+least ten characters each. `investigation_state` cannot be set to `closed`
+through the ordinary update.
+
+**Reason.** `create_safety_incident` (0162) was the whole write side, so every
+incident this platform recorded stayed `open` forever — including every
+recordable `notify_recordable_incident` (0035) told the company about, and the
+OSHA 300 log is built from these rows.
+
+Given the transitions, the temptation was to expose `investigation_state` as a
+dropdown. Rejected: an incident closed without a cause and an action is one
+filed rather than fixed, and the next one has the same cause — which is the
+entire argument for investigating. Making closure its own act with its own
+requirements is the difference between a safety record and a tidy list.
+
+The hint refuses "operator error" by name, because that is the root cause people
+write when they have stopped looking.
+
+**Affects.** Migration 0192, `components/safety/incident-investigation.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-057 · 2026-09-15 · A hazard is fixed on the spot or carries an action
+
+**Decision.** `app.record_safety_observation` enforces the schema's own rule —
+an unsafe observation must be either corrected on site or carry a corrective
+action — and the form states it before the database has to.
+
+**Reason.** `safety_observations` had no writer, so near misses and good catches
+could not be recorded at all. Those are the leading indicators: what a company
+records here is what it does not have to record as an incident.
+
+The constraint was already in the schema and is worth keeping in words: a hazard
+written down and left is a record of somebody walking past it.
+
+**Affects.** Migration 0192, `components/safety/record-observation.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-058 · 2026-09-15 · A test carries what it measured, and a failure stays visible
+
+**Decision.** `app.record_inspection` stores measured values in
+`result_values`, refuses a failing test with no explanation, and
+`my_inspections` exposes `failed_and_not_retested`.
+
+**Reason.** `inspections` had no writer — no compaction test, concrete break,
+pipe test or proof roll could be recorded — while the table carried
+`retest_of_id` under the comment that a failed test without a retest leaves the
+work unaccepted.
+
+A pass with no numbers behind it is a word; the numbers are what an owner's
+engineer asks for when the work is questioned. And a failure nothing has
+retested belongs on the list, not discovered at closeout.
+
+**Affects.** Migration 0192, `components/safety/record-inspection.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-053 · 2026-09-15 · A scan is read by eye, not turned away
+
+**Decision.** `ai-analyze-document` uses the text layer where the PDF has one
+and sends the pages themselves to the model where it does not. The job records
+`read_by: 'text_layer' | 'image'`.
+
+**Reason.** The function refused any set with no text layer — "needs OCR". A
+large share of real plan sets are scans, because that is what comes back from a
+plan room or a county, so the refusal turned away exactly the drawings that most
+need reading. Claude reads a scanned PDF by vision; there was never a technical
+reason to decline.
+
+The text layer stays preferred where it exists: it is exact, cheap, and carries
+no risk of a misread character. Where there is none, the prompt names the sheets
+so findings cite C-101 rather than "page 4", and tells the model to say when
+something is not legible rather than guess — a quantity read wrongly off a scan
+is worse than one nobody read.
+
+**Alternatives.** Run OCR first and index the text — more moving parts, another
+thing to be wrong, and it throws away the drawing itself, which is where most of
+the information on a plan sheet actually is.
+
+**Affects.** `supabase/functions/ai-analyze-document/index.ts`,
+`components/plans/text-coverage.tsx`.
+
+**Status.** Active. Deployed.
+
+---
+
+## D-054 · 2026-09-15 · A purchase order is worth the sum of its lines
+
+**Decision.** `purchase_orders.committed_amount` and `received_amount` are
+recomputed by trigger from `purchase_order_items`, never incremented.
+`add_purchase_order_item` is refused once the order is issued, and
+`issue_purchase_order` refuses an order with no lines.
+
+**Reason.** Migration 0037 checks the company's signing limit against
+`committed_amount` as an order crosses into `issued` — "the commitment a
+contractor makes most often, and the one commitment with no signing limit".
+Nothing could create a line, so every order was worth $0.00 at that moment and
+the limit passed for every order whatever it was really worth. A control that
+never refuses is not a control.
+
+Recompute rather than increment is the rule from 0177, 0179 and 0181, and it
+matters more here: a drifted committed amount is a signing limit checked against
+the wrong number.
+
+**Affects.** Migration 0191, `components/procurement/purchase-order-lines.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-055 · 2026-09-15 · A quote and its leveling are two facts, not one number
+
+**Decision.** `record_rfq_response` stores `quoted_amount` as the vendor gave it
+and `leveling_adjustment` separately; `leveled_amount` is generated from the
+two. The board ranks on the leveled figure.
+
+**Reason.** One vendor excludes traffic control and another includes it — the
+raw numbers are not the same scope, and ranking them is the mistake that awards
+the wrong vendor. Folding the adjustment into the quote would lose which number
+came from the vendor and which from the estimator, and that distinction is
+exactly what somebody asks about when the award is questioned a year later.
+
+`rfq_responses` has carried the generated column since it was written and had no
+writer, so nothing was ever leveled.
+
+**Affects.** Migration 0191, `components/procurement/bid-leveling.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-052 · 2026-09-15 · The secret exists once, and the database makes it
+
+**Decision.** `app.create_api_key` generates the key, returns the plaintext in
+its one and only result row, and stores nothing but a SHA-256. The screen never
+generates a key and there is no way to see one again — not for GrounUp, not for
+an administrator, not for the person who issued it.
+
+**Reason.** `api_keys` had carried a hash-only design, a log prefix, scopes, a
+rate limit, an expiry, a revocation-with-reason, row level security and a
+rewrite guard since migration 0023, and nothing anywhere could create one — so
+the authenticated, rate-limited, scoped API this platform sells had never been
+usable by anybody, while the page listed five invented keys on a live route.
+
+Generating it in the browser was rejected: a key whose randomness nobody can
+account for, which would travel to the server to be hashed anyway. `uuid` is the
+entropy source rather than pgcrypto's `gen_random_bytes`, because 0065
+established that Supabase installs pgcrypto outside the default search path and
+a migration reaching for it unqualified passes locally and fails in production —
+the same reason 0166 uses the built-in `sha256()`.
+
+An unknown scope is refused rather than ignored, the rule 0136 and 0139 settled
+for jsonb keys. It matters more here: a scope matching nothing would produce a
+key somebody believes grants access it does not have, and they would find out at
+the worst moment.
+
+**Affects.** Migration 0190, `lib/data/api-keys.ts`,
+`components/settings/issue-api-key.tsx`, `pages/app/api-access.tsx`, O-024
+(closed).
+
+**Status.** Active. Verified live: a real key issued, listed, and revocable.
+
+---
+
 ## D-051 · 2026-09-15 · The catalog is a skeleton, and the company fills it in
 
 **Decision.** The shipped catalog is not seeded with crews, rates or materials.

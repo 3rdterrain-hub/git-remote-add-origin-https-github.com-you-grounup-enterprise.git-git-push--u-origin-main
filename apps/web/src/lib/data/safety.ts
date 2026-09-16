@@ -45,12 +45,6 @@ export interface LapsedCredential {
   blocksWorkTypes: string[];
 }
 
-const employeeOf = (row: Record<string, unknown>): string | null => {
-  const e = row.employees as { full_name?: string } | { full_name?: string }[] | null;
-  const one = Array.isArray(e) ? e[0] : e;
-  return one?.full_name ?? null;
-};
-
 const projectOf = (row: Record<string, unknown>): string | null => {
   const p = row.projects as { number?: string } | { number?: string }[] | null;
   const one = Array.isArray(p) ? p[0] : p;
@@ -59,17 +53,26 @@ const projectOf = (row: Record<string, unknown>): string | null => {
 
 export const loadIncidents: Query<IncidentRow[]> = async (client) => {
   const rows = unwrap(await client
-    .from('safety_incidents')
-    .select('id, number, occurred_at, incident_type, severity, description, is_osha_recordable, osha_case_number, days_away, days_restricted, root_cause, corrective_action, investigation_state, projects(number), employees(full_name)')
-    .order('occurred_at', { ascending: false })) as Array<Record<string, unknown>>;
+    /*
+     * `my_safety_incidents` rather than the table: it carries days_open, which
+     * is the number that matters once an investigation can actually be closed —
+     * and flat columns instead of embeds, which cannot silently return nothing
+     * the way a mistyped embed does.
+     */
+    .from('my_safety_incidents')
+    .select('id, number, occurred_at, incident_type, severity, description, '
+      + 'is_osha_recordable, osha_case_number, days_away, days_restricted, '
+      + 'root_cause, corrective_action, investigation_state, days_open, '
+      + 'project_number, employee_name')
+    .order('occurred_at', { ascending: false })) as unknown as Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
     number: String(r.number),
     occurredAt: String(r.occurred_at),
     type: String(r.incident_type),
     severity: String(r.severity),
-    project: projectOf(r),
-    employee: employeeOf(r),
+    project: (r.project_number as string | null) ?? '—',
+    employee: (r.employee_name as string | null) ?? null,
     description: String(r.description),
     isOshaRecordable: Boolean(r.is_osha_recordable),
     oshaCaseNumber: (r.osha_case_number as string | null) ?? null,
@@ -139,6 +142,14 @@ export interface InspectionRow {
    * defensively: a key that is not there is absent rather than zero. */
   required: number | null; achieved: number | null; unit: string | null;
   result: string; notes: string | null; isRetest: boolean;
+  /**
+   * A failure nothing has retested. The work stays unaccepted until a later
+   * test names this one, so it belongs on the list rather than being found at
+   * closeout.
+   */
+  failedAndNotRetested: boolean;
+  /** The number of the test that answered this failure, where one did. */
+  retestedBy: string | null;
 }
 export interface DeficiencyRow {
   id: string; number: string; description: string; location: string | null; trade: string | null;
@@ -164,14 +175,15 @@ const nameOf = (row: Record<string, unknown>, key: string): string => {
 
 export const loadObservations: Query<ObservationRow[]> = async (client) => {
   const rows = unwrap(await client
-    .from('safety_observations')
-    .select('id, observed_at, category, is_positive, description, corrected_on_site, corrective_action, projects(number), employees!safety_observations_observer_id_fkey(full_name, email)')
-    .order('observed_at', { ascending: false })) as Array<Record<string, unknown>>;
+    .from('my_safety_observations')
+    .select('id, observed_at, category, is_positive, description, '
+      + 'corrected_on_site, corrective_action, project_number, observer_name')
+    .order('observed_at', { ascending: false })) as unknown as Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
     observedAt: String(r.observed_at),
-    observer: nameOf(r, 'employees'),
-    project: projectOf(r),
+    observer: (r.observer_name as string | null) ?? '—',
+    project: (r.project_number as string | null) ?? '—',
     category: String(r.category),
     isPositive: Boolean(r.is_positive),
     description: String(r.description),
@@ -208,9 +220,17 @@ function measured(raw: unknown): { required: number | null; achieved: number | n
 
 export const loadInspections: Query<InspectionRow[]> = async (client) => {
   const rows = unwrap(await client
-    .from('inspections')
-    .select('id, number, inspection_type, title, spec_reference, station, inspected_at, inspector_name, inspecting_agency, result_values, result, notes, retest_of_id')
-    .order('inspected_at', { ascending: false })) as Array<Record<string, unknown>>;
+    /*
+     * `my_inspections` carries `failed_and_not_retested` and the number of the
+     * retest that answered a failure. A failed test nothing has retested leaves
+     * the work unaccepted, and that belongs on the list rather than being
+     * discovered at closeout.
+     */
+    .from('my_inspections')
+    .select('id, number, inspection_type, title, spec_reference, station, '
+      + 'inspected_at, inspector_name, inspecting_agency, result_values, result, '
+      + 'notes, retest_of_id, retested_by, failed_and_not_retested, project_number')
+    .order('inspected_at', { ascending: false })) as unknown as Array<Record<string, unknown>>;
   return rows.map((r) => ({
     id: String(r.id),
     number: String(r.number),
@@ -223,6 +243,8 @@ export const loadInspections: Query<InspectionRow[]> = async (client) => {
     agency: (r.inspecting_agency as string | null) ?? null,
     ...measured(r.result_values),
     result: String(r.result),
+    failedAndNotRetested: r.failed_and_not_retested === true,
+    retestedBy: (r.retested_by as string | null) ?? null,
     notes: (r.notes as string | null) ?? null,
     isRetest: r.retest_of_id != null,
   }));
@@ -286,6 +308,8 @@ export const demonstrationInspections = (): InspectionRow[] =>
     station: i.station, inspectedAt: i.inspectedAt, inspector: i.inspector, agency: i.agency,
     required: i.required, achieved: i.achieved, unit: i.unit,
     result: i.result, notes: i.notes, isRetest: i.isRetest,
+    failedAndNotRetested: i.result === 'fail' && !i.isRetest,
+    retestedBy: null,
   }));
 export const demonstrationDeficiencies = (): DeficiencyRow[] =>
   DEFICIENCIES.map((d) => ({
@@ -359,3 +383,146 @@ export async function createToolboxTalk(
   return String(data);
 }
 
+
+// -----------------------------------------------------------------------------
+// The doors
+//
+// `create_safety_incident` and `create_toolbox_talk` (0162) were the whole write
+// side. An incident could be opened and never closed — `investigation_state`
+// started at 'open' and nothing could move it — so every incident this platform
+// recorded stayed open forever, including every recordable it notified the
+// company about. Near misses and tests could not be recorded at all.
+// -----------------------------------------------------------------------------
+
+const call = async (fn: string, args: Record<string, unknown>) => {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await (supabase as unknown as {
+    rpc: (f: string, a: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  }).rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+export const OBSERVATION_CATEGORIES = [
+  { value: 'ppe', label: 'PPE' },
+  { value: 'excavation', label: 'Excavation' },
+  { value: 'fall_protection', label: 'Fall protection' },
+  { value: 'traffic', label: 'Traffic' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'housekeeping', label: 'Housekeeping' },
+  { value: 'utilities', label: 'Utilities' },
+  { value: 'environmental', label: 'Environmental' },
+  { value: 'other', label: 'Other' },
+] as const;
+
+export const INSPECTION_TYPES = [
+  { value: 'compaction', label: 'Compaction' },
+  { value: 'concrete', label: 'Concrete' },
+  { value: 'asphalt', label: 'Asphalt' },
+  { value: 'pipe_test', label: 'Pipe test' },
+  { value: 'proof_roll', label: 'Proof roll' },
+  { value: 'survey', label: 'Survey' },
+  { value: 'material', label: 'Material' },
+  { value: 'punch_list', label: 'Punch list' },
+  { value: 'other', label: 'Other' },
+] as const;
+
+/** Move an investigation along. Closing has its own door. */
+export async function updateSafetyIncident(input: {
+  incidentId: string; investigationState?: string | null; severity?: string | null;
+  rootCause?: string | null; correctiveAction?: string | null;
+  immediateAction?: string | null; isOshaRecordable?: boolean | null;
+  oshaCaseNumber?: string | null; daysAway?: number | null; daysRestricted?: number | null;
+}): Promise<void> {
+  await call('update_safety_incident', {
+    p_incident: input.incidentId,
+    p_investigation_state: input.investigationState ?? null,
+    p_severity: input.severity ?? null,
+    p_root_cause: input.rootCause?.trim() || null,
+    p_corrective_action: input.correctiveAction?.trim() || null,
+    p_immediate_action: input.immediateAction?.trim() || null,
+    p_is_osha_recordable: input.isOshaRecordable ?? null,
+    p_osha_case_number: input.oshaCaseNumber?.trim() || null,
+    p_days_away: input.daysAway ?? null,
+    p_days_restricted: input.daysRestricted ?? null,
+  });
+}
+
+/**
+ * Close an investigation.
+ *
+ * A root cause and a corrective action are both required by the database, and
+ * the reason is worth repeating on screen: an incident closed without them is
+ * one filed rather than fixed, and the next one has the same cause.
+ */
+export async function closeSafetyIncident(
+  incidentId: string, rootCause: string, correctiveAction: string,
+): Promise<void> {
+  await call('close_safety_incident', {
+    p_incident: incidentId,
+    p_root_cause: rootCause.trim(),
+    p_corrective_action: correctiveAction.trim(),
+  });
+}
+
+/** Record a near miss, a good catch, or a hazard fixed on the spot. */
+export async function recordSafetyObservation(companyId: string, input: {
+  category: string; description: string; isPositive?: boolean;
+  correctedOnSite?: boolean; correctiveAction?: string | null;
+  projectId?: string | null; observerId?: string | null;
+}): Promise<string> {
+  return call('record_safety_observation', {
+    p_company: companyId,
+    p_category: input.category,
+    p_description: input.description.trim(),
+    p_is_positive: input.isPositive ?? false,
+    p_corrected_on_site: input.correctedOnSite ?? false,
+    p_corrective_action: input.correctiveAction?.trim() || null,
+    p_project: input.projectId ?? null,
+    p_observer: input.observerId ?? null,
+  });
+}
+
+/**
+ * Record a test, with what it measured.
+ *
+ * `resultValues` is the point: a pass with no numbers behind it is a word, and
+ * the numbers are what an owner's engineer asks for.
+ */
+export async function recordInspection(input: {
+  projectId: string; inspectionType: string; title: string; result?: string;
+  resultValues?: Record<string, unknown>; specReference?: string | null;
+  location?: string | null; station?: string | null; inspectorName?: string | null;
+  inspectingAgency?: string | null; taskId?: string | null; notes?: string | null;
+  retestOf?: string | null;
+}): Promise<string> {
+  return call('record_inspection', {
+    p_project: input.projectId,
+    p_inspection_type: input.inspectionType,
+    p_title: input.title.trim(),
+    p_result: input.result ?? 'pending',
+    p_result_values: input.resultValues ?? {},
+    p_spec_reference: input.specReference?.trim() || null,
+    p_location: input.location?.trim() || null,
+    p_station: input.station?.trim() || null,
+    p_inspector_name: input.inspectorName?.trim() || null,
+    p_inspecting_agency: input.inspectingAgency?.trim() || null,
+    p_task: input.taskId ?? null,
+    p_notes: input.notes?.trim() || null,
+    p_retest_of: input.retestOf ?? null,
+  });
+}
+
+/** Record the result of a test that was pending. A failure still says why. */
+export async function setInspectionResult(input: {
+  inspectionId: string; result: string;
+  resultValues?: Record<string, unknown> | null; notes?: string | null;
+}): Promise<void> {
+  await call('set_inspection_result', {
+    p_inspection: input.inspectionId,
+    p_result: input.result,
+    p_result_values: input.resultValues ?? null,
+    p_notes: input.notes?.trim() || null,
+  });
+}

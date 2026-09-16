@@ -271,3 +271,208 @@ export async function createRfq(companyId: string, rfq: NewRfq): Promise<string>
   return String(data);
 }
 
+
+// -----------------------------------------------------------------------------
+// The rest of the doors
+//
+// `create_purchase_order` and `create_rfq` (0162) were the whole write side.
+// Nothing could put a line on an order, so every order was worth $0.00 when it
+// was issued and the signing limit from 0037 passed for every one of them; and
+// nothing could record a vendor's quote, so an RFQ could be sent and nothing
+// could come back.
+// -----------------------------------------------------------------------------
+
+const rpc = async (fn: string, args: Record<string, unknown>) => {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await (supabase as unknown as {
+    rpc: (f: string, a: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  }).rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+export interface PoSummaryRow {
+  id: string;
+  lineCount: number;
+  linesOutstanding: number;
+  openCommitment: number;
+}
+
+/**
+ * How many lines each order carries, and how many are still outstanding.
+ *
+ * Read from `my_purchase_orders`, where the committed figure is the sum of the
+ * lines recomputed by trigger — the number the signing limit in 0037 is checked
+ * against. The page shows the count so an order with nothing on it is visible
+ * before somebody tries to issue it.
+ */
+export const loadPurchaseOrderSummaries: Query<PoSummaryRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_purchase_orders')
+    .select('id, line_count, lines_outstanding, open_commitment')) as unknown as
+      Array<Record<string, unknown>>;
+  return rows.map((p) => ({
+    id: String(p.id),
+    lineCount: Number(p.line_count ?? 0),
+    linesOutstanding: Number(p.lines_outstanding ?? 0),
+    openCommitment: Number(p.open_commitment ?? 0),
+  }));
+};
+
+export interface PoItemRow {
+  id: string;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  unitPrice: number;
+  extended: number;
+  quantityReceived: number;
+  quantityOutstanding: number;
+  materialName: string | null;
+  costCode: string | null;
+}
+
+/** The lines on an order, and how much of each has arrived. */
+export const loadPurchaseOrderItems = (purchaseOrderId: string): Query<PoItemRow[]> =>
+  async (client) => {
+    if (!purchaseOrderId) return [];
+    const rows = unwrap(await client
+      .from('my_purchase_order_items')
+      .select('id, description, quantity, unit, unit_price, extended, '
+        + 'quantity_received, quantity_outstanding, material_name, cost_code')
+      .eq('purchase_order_id', purchaseOrderId)
+      .order('sort_order')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((i) => ({
+      id: String(i.id),
+      description: String(i.description),
+      quantity: Number(i.quantity ?? 0),
+      unit: (i.unit as string | null) ?? null,
+      unitPrice: Number(i.unit_price ?? 0),
+      extended: Number(i.extended ?? 0),
+      quantityReceived: Number(i.quantity_received ?? 0),
+      quantityOutstanding: Number(i.quantity_outstanding ?? 0),
+      materialName: (i.material_name as string | null) ?? null,
+      costCode: (i.cost_code as string | null) ?? null,
+    }));
+  };
+
+/** Put a line on a draft order. Refused once the vendor holds it. */
+export async function addPurchaseOrderItem(input: {
+  purchaseOrderId: string; description: string; quantity: number; unitPrice: number;
+  unit?: string | null; materialId?: string | null; costCodeId?: string | null;
+}): Promise<string> {
+  return rpc('add_purchase_order_item', {
+    p_purchase_order: input.purchaseOrderId,
+    p_description: input.description.trim(),
+    p_quantity: input.quantity,
+    p_unit_price: input.unitPrice,
+    p_unit: input.unit ?? null,
+    p_material: input.materialId ?? null,
+    p_cost_code: input.costCodeId ?? null,
+  });
+}
+
+/** Take a line off a draft order. The committed amount falls with it. */
+export async function removePurchaseOrderItem(itemId: string): Promise<void> {
+  await rpc('remove_purchase_order_item', { p_item: itemId });
+}
+
+/**
+ * Issue a draft order.
+ *
+ * Where the signing limit from 0037 is checked — and where it means something,
+ * now that the order is worth the sum of its lines.
+ */
+export async function issuePurchaseOrder(purchaseOrderId: string): Promise<void> {
+  await rpc('issue_purchase_order', { p_purchase_order: purchaseOrderId });
+}
+
+/** Record what actually arrived. The order's status follows its lines. */
+export async function receivePurchaseOrderItem(
+  itemId: string, quantity: number, receivedOn?: string | null,
+): Promise<void> {
+  await rpc('receive_purchase_order_item', {
+    p_item: itemId, p_quantity: quantity, p_received_on: receivedOn || null,
+  });
+}
+
+export interface RfqQuoteRow {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  quotedAmount: number | null;
+  levelingAdjustment: number;
+  /** Quote plus adjustment — what two quotes of different scope compare on. */
+  leveledAmount: number | null;
+  leadTimeDays: number | null;
+  validUntil: string | null;
+  inclusions: string | null;
+  exclusions: string | null;
+  status: string;
+  leveledRank: number | null;
+  isExpired: boolean;
+}
+
+/** Quotes against an RFQ, ranked on the leveled figure. */
+export const loadRfqResponses = (rfqId: string): Query<RfqQuoteRow[]> =>
+  async (client) => {
+    if (!rfqId) return [];
+    const rows = unwrap(await client
+      .from('my_rfq_responses')
+      .select('id, vendor_id, vendor_name, quoted_amount, leveling_adjustment, '
+        + 'leveled_amount, lead_time_days, valid_until, inclusions, exclusions, '
+        + 'status, leveled_rank, is_expired')
+      .eq('rfq_id', rfqId)
+      .order('leveled_rank', { nullsFirst: false })) as unknown as
+        Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: String(r.id),
+      vendorId: String(r.vendor_id),
+      vendorName: String(r.vendor_name),
+      quotedAmount: r.quoted_amount == null ? null : Number(r.quoted_amount),
+      levelingAdjustment: Number(r.leveling_adjustment ?? 0),
+      leveledAmount: r.leveled_amount == null ? null : Number(r.leveled_amount),
+      leadTimeDays: r.lead_time_days == null ? null : Number(r.lead_time_days),
+      validUntil: (r.valid_until as string | null) ?? null,
+      inclusions: (r.inclusions as string | null) ?? null,
+      exclusions: (r.exclusions as string | null) ?? null,
+      status: String(r.status),
+      leveledRank: r.leveled_rank == null ? null : Number(r.leveled_rank),
+      isExpired: r.is_expired === true,
+    }));
+  };
+
+/**
+ * Record what a vendor quoted.
+ *
+ * The leveling adjustment is stored beside the quote rather than folded into
+ * it, so the quote stays what the vendor actually said and the comparison stays
+ * what the estimator decided — two facts, not one edited number.
+ */
+export async function recordRfqResponse(input: {
+  rfqId: string; vendorId: string; quotedAmount?: number | null;
+  leadTimeDays?: number | null; validUntil?: string | null;
+  inclusions?: string | null; exclusions?: string | null;
+  levelingAdjustment?: number; declined?: boolean; notes?: string | null;
+}): Promise<string> {
+  return rpc('record_rfq_response', {
+    p_rfq: input.rfqId,
+    p_vendor: input.vendorId,
+    p_quoted_amount: input.quotedAmount ?? null,
+    p_lead_time_days: input.leadTimeDays ?? null,
+    p_valid_until: input.validUntil || null,
+    p_inclusions: input.inclusions?.trim() || null,
+    p_exclusions: input.exclusions?.trim() || null,
+    p_leveling_adjustment: input.levelingAdjustment ?? 0,
+    p_declined: input.declined ?? false,
+    p_notes: input.notes?.trim() || null,
+  });
+}
+
+/** Award an RFQ. The reason is required, and it is the one asked about later. */
+export async function awardRfq(
+  rfqId: string, vendorId: string, reason: string,
+): Promise<void> {
+  await rpc('award_rfq', { p_rfq: rfqId, p_vendor: vendorId, p_reason: reason.trim() });
+}

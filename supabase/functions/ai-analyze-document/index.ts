@@ -30,6 +30,22 @@ const MODEL = 'claude-opus-5';
 /** Pages sent in one request. Beyond this the job is split into batches. */
 const PAGE_BATCH = 20;
 
+/**
+ * Base64 for a PDF that goes to the model as a document.
+ *
+ * Chunked rather than `String.fromCharCode(...bytes)`, which overflows the call
+ * stack somewhere around a megabyte — and the files this reads are tens of
+ * megabytes. `btoa` emits no newlines, which the API requires.
+ */
+function toBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
 Deno.serve(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
@@ -110,23 +126,62 @@ Deno.serve(async (req) => {
     }
 
     /*
-     * And refuse a set nothing has read.
+     * A set with no text layer is read by eye instead.
      *
-     * `document_sheets.extracted_text` had no writer at all until migration
-     * 0172, so every run before it substituted "(no text extracted from this
-     * sheet)" for every sheet and asked the model to analyze a plan set it
-     * could not see — a credit spent to be told nothing, every time. Reading
-     * the text is free and happens at upload; a set that still has none is a
-     * scan, and the answer is OCR rather than another analysis.
+     * `document_sheets.extracted_text` is filled at upload from the PDF's own
+     * text (migration 0172). A set that still has none is a scan — and a large
+     * share of real plan sets are scans, because that is what comes back from a
+     * plan room or a county. Refusing those, which is what this function did,
+     * turned away exactly the drawings that most need reading.
+     *
+     * So the text layer is preferred where it exists — it is exact, cheap and
+     * carries no risk of a misread character — and where there is none the
+     * pages themselves go to the model. That is a real difference in kind and
+     * the job record says which path ran, because a quantity read off a scan
+     * deserves a closer look than one lifted from embedded text.
      */
-    if (!sheets.some((s) => (s.extracted_text ?? '').trim() !== '')) {
-      return fail(
-        'not_extracted',
-        'None of this document\'s sheets have any text to read. '
-          + 'A plan set gets its text at upload; one that has none is a scan and needs OCR. '
-          + 'Analyzing it would spend a credit to read nothing.',
-        409, origin,
-      );
+    const hasTextLayer = sheets.some((s) => (s.extracted_text ?? '').trim() !== '');
+    let pdf: string | null = null;
+
+    if (!hasTextLayer) {
+      if (!version.storage_bucket || !version.storage_path) {
+        return fail(
+          'not_extracted',
+          'This set has no text layer and no stored file to read instead.',
+          409, origin,
+        );
+      }
+      /*
+       * The API takes a whole document, not a page range, so the size limits
+       * are checked before spending anything: 32 MB a request and 600 pages.
+       * A set past either is refused with the number, which is actionable —
+       * split it — where "too large" is not.
+       */
+      if ((version.page_count ?? sheets.length) > 600) {
+        return fail(
+          'too_large',
+          `This set has ${version.page_count ?? sheets.length} pages and has no text layer, `
+            + 'so every page has to be read as an image. The reader takes 600 pages at a time — '
+            + 'split the set and upload it in parts.',
+          413, origin,
+        );
+      }
+
+      const file = await admin.storage.from(version.storage_bucket)
+        .download(version.storage_path);
+      if (file.error || !file.data) {
+        return fail('not_found', 'The stored file could not be read.', 404, origin);
+      }
+      const bytes = new Uint8Array(await file.data.arrayBuffer());
+      if (bytes.byteLength > 30 * 1024 * 1024) {
+        return fail(
+          'too_large',
+          `That file is ${Math.round(bytes.byteLength / 1024 / 1024)} MB and has no text layer, `
+            + 'so it has to be read as images. A request carries 32 MB — split the set.',
+          413, origin,
+        );
+      }
+      pdf = toBase64(bytes);
     }
 
     // Claim the job so concurrent requests do not both bill the model.
@@ -156,8 +211,16 @@ Deno.serve(async (req) => {
     let inputTokens = 0;
     let outputTokens = 0;
 
-    for (let i = 0; i < sheets.length; i += PAGE_BATCH) {
-      const batch = sheets.slice(i, i + PAGE_BATCH);
+    /*
+     * Text is batched by page because the batches are independent and a long
+     * set would otherwise be one enormous request. A scan is not: the API takes
+     * a document, not a page range, so the file goes in whole and there is
+     * exactly one pass.
+     */
+    const step = pdf ? sheets.length : PAGE_BATCH;
+
+    for (let i = 0; i < sheets.length; i += step) {
+      const batch = sheets.slice(i, i + step);
 
       const document = batch
         .map((s) =>
@@ -196,10 +259,43 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'user',
-            content:
-              `Analyze the following construction documents from "${version.file_name}", ` +
-              `pages ${batch[0]?.page_number}–${batch[batch.length - 1]?.page_number} of ${version.page_count ?? sheets.length}.\n\n` +
-              document,
+            /*
+             * The document block goes before the text, which is what the API
+             * asks for and what reads best: the drawings, then the question.
+             *
+             * On the scanned path the sheet list still goes with it, because
+             * `identify_sheet` knows which page is C-101 and the model should
+             * cite the sheet a person would name rather than "page 4".
+             */
+            content: pdf
+              ? [
+                {
+                  type: 'document' as const,
+                  source: {
+                    type: 'base64' as const,
+                    media_type: 'application/pdf' as const,
+                    data: pdf,
+                  },
+                },
+                {
+                  type: 'text' as const,
+                  text:
+                    `These are the drawings from "${version.file_name}" — `
+                    + `${version.page_count ?? sheets.length} pages, scanned, with no text layer, `
+                    + 'so read them from the images.\n\n'
+                    + 'The sheets, in page order:\n'
+                    + batch.map((sh) =>
+                      `  page ${sh.page_number}: ${sh.sheet_number ?? 'unnumbered'}`
+                      + (sh.sheet_title ? ` — ${sh.sheet_title}` : '')
+                      + (sh.discipline ? ` (${sh.discipline})` : '')).join('\n')
+                    + '\n\nCite the sheet number where you can see one, not the page number. '
+                    + 'Where a number or a note is not legible, say so rather than guessing at it — '
+                    + 'a quantity read wrongly off a scan is worse than one nobody read.',
+                },
+              ]
+              : `Analyze the following construction documents from "${version.file_name}", `
+                + `pages ${batch[0]?.page_number}–${batch[batch.length - 1]?.page_number} of ${version.page_count ?? sheets.length}.\n\n`
+                + document,
           },
         ],
       });
@@ -280,6 +376,12 @@ Deno.serve(async (req) => {
       quantity: 1,
       metadata: {
         agent: AGENT_ID, model: MODEL, pages: sheets.length,
+        /*
+         * Which way the set was read. A finding lifted from embedded text and
+         * one read off a scanned image are not the same evidence, and the
+         * person reviewing them should be able to tell without guessing.
+         */
+        read_by: pdf ? 'image' : 'text_layer',
         input_tokens: inputTokens, output_tokens: outputTokens,
         findings: allAccepted.length, rejected: allRejected.length,
       },

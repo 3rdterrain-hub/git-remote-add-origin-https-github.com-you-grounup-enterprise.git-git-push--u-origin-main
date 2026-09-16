@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **293** |
-| Opened by a screen | **274** |
+| Doors | **313** |
+| Opened by a screen | **294** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -73,6 +73,7 @@ None.
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
 | `add_library_category` | function | lib/data/categories.ts |
+| `add_purchase_order_item` | function | lib/data/procurement.ts |
 | `add_report_equipment` | function | lib/data/project.ts |
 | `add_report_labor` | function | lib/data/project.ts |
 | `add_schedule_activity` | function | lib/data/schedule.ts |
@@ -85,6 +86,7 @@ None.
 | `archive_estimate_template` | function | lib/data/templates.ts |
 | `assign_resource` | function | lib/data/schedule.ts |
 | `award_estimate_version` | function | lib/data/estimates.ts |
+| `award_rfq` | function | lib/data/procurement.ts |
 | `build_schedule_from_tasks` | function | lib/data/schedule.ts |
 | `cancel_work_order` | function | lib/data/fleet.ts |
 | `claim_first_superadmin` | function | lib/data/admin.ts |
@@ -95,11 +97,13 @@ None.
 | `clock_in` | function | lib/data/time-clock.ts |
 | `clock_out` | function | lib/data/time-clock.ts |
 | `close_financial_period` | function | lib/data/finance.ts |
+| `close_safety_incident` | function | lib/data/safety.ts |
 | `close_support_session` | function | lib/data/admin.ts |
 | `complete_crm_activity` | function | lib/data/crm-pipeline.ts |
 | `complete_work_order` | function | lib/data/fleet.ts |
 | `conflict_to_rfi` | function | lib/data/conflicts.ts |
 | `convert_lead` | function | lib/data/leads.ts |
+| `create_api_key` | function | lib/data/api-keys.ts |
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_company_for` | function | lib/data/admin.ts |
@@ -156,6 +160,7 @@ None.
 | `is_supporting` | function | lib/data/admin.ts |
 | `issue_drafted_proposal` | function | lib/data/estimates.ts |
 | `issue_proposal` | function | lib/data/estimates.ts |
+| `issue_purchase_order` | function | lib/data/procurement.ts |
 | `library_category_counts` | function | lib/data/categories.ts |
 | `library_category_members` | function | lib/data/categories.ts |
 | `line_production_options` | function | lib/data/production.ts |
@@ -167,6 +172,7 @@ None.
 | `move_opportunity_stage` | function | lib/data/crm-pipeline.ts |
 | `my_ai_findings` | view | lib/data/plans.ts |
 | `my_announcements` | view | lib/data/session.ts |
+| `my_api_keys` | view | lib/data/api-keys.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_asset_meters` | view | lib/data/fleet.ts |
 | `my_assignments` | view | lib/data/field-work.ts |
@@ -182,6 +188,7 @@ None.
 | `my_documents` | view | lib/data/plans.ts |
 | `my_employee_credentials` | view | lib/data/workforce.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
+| `my_inspections` | view | lib/data/safety.ts |
 | `my_jobs_nearby` | function | lib/data/field-work.ts |
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
@@ -203,8 +210,13 @@ None.
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
 | `my_project_task_progress` | view | lib/data/project.ts |
 | `my_project_tasks` | view | lib/data/field-work.ts |
+| `my_purchase_order_items` | view | lib/data/procurement.ts |
+| `my_purchase_orders` | view | lib/data/procurement.ts |
 | `my_record_comments` | view | lib/data/comments.ts |
 | `my_refunds` | view | lib/data/billing.ts |
+| `my_rfq_responses` | view | lib/data/procurement.ts |
+| `my_safety_incidents` | view | lib/data/safety.ts |
+| `my_safety_observations` | view | lib/data/safety.ts |
 | `my_schedulable_projects` | view | lib/data/schedule.ts |
 | `my_schedule_baselines` | view | lib/data/schedule.ts |
 | `my_service_buildup` | view | lib/data/estimates.ts |
@@ -235,14 +247,18 @@ None.
 | `qualified_and_available` | function | lib/data/staffing.ts |
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
 | `reassign_measurement` | function | lib/data/conditions.ts |
+| `receive_purchase_order_item` | function | lib/data/procurement.ts |
 | `record_condition_takeoff` | function | lib/data/conditions.ts |
 | `record_credential` | function | lib/data/workforce.ts |
 | `record_export` | function | lib/data/admin.ts |
 | `record_fuel` | function | lib/data/fleet.ts |
+| `record_inspection` | function | lib/data/safety.ts |
 | `record_meter_reading` | function | lib/data/fleet.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
 | `record_proposal_outcome` | function | lib/data/estimates.ts |
+| `record_rfq_response` | function | lib/data/procurement.ts |
+| `record_safety_observation` | function | lib/data/safety.ts |
 | `record_signup_attempt` | function | lib/analytics.ts |
 | `record_visit` | function | lib/analytics.ts |
 | `register_document_version` | function | lib/data/plans.ts |
@@ -253,6 +269,7 @@ None.
 | `remove_crew_member` | function | lib/data/library.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
+| `remove_purchase_order_item` | function | lib/data/procurement.ts |
 | `remove_report_line` | function | lib/data/project.ts |
 | `remove_schedule_activity` | function | lib/data/schedule.ts |
 | `remove_schedule_dependency` | function | lib/data/schedule.ts |
@@ -271,6 +288,7 @@ None.
 | `retract_announcement` | function | lib/data/admin.ts |
 | `retract_comment` | function | lib/data/comments.ts |
 | `revise_estimate_version` | function | lib/data/estimates.ts |
+| `revoke_api_key` | function | lib/data/api-keys.ts |
 | `revoke_credential` | function | lib/data/workforce.ts |
 | `revoke_operator` | function | lib/data/admin.ts |
 | `revoke_proposal_share_link` | function | lib/data/proposal-links.ts |
@@ -294,6 +312,7 @@ None.
 | `set_estimate_status` | function | lib/data/estimates.ts |
 | `set_feature_override` | function | lib/data/admin.ts |
 | `set_haul_capacity` | function | lib/data/estimates.ts |
+| `set_inspection_result` | function | lib/data/safety.ts |
 | `set_line_production_rate` | function | lib/data/production.ts |
 | `set_line_quantity` | function | lib/data/estimates.ts |
 | `set_line_service` | function | lib/data/estimates.ts |
@@ -332,6 +351,7 @@ None.
 | `update_opportunity` | function | lib/data/crm-pipeline.ts |
 | `update_proposal` | function | lib/data/estimates.ts |
 | `update_resource_assignment` | function | lib/data/schedule.ts |
+| `update_safety_incident` | function | lib/data/safety.ts |
 | `update_schedule_activity` | function | lib/data/schedule.ts |
 | `update_schedule_dependency` | function | lib/data/schedule.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |

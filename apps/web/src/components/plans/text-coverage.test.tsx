@@ -113,7 +113,13 @@ describe('what can be searched', () => {
     render(<TextCoveragePanel />);
     await openCard(user);
     await user.click(await screen.findByRole('button', { name: /Read the text/ }));
-    expect(await screen.findByText(/it is a scan, and needs OCR/)).toBeInTheDocument();
+    /*
+     * A scan is not a dead end any more: AI review reads the drawings
+     * themselves. What the screen must still say is that *searching* will not
+     * find anything in it, because that is the part a text layer buys.
+     */
+    expect(await screen.findByText(/it is a scan\. Searching will not find anything/))
+      .toBeInTheDocument();
   });
 
   it('offers nothing to read on a set that is already fully readable', async () => {
