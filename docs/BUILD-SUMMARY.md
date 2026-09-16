@@ -4,16 +4,16 @@
 
 | Area | Files | Lines |
 |---|---:|---:|
-| Estimating engine (source + tests) | 50 | ~15,000 |
+| Estimating engine (source + tests) | 50 | ~15,200 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (198 files, 172 tables, 130 views) | 198 | ~58,500 |
-| Edge Functions + shared modules | 63 | ~10,300 |
-| Database & function tests | 152 | ~39,000 |
+| Database migrations (205 files, 173 tables, 132 views) | 205 | ~59,700 |
+| Edge Functions + shared modules | 63 | ~10,400 |
+| Database & function tests | 153 | ~39,400 |
 | Governance & traceability tests | 19 | ~4,400 |
-| Web application (50 routes, 29 app screens) | 369 | ~96,200 |
+| Web application (50 routes, 29 app screens) | 371 | ~97,100 |
 | Documentation | 16 | ~6,100 |
 | Seed & tooling | 12 | ~3,200 |
-| **Total hand-written** | **887** | **~234,400** |
+| **Total hand-written** | **897** | **~237,300** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 5,344 tests, production build —
+drift checks, 5,375 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
-Engine        701 tests   estimating, surfaces, calendars, critical path
+Engine        708 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database    2,534 tests   against real PostgreSQL 18 (PGlite)
-Functions     290 tests   billing, plan versioning, AI governance, API, observability
+Database    2,556 tests   against real PostgreSQL 18 (PGlite)
+Functions     292 tests   billing, plan versioning, AI governance, API, observability
 Governance    308 tests   the five-category rule, traceability, verification, spelling, pipeline
 Web         1,454 tests   jsdom + Testing Library
             ───────────
-            5,344 tests
+            5,375 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

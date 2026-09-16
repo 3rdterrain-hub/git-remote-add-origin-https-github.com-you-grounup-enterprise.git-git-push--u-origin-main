@@ -198,6 +198,7 @@ TBL-user_profiles,table,user_profiles,supabase/migrations (table user_profiles),
 TBL-value_overrides,table,value_overrides,supabase/migrations (table value_overrides),ENTITY
 TBL-vendors,table,vendors,supabase/migrations (table vendors),ENTITY
 TBL-visit_events,table,visit_events,supabase/migrations (table visit_events),ENTITY
+TBL-wage_schedules,table,wage_schedules,supabase/migrations (table wage_schedules),LIBRARY
 TBL-weather_days,table,weather_days,supabase/migrations (table weather_days),ENTITY
 TBL-weather_now,table,weather_now,supabase/migrations (table weather_now),ENTITY
 TBL-work_calendar_exceptions,table,work_calendar_exceptions,supabase/migrations (table work_calendar_exceptions),LIBRARY
@@ -301,6 +302,7 @@ TST-db-a-shipped-row-you-can-make-your-own,test,db/a-shipped-row-you-can-make-yo
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
 TST-db-a-surface-somebody-shot,test,db/a-surface-somebody-shot.test.ts,tests/db/a-surface-somebody-shot.test.ts,ENGINE
 TST-db-a-ticket-in-somebodys-pocket,test,db/a-ticket-in-somebodys-pocket.test.ts,tests/db/a-ticket-in-somebodys-pocket.test.ts,ENGINE
+TST-db-a-wage-sheet-you-can-point-at,test,db/a-wage-sheet-you-can-point-at.test.ts,tests/db/a-wage-sheet-you-can-point-at.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
 TST-db-an-incident-you-can-close,test,db/an-incident-you-can-close.test.ts,tests/db/an-incident-you-can-close.test.ts,ENGINE

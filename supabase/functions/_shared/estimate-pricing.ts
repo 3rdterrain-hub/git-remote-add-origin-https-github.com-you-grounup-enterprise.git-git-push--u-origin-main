@@ -41,6 +41,15 @@ type Num = number | string | null | undefined;
 export interface LaborRateRow {
   id: string; classification: string; labor_group: string | null;
   base_wage_per_hour: Num; burden_percent: Num;
+  /**
+   * Fringe in dollars an hour, as a union scale or a determination publishes it.
+   *
+   * Absent on every rate that predates wage sheets, and the column defaults to
+   * zero — which is why reading it here changes no existing price. The engine
+   * adds it to the burden bucket and charges it on hours worked.
+   */
+  fringe_per_hour?: Num;
+  fringe_is_taxable?: boolean | null;
   overtime_multiplier: Num; doubletime_multiplier: Num;
   region: string | null; effective_date: string | null; status: string | null;
 }
@@ -306,6 +315,8 @@ function toCrew(c: CrewRow, fallbackShiftHours: number): Crew {
             group: rate.labor_group ?? rate.classification,
             baseWagePerHour: n(rate.base_wage_per_hour),
             burdenPercent: n(rate.burden_percent),
+            fringePerHour: n(rate.fringe_per_hour),
+            fringeIsTaxable: rate.fringe_is_taxable === true,
             overtimeMultiplier: n(rate.overtime_multiplier, 1.5),
             doubletimeMultiplier: n(rate.doubletime_multiplier, 2),
             ...(rate.region ? { region: rate.region } : {}),
@@ -360,6 +371,8 @@ function crewFromResources(
           group: rate.labor_group ?? rate.classification,
           baseWagePerHour: n(rate.base_wage_per_hour),
           burdenPercent: n(rate.burden_percent),
+          fringePerHour: n(rate.fringe_per_hour),
+          fringeIsTaxable: rate.fringe_is_taxable === true,
           overtimeMultiplier: n(rate.overtime_multiplier, 1.5),
           doubletimeMultiplier: n(rate.doubletime_multiplier, 2),
           ...(rate.region ? { region: rate.region } : {}),

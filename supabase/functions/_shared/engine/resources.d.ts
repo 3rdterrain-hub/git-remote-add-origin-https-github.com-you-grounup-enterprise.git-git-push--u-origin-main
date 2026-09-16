@@ -15,8 +15,33 @@ export interface LaborClassification {
     classification: string;
     group: string;
     baseWagePerHour: number;
-    /** Fringe, taxes, insurance and company burden as a fraction of base wage. */
+    /**
+     * Taxes, insurance and company burden as a fraction of base wage.
+     *
+     * On an open-shop rate this also carries fringe, because a shop expresses the
+     * whole load as one percentage. A union scale or a prevailing wage
+     * determination does not: it publishes fringe as a fixed number of dollars an
+     * hour, which is `fringePerHour` below. A rate uses one or the other, and the
+     * screen showing it says which.
+     */
     burdenPercent: number;
+    /**
+     * Fringe in dollars per hour, as a determination or an agreement publishes it.
+     *
+     * Zero on an open-shop rate, which is why adding this moves no existing
+     * number. Paid on hours *worked* rather than hours *paid*, so it takes no
+     * overtime multiplier — that is how Davis-Bacon computes it, and doing it the
+     * other way overstates the cost of every overtime hour on a public job.
+     */
+    fringePerHour?: number;
+    /**
+     * Whether the fringe is paid as cash in lieu.
+     *
+     * Cash fringe is wages and carries payroll burden with it; fringe paid into a
+     * plan does not. The difference is real money at scale, and it is a fact
+     * about how the contractor pays rather than about the determination.
+     */
+    fringeIsTaxable?: boolean;
     overtimeMultiplier: number;
     doubletimeMultiplier: number;
     region?: string;
@@ -29,11 +54,25 @@ export interface LoadedLaborRate {
     baseWagePerHour: number;
     burdenPercent: number;
     burdenPerHour: number;
-    /** Base + burden. This is the rate the cost engine multiplies by hours. */
+    /** Stated fringe, in dollars per hour. Zero where the rate carries none. */
+    fringePerHour: number;
+    /** Burden charged on a cash fringe, which is wages. Zero for plan fringe. */
+    fringeBurdenPerHour: number;
+    /** Base + burden + fringe. The rate the cost engine multiplies by hours. */
     loadedPerHour: number;
     derivation: string;
 }
-/** Loaded rate = base x (1 + burden). Burden is reported separately per RULE-001. */
+/**
+ * Loaded rate = base x (1 + burden), plus any stated fringe.
+ *
+ * Burden is reported separately per RULE-001, and so is fringe: a determination
+ * is argued line by line, and a single loaded number nobody can take apart is a
+ * number nobody can defend against an auditor.
+ *
+ * With no fringe this is exactly what it has always been, down to the wording of
+ * the derivation — which is what makes adding it safe for every open-shop rate
+ * already on file.
+ */
 export declare function loadedLaborRate(labor: LaborClassification): LoadedLaborRate;
 export interface CrewMember {
     classification: LaborClassification;

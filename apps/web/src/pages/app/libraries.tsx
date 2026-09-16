@@ -35,6 +35,7 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { CategoryManager } from '@/components/library/category-manager';
+import { WageSheets } from '@/components/library/wage-sheets';
 import { AddMaterialDialog, AddVendorDialog } from '@/components/library/add-library-row';
 import { HaulProfiles } from '@/components/library/haul-profiles';
 
@@ -289,6 +290,7 @@ export function LibrariesPage() {
           <TabsTrigger value="hauling">Hauling</TabsTrigger>
           <TabsTrigger value="subs">Subcontractors</TabsTrigger>
           <TabsTrigger value="labor">Labor</TabsTrigger>
+          <TabsTrigger value="wages">Wage sheets</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
           <TabsTrigger value="crews">Crews</TabsTrigger>
           <TabsTrigger value="production">Production rates</TabsTrigger>
@@ -878,6 +880,15 @@ export function LibrariesPage() {
             </CardContent>
           </Card>
           <CategoryManager companyId={companyId} canEdit={canWrite} only="labor_group" />
+        </TabsContent>
+
+        {/*
+          * What a person is paid depends on which hall they belong to and where
+          * the job is, and none of that fits in the Labor tab's one row per
+          * classification. A sheet is the document itself.
+          */}
+        <TabsContent value="wages">
+          <WageSheets companyId={companyId} canWrite={canWrite} />
         </TabsContent>
 
         <TabsContent value="equipment" className="space-y-4">

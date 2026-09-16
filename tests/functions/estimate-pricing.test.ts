@@ -133,6 +133,39 @@ describe('mapping an estimate into the engine', () => {
     expect(input.lines[0]!.quantity.measured).toBe(1200);
   });
 
+  it('carries a stated fringe from the row onto the crew', () => {
+    /*
+     * The wire a union scale and a prevailing wage determination travel. The
+     * column arrives as a string like every other numeric over PostgREST, and a
+     * fringe read as text adds nothing at all — which on a public job is a bid
+     * short by twenty dollars an hour a worker, looking entirely normal.
+     */
+    const { input } = buildEstimateInput(snapshot({
+      lines: [line({
+        crews: {
+          id: 'crew-1', name: 'Operating crew', shift_hours: '8',
+          crew_members: [{
+            headcount: 1, straight_hours_per_shift: '8',
+            overtime_hours_per_shift: '0', doubletime_hours_per_shift: '0',
+            labor_rates: { ...laborRate, fringe_per_hour: '20.50', fringe_is_taxable: false },
+          }],
+        },
+      })],
+    }), ASOF);
+    const c = input.lines[0]!.crew!.members[0]!.classification;
+    expect(c.fringePerHour).toBe(20.5);
+    expect(c.fringeIsTaxable).toBe(false);
+  });
+
+  it('reads no fringe as no fringe, which is every rate on file today', () => {
+    // The property the whole feature rests on: a rate that predates wage sheets
+    // has no fringe column value, and the crew it prices is unchanged.
+    const { input } = buildEstimateInput(snapshot(), ASOF);
+    const c = input.lines[0]!.crew!.members[0]!.classification;
+    expect(c.fringePerHour).toBe(0);
+    expect(c.fringeIsTaxable).toBe(false);
+  });
+
   it('lets the engine choose which equipment rate wins', () => {
     // RULE-003 precedence is the engine's, applied by the engine's own
     // function. A tenant-approved rate outranks the shipped seed.

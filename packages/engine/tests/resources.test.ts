@@ -36,6 +36,109 @@ describe('loaded labor rate', () => {
   });
 });
 
+/**
+ * Fringe, as a determination or a union scale publishes it.
+ *
+ * An open-shop rate expresses its whole load as one percentage and carries no
+ * fringe of its own — which is why every figure above this block is unchanged.
+ * A prevailing wage determination and a union agreement publish fringe as a
+ * fixed number of dollars an hour instead, and two things about it are easy to
+ * get wrong by exactly the amount that loses a bid.
+ */
+describe('fringe on a union or prevailing wage rate', () => {
+  /* Local 18-shaped: $40 base, 35% burden, $20.50 fringe into the plan. */
+  const withFringe: LaborClassification = { ...op1, fringePerHour: 20.5 };
+
+  it('changes nothing at all when there is no fringe', () => {
+    // The property the whole feature rests on: an open-shop company that never
+    // touches this prices exactly what it priced before.
+    const plain = loadedLaborRate(op1);
+    expect(plain.loadedPerHour).toBe(54);
+    expect(plain.fringePerHour).toBe(0);
+    expect(plain.fringeBurdenPerHour).toBe(0);
+    expect(plain.derivation).toBe('40 base x (1 + 0.35 burden) = 54/hr loaded');
+  });
+
+  it('adds a plan fringe without charging burden on it', () => {
+    // Fringe paid into a benefit plan is not wages, so no payroll burden.
+    const r = loadedLaborRate(withFringe);
+    expect(r.fringePerHour).toBe(20.5);
+    expect(r.fringeBurdenPerHour).toBe(0);
+    expect(r.loadedPerHour).toBe(74.5);          // 40 + 14 + 20.50
+    expect(r.derivation).toBe('40 base x (1 + 0.35 burden) + 20.5 fringe = 74.5/hr loaded');
+  });
+
+  it('charges burden on a cash fringe, because cash in lieu is wages', () => {
+    const r = loadedLaborRate({ ...withFringe, fringeIsTaxable: true });
+    expect(r.fringeBurdenPerHour).toBe(7.175);   // 20.50 x 0.35
+    expect(r.loadedPerHour).toBe(81.675);
+  });
+
+  it('pays fringe on hours worked, never on the overtime multiplier', () => {
+    /*
+     * Eight straight and two overtime, one operator, one shift.
+     *   wage       40 x 10                 = 400
+     *   OT premium 40 x 0.5 x 2            =  40
+     *   fringe     20.50 x 10              = 205   <- ten hours, not eleven
+     *   burden     (400 + 40) x 0.35 + 205 = 359
+     *   total                                = 799
+     *
+     * An overtime hour earns time and a half in wages and one hour of fringe.
+     * Multiplying the fringe too would bill 225.50 instead of 205 — twenty
+     * dollars an operator a shift, which is how a public bid comes in high for
+     * a reason nobody can find.
+     */
+    const crewOnFringe: Crew = {
+      id: 'CRW-PW-01', name: 'Prevailing wage crew',
+      shiftHours: 8,
+      members: [{
+        classification: withFringe, count: 1,
+        straightHoursPerShift: 8, overtimeHoursPerShift: 2,
+      }],
+    };
+    const r = calculateCrewCost(crewOnFringe, 1);
+    expect(r.baseWageCost).toBe(400);
+    expect(r.overtimePremiumCost).toBe(40);
+    expect(r.burdenCost).toBe(359);
+    expect(r.totalLaborCost).toBe(799);
+  });
+
+  it('keeps the wage bucket free of fringe, per RULE-001', () => {
+    // Fringe is not the wage. It belongs with burden, which is where an
+    // open-shop rate's fringe already sits inside burdenPercent.
+    const crewOnFringe: Crew = {
+      id: 'CRW-PW-02', name: 'Prevailing wage crew',
+      shiftHours: 8,
+      members: [{ classification: withFringe, count: 1 }],
+    };
+    const r = calculateCrewCost(crewOnFringe, 1);
+    expect(r.baseWageCost).toBe(320);            // 40 x 8, fringe nowhere near it
+    expect(r.burdenCost).toBe(276);              // 320 x 0.35 + 20.50 x 8
+    expect(r.totalLaborCost).toBe(596);
+  });
+
+  it('costs a cash fringe more than a plan fringe, by the burden on it', () => {
+    const shape = (c: LaborClassification): Crew => ({
+      id: 'CRW-PW-03', name: 'Prevailing wage crew', shiftHours: 8,
+      members: [{ classification: c, count: 1 }],
+    });
+    const plan = calculateCrewCost(shape(withFringe), 1);
+    const cash = calculateCrewCost(shape({ ...withFringe, fringeIsTaxable: true }), 1);
+    /*
+     * Stated as two totals rather than as their difference: both are rounded
+     * money, and subtracting them in JavaScript produces 57.39999999999998,
+     * which is the arithmetic this engine's `money` helper exists to keep out
+     * of a bid. The gap is 164 x 0.35 = 57.40 on one operator for one shift.
+     */
+    expect(plan.totalLaborCost).toBe(596);
+    expect(cash.totalLaborCost).toBe(653.4);
+  });
+
+  it('refuses a negative fringe', () => {
+    expect(() => loadedLaborRate({ ...op1, fringePerHour: -1 })).toThrow(RangeError);
+  });
+});
+
 describe('crew cost', () => {
   const crew: Crew = {
     id: 'CRW-EW-01', name: 'Earthwork crew',

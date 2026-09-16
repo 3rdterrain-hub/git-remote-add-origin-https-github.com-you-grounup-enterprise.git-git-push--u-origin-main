@@ -11,6 +11,111 @@ Newest first.
 
 ---
 
+## D-067 · 2026-09-16 · A wage sheet is the unit, not a region
+
+**Decision.** Wages are held as dated sheets (`wage_schedules`), one per
+document a person actually holds: a union agreement zone, a prevailing wage
+determination, a company scale. A rate belongs to a sheet and is found by
+**trade + class**, not by classification name.
+
+**Reason.** What somebody is paid depends on which hall they belong to and where
+the job is, and it does not fit one `region` column. Local 18 covers all of Ohio
+and does not pay the same across it; crossing into Michigan is Local 324 under a
+different agreement. On public work a determination is scoped by county **and
+construction type** — heavy, highway, building and residential pay differently
+for the same trade in the same county, which is why a sheet is refused for not
+naming one.
+
+Trade and class are held apart because the same operator is "Heavy Equipment
+Operator II" in a shop, "Operating Engineer, Class 2" in an agreement and "Power
+Equipment Operator, Class II" in a determination. Three strings nothing can
+connect; the pair is the only thing stable across all three.
+
+**Authorized by.** The owner, describing the actual structure: "Ohio got a
+certain type of pay, Cleveland got a certain type of pay… Michigan itself got a
+certain pay. It breaks down like that."
+
+**Affects.** `wage_schedules`, `labor_rates`, `estimate_versions`, the engine,
+`price-estimate`, Master Libraries, the estimate assumptions card.
+
+**Status.** Active. Migrations 0201–0206.
+
+---
+
+## D-068 · 2026-09-16 · An estimate naming no sheet is priced by the row it already names
+
+**Decision.** `app.resolve_labor_rate` returns the crew member's own
+`labor_rate_id` when the version carries no `wage_schedule_id` — the same row,
+through the same column, with no lookup performed. It is the first three lines
+of the function.
+
+**Reason.** Most contractors are open shop and will never open this. The owner's
+condition for building it at all was "I can't have any mistakes", and the only
+honest way to guarantee that is to make the default path *the same code path*
+rather than an equivalent one. It is a property of the function's shape rather
+than something the rest of it is careful about.
+
+Proved rather than asserted, at three layers: the engine's pinned figures (54.00,
+59.40, 40.00 per hour) are unchanged across 708 tests; the pricing function reads
+a rate with no fringe as fringe zero; and the resolver has its own test that the
+returned id *is* the crew member's id.
+
+**Affects.** Every estimate in every company that does not use wage sheets.
+
+**Status.** Active.
+
+---
+
+## D-069 · 2026-09-16 · A missing class is refused, never substituted
+
+**Decision.** When an estimate names a sheet and a crew's class is not on it,
+`app.resolve_labor_rate` raises, naming the class and the sheet. It does not
+fall back to the crew's own rate, the shop scale, or anything else.
+
+**Reason.** A silently substituted wage is the worst failure this platform could
+produce: the bid looks entirely normal, because a wage is a number and every
+number looks fine. On public work it is also a finding. The rule is that the
+failure a person can see beats the number they cannot check — so the refusal
+carries the class, the sheet, and what to do about it.
+
+The same reasoning drops `public.resolve_labor_rate` (0206): a browser has no
+business resolving a wage, for the reason 0058 gives about prices.
+
+**Affects.** `resolve_labor_rate`, `price-estimate`, which surfaces the refusal
+as a 422 rather than translating it.
+
+**Status.** Active.
+
+---
+
+## D-070 · 2026-09-16 · Fringe is dollars an hour on hours worked, and it is not the wage
+
+**Decision.** `labor_rates.fringe_per_hour` sits beside `burden_percent` rather
+than inside it. It is paid on hours **worked**, taking no overtime multiplier,
+and lands in the burden bucket per RULE-001. `fringe_is_taxable` says whether it
+is cash in lieu, which carries payroll burden, or paid into a plan, which does
+not.
+
+**Reason.** An open-shop rate expresses its whole load as one percentage and
+that is right for it. A determination and a union scale publish fringe as a
+fixed dollar figure, because the amount does not follow the wage. Rolling one
+into the other loses the distinction a determination is argued on.
+
+Hours worked rather than hours paid is how Davis-Bacon computes it: an overtime
+hour earns time and a half in wages and one hour of fringe. Multiplying the
+fringe too overstates every overtime hour — on one operator for one shift, about
+twenty dollars — which is how a public bid comes in high for a reason nobody can
+find.
+
+Fringe defaults to zero, which is why none of this moved an existing number.
+
+**Affects.** `packages/engine/src/resources.ts`, `labor_rates`,
+`estimate-pricing.ts`, `my_wage_rates`.
+
+**Status.** Active. Pinned by seven tests in `resources.test.ts`.
+
+---
+
 ## D-066 · 2026-09-16 · The semantic layer is inventoried like every other door
 
 **Decision.** `scripts/build-door-inventory.mjs` now counts `reporting_*` views

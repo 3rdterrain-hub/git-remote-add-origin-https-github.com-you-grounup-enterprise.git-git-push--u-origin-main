@@ -230,6 +230,15 @@ export interface VersionDetail {
     shrinkPercent: number;
     bidRoundingIncrement: number;
   };
+  /**
+   * The wage sheet this version prices from, or null for the rates its crews
+   * already carry.
+   *
+   * Null is the default and the overwhelming case — an open-shop company never
+   * sets it, and `resolve_labor_rate` then returns each crew member's own rate
+   * unchanged. A sheet is for work priced off somebody else's scale.
+   */
+  wageScheduleId: string | null;
 }
 
 /** A service the caller may put on a line, from their library and the platform's. */
@@ -323,7 +332,7 @@ export const loadEstimates: Query<EstimateRow[]> = async (client) => {
 export const loadVersion = (versionId: string): Query<VersionDetail | null> => async (client) => {
   const rows = unwrap(await client
     .from('estimate_versions')
-    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, recommended_contingency, applied_contingency, contingency_source, contingency_override_reason, contingency_approved_by, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, site_address, site_city, site_state, customers(name))')
+    .select('id, estimate_id, version_number, status, direct_cost, indirect_cost, total_markup, total_price, bid_price, total_labor_hours, total_equipment_hours, blocked_from_issue, weighted_confidence, recommended_contingency, applied_contingency, contingency_source, contingency_override_reason, contingency_approved_by, engine_version, calculated_at, library_snapshot_id, approved_at, issued_at, cost_labor_wage, cost_labor_burden, cost_equipment, cost_equipment_mob, cost_fuel, cost_material, cost_trucking, cost_disposal, cost_subcontract, cost_other, show_labor, show_equipment, show_materials, show_hauling, show_subcontract, shift_hours, calendar_efficiency, fuel_price_per_gallon, def_price_per_gallon, swell_percent, shrink_percent, bid_rounding_increment, wage_schedule_id, estimates!estimate_versions_estimate_id_fkey(number, name, expires_at, created_at, site_address, site_city, site_state, customers(name))')
     .eq('id', versionId)
     .limit(1)) as Array<Record<string, unknown>>;
   const v = rows[0];
@@ -441,6 +450,7 @@ export const loadVersion = (versionId: string): Query<VersionDetail | null> => a
       shrinkPercent: num(v.shrink_percent),
       bidRoundingIncrement: num(v.bid_rounding_increment),
     },
+    wageScheduleId: (v.wage_schedule_id as string | null) ?? null,
   };
 };
 

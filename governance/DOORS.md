@@ -12,9 +12,9 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **375** |
-| Opened by a screen | **355** |
-| Opened only by an Edge Function | **5** |
+| Doors | **384** |
+| Opened by a screen | **363** |
+| Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
 | Granted but unreachable | **0** |
@@ -61,6 +61,7 @@ None.
 | `record_schedule_calculation` | recalculate-schedule/index.ts |
 | `record_site_weather` | refresh-weather/index.ts |
 | `record_surface_comparison` | compare-surfaces/index.ts |
+| `resolved_labor_rates` | price-estimate/index.ts |
 | `seat_price_cents` | create-checkout-session/index.ts |
 
 ## Opened by a screen
@@ -89,6 +90,7 @@ None.
 | `apply_takeoff_to_line` | function | lib/data/takeoff.ts |
 | `approve_ap_invoice` | function | lib/data/finance.ts |
 | `approve_pay_application` | function | lib/data/finance.ts |
+| `approve_wage_schedule` | function | lib/data/wages.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
 | `assign_resource` | function | lib/data/schedule.ts |
 | `attach_claim_support` | function | lib/data/claims.ts |
@@ -139,6 +141,7 @@ None.
 | `create_takeoff_condition` | function | lib/data/conditions.ts |
 | `create_toolbox_talk` | function | lib/data/safety.ts |
 | `create_vendor` | function | lib/data/library.ts |
+| `create_wage_schedule` | function | lib/data/wages.ts |
 | `create_work_order` | function | lib/data/fleet.ts |
 | `customize_assembly` | function | lib/data/assemblies.ts |
 | `decide_refund` | function | lib/data/admin.ts |
@@ -250,6 +253,8 @@ None.
 | `my_uncosted_materials` | view | lib/data/library.ts |
 | `my_unposted_days` | view | lib/data/time-clock.ts |
 | `my_unrated_equipment` | view | lib/data/estimates.ts |
+| `my_wage_rates` | view | lib/data/wages.ts |
+| `my_wage_schedules` | view | lib/data/wages.ts |
 | `my_weather` | view | lib/data/dashboard.ts, lib/data/project.ts |
 | `my_weather_now` | view | lib/data/project.ts |
 | `my_work_calendars` | view | lib/data/schedule.ts |
@@ -349,11 +354,13 @@ None.
 | `save_line_buildup_to_library` | function | lib/data/estimates.ts |
 | `save_line_resource` | function | lib/data/estimates.ts |
 | `save_line_to_library` | function | lib/data/estimates.ts |
+| `schedule_wage_increase` | function | lib/data/wages.ts |
 | `search` | function | components/layout/app-shell.tsx, lib/data/plans.ts, lib/search.ts +1 |
 | `search_document_text` | function | lib/data/plans.ts |
 | `send_file_to_machine` | function | lib/data/survey.ts |
 | `set_allowance` | function | lib/data/admin.ts |
 | `set_ap_invoice_status` | function | lib/data/finance.ts |
+| `set_apprentice_step` | function | lib/data/wages.ts |
 | `set_asset_status` | function | lib/data/fleet.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
 | `set_claim_status` | function | lib/data/claims.ts |
@@ -365,6 +372,7 @@ None.
 | `set_estimate_markup` | function | lib/data/estimates.ts |
 | `set_estimate_site` | function | lib/data/estimates.ts |
 | `set_estimate_status` | function | lib/data/estimates.ts |
+| `set_estimate_wage_schedule` | function | lib/data/wages.ts |
 | `set_feature_override` | function | lib/data/admin.ts |
 | `set_haul_capacity` | function | lib/data/estimates.ts |
 | `set_inspection_result` | function | lib/data/safety.ts |
@@ -385,6 +393,7 @@ None.
 | `set_plan_visibility` | function | lib/data/admin.ts |
 | `set_project_geofence` | function | lib/data/field-work.ts |
 | `set_role_permissions` | function | lib/data/admin.ts |
+| `set_wage_rate` | function | lib/data/wages.ts |
 | `set_work_credential_requirement` | function | lib/data/workforce.ts |
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |

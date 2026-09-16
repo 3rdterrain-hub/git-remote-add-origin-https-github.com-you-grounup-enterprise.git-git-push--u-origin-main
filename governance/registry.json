@@ -81,6 +81,7 @@
     "inventory_transactions": "ENTITY",
     "knowledge_articles": "LIBRARY",
     "labor_rates": "LIBRARY",
+    "wage_schedules": "LIBRARY",
     "lead_intake_forms": "ENTITY",
     "leads": "ENTITY",
     "library_categories": "LIBRARY",
@@ -380,6 +381,7 @@
   ],
   "library_scope": {
     "ai_models": "platform_only",
+    "wage_schedules": "company_only",
     "ai_prompts": "global_or_company",
     "assemblies": "three_tier",
     "assembly_components": "child_of_library",

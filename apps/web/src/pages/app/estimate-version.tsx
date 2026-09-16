@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
+import { loadWageSheets, setEstimateWageSheet } from '@/lib/data/wages';
 import { supabase } from '@/lib/supabase';
 import { usePermissions } from '@/lib/data/session';
 import { priceEstimateVersion, type PricingOutcome } from '@/lib/data/pricing';
@@ -1975,6 +1976,68 @@ function ReviseDialog({ open, onOpenChange, version, onRevised }: {
 }
 
 /**
+ * Which wage sheet this bid is priced from.
+ *
+ * Only approved sheets are offered, and one dated for next May says so rather
+ * than looking like it is in force. Approved and in force are different facts,
+ * and bidding work that happens after a scheduled step at today's rate is the
+ * money this whole feature exists to stop leaking.
+ */
+function WageBasisField({ version: v, editable, onChanged }: {
+  version: VersionDetail; editable: boolean; onChanged: () => void;
+}) {
+  const sheetsQ = useQuery(loadWageSheets, []);
+  const sheets = (sheetsQ.status === 'ready' ? sheetsQ.data : [])
+    .filter((s) => s.status === 'active');
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+  const current = sheets.find((s) => s.id === v.wageScheduleId) ?? null;
+
+  /* Nothing to choose between, and nothing to explain. */
+  if (sheets.length === 0 && v.wageScheduleId === null) return null;
+
+  return (
+    <div className="space-y-1 border-b border-charcoal-100 pb-3">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <Label htmlFor="asm-wage-sheet" className="text-charcoal-800">Wages</Label>
+          <p className="text-xs text-charcoal-500">
+            {current
+              ? current.scopeSays
+              : 'The rates each crew already carries. What an open-shop bid uses.'}
+          </p>
+        </div>
+        <select id="asm-wage-sheet" disabled={!editable || busy}
+          className="h-9 w-56 shrink-0 rounded-md border border-charcoal-200 bg-white px-2 text-sm"
+          value={v.wageScheduleId ?? ''}
+          onChange={(e) => {
+            setBusy(true); setFailed(null);
+            setEstimateWageSheet(v.id, e.target.value || null)
+              .then(onChanged)
+              .catch((err: unknown) => setFailed(messageFor(err)))
+              .finally(() => setBusy(false));
+          }}>
+          <option value="">The crews&rsquo; own rates</option>
+          {sheets.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}{s.startsLater ? ` (from ${date(s.effectiveDate)})` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+      {current && current.startsLater ? (
+        <p className="text-xs text-warn-700">
+          This sheet takes effect {date(current.effectiveDate)}. Priced against it the bid is at
+          next year&rsquo;s money &mdash; right for work that happens then, wrong for work that
+          happens now.
+        </p>
+      ) : null}
+      {failed ? <p className="text-xs text-danger-700">{failed}</p> : null}
+    </div>
+  );
+}
+
+/**
  * The estimator's own assumptions for this bid.
  *
  * Every field here changes what the job costs, and every one of them arrived in
@@ -2027,6 +2090,15 @@ function AssumptionsCard({ version: v, editable, onChanged }: {
       defaultOpen={false}
     >
       <div className="space-y-3">
+        {/*
+          * Which wage sheet prices this bid, first because it moves more money
+          * than anything else in this card: labor is thirty to forty percent of
+          * direct cost. "The crews' own rates" is the default and the common
+          * case — an open-shop company leaves it alone and is priced exactly as
+          * it was before wage sheets existed.
+          */}
+        <WageBasisField version={v} editable={editable} onChanged={onChanged} />
+
         {FIELDS.map(([label, column, value, step, hint]) => (
           <div key={column} className="flex items-start justify-between gap-4">
             <div className="min-w-0">

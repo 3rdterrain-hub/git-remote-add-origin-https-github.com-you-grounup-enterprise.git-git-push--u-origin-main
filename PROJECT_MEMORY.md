@@ -569,6 +569,59 @@ up — the difference between a retry on Tuesday and a subscription ending).
 
 The inventory now counts `reporting_*`, so this cannot recur quietly.
 
+### Prevailing and union wages, as of migrations 0201–0206
+
+Asked for by the owner, who is an operator: *"my pay isn't 44 or $40, but it
+probably depends on the area you're in and the union hall that you belong to…
+Ohio got a certain type of pay, Cleveland got a certain type of pay… it breaks
+down like that."* And the condition on building it: **"I can't have any
+mistakes."**
+
+**The unit is the sheet** (D-067) — one dated document: a union agreement zone,
+a prevailing wage determination, a company scale. A rate on it is found by
+**trade + class**, because the same operator is "Heavy Equipment Operator II" to
+a shop, "Class 2" to an agreement and "Class II" to a determination, and the
+pair is the only thing stable across all three. A determination must name its
+county **and construction type**; heavy, highway, building and residential pay
+differently for the same trade in the same county.
+
+**Open shop is the default and was made safe by construction** (D-068). An
+estimate naming no sheet resolves to the crew member's own `labor_rate_id` —
+the same row, same column, no lookup — in the first three lines of
+`app.resolve_labor_rate`. Proved at three layers: the engine's pinned figures
+(54.00, 59.40, 40.00/hr) unchanged across 708 tests; the pricing function reads
+no fringe as zero; the resolver has its own identity test.
+
+**Nothing is ever substituted** (D-069). A class missing from the named sheet is
+a refusal carrying the class and the sheet. A silently substituted wage is the
+worst thing this platform could produce — the bid looks entirely normal, because
+a wage is a number and every number looks fine.
+
+**Fringe is dollars an hour, on hours worked** (D-070), separate from
+`burden_percent`, taking no overtime multiplier — that is how Davis-Bacon
+computes it, and multiplying it overstates every overtime hour by about twenty
+dollars an operator a shift. Cash in lieu carries burden; plan fringe does not.
+
+**A raise is entered once.** `app.schedule_wage_increase` copies a sheet forward
+with the step applied and dates it, so a raise three years out can be entered
+this afternoon and every bid after that date prices at the stepped rate. Every
+class comes forward, and apprentices — held as a **percentage of journeyman**
+rather than a figure — recompute off the new journeyman rather than being raised
+twice.
+
+**What was deliberately not built:** automatic matching of a determination's
+classification names to yours. A decision says "Power Equipment Operator, Class
+II" and you say "Operator II"; connecting those is a judgment, not a derivation,
+and code that guessed would be silently wrong about a wage. The mapping is a
+person's, made once per determination.
+
+Three guards caught mistakes during the build, all correctly: the category guard
+refused the trade being written into the user-addable `labor_group` (0203); the
+apprentice constraint refused a percentage with no journeyman named (0204); and
+`suspension.test.ts` found the new table missing the read-only guard (0205).
+`every-door-has-a-reader` then found the resolver had no caller, which is what
+0206 fixed.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
