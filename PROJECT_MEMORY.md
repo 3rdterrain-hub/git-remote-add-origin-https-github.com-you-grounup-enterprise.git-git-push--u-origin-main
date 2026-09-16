@@ -422,11 +422,50 @@ over a 5 × 5 grid at 25 ft with net zero, a design published with a real SHA-25
 and superseded by its own next version, and the frozen-surface guard refusing to
 move the ground underneath it.
 
+### Finance, as of migration 0196
+
+Finance had exactly one writer — `create_pay_application` (0162) opens a header —
+and the consequences ran right through the section. `schedule_of_values` had no
+writer at all (O-020), so every application was a header measured against
+nothing. `pay_application_lines` had no writer, so an application could be opened
+and submitted and never filled in; `submit_pay_application` would happily certify
+a bill for zero dollars. `ap_invoices` had no writer, so
+`ap_invoices_pay_requires_match` — the control that stops a company paying for
+materials it never received — had stood since 0017 without ever being reached.
+
+**The figures are computed, never typed** (D-061). Completed to date, stored
+materials, retainage, approved changes and the amount due all follow from the
+lines; a line's previous column is read off the previous application; and
+`previous_payments` is what earlier applications were *paid*, not what they were
+billed. Taken from what was billed, it quietly forgives an owner who short-paid
+the month before — on the live workspace the two differ by $7,722.29 on
+application 1 alone.
+
+**The schedule of values comes off the estimate.** `source_line_item_id` has been
+on that table since 0017 and had never been written. Retyping the bid into a
+billing schedule is how the bill stops agreeing with the bid.
+
+**A line is billed by amount or by percent, in the same cell**, because
+estimators work both ways and a screen that insists on one gets the other typed
+into it wrong. The percent is converted on the way in and only the dollar figure
+is stored, so there is one number on file rather than two that can disagree.
+
+**The three-way match is computed, not chosen.** A browser that could declare an
+invoice matched could declare its way straight past the control, so
+`app.match_ap_invoice` compares the invoice with what has actually been received
+and the payables list says *why* an invoice cannot be paid rather than only
+showing a state.
+
+Verified live on PRJ-2026-0003: the schedule built itself from the awarded
+estimate at $56,805.72, application 1 billed 40% ($22,722.29), was submitted,
+approved and short-paid at $15,000, and application 2 opened carrying
+$22,722.29 completed and $15,000 previously paid.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade
-   is done; Finance, Claims, Master Libraries, Reports, GrounUp Network, Company
-   Settings and Billing remain.
+   and Finance are done; Claims, Master Libraries, Reports, GrounUp Network,
+   Company Settings and Billing remain.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.
 3. Compose task resources in the catalog, or document that pricing is by hand.

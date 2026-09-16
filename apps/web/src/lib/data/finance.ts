@@ -39,7 +39,7 @@ export interface PayAppLine {
 }
 
 export interface PayApp {
-  id: string; number: number; projectNumber: string;
+  id: string; number: number; projectId: string | null; projectNumber: string;
   periodStart: string; periodEnd: string;
   contractSum: number; approvedChanges: number; contractSumToDate: number;
   completedToDate: number; storedMaterials: number; totalEarned: number;
@@ -52,6 +52,7 @@ export interface PayApp {
 const payAppFrom = (r: Record<string, unknown>): PayApp => ({
   id: String(r.id),
   number: Number(r.application_number),
+  projectId: (r.project_id as string | null) ?? null,
   projectNumber: one<{ number: string }>(r.projects)?.number ?? '—',
   periodStart: String(r.period_start),
   periodEnd: String(r.period_end),
@@ -85,7 +86,7 @@ const payAppFrom = (r: Record<string, unknown>): PayApp => ({
 export const loadPayApplications: Query<PayApp[]> = async (client) => {
   const rows = unwrap(await client
     .from('pay_applications')
-    .select('id, application_number, period_start, period_end, contract_sum, approved_changes, contract_sum_to_date, completed_to_date, stored_materials, total_earned, retainage_percent, retainage_to_date, previous_payments, current_due, status, paid_at, amount_paid, projects(number), pay_application_lines(id, item_number, description, scheduled_value, previous_completed, this_period, stored_materials, completed_to_date)')
+    .select('id, project_id, application_number, period_start, period_end, contract_sum, approved_changes, contract_sum_to_date, completed_to_date, stored_materials, total_earned, retainage_percent, retainage_to_date, previous_payments, current_due, status, paid_at, amount_paid, projects(number), pay_application_lines(id, item_number, description, scheduled_value, previous_completed, this_period, stored_materials, completed_to_date)')
     .order('period_end', { ascending: false })
     .limit(50)) as Array<Record<string, unknown>>;
   return rows.map(payAppFrom);
@@ -141,39 +142,144 @@ export interface ApInvoiceRow {
   dueDate: string | null; po: string | null; project: string | null;
   amount: number; tax: number; retainageWithheld: number; amountPaid: number;
   matchStatus: string; status: string;
-  /** Derived here from the same rule the database enforces as a constraint. */
+  vendorId: string; purchaseOrderId: string | null; projectId: string | null;
+  balanceDue: number;
+  /** Why it cannot be paid, in words, or null when it can. From the view. */
+  matchProblem: string | null;
+  daysOverdue: number | null;
+  /** The same rule the database enforces as a constraint, read back out. */
   blocked: boolean;
 }
 
 export const loadPayables: Query<ApInvoiceRow[]> = async (client) => {
   const rows = unwrap(await client
-    .from('ap_invoices')
-    .select('id, invoice_number, invoice_date, due_date, amount, tax, retainage_withheld, amount_paid, match_status, status, vendors(name), purchase_orders(number), projects(number)')
+    .from('my_ap_invoices')
+    .select('id, vendor_id, purchase_order_id, project_id, invoice_number, invoice_date, '
+      + 'due_date, amount, tax, retainage_withheld, amount_paid, match_status, status, '
+      + 'vendor_name, purchase_order_number, project_number, balance_due, payable, '
+      + 'match_problem, days_overdue')
     .order('invoice_date', { ascending: false })
-    .limit(200)) as Array<Record<string, unknown>>;
-  return rows.map((i) => {
-    const matchStatus = String(i.match_status);
-    const status = String(i.status);
-    return {
-      id: String(i.id),
-      vendor: one<{ name: string }>(i.vendors)?.name ?? 'Unknown vendor',
-      invoiceNumber: String(i.invoice_number),
-      invoiceDate: String(i.invoice_date),
-      dueDate: (i.due_date as string | null) ?? null,
-      po: one<{ number: string }>(i.purchase_orders)?.number ?? null,
-      project: one<{ number: string }>(i.projects)?.number ?? null,
-      amount: Number(i.amount ?? 0),
-      tax: Number(i.tax ?? 0),
-      retainageWithheld: Number(i.retainage_withheld ?? 0),
-      amountPaid: Number(i.amount_paid ?? 0),
-      matchStatus,
-      status,
-      // `ap_invoices_pay_requires_match`, read back out. The screen states the
-      // control rather than inventing a second opinion about it.
-      blocked: !['matched', 'no_po'].includes(matchStatus) && status !== 'paid',
-    };
-  });
+    .limit(200)) as unknown as Array<Record<string, unknown>>;
+  return rows.map((i) => ({
+    id: String(i.id),
+    vendorId: String(i.vendor_id),
+    purchaseOrderId: (i.purchase_order_id as string | null) ?? null,
+    projectId: (i.project_id as string | null) ?? null,
+    vendor: String(i.vendor_name),
+    invoiceNumber: String(i.invoice_number),
+    invoiceDate: String(i.invoice_date),
+    dueDate: (i.due_date as string | null) ?? null,
+    po: (i.purchase_order_number as string | null) ?? null,
+    project: (i.project_number as string | null) ?? null,
+    amount: Number(i.amount ?? 0),
+    tax: Number(i.tax ?? 0),
+    retainageWithheld: Number(i.retainage_withheld ?? 0),
+    amountPaid: Number(i.amount_paid ?? 0),
+    balanceDue: Number(i.balance_due ?? 0),
+    matchStatus: String(i.match_status),
+    status: String(i.status),
+    /*
+     * Said by the view rather than decided again here. The old version derived
+     * this from its own copy of the rule; two opinions about which invoices may
+     * be paid is one opinion too many.
+     */
+    matchProblem: (i.match_problem as string | null) ?? null,
+    daysOverdue: i.days_overdue === null || i.days_overdue === undefined
+      ? null : Number(i.days_overdue),
+    blocked: i.payable !== true && String(i.status) !== 'paid',
+  }));
 };
+
+// ---------------------------------------------------------------------------
+// The schedule of values — what the bill is measured against
+// ---------------------------------------------------------------------------
+export interface SovItem {
+  id: string;
+  projectId: string;
+  projectNumber: string;
+  itemNumber: string;
+  description: string;
+  scheduledValue: number;
+  billingBasis: string;
+  quantity: number | null;
+  unit: string | null;
+  unitPrice: number | null;
+  costCode: string | null;
+  billedToDate: number;
+  /** Whether it came off the estimate, or was typed in afterwards. */
+  fromTheEstimate: boolean;
+  sortOrder: number;
+}
+
+export const loadScheduleOfValues = (projectId: string): Query<SovItem[]> =>
+  async (client) => {
+    if (!projectId) return [];
+    const rows = unwrap(await client
+      .from('my_schedule_of_values')
+      .select('id, project_id, project_number, item_number, description, scheduled_value, '
+        + 'billing_basis, quantity, unit, unit_price, cost_code, billed_to_date, '
+        + 'from_the_estimate, sort_order')
+      .eq('project_id', projectId)
+      .order('sort_order')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: String(r.id),
+      projectId: String(r.project_id),
+      projectNumber: String(r.project_number),
+      itemNumber: String(r.item_number),
+      description: String(r.description),
+      scheduledValue: Number(r.scheduled_value ?? 0),
+      billingBasis: String(r.billing_basis),
+      quantity: r.quantity === null || r.quantity === undefined ? null : Number(r.quantity),
+      unit: (r.unit as string | null) ?? null,
+      unitPrice: r.unit_price === null || r.unit_price === undefined
+        ? null : Number(r.unit_price),
+      costCode: (r.cost_code as string | null) ?? null,
+      billedToDate: Number(r.billed_to_date ?? 0),
+      fromTheEstimate: r.from_the_estimate === true,
+      sortOrder: Number(r.sort_order ?? 0),
+    }));
+  };
+
+export interface PayAppLineRow extends PayAppLine {
+  payApplicationId: string;
+  sovId: string | null;
+  percentComplete: number | null;
+  retainage: number;
+  balanceToFinish: number;
+  applicationStatus: string;
+  sortOrder: number;
+}
+
+/** One application's lines, read back after every change rather than guessed. */
+export const loadPayApplicationLines = (applicationId: string): Query<PayAppLineRow[]> =>
+  async (client) => {
+    if (!applicationId) return [];
+    const rows = unwrap(await client
+      .from('my_pay_application_lines')
+      .select('id, pay_application_id, sov_id, item_number, description, scheduled_value, '
+        + 'previous_completed, this_period, stored_materials, completed_to_date, '
+        + 'percent_complete, retainage, balance_to_finish, application_status, sort_order')
+      .eq('pay_application_id', applicationId)
+      .order('sort_order')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((l) => ({
+      id: String(l.id),
+      payApplicationId: String(l.pay_application_id),
+      sovId: (l.sov_id as string | null) ?? null,
+      itemNumber: String(l.item_number),
+      description: String(l.description),
+      scheduledValue: Number(l.scheduled_value ?? 0),
+      previousCompleted: Number(l.previous_completed ?? 0),
+      thisPeriod: Number(l.this_period ?? 0),
+      storedMaterials: Number(l.stored_materials ?? 0),
+      completedToDate: Number(l.completed_to_date ?? 0),
+      percentComplete: l.percent_complete === null || l.percent_complete === undefined
+        ? null : Number(l.percent_complete),
+      retainage: Number(l.retainage ?? 0),
+      balanceToFinish: Number(l.balance_to_finish ?? 0),
+      applicationStatus: String(l.application_status),
+      sortOrder: Number(l.sort_order ?? 0),
+    }));
+  };
 
 // ---------------------------------------------------------------------------
 // Cash
@@ -207,7 +313,7 @@ export const loadCashForecast: Query<CashMonth[]> = async (client) => {
 export const demonstrationPayApplications = (): PayApp[] => {
   const t = payApplicationTotals();
   return PAY_APPLICATIONS.map((p) => ({
-    id: p.id, number: p.number, projectNumber: PROJECT.number,
+    id: p.id, number: p.number, projectId: null, projectNumber: PROJECT.number,
     periodStart: p.periodStart, periodEnd: p.periodEnd,
     contractSum: t.scheduled, approvedChanges: t.approvedChanges,
     contractSumToDate: t.scheduled + t.approvedChanges,
@@ -244,13 +350,25 @@ export const demonstrationWip = (): WipView[] =>
     };
   });
 
+const MATCH_PROBLEM: Record<string, string> = {
+  quantity_variance: 'Billing for more than has been received',
+  price_variance: 'Billing a different price than was ordered',
+  unmatched: 'Not matched to its order',
+};
+
 export const demonstrationPayables = (): ApInvoiceRow[] =>
   AP_INVOICES.map((i) => ({
-    id: i.id, vendor: i.vendor, invoiceNumber: i.invoiceNumber,
+    id: i.id, vendorId: `vendor-${i.id}`, purchaseOrderId: null, projectId: null,
+    vendor: i.vendor, invoiceNumber: i.invoiceNumber,
     invoiceDate: i.invoiceDate, dueDate: i.dueDate, po: i.po ?? null,
     project: null, amount: i.amount, tax: 0,
     retainageWithheld: i.retainageWithheld, amountPaid: i.amountPaid,
+    balanceDue: i.amount - i.retainageWithheld - i.amountPaid,
     matchStatus: i.matchStatus, status: i.status,
+    matchProblem: MATCH_PROBLEM[i.matchStatus] ?? null,
+    daysOverdue: i.dueDate
+      ? Math.round((Date.now() - new Date(`${i.dueDate}T12:00:00`).getTime()) / 86_400_000)
+      : null,
     blocked: !['matched', 'no_po'].includes(i.matchStatus) && i.status !== 'paid',
   }));
 
@@ -420,4 +538,164 @@ export async function submitPayApplication(applicationId: string): Promise<void>
     p_application: applicationId,
   });
   if (error) throw new Error(error.message);
+}
+
+/* ---------------------------------------------------------------------------
+ * Writers — migration 0196
+ *
+ * Before it, Finance had exactly one: `create_pay_application` opened a header.
+ * The schedule of values the bill is measured against had no writer at all, and
+ * neither did the lines, so an application could be opened and submitted and
+ * never filled in.
+ *
+ * Nothing below sends a total. Completed to date, stored materials, retainage,
+ * previous payments and the amount due are recomputed by the database from the
+ * lines and from what earlier applications were actually paid — every one of
+ * them a figure somebody would otherwise retype off last month's paperwork.
+ * ------------------------------------------------------------------------- */
+
+const rpc = async (fn: string, args: Record<string, unknown>): Promise<unknown> => {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data;
+};
+
+/** Build the billing schedule from the estimate the project was awarded on. */
+export async function buildSovFromEstimate(projectId: string): Promise<number> {
+  return Number(await rpc('build_sov_from_estimate', { p_project: projectId }));
+}
+
+export async function addSovItem(projectId: string, item: {
+  itemNumber: string; description: string; scheduledValue: number;
+  billingBasis?: string; quantity?: number | null; unit?: string | null;
+  unitPrice?: number | null; costCodeId?: string | null;
+}): Promise<string> {
+  return String(await rpc('add_sov_item', {
+    p_project: projectId,
+    p_item_number: item.itemNumber.trim(),
+    p_description: item.description.trim(),
+    p_scheduled_value: item.scheduledValue,
+    p_billing_basis: item.billingBasis ?? 'lump_sum',
+    p_quantity: item.quantity ?? null,
+    p_unit: item.unit ?? null,
+    p_unit_price: item.unitPrice ?? null,
+    p_cost_code: item.costCodeId ?? null,
+  }));
+}
+
+export async function updateSovItem(itemId: string, changes: Partial<{
+  itemNumber: string; description: string; scheduledValue: number;
+  billingBasis: string; quantity: number; unit: string; unitPrice: number;
+}>): Promise<void> {
+  await rpc('update_sov_item', {
+    p_item: itemId,
+    p_item_number: changes.itemNumber ?? null,
+    p_description: changes.description ?? null,
+    p_scheduled_value: changes.scheduledValue ?? null,
+    p_billing_basis: changes.billingBasis ?? null,
+    p_quantity: changes.quantity ?? null,
+    p_unit: changes.unit ?? null,
+    p_unit_price: changes.unitPrice ?? null,
+  });
+}
+
+export async function removeSovItem(itemId: string): Promise<void> {
+  await rpc('remove_sov_item', { p_item: itemId });
+}
+
+/** Fill an application with one line per billing item. */
+export async function buildPayApplicationLines(applicationId: string): Promise<number> {
+  return Number(await rpc('build_pay_application_lines', { p_application: applicationId }));
+}
+
+/**
+ * Bill a line, by amount or by percent.
+ *
+ * Never both: two figures that can disagree is one figure too many, and the
+ * database refuses the pair rather than picking one.
+ */
+export async function setPayApplicationLine(lineId: string, billed: {
+  thisPeriod?: number | null; percentComplete?: number | null; storedMaterials?: number | null;
+}): Promise<void> {
+  await rpc('set_pay_application_line', {
+    p_line: lineId,
+    p_this_period: billed.thisPeriod ?? null,
+    p_percent_complete: billed.percentComplete ?? null,
+    p_stored_materials: billed.storedMaterials ?? null,
+  });
+}
+
+export async function removePayApplicationLine(lineId: string): Promise<void> {
+  await rpc('remove_pay_application_line', { p_line: lineId });
+}
+
+export async function approvePayApplication(applicationId: string): Promise<void> {
+  await rpc('approve_pay_application', { p_application: applicationId });
+}
+
+export async function rejectPayApplication(
+  applicationId: string, reason: string,
+): Promise<void> {
+  await rpc('reject_pay_application', { p_application: applicationId, p_reason: reason });
+}
+
+/** Money arrived. The status follows the arithmetic rather than being chosen. */
+export async function recordPayApplicationPayment(
+  applicationId: string, amount: number, receivedOn?: string,
+): Promise<void> {
+  await rpc('record_pay_application_payment', {
+    p_application: applicationId,
+    p_amount: amount,
+    p_received_on: receivedOn ?? new Date().toISOString().slice(0, 10),
+  });
+}
+
+export async function recordApInvoice(companyId: string, invoice: {
+  vendorId: string; invoiceNumber: string; invoiceDate: string; amount: number;
+  tax?: number; dueDate?: string | null; purchaseOrderId?: string | null;
+  projectId?: string | null; retainageWithheld?: number;
+}): Promise<string> {
+  return String(await rpc('record_ap_invoice', {
+    p_company: companyId,
+    p_vendor: invoice.vendorId,
+    p_invoice_number: invoice.invoiceNumber.trim(),
+    p_invoice_date: invoice.invoiceDate,
+    p_amount: invoice.amount,
+    p_tax: invoice.tax ?? 0,
+    p_due_date: invoice.dueDate || null,
+    p_purchase_order: invoice.purchaseOrderId ?? null,
+    p_project: invoice.projectId ?? null,
+    p_retainage_withheld: invoice.retainageWithheld ?? 0,
+  }));
+}
+
+/** Re-run the three-way match, after a receipt or a corrected order. */
+export async function rematchApInvoice(invoiceId: string): Promise<string> {
+  return String(await rpc('rematch_ap_invoice', { p_invoice: invoiceId }));
+}
+
+export async function approveApInvoice(invoiceId: string): Promise<void> {
+  await rpc('approve_ap_invoice', { p_invoice: invoiceId });
+}
+
+export async function setApInvoiceStatus(invoiceId: string, status: string): Promise<void> {
+  await rpc('set_ap_invoice_status', { p_invoice: invoiceId, p_status: status });
+}
+
+/**
+ * Pay a vendor.
+ *
+ * Refused while the invoice fails its three-way match — the control that stops
+ * a company paying for materials it never received. The refusal names which of
+ * the three disagrees rather than naming a constraint.
+ */
+export async function recordApPayment(
+  invoiceId: string, amount: number, paidOn?: string,
+): Promise<void> {
+  await rpc('record_ap_payment', {
+    p_invoice: invoiceId,
+    p_amount: amount,
+    p_paid_on: paidOn ?? new Date().toISOString().slice(0, 10),
+  });
 }

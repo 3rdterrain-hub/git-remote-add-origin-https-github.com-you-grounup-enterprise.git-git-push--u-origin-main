@@ -11,6 +11,38 @@ Newest first.
 
 ---
 
+## D-061 · 2026-09-16 · A pay application's figures are computed, never typed
+
+**Decision.** Migration 0196 recomputes `completed_to_date`, `stored_materials`,
+`retainage_to_date`, `previous_payments`, `approved_changes` and `current_due`
+from the application's own lines and from what earlier applications on the
+project were actually paid. A line's `previous_completed` is read off the
+previous application rather than carried by hand. Recomputed on every change,
+never incremented.
+
+**Reason.** Every one of those is a figure an estimator would otherwise retype
+off last month's paperwork, and the first one retyped wrong is a bill the owner
+rejects — or pays. `previous_payments` is the sharpest case: taken from what was
+*billed* rather than what was *paid*, it silently forgives an owner who
+short-paid the month before. On the live workspace the two differ by $7,722.29
+on the first application alone.
+
+Recomputed rather than incremented for the reason 0177, 0179, 0181 and 0191 each
+reached independently: an increment drifts the first time a line is deleted, and
+on a bill the drift is money somebody is asked for.
+
+**Alternatives.** Letting the browser send the totals it already has on screen —
+rejected on the same ground as the price and the volume: a total nobody can
+reproduce is a total nobody can defend, and this one goes to the owner with a
+signature under it.
+
+**Affects.** `pay_applications`, `pay_application_lines`, `schedule_of_values`,
+`lib/data/finance.ts`, the Finance screen.
+
+**Status.** Active. Verified live on PRJ-2026-0003.
+
+---
+
 ## D-060 · 2026-09-16 · A guard states the rule it means, not a wider one
 
 **Decision.** `app.enforce_assignment_file_published` (0048) now fires only when

@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **329** |
-| Opened by a screen | **309** |
+| Doors | **347** |
+| Opened by a screen | **327** |
 | Opened only by an Edge Function | **5** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -80,16 +80,21 @@ None.
 | `add_report_labor` | function | lib/data/project.ts |
 | `add_schedule_activity` | function | lib/data/schedule.ts |
 | `add_schedule_dependency` | function | lib/data/schedule.ts |
+| `add_sov_item` | function | lib/data/finance.ts |
 | `adopt_profile_markups` | function | lib/data/estimates.ts |
 | `apply_estimate_template` | function | lib/data/templates.ts |
 | `apply_line_condition` | function | lib/data/estimates.ts |
 | `apply_line_resource_suggestions` | function | lib/data/estimates.ts |
 | `apply_takeoff_to_line` | function | lib/data/takeoff.ts |
+| `approve_ap_invoice` | function | lib/data/finance.ts |
+| `approve_pay_application` | function | lib/data/finance.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
 | `assign_resource` | function | lib/data/schedule.ts |
 | `award_estimate_version` | function | lib/data/estimates.ts |
 | `award_rfq` | function | lib/data/procurement.ts |
+| `build_pay_application_lines` | function | lib/data/finance.ts |
 | `build_schedule_from_tasks` | function | lib/data/schedule.ts |
+| `build_sov_from_estimate` | function | lib/data/finance.ts |
 | `cancel_work_order` | function | lib/data/fleet.ts |
 | `claim_first_superadmin` | function | lib/data/admin.ts |
 | `clear_allowance` | function | lib/data/admin.ts |
@@ -175,6 +180,7 @@ None.
 | `move_opportunity_stage` | function | lib/data/crm-pipeline.ts |
 | `my_ai_findings` | view | lib/data/plans.ts |
 | `my_announcements` | view | lib/data/session.ts |
+| `my_ap_invoices` | view | lib/data/finance.ts |
 | `my_api_keys` | view | lib/data/api-keys.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_asset_meters` | view | lib/data/fleet.ts |
@@ -203,6 +209,7 @@ None.
 | `my_maintenance_due` | view | lib/data/fleet.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
+| `my_pay_application_lines` | view | lib/data/finance.ts |
 | `my_payment_problem` | view | lib/data/session.ts |
 | `my_pipeline` | view | lib/data/crm-pipeline.ts |
 | `my_plan` | view | lib/data/billing.ts, lib/data/company.ts, lib/data/sheets.ts +1 |
@@ -223,6 +230,7 @@ None.
 | `my_safety_observations` | view | lib/data/safety.ts |
 | `my_schedulable_projects` | view | lib/data/schedule.ts |
 | `my_schedule_baselines` | view | lib/data/schedule.ts |
+| `my_schedule_of_values` | view | lib/data/finance.ts |
 | `my_service_buildup` | view | lib/data/estimates.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_sheet_text_coverage` | view | lib/data/plans.ts |
@@ -255,6 +263,8 @@ None.
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
 | `reassign_measurement` | function | lib/data/conditions.ts |
 | `receive_purchase_order_item` | function | lib/data/procurement.ts |
+| `record_ap_invoice` | function | lib/data/finance.ts |
+| `record_ap_payment` | function | lib/data/finance.ts |
 | `record_condition_takeoff` | function | lib/data/conditions.ts |
 | `record_credential` | function | lib/data/workforce.ts |
 | `record_export` | function | lib/data/admin.ts |
@@ -262,6 +272,7 @@ None.
 | `record_inspection` | function | lib/data/safety.ts |
 | `record_machine_control_file` | function | lib/data/survey.ts |
 | `record_meter_reading` | function | lib/data/fleet.ts |
+| `record_pay_application_payment` | function | lib/data/finance.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
 | `record_proposal_outcome` | function | lib/data/estimates.ts |
@@ -272,16 +283,20 @@ None.
 | `record_visit` | function | lib/analytics.ts |
 | `register_document_version` | function | lib/data/plans.ts |
 | `reject_finding` | function | lib/data/plans.ts |
+| `reject_pay_application` | function | lib/data/finance.ts |
 | `release_resource` | function | lib/data/schedule.ts |
+| `rematch_ap_invoice` | function | lib/data/finance.ts |
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
 | `remove_change_order_item` | function | lib/data/project.ts |
 | `remove_crew_member` | function | lib/data/library.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
+| `remove_pay_application_line` | function | lib/data/finance.ts |
 | `remove_purchase_order_item` | function | lib/data/procurement.ts |
 | `remove_report_line` | function | lib/data/project.ts |
 | `remove_schedule_activity` | function | lib/data/schedule.ts |
 | `remove_schedule_dependency` | function | lib/data/schedule.ts |
+| `remove_sov_item` | function | lib/data/finance.ts |
 | `remove_surface` | function | lib/data/survey.ts |
 | `remove_surface_comparison` | function | lib/data/survey.ts |
 | `remove_work_credential_requirement` | function | lib/data/workforce.ts |
@@ -312,6 +327,7 @@ None.
 | `search_document_text` | function | lib/data/plans.ts |
 | `send_file_to_machine` | function | lib/data/survey.ts |
 | `set_allowance` | function | lib/data/admin.ts |
+| `set_ap_invoice_status` | function | lib/data/finance.ts |
 | `set_asset_status` | function | lib/data/fleet.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
 | `set_company_plan` | function | lib/data/admin.ts |
@@ -335,6 +351,7 @@ None.
 | `set_notification_preference` | function | lib/data/session.ts |
 | `set_operator_role` | function | lib/data/admin.ts |
 | `set_overtime_policy` | function | lib/data/time-clock.ts |
+| `set_pay_application_line` | function | lib/data/finance.ts |
 | `set_plan_features` | function | lib/data/admin.ts |
 | `set_plan_limits` | function | lib/data/admin.ts |
 | `set_plan_price` | function | lib/data/admin.ts |
@@ -367,6 +384,7 @@ None.
 | `update_safety_incident` | function | lib/data/safety.ts |
 | `update_schedule_activity` | function | lib/data/schedule.ts |
 | `update_schedule_dependency` | function | lib/data/schedule.ts |
+| `update_sov_item` | function | lib/data/finance.ts |
 | `update_surface` | function | lib/data/survey.ts |
 | `update_survey` | function | lib/data/survey.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |

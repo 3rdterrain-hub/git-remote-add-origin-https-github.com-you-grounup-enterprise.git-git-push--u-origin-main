@@ -21,7 +21,15 @@ import { money, moneyCompact, percent, date, titleCase, plural, dayFromNow } fro
 import { cn } from '@/lib/utils';
 import { NewPayApplicationDialog } from '@/components/finance/pay-application';
 import { ExportButton } from '@/components/export-button';
-import { submitPayApplication } from '@/lib/data/finance';
+import {
+  submitPayApplication, approvePayApplication, rejectPayApplication,
+  recordPayApplicationPayment,
+} from '@/lib/data/finance';
+import { useCompanyId } from '@/lib/data/session';
+import { ScheduleOfValues } from '@/components/finance/schedule-of-values';
+import { BillingLines } from '@/components/finance/billing-lines';
+import { RecordInvoice, InvoiceActions } from '@/components/finance/invoice-actions';
+import { messageFor } from '@/lib/data/query';
 
 export function FinancePage() {
   /* Three buttons, none of which had a handler: a company could read a
@@ -37,10 +45,21 @@ export function FinancePage() {
    */
   const [tab, setTab] = useState('payapp');
   const { can } = usePermissions();
-  const payAppsQ = useQuery(loadPayApplications, []);
-  const wipQ = useQuery(loadWip, []);
-  const payablesQ = useQuery(loadPayables, []);
-  const cashQ = useQuery(loadCashForecast, []);
+  const { companyId } = useCompanyId();
+  const canWrite = can('finance.write');
+  const canApprove = can('finance.approve');
+  /*
+   * Everything on this page could be read and almost none of it written until
+   * 0196, so a refetch is new here: billing a line moves the certificate, and
+   * paying an invoice moves the cash forecast.
+   */
+  const [nonce, setNonce] = useState(0);
+  const again = () => setNonce((n) => n + 1);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const payAppsQ = useQuery(loadPayApplications, [nonce]);
+  const wipQ = useQuery(loadWip, [nonce]);
+  const payablesQ = useQuery(loadPayables, [nonce]);
+  const cashQ = useQuery(loadCashForecast, [nonce]);
 
   const demonstration = payAppsQ.status === 'demonstration';
   const loading = [payAppsQ, wipQ, payablesQ, cashQ].some((q) => q.status === 'loading');
@@ -107,14 +126,7 @@ export function FinancePage() {
     return { inflow: a.inflow + m.inflow, outflow: a.outflow + m.outflow };
   }, { inflow: 0, outflow: 0 });
 
-  const lines = draft?.lines ?? [];
-  const lineTotals = lines.reduce((a, l) => ({
-    scheduled: a.scheduled + l.scheduledValue,
-    previous: a.previous + l.previousCompleted,
-    thisPeriod: a.thisPeriod + l.thisPeriod,
-    stored: a.stored + l.storedMaterials,
-    toDate: a.toDate + l.completedToDate,
-  }), { scheduled: 0, previous: 0, thisPeriod: 0, stored: 0, toDate: 0 });
+  const draftProjectId = draft?.projectId ?? '';
 
   if (failure) return <ErrorState message={failure.message} onRetry={failure.refetch} />;
 
@@ -152,6 +164,7 @@ export function FinancePage() {
       />
 
       {submitError ? <Alert tone="danger" title="That did not submit">{submitError}</Alert> : null}
+      {actionError ? <Alert tone="danger" title="That did not happen">{actionError}</Alert> : null}
       <NewPayApplicationDialog
         open={opening}
         onOpenChange={setOpening}
@@ -227,6 +240,7 @@ export function FinancePage() {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="payapp">Pay application</TabsTrigger>
+          <TabsTrigger value="sov">Schedule of values</TabsTrigger>
           <TabsTrigger value="wip">Work in progress</TabsTrigger>
           <TabsTrigger value="payables">Payables ({openAp.length})</TabsTrigger>
           <TabsTrigger value="cash">Cash forecast</TabsTrigger>
@@ -249,84 +263,85 @@ export function FinancePage() {
                 * nothing on the row may change — so it asks first and says what
                 * it is about to do.
                 */}
-              <Button
-                disabled={!draft || draft.status !== 'draft' || submitting}
-                title={draft && draft.status !== 'draft'
-                  ? 'This application has already been submitted.'
-                  : 'Submit it. After this the figures are frozen.'}
-                onClick={async () => {
-                  if (!draft) return;
-                  setSubmitting(true); setSubmitError(null);
-                  try {
-                    await submitPayApplication(draft.id);
-                    payAppsQ.refetch();
-                  } catch (err) {
-                    setSubmitError(err instanceof Error ? err.message : 'That did not submit.');
-                  } finally { setSubmitting(false); }
-                }}>
-                {submitting ? <Loader2 className="size-4 animate-spin" /> : <FileCheck className="size-4" />}
-                Submit
-              </Button>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button
+                  disabled={!draft || draft.status !== 'draft' || submitting}
+                  title={draft && draft.status !== 'draft'
+                    ? 'This application has already been submitted.'
+                    : 'Submit it. After this the figures are frozen.'}
+                  onClick={async () => {
+                    if (!draft) return;
+                    setSubmitting(true); setSubmitError(null);
+                    try {
+                      await submitPayApplication(draft.id);
+                      again();
+                    } catch (err) {
+                      setSubmitError(err instanceof Error ? err.message : 'That did not submit.');
+                    } finally { setSubmitting(false); }
+                  }}>
+                  {submitting ? <Loader2 className="size-4 animate-spin" /> : <FileCheck className="size-4" />}
+                  Submit
+                </Button>
+                {/*
+                  * Approving is somebody else, on another day, and the gap
+                  * between submitting and approving is the thing a contractor
+                  * spends their week chasing. Two buttons, not one status.
+                  */}
+                {draft && draft.status === 'submitted' ? (
+                  <>
+                    <Button variant="outline" disabled={!canApprove}
+                      title={canApprove ? 'The owner approved the certificate'
+                        : 'Needs permission to approve a pay application'}
+                      onClick={() => {
+                        setActionError(null);
+                        approvePayApplication(draft.id).then(again)
+                          .catch((e: unknown) => setActionError(messageFor(e)));
+                      }}>
+                      Approve
+                    </Button>
+                    <Button variant="ghost" disabled={!canApprove}
+                      title="The owner rejected it. The reason goes on the record."
+                      onClick={() => {
+                        const reason = window.prompt(
+                          'What is wrong with the bill? Whoever builds the next application needs to know.');
+                        if (!reason) return;
+                        setActionError(null);
+                        rejectPayApplication(draft.id, reason).then(again)
+                          .catch((e: unknown) => setActionError(messageFor(e)));
+                      }}>
+                      Reject
+                    </Button>
+                  </>
+                ) : null}
+                {draft && ['submitted', 'approved', 'partially_paid'].includes(draft.status) ? (
+                  <Button variant="outline" disabled={!canWrite}
+                    title={`Record money received. ${money(draft.currentDue - draft.amountPaid)} is outstanding.`}
+                    onClick={() => {
+                      const outstanding = draft.currentDue - draft.amountPaid;
+                      const entered = window.prompt(
+                        'How much arrived?', outstanding.toFixed(2));
+                      if (!entered) return;
+                      const amount = Number(entered);
+                      if (!Number.isFinite(amount) || amount <= 0) return;
+                      setActionError(null);
+                      recordPayApplicationPayment(draft.id, amount).then(again)
+                        .catch((e: unknown) => setActionError(messageFor(e)));
+                    }}>
+                    Record a payment
+                  </Button>
+                ) : null}
+              </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Item</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Scheduled value</TableHead>
-                    <TableHead className="text-right">Previous</TableHead>
-                    <TableHead className="text-right">This period</TableHead>
-                    <TableHead className="text-right">Stored</TableHead>
-                    <TableHead className="text-right">To date</TableHead>
-                    <TableHead className="text-right">%</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {lines.map((l) => (
-                    <TableRow key={l.id}>
-                      <TableCell className="font-mono text-xs text-charcoal-500">{l.itemNumber}</TableCell>
-                      <TableCell className="font-medium text-charcoal-900">{l.description}</TableCell>
-                      <TableCell className="tabular text-right">{money(l.scheduledValue)}</TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">{money(l.previousCompleted)}</TableCell>
-                      <TableCell className={cn('tabular text-right', l.thisPeriod > 0 && 'font-medium text-charcoal-900')}>
-                        {l.thisPeriod ? money(l.thisPeriod) : '—'}
-                      </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {l.storedMaterials ? money(l.storedMaterials) : '—'}
-                      </TableCell>
-                      <TableCell className="tabular text-right font-medium">{money(l.completedToDate)}</TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {l.scheduledValue ? percent(l.completedToDate / l.scheduledValue, 0) : '—'}
-                      </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {money(l.scheduledValue - l.completedToDate)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow className="hover:bg-charcoal-50">
-                    <TableCell colSpan={2}>Totals</TableCell>
-                    <TableCell className="tabular text-right">{money(lineTotals.scheduled)}</TableCell>
-                    <TableCell className="tabular text-right">{money(lineTotals.previous)}</TableCell>
-                    <TableCell className="tabular text-right">{money(lineTotals.thisPeriod)}</TableCell>
-                    <TableCell className="tabular text-right">{money(lineTotals.stored)}</TableCell>
-                    <TableCell className="tabular text-right">{money(lineTotals.toDate)}</TableCell>
-                    <TableCell className="tabular text-right">
-                      {lineTotals.scheduled ? percent(lineTotals.toDate / lineTotals.scheduled, 0) : '—'}
-                    </TableCell>
-                    <TableCell className="tabular text-right">
-                      {money(lineTotals.scheduled - lineTotals.toDate)}
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
-              </Table>
-              {!lines.length && !loading ? (
-                <EmptyState title="No lines on this application"
-                  hint="A pay application bills against the schedule of values. Add the schedule to the project and the lines appear here." />
-              ) : null}
+              {draft ? (
+                <BillingLines applicationId={draft.id} status={draft.status}
+                  canWrite={canWrite} onChanged={again} />
+              ) : (
+                <div className="p-6">
+                  <EmptyState title="No application open"
+                    hint="Open one for the period you are billing, then fill it from the schedule of values." />
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -401,6 +416,23 @@ export function FinancePage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* ------------------------------------------- the schedule of values */}
+        <TabsContent value="sov">
+          {draftProjectId ? (
+            <ScheduleOfValues projectId={draftProjectId}
+              projectLabel={draft?.projectNumber ?? 'This project'}
+              contractValue={draft ? draft.contractSum : null}
+              canWrite={canWrite} />
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <EmptyState title="No project to bill yet"
+                  hint="A schedule of values belongs to a project. Open a pay application on one and it appears here." />
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* ------------------------------------------------------------- WIP */}
@@ -513,12 +545,15 @@ export function FinancePage() {
         {/* -------------------------------------------------------- payables */}
         <TabsContent value="payables">
           <Card>
-            <CardHeader>
-              <CardTitle>Accounts payable</CardTitle>
-              <CardDescription>
-                Three-way match: purchase order, delivery receipt and invoice must agree before an invoice
-                can be paid.
-              </CardDescription>
+            <CardHeader className="flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle>Accounts payable</CardTitle>
+                <CardDescription>
+                  Three-way match: purchase order, delivery receipt and invoice must agree before an invoice
+                  can be paid.
+                </CardDescription>
+              </div>
+              <RecordInvoice companyId={companyId} canWrite={canWrite} onRecorded={again} />
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -532,6 +567,7 @@ export function FinancePage() {
                     <TableHead className="text-right">Retainage</TableHead>
                     <TableHead>Match</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -557,12 +593,31 @@ export function FinancePage() {
                             i.matchStatus === 'matched' ? 'success'
                             : i.matchStatus === 'no_po' ? 'warn' : 'danger'
                           }>{titleCase(i.matchStatus)}</Badge>
+                          {/*
+                            * Why it cannot be paid, said where the list is read.
+                            * A state with no explanation leaves everybody
+                            * guessing what to do about it.
+                            */}
+                          {i.matchProblem ? (
+                            <span className="mt-0.5 block text-xs text-danger-700">
+                              {i.matchProblem}
+                            </span>
+                          ) : null}
                         </TableCell>
                         <TableCell>
                           <Badge variant={
                             i.status === 'paid' ? 'success'
                             : i.status === 'disputed' || i.status === 'on_hold' ? 'danger' : 'default'
                           }>{titleCase(i.status)}</Badge>
+                          {i.daysOverdue !== null && i.daysOverdue > 0 && i.status !== 'paid' ? (
+                            <span className="mt-0.5 block text-xs text-warn-700">
+                              {i.daysOverdue} days overdue
+                            </span>
+                          ) : null}
+                        </TableCell>
+                        <TableCell>
+                          <InvoiceActions invoice={i} canWrite={canWrite}
+                            canApprove={canApprove} onChanged={again} />
                         </TableCell>
                       </TableRow>
                     );

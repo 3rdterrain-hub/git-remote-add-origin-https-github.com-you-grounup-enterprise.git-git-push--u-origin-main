@@ -173,6 +173,38 @@ describe('the finance page', () => {
     await waitFor(() => expect(screen.getByText('no terms')).toBeInTheDocument());
   });
 
+  it('says why a payable cannot be paid, and does not offer to pay it', async () => {
+    /*
+     * `ap_invoices_pay_requires_match` is the control that stops a company
+     * paying for materials it never received. It had never once been reached,
+     * because nothing could record an invoice — and a state shown with no
+     * explanation leaves everybody guessing what to do about it.
+     */
+    hoisted.payables = [{
+      id: 'i-2', vendorId: 'v-1', purchaseOrderId: 'po-1', projectId: null,
+      vendor: 'Toledo Aggregates', invoiceNumber: 'INV-5541',
+      invoiceDate: '2026-09-20', dueDate: '2026-10-20', po: 'PO-0001', project: null,
+      amount: 2_200, tax: 0, retainageWithheld: 0, amountPaid: 0, balanceDue: 2_200,
+      matchStatus: 'quantity_variance', status: 'received',
+      matchProblem: 'Billing for more than has been received',
+      daysOverdue: null, blocked: true,
+    }];
+    renderPage(<FinancePage />);
+    await userEvent.click(screen.getByRole('tab', { name: /Payables/ }));
+    await waitFor(() => expect(
+      screen.getByText('Billing for more than has been received')).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Pay' })).toBeDisabled();
+  });
+
+  it('offers to build the billing schedule when there is nothing to bill against', async () => {
+    renderPage(<FinancePage />);
+    await loaded();
+    await userEvent.click(screen.getByRole('tab', { name: /Schedule of values/ }));
+    // No application is open, so there is no project to hang a schedule on —
+    // and the screen says which of the two it is rather than showing nothing.
+    expect(screen.getByText('No project to bill yet')).toBeInTheDocument();
+  });
+
   it('shows a failed read as a failure rather than as an empty portfolio', async () => {
     hoisted.wipError = 'permission denied for view reporting_wip';
     renderPage(<FinancePage />);

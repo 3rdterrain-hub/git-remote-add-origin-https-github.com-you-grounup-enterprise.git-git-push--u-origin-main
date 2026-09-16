@@ -113,6 +113,7 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
+| C-043 | A bill you can send, and one you can pay | working the toolbar in order | critical | finance | migration 0196, `components/finance/{schedule-of-values,billing-lines,invoice-actions}.tsx`, `lib/data/finance.ts` | `a-bill-you-can-send.test.ts` (25), `finance.test.tsx` (13) | tested |
 | C-042 | A machine can be told the design it holds is stale | resolving what 0193 ran into | high | machine control | migration 0194, `app.enforce_assignment_file_published` narrowed to a send | `a-surface-somebody-shot.test.ts` (35) | tested |
 | C-041 | A surface somebody shot | working the toolbar in order | critical | survey | migrations 0193 and 0195, `compare-surfaces`, `components/survey/*`, `lib/data/survey.ts` | `a-surface-somebody-shot.test.ts` (35), `surface-comparison.test.ts` (6), `survey.test.tsx` (26) | tested |
 | C-040 | An incident you can close | working the toolbar in order | critical | safety | migration 0192, `incident-investigation.tsx`, `record-observation.tsx`, `record-inspection.tsx` | `an-incident-you-can-close.test.ts` (14) | tested |
@@ -145,7 +146,6 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-013 | Conditions are per estimate, not reusable from the library | `takeoff_conditions.estimate_version_id` is nullable for this; nothing writes or reads a null one yet | Build library reuse, as agreed |
 | O-011 | `loadSignatures` and `noteOnLead` are exported and never imported | A signature the customer gave is never shown back; a lead's notes and follow-up date cannot be written | Give each a door |
 | O-018 | `task_dependencies` (0007) is unused | It duplicates `schedule_dependencies` field for field. 0183 gave the latter its writer and deliberately left the former alone, so there is one dependency table and not two | Drop `task_dependencies`, or state what it is for |
-| O-020 | `schedule_of_values` has no writer | Billing reads it; nothing creates a line | Build the SOV when billing is worked |
 | O-021 | `work_calendar_exceptions` has no writer | The engine reads holidays and shutdowns out of it; the working-week editor sets the weekly pattern only | Add holidays to the working-week tab |
 | O-025 | GrounUp Network is a fixture | `network.tsx` reads NETWORK_VENDORS from `@/data/survey` on a live route, and "Publish a vendor" is now disabled with that said on it | Build the network, or retire the page |
 | O-026 | A shipped library row cannot be copied into company scope | The button is disabled with the reason; adding your own row works | Build copy-to-company |
