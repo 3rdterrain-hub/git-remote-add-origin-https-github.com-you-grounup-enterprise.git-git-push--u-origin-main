@@ -41,9 +41,10 @@ const claim = (over: Partial<ClaimRow> = {}): ClaimRow => ({
   costAwarded: null, timeAwardedDays: null,
   resolution: null, resolvedOn: null,
   projectId: 'p-1', projectNumber: 'PRJ-2026-0011', projectName: 'Maumee Commerce Park',
-  contractNumber: 'C-2026-004',
+  contractId: 'ct-1', contractNumber: 'C-2026-004',
   supportingReports: 4, supportingRfis: 1, supportingDocuments: 2,
-  noticeAtRisk: false, daysToNotice: null, ...over,
+  noticeAtRisk: false, daysToNotice: null,
+  noticeWasLate: false, noticeDaysLate: null, ...over,
 });
 
 const show = () => render(<MemoryRouter><ClaimsPage /></MemoryRouter>);
@@ -242,5 +243,36 @@ describe('without a workspace', () => {
     hoisted.configured = false;
     show();
     await waitFor(() => expect(screen.queryByText('Rock at the east trench')).toBeNull());
+  });
+
+  it('says a notice was late rather than calling it entitlement preserved', async () => {
+    /*
+     * The card said "Entitlement preserved" for any served notice, because
+     * until 0197 nothing could compute whether it was in time. A screen that
+     * congratulates a company on a late notice is the worst version of this
+     * page: the lateness is the most expensive fact on it.
+     */
+    hoisted.claims = [claim({
+      noticeGivenOn: '2026-05-04', noticeDueOn: '2026-04-27',
+      noticeWasLate: true, noticeDaysLate: 7,
+    })];
+    show();
+    await waitFor(() => expect(screen.getByText(/Served late/)).toBeInTheDocument());
+    expect(screen.getByText(/7 days after the contractual deadline/)).toBeInTheDocument();
+    expect(screen.queryByText(/Entitlement preserved/)).not.toBeInTheDocument();
+  });
+
+  it('offers to record a notice on a claim that has none', async () => {
+    hoisted.claims = [claim({ status: 'potential', noticeGivenOn: null })];
+    show();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Record notice/ })).toBeInTheDocument());
+  });
+
+  it('does not offer to notice a claim that already has one', async () => {
+    hoisted.claims = [claim()];
+    show();
+    await waitFor(() => expect(screen.getByText('CLM-0001')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /Record notice/ })).not.toBeInTheDocument();
   });
 });

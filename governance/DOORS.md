@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **347** |
-| Opened by a screen | **327** |
+| Doors | **358** |
+| Opened by a screen | **338** |
 | Opened only by an Edge Function | **5** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -90,6 +90,7 @@ None.
 | `approve_pay_application` | function | lib/data/finance.ts |
 | `archive_estimate_template` | function | lib/data/templates.ts |
 | `assign_resource` | function | lib/data/schedule.ts |
+| `attach_claim_support` | function | lib/data/claims.ts |
 | `award_estimate_version` | function | lib/data/estimates.ts |
 | `award_rfq` | function | lib/data/procurement.ts |
 | `build_pay_application_lines` | function | lib/data/finance.ts |
@@ -113,7 +114,9 @@ None.
 | `create_api_key` | function | lib/data/api-keys.ts |
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
+| `create_claim` | function | lib/data/claims.ts |
 | `create_company_for` | function | lib/data/admin.ts |
+| `create_contract` | function | lib/data/claims.ts |
 | `create_crew` | function | lib/data/library.ts |
 | `create_customer` | function | lib/data/crm.ts, lib/data/estimates.ts |
 | `create_daily_report` | function | lib/data/project.ts |
@@ -145,6 +148,7 @@ None.
 | `delete_estimate_line` | function | lib/data/estimates.ts |
 | `delete_library_category` | function | lib/data/categories.ts |
 | `delete_line_resource` | function | lib/data/estimates.ts |
+| `detach_claim_support` | function | lib/data/claims.ts |
 | `discard_proposal_draft` | function | lib/data/estimates.ts |
 | `dismiss_announcement` | function | lib/data/session.ts |
 | `dismiss_notification` | function | lib/data/session.ts |
@@ -156,6 +160,7 @@ None.
 | `end_employment` | function | lib/data/workforce.ts |
 | `ensure_work_calendar` | function | lib/data/schedule.ts |
 | `estimate_drift` | function | lib/data/estimates.ts |
+| `give_claim_notice` | function | lib/data/claims.ts |
 | `haul_cost` | function | lib/data/library.ts |
 | `hire_operator` | function | lib/data/admin.ts |
 | `identify_sheet` | function | lib/data/sheets.ts |
@@ -187,8 +192,10 @@ None.
 | `my_assignments` | view | lib/data/field-work.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_change_order_items` | view | lib/data/project.ts |
+| `my_claims` | view | lib/data/claims.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_contacts` | view | lib/data/crm-pipeline.ts |
+| `my_contracts` | view | lib/data/claims.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
 | `my_crew_members` | view | lib/data/library.ts |
 | `my_crews` | view | lib/data/library.ts |
@@ -303,6 +310,7 @@ None.
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
 | `request_refund` | function | lib/data/admin.ts |
+| `resolve_claim` | function | lib/data/claims.ts |
 | `resolve_document_conflict` | function | lib/data/conflicts.ts |
 | `resolve_fuel_exception` | function | lib/data/fleet.ts |
 | `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
@@ -330,6 +338,7 @@ None.
 | `set_ap_invoice_status` | function | lib/data/finance.ts |
 | `set_asset_status` | function | lib/data/fleet.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
+| `set_claim_status` | function | lib/data/claims.ts |
 | `set_company_plan` | function | lib/data/admin.ts |
 | `set_crew_member` | function | lib/data/library.ts |
 | `set_document_page_count` | function | lib/data/takeoff.ts |
@@ -362,6 +371,7 @@ None.
 | `set_work_credential_requirement` | function | lib/data/workforce.ts |
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |
+| `submit_claim` | function | lib/data/claims.ts |
 | `submit_daily_report` | function | lib/data/project.ts |
 | `submit_lead` | function | lib/data/lead-forms.ts |
 | `submit_pay_application` | function | lib/data/finance.ts |
@@ -371,6 +381,7 @@ None.
 | `take_schedule_baseline` | function | lib/data/schedule.ts |
 | `unapply_takeoff` | function | lib/data/takeoff.ts |
 | `update_asset` | function | lib/data/fleet.ts |
+| `update_contract` | function | lib/data/claims.ts |
 | `update_credential` | function | lib/data/workforce.ts |
 | `update_crew` | function | lib/data/library.ts |
 | `update_customer` | function | lib/data/crm.ts |

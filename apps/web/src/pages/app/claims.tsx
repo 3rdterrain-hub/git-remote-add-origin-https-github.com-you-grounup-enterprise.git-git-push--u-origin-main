@@ -45,6 +45,10 @@ import { Alert, EmptyState } from '@/components/ui/misc';
 import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
 import { useQuery } from '@/lib/data/query';
 import { loadClaims, type ClaimRow } from '@/lib/data/claims';
+import { usePermissions } from '@/lib/data/session';
+import { OpenAClaim } from '@/components/claims/open-a-claim';
+import { ClaimActions } from '@/components/claims/claim-actions';
+import { Contracts } from '@/components/claims/contracts';
 import { money, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -73,6 +77,21 @@ function noticeState(c: ClaimRow): { label: string; detail: string; tone: string
      */
     const margin = Math.round(
       (new Date(c.noticeGivenOn).getTime() - new Date(c.eventDate).getTime()) / 86_400_000);
+    /*
+     * Served is not the same as served in time, and this said "entitlement
+     * preserved" for both until the deadline became computable. A notice given
+     * after the contractual period is the most expensive fact on this page, and
+     * a card that congratulated the company on it would be the worst version of
+     * the screen.
+     */
+    if (c.noticeWasLate) {
+      return {
+        label: `Served late ${date(c.noticeGivenOn)}`,
+        detail: `${plural(c.noticeDaysLate ?? 0, 'day')} after the contractual deadline. `
+          + 'Entitlement may be gone regardless of the merits.',
+        tone: 'danger',
+      };
+    }
     return {
       label: `Served ${date(c.noticeGivenOn)}`,
       detail: `Entitlement preserved — ${plural(margin, 'day')} after the event.`,
@@ -102,7 +121,16 @@ function noticeState(c: ClaimRow): { label: string; detail: string; tone: string
 }
 
 export function ClaimsPage() {
-  const claimsQ = useQuery(loadClaims, []);
+  /*
+   * `contracts` and `claims` had no writer of any kind until 0197, so a refetch
+   * is new here: recording a notice moves the claim, and the notice window is
+   * the most expensive thing on the page to have stale.
+   */
+  const [nonce, setNonce] = useState(0);
+  const again = () => setNonce((n) => n + 1);
+  const { can } = usePermissions();
+  const canWrite = can('estimates.approve');
+  const claimsQ = useQuery(loadClaims, [nonce]);
   const claims = claimsQ.status === 'ready' ? claimsQ.data : [];
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -140,7 +168,10 @@ export function ClaimsPage() {
       <PageHeader
         title="Claims &amp; Entitlement"
         description="A claim is argued from what was recorded at the time, not from what anyone remembers afterwards. Notice is what preserves it, and the deadline is derived from the contract's own clause rather than typed — most construction claims are lost on the notice clause rather than on their merits."
+        actions={<OpenAClaim canWrite={canWrite} onOpened={again} />}
       />
+
+      <Contracts canWrite={canWrite} onChanged={again} />
 
       {closing.length ? (
         <Alert tone="danger" icon={<AlertTriangle className="size-4" />}
@@ -301,6 +332,8 @@ export function ClaimsPage() {
                   * schema requires one — an outcome with no stated reason is
                   * something nobody can learn from at the next negotiation.
                   */}
+                <ClaimActions claim={c} canWrite={canWrite} onChanged={again} />
+
                 {c.resolution ? (
                   <p className="rounded-md bg-charcoal-50 p-3 text-sm text-charcoal-700">
                     <span className="font-medium">

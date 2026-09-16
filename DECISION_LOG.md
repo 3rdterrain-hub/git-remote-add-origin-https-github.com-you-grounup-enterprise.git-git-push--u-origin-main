@@ -11,6 +11,55 @@ Newest first.
 
 ---
 
+## D-062 · 2026-09-16 · A late notice is recorded, not refused
+
+**Decision.** `app.give_claim_notice` (0197) accepts a notice dated after the
+contractual deadline. The lateness is computed by `my_claims`
+(`notice_was_late`, `notice_days_late`) and said on the claim card in the
+plainest words available. What is refused is a notice dated *before* the event
+it is about, and a second notice on a claim that already has one.
+
+**Reason.** Most construction claims are lost on the notice clause rather than
+on their merits. The tidy option is to refuse a late notice so the record stays
+clean — and that would hide the single most expensive fact a company can know
+about its own claim, from the only people who can decide what to do about it.
+
+This also corrected a defect the screen already had: `noticeState` reported
+"Entitlement preserved" for *any* served notice, because until 0197 nothing
+could compute whether it was in time. A card that congratulates a company on a
+late notice is the worst version of that page.
+
+**Affects.** `claims`, `my_claims`, `claims.tsx`, `components/claims/*`.
+
+**Status.** Active. Verified live: an 8-day-late notice recorded and reported as
+8 days late, against a contract whose 7-day clause dated the deadline itself.
+
+---
+
+## D-063 · 2026-09-16 · A claim's deadlines come from the contract's own clauses
+
+**Decision.** `create_claim` does not take `notice_due_on` or `claim_due_on`.
+`app.derive_claim_deadlines` (0023) computes both from the contract's
+`notice_days` and `claim_days`, and 0197 is the first thing that ever put a row
+through it.
+
+**Reason.** That trigger — and the decision in 0023 to store the clauses as
+numbers of days rather than as quoted prose — exists so a deadline can actually
+be computed and warned about. A deadline typed by hand stops agreeing with the
+contract the moment either is corrected, and the one everybody then works to is
+the wrong one.
+
+A contract with no clause on file produces no deadline rather than an invented
+one, and both the contract list and the claim form say so out loud: nothing will
+warn you, which is a different thing from there being no clause.
+
+**Affects.** `create_claim`, `my_contracts.notice_clause_on_file`, the claim form.
+
+**Status.** Active. Verified live: event 1 Sep + a 7-day clause gave notice due
+8 Sep and the claim due 22 Sep, with nobody typing either.
+
+---
+
 ## D-061 · 2026-09-16 · A pay application's figures are computed, never typed
 
 **Decision.** Migration 0196 recomputes `completed_to_date`, `stored_materials`,

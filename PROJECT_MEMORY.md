@@ -461,10 +461,50 @@ estimate at $56,805.72, application 1 billed 40% ($22,722.29), was submitted,
 approved and short-paid at $15,000, and application 2 opened carrying
 $22,722.29 completed and $15,000 previously paid.
 
+### Claims and entitlement, as of migration 0197
+
+`contracts` and `claims` had existed since migration 0023 — fully governed, four
+constraints and a deadline trigger between them — with no writer of any kind. A
+company could read the claims it was running and could not open one.
+`app.derive_claim_deadlines` had never fired in its life.
+
+**The deadlines come from the contract** (D-063). `notice_days` and `claim_days`
+are stored as numbers of days precisely so a deadline can be computed, and 0197
+is the first thing that ever used them. A contract with no clause on file
+produces no deadline rather than an invented one, and both the contract list and
+the claim form say so: nothing will warn you, which is different from there
+being no clause.
+
+**A late notice is recorded, not refused** (D-062). Most construction claims are
+lost on the notice clause rather than on their merits, so refusing a late notice
+to keep the record clean would hide the most expensive fact a company can know
+about its own claim. This also corrected a defect already on the screen: the card
+said "Entitlement preserved" for any served notice, because nothing could compute
+whether it was in time.
+
+**The supporting arrays finally have a writer.** `supporting_daily_reports`,
+`supporting_rfis` and `supporting_documents` are what a claim actually rests on —
+records made at the time by people who did not yet know there would be a claim —
+and evidence from another job is refused, because the other side finds that
+rather than the person who attached it.
+
+**Noticing, submitting, negotiating and resolving are four separate acts**, not
+one dropdown. Each records something different, and a control that did all four
+would record none of them. A resolution needs what was decided and why; a
+settlement that awards nothing is a denial, and the two are argued differently
+next time.
+
+Verified live on PRJ-2026-0003: a contract recorded with a 7-day notice clause,
+a claim opened on an event of 1 September, deadlines dated by the trigger to
+8 and 22 September with nobody typing either, and a notice given 16 September
+recorded and reported as **8 days late**. The verification claim was then
+withdrawn; it is on file as CL-2026-0001, "Test claim — delete me", withdrawn,
+along with contract CT-2026-0001 for that job.
+
 ### Recommended next actions
 
-1. Work the toolbar in order, saying before each section closes. Survey & Grade
-   and Finance are done; Claims, Master Libraries, Reports, GrounUp Network,
+1. Work the toolbar in order, saying before each section closes. Survey & Grade,
+   Finance and Claims are done; Master Libraries, Reports, GrounUp Network,
    Company Settings and Billing remain.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.
