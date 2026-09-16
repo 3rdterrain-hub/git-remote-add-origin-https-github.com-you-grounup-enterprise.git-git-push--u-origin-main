@@ -17,6 +17,8 @@ import { renderPage } from '@/test/render';
 
 const hoisted = vi.hoisted(() => ({
   configured: true,
+  services: [] as unknown[],
+  adopted: [] as Array<[string, string, string]>,
   counts: {
     services: 191, tasks: 2_790, assemblies: 188,
     productionRates: 1_452, labor: 14, equipment: 17, crews: 8,
@@ -34,6 +36,7 @@ vi.mock('@/lib/data/session', async () => {
   return {
     ...actual,
     usePermissions: () => ({ can: () => true, loading: false }),
+    useCompanyId: () => ({ companyId: 'co-1', loading: false }),
     loadMemberships: async () => [{ companyId: 'co-1', companyName: 'Terrain', role: 'owner' }],
   };
 });
@@ -49,12 +52,17 @@ vi.mock('@/lib/data/library', async () => {
   const none = async () => [];
   return {
     ...actual,
-    loadServices: none, loadTasks: none, loadTruckingRates: none, loadDisposalSites: none,
+    loadServices: async () => hoisted.services,
+    loadTasks: none, loadTruckingRates: none, loadDisposalSites: none,
     loadVendors: none, loadMaterials: none, loadLaborRates: none, loadEquipmentOptions: none,
     loadCrews: none, loadConditionModifiers: none, loadPricingProfiles: none,
     loadLibraryCounts: async () => {
       if (hoisted.countsFail) throw new Error(hoisted.countsFail);
       return hoisted.counts;
+    },
+    adoptLibraryRow: async (kind: string, id: string, company: string) => {
+      hoisted.adopted.push([kind, id, company]);
+      return 'copy-1';
     },
   };
 });
@@ -69,6 +77,8 @@ describe('the four figures across the top', () => {
       services: 191, tasks: 2_790, assemblies: 188,
       productionRates: 1_452, labor: 14, equipment: 17, crews: 8,
     };
+    hoisted.services = [];
+    hoisted.adopted = [];
   });
 
   it('counts what the library actually holds, not what the seed shipped', async () => {
@@ -126,5 +136,40 @@ describe('the four figures across the top', () => {
 
     await user.click(screen.getByRole('tab', { name: 'Materials' }));
     expect(resources()).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('copies a shipped row into the company library from the badge that says it is shipped', async () => {
+    /*
+     * O-026 was a disabled "Copy to company scope" button in the page header,
+     * which could not know which row anybody meant. The gesture belongs on the
+     * row, and the badge that already says "GrounUp seed" is where a person
+     * looks when they want to change one and cannot.
+     */
+    hoisted.services = [{
+      id: 'svc-1', code: 'SV-0001', name: 'Mass excavation', description: null,
+      category: 'Earthwork', subcategory: null, industry: 'Sitework',
+      defaultUnit: 'CY', supportedUnits: ['CY'], pricingMethod: 'assembly',
+      status: 'active', version: '1', scope: 'global', editable: false,
+    }];
+    renderPage(<LibrariesPage />);
+    await userEvent.click(screen.getByRole('tab', { name: 'Services' }));
+    await waitFor(() => expect(screen.getByText('Mass excavation')).toBeInTheDocument());
+    await userEvent.click(screen.getByTitle(/Make your own copy of this row/));
+    await waitFor(() => expect(hoisted.adopted).toHaveLength(1));
+    expect(hoisted.adopted[0]![0]).toBe('service');
+    expect(hoisted.adopted[0]![1]).toBe('svc-1');
+  });
+
+  it('does not offer to copy a row the company already owns', async () => {
+    hoisted.services = [{
+      id: 'svc-2', code: 'SV-0002', name: 'Our own service', description: null,
+      category: 'Earthwork', subcategory: null, industry: 'Sitework',
+      defaultUnit: 'CY', supportedUnits: ['CY'], pricingMethod: 'assembly',
+      status: 'active', version: '1', scope: 'company', editable: true,
+    }];
+    renderPage(<LibrariesPage />);
+    await userEvent.click(screen.getByRole('tab', { name: 'Services' }));
+    await waitFor(() => expect(screen.getByText('Our own service')).toBeInTheDocument());
+    expect(screen.queryByTitle(/Make your own copy of this row/)).not.toBeInTheDocument();
   });
 });

@@ -11,6 +11,56 @@ Newest first.
 
 ---
 
+## D-064 · 2026-09-16 · A copied library row arrives as a draft
+
+**Decision.** `app.customize_service`, `customize_task`, `customize_labor_rate`,
+`customize_equipment`, `customize_crew` and `customize_production_rate` (0198)
+insert a copy with `app.copy_status(company)` — active and approved where the
+caller can approve library rows, **draft** where they cannot (0199).
+
+**Reason.** `*_active_needs_approver` refuses an active company row with nobody
+named, and it caught all six. The wrong fix is to satisfy it by stamping the
+copier as the approver: a rate nobody has looked at should not price a bid, and
+RULE-008 says the same thing in general — the platform proposes, a person
+accepts. A senior estimator can write the libraries and cannot approve them, so
+their copy waits.
+
+Also corrected here: 0198 wrote `origin = 'human'`, which is a different
+column's vocabulary. `*_origin_known` takes `catalog`, `company`,
+`ai_discovered` or `imported`; a copy's origin is `company`.
+
+**Affects.** All six copy functions, `my_library_copies`, the libraries screen.
+
+**Status.** Active. Verified live: `SVC-0003` copied into 3RD Terrain as
+`SVC-0003-a845b8`, active and approved because the owner can approve; a second
+call returned the same copy rather than making another.
+
+---
+
+## D-065 · 2026-09-16 · One door onto a copy, and the inventory knows about drops
+
+**Decision.** Only `public.adopt_library_row` is exposed; the six
+`public.customize_*` wrappers 0198 created are dropped (0200). And
+`scripts/build-door-inventory.mjs` now honors `drop function` / `drop view` in a
+later migration.
+
+**Reason.** A screen offers one gesture — which library a row is in is a
+question about the row, not about the person pressing it — so six more granted
+functions nothing reaches are six more ways to grow a feature with no door.
+`every-door-has-a-reader` caught them, which is what it is for.
+
+The inventory then reported them as doors with no reader *after* they had been
+dropped, because it reads the migrations and had no notion of a door being taken
+away. That is the one thing the file exists to say, said about something that is
+not there — so the script learned about drops rather than the six being added to
+an exception list.
+
+**Affects.** `governance/DOORS.md`, `scripts/build-door-inventory.mjs`.
+
+**Status.** Active. 355 doors, 0 with no reader.
+
+---
+
 ## D-062 · 2026-09-16 · A late notice is recorded, not refused
 
 **Decision.** `app.give_claim_notice` (0197) accepts a notice dated after the

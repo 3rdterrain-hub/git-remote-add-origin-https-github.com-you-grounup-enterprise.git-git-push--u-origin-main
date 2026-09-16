@@ -17,13 +17,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { calculatePrice } from '@grounup/engine';
 import { money, unitRate, percent, qty, titleCase } from '@/lib/format';
-import { useQuery } from '@/lib/data/query';
+import { useQuery, messageFor } from '@/lib/data/query';
 import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
   loadMaterials, loadLaborRates, loadEquipmentOptions, loadCrews,
   loadConditionModifiers, loadPricingProfiles, loadLibraryCounts,
-  updateCost, setMaterialCost,
+  updateCost, setMaterialCost, adoptLibraryRow, type LibraryKind,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
 import { ImportPriceList } from '@/components/library/import-price-list';
@@ -62,19 +62,26 @@ export function LibrariesPage() {
    * catalog; converting them is the same work again and is queued rather than
    * half-done here.
    */
-  const servicesQ = useQuery(loadServices, []);
-  const tasksQ = useQuery(loadTasks, []);
-  const ratesQ = useQuery(loadProductionRates(q, rateCategory || null), [q, rateCategory]);
+  /*
+   * Copying a shipped row changes whichever library it landed in, and the tabs
+   * do not know about each other. One nonce re-reads them all rather than each
+   * tab guessing which of its neighbors it has to care about.
+   */
+  const [copied, setCopied] = useState(0);
+  const afterCopy = () => setCopied((n) => n + 1);
+  const servicesQ = useQuery(loadServices, [copied]);
+  const tasksQ = useQuery(loadTasks, [copied]);
+  const ratesQ = useQuery(loadProductionRates(q, rateCategory || null), [q, rateCategory, copied]);
   const truckingQ = useQuery(loadTruckingRates, []);
   const disposalQ = useQuery(loadDisposalSites, []);
   const vendorsQ = useQuery(loadVendors, []);
-  const materialsQ = useQuery(loadMaterials, []);
-  const equipmentQ = useQuery(loadEquipmentOptions, []);
-  const crewsQ = useQuery(loadCrews, []);
+  const materialsQ = useQuery(loadMaterials, [copied]);
+  const equipmentQ = useQuery(loadEquipmentOptions, [copied]);
+  const crewsQ = useQuery(loadCrews, [copied]);
   const modifiersQ = useQuery(loadConditionModifiers, []);
   const profilesQ = useQuery(loadPricingProfiles, []);
-  const laborQ = useQuery(loadLaborRates, []);
-  const countsQ = useQuery(loadLibraryCounts, []);
+  const laborQ = useQuery(loadLaborRates, [copied]);
+  const countsQ = useQuery(loadLibraryCounts, [copied]);
   const { can } = usePermissions();
   const canWrite = can('libraries.write');
 
@@ -204,11 +211,17 @@ export function LibrariesPage() {
       <PageHeader
         title="Master Libraries"
         description="The catalog every estimate prices from. GrounUp ships it seeded so the first estimate is a workflow question rather than a data-entry project."
+        /*
+         * O-026 closed. The gesture moved onto the rows, where it can know which
+         * one is meant: click the "GrounUp seed" badge on any row and the
+         * company gets its own copy of it.
+         */
         actions={(
-          <Button variant="outline" disabled
-            title="Copying a shipped row into your own library is not built yet. Add your own row with the buttons on each tab, which does work.">
-            <Copy className="size-4" /> Copy to company scope
-          </Button>
+          <span className="inline-flex items-center gap-1.5 text-xs text-charcoal-500">
+            <Copy className="size-3.5" />
+            Click a row&rsquo;s <strong className="font-medium">GrounUp seed</strong> badge to make
+            your own copy of it
+          </span>
         )}
       />
 
@@ -352,7 +365,7 @@ export function LibrariesPage() {
                       <TableCell className="font-medium text-charcoal-900">{x.name}</TableCell>
                       <TableCell className="text-charcoal-600">{x.category ?? '—'}</TableCell>
                       <TableCell className="text-charcoal-600">{x.defaultUnit}</TableCell>
-                      <TableCell><ScopeBadge scope={x.scope} /></TableCell>
+                      <TableCell><ScopeBadge scope={x.scope} kind="service" id={x.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
                       <TableCell>
                         {x.editable && x.status === 'active' ? (
                           <Button size="sm" variant="ghost" disabled={busy}
@@ -454,7 +467,7 @@ export function LibrariesPage() {
                           x.safetyReviewRequired && 'safety review']
                           .filter(Boolean).join(', ') || 'nothing'}
                       </TableCell>
-                      <TableCell><ScopeBadge scope={x.scope} /></TableCell>
+                      <TableCell><ScopeBadge scope={x.scope} kind="task" id={x.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -854,7 +867,7 @@ export function LibrariesPage() {
                         {money(l.burdenedCostPerHour)}
                         <span className="text-charcoal-400"> / hr</span>
                       </TableCell>
-                      <TableCell><ScopeBadge scope={l.scope} /></TableCell>
+                      <TableCell><ScopeBadge scope={l.scope} kind="labor_rate" id={l.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -928,7 +941,7 @@ export function LibrariesPage() {
                       {e.mobilizationCost ? money(e.mobilizationCost)
                         : <span className="text-charcoal-300">—</span>}
                     </TableCell>
-                    <TableCell><ScopeBadge scope={e.scope} /></TableCell>
+                    <TableCell><ScopeBadge scope={e.scope} kind="equipment" id={e.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -990,7 +1003,7 @@ export function LibrariesPage() {
                           {' '}· {c.shiftHours} hr shift
                         </CardDescription>
                       </div>
-                      <ScopeBadge scope={c.scope} />
+                      <ScopeBadge scope={c.scope} kind="crew" id={c.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} />
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-1.5">
@@ -1105,7 +1118,11 @@ export function LibrariesPage() {
                       <TableCell className="tabular text-right">
                         {percent(r.confidenceScore, 0)}
                       </TableCell>
-                      <TableCell><ScopeBadge scope={r.isOwn ? 'company' : 'global'} /></TableCell>
+                      <TableCell>
+                        <ScopeBadge scope={r.isOwn ? 'company' : 'global'} kind="production_rate"
+                          id={r.id} companyId={companyId} canWrite={canWrite}
+                          onCopied={afterCopy} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1271,10 +1288,52 @@ export function LibrariesPage() {
   );
 }
 
-function ScopeBadge({ scope }: { scope: 'global' | 'group' | 'company' }) {
-  if (scope === 'global') {
-    return <Badge variant="default"><Lock className="size-3" /> GrounUp seed</Badge>;
-  }
-  if (scope === 'group') return <Badge variant="info">Corporate standard</Badge>;
-  return <Badge variant="success">Company</Badge>;
+/**
+ * Whose row this is — and, for a shipped one, the door onto making it yours.
+ *
+ * O-026 was a disabled "Copy to company scope" button in the page header, which
+ * could not know which row somebody meant. The gesture belongs on the row, and
+ * the badge that already says "GrounUp seed" on every tab is exactly where a
+ * person looks when they want to change one and cannot.
+ *
+ * A copy arrives as a draft unless the person can approve library rows (0199).
+ * That is the schema's own rule — a company row may not be active with nobody
+ * named — and it is the right one: a rate nobody has looked at should not price.
+ */
+function ScopeBadge({ scope, kind, id, companyId, canWrite, onCopied }: {
+  scope: 'global' | 'group' | 'company';
+  kind?: LibraryKind;
+  id?: string;
+  companyId?: string | null;
+  canWrite?: boolean;
+  onCopied?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+
+  if (scope === 'company') return <Badge variant="success">Company</Badge>;
+
+  const label = scope === 'group'
+    ? <Badge variant="info">Corporate standard</Badge>
+    : <Badge variant="default"><Lock className="size-3" /> GrounUp seed</Badge>;
+
+  if (!kind || !id || !companyId || !canWrite) return label;
+
+  return (
+    <span className="inline-flex flex-col items-start gap-0.5">
+      <button type="button" disabled={busy}
+        className="text-left hover:opacity-80"
+        title="Make your own copy of this row. The shipped one is left alone for everybody else."
+        onClick={() => {
+          setBusy(true); setFailed(null);
+          adoptLibraryRow(kind, id, companyId)
+            .then(() => onCopied?.())
+            .catch((e: unknown) => setFailed(messageFor(e)))
+            .finally(() => setBusy(false));
+        }}>
+        {busy ? <Badge variant="default">Copying…</Badge> : label}
+      </button>
+      {failed ? <span className="text-[10px] text-danger-700">{failed}</span> : null}
+    </span>
+  );
 }

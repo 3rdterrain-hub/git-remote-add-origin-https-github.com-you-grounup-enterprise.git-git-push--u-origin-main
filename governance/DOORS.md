@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **358** |
-| Opened by a screen | **338** |
+| Doors | **355** |
+| Opened by a screen | **335** |
 | Opened only by an Edge Function | **5** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -81,6 +81,7 @@ None.
 | `add_schedule_activity` | function | lib/data/schedule.ts |
 | `add_schedule_dependency` | function | lib/data/schedule.ts |
 | `add_sov_item` | function | lib/data/finance.ts |
+| `adopt_library_row` | function | lib/data/library.ts |
 | `adopt_profile_markups` | function | lib/data/estimates.ts |
 | `apply_estimate_template` | function | lib/data/templates.ts |
 | `apply_line_condition` | function | lib/data/estimates.ts |
@@ -115,13 +116,11 @@ None.
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_claim` | function | lib/data/claims.ts |
-| `create_company_for` | function | lib/data/admin.ts |
 | `create_contract` | function | lib/data/claims.ts |
 | `create_crew` | function | lib/data/library.ts |
 | `create_customer` | function | lib/data/crm.ts, lib/data/estimates.ts |
 | `create_daily_report` | function | lib/data/project.ts |
 | `create_employee` | function | lib/data/workforce.ts |
-| `create_estimate` | function | lib/data/estimates.ts |
 | `create_estimate_from_template` | function | lib/data/templates.ts |
 | `create_lead` | function | lib/data/leads.ts |
 | `create_material` | function | lib/data/library.ts |
@@ -162,7 +161,6 @@ None.
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `give_claim_notice` | function | lib/data/claims.ts |
 | `haul_cost` | function | lib/data/library.ts |
-| `hire_operator` | function | lib/data/admin.ts |
 | `identify_sheet` | function | lib/data/sheets.ts |
 | `import_equipment_rates` | function | lib/data/library.ts |
 | `import_materials` | function | lib/data/library.ts |
@@ -172,7 +170,6 @@ None.
 | `is_superadmin` | function | lib/data/admin.ts |
 | `is_supporting` | function | lib/data/admin.ts |
 | `issue_drafted_proposal` | function | lib/data/estimates.ts |
-| `issue_proposal` | function | lib/data/estimates.ts |
 | `issue_purchase_order` | function | lib/data/procurement.ts |
 | `library_category_counts` | function | lib/data/categories.ts |
 | `library_category_members` | function | lib/data/categories.ts |
@@ -209,6 +206,7 @@ None.
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
+| `my_library_copies` | view | lib/data/library.ts |
 | `my_line_conditions` | view | lib/data/estimates.ts |
 | `my_line_measurements` | view | lib/data/takeoff.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
@@ -355,7 +353,6 @@ None.
 | `set_line_service` | function | lib/data/estimates.ts |
 | `set_line_unit_cost` | function | lib/data/estimates.ts |
 | `set_maintenance_schedule` | function | lib/data/fleet.ts |
-| `set_material_cost` | function | lib/data/library.ts |
 | `set_my_preference` | function | lib/data/preferences.ts |
 | `set_notification_preference` | function | lib/data/session.ts |
 | `set_operator_role` | function | lib/data/admin.ts |

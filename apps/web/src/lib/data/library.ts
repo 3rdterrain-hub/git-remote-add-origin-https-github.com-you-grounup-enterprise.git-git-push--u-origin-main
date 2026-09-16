@@ -1469,3 +1469,57 @@ export async function removeCrewMember(memberId: string): Promise<void> {
 export async function retireCrew(crewId: string): Promise<void> {
   await crewRpc('retire_crew', { p_crew: crewId });
 }
+
+/* ---------------------------------------------------------------------------
+ * Making a shipped row your own — migrations 0198 and 0199
+ *
+ * O-026, open since this screen was built: "Copy to company scope" was a
+ * disabled button with the reason written on it, which was honest and left
+ * 2,819 services, 8,532 tasks, 700 machines, 56 classifications, 42 crews and
+ * 2,143 production rates that no company could take one of.
+ *
+ * A copy arrives as a draft unless the person making it can approve library
+ * rows. A rate nobody has looked at should not price a bid.
+ * ------------------------------------------------------------------------- */
+
+export type LibraryKind =
+  | 'service' | 'task' | 'assembly' | 'labor_rate' | 'equipment'
+  | 'crew' | 'production_rate';
+
+/** Copy a shipped row into the company's own library. Returns the copy's id. */
+export async function adoptLibraryRow(
+  kind: LibraryKind, rowId: string, companyId: string,
+): Promise<string> {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await supabase.rpc('adopt_library_row', {
+    p_kind: kind, p_row: rowId, p_company: companyId,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+export interface LibraryCopyRow {
+  kind: string;
+  id: string;
+  code: string;
+  name: string;
+  /** "Copied from CODE" where it came from the catalog; null where typed in. */
+  source: string | null;
+  status: string;
+}
+
+/** What this company has taken a copy of, across every library. */
+export const loadLibraryCopies: Query<LibraryCopyRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_library_copies')
+    .select('kind, id, code, name, source, status')
+    .order('kind')) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    kind: String(r.kind),
+    id: String(r.id),
+    code: String(r.code),
+    name: String(r.name),
+    source: (r.source as string | null) ?? null,
+    status: String(r.status),
+  }));
+};

@@ -118,6 +118,20 @@ for (const file of migrations) {
   for (const m of sql.matchAll(/create (?:or replace )?view (my_[a-z0-9_]+)/g)) {
     add(m[1], 'view');
   }
+  /*
+   * A door that was taken away again.
+   *
+   * Migrations run in order, so a later `drop` retires an earlier `create`.
+   * Without this the inventory reported six functions 0200 had deliberately
+   * removed as doors with no reader — which is the one thing this file exists
+   * to say, said about something that is not there.
+   */
+  for (const m of sql.matchAll(/drop\s+(?:function|view)\s+(?:if exists\s+)?public\.([a-z0-9_]+)/g)) {
+    doors.delete(m[1]);
+  }
+  for (const m of sql.matchAll(/drop\s+view\s+(?:if exists\s+)?(my_[a-z0-9_]+)/g)) {
+    doors.delete(m[1]);
+  }
 }
 
 /*

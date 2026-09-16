@@ -501,10 +501,47 @@ recorded and reported as **8 days late**. The verification claim was then
 withdrawn; it is on file as CL-2026-0001, "Test claim — delete me", withdrawn,
 along with contract CT-2026-0001 for that job.
 
+### Master Libraries, as of migrations 0198–0200
+
+O-026, open since the libraries screen was built: "Copy to company scope" was a
+disabled button with the reason written on it. Honest, and it left the platform
+shipping 2,819 services, 8,532 tasks, 700 machines, 56 labor classifications, 42
+crews and 2,143 production rates that no company could take a single one of.
+
+**The gesture moved onto the row.** A header button cannot know which row
+somebody means. The badge that already says "GrounUp seed" on every tab is
+exactly where a person looks when they want to change a row and cannot, so that
+badge is now the door: click it and the company gets its own copy.
+
+**A copy arrives as a draft unless the person can approve** (D-064). That is the
+schema's own rule — `*_active_needs_approver` refuses an active company row with
+nobody named — and the wrong fix is to stamp the copier as the approver.
+
+**What is deliberately not copied.** A machine arrives without an hourly rate:
+RULE-003 decides which rate prices, and a copied rate would insert somebody
+else's number into this company's own precedence. A production rate keeps the
+`source_type` it had, because every confidence figure downstream reads it and a
+shipped industry rate is still an industry rate until somebody measures their
+own. A crew brings its members, pointed at the company's own classification
+where it has one.
+
+**Assemblies and materials route to what already did it** — `customize_assembly`
+(0129) and `set_material_cost` (0133) — rather than to a second implementation
+beside them, which is how this repository ended up with two lead intakes and two
+`set_material_cost`s before anybody noticed.
+
+**One door, not seven** (D-065), and the door inventory now honors a `drop` in a
+later migration rather than reporting six functions 0200 removed as doors with
+no reader.
+
+Verified live: `SVC-0003` "Clearing and grubbing" copied into 3RD Terrain as
+`SVC-0003-a845b8`, active and approved because the owner can approve, and a
+second call returned the same copy rather than making another.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
-   Finance and Claims are done; Master Libraries, Reports, GrounUp Network,
+   Finance, Claims and Master Libraries are done; Reports, GrounUp Network,
    Company Settings and Billing remain.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.
