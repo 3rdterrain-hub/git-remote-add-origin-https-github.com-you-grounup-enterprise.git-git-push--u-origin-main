@@ -247,3 +247,237 @@ export async function createEmployee(
   if (error) throw new Error(error.message);
   return String(data);
 }
+
+// -----------------------------------------------------------------------------
+// The doors
+//
+// `create_employee` (0161) was the whole write side: a person could be hired and
+// never corrected, never put on leave and never ended — and the schema requires
+// a termination date that nothing could supply. Migration 0187 added the rest,
+// along with the first writer of `credentials`, on which the platform's only
+// blocking safety control depends.
+// -----------------------------------------------------------------------------
+
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
+const call = async (fn: string, args: Record<string, unknown>) => {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await (supabase as unknown as RpcCapable).rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+export const EMPLOYMENT_TYPES = [
+  { value: 'full_time', label: 'Full time' },
+  { value: 'part_time', label: 'Part time' },
+  { value: 'seasonal', label: 'Seasonal' },
+  { value: 'temporary', label: 'Temporary' },
+  { value: 'subcontract', label: 'Subcontract' },
+] as const;
+
+/** Where somebody stands, short of having left — ending is its own door. */
+export const EMPLOYEE_STATUSES = [
+  { value: 'applicant', label: 'Applicant' },
+  { value: 'onboarding', label: 'Onboarding' },
+  { value: 'active', label: 'Active' },
+  { value: 'on_leave', label: 'On leave' },
+] as const;
+
+/** Correct a person's record, or put them on leave. */
+export async function updateEmployee(input: {
+  employeeId: string; firstName?: string | null; lastName?: string | null;
+  email?: string | null; phone?: string | null; classification?: string | null;
+  employmentType?: string | null; isUnion?: boolean | null; unionLocal?: string | null;
+  hireDate?: string | null; hourlyRate?: number | null; burdenPercent?: number | null;
+  emergencyContact?: string | null; emergencyPhone?: string | null; status?: string | null;
+}): Promise<void> {
+  await call('update_employee', {
+    p_employee: input.employeeId,
+    p_first_name: input.firstName?.trim() || null,
+    p_last_name: input.lastName?.trim() || null,
+    p_email: input.email?.trim() || null,
+    p_phone: input.phone?.trim() || null,
+    p_classification: input.classification?.trim() || null,
+    p_employment_type: input.employmentType ?? null,
+    p_is_union: input.isUnion ?? null,
+    p_union_local: input.unionLocal?.trim() || null,
+    p_hire_date: input.hireDate || null,
+    p_hourly_rate: input.hourlyRate ?? null,
+    p_burden_percent: input.burdenPercent ?? null,
+    p_emergency_contact: input.emergencyContact?.trim() || null,
+    p_emergency_phone: input.emergencyPhone?.trim() || null,
+    p_status: input.status ?? null,
+  });
+}
+
+/**
+ * End somebody's employment on a date.
+ *
+ * Its own door because the schema requires the date with it, and because the
+ * assignments that run past that date are ended too — a schedule that still
+ * shows somebody who has left is a schedule people staff from.
+ */
+export async function endEmployment(
+  employeeId: string, on: string, reason?: string | null,
+): Promise<void> {
+  await call('end_employment', {
+    p_employee: employeeId, p_on: on, p_reason: reason?.trim() || null,
+  });
+}
+
+export const CREDENTIAL_TYPES = [
+  { value: 'license', label: 'License' },
+  { value: 'certification', label: 'Certification' },
+  { value: 'training', label: 'Training' },
+  { value: 'medical', label: 'Medical' },
+  { value: 'clearance', label: 'Clearance' },
+] as const;
+
+/**
+ * Record that somebody holds a ticket.
+ *
+ * The standing — valid, expiring, expired — is never sent: migration 0043
+ * removed the stored one because a state derived from a date and written down
+ * goes stale the day the date passes, and the safety gate failed open on
+ * exactly the case it exists to catch.
+ */
+export async function recordCredential(input: {
+  employeeId: string; name: string; type?: string; issuingBody?: string | null;
+  identifier?: string | null; issuedOn?: string | null; expiresOn?: string | null;
+  requiredFor?: string[]; pending?: boolean;
+}): Promise<string> {
+  return call('record_credential', {
+    p_employee: input.employeeId,
+    p_name: input.name.trim(),
+    p_type: input.type ?? 'certification',
+    p_issuing_body: input.issuingBody?.trim() || null,
+    p_identifier: input.identifier?.trim() || null,
+    p_issued_on: input.issuedOn || null,
+    p_expires_on: input.expiresOn || null,
+    p_required_for: input.requiredFor ?? [],
+    p_pending: input.pending ?? false,
+  });
+}
+
+/** Renew or correct a ticket. A renewal edits the row rather than adding a second. */
+export async function updateCredential(input: {
+  credentialId: string; name?: string | null; issuingBody?: string | null;
+  identifier?: string | null; issuedOn?: string | null; expiresOn?: string | null;
+  requiredFor?: string[] | null; issued?: boolean | null;
+}): Promise<void> {
+  await call('update_credential', {
+    p_credential: input.credentialId,
+    p_name: input.name?.trim() || null,
+    p_issuing_body: input.issuingBody?.trim() || null,
+    p_identifier: input.identifier?.trim() || null,
+    p_issued_on: input.issuedOn || null,
+    p_expires_on: input.expiresOn || null,
+    p_required_for: input.requiredFor ?? null,
+    p_issued: input.issued ?? null,
+  });
+}
+
+/** Take a ticket away, with the reason. Different from letting one lapse. */
+export async function revokeCredential(credentialId: string, reason: string): Promise<void> {
+  await call('revoke_credential', { p_credential: credentialId, p_reason: reason.trim() });
+}
+
+export interface EmployeeCredentialRow {
+  id: string;
+  employeeId: string;
+  name: string;
+  credentialType: string;
+  issuingBody: string | null;
+  identifier: string | null;
+  issuedOn: string | null;
+  expiresOn: string | null;
+  requiredFor: string[];
+  /** Derived from the date every time it is asked for, never stored (0043). */
+  status: string;
+  daysRemaining: number | null;
+}
+
+/** What one person holds. */
+export const loadEmployeeCredentials = (employeeId: string): Query<EmployeeCredentialRow[]> =>
+  async (client) => {
+    if (!employeeId) return [];
+    const rows = unwrap(await client
+      .from('my_employee_credentials')
+      .select('id, employee_id, name, credential_type, issuing_body, identifier, '
+        + 'issued_on, expires_on, required_for, status, days_remaining')
+      .eq('employee_id', employeeId)
+      .order('expires_on', { ascending: true, nullsFirst: false })) as unknown as
+        Array<Record<string, unknown>>;
+    return rows.map((c) => ({
+      id: String(c.id),
+      employeeId: String(c.employee_id),
+      name: String(c.name),
+      credentialType: String(c.credential_type),
+      issuingBody: (c.issuing_body as string | null) ?? null,
+      identifier: (c.identifier as string | null) ?? null,
+      issuedOn: (c.issued_on as string | null) ?? null,
+      expiresOn: (c.expires_on as string | null) ?? null,
+      requiredFor: (c.required_for as string[] | null) ?? [],
+      status: String(c.status),
+      daysRemaining: c.days_remaining == null ? null : Number(c.days_remaining),
+    }));
+  };
+
+export interface WorkRequirementRow {
+  id: string;
+  workType: string;
+  credentialName: string;
+  credentialType: string | null;
+  isMandatory: boolean;
+  notes: string | null;
+  /** How many people currently hold it — whether the rule can be staffed. */
+  peopleWhoHoldIt: number;
+}
+
+/**
+ * What each kind of work requires.
+ *
+ * `app.enforce_assignment_credentials` has read this since migration 0043 and
+ * had nothing to read: no company could state a requirement, so the platform's
+ * only blocking safety control had never fired.
+ */
+export const loadWorkRequirements: Query<WorkRequirementRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_work_credential_requirements')
+    .select('id, work_type, credential_name, credential_type, is_mandatory, notes, '
+      + 'people_who_hold_it')
+    .order('work_type')
+    .order('credential_name')) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    id: String(r.id),
+    workType: String(r.work_type),
+    credentialName: String(r.credential_name),
+    credentialType: (r.credential_type as string | null) ?? null,
+    isMandatory: r.is_mandatory === true,
+    notes: (r.notes as string | null) ?? null,
+    peopleWhoHoldIt: Number(r.people_who_hold_it ?? 0),
+  }));
+};
+
+/** Say what a kind of work requires. Mandatory blocks; recommended warns. */
+export async function setWorkRequirement(companyId: string, input: {
+  workType: string; credentialName: string; mandatory?: boolean;
+  credentialType?: string | null; notes?: string | null;
+}): Promise<string> {
+  return call('set_work_credential_requirement', {
+    p_company: companyId,
+    p_work_type: input.workType.trim().toLowerCase().replace(/\s+/g, '_'),
+    p_credential: input.credentialName.trim(),
+    p_mandatory: input.mandatory ?? true,
+    p_type: input.credentialType ?? null,
+    p_notes: input.notes?.trim() || null,
+  });
+}
+
+/** Stop requiring a credential for a kind of work. */
+export async function removeWorkRequirement(requirementId: string): Promise<void> {
+  await call('remove_work_credential_requirement', { p_requirement: requirementId });
+}

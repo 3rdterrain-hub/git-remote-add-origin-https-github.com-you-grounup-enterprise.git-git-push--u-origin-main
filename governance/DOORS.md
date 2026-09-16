@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **256** |
-| Opened by a screen | **237** |
+| Doors | **293** |
+| Opened by a screen | **274** |
 | Opened only by an Edge Function | **4** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -67,6 +67,7 @@ None.
 | Door | Kind | Read in |
 |---|---|---|
 | `accept_finding_as_line` | function | lib/data/plans.ts |
+| `add_assembly_resource` | function | lib/data/estimates.ts |
 | `add_assembly_step` | function | lib/data/assemblies.ts |
 | `add_change_order_item` | function | lib/data/project.ts |
 | `add_estimate_line` | function | lib/data/estimates.ts |
@@ -85,6 +86,7 @@ None.
 | `assign_resource` | function | lib/data/schedule.ts |
 | `award_estimate_version` | function | lib/data/estimates.ts |
 | `build_schedule_from_tasks` | function | lib/data/schedule.ts |
+| `cancel_work_order` | function | lib/data/fleet.ts |
 | `claim_first_superadmin` | function | lib/data/admin.ts |
 | `clear_allowance` | function | lib/data/admin.ts |
 | `clear_billing_terms` | function | lib/data/admin.ts |
@@ -95,17 +97,22 @@ None.
 | `close_financial_period` | function | lib/data/finance.ts |
 | `close_support_session` | function | lib/data/admin.ts |
 | `complete_crm_activity` | function | lib/data/crm-pipeline.ts |
+| `complete_work_order` | function | lib/data/fleet.ts |
 | `conflict_to_rfi` | function | lib/data/conflicts.ts |
 | `convert_lead` | function | lib/data/leads.ts |
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_company_for` | function | lib/data/admin.ts |
+| `create_crew` | function | lib/data/library.ts |
+| `create_customer` | function | lib/data/crm.ts, lib/data/estimates.ts |
 | `create_daily_report` | function | lib/data/project.ts |
 | `create_employee` | function | lib/data/workforce.ts |
 | `create_estimate` | function | lib/data/estimates.ts |
 | `create_estimate_from_template` | function | lib/data/templates.ts |
+| `create_lead` | function | lib/data/leads.ts |
 | `create_material` | function | lib/data/library.ts |
 | `create_my_company` | function | lib/data/session.ts |
+| `create_opportunity` | function | lib/data/crm-pipeline.ts |
 | `create_pay_application` | function | lib/data/finance.ts |
 | `create_plan` | function | lib/data/admin.ts |
 | `create_platform_role` | function | lib/data/admin.ts |
@@ -129,10 +136,12 @@ None.
 | `discard_proposal_draft` | function | lib/data/estimates.ts |
 | `dismiss_announcement` | function | lib/data/session.ts |
 | `dismiss_notification` | function | lib/data/session.ts |
+| `dispose_asset` | function | lib/data/fleet.ts |
 | `draft_proposal` | function | lib/data/estimates.ts |
 | `earnings` | function | lib/data/admin.ts |
 | `edit_comment` | function | lib/data/comments.ts |
 | `end_break` | function | lib/data/time-clock.ts |
+| `end_employment` | function | lib/data/workforce.ts |
 | `ensure_work_calendar` | function | lib/data/schedule.ts |
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `haul_cost` | function | lib/data/library.ts |
@@ -159,15 +168,19 @@ None.
 | `my_ai_findings` | view | lib/data/plans.ts |
 | `my_announcements` | view | lib/data/session.ts |
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
+| `my_asset_meters` | view | lib/data/fleet.ts |
 | `my_assignments` | view | lib/data/field-work.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_change_order_items` | view | lib/data/project.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
 | `my_contacts` | view | lib/data/crm-pipeline.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
+| `my_crew_members` | view | lib/data/library.ts |
+| `my_crews` | view | lib/data/library.ts |
 | `my_crm_activities` | view | lib/data/crm-pipeline.ts |
 | `my_document_conflicts` | view | lib/data/conflicts.ts |
 | `my_documents` | view | lib/data/plans.ts |
+| `my_employee_credentials` | view | lib/data/workforce.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
 | `my_jobs_nearby` | function | lib/data/field-work.ts |
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
@@ -176,6 +189,7 @@ None.
 | `my_line_conditions` | view | lib/data/estimates.ts |
 | `my_line_measurements` | view | lib/data/takeoff.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
+| `my_maintenance_due` | view | lib/data/fleet.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
 | `my_payment_problem` | view | lib/data/session.ts |
@@ -193,6 +207,7 @@ None.
 | `my_refunds` | view | lib/data/billing.ts |
 | `my_schedulable_projects` | view | lib/data/schedule.ts |
 | `my_schedule_baselines` | view | lib/data/schedule.ts |
+| `my_service_buildup` | view | lib/data/estimates.ts |
 | `my_services_without_a_breakdown` | view | lib/data/assemblies.ts |
 | `my_sheet_text_coverage` | view | lib/data/plans.ts |
 | `my_site_weather` | view | lib/data/project.ts |
@@ -207,6 +222,7 @@ None.
 | `my_weather` | view | lib/data/dashboard.ts, lib/data/project.ts |
 | `my_weather_now` | view | lib/data/project.ts |
 | `my_work_calendars` | view | lib/data/schedule.ts |
+| `my_work_credential_requirements` | view | lib/data/workforce.ts |
 | `next_company_haul_code` | function | lib/data/library.ts |
 | `open_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `open_support_session` | function | lib/data/admin.ts |
@@ -220,7 +236,10 @@ None.
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
 | `reassign_measurement` | function | lib/data/conditions.ts |
 | `record_condition_takeoff` | function | lib/data/conditions.ts |
+| `record_credential` | function | lib/data/workforce.ts |
 | `record_export` | function | lib/data/admin.ts |
+| `record_fuel` | function | lib/data/fleet.ts |
+| `record_meter_reading` | function | lib/data/fleet.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
 | `record_proposal_outcome` | function | lib/data/estimates.ts |
@@ -231,33 +250,42 @@ None.
 | `release_resource` | function | lib/data/schedule.ts |
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
 | `remove_change_order_item` | function | lib/data/project.ts |
+| `remove_crew_member` | function | lib/data/library.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `remove_report_line` | function | lib/data/project.ts |
 | `remove_schedule_activity` | function | lib/data/schedule.ts |
 | `remove_schedule_dependency` | function | lib/data/schedule.ts |
+| `remove_work_credential_requirement` | function | lib/data/workforce.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
 | `request_refund` | function | lib/data/admin.ts |
 | `resolve_document_conflict` | function | lib/data/conflicts.ts |
+| `resolve_fuel_exception` | function | lib/data/fleet.ts |
 | `respond_to_proposal_by_token` | function | lib/data/proposal-links.ts |
 | `restore_company` | function | lib/data/admin.ts |
 | `retire_contact` | function | lib/data/crm-pipeline.ts |
+| `retire_crew` | function | lib/data/library.ts |
 | `retire_library_category` | function | lib/data/categories.ts |
+| `retire_maintenance_schedule` | function | lib/data/fleet.ts |
 | `retract_announcement` | function | lib/data/admin.ts |
 | `retract_comment` | function | lib/data/comments.ts |
 | `revise_estimate_version` | function | lib/data/estimates.ts |
+| `revoke_credential` | function | lib/data/workforce.ts |
 | `revoke_operator` | function | lib/data/admin.ts |
 | `revoke_proposal_share_link` | function | lib/data/proposal-links.ts |
 | `save_contact` | function | lib/data/crm-pipeline.ts |
 | `save_estimate_template` | function | lib/data/templates.ts |
+| `save_line_buildup_to_library` | function | lib/data/estimates.ts |
 | `save_line_resource` | function | lib/data/estimates.ts |
 | `save_line_to_library` | function | lib/data/estimates.ts |
 | `search` | function | components/layout/app-shell.tsx, lib/data/plans.ts, lib/search.ts +1 |
 | `search_document_text` | function | lib/data/plans.ts |
 | `set_allowance` | function | lib/data/admin.ts |
+| `set_asset_status` | function | lib/data/fleet.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
 | `set_company_plan` | function | lib/data/admin.ts |
+| `set_crew_member` | function | lib/data/library.ts |
 | `set_document_page_count` | function | lib/data/takeoff.ts |
 | `set_estimate_discount` | function | lib/data/estimates.ts |
 | `set_estimate_expiry` | function | lib/data/estimates.ts |
@@ -270,6 +298,7 @@ None.
 | `set_line_quantity` | function | lib/data/estimates.ts |
 | `set_line_service` | function | lib/data/estimates.ts |
 | `set_line_unit_cost` | function | lib/data/estimates.ts |
+| `set_maintenance_schedule` | function | lib/data/fleet.ts |
 | `set_material_cost` | function | lib/data/library.ts |
 | `set_my_preference` | function | lib/data/preferences.ts |
 | `set_notification_preference` | function | lib/data/session.ts |
@@ -282,6 +311,7 @@ None.
 | `set_plan_visibility` | function | lib/data/admin.ts |
 | `set_project_geofence` | function | lib/data/field-work.ts |
 | `set_role_permissions` | function | lib/data/admin.ts |
+| `set_work_credential_requirement` | function | lib/data/workforce.ts |
 | `start_a_breakdown` | function | lib/data/assemblies.ts |
 | `start_break` | function | lib/data/time-clock.ts |
 | `submit_daily_report` | function | lib/data/project.ts |
@@ -291,8 +321,14 @@ None.
 | `suspend_company` | function | lib/data/admin.ts |
 | `take_schedule_baseline` | function | lib/data/schedule.ts |
 | `unapply_takeoff` | function | lib/data/takeoff.ts |
+| `update_asset` | function | lib/data/fleet.ts |
+| `update_credential` | function | lib/data/workforce.ts |
+| `update_crew` | function | lib/data/library.ts |
+| `update_customer` | function | lib/data/crm.ts |
+| `update_employee` | function | lib/data/workforce.ts |
 | `update_estimate_line` | function | lib/data/estimates.ts |
 | `update_estimate_version` | function | lib/data/estimates.ts |
+| `update_lead` | function | lib/data/leads.ts |
 | `update_opportunity` | function | lib/data/crm-pipeline.ts |
 | `update_proposal` | function | lib/data/estimates.ts |
 | `update_resource_assignment` | function | lib/data/schedule.ts |
@@ -300,6 +336,7 @@ None.
 | `update_schedule_dependency` | function | lib/data/schedule.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |
 | `update_work_calendar` | function | lib/data/schedule.ts |
+| `update_work_order` | function | lib/data/fleet.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
 | `withdraw_production_report` | function | lib/data/project.ts |
 | `workable_days_at` | function | lib/data/project.ts |

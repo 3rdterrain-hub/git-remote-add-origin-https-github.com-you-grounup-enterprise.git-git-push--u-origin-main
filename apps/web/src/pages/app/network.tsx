@@ -97,7 +97,12 @@ export function NetworkPage() {
       <PageHeader
         title="GrounUp Network"
         description="Subcontractors and suppliers, with the performance history behind them. Ratings come from companies that actually held a contract with the vendor — one rating per company per project, so nobody can inflate or bury a record."
-        actions={<Button variant="outline"><Building2 className="size-4" /> Publish a vendor</Button>}
+        actions={(
+          <Button variant="outline" disabled
+            title="Publishing to the network is not built yet — the vendors below are a sample.">
+            <Building2 className="size-4" /> Publish a vendor
+          </Button>
+        )}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

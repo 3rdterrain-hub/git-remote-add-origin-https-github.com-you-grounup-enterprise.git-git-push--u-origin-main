@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Library, Search, Lock, Copy, ShieldCheck, Info, Plus, Archive } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
+import { CrewBuilder } from '@/components/library/crew-builder';
 import { AssemblyLibrary } from '@/components/library/assemblies';
 import { ServicesWithoutABreakdown } from '@/components/library/services-without-a-breakdown';
 import { StarterLibrary } from '@/components/library/starter-library';
@@ -203,7 +204,12 @@ export function LibrariesPage() {
       <PageHeader
         title="Master Libraries"
         description="The catalog every estimate prices from. GrounUp ships it seeded so the first estimate is a workflow question rather than a data-entry project."
-        actions={<Button variant="outline"><Copy className="size-4" /> Copy to company scope</Button>}
+        actions={(
+          <Button variant="outline" disabled
+            title="Copying a shipped row into your own library is not built yet. Add your own row with the buttons on each tab, which does work.">
+            <Copy className="size-4" /> Copy to company scope
+          </Button>
+        )}
       />
 
       <AddMaterialDialog
@@ -951,6 +957,14 @@ export function LibrariesPage() {
           * screen, one layer up.
           */}
         <TabsContent value="crews" className="space-y-4">
+          {/*
+            * Building and changing a crew. Not one function touched `crews` or
+            * `crew_members` before migration 0187: forty-two shipped crews, and
+            * a company could neither make its own nor change one — while a crew
+            * is what an estimate prices labor with and what a schedule books.
+            */}
+          <CrewBuilder companyId={companyId} canWrite={can('libraries.write')} />
+
           {crewsQ.status === 'loading' ? <LoadingState label="Reading crews" /> : null}
           {crewsQ.status === 'error'
             ? <ErrorState message={crewsQ.message} onRetry={crewsQ.refetch} /> : null}

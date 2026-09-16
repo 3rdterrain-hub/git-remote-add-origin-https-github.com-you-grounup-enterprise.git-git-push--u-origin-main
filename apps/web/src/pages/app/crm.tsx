@@ -40,7 +40,11 @@ function DemonstrationCrm() {
       <PageHeader
         title="Customers & CRM"
         description="The pipeline that feeds estimating. A lost job must record why it was lost — win/loss analysis is worthless without it, and it is the input to the next bid strategy."
-        actions={<Button><UserPlus className="size-4" /> Add customer</Button>}
+        actions={(
+          <Button disabled title="This is the sample pipeline. Connect a workspace to add a real customer.">
+            <UserPlus className="size-4" /> Add customer
+          </Button>
+        )}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

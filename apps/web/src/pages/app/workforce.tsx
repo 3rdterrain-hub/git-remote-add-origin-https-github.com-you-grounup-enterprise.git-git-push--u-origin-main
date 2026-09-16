@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   Users2, ShieldAlert, Clock, CheckCircle2, Plus, Lock, AlertTriangle, BadgeCheck,
 } from 'lucide-react';
@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils';
 import { AddEmployeeDialog } from '@/components/workforce/add-employee';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { TimeClockSection } from '@/components/workforce/time-clock';
+import { EmployeeDetail } from '@/components/workforce/employee-detail';
+import { WorkRequirements } from '@/components/workforce/work-requirements';
 import { loadTimeClock, duration as clockDuration } from '@/lib/data/time-clock';
 
 export function WorkforcePage() {
@@ -53,6 +55,13 @@ export function WorkforcePage() {
    */
   const [tab, setTab] = useState('clock');
 
+  /*
+   * A roster row opens itself. Until migration 0187 a person could be hired and
+   * never corrected, never put on leave and never ended — and nothing anywhere
+   * could record that somebody holds a ticket, so the blocking safety control
+   * from 0043 had never once fired.
+   */
+  const [openEmployee, setOpenEmployee] = useState<string | null>(null);
   const EMPLOYEES = employeesQ.status === 'ready' ? employeesQ.data
     : demo ? demonstrationEmployees() : [];
   const loaded: TimeEntryRow[] = entriesQ.status === 'ready' ? entriesQ.data
@@ -282,7 +291,13 @@ export function WorkforcePage() {
         </TabsContent>
 
         {/* ----------------------------------------------------- credentials */}
-        <TabsContent value="credentials">
+        <TabsContent value="credentials" className="space-y-6">
+          {/*
+            * The screen that turns on the blocking control. 0043 built the
+            * trigger and it read a table nothing could write, so no company
+            * could ever state a requirement and it never fired.
+            */}
+          <WorkRequirements companyId={companyId} canWrite={can('hr.write')} />
           <Card>
             <CardHeader>
               <CardTitle>Credential register</CardTitle>
@@ -349,9 +364,14 @@ export function WorkforcePage() {
                 {EMPLOYEES.map((e) => {
                   const bad = e.credentials.filter((c) => c.standing !== 'valid').length;
                   return (
-                    <TableRow key={e.id}>
+                    <Fragment key={e.id}>
+                    <TableRow className={openEmployee === e.id ? 'bg-charcoal-50' : undefined}>
                       <TableCell>
-                        <p className="font-medium text-charcoal-900">{e.name}</p>
+                        <button type="button" aria-expanded={openEmployee === e.id}
+                          onClick={() => setOpenEmployee(openEmployee === e.id ? null : e.id)}
+                          className="text-left font-medium text-charcoal-900 hover:underline">
+                          {e.name}
+                        </button>
                         <p className="font-mono text-xs text-charcoal-400">{e.employeeNumber}</p>
                       </TableCell>
                       <TableCell className="text-charcoal-700">
@@ -372,6 +392,16 @@ export function WorkforcePage() {
                         )}
                       </TableCell>
                     </TableRow>
+                    {openEmployee === e.id ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="p-0">
+                          <EmployeeDetail employee={e} canWrite={can('hr.write')}
+                            onChanged={employeesQ.refetch}
+                            onClose={() => setOpenEmployee(null)} />
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                    </Fragment>
                   );
                 })}
               </TableBody>

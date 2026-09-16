@@ -908,16 +908,30 @@ export const loadCustomers: Query<CustomerOption[]> = async (client) => {
 export async function createCustomer(
   client: InsertCapable, input: { companyId: string; name: string; code?: string | null },
 ): Promise<string> {
-  const code = input.code?.trim()
-    || `CUS-${input.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 6).toUpperCase()
-        || 'CLIENT'}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-  const { data, error } = await client
-    .from('customers')
-    .insert({ company_id: input.companyId, code, name: input.name.trim() })
-    .select('id')
-    .single();
+  /*
+   * The code is issued by the database, not picked here.
+   *
+   * This used to build one from the name plus four random characters —
+   * `CUS-TOLEDO-A3F9` — which is why a customer list reads as a jumble rather
+   * than CUS-0001, CUS-0002. `customers` is unique on (company_id, code), and
+   * the house rule everywhere else in this repository is that a screen must not
+   * choose a value the database is unique on: two people adding the same outfit
+   * on the same morning is exactly when a guess collides. Lead conversion
+   * already numbered CUS-nnnn, so the two paths disagreed about what a customer
+   * code even looks like.
+   *
+   * `create_customer` (0188) issues it, refuses a second record for a name the
+   * company already has, and names the existing one in the error.
+   */
+  const { data, error } = await (client as unknown as {
+    rpc: (fn: string, args: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  }).rpc('create_customer', {
+    p_company: input.companyId,
+    p_name: input.name.trim(),
+  });
   if (error) throw new Error(error.message);
-  return String((data as { id: string }).id);
+  return String(data);
 }
 
 /**
@@ -1699,4 +1713,86 @@ export async function removeLineCondition(
   client: RpcCapable, lineId: string, modifierId: string,
 ): Promise<void> {
   await rpc(client, 'remove_line_condition', { p_line: lineId, p_modifier: modifierId });
+}
+
+export interface ServiceBuildup {
+  serviceId: string;
+  code: string;
+  name: string;
+  /** Components that produce money: labor, equipment, material, trucking. */
+  costedComponents: number;
+  /** Steps that say what happens but cost nothing on their own. */
+  taskComponents: number;
+  canPrice: boolean;
+  assemblyId: string | null;
+  assemblyIsOwn: boolean;
+}
+
+/**
+ * Whether the services on these lines can produce a cost at all.
+ *
+ * The shipped catalog's assemblies carry `task` components and nothing else —
+ * `app.line_resource_suggestions` reads labor, equipment, material and trucking,
+ * and the catalog has none of those anywhere. So every seeded service prices at
+ * $0.00 until a company builds one up.
+ *
+ * Read before pricing rather than after, so a screen can say "this service
+ * carries no crew, machines or materials yet" at the moment the line is added
+ * instead of leaving somebody to work it out from a zero.
+ */
+export const loadServiceBuildup = (serviceIds: string[]): Query<ServiceBuildup[]> =>
+  async (client) => {
+    const ids = [...new Set(serviceIds.filter(Boolean))];
+    if (ids.length === 0) return [];
+    const rows = unwrap(await client
+      .from('my_service_buildup')
+      .select('service_id, code, name, costed_components, task_components, '
+        + 'can_price, default_assembly_id, assembly_is_own')
+      .in('service_id', ids)) as unknown as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      serviceId: String(r.service_id),
+      code: String(r.code),
+      name: String(r.name),
+      costedComponents: Number(r.costed_components ?? 0),
+      taskComponents: Number(r.task_components ?? 0),
+      canPrice: r.can_price === true,
+      assemblyId: (r.default_assembly_id as string | null) ?? null,
+      assemblyIsOwn: r.assembly_is_own === true,
+    }));
+  };
+
+/**
+ * Keep what this line is built from, on the service, per unit.
+ *
+ * The missing half of the library. Building a line up by hand worked; nothing
+ * kept it, so the same crew was rebuilt on every estimate that touched the same
+ * work. Returns how many components were added — zero is a real answer and
+ * means everything on the line was already in the library.
+ */
+export async function saveLineBuildupToLibrary(
+  client: RpcCapable, lineId: string,
+): Promise<number> {
+  return Number(await rpc<string>(client, 'save_line_buildup_to_library', {
+    p_line: lineId,
+  }));
+}
+
+/** Put a crew, machine, material or truck on a company assembly. */
+export async function addAssemblyResource(
+  client: RpcCapable,
+  input: {
+    assemblyId: string; kind: 'labor' | 'equipment' | 'material' | 'trucking' | 'subcontract';
+    referenceId?: string | null; quantityPerUnit?: number; unit?: string | null;
+    optional?: boolean; notes?: string | null;
+  },
+): Promise<void> {
+  await rpc(client, 'add_assembly_resource', {
+    p_assembly: input.assemblyId,
+    p_kind: input.kind,
+    p_reference: input.referenceId ?? null,
+    p_quantity_per_unit: input.quantityPerUnit ?? 1,
+    p_unit: input.unit ?? null,
+    p_optional: input.optional ?? false,
+    p_notes: input.notes ?? null,
+  });
 }

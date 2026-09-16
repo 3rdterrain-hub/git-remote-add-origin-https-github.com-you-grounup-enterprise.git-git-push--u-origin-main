@@ -330,3 +330,38 @@ export async function logActivity(
 export async function completeActivity(client: RpcCapable, id: string): Promise<void> {
   await rpc(client, 'complete_crm_activity', { p_activity: id });
 }
+
+/**
+ * Open an opportunity against a customer.
+ *
+ * `moveStage` and `updateOpportunity` above work one; nothing could create one
+ * except lead conversion, so a repeat customer ringing up about next year's job
+ * had to be entered as a stranger first. The Pipeline tab said as much on
+ * screen — "an opportunity arrives when a qualified lead converts" — and the
+ * only lead intake was a public website form.
+ */
+export interface NewOpportunity {
+  customerId: string;
+  name: string;
+  description?: string | null;
+  estimatedValue?: number | null;
+  bidDueAt?: string | null;
+  siteCity?: string | null;
+  siteState?: string | null;
+  deliveryMethod?: string | null;
+}
+
+export async function createOpportunity(
+  client: RpcCapable, input: NewOpportunity,
+): Promise<string> {
+  return rpc<string>(client, 'create_opportunity', {
+    p_customer: input.customerId,
+    p_name: input.name.trim(),
+    p_description: input.description?.trim() || null,
+    p_estimated_value: input.estimatedValue ?? null,
+    p_bid_due_at: input.bidDueAt || null,
+    p_site_city: input.siteCity?.trim() || null,
+    p_site_state: input.siteState?.trim() || null,
+    p_delivery_method: input.deliveryMethod?.trim() || null,
+  });
+}

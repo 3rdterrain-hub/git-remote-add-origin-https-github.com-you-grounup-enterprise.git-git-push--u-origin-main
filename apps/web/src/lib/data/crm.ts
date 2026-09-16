@@ -138,3 +138,95 @@ export const loadOpportunities: Query<OpportunityRow[]> = async (client) => {
     winningCompetitor: (o.winning_competitor as string | null) ?? null,
   }));
 };
+
+// -----------------------------------------------------------------------------
+// Adding a customer
+//
+// The `Add customer` button on this page was a `<Button>` with no `onClick`,
+// and no `create_customer` existed anywhere in the schema. The only code that
+// had ever inserted a customer was the lead-conversion path inside migration
+// 0065 — so a company could hold customers only by being found through a public
+// web form first.
+// -----------------------------------------------------------------------------
+
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
+const rpc = async (client: RpcCapable, fn: string, args: Record<string, unknown>) => {
+  const { data, error } = await client.rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+/** What a customer can be, in the schema's own words. */
+export const CUSTOMER_TYPES = [
+  { value: 'commercial', label: 'Commercial' },
+  { value: 'residential', label: 'Residential' },
+  { value: 'municipal', label: 'Municipal' },
+  { value: 'state_dot', label: 'State DOT' },
+  { value: 'federal', label: 'Federal' },
+  { value: 'industrial', label: 'Industrial' },
+  { value: 'developer', label: 'Developer' },
+  { value: 'general_contractor', label: 'General contractor' },
+] as const;
+
+export interface NewCustomer {
+  name: string;
+  customerType?: string;
+  email?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+  postalCode?: string | null;
+  paymentTerms?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Add a customer.
+ *
+ * A second record for the same outfit is refused by the database with the code
+ * of the one that already exists, so the screen can say "open that one" rather
+ * than quietly making the four-records-for-one-contractor mess that every CRM
+ * eventually has.
+ */
+export async function createCustomer(
+  client: RpcCapable, companyId: string, input: NewCustomer,
+): Promise<string> {
+  return rpc(client, 'create_customer', {
+    p_company: companyId,
+    p_name: input.name.trim(),
+    p_customer_type: input.customerType ?? 'commercial',
+    p_email: input.email?.trim() || null,
+    p_phone: input.phone?.trim() || null,
+    p_city: input.city?.trim() || null,
+    p_state: input.state?.trim() || null,
+    p_address: input.address?.trim() || null,
+    p_postal_code: input.postalCode?.trim() || null,
+    p_payment_terms: input.paymentTerms?.trim() || null,
+    p_notes: input.notes?.trim() || null,
+  });
+}
+
+/** Correct a customer, or change their terms. */
+export async function updateCustomer(
+  client: RpcCapable, customerId: string, input: Partial<NewCustomer> & { status?: string },
+): Promise<void> {
+  await rpc(client, 'update_customer', {
+    p_customer: customerId,
+    p_name: input.name?.trim() || null,
+    p_customer_type: input.customerType ?? null,
+    p_email: input.email?.trim() || null,
+    p_phone: input.phone?.trim() || null,
+    p_city: input.city?.trim() || null,
+    p_state: input.state?.trim() || null,
+    p_address: input.address?.trim() || null,
+    p_postal_code: input.postalCode?.trim() || null,
+    p_payment_terms: input.paymentTerms?.trim() || null,
+    p_notes: input.notes?.trim() || null,
+    p_status: input.status ?? null,
+  });
+}

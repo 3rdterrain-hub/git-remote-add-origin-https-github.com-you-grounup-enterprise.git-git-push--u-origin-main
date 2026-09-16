@@ -39,6 +39,8 @@ import { CategoryManager } from '@/components/library/category-manager';
 import { loadCrmCustomers, loadOpportunities, type CustomerRow } from '@/lib/data/crm';
 import { loadLeads } from '@/lib/data/leads';
 import { createCustomer, loadMyCompanyId } from '@/lib/data/estimates';
+import { AddLead } from '@/components/crm/add-lead';
+import { AddOpportunity } from '@/components/crm/add-opportunity';
 import { money, moneyCompact, date, titleCase, plural } from '@/lib/format';
 import { LeadFormsSection } from '@/components/crm/lead-forms';
 import { LeadInboxSection } from '@/components/crm/lead-inbox';
@@ -221,7 +223,16 @@ export function CrmLivePage() {
           * could already say a form had taken fourteen leads; there was nowhere
           * to see one of the fourteen.
           */}
-        <TabsContent value="leads">
+        <TabsContent value="leads" className="space-y-4">
+          {/*
+            * Until migration 0188 this tab could only fill itself from the
+            * public website form — `submit_lead` takes a form key and is
+            * granted to `anon`. Every other source the breakdown below counts
+            * (phone, referral, walk-in, bid board) was impossible to record,
+            * and for a contractor those are how the work actually arrives.
+            */}
+          <AddLead companyId={companyId} canWrite={can('crm.write')}
+            onAdded={leadsQ.refetch} />
           {leadsQ.status === 'error'
             ? <ErrorState message={leadsQ.message} onRetry={leadsQ.refetch} />
             : leadsQ.status === 'loading'
@@ -302,8 +313,13 @@ export function CrmLivePage() {
           {/*
             * The board that can actually move an opportunity. Until migration
             * 0175 the only writer was lead conversion, so the table below could
-            * show a pipeline and nothing could work it.
+            * show a pipeline and nothing could work it — and until 0188 nothing
+            * could open one either, so a repeat customer ringing about next
+            * year had to be entered as a stranger through a web form first.
             */}
+          <AddOpportunity canWrite={can('crm.write')}
+            onAdded={() => { opportunitiesQ.refetch(); }} />
+
           <PipelineBoard editable={can('crm.write')} />
 
           <Card>

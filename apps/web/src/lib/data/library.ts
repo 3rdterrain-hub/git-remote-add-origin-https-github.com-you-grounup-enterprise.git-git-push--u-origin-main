@@ -1325,3 +1325,147 @@ export async function installStarterLibrary(companyId?: string | null): Promise<
     rates: Number(row?.rates ?? 0),
   };
 }
+
+// -----------------------------------------------------------------------------
+// Crews
+//
+// Not one function in this repository touched `crews` or `crew_members` before
+// migration 0187. The catalog ships forty-two crews and a company could neither
+// build its own nor change one — while a crew is what the estimator prices labor
+// with, what `schedule_activities.crew_id` points at, and what gets booked onto
+// an activity. "Categories are user-addable" is a standing rule here; this was
+// the library that never was.
+// -----------------------------------------------------------------------------
+
+export interface CrewRow {
+  id: string;
+  code: string;
+  name: string;
+  discipline: string | null;
+  shiftHours: number;
+  status: string;
+  /** False for a crew GrounUp ships, which no company may edit. */
+  isOwn: boolean;
+  classificationCount: number;
+  headcount: number;
+  /** Null, not zero: a crew nobody has built does not work for nothing. */
+  costPerHour: number | null;
+}
+
+export const loadCrewLibrary: Query<CrewRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_crews')
+    .select('id, code, name, discipline, shift_hours, status, is_own, '
+      + 'classification_count, headcount, cost_per_hour')
+    .neq('status', 'archived')
+    .order('is_own', { ascending: false })
+    .order('name')) as unknown as Array<Record<string, unknown>>;
+  return rows.map((c) => ({
+    id: String(c.id),
+    code: String(c.code),
+    name: String(c.name),
+    discipline: (c.discipline as string | null) ?? null,
+    shiftHours: Number(c.shift_hours ?? 8),
+    status: String(c.status),
+    isOwn: c.is_own === true,
+    classificationCount: Number(c.classification_count ?? 0),
+    headcount: Number(c.headcount ?? 0),
+    costPerHour: c.cost_per_hour == null ? null : Number(c.cost_per_hour),
+  }));
+};
+
+export interface CrewMemberRow {
+  id: string;
+  laborRateId: string;
+  classification: string;
+  headcount: number;
+  burdenedCostPerHour: number;
+  costPerHour: number;
+  /** Where the rate came from, because RULE-003 says the shown rate must price. */
+  rateScope: string;
+}
+
+export const loadCrewMembers = (crewId: string): Query<CrewMemberRow[]> =>
+  async (client) => {
+    if (!crewId) return [];
+    const rows = unwrap(await client
+      .from('my_crew_members')
+      .select('id, labor_rate_id, classification, headcount, burdened_cost_per_hour, '
+        + 'cost_per_hour, rate_scope')
+      .eq('crew_id', crewId)
+      .order('classification')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((m) => ({
+      id: String(m.id),
+      laborRateId: String(m.labor_rate_id),
+      classification: String(m.classification),
+      headcount: Number(m.headcount ?? 1),
+      burdenedCostPerHour: Number(m.burdened_cost_per_hour ?? 0),
+      costPerHour: Number(m.cost_per_hour ?? 0),
+      rateScope: String(m.rate_scope),
+    }));
+  };
+
+const crewRpc = async (fn: string, args: Record<string, unknown>) => {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await (supabase as unknown as {
+    rpc: (f: string, a: Record<string, unknown>) =>
+      PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  }).rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+/** Build a company crew. The code is issued by the database. */
+export async function createCrew(companyId: string, input: {
+  name: string; discipline?: string | null; shiftHours?: number;
+}): Promise<string> {
+  return crewRpc('create_crew', {
+    p_company: companyId,
+    p_name: input.name.trim(),
+    p_discipline: input.discipline?.trim() || null,
+    p_shift_hours: input.shiftHours ?? 8,
+  });
+}
+
+/** Rename a company crew or change the length of its shift. */
+export async function updateCrew(input: {
+  crewId: string; name?: string | null; discipline?: string | null; shiftHours?: number | null;
+}): Promise<void> {
+  await crewRpc('update_crew', {
+    p_crew: input.crewId,
+    p_name: input.name?.trim() || null,
+    p_discipline: input.discipline?.trim() || null,
+    p_shift_hours: input.shiftHours ?? null,
+  });
+}
+
+/**
+ * Put a classification and a headcount on a crew, or change one already there.
+ *
+ * Headcount, not names: a crew is a priced shape, and which particular people
+ * fill it on a given Tuesday is a resource assignment — a different question
+ * with a different answer every week.
+ */
+export async function setCrewMember(input: {
+  crewId: string; laborRateId: string; headcount?: number;
+  straightHours?: number | null; overtimeHours?: number; doubletimeHours?: number;
+}): Promise<void> {
+  await crewRpc('set_crew_member', {
+    p_crew: input.crewId,
+    p_labor_rate: input.laborRateId,
+    p_headcount: input.headcount ?? 1,
+    p_straight_hours: input.straightHours ?? null,
+    p_overtime_hours: input.overtimeHours ?? 0,
+    p_doubletime_hours: input.doubletimeHours ?? 0,
+  });
+}
+
+/** Take a classification off a crew. */
+export async function removeCrewMember(memberId: string): Promise<void> {
+  await crewRpc('remove_crew_member', { p_member: memberId });
+}
+
+/** Archive a crew. Never deleted: old prices and schedules still point at it. */
+export async function retireCrew(crewId: string): Promise<void> {
+  await crewRpc('retire_crew', { p_crew: crewId });
+}

@@ -66,8 +66,26 @@ export function ApiAccessPage() {
         description="Keys for the systems that need GrounUp data — accounting, telematics, BI. Every key carries a company, a scope list and a rate limit, and every request is logged against it."
         actions={
           <>
-            <Button variant="outline"><BookOpen className="size-4" /> OpenAPI spec</Button>
-            <Button><Plus className="size-4" /> Create key</Button>
+            {/*
+              * The spec is generated from the schema by `npm run openapi` and
+              * imported above, so this hands over the real document rather than
+              * linking somewhere it might not be.
+              */}
+            <Button variant="outline" onClick={() => {
+              const blob = new Blob([JSON.stringify(spec, null, 2)],
+                { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url; a.download = 'grounup-openapi.json';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}>
+              <BookOpen className="size-4" /> OpenAPI spec
+            </Button>
+            <Button disabled
+              title="Issuing a key needs the key store connected — this page is showing sample keys.">
+              <Plus className="size-4" /> Create key
+            </Button>
           </>
         }
       />
@@ -167,7 +185,12 @@ export function ApiAccessPage() {
                     <TableCell className="text-right">
                       {k.revokedOn
                         ? <Badge variant="danger"><Ban className="size-3" /> Revoked</Badge>
-                        : <Button size="sm" variant="outline">Revoke</Button>}
+                        : (
+                          <Button size="sm" variant="outline" disabled
+                            title="Revoking needs the key store connected — this page is showing sample keys.">
+                            Revoke
+                          </Button>
+                        )}
                     </TableCell>
                   </TableRow>
                 ))}

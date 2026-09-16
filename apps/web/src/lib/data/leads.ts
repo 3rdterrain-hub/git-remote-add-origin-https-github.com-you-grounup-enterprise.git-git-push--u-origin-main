@@ -103,20 +103,36 @@ export const loadLeads: Query<LeadRow[]> = async (client) => {
  */
 export async function setLeadStage(leadId: string, stage: Exclude<LeadStage, 'converted'>): Promise<void> {
   if (!supabase) throw new Error('No workspace is configured.');
-  const { error } = await supabase.from('leads').update({ stage }).eq('id', leadId);
+  /*
+   * Through `update_lead` rather than straight at the table. A direct write
+   * would happily set a stage on a lead that has already been converted, and
+   * would let 'converted' itself through to a check violation nobody could act
+   * on. The refusals belong in one place, and that place is the database.
+   */
+  const { error } = await supabase.rpc('update_lead', { p_lead: leadId, p_stage: stage });
   if (error) throw new Error(error.message);
 }
 
 /** Note for next time — a follow-up date, or what was said on the phone. */
 export async function noteOnLead(
-  leadId: string, patch: { notes?: string | null; nextFollowUpAt?: string | null },
+  leadId: string,
+  patch: {
+    notes?: string | null; nextFollowUpAt?: string | null;
+    contactName?: string | null; email?: string | null; phone?: string | null;
+    description?: string | null; estimatedValue?: number | null;
+  },
 ): Promise<void> {
   if (!supabase) throw new Error('No workspace is configured.');
-  const update: Record<string, unknown> = {};
-  if (patch.notes !== undefined) update.notes = patch.notes;
-  if (patch.nextFollowUpAt !== undefined) update.next_follow_up_at = patch.nextFollowUpAt;
-  if (Object.keys(update).length === 0) return;
-  const { error } = await supabase.from('leads').update(update).eq('id', leadId);
+  const { error } = await supabase.rpc('update_lead', {
+    p_lead: leadId,
+    p_contact_name: patch.contactName ?? null,
+    p_email: patch.email ?? null,
+    p_phone: patch.phone ?? null,
+    p_description: patch.description ?? null,
+    p_estimated_value: patch.estimatedValue ?? null,
+    p_follow_up_at: patch.nextFollowUpAt ?? null,
+    p_notes: patch.notes ?? null,
+  });
   if (error) throw new Error(error.message);
 }
 
@@ -135,6 +151,51 @@ export async function convertLead(
     p_lead: leadId,
     p_opportunity_name: opportunityName?.trim() ? opportunityName.trim() : null,
     p_estimated_value: estimatedValue ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/**
+ * Write down a lead that came in some other way.
+ *
+ * `submit_lead` is the public website form: it takes a form key, is granted to
+ * `anon`, rate-limits by IP and carries a honeypot. All of that is right for a
+ * form on the open internet and none of it fits somebody writing down a phone
+ * call — so until migration 0188 the Leads tab could only ever fill itself from
+ * a website, while the Lead-source breakdown directly beneath it counted phone
+ * calls, referrals, walk-ins and bid boards that could not exist.
+ *
+ * `source` is a name from the company's own `lead_source` category list, not a
+ * fixed set: a company that wins work a way nobody thought of adds it.
+ */
+export interface NewLead {
+  companyName: string;
+  source: string;
+  contactName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  description?: string | null;
+  city?: string | null;
+  state?: string | null;
+  estimatedValue?: number | null;
+  followUpAt?: string | null;
+}
+
+export async function createLead(companyId: string, input: NewLead): Promise<string> {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await supabase.rpc('create_lead', {
+    p_company: companyId,
+    p_company_name: input.companyName.trim(),
+    p_source: input.source,
+    p_contact_name: input.contactName?.trim() || null,
+    p_email: input.email?.trim() || null,
+    p_phone: input.phone?.trim() || null,
+    p_description: input.description?.trim() || null,
+    p_city: input.city?.trim() || null,
+    p_state: input.state?.trim() || null,
+    p_estimated_value: input.estimatedValue ?? null,
+    p_follow_up_at: input.followUpAt || null,
   });
   if (error) throw new Error(error.message);
   return String(data);

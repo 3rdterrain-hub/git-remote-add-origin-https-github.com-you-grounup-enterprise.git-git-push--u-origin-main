@@ -47,8 +47,10 @@ import { PricingOutcomeNotice } from '@/components/pricing-outcome';
 import {
   loadVersion, lineUnitNote, loadDrift, searchServices, setLineQuantity, setEstimateStatus, loadMyCompanyId,
   draftProposal, issueProposal, awardVersion, updateLine, updateVersion, reviseVersion, moveLine, addLines, deleteLine,
+  loadServiceBuildup, saveLineBuildupToLibrary,
   type VersionDetail, type LibraryService, type LineRow,
 } from '@/lib/data/estimates';
+import { NoCostBuildup } from '@/components/estimate/no-cost-buildup';
 import { LineDetail } from '@/components/estimate/line-detail';
 import { WhereTheWorkIs } from '@/components/estimate/where-the-work-is';
 import { ConditionCell } from '@/components/estimate/condition-cell';
@@ -162,6 +164,18 @@ export function EstimateVersionPage() {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'bad'; text: string } | null>(null);
+  const [savingBuildup, setSavingBuildup] = useState(false);
+
+  /*
+   * Whether the services on these lines can produce a cost at all. Keyed on the
+   * service ids so it re-reads when a line is added or repointed, and on the
+   * version's calculation so it refreshes after a build-up is kept.
+   */
+  const serviceIds = version.status === 'ready' && version.data
+    ? version.data.lines.map((l) => l.serviceId).filter((x): x is string => x != null)
+    : [];
+  const buildupQ = useQuery(loadServiceBuildup(serviceIds), [serviceIds.join(',')]);
+  const buildup = buildupQ.status === 'ready' ? buildupQ.data : [];
   const [outcome, setOutcome] = useState<PricingOutcome | null>(null);
   /** The browse-and-tick panel. */
   const [browsing, setBrowsing] = useState(false);
@@ -235,6 +249,15 @@ export function EstimateVersionPage() {
   const editable = EDITABLE.includes(v.status);
   const priced = v.calculatedAt != null;
   const unpricedLines = v.lines.filter((l) => l.totalDirectCost === 0 && l.measuredQuantity > 0);
+  /*
+   * Which services on this estimate cannot produce a cost at all.
+   *
+   * The shipped catalog's assemblies carry `task` components and nothing the
+   * engine reads for money, so a line picked from it prices at $0.00 with no
+   * explanation. Said here, before pricing, rather than left to be worked out
+   * from a zero afterwards.
+   */
+  const cannotPrice = buildup.filter((b) => !b.canPrice);
   const blockingLines = v.lines.filter((l) => l.blocksIssue);
 
   /*
@@ -341,6 +364,40 @@ export function EstimateVersionPage() {
       ) : null}
 
       {outcome ? <PricingOutcomeNotice outcome={outcome} /> : null}
+
+      {/*
+        * Said before pricing, not after. A service from the shipped catalog
+        * carries the steps of the work and nothing the engine reads for money,
+        * so the line comes back at $0.00 with no explanation unless this does
+        * the explaining.
+        */}
+      {editable ? (
+        <NoCostBuildup
+          services={cannotPrice}
+          canWrite={can('estimates.write')}
+          saving={savingBuildup}
+          onSaveFromLine={async () => {
+            const line = v.lines.find(
+              (l) => l.serviceId != null
+                && cannotPrice.some((b) => b.serviceId === l.serviceId));
+            if (!line || !supabase) return;
+            setSavingBuildup(true); setNotice(null);
+            try {
+              const added = await saveLineBuildupToLibrary(supabase, line.id);
+              setNotice({
+                tone: 'ok',
+                text: added === 0
+                  ? 'Everything on that line was already in the library.'
+                  : `Kept ${added} thing${added === 1 ? '' : 's'} on the service. `
+                    + 'The next estimate that picks it starts built up.',
+              });
+              buildupQ.refetch();
+              version.refetch();
+            } catch (err) {
+              setNotice({ tone: 'bad', text: messageFor(err) });
+            } finally { setSavingBuildup(false); }
+          }} />
+      ) : null}
 
       <ApplyWarnings result={applied} />
 

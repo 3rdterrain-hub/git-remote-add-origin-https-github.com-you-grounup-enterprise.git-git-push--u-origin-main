@@ -70,6 +70,15 @@ returned success. `markup_override` was then read by no part of the engine, so
 even a value that landed priced nothing. Labor hours were charged on a *rounded
 schedule figure*, so a line's labor could not be reproduced from its own hours.
 
+**A button that takes a click and changes nothing.** The most visible member of
+the family, and the one that had no guard until the owner found six of them by
+using the product. `<Button><UserPlus /> Add customer</Button>` — no `onClick`,
+no handler, nothing behind it. `tests/governance/every-button-does-something.test.ts`
+now fails the build on any `<Button>` with no `onClick`, `type`, `asChild`,
+`disabled` or prop spread. **A control that cannot act yet is `disabled` with
+the reason in its `title`** — that is honest; an enabled button that does
+nothing is not.
+
 **A reader that asks for a column that is not there.** One layer down again.
 `loadResourceAssignments` selected `assets(code, name)`; the column is
 `asset_number`. PostgREST refuses the *whole* request when one column in it is

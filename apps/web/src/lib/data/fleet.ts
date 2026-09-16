@@ -20,6 +20,8 @@ export interface AssetRow {
   assignedProject: string | null; assignedOperator: string | null;
   status: string; location: string | null; lastTelemetryAt: string | null;
   acquisitionCost: number | null;
+  /** Read so the detail panel can correct one that was typed wrong. */
+  serialNumber: string | null;
   /** The catalog rate this machine is estimated at, if it is linked to one. */
   equipmentCode: string | null;
   /**
@@ -66,6 +68,10 @@ export interface FuelRow {
   operator: string | null;
 }
 
+const num = (v: unknown): number => (v === null || v === undefined ? 0 : Number(v));
+const maybeNum = (v: unknown): number | null =>
+  (v === null || v === undefined ? null : Number(v));
+
 const one = <T,>(v: unknown): T | null =>
   (Array.isArray(v) ? (v as T[])[0] : (v as T | null)) ?? null;
 
@@ -73,7 +79,7 @@ export const loadAssets: Query<AssetRow[]> = async (client) => {
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const rows = unwrap(await client
     .from('assets')
-    .select('id, asset_number, name, asset_class, make, model, model_year, ownership, current_hours, fuel_type, home_location, last_telemetry_at, acquisition_cost, status, projects(number), employees(full_name), equipment(code, equipment_rates(source, hourly_rate))')
+    .select('id, asset_number, name, asset_class, make, model, model_year, ownership, current_hours, fuel_type, home_location, serial_number, last_telemetry_at, acquisition_cost, status, projects(number), employees(full_name), equipment(code, equipment_rates(source, hourly_rate))')
     .is('disposed_on', null)
     .order('asset_number')) as Array<Record<string, unknown>>;
 
@@ -110,6 +116,7 @@ export const loadAssets: Query<AssetRow[]> = async (client) => {
     assignedOperator: one<{ full_name: string }>(a.employees)?.full_name ?? null,
     status: String(a.status),
     location: (a.home_location as string | null) ?? null,
+    serialNumber: (a.serial_number as string | null) ?? null,
     lastTelemetryAt: (a.last_telemetry_at as string | null) ?? null,
     acquisitionCost: a.acquisition_cost == null ? null : Number(a.acquisition_cost),
     equipmentCode: one<{ code: string }>(a.equipment)?.code ?? null,
@@ -225,6 +232,7 @@ export const demonstrationAssets = (): AssetRow[] =>
     assignedProject: a.assignedProject, assignedOperator: a.assignedOperator,
     status: a.status, location: a.location, lastTelemetryAt: a.lastTelemetryAt,
     acquisitionCost: a.acquisitionCost,
+    serialNumber: null,
     equipmentCode: a.equipmentCode,
     /* The sample fleet carries no rates; the library is where they live. */
     hourlyRate: null,
@@ -331,3 +339,286 @@ export async function createWorkOrder(order: NewWorkOrder): Promise<string> {
   if (error) throw new Error(error.message);
   return String(data);
 }
+
+// -----------------------------------------------------------------------------
+// The rest of the doors
+//
+// `create_asset` and `create_work_order` (0161) were the whole of Fleet's write
+// side. A machine could be entered and never corrected; a work order could be
+// opened and never closed; and nothing anywhere could record a meter reading,
+// which is the number every maintenance interval, every utilization figure and
+// `notify_maintenance_due` are all computed from.
+// -----------------------------------------------------------------------------
+
+type RpcCapable = {
+  rpc: (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: unknown; error: { message: string } | null }>;
+};
+
+const rpc = async (fn: string, args: Record<string, unknown>) => {
+  if (!supabase) throw new Error('Not connected.');
+  const { data, error } = await (supabase as unknown as RpcCapable).rpc(fn, args);
+  if (error) throw new Error(error.message);
+  return data === null || data === undefined ? '' : String(data);
+};
+
+/**
+ * Record what the meter says.
+ *
+ * `isReplacement` is the one way a reading may go down, and it is stated rather
+ * than inferred: guessing which low readings are replacements would eventually
+ * write off a machine's service history.
+ */
+export async function recordMeterReading(input: {
+  assetId: string; hours?: number | null; miles?: number | null;
+  readingAt?: string | null; source?: string; isReplacement?: boolean;
+}): Promise<string> {
+  return rpc('record_meter_reading', {
+    p_asset: input.assetId,
+    p_hours: input.hours ?? null,
+    p_miles: input.miles ?? null,
+    p_reading_at: input.readingAt || new Date().toISOString(),
+    p_source: input.source ?? 'manual',
+    p_is_replacement: input.isReplacement ?? false,
+  });
+}
+
+/** Record a fuel purchase. Flagged where it looks wrong, never refused. */
+export async function recordFuel(companyId: string, input: {
+  gallons: number; pricePerGallon: number; transactedAt?: string | null;
+  assetId?: string | null; employeeId?: string | null; projectId?: string | null;
+  fuelType?: string; odometerHours?: number | null; odometerMiles?: number | null;
+  cardLast4?: string | null; vendorName?: string | null; location?: string | null;
+  source?: string;
+}): Promise<string> {
+  return rpc('record_fuel', {
+    p_company: companyId,
+    p_gallons: input.gallons,
+    p_price: input.pricePerGallon,
+    p_transacted_at: input.transactedAt || new Date().toISOString(),
+    p_asset: input.assetId ?? null,
+    p_employee: input.employeeId ?? null,
+    p_project: input.projectId ?? null,
+    p_fuel_type: input.fuelType ?? 'diesel',
+    p_odometer_hours: input.odometerHours ?? null,
+    p_odometer_miles: input.odometerMiles ?? null,
+    p_card_last4: input.cardLast4 ?? null,
+    p_vendor_name: input.vendorName ?? null,
+    p_location: input.location ?? null,
+    p_source: input.source ?? 'manual',
+  });
+}
+
+/** Attribute an unmatched fuel ticket to a machine, or mark it looked at. */
+export async function resolveFuelException(input: {
+  transactionId: string; assetId?: string | null; clear?: boolean;
+}): Promise<void> {
+  await rpc('resolve_fuel_exception', {
+    p_transaction: input.transactionId,
+    p_asset: input.assetId ?? null,
+    p_clear: input.clear ?? true,
+  });
+}
+
+/** Create or edit a service interval. One of hours, miles or days is required. */
+export async function setMaintenanceSchedule(input: {
+  assetId: string; name: string; intervalHours?: number | null;
+  intervalMiles?: number | null; intervalDays?: number | null;
+  lastPerformedHours?: number | null; scheduleId?: string | null;
+}): Promise<string> {
+  return rpc('set_maintenance_schedule', {
+    p_asset: input.assetId,
+    p_name: input.name.trim(),
+    p_hours: input.intervalHours ?? null,
+    p_miles: input.intervalMiles ?? null,
+    p_days: input.intervalDays ?? null,
+    p_last_hours: input.lastPerformedHours ?? null,
+    p_schedule: input.scheduleId ?? null,
+  });
+}
+
+/** Stop watching a service, keeping the work orders that closed against it. */
+export async function retireMaintenanceSchedule(scheduleId: string): Promise<void> {
+  await rpc('retire_maintenance_schedule', { p_schedule: scheduleId });
+}
+
+/** Change an open work order. Completing and canceling have their own doors. */
+export async function updateWorkOrder(input: {
+  workOrderId: string; title?: string | null; status?: string | null;
+  priority?: string | null; description?: string | null; failureCode?: string | null;
+  scheduledFor?: string | null; assignedTo?: string | null; vendorId?: string | null;
+  scheduleId?: string | null; laborHours?: number | null; laborCost?: number | null;
+  partsCost?: number | null; outsideCost?: number | null; downtimeHours?: number | null;
+}): Promise<void> {
+  await rpc('update_work_order', {
+    p_work_order: input.workOrderId,
+    p_title: input.title?.trim() || null,
+    p_status: input.status ?? null,
+    p_priority: input.priority ?? null,
+    p_description: input.description ?? null,
+    p_failure_code: input.failureCode ?? null,
+    p_scheduled_for: input.scheduledFor || null,
+    p_assigned_to: input.assignedTo ?? null,
+    p_vendor: input.vendorId ?? null,
+    p_schedule: input.scheduleId ?? null,
+    p_labor_hours: input.laborHours ?? null,
+    p_labor_cost: input.laborCost ?? null,
+    p_parts_cost: input.partsCost ?? null,
+    p_outside_cost: input.outsideCost ?? null,
+    p_downtime_hours: input.downtimeHours ?? null,
+  });
+}
+
+/**
+ * Close a work order with what was actually done.
+ *
+ * The resolution is required — the next person to open this machine reads it
+ * and nothing else. A meter reading given here resets a preventive interval
+ * from exactly that number rather than from whatever was last recorded.
+ */
+export async function completeWorkOrder(input: {
+  workOrderId: string; resolution: string; downtimeHours?: number | null;
+  laborHours?: number | null; laborCost?: number | null; partsCost?: number | null;
+  outsideCost?: number | null; meterHours?: number | null; completedAt?: string | null;
+}): Promise<void> {
+  await rpc('complete_work_order', {
+    p_work_order: input.workOrderId,
+    p_resolution: input.resolution.trim(),
+    p_downtime_hours: input.downtimeHours ?? null,
+    p_labor_hours: input.laborHours ?? null,
+    p_labor_cost: input.laborCost ?? null,
+    p_parts_cost: input.partsCost ?? null,
+    p_outside_cost: input.outsideCost ?? null,
+    p_meter_hours: input.meterHours ?? null,
+    p_completed_at: input.completedAt || new Date().toISOString(),
+  });
+}
+
+/** Cancel a work order that should not have been raised, with the reason. */
+export async function cancelWorkOrder(workOrderId: string, reason: string): Promise<void> {
+  await rpc('cancel_work_order', { p_work_order: workOrderId, p_reason: reason.trim() });
+}
+
+/** Correct a machine's details, or say where it is and who is on it. */
+export async function updateAsset(input: {
+  assetId: string; name?: string | null; assetClass?: string | null;
+  make?: string | null; model?: string | null; modelYear?: number | null;
+  serialNumber?: string | null; vin?: string | null; licensePlate?: string | null;
+  ownership?: string | null; meterType?: string | null; fuelType?: string | null;
+  homeLocation?: string | null; equipmentId?: string | null; projectId?: string | null;
+  operatorId?: string | null; notes?: string | null; acquisitionCost?: number | null;
+  acquiredOn?: string | null;
+}): Promise<void> {
+  await rpc('update_asset', {
+    p_asset: input.assetId,
+    p_name: input.name?.trim() || null,
+    p_asset_class: input.assetClass?.trim() || null,
+    p_make: input.make?.trim() || null,
+    p_model: input.model?.trim() || null,
+    p_model_year: input.modelYear ?? null,
+    p_serial_number: input.serialNumber?.trim() || null,
+    p_vin: input.vin?.trim() || null,
+    p_license_plate: input.licensePlate?.trim() || null,
+    p_ownership: input.ownership ?? null,
+    p_meter_type: input.meterType ?? null,
+    p_fuel_type: input.fuelType ?? null,
+    p_home_location: input.homeLocation?.trim() || null,
+    p_equipment: input.equipmentId ?? null,
+    p_project: input.projectId ?? null,
+    p_operator: input.operatorId ?? null,
+    p_notes: input.notes ?? null,
+    p_acquisition_cost: input.acquisitionCost ?? null,
+    p_acquired_on: input.acquiredOn || null,
+  });
+}
+
+/** Put a machine down, or back in service. Disposal is its own door. */
+export async function setAssetStatus(
+  assetId: string, status: string, note?: string | null,
+): Promise<void> {
+  await rpc('set_asset_status', {
+    p_asset: assetId, p_status: status, p_note: note?.trim() || null,
+  });
+}
+
+/** Take a machine off the books. Refused while work orders are open. */
+export async function disposeAsset(
+  assetId: string, disposedOn: string, note?: string | null,
+): Promise<void> {
+  await rpc('dispose_asset', {
+    p_asset: assetId, p_disposed_on: disposedOn, p_note: note?.trim() || null,
+  });
+}
+
+export interface AssetServiceRow {
+  scheduleId: string;
+  name: string;
+  intervalHours: number | null;
+  intervalMiles: number | null;
+  intervalDays: number | null;
+  lastPerformedAt: string | null;
+  lastPerformedHours: number | null;
+  /** Negative when overdue, which is the number a shop actually looks for. */
+  hoursRemaining: number | null;
+  daysRemaining: number | null;
+  openWorkOrders: number;
+}
+
+/** The service intervals on one machine. */
+export const loadAssetServices = (assetId: string): Query<AssetServiceRow[]> =>
+  async (client) => {
+    if (!assetId) return [];
+    const rows = unwrap(await client
+      .from('my_maintenance_due')
+      .select('schedule_id, name, interval_hours, interval_miles, interval_days, '
+        + 'last_performed_at, last_performed_hours, hours_remaining, days_remaining, '
+        + 'open_work_orders')
+      .eq('asset_id', assetId)
+      .order('name')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((s) => ({
+      scheduleId: String(s.schedule_id),
+      name: String(s.name),
+      intervalHours: maybeNum(s.interval_hours),
+      intervalMiles: maybeNum(s.interval_miles),
+      intervalDays: maybeNum(s.interval_days),
+      lastPerformedAt: (s.last_performed_at as string | null) ?? null,
+      lastPerformedHours: maybeNum(s.last_performed_hours),
+      hoursRemaining: maybeNum(s.hours_remaining),
+      daysRemaining: maybeNum(s.days_remaining),
+      openWorkOrders: num(s.open_work_orders),
+    }));
+  };
+
+export interface AssetMeterRow {
+  currentHours: number;
+  currentMiles: number;
+  /** The earliest reading still inside the window, so the difference is real work. */
+  hours30DaysAgo: number | null;
+  readingCount: number;
+  lastReadingAt: string | null;
+  openWorkOrders: number;
+  downtime30Days: number;
+}
+
+/** What one machine's meter has actually done. */
+export const loadAssetMeter = (assetId: string): Query<AssetMeterRow | null> =>
+  async (client) => {
+    if (!assetId) return null;
+    const rows = unwrap(await client
+      .from('my_asset_meters')
+      .select('current_hours, current_miles, hours_30_days_ago, reading_count, '
+        + 'last_reading_at, open_work_orders, downtime_30_days')
+      .eq('asset_id', assetId)
+      .limit(1)) as unknown as Array<Record<string, unknown>>;
+    const m = rows[0];
+    if (!m) return null;
+    return {
+      currentHours: num(m.current_hours),
+      currentMiles: num(m.current_miles),
+      hours30DaysAgo: maybeNum(m.hours_30_days_ago),
+      readingCount: num(m.reading_count),
+      lastReadingAt: (m.last_reading_at as string | null) ?? null,
+      openWorkOrders: num(m.open_work_orders),
+      downtime30Days: num(m.downtime_30_days),
+    };
+  };

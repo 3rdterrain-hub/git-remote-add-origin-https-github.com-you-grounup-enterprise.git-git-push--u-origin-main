@@ -130,8 +130,14 @@ function DemonstrationWorkspace() {
                 ) : null}
               </Tooltip>
             ) : null}
-            <Button variant="outline"><Copy className="size-4" /> New version</Button>
-            <Button variant="outline"><FileText className="size-4" /> Proposal preview</Button>
+            <Button variant="outline" disabled
+              title="This is the sample estimate. A real one revises through revise_estimate_version.">
+              <Copy className="size-4" /> New version
+            </Button>
+            <Button variant="outline" disabled
+              title="This is the sample estimate. A real one previews the proposal it would issue.">
+              <FileText className="size-4" /> Proposal preview
+            </Button>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>

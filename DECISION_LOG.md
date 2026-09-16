@@ -11,6 +11,131 @@ Newest first.
 
 ---
 
+## D-051 · 2026-09-15 · The catalog is a skeleton, and the company fills it in
+
+**Decision.** The shipped catalog is not seeded with crews, rates or materials.
+Instead: `my_service_buildup` says whether a service can produce a cost at all,
+the estimate screen says so **before** pricing, and
+`app.save_line_buildup_to_library` keeps what an estimator put on a line — on
+the service's own assembly, expressed per unit so it scales with the next
+takeoff. `app.add_assembly_resource` gives the costed component kinds their
+first writer anywhere.
+
+**Reason.** Found by the owner pricing 1,200 tons of aggregate base and getting
+$0.00. Every one of the seventeen `assembly_components` inserts in the catalog
+is `component_kind = 'task'`, and `app.line_resource_suggestions` (0126) reads
+labor, equipment, material and trucking — so all 2,545 shipped services describe
+what work happens and carry nothing that costs money. The product's whole
+purpose is estimating and out of the box it could price nothing.
+
+Seeding prices was rejected outright. "Never invent a number" is the standing
+rule, and a crew and a rate this repository guessed would be a price attached to
+2,545 services that nobody could reproduce or defend — wrong in ways nobody
+could find, on documents that go to customers.
+
+**What this replaces.** O-002, which recorded the symptom as catalog depth and
+left the estimator to discover it from a zero.
+
+**Alternatives.** Seed regional averages — refused, see above. Show a warning
+only after pricing — rejected: by then the person has already lost the time.
+Block a line whose service cannot price — rejected: an allowance is a legitimate
+way to bid, and D-008 already classifies one honestly.
+
+**Affects.** Migration 0189, `components/estimate/no-cost-buildup.tsx`,
+`pages/app/estimate-version.tsx`, the library.
+
+**Status.** Active.
+
+---
+
+## D-049 · 2026-09-15 · A control that cannot act says so, and is disabled
+
+**Decision.** `tests/governance/every-button-does-something.test.ts` fails the
+build on a `<Button>` with no handler. Where the thing behind a button is not
+built yet, the button is `disabled` with the reason in its `title` rather than
+left enabled and inert.
+
+**Reason.** The owner found six dead buttons by using the product, after a
+session of green test runs. Every test drove the function under the screen and
+none drove the screen's own control, so a button with nothing behind it passed
+everything. A disabled control with a reason is honest and tells somebody what
+to do instead; an enabled one that does nothing is a lie the user finds at the
+worst moment.
+
+**What this replaces.** The habit of reporting a feature done because its
+database function is tested.
+
+**Affects.** `CLAUDE.md`, six buttons, the governance suite.
+
+**Status.** Active.
+
+---
+
+## D-050 · 2026-09-15 · A customer code is issued by the database
+
+**Decision.** `create_customer` (0188) issues `CUS-nnnn`. `createCustomer` in
+the data layer calls it instead of building a code from the name plus four
+random characters.
+
+**Reason.** `customers` is unique on (company_id, code), and the screen was
+picking the value — `CUS-TOLEDO-A3F9`. Two people adding the same outfit on the
+same morning is exactly when a guess collides, and lead conversion already
+numbered CUS-nnnn, so the two paths disagreed about what a customer code looks
+like. It is also why a real customer list read as a jumble.
+
+**Affects.** Migration 0188, `lib/data/estimates.ts`, every customer added from
+here on. Existing codes are left alone: they are what appears on documents
+already sent.
+
+**Status.** Active.
+
+---
+
+## D-047 · 2026-09-15 · A fuel ticket is flagged, never refused
+
+**Decision.** `app.record_fuel` writes the row and sets
+`fuel_transactions.exception_flag` to one of the four values the schema has
+allowed since 0015 and nothing ever set: no machine on the ticket, a meter that
+reads below the machine, a volume far outside that machine's own fill history,
+or the same ticket keyed twice. It refuses none of them.
+
+**Reason.** The money was spent whether or not the ticket makes sense. Refusing
+the row loses the cost — it reappears on a card statement nobody can reconcile.
+Accepting it silently loses the question. Writing it with the exception stated
+keeps both. The outlier test is against the machine's own last twenty fills and
+only when there are at least five, because a threshold somebody picked would be
+a guess dressed as a finding.
+
+**Alternatives.** Refuse an unattributable ticket — rejected above. Flag on a
+fixed gallon threshold — rejected: a pickup and a scraper are not comparable.
+
+**Affects.** Migration 0186, `components/fleet/record-fuel.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-048 · 2026-09-15 · A meter may only go backwards when somebody says the unit was replaced
+
+**Decision.** `app.record_meter_reading` carries `p_is_replacement`, stated by
+the caller and never inferred. A reading below the current meter without it is
+refused by the trigger from 0015. A fuel ticket whose meter reads low is flagged
+`meter_regression` and does **not** create a reading at all.
+
+**Reason.** A machine cannot un-run hours, so a low reading is one of two
+things: a replaced unit, or the wrong unit number keyed. Guessing between them
+writes off a machine's service history — every interval is measured from that
+number, so a silently accepted low reading makes every service on it look
+freshly done. The fuel path is the dangerous one, because a mis-keyed unit
+number is the most common data error in a fleet, and it would have been the
+quiet route by which hours went down.
+
+**Affects.** Migration 0186, `components/fleet/asset-detail.tsx`.
+
+**Status.** Active.
+
+---
+
 ## D-046 · 2026-09-15 · A baseline may only be taken from a calculated schedule
 
 **Decision.** `app.take_schedule_baseline` refuses a project with no

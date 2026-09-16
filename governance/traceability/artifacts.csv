@@ -283,8 +283,10 @@ TST-db-a-field-report-you-can-fill-in,test,db/a-field-report-you-can-fill-in.tes
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-line-is-the-sum-of-what-fed-it,test,db/a-line-is-the-sum-of-what-fed-it.test.ts,tests/db/a-line-is-the-sum-of-what-fed-it.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
+TST-db-a-machine-that-reports-its-hours,test,db/a-machine-that-reports-its-hours.test.ts,tests/db/a-machine-that-reports-its-hours.test.ts,ENGINE
 TST-db-a-pipeline-that-can-be-worked,test,db/a-pipeline-that-can-be-worked.test.ts,tests/db/a-pipeline-that-can-be-worked.test.ts,ENGINE
 TST-db-a-plan-set-becomes-sheets,test,db/a-plan-set-becomes-sheets.test.ts,tests/db/a-plan-set-becomes-sheets.test.ts,ENGINE
+TST-db-a-price-you-enter-once,test,db/a-price-you-enter-once.test.ts,tests/db/a-price-you-enter-once.test.ts,ENGINE
 TST-db-a-project-you-can-open,test,db/a-project-you-can-open.test.ts,tests/db/a-project-you-can-open.test.ts,ENGINE
 TST-db-a-proposal-you-can-draft,test,db/a-proposal-you-can-draft.test.ts,tests/db/a-proposal-you-can-draft.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
@@ -292,6 +294,7 @@ TST-db-a-schedule-you-can-build,test,db/a-schedule-you-can-build.test.ts,tests/d
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
+TST-db-a-ticket-in-somebodys-pocket,test,db/a-ticket-in-somebodys-pocket.test.ts,tests/db/a-ticket-in-somebodys-pocket.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE
@@ -393,6 +396,7 @@ TST-db-the-library-that-was-in-a-spreadsheet,test,db/the-library-that-was-in-a-s
 TST-db-the-prices-that-were-in-the-file,test,db/the-prices-that-were-in-the-file.test.ts,tests/db/the-prices-that-were-in-the-file.test.ts,ENGINE
 TST-db-the-thing-being-measured,test,db/the-thing-being-measured.test.ts,tests/db/the-thing-being-measured.test.ts,ENGINE
 TST-db-the-words-the-estimator-chose,test,db/the-words-the-estimator-chose.test.ts,tests/db/the-words-the-estimator-chose.test.ts,ENGINE
+TST-db-the-work-comes-in-by-phone,test,db/the-work-comes-in-by-phone.test.ts,tests/db/the-work-comes-in-by-phone.test.ts,ENGINE
 TST-db-three-buttons-on-a-project,test,db/three-buttons-on-a-project.test.ts,tests/db/three-buttons-on-a-project.test.ts,ENGINE
 TST-db-time-clock,test,db/time-clock.test.ts,tests/db/time-clock.test.ts,ENGINE
 TST-db-timecard-from-punches,test,db/timecard-from-punches.test.ts,tests/db/timecard-from-punches.test.ts,ENGINE
@@ -416,6 +420,7 @@ TST-gov-a-select-names-columns-that-exist,test,gov/a-select-names-columns-that-e
 TST-gov-a-value-is-not-read-before-it-exists,test,gov/a-value-is-not-read-before-it-exists.test.ts,tests/governance/a-value-is-not-read-before-it-exists.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
 TST-gov-demo-data-stays-in-demonstrations,test,gov/demo-data-stays-in-demonstrations.test.ts,tests/governance/demo-data-stays-in-demonstrations.test.ts,ENGINE
+TST-gov-every-button-does-something,test,gov/every-button-does-something.test.ts,tests/governance/every-button-does-something.test.ts,ENGINE
 TST-gov-every-deploy-carries-the-import-map,test,gov/every-deploy-carries-the-import-map.test.ts,tests/governance/every-deploy-carries-the-import-map.test.ts,ENGINE
 TST-gov-every-door-has-a-reader,test,gov/every-door-has-a-reader.test.ts,tests/governance/every-door-has-a-reader.test.ts,ENGINE
 TST-gov-every-stat-tile-does-something,test,gov/every-stat-tile-does-something.test.ts,tests/governance/every-stat-tile-does-something.test.ts,ENGINE
@@ -431,6 +436,8 @@ TST-gov-units-match-the-enum,test,gov/units-match-the-enum.test.ts,tests/governa
 TST-gov-verification,test,gov/verification.test.ts,tests/governance/verification.test.ts,ENGINE
 TST-web-record-comments,test,web/record-comments.test.tsx,apps/web/src/components/comments/record-comments.test.tsx,ENGINE
 TST-web-activity-log,test,web/activity-log.test.tsx,apps/web/src/components/crm/activity-log.test.tsx,ENGINE
+TST-web-add-lead,test,web/add-lead.test.tsx,apps/web/src/components/crm/add-lead.test.tsx,ENGINE
+TST-web-add-opportunity,test,web/add-opportunity.test.tsx,apps/web/src/components/crm/add-opportunity.test.tsx,ENGINE
 TST-web-contacts-panel,test,web/contacts-panel.test.tsx,apps/web/src/components/crm/contacts-panel.test.tsx,ENGINE
 TST-web-lead-inbox,test,web/lead-inbox.test.tsx,apps/web/src/components/crm/lead-inbox.test.tsx,ENGINE
 TST-web-pipeline-board,test,web/pipeline-board.test.tsx,apps/web/src/components/crm/pipeline-board.test.tsx,ENGINE

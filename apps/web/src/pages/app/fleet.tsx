@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   Truck, Wrench, Fuel, Gauge, AlertTriangle, Radio, CircleDollarSign, Plus, TrendingDown,
 } from 'lucide-react';
@@ -18,7 +18,10 @@ import {
 import { money, moneyCompact, qty, integer, dateTime, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { AddAssetDialog, AddWorkOrderDialog } from '@/components/fleet/add-asset';
-import { useCompanyId } from '@/lib/data/session';
+import { AssetDetail } from '@/components/fleet/asset-detail';
+import { WorkOrderDetail } from '@/components/fleet/work-order-detail';
+import { RecordFuel, ResolveFuelException, EXCEPTION_SAID } from '@/components/fleet/record-fuel';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
 
 const STATUS_TONE: Record<string, 'success' | 'info' | 'warn' | 'danger'> = {
   available: 'success', assigned: 'info', in_maintenance: 'warn', down: 'danger',
@@ -39,11 +42,22 @@ export function FleetPage() {
   const [addingAsset, setAddingAsset] = useState(false);
   const [raisingWorkOrder, setRaisingWorkOrder] = useState(false);
   const { companyId } = useCompanyId();
+  const { can } = usePermissions();
+  const canWrite = can('fleet.write');
   const [downOnly, setDownOnly] = useState(false);
-  const assetsQ = useQuery(loadAssets, []);
-  const maintenanceQ = useQuery(loadMaintenanceDue, []);
-  const workOrdersQ = useQuery(loadWorkOrders, []);
-  const fuelQ = useQuery(loadFuel, []);
+  /*
+   * A row opens itself. Everything somebody in a yard changes about one machine
+   * — the meter, its services, where it is, whether it is down — is one
+   * decision, and before migration 0186 not one of them could be changed at all.
+   */
+  const [openAsset, setOpenAsset] = useState<string | null>(null);
+  const [openWorkOrder, setOpenWorkOrder] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const refresh = () => setNonce((n) => n + 1);
+  const assetsQ = useQuery(loadAssets, [nonce]);
+  const maintenanceQ = useQuery(loadMaintenanceDue, [nonce]);
+  const workOrdersQ = useQuery(loadWorkOrders, [nonce]);
+  const fuelQ = useQuery(loadFuel, [nonce]);
 
   const demo = assetsQ.status === 'demonstration';
   const ASSETS = assetsQ.status === 'ready' ? assetsQ.data : demo ? demonstrationAssets() : [];
@@ -200,9 +214,14 @@ export function FleetPage() {
               </TableHeader>
               <TableBody>
                 {shownAssets.map((a) => (
-                  <TableRow key={a.id}>
+                  <Fragment key={a.id}>
+                  <TableRow className={openAsset === a.id ? 'bg-charcoal-50' : undefined}>
                     <TableCell>
-                      <p className="font-medium text-charcoal-900">{a.assetNumber}</p>
+                      <button type="button" aria-expanded={openAsset === a.id}
+                        onClick={() => setOpenAsset(openAsset === a.id ? null : a.id)}
+                        className="text-left font-medium text-charcoal-900 hover:underline">
+                        {a.assetNumber}
+                      </button>
                       <p className="text-xs text-charcoal-500">{a.name}</p>
                       {a.equipmentCode ? (
                         <p className="font-mono text-[10px] text-charcoal-400">rate {a.equipmentCode}</p>
@@ -235,6 +254,15 @@ export function FleetPage() {
                       ) : <span className="text-charcoal-400">no device</span>}
                     </TableCell>
                   </TableRow>
+                  {openAsset === a.id ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="p-0">
+                        <AssetDetail asset={a} canWrite={canWrite} onChanged={refresh}
+                          onClose={() => setOpenAsset(null)} />
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>
@@ -252,6 +280,13 @@ export function FleetPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
+              {MAINTENANCE_DUE.length === 0 && maintenanceQ.status === 'ready' ? (
+                <div className="border-b border-charcoal-200 p-4 text-sm text-charcoal-600">
+                  No service intervals are set on any machine. A machine with no interval
+                  never comes due, which is not the same as a machine that needs nothing —
+                  open a machine on the Assets tab and add one.
+                </div>
+              ) : null}
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -275,7 +310,15 @@ export function FleetPage() {
                     return (
                       <TableRow key={m.id}>
                         <TableCell>
-                          <p className="font-medium text-charcoal-900">{m.assetNumber}</p>
+                          {/* A reference is a link: the machine this service is on. */}
+                          <button type="button"
+                            onClick={() => {
+                              const hit = ASSETS.find((a) => a.assetNumber === m.assetNumber);
+                              if (hit) { setOpenAsset(hit.id); setTab('assets'); }
+                            }}
+                            className="text-left font-medium text-charcoal-900 hover:underline">
+                            {m.assetNumber}
+                          </button>
                           <p className="text-xs text-charcoal-500">{m.assetName}</p>
                         </TableCell>
                         <TableCell className="text-charcoal-600">{m.scheduleName}</TableCell>
@@ -331,9 +374,14 @@ export function FleetPage() {
                 </TableHeader>
                 <TableBody>
                   {WORK_ORDERS.map((w) => (
-                    <TableRow key={w.id}>
+                    <Fragment key={w.id}>
+                    <TableRow className={openWorkOrder === w.id ? 'bg-charcoal-50' : undefined}>
                       <TableCell>
-                        <p className="font-medium text-charcoal-900">{w.number}</p>
+                        <button type="button" aria-expanded={openWorkOrder === w.id}
+                          onClick={() => setOpenWorkOrder(openWorkOrder === w.id ? null : w.id)}
+                          className="text-left font-medium text-charcoal-900 hover:underline">
+                          {w.number}
+                        </button>
                         <p className="max-w-64 text-xs text-charcoal-500">{w.title}</p>
                         {w.resolution ? (
                           <p className="mt-1 max-w-64 text-xs italic text-charcoal-500">“{w.resolution}”</p>
@@ -362,6 +410,15 @@ export function FleetPage() {
                         {money(w.laborCost + w.partsCost + w.outsideCost)}
                       </TableCell>
                     </TableRow>
+                    {openWorkOrder === w.id ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="p-0">
+                          <WorkOrderDetail order={w} canWrite={canWrite} onChanged={refresh}
+                            onClose={() => setOpenWorkOrder(null)} />
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                    </Fragment>
                   ))}
                 </TableBody>
                 <TableFooter>
@@ -382,11 +439,15 @@ export function FleetPage() {
 
         {/* ------------------------------------------------------------ fuel */}
         <TabsContent value="fuel" className="space-y-4">
+          <RecordFuel companyId={companyId} assets={ASSETS} canWrite={canWrite}
+            onRecorded={refresh} />
           {fuelExceptions.length ? (
             <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
               title={`${plural(fuelExceptions.length, 'transaction')} needs reconciling`}>
-              A card transaction with no matching asset, or a volume well outside the machine's tank capacity, is
-              flagged rather than silently posted to job cost.
+              A card transaction with no matching machine, a meter that reads below the one on
+              the machine, a volume far outside its own fill history, or the same ticket keyed
+              twice. Flagged rather than refused, because the money was spent either way —
+              refusing the row loses the cost, and posting it quietly loses the question.
             </Alert>
           ) : null}
           <Card><CardContent className="p-0">
@@ -421,7 +482,18 @@ export function FleetPage() {
                     <TableCell className="tabular text-right font-medium">{money(f.gallons * f.pricePerGallon)}</TableCell>
                     <TableCell className="text-xs text-charcoal-500">{titleCase(f.source)}</TableCell>
                     <TableCell>
-                      {f.exception ? <Badge variant="warn">{titleCase(f.exception)}</Badge> : null}
+                      {f.exception ? (
+                        <div className="space-y-1.5">
+                          <Badge variant="warn" title={EXCEPTION_SAID[f.exception] ?? undefined}>
+                            {titleCase(f.exception)}
+                          </Badge>
+                          <p className="max-w-64 text-xs text-charcoal-500">
+                            {EXCEPTION_SAID[f.exception] ?? ''}
+                          </p>
+                          <ResolveFuelException transactionId={f.id} exception={f.exception}
+                            assets={ASSETS} canWrite={canWrite} onResolved={refresh} />
+                        </div>
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}

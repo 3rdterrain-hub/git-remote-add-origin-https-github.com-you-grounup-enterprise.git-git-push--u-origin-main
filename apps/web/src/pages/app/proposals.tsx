@@ -76,7 +76,11 @@ function DemonstrationProposals() {
       <PageHeader
         title="Proposals"
         description="Generated from a priced estimate version, never retyped. Once issued, a proposal's content is frozen — a change means issuing a new one, so the document a customer holds is always reproducible."
-        actions={<Button><Plus className="size-4" /> New proposal</Button>}
+        actions={(
+          <Button disabled title="This is a sample proposal. Connect a workspace to draft a real one.">
+            <Plus className="size-4" /> New proposal
+          </Button>
+        )}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -164,7 +168,10 @@ function DemonstrationProposals() {
               <CardDescription>Preview · from {selected.estimate}</CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline"><Download className="size-4" /> PDF</Button>
+              <Button size="sm" variant="outline" disabled
+                title="This is a sample proposal. A real one renders its PDF from the issued version.">
+                <Download className="size-4" /> PDF
+              </Button>
               <Button size="sm" disabled={selected.status !== 'draft'}>
                 <Send className="size-4" /> {selected.status === 'draft' ? 'Issue' : 'Issued'}
               </Button>

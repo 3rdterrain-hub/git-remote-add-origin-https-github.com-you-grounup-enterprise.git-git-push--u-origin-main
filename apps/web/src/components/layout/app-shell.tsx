@@ -488,11 +488,15 @@ export function AppShell() {
                 </Badge>
               </NavLink>
             ) : null}
-            <Button variant="ghost" size="icon" aria-label="AI review queue" className="relative">
+            {/* It counted findings and went nowhere. The queue is on Notifications. */}
+            <Button variant="ghost" size="icon" aria-label="AI review queue" className="relative"
+              asChild>
+              <NavLink to="/app/notifications">
               <Bot />
               {pendingFindings ? (
                 <span className="absolute right-1 top-1 size-2 rounded-full bg-yellow-500" />
               ) : null}
+              </NavLink>
             </Button>
             <div className="relative">
               <Button
