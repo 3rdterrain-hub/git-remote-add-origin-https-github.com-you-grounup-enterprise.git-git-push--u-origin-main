@@ -11,6 +11,66 @@ Newest first.
 
 ---
 
+## D-060 · 2026-09-16 · A guard states the rule it means, not a wider one
+
+**Decision.** `app.enforce_assignment_file_published` (0048) now fires only when
+an assignment is created, pointed at a different file, or made current again —
+not on every update that happens to name an unpublished file. Migration 0194.
+
+**Reason.** The rule is "a machine is only ever *sent* a published file". It was
+written as "no update to an assignment naming an unpublished file", which is a
+wider sentence, and the gap was invisible for as long as nothing could reach the
+states it covered. 0193 gave machine control its writers and two ordinary things
+turned out to be impossible: withdrawing a design could not take it off a single
+machine, and an operator could not confirm a design the office had since
+replaced. Both are records of what happened, not sends.
+
+The alternative was to work around it in the callers — stand assignments down
+before changing a file's status, and refuse late acknowledgments. Rejected:
+that is a workaround for a rule that was simply stated too widely, and it would
+have left the *database* still refusing a true fact about a machine.
+
+**Authorized by.** The standing instruction to resolve problems rather than route
+around them, and CLAUDE.md: never present a workaround when the real fix exists.
+
+**Affects.** 0048's guard, `withdraw_machine_control_file`,
+`acknowledge_machine_file`. The insert path is unchanged and still refused.
+
+**Status.** Active. Both behaviors covered in `a-surface-somebody-shot.test.ts`,
+including that the guard still refuses an assignment written straight into the
+table.
+
+---
+
+## D-059 · 2026-09-16 · An earthwork volume is an engine output
+
+**Decision.** Every reported column on `surface_comparisons` — cut, fill, net,
+the two areas, the four depths, the cell counts, coverage, the engine version and
+the warnings — is guarded by 0058's engine-output guard from migration 0193.
+`app.record_surface_comparison` is the only writer, granted to `service_role`
+alone and called by the `compare-surfaces` Edge Function, which runs
+`compareSurfaces` out of `@grounup/engine`.
+
+**Reason.** Nothing could compute a comparison, so every volume this platform
+held had to have been put there by hand — and the earthwork quantity is what a
+heavy civil bid is won or lost on. This is the same boundary 0058 drew around a
+price and 0158 drew around float, for the same reason: a number nobody can
+reproduce is a number nobody can defend.
+
+Computing in the browser was considered and rejected on the ground 0058 already
+settled: two implementations of the same arithmetic eventually disagree about a
+job somebody has already bid, and the one in the browser is the one a person can
+change.
+
+**Affects.** `surface_comparisons`, `compare-surfaces`, `lib/data/survey.ts`.
+Two existing tests that inserted yardages directly still pass: the guard resets
+them to the schema's own unpriced state on insert rather than refusing the row.
+
+**Status.** Active. Verified on live data: 347.2222 BCY cut and 347.2222 CCY
+fill over a 5 × 5 grid at 25 ft, net zero, recorded against PRJ-2026-0003.
+
+---
+
 ## D-056 · 2026-09-15 · An investigation closes with a cause and an action, or not at all
 
 **Decision.** `app.close_safety_incident` is a separate function from

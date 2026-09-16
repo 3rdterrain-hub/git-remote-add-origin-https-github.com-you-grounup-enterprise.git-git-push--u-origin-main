@@ -379,12 +379,56 @@ library next.
 the container's corner. The wheel now zooms about the cursor, space or the
 middle button pans, and a sheet opens fitted (D-035).
 
+### Survey and grade, as of migrations 0193–0195
+
+The last whole section of the platform with no writer of any kind. Five governed
+tables — `surveys`, `surfaces`, `surface_comparisons`, `machine_control_files`,
+`machine_assignments` — with row level security, tenant guards, a georeference
+check from 0047 and four integrity guards from 0048, and nothing anywhere that
+could put a row into any of them. Two of those guards had never fired in their
+lives, because nothing could reach the state they refuse.
+
+**The volume is an engine output now** (D-059). Cut, fill, net, the areas, the
+depths, the cell counts and coverage are guarded by 0058's guard, written only by
+`app.record_surface_comparison`, which is granted to `service_role` alone and
+called by the `compare-surfaces` Edge Function running `compareSurfaces` out of
+`@grounup/engine`. The earthwork quantity is what a heavy civil bid is won or
+lost on, and before this it could only have been typed.
+
+**A surface arrives as a grid, and the grid is checked against its shape.** An
+elevation array of the wrong length is the one mistake in this area that produces
+a plausible answer instead of a failure — every cell shifts and every depth with
+it — so it is refused in the browser and again in the database. A surface may
+carry only a storage path instead; the comparison then refuses to measure it
+rather than reporting the zero it would otherwise compute, which reads exactly
+like flat ground. Parsing LandXML, TIN and points files is its own piece of work
+and is deliberately not faked with a form.
+
+**Machine control has its doors** (O-022, closed). Record a design, publish it
+with the digest of what was published, send it to a machine, supersede it,
+withdraw it, acknowledge it. Publishing freezes the surface it was cut from —
+0048's guard, firing for the first time on real data — and one machine carries
+one current design, because an operator holding two has no way to know which one
+the office meant.
+
+**0048's assignment guard was stating a wider rule than it meant** (D-060), which
+only became visible once anything could reach those states: a withdrawn design
+could not be taken off a single machine, and an operator could not confirm a
+design the office had since replaced. Migration 0194 narrows it to a send.
+
+Verified on live data against PRJ-2026-0003: a capture recorded, two surfaces
+built with their extents computed, 347.2222 BCY of cut and 347.2222 CCY of fill
+over a 5 × 5 grid at 25 ft with net zero, a design published with a real SHA-256
+and superseded by its own next version, and the frozen-surface guard refusing to
+move the ground underneath it.
+
 ### Recommended next actions
 
-1. Make Survey and Claims live — the same shape as Schedule and Procurement
-   were: real tables (`surveys`, `surfaces`, `surface_comparisons`; `claims`,
-   `contracts`) read by nothing, with the page on a fixture.
-2. Work the toolbar in order, saying before each section closes.
+1. Work the toolbar in order, saying before each section closes. Survey & Grade
+   is done; Finance, Claims, Master Libraries, Reports, GrounUp Network, Company
+   Settings and Billing remain.
+2. Parse LandXML, TIN and points files into a surface, which is what stands
+   between `create_surface` and a real survey deliverable.
 3. Compose task resources in the catalog, or document that pricing is by hand.
 
 ---

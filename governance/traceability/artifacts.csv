@@ -296,6 +296,7 @@ TST-db-a-schedule-you-can-build,test,db/a-schedule-you-can-build.test.ts,tests/d
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
+TST-db-a-surface-somebody-shot,test,db/a-surface-somebody-shot.test.ts,tests/db/a-surface-somebody-shot.test.ts,ENGINE
 TST-db-a-ticket-in-somebodys-pocket,test,db/a-ticket-in-somebodys-pocket.test.ts,tests/db/a-ticket-in-somebodys-pocket.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
@@ -419,6 +420,7 @@ TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENG
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
+TST-fn-surface-comparison,test,fn/surface-comparison.test.ts,tests/functions/surface-comparison.test.ts,ENGINE
 TST-gov-a-select-names-columns-that-exist,test,gov/a-select-names-columns-that-exist.test.ts,tests/governance/a-select-names-columns-that-exist.test.ts,ENGINE
 TST-gov-a-value-is-not-read-before-it-exists,test,gov/a-value-is-not-read-before-it-exists.test.ts,tests/governance/a-value-is-not-read-before-it-exists.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE

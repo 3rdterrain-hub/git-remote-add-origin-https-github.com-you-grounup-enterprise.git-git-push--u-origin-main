@@ -37,7 +37,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Mountain, Layers, Radio, MapPin, AlertTriangle, CheckCircle2,
+  Mountain, Layers, Radio, MapPin, AlertTriangle, CheckCircle2, Trash2, Truck,
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -46,11 +46,19 @@ import { Alert, Separator, EmptyState } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingState, ErrorState, DemonstrationNotice } from '@/components/data-state';
-import { useQuery } from '@/lib/data/query';
+import { useQuery, messageFor } from '@/lib/data/query';
 import {
   loadSurveys, loadSurfaceComparisons, loadSurfaceGrid, loadMachineFiles, loadSoilDefaults,
-  loadAsBuiltSurfaceId,
+  loadAsBuiltSurfaceId, loadMachineAssignments, removeSurface, removeSurfaceComparison,
 } from '@/lib/data/survey';
+import { usePermissions, useCompanyId } from '@/lib/data/session';
+import { Button } from '@/components/ui/button';
+import { RecordSurvey } from '@/components/survey/record-survey';
+import { AddSurface } from '@/components/survey/add-surface';
+import { ComputeVolume } from '@/components/survey/compute-volume';
+import {
+  RecordMachineFile, MachineFileActions, AcknowledgeFile,
+} from '@/components/survey/machine-control';
 import { analyzeCutFill, progressAgainstDesign } from '@grounup/engine';
 import { qty, integer, percent, date, titleCase, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -234,15 +242,30 @@ export function SurveyPage() {
   /* Machine control files that are live, versus every version ever published —
      the superseded ones stay visible because a machine may still be on one. */
   const [publishedOnly, setPublishedOnly] = useState(false);
-  const surveysQ = useQuery(loadSurveys, []);
-  const comparisonsQ = useQuery(loadSurfaceComparisons, []);
-  const filesQ = useQuery(loadMachineFiles, []);
+  /*
+   * Everything on this page had a reader and no writer until 0193, so a refetch
+   * is new here: a capture recorded, a surface added, a volume computed or a
+   * design sent all change what the other tabs are showing.
+   */
+  const [nonce, setNonce] = useState(0);
+  const again = () => setNonce((n) => n + 1);
+  const { can } = usePermissions();
+  const { companyId } = useCompanyId();
+  const canWrite = can('projects.write');
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const surveysQ = useQuery(loadSurveys, [nonce]);
+  const comparisonsQ = useQuery(loadSurfaceComparisons, [nonce]);
+  const filesQ = useQuery(loadMachineFiles, [nonce]);
+  const assignmentsQ = useQuery(loadMachineAssignments, [nonce]);
   const soilQ = useQuery(loadSoilDefaults, []);
 
   const surveys = surveysQ.status === 'ready' ? surveysQ.data : [];
   const comparisons = comparisonsQ.status === 'ready' ? comparisonsQ.data : [];
   const files = filesQ.status === 'ready' ? filesQ.data : [];
+  const assignments = assignmentsQ.status === 'ready' ? assignmentsQ.data : [];
   const soil = soilQ.status === 'ready' ? soilQ.data : null;
+  const allSurfaces = surveys.flatMap((s) => s.surfaces);
 
   const [chosen, setChosen] = useState<string | null>(null);
   const comparison = comparisons.find((c) => c.id === chosen) ?? comparisons[0] ?? null;
@@ -283,7 +306,17 @@ export function SurveyPage() {
       <PageHeader
         title="Survey & Grade"
         description="What was measured on the ground, and what it means for moving dirt. A surface produces bank cut and compacted fill from geometry; the soil properties are applied after, because a surface knows nothing about them."
+        actions={
+          <>
+            <RecordSurvey canWrite={canWrite} onRecorded={() => { setTab('surveys'); again(); }} />
+            <RecordMachineFile surfaces={allSurfaces} canWrite={canWrite}
+              onRecorded={() => { setTab('machine'); again(); }} />
+          </>
+        }
       />
+
+      {actionError
+        ? <Alert tone="danger" title="That did not happen">{actionError}</Alert> : null}
 
       {unacknowledged.length ? (
         <Alert tone="warn" icon={<AlertTriangle className="size-4" />}
@@ -374,6 +407,23 @@ export function SurveyPage() {
             <EmptyState title="No surface comparison yet"
               description="A comparison is an existing surface measured against a design one, and the database refuses the ones that would be wrong: surfaces from different projects, different datums, a different coordinate system, different units or a different grid." />
           ) : null}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <ComputeVolume companyId={companyId} surfaces={allSurfaces} canWrite={canWrite}
+              onComputed={() => { setChosen(null); again(); }} />
+            {comparison && canWrite ? (
+              <Button variant="ghost" size="sm"
+                title="Delete this volume. One a line was priced from is refused."
+                onClick={() => {
+                  setActionError(null);
+                  removeSurfaceComparison(comparison.id)
+                    .then(() => { setChosen(null); again(); })
+                    .catch((e: unknown) => setActionError(messageFor(e)));
+                }}>
+                <Trash2 className="size-4" /> Delete this volume
+              </Button>
+            ) : null}
+          </div>
 
           {comparisons.length > 1 ? (
             <select aria-label="Which comparison"
@@ -522,6 +572,7 @@ export function SurveyPage() {
                       <TableHead>Datum</TableHead>
                       <TableHead className="text-right">Points</TableHead>
                       <TableHead>Surfaces</TableHead>
+                      <TableHead />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -548,8 +599,58 @@ export function SurveyPage() {
                           {s.pointCount === null ? '—' : integer(s.pointCount)}
                         </TableCell>
                         <TableCell className="text-xs text-charcoal-600">
-                          {s.surfaces.length === 0 ? '—'
-                            : s.surfaces.map((f) => `${f.name} (${titleCase(f.role)})`).join(', ')}
+                          {s.surfaces.length === 0 ? (
+                            <span className="text-charcoal-400">
+                              Nothing built from it yet
+                            </span>
+                          ) : (
+                            <ul className="space-y-0.5">
+                              {s.surfaces.map((f) => (
+                                <li key={f.id} className="flex items-center gap-1.5">
+                                  <span className="text-charcoal-800">{f.name}</span>
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {titleCase(f.role)}
+                                  </Badge>
+                                  <span className="text-charcoal-400">
+                                    {integer(f.cellCount)} cells at {f.cellSizeFt} ft
+                                  </span>
+                                  {/*
+                                    * Said before the database has to say it: a
+                                    * surface a machine is cutting to cannot be
+                                    * moved, and a rule stated only as an error
+                                    * message is a rule nobody was told.
+                                    */}
+                                  {f.frozenByFile ? (
+                                    <Badge variant="warn" className="text-[10px]"
+                                      title={`Published to machines as "${f.frozenByFile}". Its geometry is fixed.`}>
+                                      frozen
+                                    </Badge>
+                                  ) : null}
+                                  {!f.hasGrid ? (
+                                    <Badge variant="outline" className="text-[10px]"
+                                      title="Only a file reference is on record, so nothing can be measured from it yet.">
+                                      no grid
+                                    </Badge>
+                                  ) : null}
+                                  {canWrite && !f.frozenByFile && f.comparisonCount === 0 ? (
+                                    <button type="button" className="text-charcoal-400 hover:text-danger-700"
+                                      title="Remove this surface"
+                                      onClick={() => {
+                                        setActionError(null);
+                                        removeSurface(f.id).then(again)
+                                          .catch((e: unknown) => setActionError(messageFor(e)));
+                                      }}>
+                                      <Trash2 className="size-3" />
+                                    </button>
+                                  ) : null}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <AddSurface surveyId={s.id} surveyName={s.name} canWrite={canWrite}
+                            onAdded={again} />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -604,6 +705,7 @@ export function SurveyPage() {
                       <TableHead>Format</TableHead>
                       <TableHead>Version</TableHead>
                       <TableHead>On machines</TableHead>
+                      <TableHead />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -655,11 +757,111 @@ export function SurveyPage() {
                               </ul>
                             )}
                         </TableCell>
+                        <TableCell className="align-top">
+                          <MachineFileActions file={f} files={files} canWrite={canWrite}
+                            onChanged={again} />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
                 </>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          {/*
+            * What is actually on each machine right now, which the file list
+            * cannot say: it is organized by design, and an operator is standing
+            * next to one machine. Acknowledging lives here for the same reason.
+            */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="size-4" /> What each machine is carrying
+              </CardTitle>
+              <CardDescription>
+                Sent and acknowledged are different facts, and only one of them is a machine. A
+                design the office has since replaced still shows here until the machine is sent
+                the new one, because that is the truth about what it is cutting to.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              {assignmentsQ.status === 'loading'
+                ? <LoadingState label="Reading the machines" /> : null}
+              {assignmentsQ.status === 'error'
+                ? <ErrorState message={assignmentsQ.message} onRetry={assignmentsQ.refetch} /> : null}
+              {assignmentsQ.status === 'ready' && assignments.length === 0 ? (
+                <div className="p-6">
+                  <EmptyState title="No design has been sent to a machine"
+                    description="Publish a design, then send it. A machine runs a published design or none." />
+                </div>
+              ) : null}
+              {assignments.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Machine</TableHead>
+                      <TableHead>Carrying</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Sent</TableHead>
+                      <TableHead>Acknowledged</TableHead>
+                      <TableHead />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {assignments.filter((a) => a.isCurrent).map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell>
+                          <Link to={`/app/fleet?asset=${a.assetId}`}
+                            className="font-mono text-charcoal-900 hover:underline">
+                            {a.assetNumber}
+                          </Link>
+                          <span className="block text-xs text-charcoal-500">{a.assetName}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-charcoal-900">{a.fileName}</span>
+                          <span className="ml-1 text-xs text-charcoal-400">v{a.version}</span>
+                          {a.fileWithdrawnOrSuperseded ? (
+                            <Badge variant="warn" className="ml-1.5 text-[10px]"
+                              title={a.supersededByName
+                                ? `Replaced by "${a.supersededByName}"`
+                                : 'This design has been withdrawn'}>
+                              {titleCase(a.fileStatus)}
+                            </Badge>
+                          ) : null}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-charcoal-600">
+                          {a.projectId && a.projectNumber ? (
+                            <Link to={`/app/projects/${a.projectId}`} className="hover:underline">
+                              {a.projectNumber}
+                            </Link>
+                          ) : (a.projectNumber ?? '—')}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-xs text-charcoal-600">
+                          {date(a.assignedAt)}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {a.acknowledgedAt ? (
+                            <span className="flex items-center gap-1.5 text-success-700">
+                              <CheckCircle2 className="size-3" /> {date(a.acknowledgedAt)}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-warn-700">
+                              <AlertTriangle className="size-3" /> not yet
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {a.acknowledgedAt ? null : (
+                            <AcknowledgeFile assignmentId={a.id} canWrite={canWrite}
+                              onAcknowledged={again} />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : null}
             </CardContent>
           </Card>

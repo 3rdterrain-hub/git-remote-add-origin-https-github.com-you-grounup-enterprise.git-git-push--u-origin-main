@@ -113,6 +113,8 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | C-027 | Make Procurement live | same | high | procurement | `lib/data/procurement.ts`, `procurement.tsx` | `procurement.test.tsx` | tested |
 | C-028 | Make Survey live | same | high | survey | `lib/data/survey.ts`, `survey.tsx` | `survey.test.tsx` | tested |
 | C-029 | Make Claims live | same | high | claims | — | — | open |
+| C-042 | A machine can be told the design it holds is stale | resolving what 0193 ran into | high | machine control | migration 0194, `app.enforce_assignment_file_published` narrowed to a send | `a-surface-somebody-shot.test.ts` (35) | tested |
+| C-041 | A surface somebody shot | working the toolbar in order | critical | survey | migrations 0193 and 0195, `compare-surfaces`, `components/survey/*`, `lib/data/survey.ts` | `a-surface-somebody-shot.test.ts` (35), `surface-comparison.test.ts` (6), `survey.test.tsx` (26) | tested |
 | C-040 | An incident you can close | working the toolbar in order | critical | safety | migration 0192, `incident-investigation.tsx`, `record-observation.tsx`, `record-inspection.tsx` | `an-incident-you-can-close.test.ts` (14) | tested |
 | C-039 | A purchase order worth something | working the toolbar in order | high | procurement | migration 0191, `purchase-order-lines.tsx`, `bid-leveling.tsx` | `a-purchase-order-worth-something.test.ts` (12) | tested |
 | C-038 | Read a scanned plan set by eye | user: "build the vision fallback for scanned plans" | high | plans | `ai-analyze-document` document blocks, `text-coverage.tsx` | `text-coverage.test.tsx` (7) | tested |
@@ -147,6 +149,5 @@ Status vocabulary: `pending`, `in progress`, `implemented`, `tested`, `blocked`,
 | O-021 | `work_calendar_exceptions` has no writer | The engine reads holidays and shutdowns out of it; the working-week editor sets the weekly pattern only | Add holidays to the working-week tab |
 | O-025 | GrounUp Network is a fixture | `network.tsx` reads NETWORK_VENDORS from `@/data/survey` on a live route, and "Publish a vendor" is now disabled with that said on it | Build the network, or retire the page |
 | O-026 | A shipped library row cannot be copied into company scope | The button is disabled with the reason; adding your own row works | Build copy-to-company |
-| O-027 | Workforce has no screens for its new doors | 0187 gave credentials, work requirements and crews their first writers; the Workforce page does not call them yet | Build the Workforce doors |
-| O-022 | `machine_assignments` has no writer | Survey's machine-control-file list reads it; nothing sends a file to a machine | Build "send this file to that machine" in Survey |
+| O-028 | A surface cannot be built from a survey file | `create_surface` takes a grid or a storage path; LandXML, TIN and points files are not parsed, so a real deliverable has to be gridded elsewhere first | Parse LandXML, TIN and CSV points into a grid |
 | O-004 | R-011, R-012, R-016 are partially applied | Standing instructions applied per screen as screens are worked | Continue the toolbar in order |

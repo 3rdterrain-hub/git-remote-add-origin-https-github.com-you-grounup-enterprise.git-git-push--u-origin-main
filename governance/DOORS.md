@@ -12,9 +12,9 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **313** |
-| Opened by a screen | **294** |
-| Opened only by an Edge Function | **4** |
+| Doors | **329** |
+| Opened by a screen | **309** |
+| Opened only by an Edge Function | **5** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
 | Granted but unreachable | **0** |
@@ -60,6 +60,7 @@ None.
 | `has_permission` | _shared/auth.ts, get-effective-entitlements/index.ts |
 | `record_schedule_calculation` | recalculate-schedule/index.ts |
 | `record_site_weather` | refresh-weather/index.ts |
+| `record_surface_comparison` | compare-surfaces/index.ts |
 | `seat_price_cents` | create-checkout-session/index.ts |
 
 ## Opened by a screen
@@ -67,6 +68,7 @@ None.
 | Door | Kind | Read in |
 |---|---|---|
 | `accept_finding_as_line` | function | lib/data/plans.ts |
+| `acknowledge_machine_file` | function | lib/data/survey.ts |
 | `add_assembly_resource` | function | lib/data/estimates.ts |
 | `add_assembly_step` | function | lib/data/assemblies.ts |
 | `add_change_order_item` | function | lib/data/project.ts |
@@ -126,6 +128,7 @@ None.
 | `create_rfi` | function | lib/data/project.ts |
 | `create_rfq` | function | lib/data/procurement.ts |
 | `create_safety_incident` | function | lib/data/safety.ts |
+| `create_surface` | function | lib/data/survey.ts |
 | `create_takeoff_condition` | function | lib/data/conditions.ts |
 | `create_toolbox_talk` | function | lib/data/safety.ts |
 | `create_vendor` | function | lib/data/library.ts |
@@ -196,6 +199,7 @@ None.
 | `my_line_conditions` | view | lib/data/estimates.ts |
 | `my_line_measurements` | view | lib/data/takeoff.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
+| `my_machine_assignments` | view | lib/data/survey.ts |
 | `my_maintenance_due` | view | lib/data/fleet.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
@@ -224,6 +228,8 @@ None.
 | `my_sheet_text_coverage` | view | lib/data/plans.ts |
 | `my_site_weather` | view | lib/data/project.ts |
 | `my_staffing_gaps` | view | lib/data/staffing.ts |
+| `my_surfaces` | view | lib/data/survey.ts |
+| `my_surveys` | view | lib/data/survey.ts |
 | `my_suspension` | view | lib/data/session.ts |
 | `my_takeoff_conditions` | view | lib/data/conditions.ts |
 | `my_time_clock` | view | lib/data/time-clock.ts |
@@ -244,6 +250,7 @@ None.
 | `post_punches_to_timecard` | function | lib/data/time-clock.ts |
 | `propose_upsell` | function | lib/data/admin.ts |
 | `publish_announcement` | function | lib/data/admin.ts |
+| `publish_machine_control_file` | function | lib/data/survey.ts |
 | `qualified_and_available` | function | lib/data/staffing.ts |
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
 | `reassign_measurement` | function | lib/data/conditions.ts |
@@ -253,6 +260,7 @@ None.
 | `record_export` | function | lib/data/admin.ts |
 | `record_fuel` | function | lib/data/fleet.ts |
 | `record_inspection` | function | lib/data/safety.ts |
+| `record_machine_control_file` | function | lib/data/survey.ts |
 | `record_meter_reading` | function | lib/data/fleet.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
@@ -260,6 +268,7 @@ None.
 | `record_rfq_response` | function | lib/data/procurement.ts |
 | `record_safety_observation` | function | lib/data/safety.ts |
 | `record_signup_attempt` | function | lib/analytics.ts |
+| `record_survey` | function | lib/data/survey.ts |
 | `record_visit` | function | lib/analytics.ts |
 | `register_document_version` | function | lib/data/plans.ts |
 | `reject_finding` | function | lib/data/plans.ts |
@@ -273,6 +282,8 @@ None.
 | `remove_report_line` | function | lib/data/project.ts |
 | `remove_schedule_activity` | function | lib/data/schedule.ts |
 | `remove_schedule_dependency` | function | lib/data/schedule.ts |
+| `remove_surface` | function | lib/data/survey.ts |
+| `remove_surface_comparison` | function | lib/data/survey.ts |
 | `remove_work_credential_requirement` | function | lib/data/workforce.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
@@ -299,6 +310,7 @@ None.
 | `save_line_to_library` | function | lib/data/estimates.ts |
 | `search` | function | components/layout/app-shell.tsx, lib/data/plans.ts, lib/search.ts +1 |
 | `search_document_text` | function | lib/data/plans.ts |
+| `send_file_to_machine` | function | lib/data/survey.ts |
 | `set_allowance` | function | lib/data/admin.ts |
 | `set_asset_status` | function | lib/data/fleet.ts |
 | `set_billing_terms` | function | lib/data/admin.ts |
@@ -337,6 +349,7 @@ None.
 | `submit_lead` | function | lib/data/lead-forms.ts |
 | `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |
+| `supersede_machine_control_file` | function | lib/data/survey.ts |
 | `suspend_company` | function | lib/data/admin.ts |
 | `take_schedule_baseline` | function | lib/data/schedule.ts |
 | `unapply_takeoff` | function | lib/data/takeoff.ts |
@@ -354,9 +367,12 @@ None.
 | `update_safety_incident` | function | lib/data/safety.ts |
 | `update_schedule_activity` | function | lib/data/schedule.ts |
 | `update_schedule_dependency` | function | lib/data/schedule.ts |
+| `update_surface` | function | lib/data/survey.ts |
+| `update_survey` | function | lib/data/survey.ts |
 | `update_takeoff_condition` | function | lib/data/conditions.ts |
 | `update_work_calendar` | function | lib/data/schedule.ts |
 | `update_work_order` | function | lib/data/fleet.ts |
 | `void_punch` | function | lib/data/time-clock.ts |
+| `withdraw_machine_control_file` | function | lib/data/survey.ts |
 | `withdraw_production_report` | function | lib/data/project.ts |
 | `workable_days_at` | function | lib/data/project.ts |

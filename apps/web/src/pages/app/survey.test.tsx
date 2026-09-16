@@ -14,7 +14,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type {
-  SurveyRow, SurfaceComparisonRow, MachineFileRow, SurfaceGrid, SoilDefaults,
+  SurveyRow, SurfaceRow, SurfaceComparisonRow, MachineFileRow, SurfaceGrid, SoilDefaults,
 } from '@/lib/data/survey';
 
 const hoisted = vi.hoisted(() => ({
@@ -57,6 +57,14 @@ const comparison = (over: Partial<SurfaceComparisonRow> = {}): SurfaceComparison
   existingSurfaceName: 'Existing ground', designSurfaceName: 'Design subgrade', ...over,
 });
 
+const surface = (over: Partial<SurfaceRow> = {}): SurfaceRow => ({
+  id: 's-e', surveyId: 'v-1', name: 'Existing ground', role: 'existing',
+  cellSizeFt: 10, gridRows: 2, gridCols: 2, cellCount: 4, hasGrid: true,
+  minElevation: 101, maxElevation: 104, originEasting: 1000, originNorthing: 2000,
+  frozenByFile: null, comparisonCount: 1, projectId: 'p-1',
+  surveyName: 'Phase 2 topo', verticalDatum: 'NAVD88', units: 'us_survey_feet', ...over,
+});
+
 const survey = (over: Partial<SurveyRow> = {}): SurveyRow => ({
   id: 'v-1', name: 'Phase 2 topo', captureMethod: 'gps_rover',
   capturedOn: '2026-05-01', capturedBy: 'M. Ruiz',
@@ -64,7 +72,7 @@ const survey = (over: Partial<SurveyRow> = {}): SurveyRow => ({
   coordinateSystem: 'OH North', units: 'us_survey_feet',
   pointCount: 4_210, areaSf: 210_000,
   projectId: 'p-1', projectNumber: 'PRJ-2026-0011',
-  surfaces: [{ id: 's-e', name: 'Existing ground', role: 'existing', cellSizeFt: 10 }], ...over,
+  surfaces: [surface()], ...over,
 });
 
 const file = (over: Partial<MachineFileRow> = {}): MachineFileRow => ({
