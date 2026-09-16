@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **355** |
-| Opened by a screen | **335** |
+| Doors | **375** |
+| Opened by a screen | **355** |
 | Opened only by an Edge Function | **5** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -307,6 +307,26 @@ None.
 | `remove_work_credential_requirement` | function | lib/data/workforce.ts |
 | `rename_library_category` | function | lib/data/categories.ts |
 | `report_production` | function | lib/data/project.ts |
+| `reporting_bid_performance` | view | lib/data/dashboard.ts |
+| `reporting_cash_flow_items` | view | lib/data/finance.ts |
+| `reporting_cash_forecast` | view | lib/data/finance.ts |
+| `reporting_company_usage` | view | lib/data/billing.ts |
+| `reporting_credential_expiry` | view | lib/data/dashboard.ts, lib/data/safety.ts, lib/data/workforce.ts |
+| `reporting_estimate_structure` | view | lib/data/reports.ts |
+| `reporting_labor_productivity` | view | lib/data/workforce.ts |
+| `reporting_labor_reconciliation` | view | lib/data/workforce.ts |
+| `reporting_metric_values` | view | lib/data/projects.ts, lib/data/reports.ts |
+| `reporting_payment_problems` | view | lib/data/billing.ts |
+| `reporting_plan_usage` | view | lib/data/billing.ts |
+| `reporting_production_variance` | view | lib/data/project-view.ts |
+| `reporting_project_earned_value` | view | lib/data/project.ts |
+| `reporting_project_financials` | view | lib/data/dashboard.ts, lib/data/project-view.ts, lib/data/project.ts +1 |
+| `reporting_safety_rates` | view | lib/data/safety.ts |
+| `reporting_safety_summary` | view | lib/data/dashboard.ts |
+| `reporting_schedule_variance` | view | lib/data/dashboard.ts, lib/data/schedule.ts |
+| `reporting_takeoff_status` | view | lib/data/reports.ts |
+| `reporting_usage_allowance` | view | lib/data/billing.ts |
+| `reporting_wip` | view | lib/data/finance.ts |
 | `request_refund` | function | lib/data/admin.ts |
 | `resolve_claim` | function | lib/data/claims.ts |
 | `resolve_document_conflict` | function | lib/data/conflicts.ts |

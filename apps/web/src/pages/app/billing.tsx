@@ -38,6 +38,7 @@ import {
   loadBillingTerms, loadRefunds, REFUND_TONE,
   type UsageLine,
 } from '@/lib/data/billing';
+import { WhatTheBoundarySays, PaymentProblems } from '@/components/billing/what-the-boundary-says';
 import { callFunction, isSupabaseConfigured } from '@/lib/supabase';
 import { money, date, percent, integer, titleCase, plural } from '@/lib/format';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
@@ -270,6 +271,14 @@ export function BillingPage() {
             </Alert>
           </CardFooter>
         </Card>
+
+        {/*
+          * Two reporting views that nothing read: the allowance verdict the
+          * boundary actually enforces, and every charge that failed with
+          * whether Stripe has given up on it.
+          */}
+        <WhatTheBoundarySays companyId={companyId} />
+        <PaymentProblems companyId={companyId} />
 
         <Card id="subscription-detail">
           <CardHeader>

@@ -232,7 +232,13 @@ describe('the billing screen', () => {
     hoisted.planFails = 'JWT expired';
     renderPage(<BillingPage />);
     await waitFor(() => expect(screen.getByText('JWT expired')).toBeInTheDocument());
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    /*
+     * One retry per failed read. The allowance and payment-problem cards read
+     * their own views, so a failure that takes out the session takes out all
+     * three — and each says so where it is rather than one of them speaking for
+     * reads it knows nothing about.
+     */
+    expect(screen.getAllByRole('button', { name: 'Try again' }).length).toBeGreaterThan(0);
     /*
      * Shown as a failure, not swapped for the sample dataset — which is what
      * this page did on every render before it read anything.

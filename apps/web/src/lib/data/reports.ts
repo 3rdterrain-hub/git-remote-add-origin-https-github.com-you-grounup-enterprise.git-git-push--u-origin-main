@@ -100,3 +100,115 @@ export function metricsToCsv(rows: MetricValue[]): string {
   ].map(cell).join(','));
   return [head.join(','), ...body].join('\n') + '\n';
 }
+
+/* ---------------------------------------------------------------------------
+ * The reporting views that nothing read
+ *
+ * The semantic layer exists so a report and a customer's integration cannot
+ * disagree about a number. Five of its twenty views had no reader anywhere —
+ * the same defect as a function nobody calls, one layer up. A view nobody reads
+ * cannot disagree with anything, which is not the same as being right.
+ *
+ * `scripts/build-door-inventory.mjs` now counts `reporting_*` as doors, so this
+ * cannot happen quietly again.
+ * ------------------------------------------------------------------------- */
+
+export interface TakeoffStatusRow {
+  measurementId: string;
+  name: string;
+  trade: string | null;
+  kind: string;
+  unit: string;
+  sheetNumber: string | null;
+  sheetTitle: string | null;
+  statedScale: string | null;
+  measurementMethod: string | null;
+  appliedLineItemId: string | null;
+  appliedQuantity: number | null;
+  appliedAt: string | null;
+  /**
+   * The measurement moved after it was carried onto a line.
+   *
+   * The single most useful column in the semantic layer and nothing read it. A
+   * trace that has been edited since it was applied leaves the line priced on a
+   * quantity that is no longer on the drawing, and nothing else on any screen
+   * says so.
+   */
+  staleOnLine: boolean;
+}
+
+export const loadTakeoffStatus: Query<TakeoffStatusRow[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_takeoff_status')
+    .select('measurement_id, name, trade, kind, unit, sheet_number, sheet_title, '
+      + 'stated_scale, measurement_method, applied_line_item_id, applied_quantity, '
+      + 'applied_at, stale_on_line')
+    .order('applied_at', { ascending: false })
+    .limit(500)) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    measurementId: String(r.measurement_id),
+    name: String(r.name),
+    trade: (r.trade as string | null) ?? null,
+    kind: String(r.kind),
+    unit: String(r.unit),
+    sheetNumber: (r.sheet_number as string | null) ?? null,
+    sheetTitle: (r.sheet_title as string | null) ?? null,
+    statedScale: (r.stated_scale as string | null) ?? null,
+    measurementMethod: (r.measurement_method as string | null) ?? null,
+    appliedLineItemId: (r.applied_line_item_id as string | null) ?? null,
+    appliedQuantity: r.applied_quantity === null || r.applied_quantity === undefined
+      ? null : Number(r.applied_quantity),
+    appliedAt: (r.applied_at as string | null) ?? null,
+    staleOnLine: r.stale_on_line === true,
+  }));
+};
+
+export interface EstimateStructureRow {
+  id: string;
+  estimateVersionId: string;
+  parentLineId: string | null;
+  description: string;
+  unit: string | null;
+  depth: number;
+  path: string;
+  measuredQuantity: number | null;
+  grossQuantity: number | null;
+  totalDirectCost: number;
+  /** What this line costs on its own, with its children's cost taken out. */
+  immediateCost: number;
+  isRollup: boolean;
+  parametricBasis: string | null;
+  perParentUnit: number | null;
+}
+
+/** One estimate version's hierarchy, with rollups separated from own cost. */
+export const loadEstimateStructure = (versionId: string): Query<EstimateStructureRow[]> =>
+  async (client) => {
+    if (!versionId) return [];
+    const rows = unwrap(await client
+      .from('reporting_estimate_structure')
+      .select('id, estimate_version_id, parent_line_id, description, unit, depth, path, '
+        + 'measured_quantity, gross_quantity, total_direct_cost, immediate_cost, '
+        + 'is_rollup, parametric_basis, per_parent_unit, sort_path')
+      .eq('estimate_version_id', versionId)
+      .order('sort_path')) as unknown as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: String(r.id),
+      estimateVersionId: String(r.estimate_version_id),
+      parentLineId: (r.parent_line_id as string | null) ?? null,
+      description: String(r.description),
+      unit: (r.unit as string | null) ?? null,
+      depth: Number(r.depth ?? 0),
+      path: String(r.path ?? ''),
+      measuredQuantity: r.measured_quantity === null || r.measured_quantity === undefined
+        ? null : Number(r.measured_quantity),
+      grossQuantity: r.gross_quantity === null || r.gross_quantity === undefined
+        ? null : Number(r.gross_quantity),
+      totalDirectCost: Number(r.total_direct_cost ?? 0),
+      immediateCost: Number(r.immediate_cost ?? 0),
+      isRollup: r.is_rollup === true,
+      parametricBasis: (r.parametric_basis as string | null) ?? null,
+      perParentUnit: r.per_parent_unit === null || r.per_parent_unit === undefined
+        ? null : Number(r.per_parent_unit),
+    }));
+  };

@@ -29,6 +29,7 @@ import { useCompanyId } from '@/lib/data/session';
 import { ScheduleOfValues } from '@/components/finance/schedule-of-values';
 import { BillingLines } from '@/components/finance/billing-lines';
 import { RecordInvoice, InvoiceActions } from '@/components/finance/invoice-actions';
+import { CashItems } from '@/components/finance/cash-items';
 import { messageFor } from '@/lib/data/query';
 
 export function FinancePage() {
@@ -710,6 +711,14 @@ export function FinancePage() {
                     hint="A month appears once there is a certified pay application on a contract with recorded payment terms, or an invoice with a due date." />
                 ) : null}
               </div>
+
+              {/*
+                * The item grain the month bars are made of. This tab's own
+                * comment said a tighter window "would need the item grain", and
+                * `reporting_cash_flow_items` had been sitting there unread.
+                */}
+              <Separator />
+              <CashItems />
 
               {unscheduled ? (
                 <Alert tone="warn" icon={<AlertTriangle className="size-4" />}

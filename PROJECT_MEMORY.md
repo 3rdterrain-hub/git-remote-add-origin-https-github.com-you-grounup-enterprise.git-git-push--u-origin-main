@@ -538,10 +538,41 @@ Verified live: `SVC-0003` "Clearing and grubbing" copied into 3RD Terrain as
 `SVC-0003-a845b8`, active and approved because the owner can approve, and a
 second call returned the same copy rather than making another.
 
+### Reports and the semantic layer, as of this session
+
+Twenty `reporting_*` views, and **five had no reader anywhere** (D-066). The
+door inventory was not looking at them, because they are read rather than
+written — which is exactly the same defect as a function nobody calls, one layer
+up. A view nobody reads cannot disagree with anything, and that is not the same
+as being right.
+
+Two were sitting beside screens that said out loud they needed them:
+
+  * **`reporting_cash_flow_items`.** The Finance cash tab's own comment read
+    "bucketing by month is as fine as the view goes; a tighter window would need
+    the item grain". The item grain existed, with the reason a payable is
+    blocked carried on the row — so a hatched bar now has a list behind it
+    saying which invoice and why.
+  * **`reporting_takeoff_status`.** It carries `stale_on_line`: a measurement
+    edited after it was carried onto an estimate line. That line is then priced
+    on a quantity no longer on the drawing, and it looks perfectly normal,
+    because a quantity is a number and every number looks fine. Nothing else on
+    any screen computed it. The report opens on the stale ones.
+
+The other three: `reporting_estimate_structure` (own-cost separated from
+rollup, which is what makes a nested estimate addable without counting the same
+money twice), `reporting_usage_allowance` (the verdict the enforcement path
+evaluates, shown beside the bars that assemble their own answer, so the two
+disagreeing is visible rather than discovered at the boundary), and
+`reporting_payment_problems` (every failed charge, and whether Stripe has given
+up — the difference between a retry on Tuesday and a subscription ending).
+
+The inventory now counts `reporting_*`, so this cannot recur quietly.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
-   Finance, Claims and Master Libraries are done; Reports, GrounUp Network,
+   Finance, Claims, Master Libraries and Reports are done; GrounUp Network,
    Company Settings and Billing remain.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.

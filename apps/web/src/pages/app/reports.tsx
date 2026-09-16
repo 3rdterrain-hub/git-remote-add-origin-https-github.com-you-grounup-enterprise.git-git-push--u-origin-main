@@ -26,6 +26,8 @@ import { useQuery } from '@/lib/data/query';
 import { loadMetrics, formatMetric, metricTone, metricsToCsv, type MetricValue } from '@/lib/data/reports';
 import { loadProjects, type ProjectView } from '@/lib/data/project-view';
 import { money, percent, titleCase, localDay } from '@/lib/format';
+import { TakeoffStatus } from '@/components/reports/takeoff-status';
+import { EstimateStructure } from '@/components/reports/estimate-structure';
 import { cn } from '@/lib/utils';
 
 export function ReportsPage() {
@@ -133,6 +135,19 @@ export function ReportsPage() {
       ))}
 
       <ProjectPerformance state={projects} />
+
+      {/*
+        * Two reporting views that nothing read. The semantic layer exists so a
+        * report and a customer's integration cannot disagree about a number —
+        * and a view nobody reads cannot disagree with anything, which is not
+        * the same as being right.
+        */}
+      {demo ? null : (
+        <>
+          <TakeoffStatus />
+          <EstimateStructure />
+        </>
+      )}
     </div>
   );
 }

@@ -699,3 +699,49 @@ export async function recordApPayment(
     p_paid_on: paidOn ?? new Date().toISOString().slice(0, 10),
   });
 }
+
+/* ---------------------------------------------------------------------------
+ * The item grain behind the cash forecast
+ *
+ * `reporting_cash_flow_items` had no reader anywhere, while the cash tab said
+ * in its own comment that "bucketing by month is as fine as the view goes; a
+ * tighter window would need the item grain". The item grain existed. It is
+ * every receivable and payable the forecast is made of, with the reason a
+ * payable is blocked carried on the row.
+ * ------------------------------------------------------------------------- */
+
+export interface CashFlowItem {
+  projectId: string | null;
+  /** `in` is money coming, `out` is money going. */
+  direction: string;
+  source: string;
+  sourceId: string;
+  reference: string;
+  counterparty: string | null;
+  amount: number;
+  dueOn: string | null;
+  /** True where the money cannot move yet — an invoice that fails its match. */
+  blocked: boolean;
+  blockedReason: string | null;
+}
+
+export const loadCashFlowItems: Query<CashFlowItem[]> = async (client) => {
+  const rows = unwrap(await client
+    .from('reporting_cash_flow_items')
+    .select('project_id, direction, source, source_id, reference, counterparty, '
+      + 'amount, due_on, blocked, blocked_reason')
+    .order('due_on', { ascending: true, nullsFirst: false })
+    .limit(500)) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    projectId: (r.project_id as string | null) ?? null,
+    direction: String(r.direction),
+    source: String(r.source),
+    sourceId: String(r.source_id),
+    reference: String(r.reference),
+    counterparty: (r.counterparty as string | null) ?? null,
+    amount: Number(r.amount ?? 0),
+    dueOn: (r.due_on as string | null) ?? null,
+    blocked: r.blocked === true,
+    blockedReason: (r.blocked_reason as string | null) ?? null,
+  }));
+};

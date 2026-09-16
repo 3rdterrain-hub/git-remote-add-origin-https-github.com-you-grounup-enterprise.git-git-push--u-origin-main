@@ -417,3 +417,94 @@ export const REFUND_TONE: Record<string, 'success' | 'warn' | 'danger' | 'defaul
   'Not approved': 'default',
   'Could not be processed': 'danger',
 };
+
+/* ---------------------------------------------------------------------------
+ * Two reporting views that nothing read
+ *
+ * `reporting_usage_allowance` and `reporting_payment_problems` had no reader
+ * anywhere. The first is the platform's own answer to "is this company within
+ * its plan", already computed in one place so a refusal at the boundary and a
+ * bar on this screen cannot disagree; `loadUsage` above was assembling its own
+ * answer from two other views beside it. The second is every failed charge with
+ * the reason Stripe gave and whether Stripe has given up — which is the
+ * difference between a card that will retry itself and a subscription about to
+ * be cut off.
+ * ------------------------------------------------------------------------- */
+
+export interface AllowanceLine {
+  metric: string;
+  label: string;
+  used: number;
+  /** Null is unlimited, which is not the same as zero. */
+  allowed: number | null;
+  remaining: number | null;
+  withinAllowance: boolean;
+}
+
+/**
+ * The platform's own allowance answer, as the boundary computes it.
+ *
+ * Read rather than recomputed: `app.storage_within_allowance` and the rest of
+ * the enforcement path evaluate this view, so a screen that agreed with it by
+ * doing the arithmetic again would eventually stop agreeing with it.
+ */
+export const loadAllowances: ForCompany<AllowanceLine[]> = (companyId) => async (client) => {
+  let q = client.from('reporting_usage_allowance')
+    .select('metric, label, used, allowed, remaining, within_allowance');
+  if (companyId) q = q.eq('company_id', companyId);
+  const rows = unwrap(await q) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    metric: String(r.metric),
+    label: String(r.label),
+    used: Number(r.used ?? 0),
+    allowed: r.allowed === null || r.allowed === undefined ? null : Number(r.allowed),
+    remaining: r.remaining === null || r.remaining === undefined ? null : Number(r.remaining),
+    withinAllowance: r.within_allowance === true,
+  }));
+};
+
+export interface PaymentProblem {
+  stripeInvoiceId: string;
+  attempts: number;
+  amountCents: number;
+  currency: string;
+  firstFailedAt: string;
+  lastFailedAt: string;
+  failureCode: string | null;
+  failureMessage: string | null;
+  nextAttemptAt: string | null;
+  /**
+   * Stripe has stopped retrying.
+   *
+   * The fact that decides what happens next: a charge still being retried needs
+   * nothing from anybody, and one Stripe has given up on ends the subscription
+   * unless a person acts. Shown as words rather than as a flag for that reason.
+   */
+  stripeGaveUp: boolean;
+  invoiceStatus: string | null;
+  hostedInvoiceUrl: string | null;
+}
+
+export const loadPaymentProblems: ForCompany<PaymentProblem[]> = (companyId) => async (client) => {
+  let q = client.from('reporting_payment_problems')
+    .select('stripe_invoice_id, attempts, amount_cents, currency, first_failed_at, '
+      + 'last_failed_at, failure_code, failure_message, next_attempt_at, stripe_gave_up, '
+      + 'invoice_status, hosted_invoice_url')
+    .order('last_failed_at', { ascending: false });
+  if (companyId) q = q.eq('company_id', companyId);
+  const rows = unwrap(await q) as unknown as Array<Record<string, unknown>>;
+  return rows.map((r) => ({
+    stripeInvoiceId: String(r.stripe_invoice_id),
+    attempts: Number(r.attempts ?? 0),
+    amountCents: Number(r.amount_cents ?? 0),
+    currency: String(r.currency ?? 'usd'),
+    firstFailedAt: String(r.first_failed_at),
+    lastFailedAt: String(r.last_failed_at),
+    failureCode: (r.failure_code as string | null) ?? null,
+    failureMessage: (r.failure_message as string | null) ?? null,
+    nextAttemptAt: (r.next_attempt_at as string | null) ?? null,
+    stripeGaveUp: r.stripe_gave_up === true,
+    invoiceStatus: (r.invoice_status as string | null) ?? null,
+    hostedInvoiceUrl: (r.hosted_invoice_url as string | null) ?? null,
+  }));
+};

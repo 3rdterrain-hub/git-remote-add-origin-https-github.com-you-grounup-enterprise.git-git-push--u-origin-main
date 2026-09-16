@@ -11,6 +11,34 @@ Newest first.
 
 ---
 
+## D-066 · 2026-09-16 · The semantic layer is inventoried like every other door
+
+**Decision.** `scripts/build-door-inventory.mjs` now counts `reporting_*` views
+as doors. Five of the twenty had no reader anywhere and now do:
+`reporting_takeoff_status` and `reporting_estimate_structure` on Reports,
+`reporting_cash_flow_items` on the Finance cash tab, `reporting_usage_allowance`
+and `reporting_payment_problems` on Billing.
+
+**Reason.** The semantic layer exists so a report and a customer's integration
+cannot disagree about a number. A view nobody reads cannot disagree with
+anything, which is not the same as being right — it is the same defect as a
+function nobody calls, one layer up, and the inventory was not looking there.
+
+Two of the five were sitting beside screens that said out loud they needed them.
+The Finance cash tab's own comment read "bucketing by month is as fine as the
+view goes; a tighter window would need the item grain" — and
+`reporting_cash_flow_items` *is* the item grain, with the reason a payable is
+blocked carried on the row. `reporting_takeoff_status` carries `stale_on_line`:
+a measurement edited after it was carried onto an estimate line, which leaves
+that line priced on a quantity no longer on the drawing, and nothing else on any
+screen computed it.
+
+**Affects.** `governance/DOORS.md`, Reports, Finance, Billing.
+
+**Status.** Active. 375 doors, 0 with no reader.
+
+---
+
 ## D-064 · 2026-09-16 · A copied library row arrives as a draft
 
 **Decision.** `app.customize_service`, `customize_task`, `customize_labor_rate`,

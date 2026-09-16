@@ -119,6 +119,18 @@ for (const file of migrations) {
     add(m[1], 'view');
   }
   /*
+   * The semantic layer is a door too.
+   *
+   * `reporting_*` was outside this inventory because it is read rather than
+   * written, and five of them turned out to have no reader anywhere — the same
+   * defect as a function nobody calls, in the layer that exists specifically so
+   * a report and a customer's integration cannot disagree. A view nobody reads
+   * cannot disagree with anything, which is not the same as being right.
+   */
+  for (const m of sql.matchAll(/create (?:or replace )?view (reporting_[a-z0-9_]+)/g)) {
+    add(m[1], 'view');
+  }
+  /*
    * A door that was taken away again.
    *
    * Migrations run in order, so a later `drop` retires an earlier `create`.
