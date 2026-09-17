@@ -118,6 +118,74 @@ describe('a price you enter once', () => {
     expect(Number(row!.quantity_per_unit)).toBeCloseTo(0.05, 4);
   });
 
+  it('makes a shipped service price every time after it is built up once', async () => {
+    /*
+     * The loop that did not close.
+     *
+     * `save_line_buildup_to_library` copies a catalog assembly into the
+     * company's library and puts their crew on it — that part worked. But the
+     * suggestions were read through `services.default_assembly_id`, which for a
+     * catalog service still points at the catalog assembly and its task rows.
+     * So an estimator built a service up, saved it for next time, came back to
+     * it, and was shown nothing. Again.
+     */
+    const shipped = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
+      `select s.id from services s
+         join assemblies a on a.id = s.default_assembly_id
+        where s.company_id is null and a.company_id is null
+          and exists (select 1 from assembly_components ac
+                       where ac.assembly_id = a.id and ac.component_kind = 'task')
+          and not exists (select 1 from assembly_components ac
+                           where ac.assembly_id = a.id
+                             and ac.component_kind in ('labor','equipment','material','trucking'))
+        order by s.code limit 1`)))[0]!.id;
+
+    const est = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
+      `select app.create_estimate('Catalog service build-up', null, null, null, $1) as id`,
+      [company])))[0]!.id;
+    const version = (await h.asUser(OWNER, () => h.sql<{ v: string }>(
+      `select current_version_id as v from estimates where id = $1`, [est])))[0]!.v;
+
+    const first = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
+      `select app.add_estimate_line($1,$2,null,1000) as id`, [version, shipped])))[0]!.id;
+
+    /* Before: the catalog has nothing that costs money, and says so honestly. */
+    const before = await h.asUser(OWNER, () => h.sql(
+      `select * from app.line_resource_suggestions($1)`, [first]));
+    expect(before).toHaveLength(0);
+
+    await h.asUser(OWNER, () => h.sql(
+      `select app.save_line_resource($1,'labor',$2::jsonb)`,
+      [first, JSON.stringify({ labor_rate_id: laborRate, hours: 50, unit_rate: 60 })]));
+    const saved = (await h.asUser(OWNER, () => h.sql<{ n: number }>(
+      `select public.save_line_buildup_to_library($1) as n`, [first])))[0]!.n;
+    expect(Number(saved)).toBe(1);
+
+    /* After: a *new* line on the same shipped service finds their build-up. */
+    const second = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
+      `select app.add_estimate_line($1,$2,null,2000) as id`, [version, shipped])))[0]!.id;
+    const after = await h.asUser(OWNER, () => h.sql<{
+      resource_kind: string; quantity: string; resource_id: string;
+    }>(`select * from app.line_resource_suggestions($1)`, [second]));
+
+    expect(after).toHaveLength(1);
+    expect(after[0]!.resource_kind).toBe('labor');
+    expect(after[0]!.resource_id).toBe(laborRate);
+    /* Held per unit, so two thousand tons asks for twice the hours. */
+    expect(Number(after[0]!.quantity)).toBeCloseTo(100, 4);
+  });
+
+  it('leaves the shipped assembly exactly as every other company reads it', async () => {
+    // The company's build-up lives on their own copy. The catalog row is the
+    // row every tenant reads, and it is untouched.
+    const [row] = await h.asUser(OWNER, () => h.sql<{ n: string }>(
+      `select count(*) as n from assembly_components ac
+         join assemblies a on a.id = ac.assembly_id
+        where a.company_id is null
+          and ac.component_kind in ('labor','equipment','material','trucking')`));
+    expect(Number(row!.n)).toBe(0);
+  });
+
   it('refuses to save a build-up from a line with no quantity to scale by', async () => {
     const est = (await h.asUser(OWNER, () => h.sql<{ id: string }>(
       `select app.create_estimate('No quantity', null, null, null, $1) as id`,

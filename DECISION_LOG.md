@@ -11,6 +11,90 @@ Newest first.
 
 ---
 
+## D-073 · 2026-09-16 · The shipped catalog is not given invented costs
+
+**Decision.** The 2,545 services that price at $0.00 are left pricing at $0.00.
+No labor, equipment or material quantities are seeded into the shipped
+assemblies.
+
+**Reason.** Verified rather than assumed: all 8,604 catalog assembly components
+are of kind `task`; every one of the 2,143 seeded production rates carries
+`source_type = 'seed_benchmark'` at an average confidence of 0.403; none names a
+crew; and 1,452 carry the literal placeholder "Task-dependent approved spread".
+The cost content was never there.
+
+Closing that gap would mean inventing thousands of figures and applying them,
+authoritatively, to every tenant. "Never invent a number" is the rule this
+platform is built on, and this is the largest opportunity in the repository to
+break it. A $0.00 is visibly wrong and gets caught at the desk; a plausible
+invented price is invisibly wrong and goes out on a bid.
+
+**What was done instead.** D-074 — the loop that lets a company close the gap
+for itself, one service at a time, which did not work.
+
+**Status.** Active. The zero stands, and `no-cost-buildup.tsx` (0189) says why
+at the point somebody meets it.
+
+---
+
+## D-074 · 2026-09-16 · A company's own build-up outranks the shipped template
+
+**Decision.** `app.assembly_for_pricing(service, company)` resolves which
+assembly prices a line: the company's own build-up for that service where one
+exists with costed components, the service's default assembly otherwise.
+`line_resource_suggestions` reads through it.
+
+**Reason.** The loop did not close. `save_line_buildup_to_library` (0189)
+correctly copies a catalog assembly into the company's library and puts their
+crew on it — but the suggestions were looked up through
+`services.default_assembly_id`, which for a catalog service still points at the
+catalog assembly and its task-only rows. So an estimator built a service up,
+saved it for next time, came back to it, and was shown nothing. Again. A reader
+that does not follow the chain the writer just created, which is the shape this
+repository keeps producing.
+
+The precedence is the one RULE-003 already uses for rates: the most specific
+thing this company said about the work wins. A company that has never built
+anything up sees exactly what it saw before, because the resolution falls
+through to the same column.
+
+**Affects.** `line_resource_suggestions`, the estimate line, every future use of
+a service a company has built up once.
+
+**Status.** Active. Proved end to end: catalog service, no suggestions, crew put
+on the line, saved, and a *new* line on the same service finds it scaled per
+unit — with the shipped assembly asserted to still carry zero costed components.
+
+---
+
+## D-075 · 2026-09-16 · A function that prices is not retyped
+
+**Decision.** 0208 rewrote `line_resource_suggestions` by hand and dropped one
+line from the equipment-rate lateral: `and (er.company_id = line.company_id or
+er.company_id is null)`. 0209 rebuilds the function *programmatically* from
+0126's text with exactly two substitutions applied, and asserts the projection
+and joins are byte-identical.
+
+**Reason.** That missing line is a tenancy filter. Without it the rate chosen for
+a machine could have come from another company's rate sheet — a wrong number on
+a bid, sourced from somebody else's books, with nothing on screen to show it.
+Nothing was priced through it; the two migrations are minutes apart and the
+function is reached only from the estimate line.
+
+It is written down rather than quietly corrected because the lesson generalizes:
+where a function already exists and only part of it should change, the change is
+applied to its text rather than the whole thing being retyped from
+understanding. The same technique was used for `_shared/estimate-snapshot.ts`
+(D-072) on the same day, and that one was correct precisely because it moved the
+text instead of restating it.
+
+**Affects.** `line_resource_suggestions`, and how future edits to pricing
+functions are made.
+
+**Status.** Active.
+
+---
+
 ## D-071 · 2026-09-16 · A scenario is a question about a price, not a price
 
 **Decision.** `compare-scenarios` is its own Edge Function and **writes

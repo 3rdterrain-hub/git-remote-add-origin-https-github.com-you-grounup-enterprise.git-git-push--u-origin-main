@@ -652,6 +652,46 @@ adding `fringe_per_hour` had just meant editing two selects by hand in one file,
 and a comparison priced against a differently-loaded estimate is a comparison of
 two different jobs.
 
+### The shipped catalog and why it prices at nothing, as of migrations 0208–0209
+
+Asked directly: *"fix the shipped services so they price."* Checked before
+touching anything, and the honest answer is in two halves.
+
+**The catalog carries no cost content, and that cannot be fixed by code**
+(D-073). All 8,604 catalog assembly components are of kind `task`. Every one of
+the 2,143 seeded production rates says `source_type = 'seed_benchmark'` at an
+average confidence of 0.403, none names a crew, and 1,452 carry the literal
+placeholder "Task-dependent approved spread". The numbers were never there.
+Seeding them would mean inventing thousands of figures for every tenant — the
+largest opportunity in this repository to break the one rule it is built on. A
+$0.00 is visibly wrong and gets caught at the desk; a plausible invented price
+goes out on a bid.
+
+*(One thing suspected and wrong: the 850 rates reading `1 HR/hr` sit on
+`HR`-unit tasks, so they are internally consistent rather than broken.)*
+
+**The loop that lets a company fix it for itself did not close** (D-074), and
+that was a real bug. `save_line_buildup_to_library` copies a catalog assembly
+into the company's library and puts their crew on it correctly — but the
+suggestions were read through `services.default_assembly_id`, which for a
+catalog service still points at the catalog assembly and its task-only rows. So
+an estimator built a service up, saved it for next time, came back, and was
+shown nothing. Again.
+
+`app.assembly_for_pricing` now resolves it with RULE-003's precedence: the
+company's own build-up where they have one, the shipped template otherwise. A
+company that has never built anything up is unaffected.
+
+**And a mistake worth keeping** (D-075): rewriting that pricing function by hand
+dropped its tenancy filter, which would have let another company's equipment
+rate price your machine. Caught by diffing against the original. 0209 rebuilds
+it programmatically from 0126's text with two substitutions and asserts the
+projection byte-identical. **A function that prices is not retyped.**
+
+So the catalog is still 2,545 services that cost nothing on day one — but each
+one becomes permanently the company's the first time they build it up, which is
+the only honest version of making them price.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
