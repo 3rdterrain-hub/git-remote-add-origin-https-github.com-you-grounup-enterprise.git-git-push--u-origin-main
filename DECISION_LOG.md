@@ -11,6 +11,72 @@ Newest first.
 
 ---
 
+## D-076 · 2026-09-17 · A rating is on the record, and its author is not
+
+**Decision.** `my_network_ratings` returns the rating company's identity only to
+that company. Every other reader sees the scores, the comment and the contract
+value with no name against them, and `network.tsx` renders "A contractor on the
+network". The project number travels under the same rule.
+
+**Reason.** The value of a subcontractor rating is that it is on the record and
+cannot be edited afterwards — not that the reader knows who wrote it. Attribution
+adds nothing a hiring decision uses and turns a directory into a place people
+settle scores; a sub who can see which general rated them three for schedule has
+a grievance with a name on it, and the next honest rating does not get left.
+
+**Considered.** Showing the rater to everybody, which is what the fixture did.
+Also showing it only to the rated vendor — rejected for the same reason, since
+the rated vendor is precisely who would act on it.
+
+**Affects.** `my_network_ratings`, `network.tsx`, and any future export.
+
+**Status.** Active. Pinned by `network.test.tsx` — "never names the company that
+left a rating".
+
+---
+
+## D-077 · 2026-09-17 · Consent is an act with a sentence attached, not a checkbox
+
+**Decision.** `record_network_consent` takes *how* the vendor agreed and stores
+it on the listing. `publish_network_vendor` refuses until it exists, and the form
+refuses an empty note.
+
+**Reason.** `network_vendors_consent` already required *that* consent existed —
+who and when. It had nowhere to say what actually happened, and "signed form
+returned by email, 3 March" and "somebody said it was fine" are not the same
+claim. The difference is the whole value of the record on the day a vendor says
+they never agreed to be listed. A checkbox beside "publish" would have been
+initialled on the way past without being read.
+
+**Considered.** A `consented` boolean on the publish form. Rejected: it produces
+a record that proves nothing.
+
+**Affects.** `network_vendors.consent_note`, `app.record_network_consent`,
+`components/network/listing-actions.tsx`.
+
+**Status.** Active.
+
+---
+
+## D-078 · 2026-09-17 · A refusal that would confirm a private draft exists is left as "no such listing"
+
+**Decision.** `rate_network_vendor` on an unpublished listing owned by another
+company returns "No such listing" rather than "that listing is not published".
+The test was changed to expect this rather than the code changed to produce the
+more specific message.
+
+**Reason.** Row level security hides an unpublished draft from every company but
+its owner, so the function genuinely cannot see it. Making the message more
+specific would have meant reading past RLS to tell a stranger that a particular
+listing exists and is being held back — which leaks which subcontractors a
+competitor is quietly evaluating. The vaguer refusal is the stronger one.
+
+**Affects.** `app.rate_network_vendor`, `a-directory-somebody-consented-to.test.ts`.
+
+**Status.** Active.
+
+---
+
 ## D-073 · 2026-09-16 · The shipped catalog is not given invented costs
 
 **Decision.** The 2,545 services that price at $0.00 are left pricing at $0.00.

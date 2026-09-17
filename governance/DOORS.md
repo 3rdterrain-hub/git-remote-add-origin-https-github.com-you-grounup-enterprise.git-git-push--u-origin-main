@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **384** |
-| Opened by a screen | **363** |
+| Doors | **391** |
+| Opened by a screen | **370** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -178,6 +178,7 @@ None.
 | `library_category_members` | function | lib/data/categories.ts |
 | `line_production_options` | function | lib/data/production.ts |
 | `line_unit_note` | function | lib/data/estimates.ts |
+| `list_network_vendor` | function | lib/data/network.ts |
 | `log_crm_activity` | function | lib/data/crm-pipeline.ts |
 | `mark_notification_read` | function | lib/data/session.ts |
 | `move_assembly_step` | function | lib/data/assemblies.ts |
@@ -215,6 +216,8 @@ None.
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |
 | `my_machine_assignments` | view | lib/data/survey.ts |
 | `my_maintenance_due` | view | lib/data/fleet.ts |
+| `my_network_ratings` | view | lib/data/network.ts |
+| `my_network_vendors` | view | lib/data/network.ts |
 | `my_notification_settings` | view | lib/data/session.ts |
 | `my_notifications` | view | lib/data/session.ts |
 | `my_pay_application_lines` | view | lib/data/finance.ts |
@@ -269,8 +272,10 @@ None.
 | `propose_upsell` | function | lib/data/admin.ts |
 | `publish_announcement` | function | lib/data/admin.ts |
 | `publish_machine_control_file` | function | lib/data/survey.ts |
+| `publish_network_vendor` | function | lib/data/network.ts |
 | `qualified_and_available` | function | lib/data/staffing.ts |
 | `raise_document_conflict` | function | lib/data/conflicts.ts |
+| `rate_network_vendor` | function | lib/data/network.ts |
 | `reassign_measurement` | function | lib/data/conditions.ts |
 | `receive_purchase_order_item` | function | lib/data/procurement.ts |
 | `record_ap_invoice` | function | lib/data/finance.ts |
@@ -282,6 +287,7 @@ None.
 | `record_inspection` | function | lib/data/safety.ts |
 | `record_machine_control_file` | function | lib/data/survey.ts |
 | `record_meter_reading` | function | lib/data/fleet.ts |
+| `record_network_consent` | function | lib/data/network.ts |
 | `record_pay_application_payment` | function | lib/data/finance.ts |
 | `record_plan_set_text` | function | lib/data/plans.ts |
 | `record_production_actual` | function | lib/data/production.ts |
@@ -415,6 +421,7 @@ None.
 | `update_estimate_line` | function | lib/data/estimates.ts |
 | `update_estimate_version` | function | lib/data/estimates.ts |
 | `update_lead` | function | lib/data/leads.ts |
+| `update_network_vendor` | function | lib/data/network.ts |
 | `update_opportunity` | function | lib/data/crm-pipeline.ts |
 | `update_proposal` | function | lib/data/estimates.ts |
 | `update_resource_assignment` | function | lib/data/schedule.ts |

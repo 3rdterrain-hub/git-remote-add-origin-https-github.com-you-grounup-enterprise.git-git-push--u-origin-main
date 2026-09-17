@@ -30,7 +30,7 @@ estimate or follows from it.
 
 | Layer | Where | What it is |
 |---|---|---|
-| Schema | `supabase/migrations/*.sql` | 149 migrations. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
+| Schema | `supabase/migrations/*.sql` | 208 migrations, plus the catalog copies. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
 | Engine | `packages/engine/` | The only place a price is computed. Pure TypeScript, no database access. |
 | Engine (edge copy) | `supabase/functions/_shared/engine/` | **Generated.** `npm run engine:edge` writes it; `engine:edge:check` fingerprints it. Editing it by hand is a defect the gate catches. |
 | Functions | `supabase/functions/` | 14 Edge Functions: pricing, billing, Stripe webhook, AI, email, weather, the API gateway. |
@@ -211,7 +211,7 @@ the data layer translates at the boundary and nowhere else. A `my_*` view is
 caller-scoped by row level security. A `public.*` function is the browser-facing
 wrapper over an `app.*` implementation.
 
-**Data.** 168 tables, 88 views (20 reporting), 156 migrations. Catalog seeds sit
+**Data.** 173 tables, 134 views (20 reporting), 208 migrations. Catalog seeds sit
 at 0900+ — which is why `db push` needs `--include-all`.
 
 **Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
@@ -692,10 +692,50 @@ So the catalog is still 2,545 services that cost nothing on day one — but each
 one becomes permanently the company's the first time they build it up, which is
 the only honest version of making them price.
 
+### The GrounUp Network, as of migration 0210
+
+`network_vendors` and `network_ratings` have existed since migration 0023 — the
+only deliberately cross-tenant tables in this schema — with no writer and no
+reader of any kind, while `network.tsx` rendered five invented subcontractors
+from `@/data/survey` on a live route. That was O-025, and it is closed.
+
+The schema around them was already careful and none of it was relaxed: a listing
+cannot be published without consent on file, a rating cannot be edited after it
+is left, and one company gets one rating per vendor per project. Four judgments
+were added on top, because the schema could not make them:
+
+- **Consent is an act with a sentence attached** (D-077). `record_network_consent`
+  stores *how* the vendor agreed, and publishing is refused until it exists.
+  "Signed form returned by email, 3 March" and "somebody said it was fine" are
+  not the same claim, and the difference is the entire value of the record.
+- **A rating is on the record, and its author is not** (D-076). The rater's
+  identity comes back only to the rater's own company. Attribution adds nothing
+  a hiring decision uses and turns a directory into a place people settle scores.
+- **A company may not rate its own listing.** Nothing had stopped a company from
+  posting a listing for a sub and then giving it five stars.
+- **An average never appears without its count.** One rating rendered as "4.3"
+  claims more authority than it has, so the two travel together out of the view.
+
+**Two test expectations that were wrong, and what they taught.** An update to an
+immutable rating does not raise — 0024 deliberately left the update policy off,
+so RLS matches no row and nothing changes; the honest assertion is that the value
+is untouched, because "it threw" would pass for the wrong reason the day somebody
+adds a policy. And rating another company's *unpublished* draft refuses with "No
+such listing" rather than "not published" (D-078), because RLS hides the draft
+from the function too — the vaguer refusal is the stronger one, since the
+specific one would confirm that a competitor is quietly evaluating that sub.
+
+**And the type-level trap the repository already documented, met again.** The
+select strings in `lib/data/network.ts` were built with `+`. supabase-js parses
+that string at the type level and cannot see through concatenation, so it
+returned `GenericStringError[]` — which passes `tsconfig.json` and fails the
+gate's `tsconfig.app.json`. One literal per select, as `projects.ts` already says
+in a comment beside its own.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
-   Finance, Claims, Master Libraries and Reports are done; GrounUp Network,
+   Finance, Claims, Master Libraries, Reports and GrounUp Network are done;
    Company Settings and Billing remain.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.

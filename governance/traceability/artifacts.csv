@@ -281,6 +281,7 @@ TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests
 TST-db-a-change-order-that-is-worth-something,test,db/a-change-order-that-is-worth-something.test.ts,tests/db/a-change-order-that-is-worth-something.test.ts,ENGINE
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
+TST-db-a-directory-somebody-consented-to,test,db/a-directory-somebody-consented-to.test.ts,tests/db/a-directory-somebody-consented-to.test.ts,ENGINE
 TST-db-a-field-report-you-can-fill-in,test,db/a-field-report-you-can-fill-in.test.ts,tests/db/a-field-report-you-can-fill-in.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-key-you-are-shown-once,test,db/a-key-you-are-shown-once.test.ts,tests/db/a-key-you-are-shown-once.test.ts,ENGINE
