@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **391** |
-| Opened by a screen | **370** |
+| Doors | **403** |
+| Opened by a screen | **382** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -118,6 +118,7 @@ None.
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_claim` | function | lib/data/claims.ts |
+| `create_company_role` | function | lib/data/team.ts |
 | `create_contract` | function | lib/data/claims.ts |
 | `create_crew` | function | lib/data/library.ts |
 | `create_customer` | function | lib/data/crm.ts, lib/data/estimates.ts |
@@ -146,7 +147,8 @@ None.
 | `customize_assembly` | function | lib/data/assemblies.ts |
 | `decide_refund` | function | lib/data/admin.ts |
 | `decide_upsell` | function | lib/data/admin.ts |
-| `delete_company` | function | lib/data/admin.ts |
+| `delete_company` | function | lib/data/admin.ts, lib/data/team.ts |
+| `delete_company_role` | function | lib/data/team.ts |
 | `delete_estimate_line` | function | lib/data/estimates.ts |
 | `delete_library_category` | function | lib/data/categories.ts |
 | `delete_line_resource` | function | lib/data/estimates.ts |
@@ -169,6 +171,7 @@ None.
 | `import_materials` | function | lib/data/library.ts |
 | `insert_estimate_line_after` | function | lib/data/estimates.ts |
 | `install_earthwork_starter_library` | function | lib/data/library.ts |
+| `invite_member` | function | lib/data/team.ts |
 | `is_platform_admin` | function | lib/data/admin.ts |
 | `is_superadmin` | function | lib/data/admin.ts |
 | `is_supporting` | function | lib/data/admin.ts |
@@ -191,10 +194,15 @@ None.
 | `my_assembly_steps` | view | lib/data/assemblies.ts |
 | `my_asset_meters` | view | lib/data/fleet.ts |
 | `my_assignments` | view | lib/data/field-work.ts |
+| `my_audit_events` | view | lib/data/team.ts |
+| `my_audit_summary` | view | lib/data/team.ts |
 | `my_billing_terms` | view | lib/data/billing.ts |
 | `my_change_order_items` | view | lib/data/project.ts |
 | `my_claims` | view | lib/data/claims.ts |
 | `my_companies` | view | lib/data/company.ts, lib/data/session.ts |
+| `my_company_invitations` | view | lib/data/team.ts |
+| `my_company_members` | view | lib/data/team.ts |
+| `my_company_roles` | view | lib/data/team.ts |
 | `my_contacts` | view | lib/data/crm-pipeline.ts |
 | `my_contracts` | view | lib/data/claims.ts |
 | `my_cost_codes` | view | lib/data/estimates.ts |
@@ -353,6 +361,7 @@ None.
 | `revise_estimate_version` | function | lib/data/estimates.ts |
 | `revoke_api_key` | function | lib/data/api-keys.ts |
 | `revoke_credential` | function | lib/data/workforce.ts |
+| `revoke_invitation` | function | lib/data/team.ts |
 | `revoke_operator` | function | lib/data/admin.ts |
 | `revoke_proposal_share_link` | function | lib/data/proposal-links.ts |
 | `save_contact` | function | lib/data/crm-pipeline.ts |
@@ -371,6 +380,7 @@ None.
 | `set_billing_terms` | function | lib/data/admin.ts |
 | `set_claim_status` | function | lib/data/claims.ts |
 | `set_company_plan` | function | lib/data/admin.ts |
+| `set_company_role` | function | lib/data/team.ts |
 | `set_crew_member` | function | lib/data/library.ts |
 | `set_document_page_count` | function | lib/data/takeoff.ts |
 | `set_estimate_discount` | function | lib/data/estimates.ts |
@@ -387,6 +397,8 @@ None.
 | `set_line_service` | function | lib/data/estimates.ts |
 | `set_line_unit_cost` | function | lib/data/estimates.ts |
 | `set_maintenance_schedule` | function | lib/data/fleet.ts |
+| `set_member_role` | function | lib/data/team.ts |
+| `set_member_status` | function | lib/data/team.ts |
 | `set_my_preference` | function | lib/data/preferences.ts |
 | `set_notification_preference` | function | lib/data/session.ts |
 | `set_operator_role` | function | lib/data/admin.ts |

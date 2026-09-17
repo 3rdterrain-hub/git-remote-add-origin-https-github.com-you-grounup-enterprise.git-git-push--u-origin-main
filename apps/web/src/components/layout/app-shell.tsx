@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, FileStack, HardHat, Users, Library,
-  BarChart3, Settings, CreditCard, Menu, X, Bell, Search, Bot,
+  BarChart3, Settings, Menu, X, Bell, Search, Bot,
   FileSignature, ArrowRight, CalendarDays, Truck, Users2, ShoppingCart, Banknote, ShieldAlert,
-  Mountain, Gavel, Network, KeyRound, Ruler, SlidersHorizontal,
+  Mountain, Gavel, Network, Ruler, SlidersHorizontal,
   PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { Logo } from './logo';
@@ -88,9 +88,13 @@ export const NAV: ReadonlyArray<{
 export const ADMIN_NAV: ReadonlyArray<{
   to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; group: Group;
 }> = [
+  /*
+   * One entry, because Billing and API Access are sections of Company Settings
+   * rather than peers of it — asked for on 13 September 2026. They are tabs at
+   * `/app/settings?tab=billing` and `?tab=api`; the old routes still resolve so
+   * existing links keep working.
+   */
   { to: '/app/settings', label: 'Company Settings', icon: Settings, group: 'Administration' },
-  { to: '/app/billing', label: 'Billing', icon: CreditCard, group: 'Administration' },
-  { to: '/app/api', label: 'API Access', icon: KeyRound, group: 'Administration' },
 ];
 
 export function AppShell() {

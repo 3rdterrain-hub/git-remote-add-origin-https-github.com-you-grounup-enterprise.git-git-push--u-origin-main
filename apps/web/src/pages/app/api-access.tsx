@@ -44,7 +44,7 @@ const METHOD_TONE: Record<string, string> = {
   POST: 'bg-success-50 text-success-700 border-success-500/25',
 };
 
-export function ApiAccessPage() {
+export function ApiAccessPage({ embedded = false }: { embedded?: boolean } = {}) {
   /* Which tab the two countable boxes above open. */
   const [tab, setTab] = useState('keys');
   const { can } = usePermissions();
@@ -67,7 +67,7 @@ export function ApiAccessPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
+      {embedded ? null : <PageHeader
         title="API Access"
         description="Keys for the systems that need GrounUp data — accounting, telematics, BI. Every key carries a company, a scope list and a rate limit, and every request is logged against it."
         actions={
@@ -92,7 +92,7 @@ export function ApiAccessPage() {
               onIssued={() => setNonce((n) => n + 1)} />
           </>
         }
-      />
+      />}
 
       <Alert tone="warn" icon={<ShieldCheck className="size-4" />} title="A key is shown once">
         Only a hash of the key is stored, so it cannot be recovered or re-displayed — the prefix below is for

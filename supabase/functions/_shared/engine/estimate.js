@@ -13,7 +13,7 @@ import { analyzeBottleneck, analyzeProduction, calculateDuration, resolveModifie
 import { calculateCrewCost, calculateEquipmentCost, } from './resources.js';
 import { analyzeHaulCycle } from './trucking.js';
 import { addDirectCost, applyCostModifiers, calculatePrice, EMPTY_DIRECT_COST, totalDirectCost, unitPrice, } from './pricing.js';
-import { evaluateApprovalGate, scoreConfidence, } from './confidence.js';
+import { confidenceBand, confidenceToContingency, evaluateApprovalGate, scoreConfidence, CONFIDENCE_THRESHOLDS, } from './confidence.js';
 const DEFAULT_VERIFICATION = {
     primarySource: true,
     crossSource: false,
@@ -297,14 +297,14 @@ export function calculateEstimate(input) {
         : lines.length > 0
             ? roundTo(lines.reduce((a, l) => a + l.confidence.score, 0) / lines.length, 1)
             : 0;
-    const band = confidenceBandOf(weightedConfidence);
+    const band = confidenceBand(weightedConfidence);
     /** What the caller said about this line, by id. */
     const overrideFor = (id) => {
         const found = input.lines.find((l) => l.id === id);
         const v = found?.markupOverride;
         return v === null || v === undefined ? null : assertNonNegative(v, 'markupOverride');
     };
-    const recommendedContingency = contingencyFor(weightedConfidence);
+    const recommendedContingency = confidenceToContingency(weightedConfidence);
     const profileContingency = input.pricingProfile.components.find((c) => c.code === 'CONT')?.percent ?? null;
     let appliedContingency;
     let contingencySource;
@@ -471,28 +471,6 @@ export function calculateEstimate(input) {
         warnings,
     };
 }
-function confidenceBandOf(score) {
-    if (score >= 95)
-        return 'verified';
-    if (score >= 90)
-        return 'strong';
-    if (score >= 80)
-        return 'reliable';
-    if (score >= 70)
-        return 'assumption';
-    if (score >= 50)
-        return 'uncertain';
-    return 'do_not_price';
-}
-function contingencyFor(score) {
-    if (score <= 69)
-        return 0.12;
-    if (score <= 79)
-        return 0.08;
-    if (score <= 89)
-        return 0.05;
-    return 0.03;
-}
 /** Section 59 final executive decision. */
 function executiveDecision(lines, summary, weightedConfidence) {
     if (lines.length === 0) {
@@ -515,7 +493,8 @@ function executiveDecision(lines, summary, weightedConfidence) {
                 `earthwork decision or sub-80 confidence (${summary.senior_review.join(', ')}) and require senior estimator sign-off.`,
         };
     }
-    if (summary.estimator_review.length > 0 || weightedConfidence < 95) {
+    if (summary.estimator_review.length > 0
+        || weightedConfidence < CONFIDENCE_THRESHOLDS.autoAcceptFloor) {
         const assumptionCount = lines.reduce((a, l) => a + l.assumptions.length, 0);
         return {
             decision: 'ready_with_assumptions',
@@ -526,7 +505,8 @@ function executiveDecision(lines, summary, weightedConfidence) {
     }
     return {
         decision: 'ready_for_estimating',
-        reason: `All ${lines.length} line(s) are dimensioned, referenced, conflict-free and scored at or above 95 (weighted ${weightedConfidence}).`,
+        reason: `All ${lines.length} line(s) are dimensioned, referenced, conflict-free and scored at or above `
+            + `${CONFIDENCE_THRESHOLDS.autoAcceptFloor} (weighted ${weightedConfidence}).`,
     };
 }
 export { unitPrice };

@@ -76,10 +76,44 @@ export interface ConfidenceResult {
   explanation: string;
 }
 
+/**
+ * Every confidence boundary this engine routes on, in one frozen object.
+ *
+ * These were literals scattered across two modules and typed a third time into
+ * the Company Settings screen, which rendered them as "governed values" beside
+ * a caption saying so. Three copies of the same four numbers, none of which
+ * knew about the others: change a band here and the screen kept showing the old
+ * one, with nothing to catch the disagreement.
+ *
+ * So there is one source, and the screen reads it. Same principle as RULE-003
+ * for rates — the number a screen shows must be the number that acts. Nothing
+ * here is tenant-configurable, and that is deliberate rather than unfinished: a
+ * company that could set its own auto-accept floor to zero would have a
+ * confidence gate that passes everything, which is not a preference but the
+ * removal of the control. The screen says exactly that, where the numbers are.
+ */
+export const CONFIDENCE_THRESHOLDS = Object.freeze({
+  /** At or above this, an item may be accepted without a person (Section 7.2). */
+  autoAcceptFloor: 95,
+  /** Band floors, highest first. */
+  strong: 90,
+  reliable: 80,
+  assumption: 70,
+  uncertain: 50,
+  /** Below this, a senior estimator must sign off. */
+  seniorReviewCeiling: 80,
+  /** At or below this, sign-off cannot be waived. */
+  seniorReviewFloor: 69,
+  /** An item above this share of estimate value is a major cost impact. */
+  majorCostImpactShare: 0.1,
+  /** Section 45 requires every score below this to be explained. */
+  explanationFloor: 90,
+} as const);
+
 /** Section 45 requires every score below 90 to be explained. */
-const EXPLANATION_FLOOR = 90;
+const EXPLANATION_FLOOR = CONFIDENCE_THRESHOLDS.explanationFloor;
 /** Section 7.2: at or below this score, senior review is mandatory. */
-export const SENIOR_REVIEW_FLOOR = 69;
+export const SENIOR_REVIEW_FLOOR = CONFIDENCE_THRESHOLDS.seniorReviewFloor;
 
 /**
  * Composite confidence score.
@@ -210,11 +244,11 @@ export function scoreConfidence(input: ConfidenceInput): ConfidenceResult {
 }
 
 export function confidenceBand(score: number): ConfidenceResult['band'] {
-  if (score >= 95) return 'verified';
-  if (score >= 90) return 'strong';
-  if (score >= 80) return 'reliable';
-  if (score >= 70) return 'assumption';
-  if (score >= 50) return 'uncertain';
+  if (score >= CONFIDENCE_THRESHOLDS.autoAcceptFloor) return 'verified';
+  if (score >= CONFIDENCE_THRESHOLDS.strong) return 'strong';
+  if (score >= CONFIDENCE_THRESHOLDS.reliable) return 'reliable';
+  if (score >= CONFIDENCE_THRESHOLDS.assumption) return 'assumption';
+  if (score >= CONFIDENCE_THRESHOLDS.uncertain) return 'uncertain';
   return 'do_not_price';
 }
 
@@ -270,7 +304,7 @@ export interface ApprovalGateResult {
 }
 
 /** An item above this share of estimate value is a major cost impact. */
-export const MAJOR_COST_IMPACT_SHARE = 0.1;
+export const MAJOR_COST_IMPACT_SHARE = CONFIDENCE_THRESHOLDS.majorCostImpactShare;
 
 /**
  * Route an item to the correct human.
@@ -297,12 +331,15 @@ export function evaluateApprovalGate(input: ApprovalGateInput): ApprovalGateResu
       reason: 'Governing documents conflict on this item and the conflict is unresolved.',
     });
   }
-  if (input.confidence < 80) {
-    escalations.push({ gate: 'senior_review', reason: `Confidence of ${input.confidence} is below 80.` });
-  } else if (input.confidence < 95) {
+  if (input.confidence < CONFIDENCE_THRESHOLDS.seniorReviewCeiling) {
+    escalations.push({
+      gate: 'senior_review',
+      reason: `Confidence of ${input.confidence} is below ${CONFIDENCE_THRESHOLDS.seniorReviewCeiling}.`,
+    });
+  } else if (input.confidence < CONFIDENCE_THRESHOLDS.autoAcceptFloor) {
     escalations.push({
       gate: 'estimator_review',
-      reason: `Confidence of ${input.confidence} is below the 95 auto-accept threshold.`,
+      reason: `Confidence of ${input.confidence} is below the ${CONFIDENCE_THRESHOLDS.autoAcceptFloor} auto-accept threshold.`,
     });
   }
   if (

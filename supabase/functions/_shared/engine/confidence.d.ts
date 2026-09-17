@@ -52,8 +52,41 @@ export interface ConfidenceResult {
     }[];
     explanation: string;
 }
+/**
+ * Every confidence boundary this engine routes on, in one frozen object.
+ *
+ * These were literals scattered across two modules and typed a third time into
+ * the Company Settings screen, which rendered them as "governed values" beside
+ * a caption saying so. Three copies of the same four numbers, none of which
+ * knew about the others: change a band here and the screen kept showing the old
+ * one, with nothing to catch the disagreement.
+ *
+ * So there is one source, and the screen reads it. Same principle as RULE-003
+ * for rates — the number a screen shows must be the number that acts. Nothing
+ * here is tenant-configurable, and that is deliberate rather than unfinished: a
+ * company that could set its own auto-accept floor to zero would have a
+ * confidence gate that passes everything, which is not a preference but the
+ * removal of the control. The screen says exactly that, where the numbers are.
+ */
+export declare const CONFIDENCE_THRESHOLDS: Readonly<{
+    /** At or above this, an item may be accepted without a person (Section 7.2). */
+    readonly autoAcceptFloor: 95;
+    /** Band floors, highest first. */
+    readonly strong: 90;
+    readonly reliable: 80;
+    readonly assumption: 70;
+    readonly uncertain: 50;
+    /** Below this, a senior estimator must sign off. */
+    readonly seniorReviewCeiling: 80;
+    /** At or below this, sign-off cannot be waived. */
+    readonly seniorReviewFloor: 69;
+    /** An item above this share of estimate value is a major cost impact. */
+    readonly majorCostImpactShare: 0.1;
+    /** Section 45 requires every score below this to be explained. */
+    readonly explanationFloor: 90;
+}>;
 /** Section 7.2: at or below this score, senior review is mandatory. */
-export declare const SENIOR_REVIEW_FLOOR = 69;
+export declare const SENIOR_REVIEW_FLOOR: 69;
 /**
  * Composite confidence score.
  *
@@ -99,7 +132,7 @@ export interface ApprovalGateResult {
     requiredRole: 'none' | 'estimator' | 'senior_estimator' | 'chief_estimator';
 }
 /** An item above this share of estimate value is a major cost impact. */
-export declare const MAJOR_COST_IMPACT_SHARE = 0.1;
+export declare const MAJOR_COST_IMPACT_SHARE: 0.1;
 /**
  * Route an item to the correct human.
  *

@@ -50,13 +50,11 @@ const SafetyPage = lazy(() => import('@/pages/app/safety').then((m) => ({ defaul
 const SurveyPage = lazy(() => import('@/pages/app/survey').then((m) => ({ default: m.SurveyPage })));
 const ClaimsPage = lazy(() => import('@/pages/app/claims').then((m) => ({ default: m.ClaimsPage })));
 const NetworkPage = lazy(() => import('@/pages/app/network').then((m) => ({ default: m.NetworkPage })));
-const ApiAccessPage = lazy(() => import('@/pages/app/api-access').then((m) => ({ default: m.ApiAccessPage })));
 const NotificationsPage = lazy(() => import('@/pages/app/notifications').then((m) => ({ default: m.NotificationsPage })));
 const CrmPage = lazy(() => import('@/pages/app/crm').then((m) => ({ default: m.CrmPage })));
 const LibrariesPage = lazy(() => import('@/pages/app/libraries').then((m) => ({ default: m.LibrariesPage })));
 const ReportsPage = lazy(() => import('@/pages/app/reports').then((m) => ({ default: m.ReportsPage })));
 const SettingsPage = lazy(() => import('@/pages/app/settings').then((m) => ({ default: m.SettingsPage })));
-const BillingPage = lazy(() => import('@/pages/app/billing').then((m) => ({ default: m.BillingPage })));
 const NotFoundPage = lazy(() => import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage })));
 
 /** Shown only for the moment a route chunk is in flight. */
@@ -156,13 +154,16 @@ export function App() {
             <Route path="survey" element={<SurveyPage />} />
             <Route path="claims" element={<ClaimsPage />} />
             <Route path="network" element={<NetworkPage />} />
-            <Route path="api" element={<ApiAccessPage />} />
+            {/* Both moved into Company Settings as tabs. The routes stay so
+                existing links — including Stripe's return path — still land
+                somewhere correct rather than on a dead URL. */}
+            <Route path="api" element={<Navigate to="/app/settings?tab=api" replace />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="crm" element={<CrmPage />} />
             <Route path="libraries" element={<LibrariesPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="billing" element={<BillingPage />} />
+            <Route path="billing" element={<Navigate to="/app/settings?tab=billing" replace />} />
           </Route>
 
           {/*

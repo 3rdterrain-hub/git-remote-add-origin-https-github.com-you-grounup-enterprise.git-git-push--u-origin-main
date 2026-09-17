@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { CONFIDENCE_THRESHOLDS } from '@grounup/engine';
 import { renderPage as renderWithProviders } from '@/test/render';
+import { percent } from '@/lib/format';
 import { SettingsPage } from './settings';
 
 const renderPage = () => renderWithProviders(<SettingsPage />);
@@ -105,5 +107,59 @@ describe('the connector boxes', () => {
     await user.click(tile());
     expect(tile()).toHaveAttribute('aria-pressed', 'false');
     expect(screen.queryByText(/Showing the Degraded connectors/)).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * The three defects this screen carried, each pinned so it cannot return.
+ *
+ * All three were the same shape: a number or a list typed into the JSX, on the
+ * screen whose subject is what the platform actually enforces. The audit card
+ * claimed 18,442 events; the roles table listed eleven roles with invented user
+ * counts; the approval thresholds were four string literals beside a caption
+ * calling them governed values.
+ */
+describe('nothing on this screen is a number somebody typed', () => {
+  it('reads the approval thresholds from the engine that routes on them', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('tab', { name: /estimating defaults/i }));
+    const panel = screen.getByRole('tabpanel');
+
+    /*
+     * Asserted against the engine's own constants rather than against 95 / 80 /
+     * 69 / 10%. Hard-coding the expected values here would recreate the defect
+     * one layer further out: change a band in the engine and this test would
+     * fail while the screen was still right, or pass while it was wrong.
+     */
+    expect(within(panel).getByText(String(CONFIDENCE_THRESHOLDS.autoAcceptFloor)))
+      .toBeInTheDocument();
+    expect(within(panel).getByText(String(CONFIDENCE_THRESHOLDS.seniorReviewFloor)))
+      .toBeInTheDocument();
+    expect(within(panel).getByText(percent(CONFIDENCE_THRESHOLDS.majorCostImpactShare)))
+      .toBeInTheDocument();
+  });
+
+  it('shows no audit event count until one has been counted', async () => {
+    renderPage();
+    await openSecurity();
+    const panel = screen.getByRole('tabpanel');
+    expect(within(panel).getByText('Events recorded')).toBeInTheDocument();
+    /* The figure that used to read 18,442 on every company's screen. */
+    expect(within(panel).queryByText('18,442')).not.toBeInTheDocument();
+    expect(within(panel).getByText('—')).toBeInTheDocument();
+  });
+
+  it('keeps Billing and API Access as sections of this screen', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    expect(screen.getByRole('tab', { name: /^billing$/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /api access/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /api access/i }));
+    /* Embedded, so the section does not stack a second page heading on the
+       one Company Settings already has. */
+    expect(screen.getAllByRole('heading', { name: /company settings/i }).length)
+      .toBeGreaterThan(0);
+    expect(screen.queryByRole('heading', { name: /^API Access$/ })).not.toBeInTheDocument();
   });
 });

@@ -1,16 +1,23 @@
-import { Users, ShieldCheck, Info } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ShieldCheck, Info } from 'lucide-react';
+import { CONFIDENCE_THRESHOLDS } from '@grounup/engine';
 import { PageHeader } from '@/components/layout/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert } from '@/components/ui/misc';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotificationSettings } from '@/components/settings/notifications';
 import { CompanyProfileSettings } from '@/components/settings/company-profile';
 import { BrandingSettings } from '@/components/settings/branding';
 import { AiRegistrySettings, ConnectorSettings } from '@/components/settings/ai-and-connectors';
+import { TeamMembers } from '@/components/settings/team-members';
+import { CompanyRoles } from '@/components/settings/company-roles';
+import { AuditLedger } from '@/components/settings/audit-ledger';
+import { BillingPage } from './billing';
+import { ApiAccessPage } from './api-access';
 import { useQuery } from '@/lib/data/query';
 import { loadShellIdentity } from '@/lib/data/company';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { loadSession, useCompanyId, usePermissions } from '@/lib/data/session';
+import { percent } from '@/lib/format';
 
 /**
  * Security controls this platform actually enforces, each naming what enforces
@@ -75,24 +82,24 @@ const UNAVAILABLE_CONTROLS = [
   { control: 'Retention and deletion', detail: 'Nothing expires or deletes records on a schedule, and there is no legal hold.' },
 ] as const;
 
-/** The system roles shipped by migration 0011, with their real permission sets. */
-const ROLES = [
-  { key: 'owner', name: 'Owner', tier: 4, permissions: 'All permissions', users: 1 },
-  { key: 'admin', name: 'Administrator', tier: 3, permissions: 'Company, users, libraries, estimating, projects, audit', users: 1 },
-  { key: 'chief_estimator', name: 'Chief Estimator', tier: 3, permissions: 'Approve and issue estimates, approve library changes', users: 0 },
-  { key: 'senior_estimator', name: 'Senior Estimator', tier: 2, permissions: 'Full estimating including senior review sign-off', users: 2 },
-  { key: 'estimator', name: 'Estimator', tier: 1, permissions: 'Build estimates, accept AI findings at estimator tier', users: 3 },
-  { key: 'project_manager', name: 'Project Manager', tier: 2, permissions: 'Schedule, cost, change orders, field production', users: 2 },
-  { key: 'superintendent', name: 'Superintendent', tier: 1, permissions: 'Daily reports, installed quantities, production actuals', users: 2 },
-  { key: 'foreman', name: 'Foreman', tier: 0, permissions: 'Field production for assigned work', users: 4 },
-  { key: 'accountant', name: 'Accountant', tier: 1, permissions: 'Job cost, billing, financial reporting', users: 1 },
-  { key: 'sales', name: 'Sales', tier: 0, permissions: 'CRM pipeline and proposals; reads estimates', users: 1 },
-  { key: 'viewer', name: 'Viewer', tier: 0, permissions: 'Read-only', users: 3 },
-];
-
 export function SettingsPage() {
   const meQ = useQuery(loadShellIdentity, []);
   const me = meQ.status === 'ready' ? meQ.data : null;
+  const sessionQ = useQuery(loadSession, []);
+  const myPermissions = sessionQ.status === 'ready' ? sessionQ.data.permissions : [];
+  const { companyId } = useCompanyId();
+  const { can } = usePermissions();
+  const canManageUsers = can('users.manage');
+
+  /*
+   * Which tab is open lives in the address, so a tab can be linked to — Billing
+   * and API Access moved in here from their own nav entries and the two routes
+   * that used to serve them now send people to `?tab=billing` and `?tab=api`.
+   * A section somebody cannot link to is a section they cannot send a colleague.
+   */
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') ?? 'company';
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -107,8 +114,11 @@ export function SettingsPage() {
         * anything.
         */}
 
-      <Tabs defaultValue="company">
-        <TabsList>
+      <Tabs value={tab} onValueChange={(v) => setParams(
+        (prev) => { const next = new URLSearchParams(prev); next.set('tab', v); return next; },
+        { replace: true },
+      )}>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="company">Company</TabsTrigger>
           <TabsTrigger value="estimating">Estimating defaults</TabsTrigger>
           <TabsTrigger value="users">Users &amp; roles</TabsTrigger>
@@ -117,6 +127,8 @@ export function SettingsPage() {
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="ai">AI registry</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="api">API Access</TabsTrigger>
         </TabsList>
 
         {/* --------------------------------------------------------- company */}
@@ -131,14 +143,30 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Approval thresholds</CardTitle>
-              <CardDescription>Where the confidence engine routes work. These are governed values, not preferences.</CardDescription>
+              <CardDescription>
+                Where the confidence engine routes work. These are governed values rather than
+                preferences, and they are read from the engine itself so this screen cannot drift
+                from what actually routes a line.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/*
+                * Read from the engine, not typed here. These were four string
+                * literals in this JSX while the engine held its own copy, so
+                * the screen could have been showing numbers that no longer
+                * routed anything and nothing would have caught it. Same
+                * principle as RULE-003 for rates: the number a screen shows
+                * must be the number that acts.
+                */}
               {[
-                ['Auto-accept floor', '95', 'Below this, a person reviews the line.'],
-                ['Senior review ceiling', '80', 'Below this, a senior estimator must sign off.'],
-                ['Mandatory senior review', '69', 'At or below this, sign-off cannot be waived.'],
-                ['Major cost impact share', '10%', 'A line above this share of estimate value escalates.'],
+                ['Auto-accept floor', String(CONFIDENCE_THRESHOLDS.autoAcceptFloor),
+                  'Below this, a person reviews the line.'],
+                ['Senior review ceiling', String(CONFIDENCE_THRESHOLDS.seniorReviewCeiling),
+                  'Below this, a senior estimator must sign off.'],
+                ['Mandatory senior review', String(CONFIDENCE_THRESHOLDS.seniorReviewFloor),
+                  'At or below this, sign-off cannot be waived.'],
+                ['Major cost impact share', percent(CONFIDENCE_THRESHOLDS.majorCostImpactShare),
+                  'A line above this share of estimate value escalates.'],
               ].map(([label, value, hint]) => (
                 <div key={label} className="flex items-center justify-between gap-4 border-b border-charcoal-200 pb-3 last:border-0">
                   <div>
@@ -154,50 +182,16 @@ export function SettingsPage() {
 
         {/* ----------------------------------------------------------- users */}
         <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="size-4" /> Roles and permissions</CardTitle>
-              <CardDescription>
-                Eleven system roles ship with GrounUp. The approval tier controls which review gates a
-                user can satisfy — an estimator cannot clear a senior review, whatever else they are permitted.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Role</TableHead>
-                    <TableHead className="text-right">Approval tier</TableHead>
-                    <TableHead className="min-w-72">Permissions</TableHead>
-                    <TableHead className="text-right">Users</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ROLES.map((r) => (
-                    <TableRow key={r.key}>
-                      <TableCell>
-                        <p className="font-medium text-charcoal-900">{r.name}</p>
-                        <p className="font-mono text-xs text-charcoal-400">{r.key}</p>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant={r.tier >= 3 ? 'danger' : r.tier === 2 ? 'warn' : r.tier === 1 ? 'info' : 'default'}>
-                          Tier {r.tier}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-charcoal-600">{r.permissions}</TableCell>
-                      <TableCell className="tabular text-right">{r.users || '—'}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Alert tone="neutral" icon={<ShieldCheck className="size-4" />} title="Segregation of duties">
-            A person cannot approve their own request, and a company must always keep at least one
-            active owner. Both are enforced by the database, so no administrative mistake or
-            application bug can bypass them.
-          </Alert>
+          {/*
+            * This tab used to be an eleven-row array typed into the JSX, with
+            * invented user counts beside each role — on the screen an owner
+            * opens to find out who can do what in their company. Migration 0211
+            * gave `roles`, `company_memberships` and `company_invitations` the
+            * doors they had gone without since 0002.
+            */}
+          <TeamMembers companyId={companyId} canManage={canManageUsers} />
+          <CompanyRoles companyId={companyId} canManage={canManageUsers}
+            myPermissions={myPermissions} />
         </TabsContent>
 
         {/* -------------------------------------------------------- branding */}
@@ -263,27 +257,8 @@ export function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Audit ledger</CardTitle>
-              <CardDescription>Append-only. It cannot be edited or deleted by anyone, at any privilege level.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-3">
-                {[
-                  ['Events recorded', '18,442', 'last 90 days'],
-                  ['Retention', 'No policy set', 'nothing expires entries today'],
-                  ['Tamper protection', 'Trigger-enforced', 'UPDATE and DELETE blocked'],
-                ].map(([label, value, hint]) => (
-                  <div key={label} className="rounded-md border border-charcoal-200 p-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">{label}</p>
-                    <p className="tabular mt-1 text-lg font-bold text-charcoal-900">{value}</p>
-                    <p className="text-xs text-charcoal-500">{hint}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <AuditLedger />
+
         </TabsContent>
 
         {/* -------------------------------------------------------- AI registry */}
@@ -294,6 +269,19 @@ export function SettingsPage() {
         {/* ---------------------------------------------------- integrations */}
         <TabsContent value="integrations" className="space-y-4">
           <ConnectorSettings />
+        </TabsContent>
+
+        {/* --------------------------------------------- billing, moved in */}
+        <TabsContent value="billing">
+          {/* Both of these were their own Administration nav entries, which
+              left that group holding three items that were all company
+              settings. `embedded` suppresses their page headers; everything
+              else about them is unchanged, and their old routes still work. */}
+          <BillingPage embedded />
+        </TabsContent>
+
+        <TabsContent value="api">
+          <ApiAccessPage embedded />
         </TabsContent>
 
       </Tabs>

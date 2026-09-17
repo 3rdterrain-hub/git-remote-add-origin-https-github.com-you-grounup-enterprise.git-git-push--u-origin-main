@@ -279,6 +279,7 @@ TST-pdf-metrics,test,pdf/metrics.test.ts,packages/pdf/tests/metrics.test.ts,ENGI
 TST-db-a-bill-you-can-send,test,db/a-bill-you-can-send.test.ts,tests/db/a-bill-you-can-send.test.ts,ENGINE
 TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests/db/a-category-you-can-manage.test.ts,ENGINE
 TST-db-a-change-order-that-is-worth-something,test,db/a-change-order-that-is-worth-something.test.ts,tests/db/a-change-order-that-is-worth-something.test.ts,ENGINE
+TST-db-a-company-you-can-administer,test,db/a-company-you-can-administer.test.ts,tests/db/a-company-you-can-administer.test.ts,ENGINE
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-directory-somebody-consented-to,test,db/a-directory-somebody-consented-to.test.ts,tests/db/a-directory-somebody-consented-to.test.ts,ENGINE
@@ -491,6 +492,7 @@ TST-web-project-actions,test,web/project-actions.test.tsx,apps/web/src/component
 TST-web-site-weather,test,web/site-weather.test.tsx,apps/web/src/components/project/site-weather.test.tsx,ENGINE
 TST-web-draft-editor,test,web/draft-editor.test.tsx,apps/web/src/components/proposal/draft-editor.test.tsx,ENGINE
 TST-web-branding,test,web/branding.test.tsx,apps/web/src/components/settings/branding.test.tsx,ENGINE
+TST-web-team-and-roles,test,web/team-and-roles.test.tsx,apps/web/src/components/settings/team-and-roles.test.tsx,ENGINE
 TST-web-apply-panel,test,web/apply-panel.test.tsx,apps/web/src/components/takeoff/apply-panel.test.tsx,ENGINE
 TST-web-condition-list,test,web/condition-list.test.tsx,apps/web/src/components/takeoff/condition-list.test.tsx,ENGINE
 TST-web-overlay,test,web/overlay.test.tsx,apps/web/src/components/takeoff/overlay.test.tsx,ENGINE

@@ -44,7 +44,7 @@ import { money, date, percent, integer, titleCase, plural } from '@/lib/format';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { CancelDialog } from '@/components/billing/cancel-dialog';
 
-export function BillingPage() {
+export function BillingPage({ embedded = false }: { embedded?: boolean } = {}) {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [canceling, setCanceling] = useState(false);
@@ -137,7 +137,7 @@ export function BillingPage() {
         </Alert>
       ) : null}
 
-      <PageHeader
+      {embedded ? null : <PageHeader
         title="Billing & Subscription"
         description="Payment is handled entirely by Stripe. GrounUp stores the customer and subscription identifiers, the plan, the status and the period — never a card number."
         actions={
@@ -154,7 +154,7 @@ export function BillingPage() {
             </Button>
           </>
         }
-      />
+      />}
 
       {demonstration ? <DemonstrationNotice what="this page" /> : null}
       {loading ? <LoadingState label="Reading your subscription" /> : null}

@@ -30,7 +30,7 @@ estimate or follows from it.
 
 | Layer | Where | What it is |
 |---|---|---|
-| Schema | `supabase/migrations/*.sql` | 208 migrations, plus the catalog copies. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
+| Schema | `supabase/migrations/*.sql` | 211 migrations, plus the catalog copies. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
 | Engine | `packages/engine/` | The only place a price is computed. Pure TypeScript, no database access. |
 | Engine (edge copy) | `supabase/functions/_shared/engine/` | **Generated.** `npm run engine:edge` writes it; `engine:edge:check` fingerprints it. Editing it by hand is a defect the gate catches. |
 | Functions | `supabase/functions/` | 14 Edge Functions: pricing, billing, Stripe webhook, AI, email, weather, the API gateway. |
@@ -211,7 +211,7 @@ the data layer translates at the boundary and nowhere else. A `my_*` view is
 caller-scoped by row level security. A `public.*` function is the browser-facing
 wrapper over an `app.*` implementation.
 
-**Data.** 173 tables, 134 views (20 reporting), 208 migrations. Catalog seeds sit
+**Data.** 173 tables, 139 views (20 reporting), 211 migrations. Catalog seeds sit
 at 0900+ — which is why `db push` needs `--include-all`.
 
 **Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
@@ -732,11 +732,65 @@ returned `GenericStringError[]` — which passes `tsconfig.json` and fails the
 gate's `tsconfig.app.json`. One literal per select, as `projects.ts` already says
 in a comment beside its own.
 
+### Company Settings, as of migrations 0211–0213
+
+Three things on this screen were numbers or lists somebody had typed, on the one
+screen whose entire subject is what the platform actually enforces.
+
+**The team administration layer did not exist.** `roles`, `company_memberships`
+and `company_invitations` have been in the schema since migration 0002 — eleven
+seeded roles with real permission arrays and approval tiers, a membership join
+carrying status and ownership, an invitation table storing only a SHA-256 of its
+token. Nothing had ever read or written any of it. The Users & roles tab
+rendered an eleven-row array typed into the JSX with invented member counts
+beside each role, and a company could not add a person, change what somebody may
+do, or take access away.
+
+Four judgments went in with the doors:
+
+- **A permission you do not hold, you cannot grant** (D-079). `users.manage` is
+  enough to write a role, so without this an administrator could mint one
+  carrying everything and assign it to themselves.
+- **The known permissions are read from the shipped roles** (D-080), so the
+  vocabulary cannot drift from what `app.has_permission` matches. 33 of them.
+- **Deleting a role says where its people go**, exactly as
+  `app.delete_library_category` requires.
+- **An invitation is shown once** and creates no account. The person redeems it
+  themselves, and nothing is emailed — so the screen says that rather than
+  claiming an invitation was sent.
+
+**A count that was an order of magnitude out.** The security tab showed "Events
+recorded 18,442 — last 90 days". `audit_events` had no reader at all; the live
+ledger holds over thirty thousand rows for this company alone, and it would have
+been a different wrong number for every company that read it. 0213 gives it
+`my_audit_summary` and `my_audit_events`, and the count now opens — a tile
+saying eighteen thousand events raises "which ones?". `prior_state` and
+`new_state` are deliberately not projected: reading the ledger and reading every
+column of every row it records are different permissions.
+
+**And the same four numbers in three places** (D-081). The approval thresholds —
+auto-accept 95, senior review 80, mandatory 69, major cost impact 10% — were
+literals in `confidence.ts`, duplicated in a private `confidenceBandOf` inside
+`estimate.ts`, and typed a third time into the settings JSX under a caption
+calling them "governed values". `CONFIDENCE_THRESHOLDS` is now the one source,
+the duplicate is deleted, and the screen renders the constants. All 708 engine
+tests pass unchanged, which is the proof that no number moved.
+
+**Billing and API Access moved inside** (D-082), as asked on 13 September 2026.
+They were the whole of the Administration group beside the screen they are
+sections of. The nav went 21 entries to 19; both old routes redirect into the
+tabs, so the Stripe return paths still land correctly.
+
+*(One correction to an earlier audit note: `app.set_role_permissions` from 0076
+operates on `platform_roles` — the GrounUp operator roles on the admin side —
+not on tenant `roles`. It was never the missing door behind this tab.)*
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
-   Finance, Claims, Master Libraries, Reports and GrounUp Network are done;
-   Company Settings and Billing remain.
+   Finance, Claims, Master Libraries, Reports, GrounUp Network and Company
+   Settings are done. Billing is now a section of Company Settings and had its
+   own pass in 0186; what remains of the toolbar is nothing.
 2. Parse LandXML, TIN and points files into a surface, which is what stands
    between `create_surface` and a real survey deliverable.
 3. Compose task resources in the catalog, or document that pricing is by hand.

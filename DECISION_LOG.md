@@ -11,6 +11,102 @@ Newest first.
 
 ---
 
+## D-079 · 2026-09-17 · A permission you do not hold, you cannot grant
+
+**Decision.** `app.assert_grantable` refuses any permission on a company role
+that is unknown, that the caller does not themselves hold, or that is the `*`
+wildcard. A role may also not carry an approval tier above the caller's own, and
+nobody may change their own role or suspend their own access.
+
+**Reason.** `users.manage` is enough to write a role. Without this an
+administrator could create a role granting everything — including
+`billing.manage`, the one permission the shipped Administrator role lacks — and
+assign it to themselves. That is privilege escalation through the settings page,
+and it is the first thing anybody would try. Holding a permission is the
+prerequisite for handing it to somebody else.
+
+**Considered.** Restricting role editing to owners only. Rejected: it makes the
+common case (a company defining a yard foreman) need the owner every time, and
+it does not actually close the hole for an owner-equivalent admin.
+
+**Affects.** `app.create_company_role`, `app.set_company_role`,
+`components/settings/company-roles.tsx`, which disables what it cannot grant.
+
+**Status.** Active. Pinned by four tests in
+`a-company-you-can-administer.test.ts` and one in `team-and-roles.test.tsx`.
+
+---
+
+## D-080 · 2026-09-17 · The known permissions are read from the shipped roles, never listed
+
+**Decision.** `app.known_permissions()` derives the permission vocabulary from
+what the shipped system roles actually grant, rather than declaring a list.
+
+**Reason.** A second list always falls behind. The set that matters is exactly
+the set `app.has_permission` can match, and that is decided by the seeds — so
+reading it from them makes the two incapable of disagreeing. A permission that
+matched nothing would produce a role somebody believes grants access it does
+not, and they would find out at the worst moment. Same rule as 0136 and 0139 for
+jsonb field names and 0190 for API scopes.
+
+**Affects.** `app.known_permissions`, `app.assert_grantable`, and the checkbox
+list in the role editor, which derives the same way from the shipped roles it
+has already loaded.
+
+**Status.** Active. 33 permissions on the live database.
+
+---
+
+## D-081 · 2026-09-17 · The engine owns its thresholds, and the screen reads them
+
+**Decision.** `CONFIDENCE_THRESHOLDS` is one frozen object in
+`packages/engine/src/confidence.ts`. `confidenceBand`, `confidenceToContingency`
+and the approval gate read from it; the duplicate `confidenceBandOf` and
+`contingencyFor` in `estimate.ts` are deleted and the exported pair imported;
+Company Settings renders the constants instead of four string literals.
+
+**Reason.** The same four numbers existed in three places — `confidence.ts`,
+`estimate.ts`, and typed into the settings JSX under a caption calling them
+"governed values, not preferences". None knew about the others. Change a band
+and the screen would keep showing the old one with nothing to catch it. This is
+RULE-003 applied one layer up: the number a screen shows must be the number that
+acts.
+
+**Not done, deliberately.** These are not made tenant-configurable. A company
+that could set its own auto-accept floor to zero would have a confidence gate
+that passes everything, which is not a preference but the removal of the
+control. The screen says so where the numbers are, which satisfies "nothing is
+read-only without a reason".
+
+**Proof.** All 708 engine tests pass unchanged — no number moved. The settings
+test asserts the rendered values against the constants rather than against 95 /
+80 / 69 / 10%, so hard-coding cannot creep back one layer out.
+
+**Status.** Active.
+
+---
+
+## D-082 · 2026-09-17 · Billing and API Access are sections of Company Settings
+
+**Decision.** Both leave `ADMIN_NAV` and become tabs at
+`/app/settings?tab=billing` and `?tab=api`. Their routes redirect there, so
+existing links — including the Stripe checkout and portal return paths — still
+land correctly. Each page takes an `embedded` prop that suppresses its own page
+header.
+
+**Reason.** Asked for on 13 September 2026. They were the whole of the
+Administration group beside the screen they are sections of. Which tab is open
+lives in the address so a section can be linked to: a section somebody cannot
+link to is a section they cannot send a colleague.
+
+**Affects.** `app-shell.tsx` (nav 21 → 19), `App.tsx`, `settings.tsx`,
+`billing.tsx`, `api-access.tsx`, and the nav floor in
+`nav-names-the-screen.test.ts`, moved with the reason written beside it.
+
+**Status.** Active.
+
+---
+
 ## D-076 · 2026-09-17 · A rating is on the record, and its author is not
 
 **Decision.** `my_network_ratings` returns the rating company's identity only to

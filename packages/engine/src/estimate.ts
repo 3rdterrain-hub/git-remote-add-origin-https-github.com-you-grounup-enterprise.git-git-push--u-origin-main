@@ -43,8 +43,11 @@ import {
   type PricingProfile,
 } from './pricing.js';
 import {
+  confidenceBand,
+  confidenceToContingency,
   evaluateApprovalGate,
   scoreConfidence,
+  CONFIDENCE_THRESHOLDS,
   type ApprovalGateResult,
   type ConfidenceResult,
   type VerificationChecks,
@@ -607,7 +610,7 @@ export function calculateEstimate(input: EstimateInput): EstimateResult {
         ? roundTo(lines.reduce((a, l) => a + l.confidence.score, 0) / lines.length, 1)
         : 0;
 
-  const band = confidenceBandOf(weightedConfidence);
+  const band = confidenceBand(weightedConfidence);
   /** What the caller said about this line, by id. */
   const overrideFor = (id: string): number | null => {
     const found = input.lines.find((l) => l.id === id);
@@ -615,7 +618,7 @@ export function calculateEstimate(input: EstimateInput): EstimateResult {
     return v === null || v === undefined ? null : assertNonNegative(v, 'markupOverride');
   };
 
-  const recommendedContingency = contingencyFor(weightedConfidence);
+  const recommendedContingency = confidenceToContingency(weightedConfidence);
 
   const profileContingency =
     input.pricingProfile.components.find((c) => c.code === 'CONT')?.percent ?? null;
@@ -806,22 +809,6 @@ export function calculateEstimate(input: EstimateInput): EstimateResult {
   };
 }
 
-function confidenceBandOf(score: number): ConfidenceResult['band'] {
-  if (score >= 95) return 'verified';
-  if (score >= 90) return 'strong';
-  if (score >= 80) return 'reliable';
-  if (score >= 70) return 'assumption';
-  if (score >= 50) return 'uncertain';
-  return 'do_not_price';
-}
-
-function contingencyFor(score: number): number {
-  if (score <= 69) return 0.12;
-  if (score <= 79) return 0.08;
-  if (score <= 89) return 0.05;
-  return 0.03;
-}
-
 /** Section 59 final executive decision. */
 function executiveDecision(
   lines: readonly EstimateLineResult[],
@@ -850,7 +837,8 @@ function executiveDecision(
         `earthwork decision or sub-80 confidence (${summary.senior_review.join(', ')}) and require senior estimator sign-off.`,
     };
   }
-  if (summary.estimator_review.length > 0 || weightedConfidence < 95) {
+  if (summary.estimator_review.length > 0
+    || weightedConfidence < CONFIDENCE_THRESHOLDS.autoAcceptFloor) {
     const assumptionCount = lines.reduce((a, l) => a + l.assumptions.length, 0);
     return {
       decision: 'ready_with_assumptions',
@@ -862,7 +850,8 @@ function executiveDecision(
   }
   return {
     decision: 'ready_for_estimating',
-    reason: `All ${lines.length} line(s) are dimensioned, referenced, conflict-free and scored at or above 95 (weighted ${weightedConfidence}).`,
+    reason: `All ${lines.length} line(s) are dimensioned, referenced, conflict-free and scored at or above `
+      + `${CONFIDENCE_THRESHOLDS.autoAcceptFloor} (weighted ${weightedConfidence}).`,
   };
 }
 

@@ -59,7 +59,14 @@ function headerTitle(source: string): string | null {
 
 describe('the navigation names the screen it opens', () => {
   it('finds every screen the navigation offers', () => {
-    expect(nav.length).toBeGreaterThanOrEqual(21);
+    /*
+     * Nineteen since Billing and API Access became tabs of Company Settings
+     * rather than nav entries of their own — they were the whole of the
+     * Administration group beside the screen they are sections of. The floor
+     * still exists to catch the nav silently losing an entry; it moved because
+     * two were deliberately removed, and both still resolve by route.
+     */
+    expect(nav.length).toBeGreaterThanOrEqual(19);
     for (const { to } of nav) {
       expect(routes.has(to.replace(/^\/app\/?/, '')), `${to} has no route`).toBe(true);
     }
