@@ -11,6 +11,68 @@ Newest first.
 
 ---
 
+## D-087 · 2026-09-17 · A library list has no row ceiling, because every ceiling is eventually wrong
+
+**Decision.** All ten readers in `lib/data/library.ts` page with `.range()`
+until a short page comes back. No `.limit()` remains, and a governance test
+fails the build on one.
+
+**Reason.** Each reader carried a hand-picked ceiling — 2,000 services, 4,000
+tasks, 500 machines. The shipped catalog grew past three of them, so Master
+Libraries was hiding 820 services, 4,532 tasks and 200 machines. Silently: the
+tile above each list counts rows in the database and read 2,820, while the list
+under it counted what had been fetched and said "of 2,000". The owner found it
+by looking, which is the worst way for this to be found.
+
+**Considered.** Raising the ceilings. Rejected — it moves the cliff rather than
+removing it, and the next person to notice would be a customer with a bigger
+catalog. Also considered server-side search so the browser never holds the whole
+library; that is a better end state for a catalog of hundreds of thousands, and
+it is a redesign rather than a fix. Paging to completion is correct now and does
+not block it later.
+
+**Note.** Paging is also what gets past PostgREST's own server-side row cap,
+which is why raising `.limit()` alone would not have worked and why the old
+ceilings appeared to function.
+
+**Status.** Active. 6 tests on the paging, 3 on the guard.
+
+---
+
+## D-086 · 2026-09-17 · A credential is checked for being accepted, not for being present
+
+**Decision.** `credentialCheck` joins `databaseCheck` and `livenessCheck` in the
+observability module, and `GET /health/ai` uses it to ask Anthropic's
+`/v1/models` whether the configured key is accepted. Never critical, never on
+the default readiness path, cached for a minute, and it reports only
+accepted / refused / absent — never the provider's own error text.
+
+**Reason.** Asked to check whether the AI works. `ANTHROPIC_API_KEY` was set on
+the project, so every "is it configured" check passed — and every call still
+failed with `401 authentication_error / API key is invalid`. That was visible
+only to somebody who went and read `ingestion_jobs` by hand. *Present* and
+*working* are different claims and the platform could not tell them apart,
+which is the same defect shape as a button that takes a click and changes
+nothing, one layer out.
+
+**Why `/v1/models` rather than a message.** It answers the only question being
+asked — does the provider accept this credential — and generates no tokens, so
+the check costs nothing however often it runs.
+
+**Why not on the default path.** A load balancer polling readiness every few
+seconds must not make an outbound request to a third party. It is opt-in by
+path or query, and the result is held for 60 seconds so an open endpoint cannot
+be used to hammer the provider.
+
+**Why never critical.** This platform prices estimates, runs projects and bills
+customers with no AI at all. A refused key degrades the report and returns 200;
+it must never 503 the application over an optional feature.
+
+**Status.** Active. The live answer today is `fail — the provider refused this
+credential`, which is O-030 and the owner's to resolve.
+
+---
+
 ## D-083 · 2026-09-17 · Search matches on containment; similarity only ranks
 
 **Decision.** `app.search` gates every branch on `ilike '%term%'` across the

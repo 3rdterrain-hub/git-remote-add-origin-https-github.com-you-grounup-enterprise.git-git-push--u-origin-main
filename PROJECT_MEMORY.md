@@ -824,6 +824,38 @@ configured workspace answers or raises, and the dropdown says which.
 *One thing this closes for good:* the search bar was the last reader on the
 platform that could silently show fixture data on a live workspace.
 
+### Whether the AI works, as of 17 September 2026
+
+It does not, and now the platform can say so.
+
+Everything around it is correct. `ai-analyze-document` targets `claude-opus-5`,
+sends `thinking: { type: 'adaptive' }` — the current shape, not the deprecated
+`budget_tokens` that Opus 5 rejects with a 400 — caps `max_tokens` at 32,000,
+prefers a PDF's own text layer and falls back to reading the pages as images for
+the scans that come back from a plan room. The cost table, the findings writer
+and the `proposed`-only guard are all in place.
+
+**The key is refused.** Not missing — refused. `ANTHROPIC_API_KEY` is set on the
+project, so every "is it configured" check passed, and the one job ever
+attempted (16 September, 03:09) failed with
+`401 authentication_error / API key is invalid`. That was visible only to
+somebody reading `ingestion_jobs` by hand.
+
+So *present* and *working* were different claims the platform could not tell
+apart, which is the same defect shape as a button that takes a click and changes
+nothing. `credentialCheck` and `GET /health/ai` close it (D-086): the probe asks
+the provider's `/v1/models` whether the credential is accepted, spends no
+tokens, stays off the default readiness path, and is never critical — an AI
+outage must not 503 an application that prices estimates without it.
+
+    GET /functions/v1/health      → healthy   (no outbound call)
+    GET /functions/v1/health/ai   → degraded  ai_provider: fail,
+                                    "the provider refused this credential"
+
+That is O-030, and it is the owner's to resolve — a working key set with
+`npx supabase secrets set ANTHROPIC_API_KEY=...`. Nothing in the code needs to
+change for the AI to start working; it has never run once.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,

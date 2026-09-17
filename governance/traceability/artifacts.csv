@@ -430,6 +430,7 @@ TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis
 TST-fn-scenario-input,test,fn/scenario-input.test.ts,tests/functions/scenario-input.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
 TST-fn-surface-comparison,test,fn/surface-comparison.test.ts,tests/functions/surface-comparison.test.ts,ENGINE
+TST-gov-a-library-is-not-truncated,test,gov/a-library-is-not-truncated.test.ts,tests/governance/a-library-is-not-truncated.test.ts,ENGINE
 TST-gov-a-select-names-columns-that-exist,test,gov/a-select-names-columns-that-exist.test.ts,tests/governance/a-select-names-columns-that-exist.test.ts,ENGINE
 TST-gov-a-value-is-not-read-before-it-exists,test,gov/a-value-is-not-read-before-it-exists.test.ts,tests/governance/a-value-is-not-read-before-it-exists.test.ts,ENGINE
 TST-gov-catalog-migrations,test,gov/catalog-migrations.test.ts,tests/governance/catalog-migrations.test.ts,ENGINE
@@ -517,6 +518,7 @@ TST-web-dashboard-panels,test,web/dashboard-panels.test.ts,apps/web/src/lib/dash
 TST-web-equipment-rate-precedence,test,web/equipment-rate-precedence.test.ts,apps/web/src/lib/data/equipment-rate-precedence.test.ts,ENGINE
 TST-web-fleet-rate,test,web/fleet-rate.test.ts,apps/web/src/lib/data/fleet-rate.test.ts,ENGINE
 TST-web-lead-forms,test,web/lead-forms.test.ts,apps/web/src/lib/data/lead-forms.test.ts,ENGINE
+TST-web-library-pages,test,web/library-pages.test.ts,apps/web/src/lib/data/library-pages.test.ts,ENGINE
 TST-web-price-preview,test,web/price-preview.test.ts,apps/web/src/lib/data/price-preview.test.ts,ENGINE
 TST-web-proposal-pdf,test,web/proposal-pdf.test.ts,apps/web/src/lib/data/proposal-pdf.test.ts,ENGINE
 TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGINE

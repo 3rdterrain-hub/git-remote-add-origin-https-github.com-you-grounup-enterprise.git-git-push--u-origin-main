@@ -59,12 +59,47 @@ const one = <T,>(v: unknown): T | null =>
 const scopeOf = (companyId: unknown, groupId: unknown): Scope =>
   companyId ? 'company' : groupId ? 'group' : 'global';
 
+
+/**
+ * Every row, rather than the first however-many.
+ *
+ * Each reader below used to carry a hand-picked ceiling — 2,000 services, 4,000
+ * tasks, 500 machines — and the ceilings were reached: the shipped catalog grew
+ * to 2,820 services and 8,532 tasks, so the Master Libraries screen was hiding
+ * 820 services and 4,532 tasks *silently*. The tile above the list counted the
+ * rows in the database and read 2,820; the list under it said "50 of 2,000";
+ * nothing said the difference was a truncation rather than a filter.
+ *
+ * A bigger number would only move the cliff, so there is no number. Pages are
+ * read until one comes back short, which is also what gets past PostgREST's own
+ * server-side row cap — that cap is why raising `.limit()` alone would not have
+ * been enough, and why the old ceilings looked like they worked.
+ */
+const PAGE_SIZE = 1000;
+
+interface Pageable {
+  range(from: number, to: number): PromiseLike<{
+    data: unknown; error: { message: string } | null;
+  }>;
+}
+
+async function everyRow(build: () => Pageable): Promise<Array<Record<string, unknown>>> {
+  const all: Array<Record<string, unknown>> = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const page = unwrap(await build().range(from, from + PAGE_SIZE - 1)) as
+      Array<Record<string, unknown>>;
+    all.push(...page);
+    /* Short page means the end. An exactly-full last page costs one more
+       request that returns nothing, which is the honest price of not guessing. */
+    if (page.length < PAGE_SIZE) return all;
+  }
+}
+
 export const loadServices: Query<ServiceRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('services')
     .select('id, code, name, description, category, subcategory, industry, default_unit, supported_units, pricing_method, status, version, company_id, enterprise_group_id')
-    .order('code')
-    .limit(2000)) as Array<Record<string, unknown>>;
+    .order('code'));
   /*
    * `tasks(count)` used to be asked for here and there is no relationship to
    * count over: a service points at an assembly, the assembly lists the tasks.
@@ -94,11 +129,10 @@ export const loadServices: Query<ServiceRow[]> = async (client) => {
 };
 
 export const loadTasks: Query<TaskRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('tasks')
     .select('id, code, name, default_unit, category, production_required, crew_required, equipment_required, material_required, safety_review_required, status, company_id, enterprise_group_id')
-    .order('code')
-    .limit(4000)) as Array<Record<string, unknown>>;
+    .order('code'));
   return rows.map((t) => {
     const scope = scopeOf(t.company_id, t.enterprise_group_id);
     return {
@@ -325,11 +359,10 @@ export interface VendorRow {
 }
 
 export const loadVendors: Query<VendorRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('vendors')
     .select('id, code, name, vendor_type, contact_name, email, phone, city, state_province, insurance_expires_on, is_qualified, performance_score, status')
-    .order('name')
-    .limit(1000)) as Array<Record<string, unknown>>;
+    .order('name'));
   const today = localDay();
   return rows.map((v) => {
     const expires = (v.insurance_expires_on as string | null) ?? null;
@@ -508,11 +541,10 @@ export interface MaterialRow {
 }
 
 export const loadMaterials: Query<MaterialRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('materials')
     .select('id, code, name, category, unit, unit_cost, cost_state, free_reason, default_waste_percent, waste_basis, specification, quote_reference, quote_date, status, company_id, enterprise_group_id')
-    .order('code')
-    .limit(2000)) as Array<Record<string, unknown>>;
+    .order('code'));
   return rows.map((m) => {
     const scope = scopeOf(m.company_id, m.enterprise_group_id);
     return {
@@ -542,11 +574,10 @@ export interface LaborRateRow {
 }
 
 export const loadLaborRates: Query<LaborRateRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('labor_rates')
     .select('id, code, classification, labor_group, base_wage_per_hour, burden_percent, burdened_cost_per_hour, overtime_multiplier, doubletime_multiplier, region, is_union, effective_date, status, company_id, enterprise_group_id')
-    .order('classification')
-    .limit(1000)) as Array<Record<string, unknown>>;
+    .order('classification'));
   return rows.map((l) => {
     const scope = scopeOf(l.company_id, l.enterprise_group_id);
     return {
@@ -576,11 +607,10 @@ export interface EquipmentRateRow {
 }
 
 export const loadEquipmentRates: Query<EquipmentRateRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('equipment_rates')
     .select('id, equipment_id, source, hourly_rate, daily_rate, weekly_rate, monthly_rate, effective_date, reference, company_id, equipment(name, equipment_class)')
-    .order('source')
-    .limit(2000)) as Array<Record<string, unknown>>;
+    .order('source'));
   return rows.map((e) => {
     const eq = one<{ name: string; equipment_class: string }>(e.equipment);
     return {
@@ -827,12 +857,11 @@ export interface CrewPreset {
 }
 
 export const loadCrews: Query<CrewPreset[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('crews')
     .select('id, code, name, discipline, shift_hours, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
     .eq('status', 'active')
-    .order('name')
-    .limit(300)) as Array<Record<string, unknown>>;
+    .order('name'));
 
   return rows.map((c) => ({
     id: String(c.id),
@@ -904,12 +933,11 @@ export interface EquipmentOption {
 }
 
 export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('equipment')
     .select('id, name, equipment_class, fuel_gallons_per_hour, mobilization_cost, company_id, enterprise_group_id, equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, effective_date)')
     .eq('status', 'active')
-    .order('name')
-    .limit(500)) as Array<Record<string, unknown>>;
+    .order('name'));
 
   return rows.map((e) => {
     /*
@@ -1012,12 +1040,11 @@ export interface ConditionModifierRow {
 }
 
 export const loadConditionModifiers: Query<ConditionModifierRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('condition_modifiers')
     .select('id, code, name, category, factors, application_rule, company_id, enterprise_group_id')
     .eq('status', 'active')
-    .order('code')
-    .limit(500)) as Array<Record<string, unknown>>;
+    .order('code'));
   return rows.map((m) => {
     const scope = scopeOf(m.company_id, m.enterprise_group_id);
     return {
@@ -1080,12 +1107,11 @@ export interface PricingProfileRow {
 }
 
 export const loadPricingProfiles: Query<PricingProfileRow[]> = async (client) => {
-  const rows = unwrap(await client
+  const rows = await everyRow(() => client
     .from('pricing_profiles')
     .select('id, code, name, method, region, regional_factor, escalation_percent, escalation_years, is_default, company_id, enterprise_group_id, markup_components(code, label, percent, basis, sequence, disclosed)')
     .eq('status', 'active')
-    .order('name')
-    .limit(200)) as Array<Record<string, unknown>>;
+    .order('name'));
   return rows.map((p) => {
     const scope = scopeOf(p.company_id, p.enterprise_group_id);
     const components = ((p.markup_components ?? []) as Array<Record<string, unknown>>)

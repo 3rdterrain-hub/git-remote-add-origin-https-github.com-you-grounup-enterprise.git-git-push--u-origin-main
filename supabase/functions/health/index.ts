@@ -1,6 +1,7 @@
 /**
  * GET /functions/v1/health        — readiness: can this serve traffic now?
  * GET /functions/v1/health/live   — liveness: is the process working at all?
+ * GET /functions/v1/health/ai     — is the AI credential actually accepted?
  *
  * Separated deliberately. A failing readiness check means take me out of
  * rotation; a failing liveness check means restart me. Restarting because the
@@ -12,7 +13,7 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import {
-  checkHealth, healthHttpStatus, databaseCheck, livenessCheck,
+  checkHealth, healthHttpStatus, databaseCheck, livenessCheck, credentialCheck,
 } from '../_shared/observability/health.ts';
 import {
   Logger, jsonLineSink, correlationIdFrom,
@@ -27,6 +28,59 @@ const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+/*
+ * The AI credential check, and why it is its own path.
+ *
+ * `ANTHROPIC_API_KEY` being *present* proved nothing: one was set on this
+ * project and every call still failed with `401 authentication_error / API key
+ * is invalid`, which was visible only to somebody reading `ingestion_jobs`
+ * afterwards. Nothing on the platform said the AI could not work.
+ *
+ * `/v1/models` is the probe rather than a message: it answers the only question
+ * being asked — does the provider accept this credential — and generates no
+ * tokens, so checking costs nothing however often it is asked.
+ *
+ * Not on the default readiness path, deliberately. A load balancer polling
+ * every few seconds must not make an outbound request to a third party, and the
+ * answer changes about as often as somebody rotates a key. The result is held
+ * for a minute so that an open endpoint cannot be used to hammer the provider.
+ */
+const AI_PROBE_CACHE_MS = 60_000;
+let aiProbe: { at: number; result: { status: 'pass' | 'warn' | 'fail'; detail?: string } } | null = null;
+
+async function probeAiCredential(signal: AbortSignal) {
+  const cached = aiProbe;
+  if (cached && Date.now() - cached.at < AI_PROBE_CACHE_MS) return cached.result;
+
+  const key = Deno.env.get('ANTHROPIC_API_KEY');
+  if (!key) {
+    const result = { status: 'fail' as const, detail: 'no credential is configured' };
+    aiProbe = { at: Date.now(), result };
+    return result;
+  }
+
+  let result: { status: 'pass' | 'warn' | 'fail'; detail?: string };
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/models?limit=1', {
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      signal,
+    });
+    result = response.ok
+      ? { status: 'pass' }
+      /*
+       * The status code, never the body. This payload is public, and a
+       * provider's error text can carry an account or organization identifier.
+       */
+      : response.status === 401 || response.status === 403
+        ? { status: 'fail', detail: 'the provider refused this credential' }
+        : { status: 'warn', detail: `the provider answered ${response.status}` };
+  } catch {
+    result = { status: 'warn', detail: 'the provider could not be reached' };
+  }
+  aiProbe = { at: Date.now(), result };
+  return result;
+}
+
 const logSink = jsonLineSink((line) => console.log(line));
 const metricSink = (record: unknown) => console.log(JSON.stringify({ metric: record }));
 
@@ -38,6 +92,8 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const wantsLiveness = url.pathname.endsWith('/live');
+  /* Opt in, by path or by query, so the ordinary probe stays local. */
+  const wantsAi = url.pathname.endsWith('/ai') || url.searchParams.get('check') === 'ai';
 
   const report = await checkHealth([
     livenessCheck(),
@@ -47,6 +103,7 @@ Deno.serve(async (req) => {
         .abortSignal(signal);
       if (error) throw new Error(error.message);
     }),
+    ...(wantsAi ? [credentialCheck('ai_provider', probeAiCredential)] : []),
   ], {
     now,
     kind: wantsLiveness ? 'liveness' : 'readiness',

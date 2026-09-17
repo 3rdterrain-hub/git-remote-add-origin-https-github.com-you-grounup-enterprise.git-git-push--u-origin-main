@@ -20,7 +20,8 @@ import {
   Metrics, MetricLabelError, MAX_LABELS, MAX_LABEL_LENGTH, type MetricRecord,
 } from '../../supabase/functions/_shared/observability/metrics.ts';
 import {
-  checkHealth, healthHttpStatus, databaseCheck, livenessCheck, type HealthCheck,
+  checkHealth, healthHttpStatus, databaseCheck, livenessCheck, credentialCheck,
+  type HealthCheck,
 } from '../../supabase/functions/_shared/observability/health.ts';
 
 const AT = new Date('2026-09-03T09:15:00.000Z');
@@ -427,5 +428,75 @@ describe('health and readiness', () => {
     const r = await checkHealth([livenessCheck()], { now, version: '1.4.2' });
     expect(r.version).toBe('1.4.2');
     expect(r.checkedAt).toBe('2026-09-03T09:15:00.000Z');
+  });
+});
+
+/**
+ * A credential that is present and refused.
+ *
+ * The failure this exists for: `ANTHROPIC_API_KEY` was set on the project, so
+ * nothing anywhere reported it missing, and every AI call failed with
+ * `401 authentication_error / API key is invalid` — visible only to somebody
+ * who went and read `ingestion_jobs` afterwards. Present and working are not
+ * the same claim, and until this check there was nothing that could tell them
+ * apart.
+ */
+describe('an outbound credential', () => {
+  const now = () => new Date('2026-09-17T12:00:00Z');
+
+  it('degrades the report rather than taking the platform out of rotation', async () => {
+    /*
+     * This platform prices estimates, runs projects and bills customers with no
+     * AI whatsoever. A refused key must never return 503 — that would stop the
+     * whole application because an optional feature cannot authenticate.
+     */
+    const r = await checkHealth([
+      databaseCheck(async () => undefined),
+      credentialCheck('ai_provider', async () => ({
+        status: 'fail', detail: 'the provider refused this credential',
+      })),
+    ], { now });
+
+    expect(r.status).toBe('degraded');
+    expect(healthHttpStatus(r)).toBe(200);
+    expect(r.checks.find((c) => c.name === 'ai_provider')!.critical).toBe(false);
+  });
+
+  it('is only unhealthy when something the platform truly needs fails', async () => {
+    const r = await checkHealth([
+      databaseCheck(async () => { throw new Error('gone'); }),
+      credentialCheck('ai_provider', async () => ({ status: 'pass' })),
+    ], { now });
+    expect(r.status).toBe('unhealthy');
+    expect(healthHttpStatus(r)).toBe(503);
+  });
+
+  it('says a working credential is working, and says nothing else about it', async () => {
+    const r = await checkHealth([
+      credentialCheck('ai_provider', async () => ({ status: 'pass' })),
+    ], { now });
+    const check = r.checks.find((c) => c.name === 'ai_provider')!;
+    expect(check.status).toBe('pass');
+    /* The health payload is public. A passing check carries no detail at all,
+       the same rule `databaseCheck` already follows. */
+    expect(check.detail).toBeUndefined();
+  });
+
+  it('can be made critical where a credential really is load-bearing', async () => {
+    const r = await checkHealth([
+      credentialCheck('ai_provider', async () => ({ status: 'fail' }), { critical: true }),
+    ], { now });
+    expect(r.status).toBe('unhealthy');
+  });
+
+  it('runs on readiness, never on liveness', async () => {
+    /* Liveness answers "restart me". A third party refusing a key is never a
+       reason to restart this process. */
+    const r = await checkHealth([
+      livenessCheck(),
+      credentialCheck('ai_provider', async () => ({ status: 'fail' })),
+    ], { now, kind: 'liveness' });
+    expect(r.checks.map((c) => c.name)).toEqual(['process']);
+    expect(r.status).toBe('healthy');
   });
 });

@@ -155,6 +155,38 @@ export function databaseCheck(
   };
 }
 
+/**
+ * A check that an outbound credential is accepted by the service it is for.
+ *
+ * Separate from `databaseCheck` because the failure it catches is different in
+ * kind: the dependency is reachable, the platform is running, and every call
+ * that needs the credential fails anyway. That is the shape of the problem this
+ * was written for — an `ANTHROPIC_API_KEY` was set on the project, so nothing
+ * reported it missing, and `401 authentication_error / API key is invalid` was
+ * visible only to somebody reading `ingestion_jobs` afterwards.
+ *
+ * Two rules it keeps, both because the health payload is public:
+ *
+ *   * **Never `critical`.** The platform prices estimates, runs projects and
+ *     bills customers without any AI. A failing credential must degrade the
+ *     report, never take a node out of rotation.
+ *   * **Never the provider's own message.** `detail` says whether the
+ *     credential was accepted, refused, or absent, and nothing else — no error
+ *     body, no key fragment, no account identifier.
+ */
+export function credentialCheck(
+  name: string,
+  probe: (signal: AbortSignal) => Promise<CheckResult>,
+  options: { critical?: boolean } = {},
+): HealthCheck {
+  return {
+    name,
+    critical: options.critical ?? false,
+    kind: 'readiness',
+    run: probe,
+  };
+}
+
 /** A check that the process is running and can execute code. */
 export function livenessCheck(): HealthCheck {
   return {

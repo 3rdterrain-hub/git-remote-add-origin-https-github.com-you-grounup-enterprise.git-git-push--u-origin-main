@@ -25,8 +25,14 @@ const clientWith = (rates: Array<Record<string, unknown>>) => {
     select: () => builder,
     eq: () => builder,
     order: () => builder,
-    limit: () => Promise.resolve({
-      data: [{
+    /*
+     * The readers page now rather than taking the first N — a ceiling hid 200
+     * machines, 820 services and 4,532 tasks on the live catalog. One page is
+     * all this double ever has, so it answers the first range and an empty
+     * second, which is exactly what the real thing does.
+     */
+    range: (from: number) => Promise.resolve({
+      data: from > 0 ? [] : [{
         id: 'eq-1', name: 'Excavator, hydraulic', equipment_class: 'Earthmoving Equipment',
         fuel_gallons_per_hour: 6, mobilization_cost: 500,
         company_id: 'co-1', enterprise_group_id: null,
