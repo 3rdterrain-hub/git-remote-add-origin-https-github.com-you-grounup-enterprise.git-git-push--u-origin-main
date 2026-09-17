@@ -86,7 +86,7 @@ directly, which is why the marketing page can show a genuinely computed estimate
 
 ### 3. `supabase/functions` — the privileged server boundary
 
-16 functions — six for billing, the governed document analyst, the public API
+17 functions — six for billing, the governed document analyst, the public API
 gateway and a health endpoint — plus shared helpers. Two Supabase clients are
 used deliberately:
 

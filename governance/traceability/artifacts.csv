@@ -424,6 +424,7 @@ TST-fn-estimate-pricing,test,fn/estimate-pricing.test.ts,tests/functions/estimat
 TST-fn-ingestion,test,fn/ingestion.test.ts,tests/functions/ingestion.test.ts,ENGINE
 TST-fn-observability,test,fn/observability.test.ts,tests/functions/observability.test.ts,ENGINE
 TST-fn-plan-analysis,test,fn/plan-analysis.test.ts,tests/functions/plan-analysis.test.ts,ENGINE
+TST-fn-scenario-input,test,fn/scenario-input.test.ts,tests/functions/scenario-input.test.ts,ENGINE
 TST-fn-subscription-state,test,fn/subscription-state.test.ts,tests/functions/subscription-state.test.ts,ENGINE
 TST-fn-surface-comparison,test,fn/surface-comparison.test.ts,tests/functions/surface-comparison.test.ts,ENGINE
 TST-gov-a-select-names-columns-that-exist,test,gov/a-select-names-columns-that-exist.test.ts,tests/governance/a-select-names-columns-that-exist.test.ts,ENGINE

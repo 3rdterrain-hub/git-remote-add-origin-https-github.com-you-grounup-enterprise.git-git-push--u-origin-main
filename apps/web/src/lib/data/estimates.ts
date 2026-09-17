@@ -17,6 +17,7 @@
  * time somebody added a screen.
  */
 import { unwrap, type Query } from './query';
+import { callFunction } from '@/lib/supabase';
 import { chooseCompany, rememberedCompany } from '@/lib/active-company';
 import { ESTIMATES } from '@/data/operations';
 
@@ -1804,5 +1805,107 @@ export async function addAssemblyResource(
     p_unit: input.unit ?? null,
     p_optional: input.optional ?? false,
     p_notes: input.notes ?? null,
+  });
+}
+
+/* ---------------------------------------------------------------------------
+ * Asking what would move the price
+ *
+ * `priceScenarios` and `analyzeSensitivity` have been in the engine, written
+ * and tested, with nothing in the application calling them — the defect this
+ * repository keeps producing. This is their door.
+ *
+ * It writes nothing. A scenario is a question about a price, not a price, so
+ * none of it touches `estimate_versions` and an estimator can ask as often as
+ * they like without changing what the bid says.
+ * ------------------------------------------------------------------------- */
+
+/** The drivers the engine can move. A closed set, matching the engine's own. */
+export const SCENARIO_DRIVERS = [
+  'quantity', 'production', 'labor_wage', 'labor_burden', 'equipment_rate',
+  'fuel_price', 'material_cost', 'subcontract_cost', 'waste',
+  'calendar_efficiency', 'contingency',
+] as const;
+
+export type ScenarioDriver = typeof SCENARIO_DRIVERS[number];
+
+export interface ScenarioAdjustmentInput {
+  driver: ScenarioDriver;
+  /** 1.15 is fifteen percent more; 0.85 is fifteen percent less. */
+  factor: number;
+  /** Why. The engine refuses an adjustment without one. */
+  rationale: string;
+}
+
+export interface ScenarioInput {
+  id?: string;
+  name: string;
+  kind: 'low' | 'base' | 'high' | 'custom';
+  adjustments: ScenarioAdjustmentInput[];
+}
+
+export interface SensitivityEntry {
+  driver: string;
+  label: string;
+  factor: number;
+  bidPrice: number;
+  delta: number;
+  deltaPercent: number;
+  /** Price change per one percent move in the driver. The comparable number. */
+  elasticity: number;
+}
+
+export interface ScenarioLine {
+  id: string;
+  name: string;
+  kind: string;
+  adjustments: ScenarioAdjustmentInput[];
+  directCost: number;
+  totalPrice: number;
+  bidPrice: number;
+  deltaFromBase: number;
+  deltaPercentFromBase: number;
+  derivation: string;
+}
+
+export interface WhatIfReport {
+  asOf: string;
+  sensitivity: {
+    basePrice: number;
+    factor: number;
+    entries: SensitivityEntry[];
+    /** The driver whose movement costs most. What is worth managing. */
+    mostSensitive: SensitivityEntry | null;
+    derivation: string[];
+  };
+  comparison: {
+    base: { name: string; bidPrice: number };
+    scenarios: ScenarioLine[];
+    lowest: string;
+    highest: string;
+    spread: number;
+    spreadPercentOfBase: number;
+    derivation: string[];
+    warnings: string[];
+  } | null;
+}
+
+/**
+ * Ask what would move this bid.
+ *
+ * Sensitivity comes back always: it assumes nothing, it just moves each driver
+ * on its own and reports what happened. Scenarios come back only when the
+ * caller states them, because an assumption the platform invented is one nobody
+ * can defend to an owner.
+ */
+export async function compareScenarios(
+  estimateVersionId: string,
+  options: { scenarios?: ScenarioInput[]; sensitivityFactor?: number; asOf?: string } = {},
+): Promise<WhatIfReport> {
+  return callFunction<WhatIfReport>('compare-scenarios', {
+    estimateVersionId,
+    ...(options.scenarios ? { scenarios: options.scenarios } : {}),
+    ...(options.sensitivityFactor ? { sensitivityFactor: options.sensitivityFactor } : {}),
+    ...(options.asOf ? { asOf: options.asOf } : {}),
   });
 }

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { PageHeader, StatTile } from '@/components/layout/page';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
+import { WhatIf } from '@/components/estimate/what-if';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -604,6 +605,24 @@ export function EstimateVersionPage() {
 
           <AssumptionsCard version={v} editable={editable && can('estimates.write')}
             onChanged={version.refetch} />
+
+          {/*
+            * What would move this bid.
+            *
+            * `priceScenarios` and `analyzeSensitivity` have been in the engine,
+            * written and tested, with nothing calling them — the defect this
+            * repository keeps producing. Placed under the assumptions because
+            * that is what a scenario is: the same assumptions, moved, and
+            * nothing saved.
+            */}
+          <CollapsibleCard
+            title="What would move this bid"
+            description="Each driver moved on its own, ranked by what it did to the price — and your own assumptions priced beside the estimate. Nothing here is saved; the bid does not move."
+            summary="Sensitivity and scenarios"
+            defaultOpen={false}
+          >
+            <WhatIf versionId={v.id} canRun={can('estimates.read')} />
+          </CollapsibleCard>
 
           {/*
             * Where the work is, off the estimate rather than the version. The

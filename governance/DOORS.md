@@ -61,7 +61,7 @@ None.
 | `record_schedule_calculation` | recalculate-schedule/index.ts |
 | `record_site_weather` | refresh-weather/index.ts |
 | `record_surface_comparison` | compare-surfaces/index.ts |
-| `resolved_labor_rates` | price-estimate/index.ts |
+| `resolved_labor_rates` | _shared/estimate-snapshot.ts |
 | `seat_price_cents` | create-checkout-session/index.ts |
 
 ## Opened by a screen

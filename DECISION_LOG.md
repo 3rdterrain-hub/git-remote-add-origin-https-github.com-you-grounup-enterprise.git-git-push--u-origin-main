@@ -11,6 +11,61 @@ Newest first.
 
 ---
 
+## D-071 · 2026-09-16 · A scenario is a question about a price, not a price
+
+**Decision.** `compare-scenarios` is its own Edge Function and **writes
+nothing**. Sensitivity and scenario comparison return to the caller and go no
+further; no column on `estimate_versions` is touched, and it needs only
+`estimates.read`.
+
+**Reason.** A price is an engine output — 0058 lets exactly one function write
+one, granted to `service_role` alone. A scenario is not a price; it is a
+question about one. Making it a mode of `price-estimate` would have put a
+write-shaped thing in front of a read, and an estimator would have had to
+consider whether asking "what if fuel is up fifteen percent" changed the bid.
+It does not, and the shape of the code says so.
+
+The estimator supplies the scenarios. The platform does **not** offer a stock
+"high case", because an assumption nobody chose is one nobody can defend to an
+owner. Every adjustment carries a reason and the boundary refuses one that does
+not — "high is base plus twenty percent" is the first thing asked about at a bid
+opening.
+
+Sensitivity runs always, because it assumes nothing: each driver is moved on its
+own by one stated factor and the results are ranked. That is measurement, and it
+answers the question an estimator actually has — which lever is worth pulling.
+
+**Affects.** `compare-scenarios`, `_shared/scenario-input.ts`,
+`components/estimate/what-if.tsx`, the estimate version screen.
+
+**Status.** Active. The engine's own 26 tests stand; 9 new ones cover the wire.
+
+---
+
+## D-072 · 2026-09-16 · One statement of how an estimate is read
+
+**Decision.** The PostgREST selects and the load routine moved to
+`_shared/estimate-snapshot.ts`. `price-estimate` and `compare-scenarios` both
+call it.
+
+**Reason.** The risk is specific and recent rather than theoretical: adding
+`fringe_per_hour` meant editing two selects by hand in one file, and missing one
+would have priced a crew's fringe on one path and not the other — twenty dollars
+an hour a worker, visible nowhere. A second function with its own copy would
+have made that certain rather than likely.
+
+It also matters for correctness of the comparison itself: a scenario priced
+against a differently-loaded estimate is a comparison of two different jobs.
+
+The extraction was done by moving the text unchanged and proving the select
+constants byte-identical before rewiring, rather than by retyping them.
+
+**Affects.** `price-estimate` (260 lines to 152), `compare-scenarios`.
+
+**Status.** Active. Functions suite 301 green.
+
+---
+
 ## D-067 · 2026-09-16 · A wage sheet is the unit, not a region
 
 **Decision.** Wages are held as dated sheets (`wage_schedules`), one per

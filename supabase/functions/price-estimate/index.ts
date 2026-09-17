@@ -29,57 +29,8 @@
  */
 import { getCaller, requirePermission, isUuid, adminClient } from '../_shared/auth.ts';
 import { fail, json, preflight } from '../_shared/http.ts';
-import {
-  priceEstimate,
-  type EstimateSnapshot, type LineRow, type ResourceRow, type IndirectRow, type VersionRow,
-} from '../_shared/estimate-pricing.ts';
-
-const VERSION_SELECT =
-  'id, version_number, status, shift_hours, calendar_efficiency, fuel_price_per_gallon, ' +
-  'def_price_per_gallon, bid_rounding_increment, contingency_source, applied_contingency, ' +
-  'contingency_override_reason, contingency_approved_by, estimate_id, company_id, ' +
-  'wage_schedule_id, ' +
-  'discount_percent, discount_amount, discount_reason, ' +
-  'pricing_profiles(id, name, method, region, regional_factor, escalation_percent, ' +
-  'escalation_years, markup_components(code, label, percent, basis, sequence, disclosed)), ' +
-  // This bid's own adjustments. When it carries any they are the markup; when
-  // it carries none the profile's stand, so an untouched estimate prices as it
-  // always did.
-  'estimate_version_markups(code, label, percent, basis, sequence, disclosed, enabled)';
-
-const LINE_SELECT =
-  'id, description, sort_order, service_id, assembly_id, discipline, measured_quantity, unit, ' +
-  'measurement_method, waste_percent, loss_percent, waste_basis, quantity_adjustments, ' +
-  'source_references, production_modifier, markup_override, ' +
-  'parametric_cost_per_unit, parametric_basis, ' +
-  'check_primary_source, check_cross_source, ' +
-  'check_reconciliation, conflict_count, has_open_rfi, documents_cannot_resolve, ' +
-  'material_geotech_assumption, major_earthwork_decision, origin, notes, ' +
-  'cost_codes(code), ' +
-  'production_rates(id, task_id, rate_per_hour, rate_unit, utilization_factor, shift_hours, ' +
-  'source_type, confidence_score, sample_size, effective_date, region, approval_state, status), ' +
-  'crews(id, name, shift_hours, crew_members(id, headcount, straight_hours_per_shift, ' +
-  'overtime_hours_per_shift, doubletime_hours_per_shift, ' +
-  'labor_rates(id, classification, labor_group, base_wage_per_hour, burden_percent, ' +
-  'fringe_per_hour, fringe_is_taxable, ' +
-  'overtime_multiplier, doubletime_multiplier, region, effective_date, status))), ' +
-  'estimate_line_modifiers(justification, condition_modifiers(id, name, factors, ' +
-  'application_rule, category, status))';
-
-const RESOURCE_SELECT =
-  'id, line_item_id, resource_kind, description, quantity, unit, unit_rate, hours, headcount, ' +
-  'quote_reference, sort_order, role, drives_hours, production_per_hour, base_rate, ' +
-  'burden_rate, rate_basis, mobilization_cost, standby_days, minimum_hours, is_owned, ' +
-  'haul_mode, round_trip_miles, average_speed_mph, truck_capacity, tons_per_load, ' +
-  'load_minutes, dump_minutes, queue_minutes, includes_disposal, ' +
-  'equipment(id, name, equipment_class, fuel_gallons_per_hour, def_percent_of_fuel, ' +
-  'operator_required, mobilization_required, mobilization_cost, ' +
-  'equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, ' +
-  'effective_date, expires_on, reference)), ' +
-  'materials(id, name, unit, unit_cost, cost_state, free_reason, vendor_id, quote_reference), ' +
-  'labor_rates(id, classification, labor_group, base_wage_per_hour, burden_percent, ' +
-  'fringe_per_hour, fringe_is_taxable, ' +
-  'overtime_multiplier, doubletime_multiplier, region, effective_date, status)';
+import { priceEstimate } from '../_shared/estimate-pricing.ts';
+import { loadEstimateSnapshot } from '../_shared/estimate-snapshot.ts';
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -97,15 +48,22 @@ Deno.serve(async (req) => {
       return fail('bad_request', 'A valid estimateVersionId is required.', 400, origin);
     }
 
-    // Read through the caller's own client: row level security decides what
-    // they can see, and a version they cannot see is a version they cannot
-    // cause to be priced.
-    const { data: version, error: versionError } = await caller.client
-      .from('estimate_versions').select(VERSION_SELECT).eq('id', versionId).maybeSingle();
-    if (versionError) return fail('read_failed', versionError.message, 400, origin);
-    if (!version) return fail('not_found', 'That estimate version does not exist.', 404, origin);
-
-    const row = version as unknown as Record<string, unknown>;
+    /*
+     * Read through the caller's own client: row level security decides what
+     * they can see, and a version they cannot see is a version they cannot
+     * cause to be priced.
+     *
+     * The loading itself lives in `_shared/estimate-snapshot.ts` so the
+     * scenario comparison reads the *same* estimate. Two copies of these
+     * selects would drift — adding `fringe_per_hour` already meant editing two
+     * of them by hand — and a comparison against a differently-loaded estimate
+     * is a comparison of two different jobs.
+     */
+    const loaded = await loadEstimateSnapshot(caller.client, versionId);
+    if (!loaded.ok) {
+      return fail(loaded.failure.code, loaded.failure.message, loaded.failure.status, origin);
+    }
+    const { snapshot, version: row } = loaded;
     const companyId = String(row.company_id);
 
     const permitted = await requirePermission(caller, companyId, 'estimates.write');
@@ -121,112 +79,6 @@ Deno.serve(async (req) => {
         `This version is ${row.status} and its price is frozen. Revise it to price again.`,
         409, origin);
     }
-
-    const { data: estimate, error: estimateError } = await caller.client
-      .from('estimates').select('id, number, name').eq('id', String(row.estimate_id)).maybeSingle();
-    if (estimateError) return fail('read_failed', estimateError.message, 400, origin);
-    if (!estimate) return fail('not_found', 'That estimate does not exist.', 404, origin);
-
-    const { data: lines, error: linesError } = await caller.client
-      .from('estimate_line_items').select(LINE_SELECT).eq('estimate_version_id', versionId);
-    if (linesError) return fail('read_failed', linesError.message, 400, origin);
-
-    const lineIds = (lines ?? []).map((l) => String((l as unknown as Record<string, unknown>).id));
-    const { data: resources, error: resourcesError } = lineIds.length
-      ? await caller.client
-          .from('estimate_line_resources').select(RESOURCE_SELECT).in('line_item_id', lineIds)
-      : { data: [], error: null };
-    if (resourcesError) return fail('read_failed', resourcesError.message, 400, origin);
-
-    /*
-     * Which wage prices each crew member.
-     *
-     * Asked of the database rather than worked out here, because there is one
-     * statement of that rule and it lives in `app.resolve_labor_rate`. Two
-     * implementations would disagree eventually, and the thing they would
-     * disagree about is what a bid pays its people.
-     *
-     * Skipped entirely when the version names no sheet — which is every
-     * open-shop estimate, and the reason this can be added without moving a
-     * single existing price. A missing class comes back as a refusal naming the
-     * class and the sheet; it is surfaced as-is, because the message is the
-     * whole point of refusing rather than substituting.
-     */
-    let resolvedRates: Map<string, string> | null = null;
-    if (row.wage_schedule_id) {
-      const { data: resolved, error: resolveError } = await caller.client
-        .rpc('resolved_labor_rates', { p_version: versionId });
-      if (resolveError) {
-        return json({ error: {
-          code: 'wage_not_resolved',
-          message: resolveError.message,
-        } }, 422, origin);
-      }
-      resolvedRates = new Map(
-        ((resolved ?? []) as Array<Record<string, unknown>>)
-          .filter((r) => r.labor_rate_id)
-          .map((r) => [String(r.crew_member_id), String(r.labor_rate_id)]),
-      );
-
-      /*
-       * The rates themselves, so the swap below puts a whole row in rather than
-       * an id the engine cannot price from. One query for the sheet, not one
-       * per worker.
-       */
-      const wanted = [...new Set(resolvedRates.values())];
-      const { data: sheetRates, error: sheetError } = wanted.length
-        ? await caller.client.from('labor_rates')
-            .select('id, classification, labor_group, base_wage_per_hour, burden_percent, '
-              + 'fringe_per_hour, fringe_is_taxable, overtime_multiplier, '
-              + 'doubletime_multiplier, region, effective_date, status')
-            .in('id', wanted)
-        : { data: [], error: null };
-      if (sheetError) return fail('read_failed', sheetError.message, 400, origin);
-
-      const byId = new Map(
-        ((sheetRates ?? []) as unknown as Array<Record<string, unknown>>)
-          .map((r) => [String(r.id), r]),
-      );
-
-      /*
-       * Put the sheet's rate on each crew member. Done here rather than in the
-       * engine because the engine prices what it is given and has no business
-       * knowing what a union local is — it takes a wage, a burden and a fringe,
-       * and this decides which ones.
-       */
-      for (const line of (lines ?? []) as unknown as Array<Record<string, unknown>>) {
-        const crew = line.crews as Record<string, unknown> | null;
-        const members = (crew?.crew_members ?? []) as Array<Record<string, unknown>>;
-        for (const m of members) {
-          const resolvedId = resolvedRates.get(String(m.id));
-          const rate = resolvedId ? byId.get(resolvedId) : undefined;
-          if (rate) m.labor_rates = rate;
-        }
-      }
-    }
-
-    const { data: indirects, error: indirectsError } = await caller.client
-      .from('estimate_indirects')
-      .select('code, label, amount, percent_of_direct, per_day, days')
-      .eq('estimate_version_id', versionId);
-    if (indirectsError) return fail('read_failed', indirectsError.message, 400, origin);
-
-    if ((lines ?? []).length === 0) {
-      return fail('nothing_to_price',
-        'This version has no line items. Add scope before pricing it.', 422, origin);
-    }
-
-    const snapshot: EstimateSnapshot = {
-      estimate: {
-        id: String((estimate as unknown as Record<string, unknown>).id),
-        number: String((estimate as unknown as Record<string, unknown>).number),
-        name: String((estimate as unknown as Record<string, unknown>).name),
-      },
-      version: version as unknown as VersionRow,
-      lines: (lines ?? []) as unknown as LineRow[],
-      resources: (resources ?? []) as unknown as ResourceRow[],
-      indirects: (indirects ?? []) as unknown as IndirectRow[],
-    };
 
     // The estimate's own date, not today's. Repricing a two-year-old version
     // must resolve the rates that were in force when it was written.

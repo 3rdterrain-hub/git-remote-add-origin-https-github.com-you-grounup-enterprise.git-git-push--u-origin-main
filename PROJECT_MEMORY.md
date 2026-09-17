@@ -622,6 +622,36 @@ apprentice constraint refused a percentage with no journeyman named (0204); and
 `every-door-has-a-reader` then found the resolver had no caller, which is what
 0206 fixed.
 
+### Scenario comparison, as of this session
+
+`priceScenarios` and `analyzeSensitivity` had been in the engine — written,
+tested by 26 of their own tests, and **called by nothing**. The defect this
+repository keeps producing, in the layer that is hardest to notice it in,
+because the tests were all green.
+
+**It is a read, and the shape of the code says so** (D-071). `compare-scenarios`
+is its own Edge Function, needs only `estimates.read`, and writes nothing at
+all. A price is an engine output that exactly one function may write; a scenario
+is a *question* about a price. Had it been a mode of `price-estimate`, an
+estimator would have had to wonder whether asking moved the bid.
+
+**Sensitivity runs always, because it assumes nothing** — each driver moved on
+its own by one stated factor, ranked by what it did. It answers the question an
+estimator actually has: not "what could go wrong" but *which lever is worth
+pulling*, and the answer is usually not the one they expected.
+
+**Scenarios are the estimator's.** The platform offers no stock "high case". An
+assumption nobody chose is one nobody can defend to an owner, and the boundary
+refuses an adjustment that will not say why — "high is base plus twenty percent"
+is the first thing asked about when a bid is opened.
+
+**One statement of how an estimate is read** (D-072). The selects and the load
+moved to `_shared/estimate-snapshot.ts`, proved byte-identical before rewiring.
+`price-estimate` went from 260 lines to 152. The risk was not theoretical:
+adding `fringe_per_hour` had just meant editing two selects by hand in one file,
+and a comparison priced against a differently-loaded estimate is a comparison of
+two different jobs.
+
 ### Recommended next actions
 
 1. Work the toolbar in order, saying before each section closes. Survey & Grade,
