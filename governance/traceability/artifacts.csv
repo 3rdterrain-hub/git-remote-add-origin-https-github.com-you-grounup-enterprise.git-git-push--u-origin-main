@@ -298,6 +298,7 @@ TST-db-a-proposal-you-can-draft,test,db/a-proposal-you-can-draft.test.ts,tests/d
 TST-db-a-purchase-order-worth-something,test,db/a-purchase-order-worth-something.test.ts,tests/db/a-purchase-order-worth-something.test.ts,ENGINE
 TST-db-a-resource-you-can-repoint,test,db/a-resource-you-can-repoint.test.ts,tests/db/a-resource-you-can-repoint.test.ts,ENGINE
 TST-db-a-schedule-you-can-build,test,db/a-schedule-you-can-build.test.ts,tests/db/a-schedule-you-can-build.test.ts,ENGINE
+TST-db-a-search-that-finds-the-thing-you-named,test,db/a-search-that-finds-the-thing-you-named.test.ts,tests/db/a-search-that-finds-the-thing-you-named.test.ts,ENGINE
 TST-db-a-service-you-can-build-up,test,db/a-service-you-can-build-up.test.ts,tests/db/a-service-you-can-build-up.test.ts,ENGINE
 TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.ts,tests/db/a-sheet-that-knows-what-it-is.test.ts,ENGINE
 TST-db-a-shipped-row-you-can-make-your-own,test,db/a-shipped-row-you-can-make-your-own.test.ts,tests/db/a-shipped-row-you-can-make-your-own.test.ts,ENGINE
@@ -522,6 +523,7 @@ TST-web-query,test,web/query.test.tsx,apps/web/src/lib/data/query.test.tsx,ENGIN
 TST-web-read-pdf,test,web/read-pdf.test.ts,apps/web/src/lib/data/read-pdf.test.ts,ENGINE
 TST-web-session,test,web/session.test.ts,apps/web/src/lib/data/session.test.ts,ENGINE
 TST-web-format,test,web/format.test.ts,apps/web/src/lib/format.test.ts,ENGINE
+TST-web-search,test,web/search.test.ts,apps/web/src/lib/search.test.ts,ENGINE
 TST-web-takeoff-tools,test,web/takeoff-tools.test.ts,apps/web/src/lib/takeoff-tools.test.ts,ENGINE
 TST-web-theme,test,web/theme.test.ts,apps/web/src/lib/theme.test.ts,ENGINE
 TST-web-admin,test,web/admin.test.tsx,apps/web/src/pages/admin.test.tsx,ENGINE

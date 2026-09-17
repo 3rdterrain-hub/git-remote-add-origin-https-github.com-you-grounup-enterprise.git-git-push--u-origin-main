@@ -15,7 +15,7 @@ import { AI_FINDINGS } from '@/data/operations';
 import { NOTIFICATIONS } from '@/data/field';
 import { search, KIND_LABEL, type SearchHit } from '@/lib/search';
 import { supabase } from '@/lib/supabase';
-import { useQuery } from '@/lib/data/query';
+import { messageFor, useQuery } from '@/lib/data/query';
 import {
   loadMemberships, loadMySuspension, loadMyPaymentProblem, loadMyAnnouncements,
   dismissAnnouncement, loadMyNotifications, markNotificationRead,
@@ -208,6 +208,7 @@ export function AppShell() {
   const onTop = navPref.placement === 'top';
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<SearchHit[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
@@ -242,10 +243,20 @@ export function AppShell() {
 
   // Debounced so typing does not fire a query per keystroke.
   useEffect(() => {
-    if (query.trim().length < 2) { setHits([]); return; }
+    if (query.trim().length < 2) { setHits([]); setSearchError(null); return; }
     let canceled = false;
     const t = setTimeout(() => {
-      search(query).then((r) => { if (!canceled) setHits(r); }).catch(() => undefined);
+      search(query)
+        .then((r) => { if (!canceled) { setHits(r); setSearchError(null); } })
+        /*
+         * Said, not swallowed. This was `.catch(() => undefined)`, so a search
+         * that failed looked exactly like a search that matched nothing — and
+         * underneath it, `lib/search.ts` was quietly answering from the
+         * demonstration fixtures instead. Both halves of that are gone.
+         */
+        .catch((e: unknown) => {
+          if (!canceled) { setHits([]); setSearchError(messageFor(e)); }
+        });
     }, 180);
     return () => { canceled = true; clearTimeout(t); };
   }, [query]);
@@ -449,7 +460,11 @@ export function AppShell() {
                 <button className="fixed inset-0 z-40 cursor-default" aria-hidden="true" tabIndex={-1}
                   onClick={() => setSearchOpen(false)} />
                 <div className="absolute left-0 right-0 top-11 z-50 overflow-hidden rounded-[--radius-card] border border-charcoal-200 bg-white shadow-xl">
-                  {hits.length === 0 ? (
+                  {searchError ? (
+                    <p className="px-4 py-6 text-center text-sm text-danger-700">
+                      Search could not run. {searchError}
+                    </p>
+                  ) : hits.length === 0 ? (
                     <p className="px-4 py-6 text-center text-sm text-charcoal-500">
                       Nothing matches “{query}”.
                     </p>

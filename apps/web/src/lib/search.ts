@@ -8,6 +8,16 @@
  * one tenant's records to another through autocomplete.
  *
  * Without a project it searches the in-memory demo dataset with the same shape.
+ *
+ * **What it will not do is mix the two.** This function used to fall through to
+ * the demo dataset when the remote call failed, with a comment explaining that
+ * an empty dropdown looks like "nothing matched". That reasoning is right about
+ * the symptom and wrong about the cure: it meant a signed-in person searching
+ * their own workspace could be shown seven invented estimates, five invented
+ * projects and a fleet of machines that do not exist, presented as their
+ * records, with nothing on screen saying so. A configured workspace now either
+ * answers or raises, and the shell says which — the rule `lib/data/query.ts`
+ * states for every other reader on the platform, which this file predated.
  */
 import { supabase } from './supabase';
 import { ESTIMATES, PROJECTS, CUSTOMERS, DOCUMENTS } from '@/data/operations';
@@ -75,7 +85,8 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
 
   if (supabase) {
     const { data, error } = await supabase.rpc('search', { p_query: query, p_limit: limit });
-    if (!error && Array.isArray(data)) {
+    if (error) throw new Error(error.message);
+    if (Array.isArray(data)) {
       // The RPC's row shape is not statically known here, so each field is
       // coerced rather than trusted — a malformed row becomes a harmless entry
       // instead of a runtime crash in the dropdown.
@@ -89,8 +100,9 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
         }))
         .filter((h) => h.id !== '' && h.title !== '');
     }
-    // Fall through to the demo dataset if the RPC is unavailable, rather than
-    // showing the user an empty result that looks like "nothing matched".
+    /* Configured, no error, and nothing came back: genuinely no matches. The
+       demonstration dataset is not reachable from here on purpose. */
+    return [];
   }
 
   return searchDemo(query, limit);

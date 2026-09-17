@@ -11,6 +11,74 @@ Newest first.
 
 ---
 
+## D-083 · 2026-09-17 · Search matches on containment; similarity only ranks
+
+**Decision.** `app.search` gates every branch on `ilike '%term%'` across the
+columns a person would type, keeping the trigram operator `%` as an additional
+OR for near-misses. `app.search_rank` then orders: starts-with, start-of-word,
+contains, and only then trigram similarity.
+
+**Reason.** The function had gated on `%` alone since migration 0019. That
+operator compares *whole strings*, so the longer a record's title, the less any
+one word inside it resembles it. Measured on the live database before the fix:
+"Sandusky" returned 1 hit, "Auburn" returned 0, "San" returned 0 — while
+`E-2026-0005 Auburn Ave site package — mass grading and storm` sat in the
+company's own estimates. Somebody typing the name of their own live bid got an
+empty dropdown, which is indistinguishable from not having the bid.
+
+**Also.** Three of the nine kinds the shell can render — asset, employee,
+purchase order — were never returned by the live function, though the
+demonstration dataset returned all three. `EX-4412` is the owner's own example
+of a reference that should be findable, and it was findable only in the sample
+data. Those branches are added.
+
+**Affects.** `app.search`, `app.search_rank`, four new trigram indexes on
+estimates, projects, assets and purchase_orders.
+
+**Status.** Active. 15 tests, including three on tenancy — search reads nine
+tables at once and autocomplete is the classic way a platform hands one tenant
+another's record names.
+
+---
+
+## D-084 · 2026-09-17 · Your own records outrank the shipped catalog
+
+**Decision.** A hit is scored `rank × weight`: 1.00 for this company's
+operational records, 0.90 for a library row it owns or customized, 0.55 for the
+shipped catalog.
+
+**Reason.** Fixing D-083 exposed what the old behavior had hidden. The catalog
+ships 2,820 services, so `search('grading', 12)` returned twelve services and
+zero estimates — burying a live bid named "mass grading" under reference
+material. Multiplied rather than sorted in tiers, deliberately: a tier sort
+would put a vague 0.3 trigram guess at an estimate above a perfect match on a
+catalog service, which is the same failure pointing the other way.
+
+**Status.** Active. `search('grading')` now returns both estimates and the
+project above the services.
+
+---
+
+## D-085 · 2026-09-17 · Search does not answer from the fixtures when it fails
+
+**Decision.** `lib/search.ts` throws when a configured workspace's RPC errors,
+and the shell renders the failure. The demonstration dataset is reachable only
+when no workspace is configured.
+
+**Reason.** It used to fall through to the fixtures on any error, with a comment
+explaining that an empty dropdown looks like "nothing matched". That is right
+about the symptom and wrong about the cure: a signed-in person searching their
+own workspace could be shown invented estimates, projects and machines as their
+records, with nothing on screen saying so. The shell compounded it with
+`.catch(() => undefined)`, so a failure and an empty result looked identical.
+`lib/data/query.ts` states the rule for every other reader on this platform —
+live, demonstration, or a visible error, never a silent substitution — and this
+file predated it.
+
+**Status.** Active. Pinned by `search.test.ts`.
+
+---
+
 ## D-079 · 2026-09-17 · A permission you do not hold, you cannot grant
 
 **Decision.** `app.assert_grantable` refuses any permission on a company role

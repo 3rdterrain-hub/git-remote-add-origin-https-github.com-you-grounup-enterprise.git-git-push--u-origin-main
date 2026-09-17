@@ -30,7 +30,7 @@ estimate or follows from it.
 
 | Layer | Where | What it is |
 |---|---|---|
-| Schema | `supabase/migrations/*.sql` | 211 migrations, plus the catalog copies. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
+| Schema | `supabase/migrations/*.sql` | 213 migrations, plus the catalog copies. Catalog seeds sit at 0900+, which is why `db push` needs `--include-all`. |
 | Engine | `packages/engine/` | The only place a price is computed. Pure TypeScript, no database access. |
 | Engine (edge copy) | `supabase/functions/_shared/engine/` | **Generated.** `npm run engine:edge` writes it; `engine:edge:check` fingerprints it. Editing it by hand is a defect the gate catches. |
 | Functions | `supabase/functions/` | 14 Edge Functions: pricing, billing, Stripe webhook, AI, email, weather, the API gateway. |
@@ -211,7 +211,7 @@ the data layer translates at the boundary and nowhere else. A `my_*` view is
 caller-scoped by row level security. A `public.*` function is the browser-facing
 wrapper over an `app.*` implementation.
 
-**Data.** 173 tables, 139 views (20 reporting), 211 migrations. Catalog seeds sit
+**Data.** 173 tables, 139 views (20 reporting), 213 migrations. Catalog seeds sit
 at 0900+ — which is why `db push` needs `--include-all`.
 
 **Integrations.** Stripe (checkout, portal, webhook), Open-Meteo (no key, by
@@ -784,6 +784,45 @@ tabs, so the Stripe return paths still land correctly.
 *(One correction to an earlier audit note: `app.set_role_permissions` from 0076
 operates on `platform_roles` — the GrounUp operator roles on the admin side —
 not on tenant `roles`. It was never the missing door behind this tab.)*
+
+### Global search, as of migrations 0214–0215
+
+O-006 recorded this as "search indexes fixtures, not records". That turned out
+to be the smaller half. `public.search` existed, had readers, and did query the
+real tables — but it could not find them.
+
+`app.search` gated every branch on the trigram operator `%`, which compares
+*whole strings*. The longer a record's title, the less any single word inside it
+resembles it. On the live database, before the fix:
+
+    "Sandusky"  1 hit     "Auburn"  0 hits     "San"  0 hits
+
+with `E-2026-0005 Auburn Ave site package — mass grading and storm` sitting in
+the company's own estimates the whole time. Somebody typing the name of their
+own live bid got an empty dropdown, which looks exactly like not having the bid.
+It had no test of any kind, which is how it stayed that way since 0019.
+
+**Containment is now the predicate and similarity only ranks** (D-083):
+starts-with, then start-of-word, then contains, then trigram for a near-miss.
+Three kinds the shell has always been able to render — asset, employee, purchase
+order — were never returned live, though the demonstration data returned all
+three; `EX-4412` was findable only in the sample. They are branches now.
+
+**Fixing that exposed a second problem it had been hiding** (D-084). The catalog
+ships 2,820 services, so `search('grading', 12)` came back twelve services and
+zero estimates. A hit is now scored `rank × weight` — 1.00 for the company's own
+records, 0.90 for a library row it owns, 0.55 for the shipped catalog — so
+reference material can be found without burying a live bid.
+
+**And the browser was substituting fixtures on failure** (D-085). `lib/search.ts`
+fell through to the demonstration dataset whenever the call errored, and the
+shell swallowed the error with `.catch(() => undefined)`, so a broken search and
+an empty one looked identical — while invented estimates, projects and machines
+were presented to a signed-in person as their records. Both halves are gone: a
+configured workspace answers or raises, and the dropdown says which.
+
+*One thing this closes for good:* the search bar was the last reader on the
+platform that could silently show fixture data on a live workspace.
 
 ### Recommended next actions
 
