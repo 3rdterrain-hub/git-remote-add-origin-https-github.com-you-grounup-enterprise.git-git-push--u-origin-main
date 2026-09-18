@@ -103,6 +103,43 @@ describe('a proposal as a document', () => {
     expect(input.terms).toEqual([]);
   });
 
+  /*
+   * `exclusions` and `inclusions` were `[]` from the day this file was written,
+   * while the document has always had those sections. Every bid this platform
+   * produced went out silent about what it did not cover.
+   */
+  it('carries each exclusion with the reason beside it', () => {
+    const input = proposalPdfInput(proposal({
+      exclusions: [
+        { exclusion: 'Rock excavation', reason: 'No geotechnical report was provided' },
+        { exclusion: 'Dewatering', reason: 'No groundwater elevations shown' },
+      ],
+    }), brand);
+    expect(input.exclusions).toEqual([
+      'Rock excavation — No geotechnical report was provided',
+      'Dewatering — No groundwater elevations shown',
+    ]);
+  });
+
+  it('reads an assumption as a clarification, after the cover letter', () => {
+    const input = proposalPdfInput(proposal({
+      assumptions: [
+        { assumption: 'Topsoil stripped at 6 inches', reason: 'Sheet C1.0 grading note' },
+      ],
+    }), brand);
+    expect(input.clarifications).toEqual([
+      'Thank you for the opportunity to quote this work.',
+      'Topsoil stripped at 6 inches — Sheet C1.0 grading note',
+    ]);
+  });
+
+  /* An absent list and an empty one mean the same thing: print no heading. */
+  it('still heads nothing when there is nothing to say', () => {
+    const input = proposalPdfInput(proposal({ coverLetter: null }), brand);
+    expect(input.exclusions).toEqual([]);
+    expect(input.clarifications).toEqual([]);
+  });
+
   it('produces a PDF', () => {
     const bytes = proposalPdfBytes(proposal(), brand, new Date(0));
     expect(bytes.length).toBeGreaterThan(1000);

@@ -65,6 +65,7 @@ import { UnitSelect } from '@/components/ui/unit-select';
 import { QuantityInput } from '@/components/estimate/quantity-input';
 import { PlanTakeoffPanel } from '@/components/estimate/plan-takeoff';
 import { DocumentConflicts } from '@/components/estimate/document-conflicts';
+import { Qualifications } from '@/components/estimate/qualifications';
 import { CategorySelect } from '@/components/ui/category-select';
 import { MarkupPanel } from '@/components/estimate/markup-panel';
 import {
@@ -650,6 +651,14 @@ export function EstimateVersionPage() {
       <DocumentConflicts versionId={v.id}
         lines={v.lines.map((l) => ({ id: l.id, description: l.description }))}
         editable={editable && can('estimates.write')} />
+
+      {/*
+        * Beneath the lines, with the other explainers. What a bid excludes and
+        * what it assumes is not part of arithmetic, but it is the part that is
+        * argued about after the job is won — and until now the proposal
+        * document had the sections and was handed empty arrays every time.
+        */}
+      <Qualifications versionId={v.id} editable={editable && can('estimates.write')} />
 
       <MarkupPanel versionId={v.id} editable={editable && can('estimates.write')}
         directCost={v.directCost} indirectCost={v.indirectCost} storedPrice={v.totalPrice}

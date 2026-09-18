@@ -302,3 +302,108 @@ export function estimateCost(model: string, inputTokens: number, outputTokens: n
     ((inputTokens / 1_000_000) * rate.input + (outputTokens / 1_000_000) * rate.output).toFixed(4),
   );
 }
+
+/** Pages sent in one request when the set has a text layer. */
+export const TEXT_BATCH = 20;
+/**
+ * Pages asked about in one request when the set is scanned.
+ *
+ * One, and every part of that number was measured on a real fourteen-page set
+ * rather than chosen.
+ *
+ * Four pages ran past the platform's limit before finishing anything. Two got
+ * the first batch home in ninety-nine seconds — pages one and two, a cover
+ * sheet and an index — and then died on pages five and six, which are dense
+ * drawings. The platform said what it was: `IDLE_TIMEOUT — Request idle timeout
+ * limit (150s) reached`, a 504.
+ *
+ * So a drawing is roughly seventy-five to a hundred seconds at high effort, and
+ * the honest batch size is the one that fits the worst page rather than the
+ * average one. A cover sheet read on its own costs a few seconds of overhead;
+ * a dense sheet batched with another costs the whole set.
+ */
+export const SCAN_BATCH = 1;
+
+/**
+ * How hard the model thinks, and why it is not the same on both paths.
+ *
+ * High everywhere is what this asked for, and on a scan it does not fit. A
+ * single dense drawing at high effort was killed three times at the platform's
+ * hard limit — `IDLE_TIMEOUT — Request idle timeout limit (150s) reached`, then
+ * `WORKER_RESOURCE_LIMIT` at 151 seconds — with the batch already down to one
+ * page and nothing left to divide.
+ *
+ * So the scan path reads at medium. That is a real reduction and it is written
+ * down rather than buried: a page read at medium is read less carefully than
+ * one read at high, and the job records which path ran, so a finding off a scan
+ * can be weighed accordingly. The alternative was a feature that reads nothing
+ * at all, which is not a higher standard — it is the absence of one.
+ *
+ * Text keeps high. There is no image to interpret, the pages are cheap, and
+ * twenty of them come back well inside the limit.
+ */
+export const SCAN_EFFORT = 'medium' as const;
+export const TEXT_EFFORT = 'high' as const;
+
+/**
+ * How long an answer about this many pages is allowed to be.
+ *
+ * Flat, and deliberately generous, after a scaled version of this was tried on
+ * a real set and was wrong. The reasoning was that the generation is the time,
+ * so a two-page batch should be given a quarter of the room of a twenty-page
+ * one. Eight thousand tokens was the result, and the run came back with
+ * `findingsRejected: 1, "Response was not valid JSON"` and exactly eight
+ * thousand output tokens — the model had been cut off mid-sentence.
+ *
+ * Two things were wrong in it. Thinking counts against this ceiling, so at high
+ * effort most of the room is gone before a word of the answer is written. And
+ * the time is spent thinking, not writing, so lowering the ceiling bought no
+ * time at all — it only truncated the part that mattered.
+ *
+ * The time is controlled where it actually lives: how many pages one batch
+ * asks about. This is only a stop on a runaway.
+ */
+export function maxTokensFor(_pages: number): number {
+  return 32_000;
+}
+
+/**
+ * How long one invocation may keep working before it hands the rest back.
+ *
+ * The platform kills a worker at its own limit without running the function's
+ * error handler, so the function has to stop before that rather than be stopped
+ * at it. The difference between stopping and being stopped is a job that says
+ * "eight of fourteen pages, ask again" and a job that says "extracting" forever.
+ */
+export const BUDGET_MS = 55_000;
+
+/**
+ * The next run of pages to read, or null when there are none left.
+ *
+ * Expressed in pages rather than array indexes because that is what the job
+ * records and what a person is shown: `pages_processed` is a count of pages
+ * finished, not an offset into anything.
+ */
+export function nextRun(
+  pagesProcessed: number, pagesTotal: number, batch: number,
+): { from: number; to: number } | null {
+  const from = Math.max(0, Math.floor(pagesProcessed));
+  if (!(pagesTotal > 0) || from >= pagesTotal) return null;
+  if (!(batch >= 1)) return null;
+  return { from, to: Math.min(from + Math.floor(batch), pagesTotal) };
+}
+
+/**
+ * Whether to hand the rest back rather than start another run.
+ *
+ * Asked *before* a run and not after, because the question is whether there is
+ * time for the next one — a budget checked after the fact is a budget that has
+ * already been spent. `longestRunMs` is the slowest run so far, so a set whose
+ * pages are dense stops earlier than one whose pages are sparse, without
+ * anybody choosing a number for either.
+ */
+export function shouldHandBack(
+  elapsedMs: number, longestRunMs: number, budgetMs = BUDGET_MS,
+): boolean {
+  return elapsedMs + Math.max(longestRunMs, 1_000) > budgetMs;
+}

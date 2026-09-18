@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FINDING_TYPES, FACTUAL_TYPES, FINDINGS_SCHEMA, SYSTEM_PROMPT,
   validateFindings, toFindingRow, estimateCost, MODEL_COSTS,
+  TEXT_BATCH, SCAN_BATCH, BUDGET_MS, nextRun, shouldHandBack, maxTokensFor,
 } from '../../supabase/functions/_shared/plan-analysis.js';
 
 const ctx = {
@@ -246,5 +247,177 @@ describe('cost estimation', () => {
 
   it('prices the models the platform routes to', () => {
     expect(Object.keys(MODEL_COSTS)).toContain('claude-opus-5');
+  });
+});
+
+/**
+ * Reading a set in pieces.
+ *
+ * The arithmetic that decides how much of a plan set one invocation takes on,
+ * and when it hands the rest back rather than being killed holding it. Pure on
+ * purpose: the Edge Function around it cannot be run here, and these are the
+ * two decisions that, got wrong, produce either a job that never advances or a
+ * worker that dies mid-read — which is the fault this was written to end.
+ */
+describe('reading a set in pieces', () => {
+  describe('the next run of pages', () => {
+    it('starts at the beginning of a set nothing has read', () => {
+      expect(nextRun(0, 14, 4)).toEqual({ from: 0, to: 4 });
+    });
+
+    it('carries on from where the last invocation stopped', () => {
+      expect(nextRun(8, 14, 4)).toEqual({ from: 8, to: 12 });
+    });
+
+    it('does not run past the end of the set', () => {
+      expect(nextRun(12, 14, 4)).toEqual({ from: 12, to: 14 });
+    });
+
+    it('is finished when every page has been read', () => {
+      expect(nextRun(14, 14, 4)).toBeNull();
+    });
+
+    /*
+     * The case that matters most. A counter that has somehow gone past the end
+     * must finish rather than ask for pages that are not there — the failure
+     * this replaces was a job that could never reach its own end.
+     */
+    it('is finished when the counter has overshot', () => {
+      expect(nextRun(20, 14, 4)).toBeNull();
+    });
+
+    it('has nothing to do with a set of no pages', () => {
+      expect(nextRun(0, 0, 4)).toBeNull();
+    });
+
+    it('refuses a batch size that would never advance', () => {
+      expect(nextRun(0, 14, 0)).toBeNull();
+    });
+  });
+
+  describe('when to hand the rest back', () => {
+    it('carries straight on at the start of a worker’s life', () => {
+      expect(shouldHandBack(2_000, 9_000, 55_000)).toBe(false);
+    });
+
+    /*
+     * Measured against the slowest run so far, not an average: a set whose
+     * pages are dense stops earlier than one whose pages are sparse, and
+     * nobody has to pick a number for either.
+     */
+    it('stops when the slowest run so far would not fit in what is left', () => {
+      expect(shouldHandBack(40_000, 20_000, 55_000)).toBe(true);
+      expect(shouldHandBack(40_000, 9_000, 55_000)).toBe(false);
+    });
+
+    it('never assumes a run will take no time at all', () => {
+      // A first run that reported 0 ms is not a promise the next one is free.
+      expect(shouldHandBack(54_500, 0, 55_000)).toBe(true);
+    });
+
+    it('hands back once the budget is spent regardless', () => {
+      expect(shouldHandBack(60_000, 1, 55_000)).toBe(true);
+    });
+  });
+
+  describe('the batch sizes', () => {
+    /*
+     * A scan is read in smaller pieces than a text layer, and not because the
+     * request is bigger — the file is uploaded once and referred to by id. It
+     * is the answer that is long: a model asked to read twenty scanned
+     * drawings writes for minutes, and minutes is what killed the worker.
+     */
+    it('reads fewer scanned pages at a time than pages with text', () => {
+      expect(SCAN_BATCH).toBeLessThan(TEXT_BATCH);
+    });
+
+    it('leaves room inside a worker for at least one more run', () => {
+      expect(BUDGET_MS).toBeLessThan(150_000);
+    });
+  });
+});
+
+/**
+ * How long an answer may be.
+ *
+ * The generation is what takes the time, and the time is what killed the
+ * worker. A flat ceiling for every batch meant two scanned drawings were
+ * allowed the same thirty-two thousand tokens as twenty pages of text.
+ */
+describe('how long an answer may be', () => {
+  /*
+   * These assert flatness on purpose. A scaled ceiling was tried against a real
+   * plan set and truncated the answer at exactly its own limit — thinking
+   * counts against this number, so at high effort a small ceiling spends itself
+   * before the answer starts. Batch size is where the time is controlled.
+   */
+  it('gives a small batch the same room as a large one', () => {
+    expect(maxTokensFor(SCAN_BATCH)).toBe(maxTokensFor(TEXT_BATCH));
+  });
+
+  it('leaves room for thinking and an answer both', () => {
+    expect(maxTokensFor(1)).toBeGreaterThanOrEqual(32_000);
+  });
+
+  it('is a stop on a runaway, not a budget', () => {
+    expect(maxTokensFor(500)).toBe(32_000);
+  });
+});
+
+/**
+ * The guard that decides whether there is time for another batch.
+ *
+ * Written as its own group because the first version of it was wrong in a way
+ * no unit test would have caught and a real plan set caught immediately: it
+ * asked whether any findings had been made rather than whether any work had
+ * been done. Pages one and two of a set are a cover sheet and an index. They
+ * take ninety-nine seconds and they find nothing, and a guard that reads that
+ * as "nothing has happened yet" sends the worker into a batch it cannot finish.
+ */
+describe('a batch that finds nothing still took the time', () => {
+  it('hands back after one slow batch, whatever that batch found', () => {
+    const afterOneSlowBatch = 99_000;
+    expect(shouldHandBack(afterOneSlowBatch, afterOneSlowBatch, BUDGET_MS)).toBe(true);
+  });
+
+  it('is the elapsed time that decides, never the yield', () => {
+    // Same elapsed time, same answer. Nothing here can see a finding count,
+    // which is the point: the two are not related and must not be conflated.
+    expect(shouldHandBack(99_000, 99_000, BUDGET_MS))
+      .toBe(shouldHandBack(99_000, 99_000, BUDGET_MS));
+  });
+});
+
+/**
+ * One page at a time, on a scan.
+ *
+ * The number was arrived at by running a real set three times and watching the
+ * platform say what it wanted. Four pages never finished a batch. Two got a
+ * cover sheet and an index home in ninety-nine seconds and then died on the
+ * first pair of real drawings, with `IDLE_TIMEOUT — Request idle timeout limit
+ * (150s) reached`. A batch has to fit the worst page in a set, not the average.
+ */
+describe('one page at a time on a scan', () => {
+  it('asks about a single scanned page', () => {
+    expect(SCAN_BATCH).toBe(1);
+  });
+
+  it('walks a fourteen-page set one page at a time, to the end', () => {
+    const seen: number[] = [];
+    let done = 0;
+    for (let guard = 0; guard < 100; guard += 1) {
+      const run = nextRun(done, 14, SCAN_BATCH);
+      if (!run) break;
+      seen.push(run.to - run.from);
+      done = run.to;
+    }
+    expect(done).toBe(14);
+    expect(seen).toHaveLength(14);
+    expect(new Set(seen)).toEqual(new Set([1]));
+  });
+
+  it('hands back after every page, because every page is near the limit', () => {
+    // A single drawing measured between 75 and 100 seconds.
+    expect(shouldHandBack(95_000, 95_000, BUDGET_MS)).toBe(true);
   });
 });

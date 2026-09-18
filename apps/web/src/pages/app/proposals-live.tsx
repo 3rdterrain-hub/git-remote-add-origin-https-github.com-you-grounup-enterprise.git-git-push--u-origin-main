@@ -39,6 +39,7 @@ import { SendForSignature } from '@/components/proposal/send-for-signature';
 import { ProposalDraftEditor } from '@/components/proposal/draft-editor';
 import { loadCompanyProfile, logoUrl } from '@/lib/data/company';
 import { downloadProposalPdf } from '@/lib/data/proposal-pdf';
+import { estimateAssumptions, estimateExclusions } from '@/lib/data/qualifications';
 import {
   loadProposals, loadVersion, recordProposalOutcome,
   type ProposalRow, type VersionDetail,
@@ -302,6 +303,22 @@ function ProposalDocument({ proposal, canAnswer, onAnswer, onChanged }: {
     setDownloading(true);
     setDownloadError(null);
     try {
+      /*
+       * Read at the moment the file is made, from the estimate version the
+       * proposal cites. Not held in component state, because the exclusions are
+       * the part that has to be current — somebody adds "rock excavation" on the
+       * estimate and the next file out has to carry it.
+       *
+       * Only the assumptions marked as shown to the customer travel. The rest
+       * are the estimator's working and stay inside.
+       */
+      const [exclusions, assumptions] = supabase
+        ? await Promise.all([
+          estimateExclusions(proposal.estimateVersionId)(supabase),
+          estimateAssumptions(proposal.estimateVersionId)(supabase),
+        ])
+        : [[], []];
+
       downloadProposalPdf({
         number: proposal.number,
         title: proposal.title,
@@ -320,6 +337,10 @@ function ProposalDocument({ proposal, canAnswer, onAnswer, onChanged }: {
           unitPrice: s.quantity > 0 ? s.amount / s.quantity : null,
           total: s.amount,
         })),
+        exclusions: exclusions.map((e) => ({ exclusion: e.exclusion, reason: e.reason })),
+        assumptions: assumptions
+          .filter((a) => a.isDisclosedToCustomer)
+          .map((a) => ({ assumption: a.assumption, reason: a.reason })),
       }, company);
     } catch (e) {
       setDownloadError(e instanceof Error ? e.message : 'That file could not be made.');

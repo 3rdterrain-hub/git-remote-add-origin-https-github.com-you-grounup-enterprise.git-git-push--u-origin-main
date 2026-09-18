@@ -21,30 +21,23 @@ import { getCaller, requirePermission, isUuid, adminClient } from '../_shared/au
 import { fail, json, preflight } from '../_shared/http.ts';
 import {
   FINDINGS_SCHEMA, SYSTEM_PROMPT, validateFindings, toFindingRow, estimateCost,
+  TEXT_BATCH, SCAN_BATCH, BUDGET_MS, nextRun, shouldHandBack, maxTokensFor,
+  SCAN_EFFORT, TEXT_EFFORT,
 } from '../_shared/plan-analysis.ts';
 
 const AGENT_ID = 'AGT-DOC';
 const PROMPT_VERSION = 'v1';
 /** Model the platform routes plan reading to. Overridable per company later. */
 const MODEL = 'claude-opus-5';
-/** Pages sent in one request. Beyond this the job is split into batches. */
-const PAGE_BATCH = 20;
-
 /**
- * Base64 for a PDF that goes to the model as a document.
+ * How long an uploaded set stays with the reader: a day.
  *
- * Chunked rather than `String.fromCharCode(...bytes)`, which overflows the call
- * stack somewhere around a megabyte — and the files this reads are tens of
- * megabytes. `btoa` emits no newlines, which the API requires.
+ * Long enough that a job interrupted and picked up again tomorrow still refers
+ * to the same file, short enough that a set nobody came back for does not sit
+ * there. The file is deleted outright when the job completes; this is only the
+ * backstop for a job that never does.
  */
-function toBase64(bytes: Uint8Array): string {
-  let binary = '';
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(binary);
-}
+const FILE_TTL_SECONDS = 86_400;
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -143,7 +136,7 @@ Deno.serve(async (req) => {
      * deserves a closer look than one lifted from embedded text.
      */
     const hasTextLayer = sheets.some((s) => (s.extracted_text ?? '').trim() !== '');
-    let pdf: string | null = null;
+    let scan: Blob | null = null;
 
     if (!hasTextLayer) {
       if (!version.storage_bucket || !version.storage_path) {
@@ -174,55 +167,206 @@ Deno.serve(async (req) => {
       if (file.error || !file.data) {
         return fail('not_found', 'The stored file could not be read.', 404, origin);
       }
-      const bytes = new Uint8Array(await file.data.arrayBuffer());
-      if (bytes.byteLength > 30 * 1024 * 1024) {
-        return fail(
-          'too_large',
-          `That file is ${Math.round(bytes.byteLength / 1024 / 1024)} MB and has no text layer, `
-            + 'so it has to be read as images. A request carries 32 MB — split the set.',
-          413, origin,
-        );
-      }
-      pdf = toBase64(bytes);
+      /*
+       * Held as a Blob and handed straight to the upload.
+       *
+       * What used to happen here was base64: the bytes became a binary string
+       * and then a base64 string a third larger again, and the SDK then
+       * serialized that into the request body — three copies of a twenty-five
+       * megabyte set alive at once, on a worker with two hundred and fifty-six
+       * megabytes and a long stream held open. That is what killed the reader
+       * on the first real plan set it was given, and reading fewer pages per
+       * call would not have helped, because every call did all of it again.
+       */
+      scan = file.data;
     }
 
-    // Claim the job so concurrent requests do not both bill the model.
-    const { data: job, error: jobError } = await admin
-      .from('ingestion_jobs')
-      .insert({
-        company_id: companyId,
-        document_id: version.document_id,
-        document_version_id: documentVersionId,
-        stage: 'extracting',
-        agent_id: AGENT_ID,
-        model: MODEL,
-        prompt_version: PROMPT_VERSION,
-        pages_total: sheets.length,
-        started_at: new Date().toISOString(),
-        requested_by: caller.userId,
-        attempts: 1,
-      })
-      .select('id')
-      .single();
-    if (jobError) throw jobError;
-    jobId = job.id;
-
-    const anthropic = new Anthropic({ apiKey });
-    const allAccepted: ReturnType<typeof toFindingRow>[] = [];
-    const allRejected: { finding: unknown; reason: string }[] = [];
-    let inputTokens = 0;
-    let outputTokens = 0;
+    /*
+     * Close out anything this company left stranded before opening anything new.
+     *
+     * A worker killed at the platform's resource limit never runs its own error
+     * handler, so the job it had open stays at its last stage forever and the
+     * screen shows a spinner for a process that stopped existing minutes ago.
+     * Swept here rather than on a schedule: this is the moment somebody is
+     * looking at this company's jobs, so it is the moment a stale one matters.
+     */
+    await admin.rpc('abandon_stranded_ingestion_jobs', {
+      p_company: companyId, p_minutes: 10,
+    });
 
     /*
-     * Text is batched by page because the batches are independent and a long
-     * set would otherwise be one enormous request. A scan is not: the API takes
-     * a document, not a page range, so the file goes in whole and there is
-     * exactly one pass.
+     * Carry on with the job already open for this version, or open one.
+     *
+     * A reading happens in pieces now, so a second request for the same set is
+     * usually somebody continuing rather than somebody starting again. Opening
+     * a second job would bill the model twice for the same pages and leave two
+     * rows arguing about how far the set had got.
      */
-    const step = pdf ? sheets.length : PAGE_BATCH;
+    const { data: existing } = await admin
+      .from('ingestion_jobs')
+      .select('id, pages_processed, provider_file_id, input_tokens, output_tokens, attempts')
+      .eq('document_version_id', documentVersionId)
+      .not('stage', 'in', '(complete,failed)')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    for (let i = 0; i < sheets.length; i += step) {
-      const batch = sheets.slice(i, i + step);
+    let pagesDone = 0;
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let providerFileId: string | null = null;
+
+    if (existing) {
+      jobId = existing.id;
+      pagesDone = Number(existing.pages_processed ?? 0);
+      providerFileId = existing.provider_file_id ?? null;
+      inputTokens = Number(existing.input_tokens ?? 0);
+      outputTokens = Number(existing.output_tokens ?? 0);
+      /*
+       * A page that has defeated five workers is a page this cannot read.
+       *
+       * Without this the loop is perfect and useless: the worker dies on the
+       * same sheet, the counter never moves, the next pass starts on the same
+       * sheet, forever. Five attempts is what `attempts` has allowed since
+       * 0019, and the refusal names the page, because "it failed" sends
+       * somebody looking through fourteen drawings for the one that did it.
+       */
+      const attempts = Number(existing.attempts ?? 1) + 1;
+      if (attempts > 5) {
+        await admin.from('ingestion_jobs').update({
+          stage: 'failed',
+          error_message:
+            `Page ${pagesDone + 1} could not be read inside the time a worker has, `
+            + `after five tries. The ${pagesDone} pages before it were read and what `
+            + 'they contained has been kept. That sheet needs splitting or reading by hand.',
+          duration_ms: Date.now() - started,
+        }).eq('id', jobId);
+        return fail(
+          'page_too_dense',
+          `Page ${pagesDone + 1} could not be read inside the time available, after five tries. `
+            + `The ${pagesDone} pages before it were read and kept.`,
+          422, origin,
+        );
+      }
+      await admin.from('ingestion_jobs').update({
+        attempts,
+        updated_at: new Date().toISOString(),
+      }).eq('id', jobId);
+    } else {
+      /*
+       * A new job, but not necessarily from the first page.
+       *
+       * Findings are written batch by batch and the counter only moves after
+       * they land, so the furthest any earlier job for this version reached is
+       * a point whose findings are already in the table. Starting a new job at
+       * zero would read those pages a second time and file everything on them
+       * twice — and the reason a new job exists at all is usually that the last
+       * one was swept as stranded, which is a silence, not a reason to forget
+       * what it had already done.
+       */
+      const { data: furthest } = await admin
+        .from('ingestion_jobs')
+        .select('pages_processed')
+        .eq('document_version_id', documentVersionId)
+        .order('pages_processed', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      pagesDone = Math.min(Number(furthest?.pages_processed ?? 0), sheets.length);
+
+      const { data: job, error: jobError } = await admin
+        .from('ingestion_jobs')
+        .insert({
+          company_id: companyId,
+          document_id: version.document_id,
+          document_version_id: documentVersionId,
+          stage: 'extracting',
+          agent_id: AGENT_ID,
+          model: MODEL,
+          prompt_version: PROMPT_VERSION,
+          pages_total: sheets.length,
+          pages_processed: pagesDone,
+          progress: Math.min(pagesDone / Math.max(sheets.length, 1), 1),
+          started_at: new Date().toISOString(),
+          requested_by: caller.userId,
+          attempts: 1,
+        })
+        .select('id')
+        .single();
+      if (jobError) throw jobError;
+      jobId = job.id;
+    }
+
+    const anthropic = new Anthropic({ apiKey });
+
+    /*
+     * The set goes to the reader once and is referred to by its id afterwards.
+     *
+     * This is the whole fix for the worker that was being killed: a request now
+     * carries an identifier rather than the file, so the second batch costs the
+     * same to send as the first and neither costs anything to hold.
+     */
+    if (scan && !providerFileId) {
+      const uploaded = await anthropic.files.upload({
+        file: new File([scan], version.file_name ?? 'plans.pdf', { type: 'application/pdf' }),
+        expires_in_seconds: FILE_TTL_SECONDS,
+      });
+      providerFileId = uploaded.id;
+      await admin.from('ingestion_jobs')
+        .update({ provider_file_id: providerFileId, updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+    }
+    const allAccepted: ReturnType<typeof toFindingRow>[] = [];
+    const allRejected: { finding: unknown; reason: string }[] = [];
+    let runsDone = 0;
+    let longestRunMs = 0;
+    let handedBack = false;
+
+    /*
+     * Both paths are batched now, for two different reasons.
+     *
+     * Text is batched because the batches are independent and a long set would
+     * otherwise be one enormous request. A scan is batched because the answer
+     * is long, not the question: the file is already uploaded, so what takes
+     * the minutes is a model reading four drawings and writing down what it
+     * found. Four at a time keeps one batch inside the life of a worker.
+     */
+    const step = scan ? SCAN_BATCH : TEXT_BATCH;
+
+    for (;;) {
+      const run = nextRun(pagesDone, sheets.length, step);
+      if (!run) break;
+
+      /*
+       * Asked before the batch rather than after. A budget checked afterwards
+       * is a budget that has already been spent, and being stopped by the
+       * platform is exactly the failure this is here to avoid.
+       *
+       * The condition counts batches finished, not findings found. It counted
+       * findings first, and the first real set went straight through it: pages
+       * one and two of a plan set are a cover sheet and an index, they produced
+       * nothing, so "have I done any work yet" answered no after ninety-nine
+       * seconds of work and the worker walked into a second batch it had no
+       * time for. A batch that finds nothing is still a batch that took the
+       * time.
+       */
+      /*
+       * On a scan, one page and then hand back — always, without arithmetic.
+       *
+       * The budget below estimates the next page from the last one, and on a
+       * scanned set that estimate is worthless: page three came back in
+       * twenty-two seconds and page five could not be read in a hundred and
+       * fifty. A short page therefore *encouraged* the worker into the next one
+       * and it died there, losing the pass. Text pages are uniform enough for
+       * the estimate to mean something, so it still applies to them.
+       */
+      if (runsDone > 0
+          && (scan || shouldHandBack(Date.now() - started, longestRunMs, BUDGET_MS))) {
+        handedBack = true;
+        break;
+      }
+
+      const batch = sheets.slice(run.from, run.to);
+      const runStarted = Date.now();
 
       const document = batch
         .map((s) =>
@@ -243,10 +387,10 @@ Deno.serve(async (req) => {
        */
       const stream = anthropic.messages.stream({
         model: MODEL,
-        max_tokens: 32_000,
+        max_tokens: maxTokensFor(batch.length),
         thinking: { type: 'adaptive' },
         output_config: {
-          effort: 'high',
+          effort: scan ? SCAN_EFFORT : TEXT_EFFORT,
           format: FINDINGS_SCHEMA,
         },
         system: [
@@ -269,15 +413,20 @@ Deno.serve(async (req) => {
              * `identify_sheet` knows which page is C-101 and the model should
              * cite the sheet a person would name rather than "page 4".
              */
-            content: pdf
+            content: providerFileId
               ? [
                 {
                   type: 'document' as const,
                   source: {
-                    type: 'base64' as const,
-                    media_type: 'application/pdf' as const,
-                    data: pdf,
+                    type: 'file' as const,
+                    file_id: providerFileId,
                   },
+                  /*
+                   * The set is the same on every batch of the same job, so
+                   * caching it turns "read these drawings again" into a cache
+                   * read rather than a second look at every page.
+                   */
+                  cache_control: { type: 'ephemeral' as const },
                 },
                 {
                   type: 'text' as const,
@@ -285,7 +434,11 @@ Deno.serve(async (req) => {
                     `These are the drawings from "${version.file_name}" — `
                     + `${version.page_count ?? sheets.length} pages, scanned, with no text layer, `
                     + 'so read them from the images.\n\n'
-                    + 'The sheets, in page order:\n'
+                    + `Report only on pages ${batch[0]?.page_number}–${batch[batch.length - 1]?.page_number}. `
+                    + 'The rest of the set is there for context — a detail called out on one sheet '
+                    + 'and drawn on another is worth following — but a finding whose subject is '
+                    + 'outside those pages belongs to a different pass and will be recorded twice.\n\n'
+                    + 'The sheets in this pass, in page order:\n'
                     + batch.map((sh) =>
                       `  page ${sh.page_number}: ${sh.sheet_number ?? 'unnumbered'}`
                       + (sh.sheet_title ? ` — ${sh.sheet_title}` : '')
@@ -303,6 +456,7 @@ Deno.serve(async (req) => {
       });
 
       const message = await stream.finalMessage();
+      longestRunMs = Math.max(longestRunMs, Date.now() - runStarted);
       inputTokens += message.usage.input_tokens + (message.usage.cache_read_input_tokens ?? 0);
       outputTokens += message.usage.output_tokens;
 
@@ -314,7 +468,39 @@ Deno.serve(async (req) => {
           reason: `The model declined pages ${batch[0]?.page_number}–${batch[batch.length - 1]?.page_number}` +
             (message.stop_details?.category ? ` (${message.stop_details.category})` : '') + '.',
         });
+        /*
+         * A declined batch is still a batch that has been put to the model, and
+         * the job has to move past it. Leaving `pagesDone` where it was would
+         * put the same pages up again on the next call, forever.
+         */
+        pagesDone = run.to;
+        runsDone += 1;
+        await admin.from('ingestion_jobs').update({
+          pages_processed: pagesDone,
+          progress: Math.min(pagesDone / sheets.length, 1),
+          updated_at: new Date().toISOString(),
+        }).eq('id', jobId);
         continue;
+      }
+
+      /*
+       * A truncated answer is not an answer, and these pages have not been read.
+       *
+       * Caught before anything is parsed and, above all, before the page
+       * counter moves: a batch cut off at its ceiling used to be recorded as
+       * "not valid JSON", the pages were marked read, and the set moved on
+       * having silently skipped them. A reader that skips pages and reports
+       * success is worse than one that stops.
+       */
+      if (message.stop_reason === 'max_tokens') {
+        allRejected.push({
+          finding: null,
+          reason: `Pages ${batch[0]?.page_number}–${batch[batch.length - 1]?.page_number} `
+            + 'ran past the answer limit and were cut off. They have not been read, '
+            + 'and have been left for another pass rather than counted.',
+        });
+        handedBack = true;
+        break;
       }
 
       const text = message.content
@@ -327,49 +513,142 @@ Deno.serve(async (req) => {
         parsed = JSON.parse(text);
       } catch {
         allRejected.push({ finding: text.slice(0, 400), reason: 'Response was not valid JSON.' });
+        pagesDone = run.to;
+        runsDone += 1;
+        await admin.from('ingestion_jobs').update({
+          pages_processed: pagesDone,
+          progress: Math.min(pagesDone / sheets.length, 1),
+          updated_at: new Date().toISOString(),
+        }).eq('id', jobId);
         continue;
       }
 
       const { accepted, rejected } = validateFindings(parsed);
       allRejected.push(...rejected);
-      for (const f of accepted) {
-        allAccepted.push(
-          toFindingRow(f, {
-            companyId: String(companyId),
-            agentId: AGENT_ID,
-            documentId: version.document_id,
-            documentVersionId: String(documentVersionId),
-            model: MODEL,
-            promptVersion: PROMPT_VERSION,
-          }),
-        );
+      const rows = accepted.map((f) =>
+        toFindingRow(f, {
+          companyId: String(companyId),
+          agentId: AGENT_ID,
+          documentId: version.document_id,
+          documentVersionId: String(documentVersionId),
+          model: MODEL,
+          promptVersion: PROMPT_VERSION,
+        }));
+      allAccepted.push(...rows);
+
+      /*
+       * Written now, not at the end.
+       *
+       * They used to be collected through every batch and inserted once the
+       * whole set was done, which meant a reading cut off at page twelve of
+       * fourteen threw away everything it had found. A reading that happens in
+       * pieces has to keep each piece, or being interrupted costs as much as
+       * never having started.
+       *
+       * Written with the service role: the rows are attributed to the agent,
+       * and the acceptance trigger still requires a human to act on them.
+       */
+      if (rows.length > 0) {
+        const { error: insertError } = await admin.from('ai_findings').insert(rows);
+        if (insertError) throw insertError;
       }
 
-      await admin.from('ingestion_jobs').update({
-        pages_processed: Math.min(i + batch.length, sheets.length),
-        progress: Math.min((i + batch.length) / sheets.length, 1),
+      /*
+       * And only now is the page counter moved. If the insert above threw, the
+       * batch is read again next time rather than being silently skipped —
+       * paying for the same pages twice is recoverable, losing them is not.
+       */
+      pagesDone = run.to;
+      runsDone += 1;
+      const advanced = await admin.from('ingestion_jobs').update({
+        pages_processed: pagesDone,
+        progress: Math.min(pagesDone / sheets.length, 1),
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        /*
+         * Back to one, because this attempt got somewhere.
+         *
+         * `attempts` has to count attempts that achieved nothing, not passes.
+         * A fourteen-page scan is fourteen passes by design, and a counter that
+         * ticked on each of them would refuse the set at page five for being
+         * too dense to read — while it was being read perfectly well.
+         */
+        attempts: 1,
+        updated_at: new Date().toISOString(),
       }).eq('id', jobId);
-    }
-
-    // Write findings with the service role: the rows are attributed to the
-    // agent, and the acceptance trigger still requires a human to act on them.
-    if (allAccepted.length > 0) {
-      const { error: insertError } = await admin.from('ai_findings').insert(allAccepted);
-      if (insertError) throw insertError;
+      /*
+       * Checked, because this is the statement that makes the work permanent.
+       * The findings are already in the table; if the counter does not move
+       * with them the pages are read again on the next pass and everything on
+       * them is filed twice. A silent failure here is indistinguishable from a
+       * worker that died, which is exactly how an afternoon gets spent.
+       */
+      if (advanced.error) throw advanced.error;
     }
 
     const durationMs = Date.now() - started;
+
+    /*
+     * Handed back rather than finished: there are pages left and the worker is
+     * near the end of its life. The job stays open at the page it reached, the
+     * findings from this run are already written, and the caller asks again.
+     */
+    if (handedBack) {
+      await admin.from('ingestion_jobs').update({
+        pages_processed: pagesDone,
+        progress: Math.min(pagesDone / sheets.length, 1),
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        cost_estimate: estimateCost(MODEL, inputTokens, outputTokens),
+        updated_at: new Date().toISOString(),
+      }).eq('id', jobId);
+
+      return json({
+        jobId,
+        done: false,
+        pagesAnalyzed: pagesDone,
+        pagesTotal: sheets.length,
+        findingsCreated: allAccepted.length,
+        findingsRejected: allRejected.length,
+        rejectionReasons: allRejected.map((r) => r.reason).slice(0, 20),
+        usage: { inputTokens, outputTokens, costEstimate: estimateCost(MODEL, inputTokens, outputTokens) },
+        durationMs,
+        note: `Read ${pagesDone} of ${sheets.length} pages. Ask again to carry on from there.`,
+      }, 200, origin);
+    }
+
+    /*
+     * The count of findings comes from the table, not from this run's tally.
+     * A job finished across three invocations found things in all three, and
+     * only the rows know the total.
+     */
+    const { count: foundAltogether } = await admin
+      .from('ai_findings')
+      .select('id', { count: 'exact', head: true })
+      .eq('document_version_id', documentVersionId);
+
     await admin.from('ingestion_jobs').update({
       stage: 'complete',
       progress: 1,
       pages_processed: sheets.length,
-      findings_created: allAccepted.length,
+      findings_created: foundAltogether ?? allAccepted.length,
       input_tokens: inputTokens,
       output_tokens: outputTokens,
       cost_estimate: estimateCost(MODEL, inputTokens, outputTokens),
       completed_at: new Date().toISOString(),
       duration_ms: durationMs,
     }).eq('id', jobId);
+
+    /*
+     * The uploaded set has done its work. Left behind it would sit with the
+     * reader for a day for no reason, and a company's drawings should not
+     * outlive the reading they were uploaded for.
+     */
+    if (providerFileId) {
+      await anthropic.files.delete(providerFileId).catch(() => undefined);
+      await admin.from('ingestion_jobs')
+        .update({ provider_file_id: null }).eq('id', jobId);
+    }
 
     await admin.from('usage_events').insert({
       company_id: companyId,
@@ -383,7 +662,7 @@ Deno.serve(async (req) => {
          * one read off a scanned image are not the same evidence, and the
          * person reviewing them should be able to tell without guessing.
          */
-        read_by: pdf ? 'image' : 'text_layer',
+        read_by: scan ? 'image' : 'text_layer',
         input_tokens: inputTokens, output_tokens: outputTokens,
         findings: allAccepted.length, rejected: allRejected.length,
       },
@@ -391,8 +670,10 @@ Deno.serve(async (req) => {
 
     return json({
       jobId,
+      done: true,
       pagesAnalyzed: sheets.length,
-      findingsCreated: allAccepted.length,
+      pagesTotal: sheets.length,
+      findingsCreated: foundAltogether ?? allAccepted.length,
       findingsRejected: allRejected.length,
       // Surfaced rather than swallowed: a finding the validator threw out is
       // information about the model's behavior, not noise.

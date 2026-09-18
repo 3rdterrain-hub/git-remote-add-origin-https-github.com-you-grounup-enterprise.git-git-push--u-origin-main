@@ -39,6 +39,17 @@ export interface ProposalForPdf {
   paymentTerms: string | null;
   showLineDetail: boolean;
   showUnitPrices: boolean;
+  /**
+   * What the estimate said this price excludes and what it assumes.
+   *
+   * Carried on the proposal rather than recomputed here: they belong to the
+   * estimate version the proposal was made from, and an issued version cannot
+   * change. Optional so every existing caller and test keeps working — an
+   * absent list and an empty one mean the same thing to the document, which
+   * prints no heading over nothing.
+   */
+  exclusions?: Array<{ exclusion: string; reason: string }>;
+  assumptions?: Array<{ assumption: string; reason: string }>;
   lines: Array<{
     code?: string | null;
     description: string;
@@ -107,8 +118,29 @@ export function proposalPdfInput(
      * worse than no heading.
      */
     inclusions: [],
-    exclusions: [],
-    clarifications: proposal.coverLetter ? [proposal.coverLetter] : [],
+    /*
+     * Each exclusion with the reason beside it, because the reason is the half
+     * that settles the argument. "Rock excavation" alone invites "well, you
+     * should have allowed for it"; "Rock excavation — no geotechnical report
+     * was provided with the set" does not.
+     *
+     * These two arrays were `[]` from the day this file was written. The
+     * document has always had the sections; nothing had ever written a row into
+     * `estimate_exclusions`, so every bid this platform produced went out
+     * silent about what it did not cover.
+     */
+    exclusions: (proposal.exclusions ?? [])
+      .map((e) => `${e.exclusion} — ${e.reason}`),
+    /*
+     * Assumptions read as clarifications on the document, under the cover
+     * letter. That is what they are to the person receiving it: the basis the
+     * number was worked out on. Only the ones marked as shown to the customer
+     * reach here; the filter is applied where they are read, not printed.
+     */
+    clarifications: [
+      ...(proposal.coverLetter ? [proposal.coverLetter] : []),
+      ...(proposal.assumptions ?? []).map((a) => `${a.assumption} — ${a.reason}`),
+    ],
     terms: [proposal.commercialTerms, proposal.paymentTerms]
       .filter((t): t is string => Boolean(t && t.trim())),
     preparedBy: brand.name,

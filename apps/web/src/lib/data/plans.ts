@@ -391,7 +391,20 @@ export interface AnalysisOutcome {
   message: string;
   findings: number;
   rejected: number;
+  /** Pages read altogether, across however many passes it took. */
+  pages: number;
+  pagesTotal: number;
 }
+
+/**
+ * The most passes one reading may take before the browser gives up on it.
+ *
+ * A pass reads four scanned pages or twenty with a text layer, so forty passes
+ * covers any set the function will accept. The cap exists so a function that
+ * somehow stopped advancing cannot be asked forever — which is the same fault
+ * as the stranded job, one layer out.
+ */
+const MAX_PASSES = 40;
 
 /**
  * Ask the model to read a document.
@@ -403,16 +416,52 @@ export interface AnalysisOutcome {
  */
 export async function analyzeDocument(
   companyId: string, documentVersionId: string,
+  onProgress?: (pages: number, pagesTotal: number) => void,
 ): Promise<AnalysisOutcome> {
   try {
-    const result = await callFunction<Record<string, unknown>>('ai-analyze-document', {
-      companyId, documentVersionId,
-    });
+    /*
+     * A reading happens in passes.
+     *
+     * The function reads what it can inside the life of one worker and hands
+     * the rest back rather than being killed holding it — `done: false` with
+     * the page it reached. Every pass has already written the findings it
+     * made, so this loop is asking for the remainder, not retrying the whole
+     * thing. A set that finishes in one pass answers `done: true` and this
+     * runs exactly once, as it always did.
+     */
+    let last: Record<string, unknown> = {};
+    let findings = 0;
+    let rejected = 0;
+
+    for (let pass = 0; pass < MAX_PASSES; pass += 1) {
+      last = await callFunction<Record<string, unknown>>('ai-analyze-document', {
+        companyId, documentVersionId,
+      });
+      findings = Number(last.findingsCreated ?? last.findings ?? findings);
+      rejected += Number(last.findingsRejected ?? last.rejected ?? 0);
+      onProgress?.(Number(last.pagesAnalyzed ?? 0), Number(last.pagesTotal ?? 0));
+      if (last.done !== false) break;
+    }
+
+    const pages = Number(last.pagesAnalyzed ?? 0);
+    const pagesTotal = Number(last.pagesTotal ?? pages);
+    /*
+     * Running out of passes is reported as a failure rather than a success,
+     * because a set read to page twelve of fourteen has not been read. Saying
+     * "done" here is how a screen comes to show a half-read plan as finished.
+     */
+    if (last.done === false) {
+      return {
+        status: 'failed',
+        message: `Stopped after ${pages} of ${pagesTotal} pages. `
+          + 'What it found up to there has been kept — ask again to carry on.',
+        findings, rejected, pages, pagesTotal,
+      };
+    }
     return {
       status: 'read',
-      message: String(result.message ?? 'The document has been read.'),
-      findings: Number(result.findings ?? 0),
-      rejected: Number(result.rejected ?? 0),
+      message: String(last.message ?? last.note ?? 'The document has been read.'),
+      findings, rejected, pages, pagesTotal,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'The document could not be read.';
@@ -422,7 +471,10 @@ export async function analyzeDocument(
      * a bug instead of at their subscription.
      */
     const refused = /entitle|not included|forbidden|permission|plan does not/i.test(message);
-    return { status: refused ? 'refused' : 'failed', message, findings: 0, rejected: 0 };
+    return {
+      status: refused ? 'refused' : 'failed',
+      message, findings: 0, rejected: 0, pages: 0, pagesTotal: 0,
+    };
   }
 }
 

@@ -12,9 +12,9 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **426** |
-| Opened by a screen | **405** |
-| Opened only by an Edge Function | **6** |
+| Doors | **435** |
+| Opened by a screen | **413** |
+| Opened only by an Edge Function | **7** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
 | Granted but unreachable | **0** |
@@ -57,6 +57,7 @@ None.
 
 | Door | Called from |
 |---|---|
+| `abandon_stranded_ingestion_jobs` | ai-analyze-document/index.ts |
 | `has_permission` | _shared/auth.ts, get-effective-entitlements/index.ts |
 | `record_schedule_calculation` | recalculate-schedule/index.ts |
 | `record_site_weather` | refresh-weather/index.ts |
@@ -73,6 +74,8 @@ None.
 | `add_assembly_resource` | function | lib/data/estimates.ts |
 | `add_assembly_step` | function | lib/data/assemblies.ts |
 | `add_change_order_item` | function | lib/data/project.ts |
+| `add_estimate_assumption` | function | lib/data/qualifications.ts |
+| `add_estimate_exclusion` | function | lib/data/qualifications.ts |
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
 | `add_lead_form_choice` | function | lib/data/lead-forms.ts |
@@ -222,6 +225,8 @@ None.
 | `my_document_conflicts` | view | lib/data/conflicts.ts |
 | `my_documents` | view | lib/data/plans.ts |
 | `my_employee_credentials` | view | lib/data/workforce.ts |
+| `my_estimate_assumptions` | view | lib/data/qualifications.ts |
+| `my_estimate_exclusions` | view | lib/data/qualifications.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
 | `my_hidden_library_rows` | view | lib/data/library.ts |
 | `my_inspections` | view | lib/data/safety.ts |
@@ -327,6 +332,8 @@ None.
 | `remove_assembly_step` | function | lib/data/assemblies.ts |
 | `remove_change_order_item` | function | lib/data/project.ts |
 | `remove_crew_member` | function | lib/data/library.ts |
+| `remove_estimate_assumption` | function | lib/data/qualifications.ts |
+| `remove_estimate_exclusion` | function | lib/data/qualifications.ts |
 | `remove_estimate_markup` | function | lib/data/estimates.ts |
 | `remove_line_condition` | function | lib/data/estimates.ts |
 | `remove_pay_application_line` | function | lib/data/finance.ts |
@@ -399,7 +406,9 @@ None.
 | `set_document_page_count` | function | lib/data/takeoff.ts |
 | `set_equipment` | function | lib/data/library.ts |
 | `set_equipment_rate` | function | lib/data/library.ts |
+| `set_estimate_assumption` | function | lib/data/qualifications.ts |
 | `set_estimate_discount` | function | lib/data/estimates.ts |
+| `set_estimate_exclusion` | function | lib/data/qualifications.ts |
 | `set_estimate_expiry` | function | lib/data/estimates.ts |
 | `set_estimate_markup` | function | lib/data/estimates.ts |
 | `set_estimate_site` | function | lib/data/estimates.ts |
