@@ -96,7 +96,9 @@ Deno.serve(async (req) => {
         402, origin);
     }
 
-    const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    /* Trimmed for the same reason the health probe trims it: a trailing
+       newline on a pasted secret is invisible and fails like a wrong key. */
+    const apiKey = Deno.env.get('ANTHROPIC_API_KEY')?.trim();
     if (!apiKey) {
       return fail('not_configured', 'AI plan review is not configured on this deployment.', 503, origin);
     }

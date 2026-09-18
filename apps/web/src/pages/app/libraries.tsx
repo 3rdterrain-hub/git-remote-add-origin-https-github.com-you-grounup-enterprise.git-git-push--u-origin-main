@@ -22,7 +22,7 @@ import {
   loadServices, loadTasks, createService, createTask, retireRow,
   loadTruckingRates, loadDisposalSites, loadVendors,
   loadMaterials, loadLaborRates, loadEquipmentOptions, loadCrews,
-  loadConditionModifiers, loadPricingProfiles, loadLibraryCounts,
+  loadConditionModifiers, loadPricingProfiles, loadLibraryCounts, loadHiddenLibraryRows,
   updateCost, setMaterialCost, adoptLibraryRow, type LibraryKind,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
@@ -35,6 +35,7 @@ import { LoadingState, ErrorState, EmptyState, DemonstrationNotice } from '@/com
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { CategoryManager } from '@/components/library/category-manager';
+import { ArchiveAction } from '@/components/library/archive-action';
 import { WageSheets } from '@/components/library/wage-sheets';
 import { AddMaterialDialog, AddVendorDialog } from '@/components/library/add-library-row';
 import { HaulProfiles } from '@/components/library/haul-profiles';
@@ -55,6 +56,7 @@ export function LibrariesPage() {
   const [category, setCategory] = useState('');
   const [taskCategory, setTaskCategory] = useState('');
   const [taskTrade, setTaskTrade] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
   const [rateCategory, setRateCategory] = useState('');
   const match = (s: string) => !q || s.toLowerCase().includes(q.toLowerCase());
 
@@ -70,6 +72,15 @@ export function LibrariesPage() {
    * tab guessing which of its neighbors it has to care about.
    */
   const [copied, setCopied] = useState(0);
+  /* What this company has put out of its own way, from the shipped catalog. */
+  const hiddenQ = useQuery(loadHiddenLibraryRows, [copied]);
+  const hiddenRows = hiddenQ.status === 'ready' ? hiddenQ.data : new Set<string>();
+  /*
+   * Putting a row away changes two things: the list it was in, and the set of
+   * rows this company has hidden. Refreshing only the first left a hidden row
+   * still offering to hide it — recorded in the database, invisible on screen.
+   */
+  const afterPutAway = (refetchList: () => void) => () => { refetchList(); hiddenQ.refetch(); };
   const afterCopy = () => setCopied((n) => n + 1);
   const servicesQ = useQuery(loadServices, [copied]);
   const tasksQ = useQuery(loadTasks, [copied]);
@@ -78,10 +89,15 @@ export function LibrariesPage() {
   const disposalQ = useQuery(loadDisposalSites, []);
   const vendorsQ = useQuery(loadVendors, []);
   const materialsQ = useQuery(loadMaterials, [copied]);
-  const equipmentQ = useQuery(loadEquipmentOptions, [copied]);
-  const crewsQ = useQuery(loadCrews, [copied]);
-  const modifiersQ = useQuery(loadConditionModifiers, []);
-  const profilesQ = useQuery(loadPricingProfiles, []);
+  /*
+   * One switch for the whole screen rather than one per tab. Archived rows are
+   * out of the way by default — an archived row sitting in a working list is as
+   * confusing as one that vanished — and one click brings every library's back.
+   */
+  const equipmentQ = useQuery(loadEquipmentOptions(showArchived), [copied, showArchived]);
+  const crewsQ = useQuery(loadCrews(showArchived), [copied, showArchived]);
+  const modifiersQ = useQuery(loadConditionModifiers(showArchived), [showArchived]);
+  const profilesQ = useQuery(loadPricingProfiles(showArchived), [showArchived]);
   const laborQ = useQuery(loadLaborRates, [copied]);
   const countsQ = useQuery(loadLibraryCounts, [copied]);
   const { can } = usePermissions();
@@ -285,9 +301,21 @@ export function LibrariesPage() {
         copy, and GrounUp records who changed it, when, from what, and which estimates use which version.
       </Alert>
 
-      <div className="relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
-        <Input className="pl-9" placeholder="Search the library…" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="relative max-w-md flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-charcoal-400" />
+          <Input className="pl-9" placeholder="Search the library…" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        {/*
+          * One switch for every library on this screen. Nothing here is ever
+          * deleted — archiving puts a row away and this brings it back into
+          * view, which is what was missing when a crew appeared to vanish.
+          */}
+        <label className="flex shrink-0 items-center gap-2 text-sm text-charcoal-600">
+          <input type="checkbox" checked={showArchived}
+            onChange={(e) => setShowArchived(e.target.checked)} />
+          Show archived
+        </label>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -377,6 +405,11 @@ export function LibrariesPage() {
                       <TableCell className="text-charcoal-600">{x.category ?? '—'}</TableCell>
                       <TableCell className="text-charcoal-600">{x.defaultUnit}</TableCell>
                       <TableCell><ScopeBadge scope={x.scope} kind="service" id={x.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
+                      <TableCell className="text-right">
+                        <ArchiveAction kind="service" id={x.id} companyId={companyId} hidden={hiddenRows.has(`service:${x.id}`)} name={x.name}
+                          status={x.status} editable={x.editable} canWrite={canWrite}
+                          onChanged={afterPutAway(afterCopy)} />
+                      </TableCell>
                       <TableCell>
                         {x.editable && x.status === 'active' ? (
                           <Button size="sm" variant="ghost" disabled={busy}
@@ -476,6 +509,7 @@ export function LibrariesPage() {
                     <TableHead>Unit</TableHead>
                     <TableHead>Requires</TableHead>
                     <TableHead>Scope</TableHead>
+                    <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -502,6 +536,11 @@ export function LibrariesPage() {
                           .filter(Boolean).join(', ') || 'nothing'}
                       </TableCell>
                       <TableCell><ScopeBadge scope={x.scope} kind="task" id={x.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
+                      <TableCell className="text-right">
+                        <ArchiveAction kind="task" id={x.id} companyId={companyId} hidden={hiddenRows.has(`task:${x.id}`)} name={x.name}
+                          status={x.status} editable={x.editable} canWrite={canWrite}
+                          onChanged={afterPutAway(afterCopy)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -574,6 +613,7 @@ export function LibrariesPage() {
                     <TableHead className="text-right">Unit cost</TableHead>
                     <TableHead className="text-right">Waste</TableHead>
                     <TableHead>Scope</TableHead>
+                    <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -609,6 +649,11 @@ export function LibrariesPage() {
                         {percent(m.defaultWastePercent, 1)}
                       </TableCell>
                       <TableCell><ScopeBadge scope={m.scope} /></TableCell>
+                      <TableCell className="text-right">
+                        <ArchiveAction kind="material" id={m.id} companyId={companyId} hidden={hiddenRows.has(`material:${m.id}`)} name={m.name}
+                          status={m.status} editable={m.editable} canWrite={canWrite}
+                          onChanged={afterPutAway(materialsQ.refetch)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -703,6 +748,11 @@ export function LibrariesPage() {
                         {t.loadedSpeedMph} / {t.emptySpeedMph} mph
                       </TableCell>
                       <TableCell className="text-charcoal-600">{t.vendorName ?? '—'}</TableCell>
+                      <TableCell className="text-right">
+                        <ArchiveAction kind="trucking_rate" id={t.id} companyId={companyId} hidden={hiddenRows.has(`trucking_rate:${t.id}`)} name={t.name}
+                          status={t.status} editable canWrite={canWrite}
+                          onChanged={afterPutAway(truckingQ.refetch)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -832,6 +882,13 @@ export function LibrariesPage() {
                       <TableCell className="tabular text-right text-charcoal-600">
                         {v.performanceScore == null ? '—' : v.performanceScore.toFixed(1)}
                       </TableCell>
+                      <TableCell className="text-right">
+                        {/* Vendors are company-owned by construction, so every
+                            row on this tab is this company's to put away. */}
+                        <ArchiveAction kind="vendor" id={v.id} companyId={companyId} hidden={hiddenRows.has(`vendor:${v.id}`)} name={v.name}
+                          status={v.status} editable canWrite={canWrite}
+                          onChanged={afterPutAway(vendorsQ.refetch)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -876,6 +933,7 @@ export function LibrariesPage() {
                     <TableHead className="text-right">Burden</TableHead>
                     <TableHead className="text-right">Loaded</TableHead>
                     <TableHead>Scope</TableHead>
+                    <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -902,6 +960,11 @@ export function LibrariesPage() {
                         <span className="text-charcoal-400"> / hr</span>
                       </TableCell>
                       <TableCell><ScopeBadge scope={l.scope} kind="labor_rate" id={l.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
+                      <TableCell className="text-right">
+                        <ArchiveAction kind="labor_rate" id={l.id} companyId={companyId} hidden={hiddenRows.has(`labor_rate:${l.id}`)} name={l.classification}
+                          status={l.status} editable={l.editable} canWrite={canWrite}
+                          onChanged={afterPutAway(afterCopy)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -953,6 +1016,7 @@ export function LibrariesPage() {
                   <TableHead className="text-right">Fuel</TableHead>
                   <TableHead className="text-right">Mobilization</TableHead>
                   <TableHead>Scope</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -985,6 +1049,11 @@ export function LibrariesPage() {
                         : <span className="text-charcoal-300">—</span>}
                     </TableCell>
                     <TableCell><ScopeBadge scope={e.scope} kind="equipment" id={e.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
+                    <TableCell className="text-right">
+                      <ArchiveAction kind="equipment" id={e.id} companyId={companyId} hidden={hiddenRows.has(`equipment:${e.id}`)} name={e.name}
+                        status={e.status} editable={e.editable} canWrite={canWrite}
+                        onChanged={afterPutAway(afterCopy)} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -1019,7 +1088,8 @@ export function LibrariesPage() {
             * a company could neither make its own nor change one — while a crew
             * is what an estimate prices labor with and what a schedule books.
             */}
-          <CrewBuilder companyId={companyId} canWrite={can('libraries.write')} />
+          <CrewBuilder companyId={companyId} canWrite={can('libraries.write')}
+            showArchived={showArchived} />
 
           {crewsQ.status === 'loading' ? <LoadingState label="Reading crews" /> : null}
           {crewsQ.status === 'error'
@@ -1166,6 +1236,14 @@ export function LibrariesPage() {
                           id={r.id} companyId={companyId} canWrite={canWrite}
                           onCopied={afterCopy} />
                       </TableCell>
+                      <TableCell className="text-right">
+                        {/* A rate is named by the task it is for; the code is
+                            the fallback when the task row has gone. */}
+                        <ArchiveAction kind="production_rate" id={r.id} companyId={companyId} hidden={hiddenRows.has(`production_rate:${r.id}`)}
+                          name={r.taskName ?? r.code}
+                          status={r.status} editable={r.isOwn} canWrite={canWrite}
+                          onChanged={afterPutAway(afterCopy)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1226,6 +1304,11 @@ export function LibrariesPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-charcoal-500">{m.applicationRule}</TableCell>
+                    <TableCell className="text-right">
+                      <ArchiveAction kind="condition_modifier" id={m.id} companyId={companyId} hidden={hiddenRows.has(`condition_modifier:${m.id}`)} name={m.name}
+                        status={m.status} editable={m.editable} canWrite={canWrite}
+                        onChanged={afterPutAway(modifiersQ.refetch)} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -1295,7 +1378,12 @@ export function LibrariesPage() {
                             : ''}
                         </CardDescription>
                       </div>
-                      <ScopeBadge scope={p.scope} />
+                      <span className="flex items-center gap-2">
+                        <ScopeBadge scope={p.scope} />
+                        <ArchiveAction kind="pricing_profile" id={p.id} companyId={companyId} hidden={hiddenRows.has(`pricing_profile:${p.id}`)} name={p.name}
+                          status={p.status} editable={p.editable} canWrite={canWrite}
+                          onChanged={afterPutAway(profilesQ.refetch)} />
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">

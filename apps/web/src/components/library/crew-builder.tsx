@@ -13,8 +13,9 @@
  * how a library row starts changing whenever somebody takes a day off.
  */
 import { Fragment, useState } from 'react';
-import { Loader2, Plus, Trash2, Users2, Archive } from 'lucide-react';
+import { Loader2, Plus, Trash2, Users2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ArchiveAction } from '@/components/library/archive-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +25,7 @@ import { LoadingState, ErrorState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import {
   loadCrewLibrary, loadCrewMembers, createCrew, updateCrew, setCrewMember,
-  removeCrewMember, retireCrew, loadLaborRates, type CrewRow,
+  removeCrewMember, loadLaborRates, type CrewRow,
 } from '@/lib/data/library';
 import { money, qty } from '@/lib/format';
 
@@ -163,11 +164,11 @@ function CrewMembers({ crew, canWrite, onChanged }: {
   );
 }
 
-export function CrewBuilder({ companyId, canWrite }: {
-  companyId: string | null; canWrite: boolean;
+export function CrewBuilder({ companyId, canWrite, showArchived = false }: {
+  companyId: string | null; canWrite: boolean; showArchived?: boolean;
 }) {
   const [nonce, setNonce] = useState(0);
-  const crewsQ = useQuery(loadCrewLibrary, [nonce]);
+  const crewsQ = useQuery(loadCrewLibrary(showArchived), [nonce, showArchived]);
   const crews = crewsQ.status === 'ready' ? crewsQ.data : [];
 
   const [open, setOpen] = useState<string | null>(null);
@@ -273,12 +274,9 @@ export function CrewBuilder({ companyId, canWrite }: {
                       : money(c.costPerHour)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {c.isOwn && canWrite ? (
-                      <Button variant="ghost" size="sm" aria-label={`Archive ${c.name}`}
-                        onClick={() => { void retireCrew(c.id).then(refresh); }}>
-                        <Archive className="size-4" />
-                      </Button>
-                    ) : null}
+                    <ArchiveAction kind="crew" id={c.id} name={c.name}
+                      status={c.status} editable={c.isOwn} canWrite={canWrite}
+                      onChanged={refresh} />
                   </TableCell>
                 </TableRow>
                 {open === c.id ? (

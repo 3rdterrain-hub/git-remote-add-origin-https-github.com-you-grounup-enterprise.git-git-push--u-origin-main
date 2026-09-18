@@ -11,6 +11,84 @@ Newest first.
 
 ---
 
+## D-091 · 2026-09-18 · A shipped row is hidden per company, never archived
+
+**Decision.** `library_hidden_rows` records, per company, which shipped library
+rows that company has put out of its own way. One control on screen: a row the
+company owns is archived; a row GrounUp ships is hidden for them and left
+untouched for everybody else.
+
+**Reason.** D-090 refused to archive a shipped row, correctly — it belongs to
+every company on the platform. The consequence did not survive contact with a
+real library:
+
+    materials             0 theirs,   333 shipped
+    labor rates           0 theirs,    56 shipped
+    condition modifiers   0 theirs,    20 shipped
+    equipment             9 theirs,   700 shipped
+    production rates     47 theirs, 2,143 shipped
+
+So the control rendered on almost nothing, and the owner would have been looking
+at the same screen that prompted "none of them have delete buttons" in the first
+place. Verified in the browser before believing it: every one of those tabs
+showed zero controls.
+
+A company cannot change a shipped row and should not be able to. What it can
+reasonably do is decide the row is not part of *its* library — 2,143 production
+rates for trades somebody does not work in are noise they read past every time.
+That is a decision about their view of the row, not about the row, so it is
+recorded beside it rather than on it.
+
+**Two mechanisms, one promise.** Both are reversible and neither destroys
+anything, which is what the button says either way.
+
+**Not merged into `set_library_status`.** One function writes a row's own status
+and the other writes a fact about a company's view of somebody else's row. One
+function whose effect depends on who owns the row reads fine until somebody has
+to change it.
+
+**A bug this found on the way:** the first version refreshed only the list a row
+was in, not the set of hidden rows, so a hide was recorded in the database and
+the screen went on offering to hide it. Caught in the browser, not by a test.
+
+**Status.** Active. 13 database tests.
+
+---
+
+## D-090 · 2026-09-18 · One archive door for every library, and the way back is the same door
+
+**Decision.** `app.set_library_status(kind, row, status)` covers all fourteen
+library tables that carry a status. Archive and restore are the same function.
+`retired`, `draft` and `inactive` are not offered. A shipped row is refused.
+
+**Reason.** The owner archived a crew and believed it was deleted. It was not —
+`retireCrew` had always archived, and the crew and both its members were still
+there. The schema was right and the product was wrong: the row vanished from the
+list, nothing said it was kept, and there was no way back. A delete you cannot
+undo and a delete you *believe* you cannot undo cost the same in the moment.
+
+Underneath that, the same idea had two words and ten gaps: `retireRow` wrote
+`retired` on services and tasks, `retireCrew` wrote `archived` on crews, and the
+other eleven library tables had no door at all — the action appeared on two tabs
+out of twelve.
+
+**A shipped row is never archived.** It belongs to every company on the
+platform, so hiding it for one would hide it from all. The refusal names the row
+and says what to do instead: adopt it, then archive the copy. The control is not
+rendered on a shipped row, because a button that exists only to be refused is
+worse than no button.
+
+**The control asks first and says "It is kept, not deleted."** The word
+*archive* on a bare icon did not stop somebody losing a crew.
+
+**Also.** Five readers hid archived rows unconditionally and the rest showed
+them mixed in with live ones — both wrong. Every one now takes
+`includeArchived`, and one switch on the screen drives all of them.
+
+**Status.** Active. 8 database tests, 10 on the control.
+
+---
+
 ## D-089 · 2026-09-17 · A task's trade is read from the catalog, never typed onto the task
 
 **Decision.** `my_library_tasks` derives each task's trade from the services

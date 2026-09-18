@@ -52,7 +52,13 @@ async function probeAiCredential(signal: AbortSignal) {
   const cached = aiProbe;
   if (cached && Date.now() - cached.at < AI_PROBE_CACHE_MS) return cached.result;
 
-  const key = Deno.env.get('ANTHROPIC_API_KEY');
+  /*
+   * Trimmed, because a secret is typed or pasted by a person and a trailing
+   * newline is invisible in every interface that shows one. An API key with a
+   * stray space is rejected exactly like a wrong key, which sends somebody
+   * looking for a problem that is not there.
+   */
+  const key = Deno.env.get('ANTHROPIC_API_KEY')?.trim();
   if (!key) {
     const result = { status: 'fail' as const, detail: 'no credential is configured' };
     aiProbe = { at: Date.now(), result };

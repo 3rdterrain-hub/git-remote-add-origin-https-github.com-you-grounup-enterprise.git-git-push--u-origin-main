@@ -81,8 +81,8 @@ function Picker({ kind, onPick, onPickCrew, onClose }: {
   const [term, setTerm] = useState('');
 
   const labor = useQuery(loadLaborRates, [kind]);
-  const crews = useQuery(loadCrews, [kind]);
-  const equipment = useQuery(loadEquipmentOptions, [kind]);
+  const crews = useQuery(loadCrews(), [kind]);
+  const equipment = useQuery(loadEquipmentOptions(), [kind]);
   const materials = useQuery(loadMaterials, [kind]);
   const trucking = useQuery(loadTruckingRates, [kind]);
 

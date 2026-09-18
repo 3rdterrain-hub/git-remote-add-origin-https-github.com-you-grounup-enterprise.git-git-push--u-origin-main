@@ -187,6 +187,8 @@ export interface ProductionRateRow {
   effectiveDate: string | null;
   note: string | null;
   isOwn: boolean;
+  /** Read by the archive control: live, or put away. */
+  status: string;
 }
 
 /**
@@ -201,14 +203,24 @@ export const loadProductionRates = (
 ): Query<ProductionRateRow[]> => async (client) => {
   let q = client
     .from('my_production_rates')
-    .select('id, code, task_id, task_name, task_category, rate_per_hour, rate_unit, utilization_factor, shift_hours, source_type, confidence_score, sample_size, approval_state, region, effective_date, controlling_resource, is_own');
+    .select('id, code, task_id, task_name, task_category, rate_per_hour, rate_unit, utilization_factor, shift_hours, source_type, confidence_score, sample_size, approval_state, region, effective_date, controlling_resource, is_own, status');
   const t = search.trim();
   if (t) q = q.ilike('task_name', `%${t}%`);
   if (category) q = q.eq('task_category', category);
-  const rows = unwrap(await q
-    .order('is_own', { ascending: false })
-    .order('task_name')
-    .limit(400)) as Array<Record<string, unknown>>;
+  /*
+   * No ceiling. This was `.limit(400)` against 2,143 shipped rates, so two
+   * thirds of the production library was invisible and nothing said so — the
+   * same defect the library readers carried, one file further out.
+   */
+  const rows: Array<Record<string, unknown>> = [];
+  for (let from = 0; ; from += 1000) {
+    const page = unwrap(await q
+      .order('is_own', { ascending: false })
+      .order('task_name')
+      .range(from, from + 999)) as Array<Record<string, unknown>>;
+    rows.push(...page);
+    if (page.length < 1000) break;
+  }
 
   return rows.map((r) => ({
     id: String(r.id),
@@ -228,6 +240,7 @@ export const loadProductionRates = (
     effectiveDate: (r.effective_date as string | null) ?? null,
     note: (r.controlling_resource as string | null) ?? null,
     isOwn: r.is_own === true,
+    status: String(r.status ?? 'active'),
   }));
 };
 

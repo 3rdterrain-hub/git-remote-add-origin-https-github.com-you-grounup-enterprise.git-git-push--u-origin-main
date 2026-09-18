@@ -50,12 +50,17 @@ vi.mock('@/lib/data/production', async () => {
 vi.mock('@/lib/data/library', async () => {
   const actual = await vi.importActual<typeof import('@/lib/data/library')>('@/lib/data/library');
   const none = async () => [];
+  /* The readers that can now be asked for archived rows are factories: the
+     screen calls `loadCrews(showArchived)` and hands the result to useQuery. */
+  const noneFactory = () => none;
   return {
     ...actual,
     loadServices: async () => hoisted.services,
     loadTasks: none, loadTruckingRates: none, loadDisposalSites: none,
-    loadVendors: none, loadMaterials: none, loadLaborRates: none, loadEquipmentOptions: none,
-    loadCrews: none, loadConditionModifiers: none, loadPricingProfiles: none,
+    loadVendors: none, loadMaterials: none, loadLaborRates: none,
+    loadEquipmentOptions: noneFactory,
+    loadCrews: noneFactory, loadConditionModifiers: noneFactory,
+    loadPricingProfiles: noneFactory,
     loadLibraryCounts: async () => {
       if (hoisted.countsFail) throw new Error(hoisted.countsFail);
       return hoisted.counts;

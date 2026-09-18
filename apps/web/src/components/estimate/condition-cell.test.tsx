@@ -51,7 +51,9 @@ vi.mock('@/lib/data/estimates', async () => {
 
 vi.mock('@/lib/data/library', async () => {
   const actual = await vi.importActual<typeof import('@/lib/data/library')>('@/lib/data/library');
-  return { ...actual, loadConditionModifiers: async () => hoisted.library };
+  /* A factory now: the cell calls `loadConditionModifiers()` and passes the
+     result to useQuery, since the reader can be asked for archived rows. */
+  return { ...actual, loadConditionModifiers: () => async () => hoisted.library };
 });
 
 const { ConditionCell, asChange } = await import('./condition-cell');
@@ -60,6 +62,7 @@ const modifier = (over: Partial<ConditionModifierRow> = {}): ConditionModifierRo
   id: 'mod-1', code: 'CM-ROCK', name: 'Rock in the trench', category: 'Subsurface',
   factors: { labor_cost: 1.35, production: 0.7 },
   applicationRule: 'multiply', scope: 'global' as ConditionModifierRow['scope'],
+  status: 'active',
   editable: false, ...over,
 });
 const onLine = (over: Partial<LineCondition> = {}): LineCondition => ({

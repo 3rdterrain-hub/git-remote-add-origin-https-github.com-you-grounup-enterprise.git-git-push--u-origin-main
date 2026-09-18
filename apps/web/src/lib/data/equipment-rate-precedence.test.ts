@@ -24,6 +24,9 @@ const clientWith = (rates: Array<Record<string, unknown>>) => {
   const builder = {
     select: () => builder,
     eq: () => builder,
+    /* The status filter takes a list now, so archived machines can be asked
+       for rather than being permanently invisible. */
+    in: () => builder,
     order: () => builder,
     /*
      * The readers page now rather than taking the first N — a ceiling hid 200
@@ -50,7 +53,7 @@ const rate = (source: string, hourly: number) => ({
 });
 
 const rateShown = async (rates: Array<Record<string, unknown>>) =>
-  (await loadEquipmentOptions(clientWith(rates)))[0]!.hourlyRate;
+  (await loadEquipmentOptions()(clientWith(rates)))[0]!.hourlyRate;
 
 describe('the rate a machine shows', () => {
   it('prefers a quote for this project over everything else', async () => {

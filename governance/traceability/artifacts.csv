@@ -114,6 +114,7 @@ TBL-labor_rates,table,labor_rates,supabase/migrations (table labor_rates),LIBRAR
 TBL-lead_intake_forms,table,lead_intake_forms,supabase/migrations (table lead_intake_forms),ENTITY
 TBL-leads,table,leads,supabase/migrations (table leads),ENTITY
 TBL-library_categories,table,library_categories,supabase/migrations (table library_categories),LIBRARY
+TBL-library_hidden_rows,table,library_hidden_rows,supabase/migrations (table library_hidden_rows),ENTITY
 TBL-library_row_versions,table,library_row_versions,supabase/migrations (table library_row_versions),ENTITY
 TBL-library_snapshot_entries,table,library_snapshot_entries,supabase/migrations (table library_snapshot_entries),ENTITY
 TBL-library_snapshots,table,library_snapshots,supabase/migrations (table library_snapshots),ENTITY
@@ -357,6 +358,7 @@ TST-db-machine-control,test,db/machine-control.test.ts,tests/db/machine-control.
 TST-db-material-cost,test,db/material-cost.test.ts,tests/db/material-cost.test.ts,ENGINE
 TST-db-metrics,test,db/metrics.test.ts,tests/db/metrics.test.ts,ENGINE
 TST-db-network,test,db/network.test.ts,tests/db/network.test.ts,ENGINE
+TST-db-nothing-in-a-library-is-destroyed,test,db/nothing-in-a-library-is-destroyed.test.ts,tests/db/nothing-in-a-library-is-destroyed.test.ts,ENGINE
 TST-db-notification-integrity,test,db/notification-integrity.test.ts,tests/db/notification-integrity.test.ts,ENGINE
 TST-db-notification-preferences,test,db/notification-preferences.test.ts,tests/db/notification-preferences.test.ts,ENGINE
 TST-db-onboarding,test,db/onboarding.test.ts,tests/db/onboarding.test.ts,ENGINE
@@ -479,6 +481,7 @@ TST-web-customize-nav,test,web/customize-nav.test.tsx,apps/web/src/components/la
 TST-web-logo,test,web/logo.test.tsx,apps/web/src/components/layout/logo.test.tsx,ENGINE
 TST-web-nav-names-the-screen,test,web/nav-names-the-screen.test.ts,apps/web/src/components/layout/nav-names-the-screen.test.ts,ENGINE
 TST-web-page,test,web/page.test.tsx,apps/web/src/components/layout/page.test.tsx,ENGINE
+TST-web-archive-action,test,web/archive-action.test.tsx,apps/web/src/components/library/archive-action.test.tsx,ENGINE
 TST-web-assemblies,test,web/assemblies.test.tsx,apps/web/src/components/library/assemblies.test.tsx,ENGINE
 TST-web-category-manager,test,web/category-manager.test.tsx,apps/web/src/components/library/category-manager.test.tsx,ENGINE
 TST-web-cost-cell,test,web/cost-cell.test.tsx,apps/web/src/components/library/cost-cell.test.tsx,ENGINE

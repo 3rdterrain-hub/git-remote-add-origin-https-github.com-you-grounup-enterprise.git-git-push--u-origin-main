@@ -137,7 +137,7 @@ function ConditionDialog({
   error: string | null;
   onChanged: () => void;
 }) {
-  const library = useQuery(loadConditionModifiers, []);
+  const library = useQuery(loadConditionModifiers(), []);
   const [picked, setPicked] = useState<ConditionModifierRow | null>(null);
   const [why, setWhy] = useState('');
   const [busy, setBusy] = useState<string | null>(null);

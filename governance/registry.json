@@ -85,6 +85,7 @@
     "lead_intake_forms": "ENTITY",
     "leads": "ENTITY",
     "library_categories": "LIBRARY",
+    "library_hidden_rows": "ENTITY",
     "library_row_versions": "ENTITY",
     "library_snapshot_entries": "ENTITY",
     "library_snapshots": "ENTITY",

@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **404** |
-| Opened by a screen | **383** |
+| Doors | **407** |
+| Opened by a screen | **386** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -166,6 +166,7 @@ None.
 | `estimate_drift` | function | lib/data/estimates.ts |
 | `give_claim_notice` | function | lib/data/claims.ts |
 | `haul_cost` | function | lib/data/library.ts |
+| `hide_library_row` | function | lib/data/library.ts |
 | `identify_sheet` | function | lib/data/sheets.ts |
 | `import_equipment_rates` | function | lib/data/library.ts |
 | `import_materials` | function | lib/data/library.ts |
@@ -213,6 +214,7 @@ None.
 | `my_documents` | view | lib/data/plans.ts |
 | `my_employee_credentials` | view | lib/data/workforce.ts |
 | `my_estimate_templates` | view | lib/data/templates.ts |
+| `my_hidden_library_rows` | view | lib/data/library.ts |
 | `my_inspections` | view | lib/data/safety.ts |
 | `my_jobs_nearby` | function | lib/data/field-work.ts |
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
@@ -393,6 +395,7 @@ None.
 | `set_feature_override` | function | lib/data/admin.ts |
 | `set_haul_capacity` | function | lib/data/estimates.ts |
 | `set_inspection_result` | function | lib/data/safety.ts |
+| `set_library_status` | function | lib/data/library.ts |
 | `set_line_production_rate` | function | lib/data/production.ts |
 | `set_line_quantity` | function | lib/data/estimates.ts |
 | `set_line_service` | function | lib/data/estimates.ts |

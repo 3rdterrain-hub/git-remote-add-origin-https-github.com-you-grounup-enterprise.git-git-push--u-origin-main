@@ -872,11 +872,11 @@ export interface CrewPreset {
   scope: Scope;
 }
 
-export const loadCrews: Query<CrewPreset[]> = async (client) => {
+export const loadCrews = (includeArchived = false): Query<CrewPreset[]> => async (client) => {
   const rows = await everyRow(() => client
     .from('crews')
-    .select('id, code, name, discipline, shift_hours, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
-    .eq('status', 'active')
+    .select('id, code, name, discipline, shift_hours, status, company_id, enterprise_group_id, crew_members(labor_rate_id, headcount, labor_rates(classification, base_wage_per_hour, burden_percent, burdened_cost_per_hour))')
+    .in('status', includeArchived ? ['active', 'archived'] : ['active'])
     .order('name'));
 
   return rows.map((c) => ({
@@ -946,13 +946,16 @@ export interface EquipmentOption {
   fuelGallonsPerHour: number;
   mobilizationCost: number;
   scope: Scope;
+  /* Read by the archive control: what state the row is in, and whose it is. */
+  status: string;
+  editable: boolean;
 }
 
-export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => {
+export const loadEquipmentOptions = (includeArchived = false): Query<EquipmentOption[]> => async (client) => {
   const rows = await everyRow(() => client
     .from('equipment')
-    .select('id, name, equipment_class, fuel_gallons_per_hour, mobilization_cost, company_id, enterprise_group_id, equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, effective_date)')
-    .eq('status', 'active')
+    .select('id, name, equipment_class, fuel_gallons_per_hour, mobilization_cost, status, company_id, enterprise_group_id, equipment_rates(source, hourly_rate, daily_rate, weekly_rate, monthly_rate, effective_date)')
+    .in('status', includeArchived ? ['active', 'archived'] : ['active'])
     .order('name'));
 
   return rows.map((e) => {
@@ -986,6 +989,8 @@ export const loadEquipmentOptions: Query<EquipmentOption[]> = async (client) => 
       fuelGallonsPerHour: Number(e.fuel_gallons_per_hour ?? 0),
       mobilizationCost: Number(e.mobilization_cost ?? 0),
       scope: scopeOf(e.company_id, e.enterprise_group_id),
+      status: String(e.status ?? 'active'),
+      editable: scopeOf(e.company_id, e.enterprise_group_id) === 'company',
     };
   });
 };
@@ -1052,14 +1057,15 @@ export interface ConditionModifierRow {
   factors: Record<string, number>;
   applicationRule: string;
   scope: Scope;
+  status: string;
   editable: boolean;
 }
 
-export const loadConditionModifiers: Query<ConditionModifierRow[]> = async (client) => {
+export const loadConditionModifiers = (includeArchived = false): Query<ConditionModifierRow[]> => async (client) => {
   const rows = await everyRow(() => client
     .from('condition_modifiers')
-    .select('id, code, name, category, factors, application_rule, company_id, enterprise_group_id')
-    .eq('status', 'active')
+    .select('id, code, name, category, factors, application_rule, status, company_id, enterprise_group_id')
+    .in('status', includeArchived ? ['active', 'archived'] : ['active'])
     .order('code'));
   return rows.map((m) => {
     const scope = scopeOf(m.company_id, m.enterprise_group_id);
@@ -1070,6 +1076,7 @@ export const loadConditionModifiers: Query<ConditionModifierRow[]> = async (clie
       category: (m.category as string | null) ?? null,
       factors: (m.factors ?? {}) as Record<string, number>,
       applicationRule: String(m.application_rule ?? ''),
+      status: String(m.status ?? 'active'),
       scope,
       editable: scope === 'company',
     };
@@ -1119,14 +1126,15 @@ export interface PricingProfileRow {
   isDefault: boolean;
   components: MarkupComponentRow[];
   scope: Scope;
+  status: string;
   editable: boolean;
 }
 
-export const loadPricingProfiles: Query<PricingProfileRow[]> = async (client) => {
+export const loadPricingProfiles = (includeArchived = false): Query<PricingProfileRow[]> => async (client) => {
   const rows = await everyRow(() => client
     .from('pricing_profiles')
-    .select('id, code, name, method, region, regional_factor, escalation_percent, escalation_years, is_default, company_id, enterprise_group_id, markup_components(code, label, percent, basis, sequence, disclosed)')
-    .eq('status', 'active')
+    .select('id, code, name, method, region, regional_factor, escalation_percent, escalation_years, is_default, status, company_id, enterprise_group_id, markup_components(code, label, percent, basis, sequence, disclosed)')
+    .in('status', includeArchived ? ['active', 'archived'] : ['active'])
     .order('name'));
   return rows.map((p) => {
     const scope = scopeOf(p.company_id, p.enterprise_group_id);
@@ -1156,6 +1164,7 @@ export const loadPricingProfiles: Query<PricingProfileRow[]> = async (client) =>
       isDefault: Boolean(p.is_default),
       components,
       scope,
+      status: String(p.status ?? 'active'),
       editable: scope === 'company',
     };
   });
@@ -1394,12 +1403,12 @@ export interface CrewRow {
   costPerHour: number | null;
 }
 
-export const loadCrewLibrary: Query<CrewRow[]> = async (client) => {
+export const loadCrewLibrary = (includeArchived = false): Query<CrewRow[]> => async (client) => {
   const rows = unwrap(await client
     .from('my_crews')
     .select('id, code, name, discipline, shift_hours, status, is_own, '
       + 'classification_count, headcount, cost_per_hour')
-    .neq('status', 'archived')
+    .in('status', includeArchived ? ['active', 'archived'] : ['active'])
     .order('is_own', { ascending: false })
     .order('name')) as unknown as Array<Record<string, unknown>>;
   return rows.map((c) => ({
@@ -1527,6 +1536,63 @@ export async function retireCrew(crewId: string): Promise<void> {
 export type LibraryKind =
   | 'service' | 'task' | 'assembly' | 'labor_rate' | 'equipment'
   | 'crew' | 'production_rate';
+
+/**
+ * Put a shipped row out of this company's way, or bring it back.
+ *
+ * A company cannot change a row GrounUp ships and should not be able to — it
+ * belongs to every company on the platform. What it can reasonably do is decide
+ * the row is not part of *its* library: 2,143 production rates for trades
+ * somebody does not work in are noise they read past every time.
+ *
+ * So the row is untouched and the decision is recorded beside it, per company.
+ */
+export async function hideLibraryRow(
+  companyId: string, kind: ArchivableKind, rowId: string, hidden = true,
+): Promise<void> {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { error } = await supabase.rpc('hide_library_row', {
+    p_company: companyId, p_kind: kind, p_row: rowId, p_hidden: hidden,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** What this company has put out of the way, as `kind:id` keys. */
+export const loadHiddenLibraryRows: Query<Set<string>> = async (client) => {
+  const rows = unwrap(await client
+    .from('my_hidden_library_rows')
+    .select('kind, row_id')) as Array<Record<string, unknown>>;
+  return new Set(rows.map((r) => `${String(r.kind)}:${String(r.row_id)}`));
+};
+
+/** Every library a row can be archived in. Matches `app.set_library_status`. */
+export type ArchivableKind =
+  | 'service' | 'task' | 'assembly' | 'material' | 'labor_rate' | 'equipment'
+  | 'crew' | 'production_rate' | 'trucking_rate' | 'vendor'
+  | 'condition_modifier' | 'pricing_profile' | 'disposal_site' | 'wage_schedule';
+
+/**
+ * Put a library row away, or bring it back.
+ *
+ * One function for fourteen tables, because two words for one idea — `retired`
+ * on services and tasks, `archived` on crews — is how the other ten ended up
+ * with neither. Nothing is destroyed: the owner archived a crew, believed it
+ * was gone, and it was still there with both its members.
+ *
+ * A shipped row is refused by the database, not hidden by this: it belongs to
+ * every company on the platform, so archiving it for one would hide it from
+ * all. The refusal says to adopt it first and archive the copy.
+ */
+export async function setLibraryStatus(
+  kind: ArchivableKind, rowId: string, status: 'archived' | 'active' = 'archived',
+): Promise<string> {
+  if (!supabase) throw new Error('No workspace is configured.');
+  const { data, error } = await supabase.rpc('set_library_status', {
+    p_kind: kind, p_row: rowId, p_status: status,
+  });
+  if (error) throw new Error(error.message);
+  return String(data ?? status);
+}
 
 /** Copy a shipped row into the company's own library. Returns the copy's id. */
 export async function adoptLibraryRow(
