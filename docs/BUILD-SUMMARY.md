@@ -6,14 +6,14 @@
 |---|---:|---:|
 | Estimating engine (source + tests) | 50 | ~15,200 |
 | Document rendering (source + tests) | 8 | ~1,800 |
-| Database migrations (226 files, 174 tables, 141 views) | 226 | ~63,300 |
+| Database migrations (228 files, 177 tables, 143 views) | 228 | ~64,100 |
 | Edge Functions + shared modules | 66 | ~10,800 |
-| Database & function tests | 163 | ~41,500 |
+| Database & function tests | 164 | ~41,700 |
 | Governance & traceability tests | 20 | ~4,400 |
-| Web application (51 routes, 29 app screens) | 395 | ~102,500 |
+| Web application (51 routes, 29 app screens) | 396 | ~103,300 |
 | Documentation | 16 | ~6,200 |
 | Seed & tooling | 12 | ~3,200 |
-| **Total hand-written** | **956** | **~248,800** |
+| **Total hand-written** | **960** | **~250,800** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the
@@ -22,18 +22,18 @@ official brand vectors extracted from the supplied logo files.
 ## Verification
 
 `npm run verify` — typecheck, OpenAPI drift check, verification and traceability
-drift checks, 5,581 tests, production build —
+drift checks, 5,603 tests, production build —
 **exits 0 from a clean working tree**.
 
 ```
 Engine        708 tests   estimating, surfaces, calendars, critical path
 PDF            57 tests   parsing the bytes it emits
-Database    2,677 tests   against real PostgreSQL 18 (PGlite)
+Database    2,699 tests   against real PostgreSQL 18 (PGlite)
 Functions     310 tests   billing, plan versioning, AI governance, API, observability
 Governance    311 tests   the five-category rule, traceability, verification, spelling, pipeline
 Web         1,518 tests   jsdom + Testing Library
             ───────────
-            5,581 tests
+            5,603 tests
 ```
 
 Two things are worth naming about how these run. The database tests execute the

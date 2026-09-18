@@ -13,7 +13,7 @@
  * are written for a person to read, so they are shown exactly as they arrive
  * rather than replaced with something of ours.
  */
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Check, Inbox, Loader2, Mail, MapPin, Phone, Search, X,
@@ -30,8 +30,9 @@ import {
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/data-state';
-import { messageFor } from '@/lib/data/query';
+import { useQuery, messageFor } from '@/lib/data/query';
 import { setLeadStage, convertLead, STAGE_SAYS, type LeadRow } from '@/lib/data/leads';
+import { leadAnswers } from '@/lib/data/lead-forms';
 import { money, date, titleCase, plural } from '@/lib/format';
 
 const STAGE_TONE: Record<string, 'default' | 'info' | 'warn' | 'success' | 'danger'> = {
@@ -53,6 +54,21 @@ export function LeadInboxSection({ leads, canEdit, onChanged }: {
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [converting, setConverting] = useState<LeadRow | null>(null);
+  /*
+   * What each lead answered to the company's own form questions. Read once for
+   * the list rather than once per card: a page of twenty leads would otherwise
+   * open twenty requests to say the same thing.
+   */
+  const answersQ = useQuery(leadAnswers, []);
+  const answersByLead = useMemo(() => {
+    const out = new Map<string, Array<{ id: string; label: string; answer: string }>>();
+    for (const a of answersQ.status === 'ready' ? answersQ.data : []) {
+      const list = out.get(a.leadId) ?? [];
+      list.push(a);
+      out.set(a.leadId, list);
+    }
+    return out;
+  }, [answersQ]);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -172,6 +188,22 @@ export function LeadInboxSection({ leads, canEdit, onChanged }: {
 
                   {lead.description ? (
                     <p className="text-sm text-charcoal-700">{lead.description}</p>
+                  ) : null}
+
+                  {/*
+                    * What they answered to your own questions, with the question
+                    * as it was asked at the time. Renaming it later does not
+                    * rewrite what this person was actually put in front of.
+                    */}
+                  {(answersByLead.get(lead.id) ?? []).length > 0 ? (
+                    <dl className="grid gap-x-4 gap-y-1 rounded-md border border-charcoal-100 bg-charcoal-50/60 p-2 text-sm sm:grid-cols-[max-content_1fr]">
+                      {(answersByLead.get(lead.id) ?? []).map((a) => (
+                        <Fragment key={a.id}>
+                          <dt className="text-charcoal-500">{a.label}</dt>
+                          <dd className="font-medium text-charcoal-900">{a.answer}</dd>
+                        </Fragment>
+                      ))}
+                    </dl>
                   ) : null}
 
                   {lead.stage === 'converted' ? (

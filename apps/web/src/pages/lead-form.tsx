@@ -21,7 +21,7 @@
  * would be an oracle: paste in keys until one answers, and you have a directory
  * of every company on the platform.
  */
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2, Send, CheckCircle2, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert } from '@/components/ui/misc';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { submitLead } from '@/lib/data/lead-forms';
+import {
+  submitLead, loadPublicQuestions, type LeadFormQuestion,
+} from '@/lib/data/lead-forms';
 import { messageFor } from '@/lib/data/query';
 
 export function LeadFormPage() {
@@ -45,6 +47,35 @@ export function LeadFormPage() {
   /* Hidden from people, filled in by robots. Never shown, never validated. */
   const [trap, setTrap] = useState('');
 
+  /*
+   * The company's own questions.
+   *
+   * Read through the one definer function `anon` may call, which is addressed
+   * by the form key and says nothing about who owns it — an unknown key returns
+   * no questions, exactly as a switched-off form does, so this page still gives
+   * a stranger nothing to probe with.
+   */
+  const [questions, setQuestions] = useState<LeadFormQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+
+  useEffect(() => {
+    let live = true;
+    loadPublicQuestions(key)
+      .then((qs) => { if (live) setQuestions(qs); })
+      .catch(() => { if (live) setQuestions([]); });
+    return () => { live = false; };
+  }, [key]);
+
+  const answered = (q: LeadFormQuestion): boolean => {
+    const v = answers[q.id];
+    return Array.isArray(v) ? v.length > 0 : (v ?? '').trim() !== '';
+  };
+  const unanswered = useMemo(
+    () => questions.filter((q) => q.isRequired && !answered(q)).map((q) => q.label),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [questions, answers],
+  );
+
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +87,7 @@ export function LeadFormPage() {
    */
   const named = companyName.trim().length >= 2;
   const reachable = email.trim() !== '' || phone.trim() !== '';
-  const ready = named && reachable;
+  const ready = named && reachable && unanswered.length === 0;
 
   if (sent) {
     return (
@@ -131,6 +162,69 @@ export function LeadFormPage() {
               placeholder="Roughly 3 acres to strip and grade, storm to the back of the lot, work starting in the spring." />
           </div>
 
+          {/*
+            * The company's own questions, in the order they set.
+            *
+            * A choice renders as a select rather than a box, which is the
+            * standing rule everywhere else in this platform: an answer typed
+            * freely becomes a fourth spelling of the same thing, and the
+            * database refuses one that is not on the list anyway.
+            */}
+          {questions.map((q) => {
+            const id = `lf-q-${q.id}`;
+            const value = answers[q.id];
+            const set = (v: string | string[]) =>
+              setAnswers((a) => ({ ...a, [q.id]: v }));
+
+            return (
+              <div key={q.id} className="space-y-1">
+                <Label htmlFor={id}>{q.label}{q.isRequired ? ' *' : ''}</Label>
+                {q.kind === 'select' ? (
+                  <select id={id} value={typeof value === 'string' ? value : ''}
+                    onChange={(e) => set(e.target.value)}
+                    className="h-9 w-full rounded-md border border-charcoal-200 bg-white px-3 text-sm">
+                    <option value="" />
+                    {q.choices.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                ) : q.kind === 'multi_select' ? (
+                  <div className="flex flex-wrap gap-2">
+                    {q.choices.map((c) => {
+                      const picked = Array.isArray(value) && value.includes(c);
+                      return (
+                        <button key={c} type="button" aria-pressed={picked}
+                          onClick={() => {
+                            const now = Array.isArray(value) ? value : [];
+                            set(picked ? now.filter((x) => x !== c) : [...now, c]);
+                          }}
+                          className={picked
+                            ? 'rounded-full border border-brand-500 bg-brand-50 px-3 py-1 text-sm text-brand-800'
+                            : 'rounded-full border border-charcoal-200 bg-white px-3 py-1 text-sm text-charcoal-700 hover:bg-charcoal-50'}>
+                          {c}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : q.kind === 'long_text' ? (
+                  <textarea id={id} rows={3}
+                    value={typeof value === 'string' ? value : ''}
+                    onChange={(e) => set(e.target.value)}
+                    className="w-full rounded-md border border-charcoal-200 bg-white p-2 text-sm" />
+                ) : (
+                  <Input id={id}
+                    type={q.kind === 'email' ? 'email'
+                      : q.kind === 'phone' ? 'tel'
+                      : q.kind === 'number' ? 'number'
+                      : q.kind === 'date' ? 'date' : 'text'}
+                    value={typeof value === 'string' ? value : ''}
+                    onChange={(e) => set(e.target.value)} />
+                )}
+                {q.helpText ? (
+                  <p className="text-xs text-charcoal-500">{q.helpText}</p>
+                ) : null}
+              </div>
+            );
+          })}
+
           {/* Hidden from people, filled in by robots. Left exactly as it is. */}
           <div aria-hidden="true" className="absolute -left-[5000px]">
             <input type="text" name="trap" tabIndex={-1} autoComplete="off"
@@ -141,10 +235,17 @@ export function LeadFormPage() {
 
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-charcoal-500">
-              {reachable ? ' ' : 'Leave an email address or a phone number so somebody can reply.'}
+              {!reachable
+                ? 'Leave an email address or a phone number so somebody can reply.'
+                : unanswered.length > 0
+                  ? `Still to answer: ${unanswered.join(', ')}.`
+                  : ' '}
             </p>
             <Button disabled={!ready || busy}
-              title={ready ? undefined : 'A name, and a way to reach you'}
+              title={ready ? undefined
+                : unanswered.length > 0
+                  ? `Answer ${unanswered.join(', ')}`
+                  : 'A name, and a way to reach you'}
               onClick={() => {
                 setBusy(true); setError(null);
                 submitLead(key, {
@@ -156,6 +257,7 @@ export function LeadFormPage() {
                   state: state.trim() || null,
                   description: description.trim() || null,
                   trap: trap || null,
+                  answers,
                 })
                   .then(() => setSent(true))
                   .catch((e: unknown) => setError(messageFor(e)))

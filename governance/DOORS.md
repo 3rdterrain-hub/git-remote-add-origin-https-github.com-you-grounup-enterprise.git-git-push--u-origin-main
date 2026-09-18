@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **419** |
-| Opened by a screen | **398** |
+| Doors | **426** |
+| Opened by a screen | **405** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -75,6 +75,8 @@ None.
 | `add_change_order_item` | function | lib/data/project.ts |
 | `add_estimate_line` | function | lib/data/estimates.ts |
 | `add_estimate_lines` | function | lib/data/estimates.ts |
+| `add_lead_form_choice` | function | lib/data/lead-forms.ts |
+| `add_lead_form_question` | function | lib/data/lead-forms.ts |
 | `add_library_category` | function | lib/data/categories.ts |
 | `add_purchase_order_item` | function | lib/data/procurement.ts |
 | `add_report_equipment` | function | lib/data/project.ts |
@@ -184,6 +186,7 @@ None.
 | `is_supporting` | function | lib/data/admin.ts |
 | `issue_drafted_proposal` | function | lib/data/estimates.ts |
 | `issue_purchase_order` | function | lib/data/procurement.ts |
+| `lead_form_questions` | function | lib/data/lead-forms.ts |
 | `library_category_counts` | function | lib/data/categories.ts |
 | `library_category_members` | function | lib/data/categories.ts |
 | `line_production_options` | function | lib/data/production.ts |
@@ -224,6 +227,8 @@ None.
 | `my_inspections` | view | lib/data/safety.ts |
 | `my_jobs_nearby` | function | lib/data/field-work.ts |
 | `my_latest_schedule_calculation` | view | lib/data/schedule.ts |
+| `my_lead_answers` | view | lib/data/lead-forms.ts |
+| `my_lead_form_questions` | view | lib/data/lead-forms.ts |
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
 | `my_library_copies` | view | lib/data/library.ts |
@@ -404,6 +409,9 @@ None.
 | `set_haul_capacity` | function | lib/data/estimates.ts |
 | `set_inspection_result` | function | lib/data/safety.ts |
 | `set_labor_rate` | function | lib/data/library.ts |
+| `set_lead_form` | function | lib/data/lead-forms.ts |
+| `set_lead_form_choice` | function | lib/data/lead-forms.ts |
+| `set_lead_form_question` | function | lib/data/lead-forms.ts |
 | `set_library_status` | function | lib/data/library.ts |
 | `set_line_production_rate` | function | lib/data/production.ts |
 | `set_line_quantity` | function | lib/data/estimates.ts |
@@ -433,7 +441,6 @@ None.
 | `start_break` | function | lib/data/time-clock.ts |
 | `submit_claim` | function | lib/data/claims.ts |
 | `submit_daily_report` | function | lib/data/project.ts |
-| `submit_lead` | function | lib/data/lead-forms.ts |
 | `submit_pay_application` | function | lib/data/finance.ts |
 | `superadmin_seat_is_open` | function | lib/data/admin.ts |
 | `supersede_machine_control_file` | function | lib/data/survey.ts |

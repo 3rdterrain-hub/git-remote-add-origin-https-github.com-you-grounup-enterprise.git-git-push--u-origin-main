@@ -111,6 +111,9 @@ TBL-inventory_items,table,inventory_items,supabase/migrations (table inventory_i
 TBL-inventory_transactions,table,inventory_transactions,supabase/migrations (table inventory_transactions),ENTITY
 TBL-knowledge_articles,table,knowledge_articles,supabase/migrations (table knowledge_articles),LIBRARY
 TBL-labor_rates,table,labor_rates,supabase/migrations (table labor_rates),LIBRARY
+TBL-lead_answers,table,lead_answers,supabase/migrations (table lead_answers),ENTITY
+TBL-lead_form_choices,table,lead_form_choices,supabase/migrations (table lead_form_choices),ENTITY
+TBL-lead_form_questions,table,lead_form_questions,supabase/migrations (table lead_form_questions),ENTITY
 TBL-lead_intake_forms,table,lead_intake_forms,supabase/migrations (table lead_intake_forms),ENTITY
 TBL-leads,table,leads,supabase/migrations (table leads),ENTITY
 TBL-library_categories,table,library_categories,supabase/migrations (table library_categories),LIBRARY
@@ -286,6 +289,7 @@ TST-db-a-condition-you-can-describe-yourself,test,db/a-condition-you-can-describ
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-directory-somebody-consented-to,test,db/a-directory-somebody-consented-to.test.ts,tests/db/a-directory-somebody-consented-to.test.ts,ENGINE
 TST-db-a-field-report-you-can-fill-in,test,db/a-field-report-you-can-fill-in.test.ts,tests/db/a-field-report-you-can-fill-in.test.ts,ENGINE
+TST-db-a-form-that-asks-what-you-need-to-know,test,db/a-form-that-asks-what-you-need-to-know.test.ts,tests/db/a-form-that-asks-what-you-need-to-know.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-key-you-are-shown-once,test,db/a-key-you-are-shown-once.test.ts,tests/db/a-key-you-are-shown-once.test.ts,ENGINE
 TST-db-a-library-row-you-can-actually-change,test,db/a-library-row-you-can-actually-change.test.ts,tests/db/a-library-row-you-can-actually-change.test.ts,ENGINE

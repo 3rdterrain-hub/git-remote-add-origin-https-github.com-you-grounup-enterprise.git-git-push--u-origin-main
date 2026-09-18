@@ -12,7 +12,7 @@
  * which may call exactly one function in the schema and read nothing at all.
  */
 import { useState } from 'react';
-import { Check, Copy, Globe, Loader2, Plus, Power, Tag } from 'lucide-react';
+import { Check, Copy, Globe, Loader2, Plus, Power, Settings2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,9 +23,10 @@ import { LoadingState, ErrorState, EmptyState } from '@/components/data-state';
 import { useQuery, messageFor } from '@/lib/data/query';
 import {
   loadLeadIntakeForms, loadLeadSources, createLeadIntakeForm, setLeadFormActive,
-  addLeadSource, embedSnippet, intakeUrl,
-  type LeadIntakeForm,
+  addLeadSource, embedSnippet, intakeUrl, leadFormQuestions, setLeadForm,
+  type LeadIntakeForm, type LeadSource,
 } from '@/lib/data/lead-forms';
+import { FormQuestions } from './form-questions';
 import { plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -50,10 +51,131 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   );
 }
 
-function FormCard({ form, onChanged }: { form: LeadIntakeForm; onChanged: () => void }) {
+
+/**
+ * A published form's own settings.
+ *
+ * `redirect_url`, `max_per_hour_per_form` and `max_per_hour_per_address` have
+ * been columns on `lead_intake_forms` since migration 0065 and nothing has ever
+ * written one — three settings a company could see the effect of and not
+ * change. The name and the source had the same problem: both were fixed at the
+ * moment of publishing.
+ */
+function FormSettings({ form, sources, onChanged }: {
+  form: LeadIntakeForm;
+  sources: readonly LeadSource[];
+  onChanged: () => void;
+}) {
+  const [name, setName] = useState(form.name);
+  const [source, setSource] = useState(form.sourceLabel);
+  const [perForm, setPerForm] = useState(String(form.maxPerHourPerForm));
+  const [perAddress, setPerAddress] = useState(String(form.maxPerHourPerAddress));
+  const [redirect, setRedirect] = useState(form.redirectUrl ?? '');
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
-  const snippet = embedSnippet(form);
+  const [saved, setSaved] = useState(false);
+
+  const changed = name.trim() !== form.name
+    || source !== form.sourceLabel
+    || Number(perForm) !== form.maxPerHourPerForm
+    || Number(perAddress) !== form.maxPerHourPerAddress
+    || redirect.trim() !== (form.redirectUrl ?? '');
+
+  const save = async () => {
+    setBusy(true); setProblem(null); setSaved(false);
+    try {
+      await setLeadForm(form.id, {
+        name: name.trim() === form.name ? undefined : name.trim(),
+        sourceLabel: source === form.sourceLabel ? undefined : source,
+        maxPerHourPerForm: Number(perForm) === form.maxPerHourPerForm
+          ? undefined : Number(perForm),
+        maxPerHourPerAddress: Number(perAddress) === form.maxPerHourPerAddress
+          ? undefined : Number(perAddress),
+        /* Emptying the box is a clear, which is its own argument rather than a
+           null — passing nothing has to keep meaning "leave it alone". */
+        redirectUrl: redirect.trim() === '' ? undefined : redirect.trim(),
+        clearRedirect: redirect.trim() === '' && (form.redirectUrl ?? '') !== '',
+      });
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 2500);
+      onChanged();
+    } catch (err) { setProblem(messageFor(err)); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="space-y-3 rounded-md border border-charcoal-200 bg-charcoal-50/60 p-3">
+      <Label className="flex items-center gap-2">
+        <Settings2 className="size-4 text-charcoal-500" /> What this form does
+      </Label>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label htmlFor={`f-name-${form.id}`}>Its name, for you</Label>
+          <Input id={`f-name-${form.id}`} value={name}
+            onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`f-source-${form.id}`}>File its leads as</Label>
+          <select id={`f-source-${form.id}`} value={source}
+            onChange={(e) => setSource(e.target.value)}
+            className="h-9 w-full rounded-md border border-charcoal-200 bg-white px-3 text-sm">
+            {sources.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+          </select>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`f-cap-form-${form.id}`}>Most it will take in an hour</Label>
+          <Input id={`f-cap-form-${form.id}`} type="number" min={1} max={10000}
+            value={perForm} onChange={(e) => setPerForm(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`f-cap-ip-${form.id}`}>Most from one sender in an hour</Label>
+          <Input id={`f-cap-ip-${form.id}`} type="number" min={1} max={1000}
+            value={perAddress} onChange={(e) => setPerAddress(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor={`f-redirect-${form.id}`}>Send them to a page afterwards</Label>
+        <Input id={`f-redirect-${form.id}`} value={redirect}
+          placeholder="https://3rdterrain.com/thank-you"
+          onChange={(e) => setRedirect(e.target.value)} />
+        <p className="text-xs text-charcoal-500">
+          Optional. Leave it empty and they see a thank-you where they are, which is
+          what most people want — a redirect loses anybody whose page was in a frame.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button size="sm" disabled={busy || !changed} onClick={save}
+          title={changed ? undefined : 'Nothing has been changed'}>
+          {busy ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+          Save
+        </Button>
+        {saved ? <span className="text-xs font-medium text-ok-700">Saved</span> : null}
+      </div>
+      {problem ? (
+        <p role="alert" className="text-sm font-medium text-danger-700">{problem}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function FormCard({ form, sources, canEdit, onChanged }: {
+  form: LeadIntakeForm;
+  sources: readonly LeadSource[];
+  canEdit: boolean;
+  onChanged: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  /*
+   * The snippet is built from the questions this card is showing, so the code a
+   * contractor copies asks exactly what the panel below says it asks.
+   */
+  const questions = useQuery(leadFormQuestions(form.id), [form.id]);
+  const asked = questions.status === 'ready' ? questions.data : [];
+  const snippet = embedSnippet(form, undefined, undefined, asked);
   /* The same key the snippet carries, as an address rather than a paste. */
   const hostedUrl = `${window.location.origin}/lead/${form.publicKey}`;
 
@@ -105,6 +227,13 @@ function FormCard({ form, onChanged }: { form: LeadIntakeForm; onChanged: () => 
             a stranger nothing.
           </p>
         </div>
+
+        <FormQuestions formId={form.id} canEdit={canEdit} questions={asked}
+          onChanged={() => { questions.refetch(); onChanged(); }} />
+
+        {canEdit ? (
+          <FormSettings form={form} sources={sources} onChanged={onChanged} />
+        ) : null}
 
         <div className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -329,7 +458,11 @@ export function LeadFormsSection({ companyId, canEdit }: {
         <EmptyState title="No lead forms yet"
           hint="Publish one and paste the snippet into your website. Nothing else is needed — no plugin, and no account for the person filling it in." />
       ) : (
-        forms.data.map((f) => <FormCard key={f.id} form={f} onChanged={forms.refetch} />)
+        forms.data.map((f) => (
+          <FormCard key={f.id} form={f} canEdit={canEdit}
+            sources={sources.status === 'ready' ? sources.data : []}
+            onChanged={forms.refetch} />
+        ))
       )}
     </div>
   );
