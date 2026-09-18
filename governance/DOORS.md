@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **403** |
-| Opened by a screen | **382** |
+| Doors | **404** |
+| Opened by a screen | **383** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -219,6 +219,7 @@ None.
 | `my_lead_sources` | view | lib/data/lead-forms.ts |
 | `my_library_categories` | view | lib/data/categories.ts |
 | `my_library_copies` | view | lib/data/library.ts |
+| `my_library_tasks` | view | lib/data/library.ts |
 | `my_line_conditions` | view | lib/data/estimates.ts |
 | `my_line_measurements` | view | lib/data/takeoff.ts |
 | `my_line_resource_suggestions` | view | lib/data/estimates.ts |

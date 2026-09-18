@@ -304,6 +304,7 @@ TST-db-a-sheet-that-knows-what-it-is,test,db/a-sheet-that-knows-what-it-is.test.
 TST-db-a-shipped-row-you-can-make-your-own,test,db/a-shipped-row-you-can-make-your-own.test.ts,tests/db/a-shipped-row-you-can-make-your-own.test.ts,ENGINE
 TST-db-a-signature-that-belongs-to-the-customer,test,db/a-signature-that-belongs-to-the-customer.test.ts,tests/db/a-signature-that-belongs-to-the-customer.test.ts,ENGINE
 TST-db-a-surface-somebody-shot,test,db/a-surface-somebody-shot.test.ts,tests/db/a-surface-somebody-shot.test.ts,ENGINE
+TST-db-a-task-knows-what-trade-it-belongs-to,test,db/a-task-knows-what-trade-it-belongs-to.test.ts,tests/db/a-task-knows-what-trade-it-belongs-to.test.ts,ENGINE
 TST-db-a-ticket-in-somebodys-pocket,test,db/a-ticket-in-somebodys-pocket.test.ts,tests/db/a-ticket-in-somebodys-pocket.test.ts,ENGINE
 TST-db-a-wage-sheet-you-can-point-at,test,db/a-wage-sheet-you-can-point-at.test.ts,tests/db/a-wage-sheet-you-can-point-at.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE

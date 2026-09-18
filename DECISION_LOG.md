@@ -11,6 +11,35 @@ Newest first.
 
 ---
 
+## D-089 · 2026-09-17 · A task's trade is read from the catalog, never typed onto the task
+
+**Decision.** `my_library_tasks` derives each task's trade from the services
+whose build-ups use it. Nothing is stored on `tasks`, and the 73 rows that do
+not resolve are left null with `trade_certainty` saying `ambiguous` or `unused`.
+
+**Reason.** The Tasks tab was unnavigable: `category` holds Production (1,371)
+or Support (7,161), which decides whether a task carries a production rate and
+says nothing about what trade it is. Meanwhile the column rendering it was
+headed **Trade** — two different facts, one under the other's name.
+
+Typing a trade onto 8,532 rows would have been the largest invented-data
+exercise in this repository. The relationship was already in the catalog: a task
+sits in an assembly, the assembly is a service's build-up, the service carries a
+category. 8,459 of 8,532 (99.1%) resolve to exactly one.
+
+**Derived, not stored**, for the reason every total here is recomputed rather
+than incremented: a stored trade is right the day it is written and wrong the
+first time somebody moves a task, with nothing to notice. A test moves a service
+between categories and watches the task follow.
+
+**The 73 are refused rather than guessed.** 40 are used by services in more than
+one trade and 33 by none. The alphabetically-first answer would be a figure
+nobody could check — the rule that governs every other number here.
+
+**Status.** Active. 7 tests.
+
+---
+
 ## D-088 · 2026-09-17 · A lead form is an address, not only a paste
 
 **Decision.** `/lead/:key` serves the intake form as a hosted page, beside the

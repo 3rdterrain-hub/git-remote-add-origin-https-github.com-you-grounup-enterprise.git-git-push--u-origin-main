@@ -41,7 +41,13 @@ export interface TaskRow {
   code: string;
   name: string;
   defaultUnit: string;
+  /** Production or Support — what kind of work, not which trade. */
   category: string | null;
+  /** The trade, read from the services that use this task. Null where unclear. */
+  trade: string | null;
+  tradeCertainty: 'derived' | 'ambiguous' | 'unused';
+  /** How many services build on this task. */
+  servicesUsing: number;
   productionRequired: boolean;
   crewRequired: boolean;
   equipmentRequired: boolean;
@@ -129,9 +135,16 @@ export const loadServices: Query<ServiceRow[]> = async (client) => {
 };
 
 export const loadTasks: Query<TaskRow[]> = async (client) => {
+  /*
+   * Read through `my_library_tasks` rather than `tasks`: the trade a task
+   * belongs to is derived there from the services whose build-ups use it,
+   * because nothing on the task itself says what trade it is. `category` is
+   * Production or Support, which decides whether a task carries a production
+   * rate and is no use for finding one among 8,532.
+   */
   const rows = await everyRow(() => client
-    .from('tasks')
-    .select('id, code, name, default_unit, category, production_required, crew_required, equipment_required, material_required, safety_review_required, status, company_id, enterprise_group_id')
+    .from('my_library_tasks')
+    .select('id, code, name, default_unit, category, trade, trade_certainty, services_using, production_required, crew_required, equipment_required, material_required, safety_review_required, status, company_id, enterprise_group_id')
     .order('code'));
   return rows.map((t) => {
     const scope = scopeOf(t.company_id, t.enterprise_group_id);
@@ -141,6 +154,9 @@ export const loadTasks: Query<TaskRow[]> = async (client) => {
       name: String(t.name),
       defaultUnit: String(t.default_unit),
       category: (t.category as string | null) ?? null,
+      trade: (t.trade as string | null) ?? null,
+      tradeCertainty: (String(t.trade_certainty ?? 'unused')) as TaskRow['tradeCertainty'],
+      servicesUsing: Number(t.services_using ?? 0),
       productionRequired: Boolean(t.production_required),
       crewRequired: Boolean(t.crew_required),
       equipmentRequired: Boolean(t.equipment_required),

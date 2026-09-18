@@ -54,6 +54,7 @@ export function LibrariesPage() {
   const [tab, setTab] = useState('labor');
   const [category, setCategory] = useState('');
   const [taskCategory, setTaskCategory] = useState('');
+  const [taskTrade, setTaskTrade] = useState('');
   const [rateCategory, setRateCategory] = useState('');
   const match = (s: string) => !q || s.toLowerCase().includes(q.toLowerCase());
 
@@ -162,8 +163,16 @@ export function LibrariesPage() {
   const shownTasks = useMemo(
     () => tasks
       .filter((x) => !taskCategory || x.category === taskCategory)
-      .filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''}`)),
-    [tasks, q, taskCategory]);
+      .filter((x) => !taskTrade || x.trade === taskTrade)
+      /* The trade is searchable too — it is the word somebody actually knows. */
+      .filter((x) => match(`${x.code} ${x.name} ${x.category ?? ''} ${x.trade ?? ''}`)),
+    [tasks, q, taskCategory, taskTrade]);
+
+  /* The trades present, counted from the tasks rather than listed anywhere. */
+  const taskTrades = useMemo(
+    () => [...new Set(tasks.map((x) => x.trade).filter((t): t is string => !!t))]
+      .sort((a, b) => a.localeCompare(b)),
+    [tasks]);
 
   async function addService(v: Parameters<typeof ServiceForm>[0] extends never ? never
     : { code: string; name: string; description: string; category: string;
@@ -409,9 +418,18 @@ export function LibrariesPage() {
         <TabsContent value="tasks" className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full space-y-1.5 sm:w-72">
-              <Label htmlFor="lib-tsk-cat">Filter by category</Label>
+              <Label htmlFor="lib-tsk-trade">Filter by trade</Label>
+              <select id="lib-tsk-trade" value={taskTrade}
+                onChange={(e) => setTaskTrade(e.target.value)}
+                className="h-9 w-full rounded-md border border-charcoal-200 bg-white px-2 text-sm">
+                <option value="">Every trade</option>
+                {taskTrades.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="w-full space-y-1.5 sm:w-60">
+              <Label htmlFor="lib-tsk-cat">Filter by kind</Label>
               <CategorySelect id="lib-tsk-cat" kind="task_category"
-                label="task category to filter by" canAdd={false}
+                label="task kind to filter by" canAdd={false}
                 value={taskCategory} onChange={setTaskCategory} />
             </div>
             <p className="pb-1.5 text-xs text-charcoal-500">
@@ -450,7 +468,11 @@ export function LibrariesPage() {
                   <TableRow>
                     <TableHead>Code</TableHead>
                     <TableHead>Name</TableHead>
+                    {/* This column was headed Trade and rendered `category`,
+                        which is Production or Support. Two different facts, one
+                        of them under the other's name. */}
                     <TableHead>Trade</TableHead>
+                    <TableHead>Kind</TableHead>
                     <TableHead>Unit</TableHead>
                     <TableHead>Requires</TableHead>
                     <TableHead>Scope</TableHead>
@@ -461,6 +483,16 @@ export function LibrariesPage() {
                     <TableRow key={x.id}>
                       <TableCell className="font-mono text-xs text-charcoal-600">{x.code}</TableCell>
                       <TableCell className="font-medium text-charcoal-900">{x.name}</TableCell>
+                      <TableCell className="text-charcoal-600">
+                        {x.trade ?? (
+                          <span className="text-xs text-charcoal-400"
+                            title={x.tradeCertainty === 'ambiguous'
+                              ? 'Used by services in more than one trade, so naming one would be a guess'
+                              : 'No service builds on this task yet'}>
+                            {x.tradeCertainty === 'ambiguous' ? 'more than one' : 'unused'}
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-charcoal-600">{x.category ?? '—'}</TableCell>
                       <TableCell className="text-charcoal-600">{x.defaultUnit}</TableCell>
                       <TableCell className="text-xs text-charcoal-500">
