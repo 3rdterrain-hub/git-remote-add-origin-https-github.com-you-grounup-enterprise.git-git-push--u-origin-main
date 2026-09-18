@@ -558,6 +558,7 @@ TST-web-workforce,test,web/workforce.test.tsx,apps/web/src/pages/app/workforce.t
 TST-web-auth,test,web/auth.test.tsx,apps/web/src/pages/auth.test.tsx,ENGINE
 TST-web-clock,test,web/clock.test.tsx,apps/web/src/pages/clock.test.tsx,ENGINE
 TST-web-landing,test,web/landing.test.tsx,apps/web/src/pages/landing.test.tsx,ENGINE
+TST-web-lead-form,test,web/lead-form.test.tsx,apps/web/src/pages/lead-form.test.tsx,ENGINE
 TST-web-onboarding,test,web/onboarding.test.tsx,apps/web/src/pages/onboarding.test.tsx,ENGINE
 TST-web-routes,test,web/routes.test.tsx,apps/web/src/routes.test.tsx,ENGINE
 TST-web-hermetic,test,web/hermetic.test.ts,apps/web/src/test/hermetic.test.ts,ENGINE

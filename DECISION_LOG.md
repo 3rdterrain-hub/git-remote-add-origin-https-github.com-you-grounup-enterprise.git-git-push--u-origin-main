@@ -11,6 +11,36 @@ Newest first.
 
 ---
 
+## D-088 · 2026-09-17 · A lead form is an address, not only a paste
+
+**Decision.** `/lead/:key` serves the intake form as a hosted page, beside the
+embed snippet rather than instead of it. The form card in CRM shows the link
+first and the snippet second.
+
+**Reason.** Migration 0065 and `embedSnippet` built a complete capture path for
+a contractor who can edit their own website. That assumption is wrong for most
+of the people this is for: the page was built by somebody else, or there is no
+page — there is a Facebook profile and a phone. A link works from a text
+message, an email signature, a business card or a QR code on a truck door, and
+asks nothing of them. `lead_intake_forms` holding zero rows after the feature
+shipped is consistent with a capture path nobody could actually use.
+
+**What the page deliberately cannot do.** It does not name the company, the form
+or anything else, because `anon` may call one function and select from no table.
+A page that greeted a visitor with the company's name would turn guessed keys
+into a directory of every company on the platform — the same oracle 0065 avoided
+by answering a dead key and a disabled key identically. So every heading is
+generic and the first thing that distinguishes a live form from a dead one is
+what happens on submit.
+
+**Verified live.** Submitting a key that does not exist, through the deployed
+project with the anon key, returns "That form is not available", stays on the
+form, and writes nothing.
+
+**Status.** Active. 11 tests.
+
+---
+
 ## D-087 · 2026-09-17 · A library list has no row ceiling, because every ceiling is eventually wrong
 
 **Decision.** All ten readers in `lib/data/library.ts` page with `.range()`

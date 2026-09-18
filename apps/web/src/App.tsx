@@ -14,6 +14,7 @@ import { LandingPage } from '@/pages/landing';
 const AppShell = lazy(() => import('@/components/layout/app-shell').then((m) => ({ default: m.AppShell })));
 const AuthPage = lazy(() => import('@/pages/auth').then((m) => ({ default: m.AuthPage })));
 const AdminShell = lazy(() => import('@/pages/admin/shell').then((m) => ({ default: m.AdminShell })));
+const LeadFormPage = lazy(() => import('@/pages/lead-form').then((m) => ({ default: m.LeadFormPage })));
 const SignProposalPage = lazy(() => import('@/pages/sign-proposal').then((m) => ({ default: m.SignProposalPage })));
 const AdminLoginPage = lazy(() => import('@/pages/admin/login').then((m) => ({ default: m.AdminLoginPage })));
 const AdminDashboard = lazy(() => import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -117,6 +118,9 @@ export function App() {
             * address is their whole credential.
             */}
           <Route path="/sign/:token" element={<SignProposalPage />} />
+          {/* The hosted lead form: one address a contractor can send, print or
+              put on a truck door, for whoever has no website to paste into. */}
+          <Route path="/lead/:key" element={<LeadFormPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminShell />}>
             <Route index element={<AdminDashboard />} />

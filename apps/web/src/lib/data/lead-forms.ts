@@ -119,6 +119,45 @@ export async function addLeadSource(companyId: string, name: string): Promise<vo
 export const intakeUrl = (): string =>
   (supabaseUrl ? `${supabaseUrl.replace(/\/$/, '')}/rest/v1/rpc/submit_lead` : '');
 
+/**
+ * Send a lead, as a stranger.
+ *
+ * The only write in this platform an unauthenticated visitor may perform, and
+ * it deliberately tells the sender nothing back: `submit_lead` returns a bare
+ * boolean, `anon` may select from no table, and a key that never existed
+ * answers exactly like one that was switched off. A form that confirmed what it
+ * stored would be a form that could be used to read what other people stored.
+ *
+ * `trap` is the honeypot migration 0065 reads — hidden from people, filled in
+ * by robots, and answered like a success so a robot moves on instead of
+ * adapting. It is passed straight through rather than checked here, because a
+ * check in the browser is a suggestion.
+ */
+export async function submitLead(publicKey: string, entry: {
+  companyName: string;
+  contactName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  description?: string | null;
+  city?: string | null;
+  state?: string | null;
+  trap?: string | null;
+}): Promise<void> {
+  if (!supabase) throw new Error('This form is not connected to a workspace.');
+  const { error } = await supabase.rpc('submit_lead', {
+    p_key: publicKey,
+    p_company_name: entry.companyName,
+    p_contact_name: entry.contactName ?? null,
+    p_email: entry.email ?? null,
+    p_phone: entry.phone ?? null,
+    p_description: entry.description ?? null,
+    p_city: entry.city ?? null,
+    p_state: entry.state ?? null,
+    p_trap: entry.trap ?? null,
+  });
+  if (error) throw new Error(error.message);
+}
+
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

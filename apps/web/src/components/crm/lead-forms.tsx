@@ -54,6 +54,8 @@ function FormCard({ form, onChanged }: { form: LeadIntakeForm; onChanged: () => 
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const snippet = embedSnippet(form);
+  /* The same key the snippet carries, as an address rather than a paste. */
+  const hostedUrl = `${window.location.origin}/lead/${form.publicKey}`;
 
   return (
     <Card collapseKey={`lead-form-${form.id}`}>
@@ -80,9 +82,33 @@ function FormCard({ form, onChanged }: { form: LeadIntakeForm; onChanged: () => 
       </CardHeader>
 
       <CardContent className="space-y-5">
+        {/*
+          * The link first, the snippet second.
+          *
+          * Pasting HTML assumes a website you can edit, and most of the people
+          * this is for have a page somebody else built or no page at all. A
+          * link works from a text message, an email signature, a business card
+          * or a QR code on a truck door, and it needs nothing of them.
+          */}
         <div className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <Label>Paste this into your website</Label>
+            <Label>Send this link to anybody</Label>
+            <CopyButton text={hostedUrl} label="Copy the link" />
+          </div>
+          <a href={hostedUrl} target="_blank" rel="noreferrer"
+            className="block truncate rounded-md border border-charcoal-200 bg-white px-3 py-2 font-mono text-xs text-charcoal-700 underline underline-offset-2 hover:bg-charcoal-50">
+            {hostedUrl}
+          </a>
+          <p className="text-xs text-charcoal-500">
+            Opens a form anybody can fill in — no account, nothing to install. It says nothing
+            about your company until somebody sends it, so a link that is found or guessed tells
+            a stranger nothing.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Label>Or paste this into your website</Label>
             <div className="flex gap-2">
               <CopyButton text={snippet} label="Copy the form" />
               <Button
