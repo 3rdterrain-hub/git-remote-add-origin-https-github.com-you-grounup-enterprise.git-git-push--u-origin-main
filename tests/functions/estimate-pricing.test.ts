@@ -848,3 +848,84 @@ describe('the rows that drive the hours', () => {
     expect(input.lines[0]!.productionRate!.ratePerHour).toBe(60);
   });
 });
+
+/**
+ * A condition reaching the machine on the line.
+ *
+ * The owner: "inside the estimator conditions there's no way to apply that
+ * through the excavator."
+ *
+ * A condition is applied to the *line*, not to one resource on it, and that is
+ * the right model: a condition describes the work — rock, groundwater, night
+ * shift — and every resource doing that work is affected by it. Per-machine
+ * conditions would make a line's cost impossible to reconcile against the
+ * conditions anybody recorded.
+ *
+ * What was missing was proof that the line-level condition actually reaches the
+ * equipment bucket. Every layer had it — the seed carries `equipment_cost`
+ * factors, `toModifiers` maps them, the engine multiplies — and nothing tested
+ * the joint, which is where this repository's defects live.
+ */
+describe('a condition applied to a line reaches the machine on it', () => {
+  const rock = {
+    justification: 'Rock at 9 ft on the borings, sheet C-301.',
+    condition_modifiers: {
+      id: 'mod-rock', name: 'Difficult material',
+      factors: { production: 0.65, equipment_cost: 1.35 },
+      application_rule: 'multiply', category: 'Subsurface', status: 'active',
+    },
+  };
+
+  const withRock = () => {
+    const s = snapshot();
+    s.lines[0]!.estimate_line_modifiers = [rock] as never;
+    return s;
+  };
+
+  it('reaches the excavator twice over, and the arithmetic says why', () => {
+    const plain = priceEstimate(snapshot(), ASOF).result.lines[0]!;
+    const withIt = priceEstimate(withRock(), ASOF).result.lines[0]!;
+
+    const plainEquipment = plain.directCost.equipmentOwnership;
+    const raised = withIt.directCost.equipmentOwnership;
+    expect(plainEquipment).toBeGreaterThan(0);
+
+    /*
+     * Not 1.35×. The same condition does two things to the same machine: it
+     * raises what an hour of it costs (equipment_cost 1.35) and it slows the
+     * work down (production 0.65), so the excavator is on the job longer *and*
+     * dearer. 1.35 / 0.65 = 2.077, and that is the figure.
+     *
+     * Worth stating plainly because the naive expectation is 1.35 and the
+     * difference is a third of the line.
+     */
+    expect(raised / plainEquipment).toBeCloseTo(1.35 / 0.65, 2);
+
+    /* Material carries no factor here, so it must not move. A condition that
+       quietly moved every bucket would be a markup wearing a condition's name. */
+    expect(withIt.directCost.material).toBeCloseTo(plain.directCost.material, 2);
+  });
+
+  it('puts the machine on the job for longer, because the same condition says so', () => {
+    const plain = priceEstimate(snapshot(), ASOF).result.lines[0]!;
+    const withIt = priceEstimate(withRock(), ASOF).result.lines[0]!;
+    /* production 0.65 — fewer cubic yards an hour, so more machine hours. */
+    expect(withIt.equipmentHours).toBeGreaterThan(plain.equipmentHours);
+    expect(withIt.equipmentHours / plain.equipmentHours).toBeCloseTo(1 / 0.65, 2);
+  });
+
+  it('moves the line total, so the bid a customer sees changes', () => {
+    const plain = priceEstimate(snapshot(), ASOF).result;
+    const withIt = priceEstimate(withRock(), ASOF).result;
+    expect(withIt.totalDirectCost).toBeGreaterThan(plain.totalDirectCost);
+    expect(withIt.bidPrice).toBeGreaterThan(plain.bidPrice);
+  });
+
+  it('carries the justification through, because an unexplained factor is a guess', () => {
+    const { input } = buildEstimateInput(withRock(), ASOF);
+    const applied = input.lines[0]!.modifiers ?? [];
+    expect(applied).toHaveLength(1);
+    expect(applied[0]!.justification).toMatch(/Rock at 9 ft/);
+    expect(applied[0]!.modifier.factors.equipment_cost).toBe(1.35);
+  });
+});

@@ -24,6 +24,8 @@ import {
   loadMaterials, loadLaborRates, loadEquipmentOptions, loadCrews,
   loadConditionModifiers, loadPricingProfiles, loadLibraryCounts, loadHiddenLibraryRows,
   updateCost, setMaterialCost, adoptLibraryRow, type LibraryKind,
+  setLaborRate, setEquipment, setEquipmentRate, setMaterial, setMaterialUnit,
+  setProductionRate, UNITS,
 } from '@/lib/data/library';
 import { CostCell } from '@/components/library/cost-cell';
 import { ImportPriceList } from '@/components/library/import-price-list';
@@ -36,6 +38,14 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { usePermissions, useCompanyId } from '@/lib/data/session';
 import { CategoryManager } from '@/components/library/category-manager';
 import { ArchiveAction } from '@/components/library/archive-action';
+import { TextCell } from '@/components/library/text-cell';
+import { UnitAndCost } from '@/components/library/unit-and-cost';
+import { AddLaborRate } from '@/components/library/add-labor-rate';
+import { AddEquipment } from '@/components/library/add-equipment';
+import { AddProductionRate } from '@/components/library/add-production-rate';
+import { AddAssembly } from '@/components/library/add-assembly';
+import { AddPricingProfile } from '@/components/library/add-pricing-profile';
+import { AddCondition } from '@/components/library/add-condition';
 import { WageSheets } from '@/components/library/wage-sheets';
 import { AddMaterialDialog, AddVendorDialog } from '@/components/library/add-library-row';
 import { HaulProfiles } from '@/components/library/haul-profiles';
@@ -132,6 +142,25 @@ export function LibrariesPage() {
    * is permitted, so a catalog row is refused by the database rather than by
    * this function remembering to check.
    */
+  /**
+   * Run a library write and refresh what it changed.
+   *
+   * The same five lines as `saveCost` with the table swapped for a door: every
+   * edit added after the two cost cells goes through a function in the schema
+   * rather than a column update, because the rules those functions carry — a
+   * burden is a share not a percentage, a unit change restates the cost — are
+   * not things a screen can be trusted to remember.
+   */
+  async function saveVia(write: () => Promise<unknown>, refetch: () => void) {
+    setBusy(true); setWriteError(null);
+    try {
+      await write();
+      refetch();
+    } catch (err) {
+      setWriteError(err instanceof Error ? err.message : 'That change could not be saved.');
+    } finally { setBusy(false); }
+  }
+
   async function saveCost(
     table: Parameters<typeof updateCost>[1], id: string,
     patch: Record<string, number>, refetch: () => void,
@@ -444,7 +473,11 @@ export function LibrariesPage() {
           * screen at all — the functions to copy and edit them existed, were
           * tested, and nothing called them.
           */}
-        <TabsContent value="assemblies">
+        <TabsContent value="assemblies" className="space-y-4">
+          <div className="flex justify-end">
+            <AddAssembly companyId={companyId} canWrite={canWrite}
+              onAdded={() => { countsQ.refetch(); setCopied((n) => n + 1); }} />
+          </div>
           <AssemblyLibrary companyId={companyId} canEdit={can('libraries.write')} />
         </TabsContent>
 
@@ -622,12 +655,21 @@ export function LibrariesPage() {
                     <TableRow key={m.id}>
                       <TableCell className="font-mono text-xs text-charcoal-600">{m.code}</TableCell>
                       <TableCell>
-                        <p className="font-medium text-charcoal-900">{m.name}</p>
+                        <p className="font-medium text-charcoal-900">
+                          <TextCell value={m.name} editable={m.editable} label="material name"
+                            placeholder="Crushed limestone"
+                            onSave={(v) => setMaterial(m.id, { name: v })
+                              .then(materialsQ.refetch)} />
+                        </p>
                         {m.category ? (
                           <p className="text-xs text-charcoal-500">{m.category}</p>
                         ) : null}
                       </TableCell>
-                      <TableCell className="text-charcoal-600">{m.unit}</TableCell>
+                      <TableCell className="text-charcoal-600">
+                        <UnitAndCost unit={m.unit} unitCost={m.unitCost} units={UNITS}
+                          editable={m.editable} name={m.name}
+                          onSave={(u, c) => setMaterialUnit(m.id, u, c).then(materialsQ.refetch)} />
+                      </TableCell>
                       <TableCell className="text-right">
                         <CostCell value={m.unitCost} editable={canWrite} busy={busy}
                           label={`unit cost for ${m.name}`} suffix={` / ${m.unit}`}
@@ -911,6 +953,10 @@ export function LibrariesPage() {
           * the wrong data in the right one.
           */}
         <TabsContent value="labor" className="space-y-4">
+          <div className="flex justify-end">
+            <AddLaborRate companyId={companyId} canWrite={canWrite}
+              onAdded={() => { laborQ.refetch(); countsQ.refetch(); }} />
+          </div>
           {laborQ.status === 'loading' ? <LoadingState label="Reading labor rates" /> : null}
           {laborQ.status === 'error'
             ? <ErrorState message={laborQ.message} onRetry={laborQ.refetch} /> : null}
@@ -940,7 +986,12 @@ export function LibrariesPage() {
                   {laborRates.filter((l) => match(`${l.code} ${l.classification}`)).map((l) => (
                     <TableRow key={l.id}>
                       <TableCell>
-                        <p className="font-medium text-charcoal-900">{l.classification}</p>
+                        <p className="font-medium text-charcoal-900">
+                          <TextCell value={l.classification} editable={l.editable}
+                            label="classification" placeholder="Operator"
+                            onSave={(v) => setLaborRate(l.id, { classification: v })
+                              .then(laborQ.refetch)} />
+                        </p>
                         <p className="text-xs text-charcoal-500">
                           {l.laborGroup ?? l.code}{l.isUnion ? ' · union' : ''}
                         </p>
@@ -952,8 +1003,14 @@ export function LibrariesPage() {
                           onSave={(v) => saveCost('labor_rates', l.id,
                             { base_wage_per_hour: v }, laborQ.refetch)} />
                       </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {percent(l.burdenPercent, 1)}
+                      <TableCell className="text-right">
+                        {/* Read-only text until now. The loaded rate beside it is
+                            a generated column, so it follows this on its own. */}
+                        <CostCell value={l.burdenPercent} editable={l.editable} busy={busy}
+                          label={`burden for ${l.classification}`}
+                          hint="A share of the wage: 38% is 0.38"
+                          onSave={(v) => saveVia(() => setLaborRate(l.id, { burdenPercent: v }),
+                            laborQ.refetch)} />
                       </TableCell>
                       <TableCell className="tabular text-right font-medium text-charcoal-900">
                         {money(l.burdenedCostPerHour)}
@@ -987,6 +1044,10 @@ export function LibrariesPage() {
         </TabsContent>
 
         <TabsContent value="equipment" className="space-y-4">
+          <div className="flex justify-end">
+            <AddEquipment companyId={companyId} canWrite={canWrite}
+              onAdded={() => { equipmentQ.refetch(); countsQ.refetch(); }} />
+          </div>
           {equipmentQ.status === 'loading' ? <LoadingState label="Reading equipment" /> : null}
           {equipmentQ.status === 'error'
             ? <ErrorState message={equipmentQ.message} onRetry={equipmentQ.refetch} /> : null}
@@ -1013,6 +1074,11 @@ export function LibrariesPage() {
                   <TableHead>Class</TableHead>
                   <TableHead className="text-right">Hourly</TableHead>
                   <TableHead className="text-right">Daily</TableHead>
+                  {/* A week is not seven days of the daily rate, and a month is
+                      not four weeks. Both were carried by the schema and shown
+                      nowhere. */}
+                  <TableHead className="text-right">Weekly</TableHead>
+                  <TableHead className="text-right">Monthly</TableHead>
                   <TableHead className="text-right">Fuel</TableHead>
                   <TableHead className="text-right">Mobilization</TableHead>
                   <TableHead>Scope</TableHead>
@@ -1024,9 +1090,17 @@ export function LibrariesPage() {
                   .slice(0, 300).map((e) => (
                   <TableRow key={e.id}>
                     <TableCell>
-                      <p className="font-medium text-charcoal-900">{e.name}</p>
+                      <p className="font-medium text-charcoal-900">
+                        <TextCell value={e.name} editable={e.editable} label="machine name"
+                          placeholder="Excavator 210"
+                          onSave={(v) => setEquipment(e.id, { name: v }).then(afterCopy)} />
+                      </p>
                     </TableCell>
-                    <TableCell className="text-charcoal-600">{e.equipmentClass}</TableCell>
+                    <TableCell className="text-charcoal-600">
+                      <TextCell value={e.equipmentClass} editable={e.editable}
+                        label="equipment class" placeholder="Earthmoving"
+                        onSave={(v) => setEquipment(e.id, { equipmentClass: v }).then(afterCopy)} />
+                    </TableCell>
                     <TableCell className="tabular text-right font-semibold">
                       {/*
                         * A machine with no rate says so. Showing $0.00 for one
@@ -1037,16 +1111,35 @@ export function LibrariesPage() {
                         ? unitRate(e.hourlyRate)
                         : <span className="font-normal text-warn-700">No rate yet</span>}
                     </TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">
-                      {e.dailyRate ? money(e.dailyRate) : <span className="text-charcoal-300">—</span>}
+                    <TableCell className="text-right">
+                      <CostCell value={e.dailyRate ?? 0} editable={e.editable} busy={busy}
+                        unset={e.dailyRate == null} label={`daily rate for ${e.name}`}
+                        onSave={(v) => saveVia(() => setEquipmentRate(e.id, { daily: v }), afterCopy)} />
                     </TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">
-                      {e.fuelGallonsPerHour ? `${e.fuelGallonsPerHour} gal/hr`
-                        : <span className="text-charcoal-300">—</span>}
+                    <TableCell className="text-right">
+                      <CostCell value={e.weeklyRate ?? 0} editable={e.editable} busy={busy}
+                        unset={e.weeklyRate == null} label={`weekly rate for ${e.name}`}
+                        onSave={(v) => saveVia(() => setEquipmentRate(e.id, { weekly: v }), afterCopy)} />
                     </TableCell>
-                    <TableCell className="tabular text-right text-charcoal-600">
-                      {e.mobilizationCost ? money(e.mobilizationCost)
-                        : <span className="text-charcoal-300">—</span>}
+                    <TableCell className="text-right">
+                      <CostCell value={e.monthlyRate ?? 0} editable={e.editable} busy={busy}
+                        unset={e.monthlyRate == null} label={`monthly rate for ${e.name}`}
+                        onSave={(v) => saveVia(() => setEquipmentRate(e.id, { monthly: v }), afterCopy)} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {/* Fuel is its own cost bucket and never inside the
+                          equipment rate — RULE-001. Editable here, separately. */}
+                      <CostCell value={e.fuelGallonsPerHour} editable={e.editable} busy={busy}
+                        unset={!e.fuelGallonsPerHour} suffix=" gal/hr"
+                        label={`fuel burn for ${e.name}`}
+                        onSave={(v) => saveVia(
+                          () => setEquipment(e.id, { fuelGallonsPerHour: v }), afterCopy)} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <CostCell value={e.mobilizationCost} editable={e.editable} busy={busy}
+                        unset={!e.mobilizationCost} label={`mobilization for ${e.name}`}
+                        onSave={(v) => saveVia(
+                          () => setEquipment(e.id, { mobilizationCost: v }), afterCopy)} />
                     </TableCell>
                     <TableCell><ScopeBadge scope={e.scope} kind="equipment" id={e.id} companyId={companyId} canWrite={canWrite} onCopied={afterCopy} /></TableCell>
                     <TableCell className="text-right">
@@ -1154,6 +1247,10 @@ export function LibrariesPage() {
 
         {/* ------------------------------------------------------ production */}
         <TabsContent value="production" className="space-y-4">
+          <div className="flex justify-end">
+            <AddProductionRate companyId={companyId} canWrite={canWrite}
+              onAdded={() => { afterCopy(); countsQ.refetch(); }} />
+          </div>
           {/*
             * This tab rendered a fixture of eight rates while the database held
             * 2,124 — so the screen that is supposed to show a company what its
@@ -1209,11 +1306,20 @@ export function LibrariesPage() {
                           {r.taskCategory ?? '—'}{r.note ? ` · ${r.note}` : ''}
                         </p>
                       </TableCell>
-                      <TableCell className="tabular text-right">
-                        {qty(r.ratePerHour, 1)} {r.rateUnit}/hr
+                      <TableCell className="text-right">
+                        <CostCell value={r.ratePerHour} editable={r.isOwn} busy={busy}
+                          suffix={` ${r.rateUnit}/hr`} label={`rate for ${r.taskName ?? r.code}`}
+                          onSave={(v) => saveVia(
+                            () => setProductionRate(r.id, { ratePerHour: v }), afterCopy)} />
                       </TableCell>
-                      <TableCell className="tabular text-right text-charcoal-600">
-                        {percent(r.utilizationFactor, 0)}
+                      <TableCell className="text-right">
+                        {/* A share of the hour, not a percentage: fifty minutes
+                            working in the hour is 0.83. */}
+                        <CostCell value={r.utilizationFactor} editable={r.isOwn} busy={busy}
+                          label={`utilization for ${r.taskName ?? r.code}`}
+                          hint="A share of the hour: 50 minutes is 0.83"
+                          onSave={(v) => saveVia(
+                            () => setProductionRate(r.id, { utilizationFactor: v }), afterCopy)} />
                       </TableCell>
                       <TableCell className="tabular text-right font-semibold">
                         {qty(r.ratePerHour * r.utilizationFactor * r.shiftHours, 0)} {r.rateUnit}
@@ -1270,6 +1376,10 @@ export function LibrariesPage() {
           * decoration.
           */}
         <TabsContent value="modifiers" className="space-y-4">
+          <div className="flex justify-end">
+            <AddCondition companyId={companyId} canWrite={canWrite}
+              onAdded={modifiersQ.refetch} />
+          </div>
           {modifiersQ.status === 'loading' ? <LoadingState label="Reading modifiers" /> : null}
           {modifiersQ.status === 'error'
             ? <ErrorState message={modifiersQ.message} onRetry={modifiersQ.refetch} /> : null}
@@ -1336,6 +1446,10 @@ export function LibrariesPage() {
           * "18% gross margin" had no way to tell it was nobody's margin.
           */}
         <TabsContent value="pricing" className="space-y-4">
+          <div className="flex justify-end">
+            <AddPricingProfile companyId={companyId} canWrite={canWrite}
+              onAdded={profilesQ.refetch} />
+          </div>
           {profilesQ.status === 'loading' ? <LoadingState label="Reading pricing profiles" /> : null}
           {profilesQ.status === 'error'
             ? <ErrorState message={profilesQ.message} onRetry={profilesQ.refetch} /> : null}

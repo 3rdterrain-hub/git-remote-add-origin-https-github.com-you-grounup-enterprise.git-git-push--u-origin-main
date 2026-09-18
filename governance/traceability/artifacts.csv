@@ -282,13 +282,16 @@ TST-db-a-category-you-can-manage,test,db/a-category-you-can-manage.test.ts,tests
 TST-db-a-change-order-that-is-worth-something,test,db/a-change-order-that-is-worth-something.test.ts,tests/db/a-change-order-that-is-worth-something.test.ts,ENGINE
 TST-db-a-company-you-can-administer,test,db/a-company-you-can-administer.test.ts,tests/db/a-company-you-can-administer.test.ts,ENGINE
 TST-db-a-condition-you-can-click,test,db/a-condition-you-can-click.test.ts,tests/db/a-condition-you-can-click.test.ts,ENGINE
+TST-db-a-condition-you-can-describe-yourself,test,db/a-condition-you-can-describe-yourself.test.ts,tests/db/a-condition-you-can-describe-yourself.test.ts,ENGINE
 TST-db-a-cost-code-you-can-choose,test,db/a-cost-code-you-can-choose.test.ts,tests/db/a-cost-code-you-can-choose.test.ts,ENGINE
 TST-db-a-directory-somebody-consented-to,test,db/a-directory-somebody-consented-to.test.ts,tests/db/a-directory-somebody-consented-to.test.ts,ENGINE
 TST-db-a-field-report-you-can-fill-in,test,db/a-field-report-you-can-fill-in.test.ts,tests/db/a-field-report-you-can-fill-in.test.ts,ENGINE
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-key-you-are-shown-once,test,db/a-key-you-are-shown-once.test.ts,tests/db/a-key-you-are-shown-once.test.ts,ENGINE
+TST-db-a-library-row-you-can-actually-change,test,db/a-library-row-you-can-actually-change.test.ts,tests/db/a-library-row-you-can-actually-change.test.ts,ENGINE
 TST-db-a-line-is-the-sum-of-what-fed-it,test,db/a-line-is-the-sum-of-what-fed-it.test.ts,tests/db/a-line-is-the-sum-of-what-fed-it.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
+TST-db-a-machine-and-a-rate-you-can-add,test,db/a-machine-and-a-rate-you-can-add.test.ts,tests/db/a-machine-and-a-rate-you-can-add.test.ts,ENGINE
 TST-db-a-machine-that-reports-its-hours,test,db/a-machine-that-reports-its-hours.test.ts,tests/db/a-machine-that-reports-its-hours.test.ts,ENGINE
 TST-db-a-notice-you-gave-in-time,test,db/a-notice-you-gave-in-time.test.ts,tests/db/a-notice-you-gave-in-time.test.ts,ENGINE
 TST-db-a-pipeline-that-can-be-worked,test,db/a-pipeline-that-can-be-worked.test.ts,tests/db/a-pipeline-that-can-be-worked.test.ts,ENGINE
@@ -309,6 +312,7 @@ TST-db-a-task-knows-what-trade-it-belongs-to,test,db/a-task-knows-what-trade-it-
 TST-db-a-ticket-in-somebodys-pocket,test,db/a-ticket-in-somebodys-pocket.test.ts,tests/db/a-ticket-in-somebodys-pocket.test.ts,ENGINE
 TST-db-a-wage-sheet-you-can-point-at,test,db/a-wage-sheet-you-can-point-at.test.ts,tests/db/a-wage-sheet-you-can-point-at.test.ts,ENGINE
 TST-db-ai-catalog,test,db/ai-catalog.test.ts,tests/db/ai-catalog.test.ts,ENGINE
+TST-db-an-assembly-and-a-profile-you-can-start,test,db/an-assembly-and-a-profile-you-can-start.test.ts,tests/db/an-assembly-and-a-profile-you-can-start.test.ts,ENGINE
 TST-db-an-estimate-that-starts-from-your-settings,test,db/an-estimate-that-starts-from-your-settings.test.ts,tests/db/an-estimate-that-starts-from-your-settings.test.ts,ENGINE
 TST-db-an-incident-you-can-close,test,db/an-incident-you-can-close.test.ts,tests/db/an-incident-you-can-close.test.ts,ENGINE
 TST-db-announcements,test,db/announcements.test.ts,tests/db/announcements.test.ts,ENGINE

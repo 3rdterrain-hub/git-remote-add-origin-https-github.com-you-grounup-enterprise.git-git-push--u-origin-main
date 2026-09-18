@@ -1565,6 +1565,305 @@ export const loadHiddenLibraryRows: Query<Set<string>> = async (client) => {
   return new Set(rows.map((r) => `${String(r.kind)}:${String(r.row_id)}`));
 };
 
+function rpc() {
+  if (!supabase) throw new Error('No workspace is configured.');
+  return supabase;
+}
+
+const ran = (result: { error: { message: string } | null }): void => {
+  if (result.error) throw new Error(result.error.message);
+};
+
+/**
+ * Change a labor rate this company owns.
+ *
+ * `burdened_cost_per_hour` is a generated column, so the loaded figure follows
+ * a changed wage or burden by itself and cannot drift from the two numbers it
+ * is made of. Nothing here recomputes it, deliberately.
+ */
+export async function setLaborRate(rateId: string, changes: {
+  classification?: string | null;
+  baseWagePerHour?: number | null;
+  burdenPercent?: number | null;
+  laborGroup?: string | null;
+  fringePerHour?: number | null;
+}): Promise<void> {
+  ran(await rpc().rpc('set_labor_rate', {
+    p_rate: rateId,
+    p_classification: changes.classification ?? null,
+    p_base_wage: changes.baseWagePerHour ?? null,
+    p_burden_percent: changes.burdenPercent ?? null,
+    p_labor_group: changes.laborGroup ?? null,
+    p_fringe_per_hour: changes.fringePerHour ?? null,
+  }));
+}
+
+export async function createLaborRate(companyId: string, rate: {
+  classification: string;
+  baseWagePerHour: number;
+  burdenPercent?: number;
+  laborGroup?: string | null;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_labor_rate', {
+    p_company: companyId,
+    p_classification: rate.classification,
+    p_base_wage: rate.baseWagePerHour,
+    p_burden_percent: rate.burdenPercent ?? 0.35,
+    p_labor_group: rate.laborGroup ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/** The machine itself — what it is called, what it burns, what it costs to move. */
+export async function setEquipment(equipmentId: string, changes: {
+  name?: string | null;
+  equipmentClass?: string | null;
+  fuelGallonsPerHour?: number | null;
+  mobilizationCost?: number | null;
+}): Promise<void> {
+  ran(await rpc().rpc('set_equipment', {
+    p_equipment: equipmentId,
+    p_name: changes.name ?? null,
+    p_class: changes.equipmentClass ?? null,
+    p_fuel_gph: changes.fuelGallonsPerHour ?? null,
+    p_mobilization: changes.mobilizationCost ?? null,
+  }));
+}
+
+/**
+ * What the machine costs, by the period it is actually rented or owned in.
+ *
+ * Four figures rather than one, because a week is not seven days of the daily
+ * rate and never has been. A period left null stays null — deriving the other
+ * three from an hourly figure would be three numbers nobody could check.
+ */
+export async function setEquipmentRate(equipmentId: string, rates: {
+  hourly?: number | null;
+  daily?: number | null;
+  weekly?: number | null;
+  monthly?: number | null;
+}): Promise<void> {
+  ran(await rpc().rpc('set_equipment_rate', {
+    p_equipment: equipmentId,
+    p_hourly: rates.hourly ?? null,
+    p_daily: rates.daily ?? null,
+    p_weekly: rates.weekly ?? null,
+    p_monthly: rates.monthly ?? null,
+  }));
+}
+
+export async function setMaterial(materialId: string, changes: {
+  name?: string | null;
+  category?: string | null;
+  specification?: string | null;
+  wastePercent?: number | null;
+  wasteBasis?: string | null;
+}): Promise<void> {
+  ran(await rpc().rpc('set_material', {
+    p_material: materialId,
+    p_name: changes.name ?? null,
+    p_category: changes.category ?? null,
+    p_specification: changes.specification ?? null,
+    p_waste_percent: changes.wastePercent ?? null,
+    p_waste_basis: changes.wasteBasis ?? null,
+  }));
+}
+
+/**
+ * Change what a material is measured in, and what it costs in that unit.
+ *
+ * Both together, because the database refuses one without the other: $12.40 a
+ * ton is not $12.40 a cubic yard, and a cost left behind by a unit change looks
+ * exactly as trustworthy as it did before it stopped being true.
+ */
+export async function setMaterialUnit(
+  materialId: string, unit: string, unitCost: number,
+): Promise<void> {
+  ran(await rpc().rpc('set_material_unit', {
+    p_material: materialId, p_unit: unit, p_unit_cost: unitCost,
+  }));
+}
+
+export async function setProductionRate(rateId: string, changes: {
+  ratePerHour?: number | null;
+  utilizationFactor?: number | null;
+  shiftHours?: number | null;
+}): Promise<void> {
+  ran(await rpc().rpc('set_production_rate', {
+    p_rate: rateId,
+    p_per_hour: changes.ratePerHour ?? null,
+    p_utilization: changes.utilizationFactor ?? null,
+    p_shift_hours: changes.shiftHours ?? null,
+  }));
+}
+
+/**
+ * Every unit this schema recognizes — `app.unit_code` from migration 0001.
+ *
+ * Listed rather than fetched because it is an enum, not a table: a unit nobody
+ * can spell is the point of it being closed. A new one is a migration.
+ */
+export const UNITS = [
+  'ACRE', 'BF', 'CF', 'CY', 'DAY', 'EA', 'GAL', 'HR', 'KW', 'LB',
+  'LF', 'LS', 'MO', 'SF', 'SQ', 'SY', 'TON', 'WK',
+] as const;
+
+/**
+ * Put a machine in this company's yard.
+ *
+ * It arrives with no rate, deliberately. Somebody adding an excavator may not
+ * know what it costs an hour until they look it up, and the screen already says
+ * "No rate yet" — which is true, where an invented figure would reach an
+ * estimate. `setEquipmentRate` is one click away on the same row.
+ */
+export async function createEquipment(companyId: string, machine: {
+  name: string;
+  equipmentClass?: string | null;
+  fuelGallonsPerHour?: number;
+  mobilizationCost?: number;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_equipment', {
+    p_company: companyId,
+    p_name: machine.name,
+    p_class: machine.equipmentClass ?? null,
+    p_fuel_gph: machine.fuelGallonsPerHour ?? 0,
+    p_mobilization: machine.mobilizationCost ?? 0,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/**
+ * Record how fast this company does a task.
+ *
+ * Stored as `estimator_judgment` — a person's opinion, offered as such. Not
+ * `company_actual`: that means the field measured it, and only a reported day's
+ * production against a budgeted task earns that.
+ */
+export async function createProductionRate(companyId: string, rate: {
+  taskId: string;
+  ratePerHour: number;
+  rateUnit: string;
+  utilizationFactor?: number;
+  shiftHours?: number;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_production_rate', {
+    p_company: companyId,
+    p_task: rate.taskId,
+    p_per_hour: rate.ratePerHour,
+    p_rate_unit: rate.rateUnit,
+    p_utilization: rate.utilizationFactor ?? 0.83,
+    p_shift_hours: rate.shiftHours ?? 8,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/**
+ * Start a work sequence.
+ *
+ * It arrives empty. An assembly is the order work happens in, and nobody has
+ * said what the work is yet — inventing a first step would be guessing at a job
+ * nobody described.
+ */
+export async function createAssembly(companyId: string, assembly: {
+  name: string;
+  quantityUnit?: string;
+  serviceId?: string | null;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_assembly', {
+    p_company: companyId,
+    p_name: assembly.name,
+    p_unit: assembly.quantityUnit ?? 'EA',
+    p_service: assembly.serviceId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/**
+ * Start a pricing profile.
+ *
+ * With no markup on it. A profile that arrived carrying a helpful ten percent
+ * would put margin nobody chose on every line it touches, and the first anybody
+ * would know is a bid that came back higher than the estimator meant.
+ */
+export async function createPricingProfile(companyId: string, profile: {
+  name: string;
+  method?: 'parallel' | 'stacked';
+  region?: string | null;
+  isDefault?: boolean;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_pricing_profile', {
+    p_company: companyId,
+    p_name: profile.name,
+    p_method: profile.method ?? 'parallel',
+    p_region: profile.region ?? null,
+    p_is_default: profile.isDefault ?? false,
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
+/** Put a markup on a profile, or change the one already under that code. */
+export async function setMarkupComponent(profileId: string, markup: {
+  code: string;
+  label: string;
+  percent: number;
+  basis?: string;
+  sequence?: number;
+  disclosed?: boolean;
+}): Promise<void> {
+  const { error } = await rpc().rpc('set_markup_component', {
+    p_profile: profileId,
+    p_code: markup.code,
+    p_label: markup.label,
+    p_percent: markup.percent,
+    p_basis: markup.basis ?? 'profile_default',
+    p_sequence: markup.sequence ?? 10,
+    p_disclosed: markup.disclosed ?? true,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * The nine things a condition can move, and which way a number takes them.
+ *
+ * `production` is a *rate* multiplier and the rest are *cost* multipliers, so
+ * 0.8 means slower on the first and cheaper on the others. That ambiguity is
+ * exactly what the explicit factor map was built to remove, and a form that did
+ * not say so would put it straight back.
+ */
+export const MODIFIER_TARGETS = [
+  { key: 'production', label: 'Production', kind: 'rate' },
+  { key: 'labor_cost', label: 'Labor cost', kind: 'cost' },
+  { key: 'equipment_cost', label: 'Equipment cost', kind: 'cost' },
+  { key: 'material_cost', label: 'Material cost', kind: 'cost' },
+  { key: 'trucking_cost', label: 'Trucking cost', kind: 'cost' },
+  { key: 'disposal_cost', label: 'Disposal cost', kind: 'cost' },
+  { key: 'indirect_cost', label: 'Indirect cost', kind: 'cost' },
+  { key: 'schedule', label: 'Schedule', kind: 'rate' },
+  { key: 'risk', label: 'Risk', kind: 'cost' },
+] as const;
+
+/** Add a condition of this company's own. */
+export async function createConditionModifier(companyId: string, condition: {
+  name: string;
+  factors: Record<string, number>;
+  category?: string | null;
+}): Promise<string> {
+  const { data, error } = await rpc().rpc('create_condition_modifier', {
+    p_company: companyId,
+    p_name: condition.name,
+    p_factors: condition.factors,
+    p_category: condition.category ?? null,
+    p_rule: 'multiply',
+  });
+  if (error) throw new Error(error.message);
+  return String(data);
+}
+
 /** Every library a row can be archived in. Matches `app.set_library_status`. */
 export type ArchivableKind =
   | 'service' | 'task' | 'assembly' | 'material' | 'labor_rate' | 'equipment'

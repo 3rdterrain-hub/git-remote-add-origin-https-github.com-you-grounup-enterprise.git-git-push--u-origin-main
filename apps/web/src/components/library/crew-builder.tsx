@@ -44,6 +44,7 @@ function CrewMembers({ crew, canWrite, onChanged }: {
   const [headcount, setHeadcount] = useState('1');
   const [crewName, setCrewName] = useState(crew.name);
   const [crewShift, setCrewShift] = useState(String(crew.shiftHours));
+  const [crewDiscipline, setCrewDiscipline] = useState(crew.discipline ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -141,14 +142,25 @@ function CrewMembers({ crew, canWrite, onChanged }: {
               onChange={(e) => setCrewName(e.target.value)} />
           </div>
           <div className="space-y-1">
+            {/* Set once at creation and never editable after — the owner's
+                "what is crew discipline doing? It needs to be doing
+                something." `update_crew` has taken it since 0187. */}
+            <Label htmlFor={`cd-${crew.id}`}>Discipline</Label>
+            <Input id={`cd-${crew.id}`} className="w-40" value={crewDiscipline}
+              placeholder="Earthwork"
+              onChange={(e) => setCrewDiscipline(e.target.value)} />
+          </div>
+          <div className="space-y-1">
             <Label htmlFor={`cs-${crew.id}`}>Hours in a shift</Label>
             <Input id={`cs-${crew.id}`} type="number" min={1} max={24} className="w-28"
               value={crewShift} onChange={(e) => setCrewShift(e.target.value)} />
           </div>
           <Button size="sm" variant="outline" disabled={busy
-            || (crewName === crew.name && Number(crewShift) === crew.shiftHours)}
+            || (crewName === crew.name && Number(crewShift) === crew.shiftHours
+              && crewDiscipline === (crew.discipline ?? ''))}
             onClick={() => run(() => updateCrew({
               crewId: crew.id, name: crewName, shiftHours: Number(crewShift) || null,
+              discipline: crewDiscipline.trim() || null,
             }))}>
             Save the crew
           </Button>

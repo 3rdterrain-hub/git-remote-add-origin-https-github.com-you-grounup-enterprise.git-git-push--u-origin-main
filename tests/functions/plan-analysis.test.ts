@@ -49,10 +49,28 @@ describe('the output schema', () => {
     expect(required).toContain('confidence');
   });
 
-  it('bounds confidence to 0-100', () => {
-    const c = FINDINGS_SCHEMA.schema.properties.findings.items.properties.confidence;
-    expect(c.minimum).toBe(0);
-    expect(c.maximum).toBe(100);
+  it('carries no bound the API refuses, because the first real run died on one', () => {
+    /*
+     * The schema used to say `minimum: 0, maximum: 100`, and the first analysis
+     * ever attempted came back:
+     *
+     *   output_config.format.schema: For 'integer' type, property 'minimum'
+     *   is not supported
+     *
+     * Structured outputs do not take range keywords. Worse, nothing in the
+     * parser enforced them either — so a confidence of 500 would have gone into
+     * `ai_findings` and onto a screen beside figures a person had checked. The
+     * bounds now live in `toFindingRow`, where the model's output is untrusted
+     * anyway, and `bounds what the model returns` below is what holds them.
+     */
+    const props = FINDINGS_SCHEMA.schema.properties.findings.items.properties;
+    for (const key of ['confidence', 'quantity'] as const) {
+      expect(props[key].minimum).toBeUndefined();
+      expect(props[key].maximum).toBeUndefined();
+    }
+    const page = FINDINGS_SCHEMA.schema.properties.findings.items
+      .properties.citations.items.properties.page;
+    expect(page.minimum).toBeUndefined();
   });
 
   it('restricts units to the engine\'s own unit set', () => {

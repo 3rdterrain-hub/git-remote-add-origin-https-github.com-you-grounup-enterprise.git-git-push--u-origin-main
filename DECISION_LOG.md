@@ -11,6 +11,157 @@ Newest first.
 
 ---
 
+## D-095 · 2026-09-18 · A condition reaches the machine twice, and now something proves it
+
+**Finding, not a decision.** The owner: "inside the estimator conditions there's
+no way to apply that through the excavator."
+
+A condition applies to the *line*, not to one resource on it, and that is the
+right model — a condition describes the work, and every resource doing that work
+is affected. What was missing was any proof that it reached the equipment at
+all. Every layer had the machinery (the seed carries `equipment_cost` factors,
+`toModifiers` maps them, the engine multiplies) and nothing tested the joint,
+which is where this repository's defects live.
+
+It does reach it, and by more than it looks. "Difficult material" on a line
+raises that line's equipment cost by **2.077×**, not 1.35×: `equipment_cost`
+1.35 lands on the hourly rate and `production` 0.65 lands on the rate of work,
+so the excavator is on the job 1/0.65 = 1.54 times longer *and* 1.35 times
+dearer. My first assertion expected 1.35 and was wrong by a third of the line.
+
+Four tests in `estimate-pricing.test.ts` now hold it: the compound factor, the
+extra machine hours, the effect on the bid, and the justification traveling
+with it.
+
+**The form says it too.** A condition carrying both a production factor and a
+cost factor warns that it lands twice on the same resource, because the two
+numbers read smaller than what they do together.
+
+---
+
+## D-096 · 2026-09-18 · A condition factor names a target the engine prices, or it is refused
+
+**Decision.** `app.create_condition_modifier` refuses any factor key outside the
+nine `ModifierTarget` values, refuses an empty factor map, and refuses a factor
+at or below zero or above 10.
+
+**Reason.** The same rule 0136 and 0139 settled for jsonb field names, with a
+price attached. `fuel_cost` would sit in the record looking exactly like the
+factors beside it, read as authoritative on the screen, and move no number
+anywhere. A condition with no factors changes nothing while appearing to be
+applied. A production factor of zero is work that never finishes, and 20 is
+somebody typing a percentage into a multiplier.
+
+**And the ambiguity the form exists to remove.** `production` is a *rate*
+multiplier where the cost targets are *cost* multipliers, so 0.8 means slower on
+one and cheaper on the other. The shipped library this table replaced had single
+entries like "0.88 / Labor+Production" that could mean either, which is why the
+factor map is explicit. The form prints "20% slower" and "20% cheaper" beside
+the same typed 0.8, so the reading is never left to inference.
+
+**Status.** Active. 10 database tests.
+
+---
+
+## D-094 · 2026-09-18 · A new pricing profile carries no markup, and a new assembly no steps
+
+**Decision.** `create_pricing_profile` writes a profile with no markup
+components. `create_assembly` writes a sequence with no steps. Both say so on
+the form.
+
+**Reason.** The tempting version of each is to be helpful: ten percent overhead
+on a new profile, a first step on a new sequence. Both would be a figure nobody
+chose, and the profile's is the worse of the two — a markup applies to every
+line the profile touches, and the first anybody would know is a bid that came
+back higher than the estimator meant. Pricing at cost is wrong in a way somebody
+notices on the first estimate; silent margin is wrong in a way nobody notices at
+all.
+
+An assembly is the order work happens in. A step chosen automatically is a guess
+at a job nobody has described yet.
+
+**Also.** One default profile per company: setting a new one steps the old one
+down in the same statement. Two rows both claiming to be the default is the kind
+of thing noticed only when two estimates disagree.
+
+**Two defects this found, both caught by the tests at once.** `quantity_unit` is
+`app.unit_code` and the function passed text. And `markup_components` carries its
+own `company_id`, required by its insert policy — the function checked the
+caller's permission on the profile's company and then wrote a row that did not
+say which company it belonged to. The check passed and the write was still
+wrong, which is the shape of mistake row level security exists to catch (0227).
+
+**Status.** Active. 9 database tests.
+
+---
+
+## D-093 · 2026-09-18 · A rate somebody typed is judgment, never a measurement
+
+**Decision.** `app.create_production_rate` writes `estimator_judgment`, and the
+screen says so where somebody types the figure.
+
+**Reason.** The first version wrote `company_standard`, which is not one of the
+values `app.production_source` allows — the enum caught it and the right answer
+was already in the list. The interesting part is which of the six it is.
+
+It is specifically not `company_actual`. That value means the field measured it,
+and `production_actuals` is what earns it: a reported day's production against a
+budgeted task. Labeling a typed figure as measured would make it outrank a
+regional benchmark everywhere the source is read, and quietly raise the
+confidence of every estimate priced from it. The difference between what
+somebody thinks and what somebody counted is the whole purpose of the column,
+and a create form is exactly where that difference gets lost.
+
+**Also.** A machine is created with no rate at all. Somebody adding an excavator
+may not know what it costs an hour until they look it up, and the equipment tab
+already renders that honestly as "No rate yet" — where an invented hourly figure
+would reach an estimate. `set_equipment_rate` is one click away on the same row.
+
+**And a refusal worth having:** a production rate must say what it is measured
+in. A hundred and twenty of what, an hour. Without the unit the figure cannot be
+checked against the quantity it is supposed to produce.
+
+**Status.** Active. 11 database tests.
+
+---
+
+## D-092 · 2026-09-18 · Changing a material's unit restates its cost, or it is refused
+
+**Decision.** `app.set_material_unit` takes the unit and the cost together and
+refuses either alone. The screen shows both in one editor, pre-filled, and says
+the cost is being restated.
+
+**Reason.** The owner asked to be able to change a material's unit, and the
+obvious implementation is the wrong one. A unit cost is a price *per unit*:
+change TON to CY and leave $12.40 where it is and the figure is no longer
+anybody's price — it is a number that looks exactly as authoritative as it did a
+moment ago, inherited by every line that prices from it. That is the
+invented-number rule wearing a different hat, so both move or neither does.
+
+Somebody who genuinely has the same price in the new unit types it again. A
+second of work against a class of error nobody can see afterwards.
+
+**Also in this pass.** Two cost cells were editable and nothing else was — every
+table already carried the INSERT and UPDATE policies, so nothing was being
+refused; there was no door on either side. Added: a labor rate's classification,
+wage, burden and group, and a way to create one at all; a machine's name, class,
+fuel burn, mobilization, and its hourly, daily, weekly and monthly rates —
+weekly and monthly were in the schema and on no screen; a material's name and
+waste; a production rate and its utilization; and a crew's discipline, which
+`update_crew` has accepted since 0187 while the editor never offered it.
+
+**Guards the doors carry, because a screen cannot be trusted to remember them.**
+A burden is a share between 0 and 3, not a percentage (35 means 3,500%). Waste
+is a share between 0 and 1, and a non-zero waste must say what it is a share of
+— `materials_waste_basis` has required that since 0004 and the first version of
+the door did not, so it failed with the constraint's own words in front of
+somebody who typed a number into a box (0222). Utilization is a share of the
+hour. A production rate of zero is work that never finishes.
+
+**Status.** Active. 16 database tests.
+
+---
+
 ## D-091 · 2026-09-18 · A shipped row is hidden per company, never archived
 
 **Decision.** `library_hidden_rows` records, per company, which shipped library

@@ -80,14 +80,14 @@ export const FINDINGS_SCHEMA = {
                 required: ['reference'],
                 properties: {
                   reference: { type: 'string', maxLength: 120 },
-                  page: { type: 'integer', minimum: 1 },
+                  page: { type: 'integer' },
                   quote: { type: 'string', maxLength: 500 },
                 },
               },
             },
-            confidence: { type: 'number', minimum: 0, maximum: 100 },
+            confidence: { type: 'number' },
             severity: { type: 'string', enum: ['low', 'moderate', 'high', 'critical'] },
-            quantity: { type: 'number', minimum: 0 },
+            quantity: { type: 'number' },
             unit: {
               type: 'string',
               enum: ['LS', 'EA', 'LF', 'SF', 'SY', 'CY', 'TON', 'HR', 'DAY', 'ACRE', 'GAL', 'LB'],
@@ -250,20 +250,42 @@ export function toFindingRow(
     title: f.title.slice(0, 200),
     description: f.description ?? '',
     payload: {
-      quantity: f.quantity ?? null,
+      /* A quantity below zero is not a quantity. Null is the honest reading of
+         a figure the model should not have produced. */
+      quantity: f.quantity == null ? null : within(f.quantity, 0, Number.MAX_SAFE_INTEGER),
       unit: f.unit ?? null,
       measurementMethod: f.measurementMethod ?? null,
       discipline: f.discipline ?? null,
     },
-    citations: f.citations,
+    /* A page number below one is a citation nobody can turn to. */
+    citations: f.citations.map((c) => (
+      c.page == null ? c : { ...c, page: within(c.page, 1, Number.MAX_SAFE_INTEGER) ?? 1 })),
     sheet_references: f.citations.map((c) => c.reference),
-    confidence: Math.round(f.confidence * 10) / 10,
+    confidence: Math.round((within(f.confidence, 0, 100) ?? 0) * 10) / 10,
     suggested_gate: suggestedGate,
     severity: f.severity ?? null,
     state: 'proposed' as const,
     model: ctx.model,
     prompt_version: ctx.promptVersion,
   };
+}
+
+/**
+ * Hold a number the model returned inside the range it was asked for.
+ *
+ * The schema used to carry `minimum` and `maximum`, and the API refuses them —
+ * `output_config.format.schema: For 'integer' type, property 'minimum' is not
+ * supported`. That refusal is what made the first real analysis fail, and it
+ * exposed the worse half: nothing in this file enforced the bounds either. They
+ * were decorative. A confidence of 500 or a negative quantity would have gone
+ * into `ai_findings` and onto a screen beside figures a person had checked.
+ *
+ * So the range lives here now, where the model's output is untrusted anyway.
+ */
+function within(value: unknown, low: number, high: number): number | null {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return null;
+  return Math.min(high, Math.max(low, n));
 }
 
 /** Token cost for the models this function is allowed to route to, per million. */

@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **407** |
-| Opened by a screen | **386** |
+| Doors | **419** |
+| Opened by a screen | **398** |
 | Opened only by an Edge Function | **6** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -115,16 +115,20 @@ None.
 | `conflict_to_rfi` | function | lib/data/conflicts.ts |
 | `convert_lead` | function | lib/data/leads.ts |
 | `create_api_key` | function | lib/data/api-keys.ts |
+| `create_assembly` | function | lib/data/library.ts |
 | `create_asset` | function | lib/data/fleet.ts |
 | `create_change_order` | function | lib/data/project.ts |
 | `create_claim` | function | lib/data/claims.ts |
 | `create_company_role` | function | lib/data/team.ts |
+| `create_condition_modifier` | function | lib/data/library.ts |
 | `create_contract` | function | lib/data/claims.ts |
 | `create_crew` | function | lib/data/library.ts |
 | `create_customer` | function | lib/data/crm.ts, lib/data/estimates.ts |
 | `create_daily_report` | function | lib/data/project.ts |
 | `create_employee` | function | lib/data/workforce.ts |
+| `create_equipment` | function | lib/data/library.ts |
 | `create_estimate_from_template` | function | lib/data/templates.ts |
+| `create_labor_rate` | function | lib/data/library.ts |
 | `create_lead` | function | lib/data/leads.ts |
 | `create_material` | function | lib/data/library.ts |
 | `create_my_company` | function | lib/data/session.ts |
@@ -132,6 +136,8 @@ None.
 | `create_pay_application` | function | lib/data/finance.ts |
 | `create_plan` | function | lib/data/admin.ts |
 | `create_platform_role` | function | lib/data/admin.ts |
+| `create_pricing_profile` | function | lib/data/library.ts |
+| `create_production_rate` | function | lib/data/library.ts |
 | `create_project` | function | lib/data/projects.ts |
 | `create_proposal_share_link` | function | lib/data/proposal-links.ts |
 | `create_purchase_order` | function | lib/data/procurement.ts |
@@ -386,6 +392,8 @@ None.
 | `set_company_role` | function | lib/data/team.ts |
 | `set_crew_member` | function | lib/data/library.ts |
 | `set_document_page_count` | function | lib/data/takeoff.ts |
+| `set_equipment` | function | lib/data/library.ts |
+| `set_equipment_rate` | function | lib/data/library.ts |
 | `set_estimate_discount` | function | lib/data/estimates.ts |
 | `set_estimate_expiry` | function | lib/data/estimates.ts |
 | `set_estimate_markup` | function | lib/data/estimates.ts |
@@ -395,12 +403,15 @@ None.
 | `set_feature_override` | function | lib/data/admin.ts |
 | `set_haul_capacity` | function | lib/data/estimates.ts |
 | `set_inspection_result` | function | lib/data/safety.ts |
+| `set_labor_rate` | function | lib/data/library.ts |
 | `set_library_status` | function | lib/data/library.ts |
 | `set_line_production_rate` | function | lib/data/production.ts |
 | `set_line_quantity` | function | lib/data/estimates.ts |
 | `set_line_service` | function | lib/data/estimates.ts |
 | `set_line_unit_cost` | function | lib/data/estimates.ts |
 | `set_maintenance_schedule` | function | lib/data/fleet.ts |
+| `set_markup_component` | function | lib/data/library.ts |
+| `set_material_unit` | function | lib/data/library.ts |
 | `set_member_role` | function | lib/data/team.ts |
 | `set_member_status` | function | lib/data/team.ts |
 | `set_my_preference` | function | lib/data/preferences.ts |
@@ -413,6 +424,7 @@ None.
 | `set_plan_price` | function | lib/data/admin.ts |
 | `set_plan_trial` | function | lib/data/admin.ts |
 | `set_plan_visibility` | function | lib/data/admin.ts |
+| `set_production_rate` | function | lib/data/library.ts |
 | `set_project_geofence` | function | lib/data/field-work.ts |
 | `set_role_permissions` | function | lib/data/admin.ts |
 | `set_wage_rate` | function | lib/data/wages.ts |
