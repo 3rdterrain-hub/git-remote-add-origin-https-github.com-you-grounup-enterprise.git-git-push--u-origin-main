@@ -114,18 +114,27 @@ const ROWS = [
   ['Database & function tests', [...walk('tests/db', ts), ...walk('tests/functions', ts)]],
   ['Governance & traceability tests', walk('tests/governance', ts)],
   [`Web application (${routes} routes, ${appPages.length} app screens)`, walk('apps/web/src', ts)],
-  /*
-   * `governance/ges-source` is excluded for the same reason the generated
-   * catalog migrations are: it is not hand-written work. It holds the GES
-   * Phase 01-32 and Phase 99 packages as they were issued — 323 Markdown files
-   * among 1,384 artifacts — and counting somebody else's specification as this
-   * project's documentation would overstate the build by a third. They are the
-   * baseline the platform is built against; they are just not written here.
-   */
   ['Documentation',
     [...walk('.', (n) => md(n) && false), ...walk('docs', md),
      ...walk('governance', md).filter((f) => !f.includes('ges-source')),
      ...['README.md']]],
+  /*
+   * Classified rather than excluded.
+   *
+   * These are the GES Phase 01-32 and Phase 99 packages as they were issued —
+   * input this platform is built against, not work written here. They belong in
+   * the inventory, because a document may carry requirements, acceptance
+   * criteria, business rules, formulas or governance rules and none of that
+   * should be invisible. They do not belong in a total labeled hand-written,
+   * because counting somebody else's specification as this project's output is
+   * how a build overstates itself.
+   *
+   * The Markdown is what this table measures; the workbooks, registries,
+   * baselines and diagrams beside it are counted by the governed traceability
+   * inventory, where their kinds are kept apart rather than summed.
+   */
+  ['GES governed source (input, not written here)',
+    walk('governance/ges-source', md)],
   ['Seed & tooling', [...walk('tools', mjs), ...walk('scripts', mjs)]],
 ];
 
@@ -135,8 +144,15 @@ const round = (n) => Math.round(n / 100) * 100;
 const fmt = (n) => n.toLocaleString('en-US');
 
 const measured = ROWS.map(([label, files]) => [label, files.length, lines(files)]);
-const totalFiles = measured.reduce((n, r) => n + r[1], 0);
-const totalLines = measured.reduce((n, r) => n + r[2], 0);
+/*
+ * The total counts what this project wrote. The governed source row is listed
+ * above it and deliberately left out of the sum: it is shown because it exists
+ * and matters, and excluded from the total because the total answers "how big
+ * is this build", which somebody else's specification does not enlarge.
+ */
+const written = measured.filter(([label]) => !String(label).startsWith('GES governed source'));
+const totalFiles = written.reduce((n, r) => n + r[1], 0);
+const totalLines = written.reduce((n, r) => n + r[2], 0);
 
 const table = [
   '| Area | Files | Lines |',

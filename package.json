@@ -18,6 +18,8 @@
     "counts": "node scripts/build-test-counts.mjs",
     "counts:check": "node scripts/build-test-counts.mjs --check",
     "dev": "npm run dev -w @grounup/web",
+    "governed:baseline": "node scripts/build-governed-baseline.mjs",
+    "governed:workbooks": "node scripts/build-governed-workbooks.mjs",
     "docs:tree": "npm run schema:counts && npm run doors && npm run traceability",
     "docs:runs": "npm run counts && npm run verification && npm run schema:counts && npm run doors",
     "docs": "npm run docs:tree && npm run docs:runs",

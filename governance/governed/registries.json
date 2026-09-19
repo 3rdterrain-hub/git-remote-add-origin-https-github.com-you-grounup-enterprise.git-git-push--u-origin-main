@@ -1,0 +1,233 @@
+[
+  {
+    "phase": "P01",
+    "file": "P01/GES_Phase_01_Governance_v1.0/05_CSV/requirements_register.csv",
+    "rows": 25,
+    "withAcceptance": 25,
+    "header": "Requirement_ID,Category,Name,Priority,Status,Description,Acceptance_Criteria,Dependencies,Owner,Version"
+  },
+  {
+    "phase": "P02",
+    "file": "P02/GES_Phase_02_Core_Platform_v1.0/05_CSV/requirements_register.csv",
+    "rows": 60,
+    "withAcceptance": 60,
+    "header": "Requirement_ID,Category,Name,Priority,Status,Description,Acceptance_Criteria,Dependencies,Owner,Version"
+  },
+  {
+    "phase": "P03",
+    "file": "P03/GES_Phase_03_Enterprise_Data_Model_v1.0/05_CSV/requirements_register.csv",
+    "rows": 75,
+    "withAcceptance": 75,
+    "header": "Requirement_ID,Category,Name,Priority,Status,Description,Acceptance_Criteria,Dependencies,Owner,Version"
+  },
+  {
+    "phase": "P04",
+    "file": "P04/GES_Phase_04_Master_Library_Registry_v1.0/05_CSV/P04_Requirements.csv",
+    "rows": 97,
+    "withAcceptance": 0,
+    "header": "Requirement ID,Topic,Requirement,Priority,Phase"
+  },
+  {
+    "phase": "P05",
+    "file": "P05/GES_Phase_05_Estimating_Cost_Intelligence_v1.0/05_CSV/requirements_register.csv",
+    "rows": 108,
+    "withAcceptance": 108,
+    "header": "requirement_id,module_code,title,requirement,priority,source,status,acceptance_criteria"
+  },
+  {
+    "phase": "P06",
+    "file": "P06/GES_Phase_06_AI_Construction_Intelligence_v1.0/05_CSV/AI_Requirements.csv",
+    "rows": 120,
+    "withAcceptance": 0,
+    "header": "Requirement_ID,Area,Requirement,Priority,Status"
+  },
+  {
+    "phase": "P07",
+    "file": "P07/GES_Phase_07_Enterprise_Project_Management_v1.0/05_CSV/P07_Requirements.csv",
+    "rows": 160,
+    "withAcceptance": 0,
+    "header": "Requirement_ID,Module_Code,Module,Title,Requirement,Priority,Scope,Status,Test_Case_ID"
+  },
+  {
+    "phase": "P08",
+    "file": "P08/GES_Phase_08_Enterprise_CRM_Sales_Customer_Experience_v1.0/05_CSV/P08_Requirements.csv",
+    "rows": 180,
+    "withAcceptance": 0,
+    "header": "Requirement ID,Module Code,Module,Capability,Requirement,Priority,Owner,Status"
+  },
+  {
+    "phase": "P09",
+    "file": "P09/GES_Phase_09_HR_Workforce_Talent_Management_v1.0/05_CSV/P09_Requirements.csv",
+    "rows": 210,
+    "withAcceptance": 210,
+    "header": "Requirement ID,Module,Priority,Requirement,Acceptance Criteria,Phase,Status"
+  },
+  {
+    "phase": "P10",
+    "file": "P10/GES_Phase_10_Enterprise_Financial_Management_Accounting_v1.0/05_CSV/P10_Requirements.csv",
+    "rows": 240,
+    "withAcceptance": 0,
+    "header": "Requirement ID,Module Code,Module,Requirement,Priority,Business Rule,Validation Rule,Test Case,Status"
+  },
+  {
+    "phase": "P11",
+    "file": "P11/GES_Phase_11_Enterprise_Procurement_Supply_Chain_Inventory_v1.0/05_CSV/P11_Requirements.csv",
+    "rows": 260,
+    "withAcceptance": 260,
+    "header": "Requirement_ID,Module,Priority,Requirement,Acceptance_Criteria,Test_ID,Status"
+  },
+  {
+    "phase": "P12",
+    "file": "P12/GES_Phase_12_Enterprise_Fleet_Asset_Maintenance_Telematics_v1.0/05_CSV/P12_Requirements.csv",
+    "rows": 280,
+    "withAcceptance": 280,
+    "header": "Requirement ID,Domain,Priority,Requirement,Acceptance Criteria,Entity,Workflow,Engine,API,Test Case,Status"
+  },
+  {
+    "phase": "P13",
+    "file": "P13/GES_Phase_13_Enterprise_Business_Intelligence_Decision_Intelligence_v1.0/05_CSV/P13_Requirements.csv",
+    "rows": 300,
+    "withAcceptance": 300,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P14",
+    "file": "P14/GES_Phase_14_Enterprise_HSE_Safety_Environmental_Quality_Compliance_v1.0/05_CSV/P14_Requirements.csv",
+    "rows": 320,
+    "withAcceptance": 320,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P15",
+    "file": "P15/GES_Phase_15_Enterprise_Document_Drawing_Specification_Information_Management_v1.0/05_CSV/P15_Requirements.csv",
+    "rows": 340,
+    "withAcceptance": 340,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P16",
+    "file": "P16/GES_Phase_16_GIS_Survey_Reality_Capture_Drone_Operations_v1.0/05_CSV/P16_Requirements.csv",
+    "rows": 360,
+    "withAcceptance": 360,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P17",
+    "file": "P17/GES_Phase_17_Machine_Control_GPS_Field_Automation_v1.0/05_CSV/P17_Requirements.csv",
+    "rows": 380,
+    "withAcceptance": 380,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P18",
+    "file": "P18/GES_Phase_18_Enterprise_Scheduling_Resource_Planning_v1.0/05_CSV/P18_Requirements.csv",
+    "rows": 400,
+    "withAcceptance": 400,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P19",
+    "file": "P19/GES_Phase_19_Contract_Change_Order_Claims_Commercial_Management_v1.0/05_CSV/P19_Requirements.csv",
+    "rows": 420,
+    "withAcceptance": 420,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P20",
+    "file": "P20/GES_Phase_20_Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness_v1.0/05_CSV/P20_Requirements.csv",
+    "rows": 450,
+    "withAcceptance": 450,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P21",
+    "file": "P21/GES_Phase_21_Master_Enterprise_Consolidation_Traceability_Implementation_Baseline_v1.0/05_CSV/P21_Requirements.csv",
+    "rows": 180,
+    "withAcceptance": 180,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P22",
+    "file": "P22/GES_Phase_22_Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Package_v1.0/05_CSV/P22_Requirements.csv",
+    "rows": 220,
+    "withAcceptance": 220,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version"
+  },
+  {
+    "phase": "P23",
+    "file": "P23/GES_Phase_23_Software_Development_Foundation_Reference_Architecture_Repository_Bootstrap_v1.0/05_CSV/P23_Requirements.csv",
+    "rows": 300,
+    "withAcceptance": 300,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P24",
+    "file": "P24/GES_Phase_24_Core_Platform_Implementation_Identity_Tenancy_Data_API_Audit_Workflow_v1.0/05_CSV/P24_Requirements.csv",
+    "rows": 360,
+    "withAcceptance": 360,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P25",
+    "file": "P25/GES_Phase_25_Master_Library_Service_Catalog_Resource_Material_Equipment_Assembly_Rate_Management_v1.0/05_CSV/P25_Requirements.csv",
+    "rows": 400,
+    "withAcceptance": 400,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P26",
+    "file": "P26/GES_Phase_26_Estimating_Cost_Production_Crew_Equipment_Haul_Markup_Execution_Engine_v1.0/05_CSV/P26_Requirements.csv",
+    "rows": 450,
+    "withAcceptance": 450,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P27",
+    "file": "P27/GES_Phase_27_AI_Construction_Copilot_Autonomous_Agents_Plan_Spec_Intelligence_Human_Approval_v1.0/05_CSV/P27_Requirements.csv",
+    "rows": 480,
+    "withAcceptance": 480,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P28",
+    "file": "P28/GES_Phase_28_Enterprise_Security_Identity_Zero_Trust_Privacy_Audit_Threat_Detection_v1.0/05_CSV/P28_Requirements.csv",
+    "rows": 500,
+    "withAcceptance": 500,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P29",
+    "file": "P29/GES_Phase_29_Enterprise_Reporting_Data_Warehouse_Lakehouse_Semantic_Analytics_AI_Ready_Data_v1.0/05_CSV/P29_Requirements.csv",
+    "rows": 520,
+    "withAcceptance": 520,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P30",
+    "file": "P30/GES_Phase_30_SaaS_Commercialization_Billing_Licensing_Entitlements_White_Label_Customer_Operations_v1.0/05_CSV/P30_Requirements.csv",
+    "rows": 540,
+    "withAcceptance": 540,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P31",
+    "file": "P31/GES_Phase_31_Production_Deployment_Cloud_Infrastructure_DevOps_CICD_Observability_DR_SaaS_Operations_v1.0/05_CSV/P31_Requirements.csv",
+    "rows": 560,
+    "withAcceptance": 560,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P32",
+    "file": "P32/GES_Phase_32_Enterprise_Validation_UAT_Pilot_Migration_Launch_GoLive_Certification_v1.0/05_CSV/P32_Requirements.csv",
+    "rows": 580,
+    "withAcceptance": 580,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  },
+  {
+    "phase": "P99",
+    "file": "P99/GES_Phase_99_GrounUp_Enterprise_Master_Specification_v1.0/05_CSV/P99_Requirements.csv",
+    "rows": 180,
+    "withAcceptance": 180,
+    "header": "requirement_id,domain,priority,requirement,acceptance_criteria,version,status"
+  }
+]

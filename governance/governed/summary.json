@@ -1,0 +1,80 @@
+{
+  "generated": "2026-09-19",
+  "ruling": "GES governance ruling, 19 September 2026",
+  "authoritative_unique_requirements": 10055,
+  "source_occurrences": 10055,
+  "duplicate_ids": 0,
+  "phase_registries_read": 33,
+  "phase_registries_unreadable": 0,
+  "master_registers_joined_not_counted": [
+    "P21/GES_Phase_21_Master_Enterprise_Consolidation_Traceability_Implementation_Baseline_v1.0/05_CSV/P21_Master_Requirements_Register.csv",
+    "P22/GES_Phase_22_Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Package_v1.0/05_CSV/P22_Final_Requirements_Register.csv",
+    "P99/GES_Phase_99_GrounUp_Enterprise_Master_Specification_v1.0/10_Master_Requirements/P99_Incorporated_Unique_Requirements.csv"
+  ],
+  "by_home_phase": {
+    "P01": 25,
+    "P02": 60,
+    "P03": 75,
+    "P04": 97,
+    "P05": 108,
+    "P06": 120,
+    "P07": 160,
+    "P08": 180,
+    "P09": 210,
+    "P10": 240,
+    "P11": 260,
+    "P12": 280,
+    "P13": 300,
+    "P14": 320,
+    "P15": 340,
+    "P16": 360,
+    "P17": 380,
+    "P18": 400,
+    "P19": 420,
+    "P20": 450,
+    "P21": 180,
+    "P22": 220,
+    "P23": 300,
+    "P24": 360,
+    "P25": 400,
+    "P26": 450,
+    "P27": 480,
+    "P28": 500,
+    "P29": 520,
+    "P30": 540,
+    "P31": 560,
+    "P32": 580,
+    "P99": 180
+  },
+  "acceptance_criteria": {
+    "with": 9258,
+    "without": 797
+  },
+  "reconciliation_joins": {
+    "requirements_with_p21_metadata": 4785,
+    "requirements_with_p22_metadata": 4785,
+    "note": "Joined onto original requirement IDs. Not counted as requirements."
+  },
+  "p99_register_completeness_defect": {
+    "incorporated": 8600,
+    "omitted_from_p99": 1455,
+    "present_in_p99_but_in_no_phase_registry": 0,
+    "note": "Recorded per ruling 1. Not repaired in this pass."
+  },
+  "governed_test_cases": {
+    "total": 10045,
+    "registries": 33,
+    "linked_to_a_requirement": 10045,
+    "distinct_requirement_ids_referenced": 10045,
+    "baseline_requirements_with_a_governed_test": 10045,
+    "tests_naming_an_id_outside_the_baseline": 0
+  },
+  "by_classification": {
+    "Data / Integration": 1046,
+    "Governance / Build Control": 1085,
+    "Product Behavior": 6086,
+    "Security / Compliance": 766,
+    "Testing / Validation": 964,
+    "Unclassified": 108
+  }
+}

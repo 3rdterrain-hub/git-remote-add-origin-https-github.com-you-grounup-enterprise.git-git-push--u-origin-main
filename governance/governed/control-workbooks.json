@@ -1,0 +1,2007 @@
+{
+  "summary": {
+    "generated": "2026-09-19",
+    "note": "Control-workbook contents, counted per sheet and never summed into requirements.",
+    "workbooks": 33,
+    "sheets_seen": 77,
+    "controls_by_sheet": {
+      "Requirements": 9475,
+      "Traceability": 9475,
+      "Tests": 7810,
+      "Master Requirements": 4785,
+      "Final Requirements": 4785,
+      "Master Tests": 4775,
+      "Master Traceability": 4517,
+      "Data Dictionary": 3192,
+      "Entities": 2528,
+      "Master Entities": 2143,
+      "Test Cases": 1547,
+      "Business Rules": 917,
+      "Validation Rules": 889,
+      "Master APIs": 794,
+      "Engines": 627,
+      "Master Engines": 607,
+      "KPIs": 566,
+      "Workflows": 551,
+      "Master UI": 494,
+      "API Resources": 488,
+      "UI Surfaces": 450,
+      "Reports": 449,
+      "Dashboard": 393,
+      "Modules": 348,
+      "APIs": 311,
+      "Findings": 278,
+      "Source Findings": 278,
+      "Rules": 255,
+      "API Endpoints": 232,
+      "P22 Requirements": 220,
+      "P22 Tests": 220,
+      "P22 Traceability": 220,
+      "Events": 220,
+      "Quality Gates": 186,
+      "P21 Requirements": 180,
+      "P21 Tests": 180,
+      "P21 Traceability": 180,
+      "P99 Requirements": 180,
+      "P99 Tests": 180,
+      "Dependencies": 167,
+      "Security": 132,
+      "Testing": 108,
+      "API": 74,
+      "Library Catalog": 50,
+      "Components": 48,
+      "UI UX": 44,
+      "Phase Control": 37,
+      "Phase Registry": 32,
+      "Build Sequence": 32,
+      "Canonical Fields": 30,
+      "Execution Contracts": 24,
+      "P22 Controls": 24,
+      "Agents": 20,
+      "Phase Catalog": 20,
+      "Security Controls": 20,
+      "Release Gates": 20,
+      "Core Modules": 18,
+      "Calculation Example": 16,
+      "Build Waves": 16,
+      "Threat Model": 16,
+      "Evaluations": 12,
+      "Candidate Metrics": 12,
+      "Backlog": 11,
+      "Final Gates": 11,
+      "Formula Examples": 11,
+      "Overview": 10,
+      "Go-Live Readiness": 10,
+      "Implementation Waves": 10,
+      "Release Readiness": 9,
+      "ADRs": 8,
+      "Evaluation Dashboard": 8,
+      "Security Scorecard": 8,
+      "Analytics Quality": 8,
+      "Billing QA": 8,
+      "Signoff Matrix": 8,
+      "Candidate SLOs": 7,
+      "Plan Archetypes": 5
+    }
+  },
+  "workbooks": [
+    {
+      "phase": "P01",
+      "workbook": "GES-P01-001-Governance_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Phase Control",
+          "controls": 11
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 25
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 15
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 15
+        },
+        {
+          "sheet": "Entities",
+          "controls": 23
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 10
+        },
+        {
+          "sheet": "API",
+          "controls": 16
+        },
+        {
+          "sheet": "UI UX",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 8
+        },
+        {
+          "sheet": "Tests",
+          "controls": 15
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 25
+        }
+      ]
+    },
+    {
+      "phase": "P02",
+      "workbook": "GES-P02-001-Core_Platform_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Phase Control",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 60
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Entities",
+          "controls": 36
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 12
+        },
+        {
+          "sheet": "Engines",
+          "controls": 12
+        },
+        {
+          "sheet": "API",
+          "controls": 22
+        },
+        {
+          "sheet": "UI UX",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 10
+        },
+        {
+          "sheet": "Tests",
+          "controls": 60
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 60
+        }
+      ]
+    },
+    {
+      "phase": "P03",
+      "workbook": "GES-P03-001-Enterprise_Data_Model_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Phase Control",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 75
+        },
+        {
+          "sheet": "Entities",
+          "controls": 82
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 15
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 15
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 8
+        },
+        {
+          "sheet": "Engines",
+          "controls": 10
+        },
+        {
+          "sheet": "API",
+          "controls": 12
+        },
+        {
+          "sheet": "UI UX",
+          "controls": 8
+        },
+        {
+          "sheet": "Reports",
+          "controls": 8
+        },
+        {
+          "sheet": "Tests",
+          "controls": 75
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 75
+        }
+      ]
+    },
+    {
+      "phase": "P04",
+      "workbook": "GES-P04-001-Master_Library_Registry_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 10
+        },
+        {
+          "sheet": "Library Catalog",
+          "controls": 50
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 97
+        },
+        {
+          "sheet": "Canonical Fields",
+          "controls": 30
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 10
+        },
+        {
+          "sheet": "Engines",
+          "controls": 12
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 24
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 97
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 97
+        }
+      ]
+    },
+    {
+      "phase": "P05",
+      "workbook": "GES-P05-001-Estimating_Cost_Intelligence_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Overview",
+          "controls": 10
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 108
+        },
+        {
+          "sheet": "Modules",
+          "controls": 18
+        },
+        {
+          "sheet": "Entities",
+          "controls": 40
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 337
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 30
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 15
+        },
+        {
+          "sheet": "Engines",
+          "controls": 20
+        },
+        {
+          "sheet": "API",
+          "controls": 24
+        },
+        {
+          "sheet": "UI UX",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 15
+        },
+        {
+          "sheet": "Testing",
+          "controls": 108
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 108
+        },
+        {
+          "sheet": "Calculation Example",
+          "controls": 16
+        }
+      ]
+    },
+    {
+      "phase": "P06",
+      "workbook": "GES-P06-001-AI_Construction_Intelligence_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 120
+        },
+        {
+          "sheet": "Agents",
+          "controls": 20
+        },
+        {
+          "sheet": "Engines",
+          "controls": 20
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 15
+        },
+        {
+          "sheet": "Entities",
+          "controls": 40
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 24
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 12
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 120
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 120
+        }
+      ]
+    },
+    {
+      "phase": "P07",
+      "workbook": "GES-P07-001-Enterprise_Project_Management_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 160
+        },
+        {
+          "sheet": "Entities",
+          "controls": 60
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 15
+        },
+        {
+          "sheet": "Engines",
+          "controls": 20
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 24
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 12
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 20
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 160
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 160
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 40
+        }
+      ]
+    },
+    {
+      "phase": "P08",
+      "workbook": "GES-P08-001-Enterprise_CRM_Sales_Customer_Experience_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 180
+        },
+        {
+          "sheet": "Entities",
+          "controls": 72
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 24
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 24
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 15
+        },
+        {
+          "sheet": "Engines",
+          "controls": 20
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 24
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 12
+        },
+        {
+          "sheet": "Reports",
+          "controls": 12
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 20
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 180
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 180
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 36
+        }
+      ]
+    },
+    {
+      "phase": "P09",
+      "workbook": "GES-P09-001-HR_Workforce_Talent_Management_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 210
+        },
+        {
+          "sheet": "Entities",
+          "controls": 94
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 20
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 20
+        },
+        {
+          "sheet": "Engines",
+          "controls": 24
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 28
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 15
+        },
+        {
+          "sheet": "Reports",
+          "controls": 15
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 25
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 210
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 210
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 120
+        }
+      ]
+    },
+    {
+      "phase": "P10",
+      "workbook": "GES-P10-001-Enterprise_Financial_Management_Accounting_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 21
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 240
+        },
+        {
+          "sheet": "Entities",
+          "controls": 110
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 40
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 40
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 20
+        },
+        {
+          "sheet": "Engines",
+          "controls": 25
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 32
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 18
+        },
+        {
+          "sheet": "Reports",
+          "controls": 18
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 30
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 240
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 240
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 150
+        }
+      ]
+    },
+    {
+      "phase": "P11",
+      "workbook": "GES-P11-001-Enterprise_Procurement_Supply_Chain_Inventory_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 22
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 260
+        },
+        {
+          "sheet": "Entities",
+          "controls": 120
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 160
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 45
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 45
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 24
+        },
+        {
+          "sheet": "Engines",
+          "controls": 30
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 36
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 22
+        },
+        {
+          "sheet": "Reports",
+          "controls": 20
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 35
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 260
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 260
+        }
+      ]
+    },
+    {
+      "phase": "P12",
+      "workbook": "GES-P12-001-Enterprise_Fleet_Asset_Maintenance_Telematics_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 23
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 280
+        },
+        {
+          "sheet": "Entities",
+          "controls": 125
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 180
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 50
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 50
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 26
+        },
+        {
+          "sheet": "Engines",
+          "controls": 32
+        },
+        {
+          "sheet": "API Endpoints",
+          "controls": 40
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 22
+        },
+        {
+          "sheet": "Reports",
+          "controls": 20
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 36
+        },
+        {
+          "sheet": "Test Cases",
+          "controls": 280
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 280
+        }
+      ]
+    },
+    {
+      "phase": "P13",
+      "workbook": "GES-P13-001-Enterprise_Business_Intelligence_Decision_Intelligence_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 300
+        },
+        {
+          "sheet": "Entities",
+          "controls": 123
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 200
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 55
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 55
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 28
+        },
+        {
+          "sheet": "Engines",
+          "controls": 35
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 45
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 25
+        },
+        {
+          "sheet": "Reports",
+          "controls": 25
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 40
+        },
+        {
+          "sheet": "Tests",
+          "controls": 300
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 300
+        }
+      ]
+    },
+    {
+      "phase": "P14",
+      "workbook": "GES-P14-001-Enterprise_HSE_Safety_Environmental_Quality_Compliance_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 320
+        },
+        {
+          "sheet": "Entities",
+          "controls": 145
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 219
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 60
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 60
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 35
+        },
+        {
+          "sheet": "Engines",
+          "controls": 40
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 50
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 35
+        },
+        {
+          "sheet": "Reports",
+          "controls": 30
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 45
+        },
+        {
+          "sheet": "Tests",
+          "controls": 320
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 320
+        }
+      ]
+    },
+    {
+      "phase": "P15",
+      "workbook": "GES-P15-001-Enterprise_Document_Drawing_Specification_Information_Management_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 340
+        },
+        {
+          "sheet": "Entities",
+          "controls": 155
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 240
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 65
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 65
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 36
+        },
+        {
+          "sheet": "Engines",
+          "controls": 45
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 54
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 38
+        },
+        {
+          "sheet": "Reports",
+          "controls": 32
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 45
+        },
+        {
+          "sheet": "Tests",
+          "controls": 340
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 340
+        }
+      ]
+    },
+    {
+      "phase": "P16",
+      "workbook": "GES-P16-001-GIS_Survey_Reality_Capture_Drone_Operations_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 360
+        },
+        {
+          "sheet": "Entities",
+          "controls": 165
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 260
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 70
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 70
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 48
+        },
+        {
+          "sheet": "Engines",
+          "controls": 49
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 61
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 42
+        },
+        {
+          "sheet": "Reports",
+          "controls": 34
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 48
+        },
+        {
+          "sheet": "Tests",
+          "controls": 360
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 360
+        }
+      ]
+    },
+    {
+      "phase": "P17",
+      "workbook": "GES-P17-001-Machine_Control_GPS_Field_Automation_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 380
+        },
+        {
+          "sheet": "Entities",
+          "controls": 175
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 280
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 75
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 75
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 51
+        },
+        {
+          "sheet": "Engines",
+          "controls": 55
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 65
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 49
+        },
+        {
+          "sheet": "Reports",
+          "controls": 40
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 51
+        },
+        {
+          "sheet": "Tests",
+          "controls": 380
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 380
+        }
+      ]
+    },
+    {
+      "phase": "P18",
+      "workbook": "GES-P18-001-Enterprise_Scheduling_Resource_Planning_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 400
+        },
+        {
+          "sheet": "Entities",
+          "controls": 185
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 300
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 80
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 80
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 52
+        },
+        {
+          "sheet": "Engines",
+          "controls": 59
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 63
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 49
+        },
+        {
+          "sheet": "Reports",
+          "controls": 42
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 52
+        },
+        {
+          "sheet": "Tests",
+          "controls": 400
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 400
+        }
+      ]
+    },
+    {
+      "phase": "P19",
+      "workbook": "GES-P19-001-Contract_Change_Order_Claims_Commercial_Management_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 420
+        },
+        {
+          "sheet": "Entities",
+          "controls": 186
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 320
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 85
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 85
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 51
+        },
+        {
+          "sheet": "Engines",
+          "controls": 53
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 67
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 49
+        },
+        {
+          "sheet": "Reports",
+          "controls": 44
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 54
+        },
+        {
+          "sheet": "Tests",
+          "controls": 420
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 420
+        }
+      ]
+    },
+    {
+      "phase": "P20",
+      "workbook": "GES-P20-001-Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 14
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 450
+        },
+        {
+          "sheet": "Entities",
+          "controls": 207
+        },
+        {
+          "sheet": "Data Dictionary",
+          "controls": 350
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 90
+        },
+        {
+          "sheet": "Validation Rules",
+          "controls": 90
+        },
+        {
+          "sheet": "Workflows",
+          "controls": 60
+        },
+        {
+          "sheet": "Engines",
+          "controls": 66
+        },
+        {
+          "sheet": "API Resources",
+          "controls": 83
+        },
+        {
+          "sheet": "UI Surfaces",
+          "controls": 50
+        },
+        {
+          "sheet": "Reports",
+          "controls": 52
+        },
+        {
+          "sheet": "KPIs",
+          "controls": 65
+        },
+        {
+          "sheet": "Tests",
+          "controls": 450
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 450
+        }
+      ]
+    },
+    {
+      "phase": "P21",
+      "workbook": "GES-P21-001-Master_Enterprise_Consolidation_Traceability_Implementation_Baseline_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Phase Catalog",
+          "controls": 20
+        },
+        {
+          "sheet": "Master Requirements",
+          "controls": 4785
+        },
+        {
+          "sheet": "Master Tests",
+          "controls": 4775
+        },
+        {
+          "sheet": "Master Entities",
+          "controls": 2143
+        },
+        {
+          "sheet": "Master Engines",
+          "controls": 607
+        },
+        {
+          "sheet": "Master APIs",
+          "controls": 794
+        },
+        {
+          "sheet": "Master UI",
+          "controls": 494
+        },
+        {
+          "sheet": "Master Traceability",
+          "controls": 4517
+        },
+        {
+          "sheet": "Dependencies",
+          "controls": 21
+        },
+        {
+          "sheet": "Findings",
+          "controls": 278
+        },
+        {
+          "sheet": "Build Waves",
+          "controls": 8
+        },
+        {
+          "sheet": "P21 Requirements",
+          "controls": 180
+        },
+        {
+          "sheet": "P21 Tests",
+          "controls": 180
+        },
+        {
+          "sheet": "P21 Traceability",
+          "controls": 180
+        }
+      ]
+    },
+    {
+      "phase": "P22",
+      "workbook": "GES-P22-001-Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 13
+        },
+        {
+          "sheet": "Final Requirements",
+          "controls": 4785
+        },
+        {
+          "sheet": "Source Findings",
+          "controls": 278
+        },
+        {
+          "sheet": "Dependencies",
+          "controls": 21
+        },
+        {
+          "sheet": "Build Waves",
+          "controls": 8
+        },
+        {
+          "sheet": "Backlog",
+          "controls": 11
+        },
+        {
+          "sheet": "Execution Contracts",
+          "controls": 24
+        },
+        {
+          "sheet": "Final Gates",
+          "controls": 11
+        },
+        {
+          "sheet": "P22 Requirements",
+          "controls": 220
+        },
+        {
+          "sheet": "P22 Tests",
+          "controls": 220
+        },
+        {
+          "sheet": "P22 Traceability",
+          "controls": 220
+        }
+      ]
+    },
+    {
+      "phase": "P23",
+      "workbook": "GES-P23-001-Software_Development_Foundation_Reference_Architecture_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 11
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 300
+        },
+        {
+          "sheet": "Tests",
+          "controls": 300
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 300
+        },
+        {
+          "sheet": "Components",
+          "controls": 48
+        },
+        {
+          "sheet": "ADRs",
+          "controls": 8
+        },
+        {
+          "sheet": "APIs",
+          "controls": 64
+        },
+        {
+          "sheet": "Events",
+          "controls": 16
+        },
+        {
+          "sheet": "Security",
+          "controls": 12
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 12
+        },
+        {
+          "sheet": "P22 Controls",
+          "controls": 24
+        }
+      ]
+    },
+    {
+      "phase": "P24",
+      "workbook": "GES-P24-001-Core_Platform_Implementation_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 11
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 360
+        },
+        {
+          "sheet": "Tests",
+          "controls": 360
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 360
+        },
+        {
+          "sheet": "Core Modules",
+          "controls": 18
+        },
+        {
+          "sheet": "Entities",
+          "controls": 20
+        },
+        {
+          "sheet": "APIs",
+          "controls": 20
+        },
+        {
+          "sheet": "Events",
+          "controls": 13
+        },
+        {
+          "sheet": "Rules",
+          "controls": 12
+        },
+        {
+          "sheet": "Security",
+          "controls": 8
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 10
+        }
+      ]
+    },
+    {
+      "phase": "P25",
+      "workbook": "GES-P25-001-Master_Library_Service_Catalog_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 11
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 400
+        },
+        {
+          "sheet": "Tests",
+          "controls": 400
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 400
+        },
+        {
+          "sheet": "Modules",
+          "controls": 24
+        },
+        {
+          "sheet": "Entities",
+          "controls": 34
+        },
+        {
+          "sheet": "APIs",
+          "controls": 27
+        },
+        {
+          "sheet": "Events",
+          "controls": 15
+        },
+        {
+          "sheet": "Rules",
+          "controls": 18
+        },
+        {
+          "sheet": "Security",
+          "controls": 12
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 12
+        }
+      ]
+    },
+    {
+      "phase": "P26",
+      "workbook": "GES-P26-001-Estimating_Execution_Engine_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 450
+        },
+        {
+          "sheet": "Tests",
+          "controls": 450
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 450
+        },
+        {
+          "sheet": "Modules",
+          "controls": 30
+        },
+        {
+          "sheet": "Entities",
+          "controls": 40
+        },
+        {
+          "sheet": "APIs",
+          "controls": 30
+        },
+        {
+          "sheet": "Events",
+          "controls": 19
+        },
+        {
+          "sheet": "Rules",
+          "controls": 25
+        },
+        {
+          "sheet": "Security",
+          "controls": 12
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 14
+        },
+        {
+          "sheet": "Formula Examples",
+          "controls": 11
+        }
+      ]
+    },
+    {
+      "phase": "P27",
+      "workbook": "GES-P27-001-AI_Construction_Copilot_Agent_Framework_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 480
+        },
+        {
+          "sheet": "Tests",
+          "controls": 480
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 480
+        },
+        {
+          "sheet": "Modules",
+          "controls": 36
+        },
+        {
+          "sheet": "Entities",
+          "controls": 40
+        },
+        {
+          "sheet": "APIs",
+          "controls": 28
+        },
+        {
+          "sheet": "Events",
+          "controls": 23
+        },
+        {
+          "sheet": "Rules",
+          "controls": 28
+        },
+        {
+          "sheet": "Security",
+          "controls": 14
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 16
+        },
+        {
+          "sheet": "Evaluations",
+          "controls": 12
+        },
+        {
+          "sheet": "Evaluation Dashboard",
+          "controls": 8
+        }
+      ]
+    },
+    {
+      "phase": "P28",
+      "workbook": "GES-P28-001-Enterprise_Security_Zero_Trust_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 500
+        },
+        {
+          "sheet": "Tests",
+          "controls": 500
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 500
+        },
+        {
+          "sheet": "Modules",
+          "controls": 40
+        },
+        {
+          "sheet": "Entities",
+          "controls": 48
+        },
+        {
+          "sheet": "APIs",
+          "controls": 32
+        },
+        {
+          "sheet": "Events",
+          "controls": 24
+        },
+        {
+          "sheet": "Rules",
+          "controls": 30
+        },
+        {
+          "sheet": "Security Controls",
+          "controls": 20
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 18
+        },
+        {
+          "sheet": "Threat Model",
+          "controls": 16
+        },
+        {
+          "sheet": "Security Scorecard",
+          "controls": 8
+        }
+      ]
+    },
+    {
+      "phase": "P29",
+      "workbook": "GES-P29-001-Enterprise_Analytics_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 520
+        },
+        {
+          "sheet": "Tests",
+          "controls": 520
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 520
+        },
+        {
+          "sheet": "Modules",
+          "controls": 42
+        },
+        {
+          "sheet": "Entities",
+          "controls": 46
+        },
+        {
+          "sheet": "APIs",
+          "controls": 26
+        },
+        {
+          "sheet": "Events",
+          "controls": 20
+        },
+        {
+          "sheet": "Rules",
+          "controls": 30
+        },
+        {
+          "sheet": "Security",
+          "controls": 16
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 18
+        },
+        {
+          "sheet": "Candidate Metrics",
+          "controls": 12
+        },
+        {
+          "sheet": "Analytics Quality",
+          "controls": 8
+        }
+      ]
+    },
+    {
+      "phase": "P30",
+      "workbook": "GES-P30-001-SaaS_Commercial_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 540
+        },
+        {
+          "sheet": "Tests",
+          "controls": 540
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 540
+        },
+        {
+          "sheet": "Modules",
+          "controls": 44
+        },
+        {
+          "sheet": "Entities",
+          "controls": 48
+        },
+        {
+          "sheet": "APIs",
+          "controls": 28
+        },
+        {
+          "sheet": "Events",
+          "controls": 30
+        },
+        {
+          "sheet": "Rules",
+          "controls": 32
+        },
+        {
+          "sheet": "Security",
+          "controls": 18
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 20
+        },
+        {
+          "sheet": "Plan Archetypes",
+          "controls": 5
+        },
+        {
+          "sheet": "Billing QA",
+          "controls": 8
+        }
+      ]
+    },
+    {
+      "phase": "P31",
+      "workbook": "GES-P31-001-Production_Operations_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 560
+        },
+        {
+          "sheet": "Tests",
+          "controls": 560
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 560
+        },
+        {
+          "sheet": "Modules",
+          "controls": 48
+        },
+        {
+          "sheet": "Entities",
+          "controls": 58
+        },
+        {
+          "sheet": "APIs",
+          "controls": 28
+        },
+        {
+          "sheet": "Events",
+          "controls": 30
+        },
+        {
+          "sheet": "Rules",
+          "controls": 40
+        },
+        {
+          "sheet": "Security",
+          "controls": 20
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 22
+        },
+        {
+          "sheet": "Candidate SLOs",
+          "controls": 7
+        },
+        {
+          "sheet": "Release Readiness",
+          "controls": 9
+        }
+      ]
+    },
+    {
+      "phase": "P32",
+      "workbook": "GES-P32-001-Enterprise_Validation_GoLive_Certification_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 12
+        },
+        {
+          "sheet": "Requirements",
+          "controls": 580
+        },
+        {
+          "sheet": "Tests",
+          "controls": 580
+        },
+        {
+          "sheet": "Traceability",
+          "controls": 580
+        },
+        {
+          "sheet": "Modules",
+          "controls": 46
+        },
+        {
+          "sheet": "Entities",
+          "controls": 51
+        },
+        {
+          "sheet": "APIs",
+          "controls": 28
+        },
+        {
+          "sheet": "Events",
+          "controls": 30
+        },
+        {
+          "sheet": "Rules",
+          "controls": 40
+        },
+        {
+          "sheet": "Security",
+          "controls": 20
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 24
+        },
+        {
+          "sheet": "Signoff Matrix",
+          "controls": 8
+        },
+        {
+          "sheet": "Go-Live Readiness",
+          "controls": 10
+        }
+      ]
+    },
+    {
+      "phase": "P99",
+      "workbook": "GES-P99-001-GrounUp_Enterprise_Master_Specification_Control_Workbook.xlsx",
+      "sheets": [
+        {
+          "sheet": "Dashboard",
+          "controls": 10
+        },
+        {
+          "sheet": "P99 Requirements",
+          "controls": 180
+        },
+        {
+          "sheet": "P99 Tests",
+          "controls": 180
+        },
+        {
+          "sheet": "Modules",
+          "controls": 20
+        },
+        {
+          "sheet": "Business Rules",
+          "controls": 18
+        },
+        {
+          "sheet": "Quality Gates",
+          "controls": 20
+        },
+        {
+          "sheet": "Phase Registry",
+          "controls": 32
+        },
+        {
+          "sheet": "Build Sequence",
+          "controls": 32
+        },
+        {
+          "sheet": "Implementation Waves",
+          "controls": 10
+        },
+        {
+          "sheet": "Dependencies",
+          "controls": 125
+        },
+        {
+          "sheet": "Release Gates",
+          "controls": 20
+        }
+      ]
+    }
+  ]
+}

@@ -11,9 +11,10 @@
 | Database & function tests | 166 | ~42,300 |
 | Governance & traceability tests | 20 | ~4,500 |
 | Web application (51 routes, 29 app screens) | 400 | ~104,400 |
-| Documentation | 16 | ~6,200 |
-| Seed & tooling | 12 | ~3,200 |
-| **Total hand-written** | **972** | **~254,000** |
+| Documentation | 18 | ~6,500 |
+| GES governed source (input, not written here) | 323 | ~8,600 |
+| Seed & tooling | 14 | ~3,600 |
+| **Total hand-written** | **976** | **~254,700** |
 
 Plus 4,905 lines of generated seed SQL carrying 4,671 catalog records, an
 OpenAPI specification generated from the gateway's own route table, and the

@@ -1,5 +1,33 @@
 # Master Traceability Matrix
 
+> ## LEGACY / FLATTENED TRACEABILITY
+>
+> **Superseded in scope, preserved as evidence. Dated 19 September 2026.**
+>
+> Everything in this directory is computed from
+> `governance/requirements/ges-requirements.csv`, a flattened dataset of **9,475
+> requirements**. The authoritative GES baseline is **10,055** requirements
+> across the 33 governed Phase 01-32 and Phase 99 registries, now held in
+> `governance/ges-source`. The flattened dataset is that baseline with three
+> phases entirely absent: P21 Master Enterprise Consolidation (180), P22 Final
+> Reconciliation (220) and P99 Master Specification (180).
+>
+> It also carries none of the 9,787 governed test cases, none of the governed
+> traceability rows, and none of the governed acceptance criteria held in the
+> control workbooks, business rules, formula registries and quality gates.
+>
+> **The figures here — 50.9% traced, 20.4% verified — are retained unchanged as
+> the dated historical baseline.** They are not wrong for what they measured;
+> they measured roughly nine tenths of the requirements and none of the governed
+> test cases. They are kept so the change in the numbers can be explained rather
+> than discovered.
+>
+> Nothing in this directory is to be deleted or recomputed until the governed
+> traceability in `governance/governed/` has been validated and reconciled
+> against it, and a controlled decision has been taken to replace it.
+>
+> See `governance/governed/SOURCE-BASELINE-RECONCILIATION.md`.
+
 The bridge between the GES requirements spine and this codebase.
 
 The GES is the **requirements**. This repository is the **implementation**. This
