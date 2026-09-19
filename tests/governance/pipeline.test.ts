@@ -23,6 +23,27 @@ const verifyYml = read('.github/workflows/verify.yml');
 const deployYml = read('.github/workflows/deploy.yml');
 const pkg = JSON.parse(read('package.json')) as { scripts: Record<string, string> };
 
+
+/**
+ * The script names `npm run docs` actually runs, in order, with any script it
+ * composes expanded in place.
+ *
+ * Resolved rather than searched for in a string, because the chain is factored
+ * into `docs:tree` and `docs:runs` now, and an ordering rule that only holds
+ * while every step sits in one string is a rule that stops being checked the
+ * moment somebody tidies the scripts. Names rather than command bodies, since
+ * the order being protected is an order of generators.
+ */
+function resolvedDocs(name = 'docs', seen: Set<string> = new Set()): string[] {
+  if (seen.has(name)) return [];
+  seen.add(name);
+  const body = (pkg.scripts as Record<string, string>)[name] ?? '';
+  return body.split('&&').flatMap((step) => {
+    const run = /^\s*npm run ([\w:-]+)\s*$/.exec(step);
+    return run ? [run[1]!, ...resolvedDocs(run[1]!, new Set(seen))] : [];
+  });
+}
+
 describe('continuous integration', () => {
   it('runs the whole gate, not a chosen subset', () => {
     // `npm run verify` is typecheck, three drift checks, every suite and the
@@ -170,8 +191,8 @@ describe('the documented test count comes from the runs', () => {
 
   it('rebuilds the ledgers after rewriting the verdicts they are built from', () => {
     // `counts` edits verdict prose; the ledgers carry that prose in every row.
-    const docs = pkg.scripts.docs!;
-    expect(docs.indexOf('npm run counts')).toBeLessThan(docs.indexOf('npm run verification'));
+    const docs = resolvedDocs();
+    expect(docs.indexOf('counts')).toBeLessThan(docs.indexOf('verification'));
   });
 
   it('refuses to record counts from a failing run', () => {
@@ -255,10 +276,33 @@ describe('the documentation states what the tree contains', () => {
      * it breaks the deadlock; ending with it keeps the pair converging in one
      * pass.
      */
-    const docs = pkg.scripts.docs!;
-    expect(docs).toContain('npm run counts');
-    expect(docs.indexOf('npm run schema:counts')).toBeLessThan(docs.indexOf('npm run counts'));
-    expect(docs.lastIndexOf('npm run schema:counts')).toBeGreaterThan(docs.indexOf('npm run counts'));
+    const docs = resolvedDocs();
+    expect(docs).toContain('counts');
+    expect(docs.indexOf('schema:counts')).toBeLessThan(docs.indexOf('counts'));
+    expect(docs.lastIndexOf('schema:counts')).toBeGreaterThan(docs.indexOf('counts'));
+  });
+
+  /*
+   * The same deadlock the test above describes, generalized — because it came
+   * back on 18 September 2026 through the two generators it did not cover.
+   *
+   * `schema:counts` was led with precisely so a stale count could not hold the
+   * suite red while `counts` refused to record from a red run. But `doors` and
+   * `traceability` turn the suite red when *they* are stale too, and both sat
+   * after `counts` in the chain. So a stale door inventory produced exactly the
+   * deadlock this pipeline was shaped to avoid: the suite failed, `counts`
+   * refused, the chain stopped before `doors` ever ran, and the next gate
+   * failed the same way. It cost four gate runs before the cause was named.
+   *
+   * Every generator that reads only the source tree therefore runs before the
+   * one that needs a green test run. That is what `docs:tree` is.
+   */
+  it('regenerates everything derived from the tree before anything that needs a green run', () => {
+    const docs = resolvedDocs();
+    const counts = docs.indexOf('counts');
+    for (const tree of ['schema:counts', 'doors', 'traceability']) {
+      expect(docs.indexOf(tree), `${tree} runs before counts`).toBeLessThan(counts);
+    }
   });
 
   it('generates the artifact catalog size rather than restating it', () => {

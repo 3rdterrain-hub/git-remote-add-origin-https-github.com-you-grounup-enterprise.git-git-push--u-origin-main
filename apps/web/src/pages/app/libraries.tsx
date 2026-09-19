@@ -43,6 +43,7 @@ import { UnitAndCost } from '@/components/library/unit-and-cost';
 import { AddLaborRate } from '@/components/library/add-labor-rate';
 import { AddEquipment } from '@/components/library/add-equipment';
 import { AddProductionRate } from '@/components/library/add-production-rate';
+import { WhatTheFieldLearned } from '@/components/library/what-the-field-learned';
 import { AddAssembly } from '@/components/library/add-assembly';
 import { AddPricingProfile } from '@/components/library/add-pricing-profile';
 import { AddCondition } from '@/components/library/add-condition';
@@ -1247,6 +1248,13 @@ export function LibrariesPage() {
 
         {/* ------------------------------------------------------ production */}
         <TabsContent value="production" className="space-y-4">
+          {/*
+            * Above the list, because it is the only thing on this tab that is
+            * asking the company a question. 0051 measured the variance and said
+            * somebody decides; this is where somebody decides.
+            */}
+          <WhatTheFieldLearned companyId={companyId} canEdit={canWrite} />
+
           <div className="flex justify-end">
             <AddProductionRate companyId={companyId} canWrite={canWrite}
               onAdded={() => { afterCopy(); countsQ.refetch(); }} />

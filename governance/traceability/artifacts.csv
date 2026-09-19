@@ -293,6 +293,7 @@ TST-db-a-form-that-asks-what-you-need-to-know,test,db/a-form-that-asks-what-you-
 TST-db-a-haul-rate-you-can-create,test,db/a-haul-rate-you-can-create.test.ts,tests/db/a-haul-rate-you-can-create.test.ts,ENGINE
 TST-db-a-key-you-are-shown-once,test,db/a-key-you-are-shown-once.test.ts,tests/db/a-key-you-are-shown-once.test.ts,ENGINE
 TST-db-a-library-row-you-can-actually-change,test,db/a-library-row-you-can-actually-change.test.ts,tests/db/a-library-row-you-can-actually-change.test.ts,ENGINE
+TST-db-a-library-that-learns-from-the-field,test,db/a-library-that-learns-from-the-field.test.ts,tests/db/a-library-that-learns-from-the-field.test.ts,ENGINE
 TST-db-a-line-is-the-sum-of-what-fed-it,test,db/a-line-is-the-sum-of-what-fed-it.test.ts,tests/db/a-line-is-the-sum-of-what-fed-it.test.ts,ENGINE
 TST-db-a-line-keeps-its-price,test,db/a-line-keeps-its-price.test.ts,tests/db/a-line-keeps-its-price.test.ts,ENGINE
 TST-db-a-machine-and-a-rate-you-can-add,test,db/a-machine-and-a-rate-you-can-add.test.ts,tests/db/a-machine-and-a-rate-you-can-add.test.ts,ENGINE

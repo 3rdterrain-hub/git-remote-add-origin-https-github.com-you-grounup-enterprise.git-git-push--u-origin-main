@@ -188,9 +188,25 @@ preference. Applied to **every** screen, not only the one being worked on:
 ## Verifying and shipping
 
 ```bash
+npm run gate        # the whole thing, in the only order that works
+```
+
+`npm run gate` is `docs:tree` → `test` → `docs:runs` → `verify`, and the order is
+not a preference. `npm run counts` refuses to record from a red run, and a run
+goes red when the *tree* documents are stale — so running `docs` in one piece
+before the tests can never heal itself: counts refuses, the chain stops, the
+door inventory and traceability never regenerate, and the next gate fails the
+same way. It cost four gate runs on 18 September 2026 before the cause was
+named. `docs:tree` regenerates what is derived from the tree (schema counts,
+doors, traceability), `docs:runs` regenerates what is derived from a test run
+(test counts, then verification, which reads them).
+
+The pieces, if one is needed on its own:
+
+```bash
 npm run test        # every suite
-npm run docs        # regenerate counts — needs a green test run first
-npm run verify      # the gate: typecheck, edge fingerprint, openapi, counts,
+npm run docs        # docs:tree then docs:runs
+npm run verify      # typecheck, edge fingerprint, openapi, counts,
                     # traceability, all suites, build, bundle secret scan
 ```
 

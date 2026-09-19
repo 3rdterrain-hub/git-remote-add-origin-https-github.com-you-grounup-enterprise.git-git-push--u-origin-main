@@ -12,8 +12,8 @@ own and nothing checks the joint between them.
 
 | | |
 |---|---|
-| Doors | **435** |
-| Opened by a screen | **413** |
+| Doors | **439** |
+| Opened by a screen | **417** |
 | Opened only by an Edge Function | **7** |
 | Server-side by design | **15** |
 | **No reader** | **0** |
@@ -70,6 +70,7 @@ None.
 | Door | Kind | Read in |
 |---|---|---|
 | `accept_finding_as_line` | function | lib/data/plans.ts |
+| `accept_production_calibration` | function | lib/data/calibration.ts |
 | `acknowledge_machine_file` | function | lib/data/survey.ts |
 | `add_assembly_resource` | function | lib/data/estimates.ts |
 | `add_assembly_step` | function | lib/data/assemblies.ts |
@@ -158,6 +159,7 @@ None.
 | `customize_assembly` | function | lib/data/assemblies.ts |
 | `decide_refund` | function | lib/data/admin.ts |
 | `decide_upsell` | function | lib/data/admin.ts |
+| `decline_production_calibration` | function | lib/data/calibration.ts |
 | `delete_company` | function | lib/data/admin.ts, lib/data/team.ts |
 | `delete_company_role` | function | lib/data/team.ts |
 | `delete_estimate_line` | function | lib/data/estimates.ts |
@@ -254,6 +256,7 @@ None.
 | `my_plan_sets_without_sheets` | view | lib/data/takeoff.ts |
 | `my_plan_sheets` | view | lib/data/sheets.ts |
 | `my_preferences` | view | lib/data/preferences.ts |
+| `my_production_calibrations` | view | lib/data/calibration.ts |
 | `my_production_rates` | view | lib/data/library.ts, lib/data/production.ts |
 | `my_production_reports` | view | lib/data/project.ts |
 | `my_project` | view | lib/data/field-work.ts, lib/data/project.ts |
@@ -296,6 +299,7 @@ None.
 | `override_line_production` | function | lib/data/production.ts |
 | `post_comment` | function | lib/data/comments.ts |
 | `post_punches_to_timecard` | function | lib/data/time-clock.ts |
+| `propose_production_calibrations` | function | lib/data/calibration.ts |
 | `propose_upsell` | function | lib/data/admin.ts |
 | `publish_announcement` | function | lib/data/admin.ts |
 | `publish_machine_control_file` | function | lib/data/survey.ts |
