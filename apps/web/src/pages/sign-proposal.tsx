@@ -199,6 +199,10 @@ export function SignProposalPage() {
               issuedAt: d.issuedAt,
               validityDays: d.validityDays,
               totalPrice: d.totalPrice,
+              /* The same two lists the page shows, so the file somebody keeps
+                 and the page they signed from say the same thing. */
+              exclusions: d.exclusions,
+              assumptions: d.assumptions,
               coverLetter: d.coverLetter,
               commercialTerms: d.commercialTerms,
               paymentTerms: d.paymentTerms,
@@ -258,6 +262,39 @@ export function SignProposalPage() {
         <span className="text-sm font-medium text-charcoal-700">Total</span>
         <span className="tabular text-2xl font-semibold text-charcoal-900">{total}</span>
       </div>
+
+      {/*
+        * Above the terms and above the answer, because this is the part a
+        * person has to have read before they agree to the number. It is placed
+        * where somebody scrolling to the accept button cannot get past it.
+        */}
+      {d.exclusions.length > 0 ? (
+        <section>
+          <h2 className="text-sm font-medium text-charcoal-800">Not included in this price</h2>
+          <ul className="mt-1 space-y-1">
+            {d.exclusions.map((e) => (
+              <li key={e.exclusion} className="text-sm text-charcoal-600">
+                <span className="font-medium text-charcoal-800">{e.exclusion}</span>
+                {' — '}{e.reason}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {d.assumptions.length > 0 ? (
+        <section>
+          <h2 className="text-sm font-medium text-charcoal-800">This price assumes</h2>
+          <ul className="mt-1 space-y-1">
+            {d.assumptions.map((a) => (
+              <li key={a.assumption} className="text-sm text-charcoal-600">
+                <span className="font-medium text-charcoal-800">{a.assumption}</span>
+                {' — '}{a.reason}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {d.commercialTerms ? (
         <section>

@@ -155,6 +155,20 @@ export interface SignableProposal {
     unitPrice: number | null; total: number | null;
   }>;
   /**
+   * What the bid does not cover, and what it was priced on.
+   *
+   * Carried on the token payload from migration 0235, and not optional. They
+   * reached the contractor's own copy of the document the day the doors opened
+   * and not this one, so for a few hours the person being asked to sign was the
+   * only party who could not see what was excluded. An exclusion protects a
+   * contractor only if the customer received it.
+   *
+   * Assumptions here are already filtered to those marked as shown to the
+   * customer; the estimator's internal working never leaves the company.
+   */
+  exclusions: Array<{ exclusion: string; reason: string }>;
+  assumptions: Array<{ assumption: string; reason: string }>;
+  /**
    * Who is sending it, and what they look like.
    *
    * The branding travels with the proposal rather than being fetched
@@ -195,6 +209,12 @@ export async function openProposalByToken(token: string): Promise<SignablePropos
       unit: (l.unit as string | null) ?? null,
       unitPrice: l.unitPrice == null ? null : Number(l.unitPrice),
       total: l.total == null ? null : Number(l.total),
+    })),
+    exclusions: ((d.exclusions as Array<Record<string, unknown>> | null) ?? []).map((e) => ({
+      exclusion: String(e.exclusion), reason: String(e.reason),
+    })),
+    assumptions: ((d.assumptions as Array<Record<string, unknown>> | null) ?? []).map((a) => ({
+      assumption: String(a.assumption), reason: String(a.reason),
     })),
     company: (() => {
       const c = (d.company ?? {}) as Record<string, unknown>;

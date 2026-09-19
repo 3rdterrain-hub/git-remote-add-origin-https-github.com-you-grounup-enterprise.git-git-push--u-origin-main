@@ -39,7 +39,10 @@ import { SendForSignature } from '@/components/proposal/send-for-signature';
 import { ProposalDraftEditor } from '@/components/proposal/draft-editor';
 import { loadCompanyProfile, logoUrl } from '@/lib/data/company';
 import { downloadProposalPdf } from '@/lib/data/proposal-pdf';
-import { estimateAssumptions, estimateExclusions } from '@/lib/data/qualifications';
+import {
+  estimateAssumptions, estimateExclusions,
+  type EstimateAssumption, type EstimateExclusion,
+} from '@/lib/data/qualifications';
 import {
   loadProposals, loadVersion, recordProposalOutcome,
   type ProposalRow, type VersionDetail,
@@ -500,9 +503,78 @@ function ProposalDocument({ proposal, canAnswer, onAnswer, onChanged }: {
               </TableFooter>
             </Table>
           )}
+
+          <WhatItIsPricedOn versionId={proposal.estimateVersionId} />
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * What this bid excludes and what it assumes, on the screen rather than only in
+ * the file.
+ *
+ * They reached the PDF the day migration 0232 opened the doors, and a person
+ * had to download the document to find out what the bid said it did not cover —
+ * which is exactly the thing somebody wants to check *before* they send it.
+ *
+ * Read here rather than passed down, from the same two queries the download
+ * uses, so the panel and the file cannot disagree about what is on the bid.
+ * Only the assumptions marked as shown to the customer appear, because that is
+ * what the customer will see; the rest are the estimator's working.
+ */
+function WhatItIsPricedOn({ versionId }: { versionId: string }) {
+  const exclusions = useQuery(estimateExclusions(versionId), [versionId]);
+  const assumptions = useQuery(estimateAssumptions(versionId), [versionId]);
+
+  const ex: EstimateExclusion[] = exclusions.status === 'ready' ? exclusions.data : [];
+  const as: EstimateAssumption[] = assumptions.status === 'ready'
+    ? assumptions.data.filter((a) => a.isDisclosedToCustomer)
+    : [];
+
+  /* No heading over nothing — the same rule the document itself follows. */
+  if (ex.length === 0 && as.length === 0) return null;
+
+  return (
+    <div className="space-y-4 border-t border-charcoal-100 pt-4">
+      {ex.length > 0 ? (
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">
+            Not included in this price
+          </p>
+          <ul className="space-y-1">
+            {ex.map((e) => (
+              <li key={e.id} className="text-sm text-charcoal-700">
+                <span className="font-medium text-charcoal-900">{e.exclusion}</span>
+                {' — '}{e.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {as.length > 0 ? (
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-500">
+            This price assumes
+          </p>
+          <ul className="space-y-1">
+            {as.map((a) => (
+              <li key={a.id} className="text-sm text-charcoal-700">
+                <span className="font-medium text-charcoal-900">{a.assumption}</span>
+                {' — '}{a.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <p className="text-xs text-charcoal-500">
+        These are written on the estimate this proposal came from, and they go out on
+        the document exactly as they read here.
+      </p>
+    </div>
   );
 }
 

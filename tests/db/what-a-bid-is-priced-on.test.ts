@@ -140,6 +140,40 @@ describe('what a bid is priced on', () => {
     });
   });
 
+  /*
+   * The half that was wrong for a few hours on 18 September 2026.
+   *
+   * The exclusions reached the contractor's own copy of the document the day
+   * the doors opened, and not the customer's — so the only person whose copy
+   * decides anything was the one party who could not see what the bid did not
+   * cover. An exclusion protects a contractor only if the customer received it.
+   */
+  describe('the copy the customer signs', () => {
+    it('carries the exclusions, each with its reason', async () => {
+      const cols = await h.sql<{ parameter_name: string }>(
+        `select p.parameter_name from information_schema.parameters p
+          where p.specific_schema = 'app'
+            and p.specific_name like 'open_proposal_by_token%'`);
+      expect(cols.length).toBeGreaterThan(0);
+
+      const [src] = await h.sql<{ src: string }>(
+        `select prosrc as src from pg_proc p
+           join pg_namespace n on n.oid = p.pronamespace
+          where n.nspname = 'app' and p.proname = 'open_proposal_by_token'`);
+      expect(src!.src).toContain("'exclusions'");
+      expect(src!.src).toContain('e.reason');
+    });
+
+    /* The estimator's own working never leaves the company. */
+    it('carries only the assumptions marked as shown to the customer', async () => {
+      const [src] = await h.sql<{ src: string }>(
+        `select prosrc as src from pg_proc p
+           join pg_namespace n on n.oid = p.pronamespace
+          where n.nspname = 'app' and p.proname = 'open_proposal_by_token'`);
+      expect(src!.src).toContain('is_disclosed_to_customer');
+    });
+  });
+
   describe('somebody else', () => {
     it('cannot write onto another company’s estimate', async () => {
       const other = '42222222-2222-4222-8222-222222222222';
