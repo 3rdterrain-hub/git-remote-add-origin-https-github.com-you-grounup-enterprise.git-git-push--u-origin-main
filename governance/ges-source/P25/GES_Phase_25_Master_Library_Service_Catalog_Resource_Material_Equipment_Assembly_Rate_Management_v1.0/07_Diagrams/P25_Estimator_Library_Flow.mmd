@@ -1,0 +1,13 @@
+flowchart LR
+ Base[Base Libraries] --> Resolve[Library Resolver]
+ Override[Tenant Overrides] --> Resolve
+ Vendor[Vendor Quotes / Custom Rates] --> Resolve
+ Regional[Regional Profile / Location Factors] --> Resolve
+ Resolve --> Snapshot[Immutable Library Snapshot]
+ Snapshot --> Estimator[Phase 26 Estimator]
+ Estimator --> NewSvc[New Service / Assembly Proposal]
+ NewSvc --> Review[Human Review / Approval]
+ AI[AI Proposed Writeback] --> Review
+ Review --> Draft[Governed Draft / Version]
+ Draft --> Publish[Approved Publish]
+ Publish --> Resolve

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GES Implementation Work Item",
+  "type": "object",
+  "required": [
+    "id",
+    "requirement_ids",
+    "component_ids",
+    "test_ids",
+    "tenant_impact",
+    "security_impact",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "component_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "test_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tenant_impact": {
+      "enum": [
+        "None",
+        "Scoped",
+        "Platform"
+      ]
+    },
+    "security_impact": {
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "status": {
+      "enum": [
+        "Backlog",
+        "Ready",
+        "In Progress",
+        "Review",
+        "Accepted",
+        "Released"
+      ]
+    },
+    "adr_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

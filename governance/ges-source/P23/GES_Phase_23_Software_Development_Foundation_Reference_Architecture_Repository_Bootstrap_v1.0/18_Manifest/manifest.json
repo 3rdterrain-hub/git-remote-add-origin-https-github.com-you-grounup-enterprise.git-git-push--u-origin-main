@@ -1,0 +1,202 @@
+{
+  "phase": "23",
+  "version": "1.0.0",
+  "architecture_state": "PROPOSED - NOT APPROVED",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "bbc314e320265f6626c8fed0b439e5e616cc21b7d7b7d01707bacd85b4b902e2",
+      "bytes": 1040
+    },
+    {
+      "path": "02_Word/GES-P23-001-Software_Development_Foundation_Reference_Architecture_Repository_Bootstrap.docx",
+      "sha256": "18972bbc803623cf8f1aeb9975e526e8d30b8f47d404a27e785d804bd3ccd39e",
+      "bytes": 40117
+    },
+    {
+      "path": "03_PDF/GES-P23-001-Software_Development_Foundation_Reference_Architecture_Repository_Bootstrap.pdf",
+      "sha256": "9771a3d2e386f46d08fc614c5f98f5693855d42c4b995797ba0357f5424f8231",
+      "bytes": 10505
+    },
+    {
+      "path": "04_Excel/GES-P23-001-Software_Development_Foundation_Reference_Architecture_Control_Workbook.xlsx",
+      "sha256": "3bf20097c1fa6406ed7c82aad6ee4ef4e8c8f2e1f2d86b57a6c46c458c3add8e",
+      "bytes": 51256
+    },
+    {
+      "path": "05_CSV/P23_API_Contract_Catalog.csv",
+      "sha256": "e6c4d248c920d782ffbb4a8872f1eb271d78898bab770f3bbb2b5096bf8f3009",
+      "bytes": 10586
+    },
+    {
+      "path": "05_CSV/P23_Architecture_Components.csv",
+      "sha256": "c99777c5eb0167a23c41801793f22dd439a3aa5b3bcca9c20ddc55f428fa3df4",
+      "bytes": 5741
+    },
+    {
+      "path": "05_CSV/P23_Architecture_Decisions.csv",
+      "sha256": "bafebfb796bd761d26169fd9d211366a0308b0cbcedf801274640f5fcb911a20",
+      "bytes": 1891
+    },
+    {
+      "path": "05_CSV/P23_Event_Catalog.csv",
+      "sha256": "a0a0237d5f2a25164a6668666ec0892dca751b38aeac7ed1675ad5c0e2a0d9ad",
+      "bytes": 2627
+    },
+    {
+      "path": "05_CSV/P23_Quality_Gates.csv",
+      "sha256": "db9d9ffd128848ea6dae561d415b3e818d5bd803ff31158953fb57adf15cc594",
+      "bytes": 863
+    },
+    {
+      "path": "05_CSV/P23_Requirements.csv",
+      "sha256": "40ee2283f0199c83692afdb4bd4b4e7de52865f3f9d493c967ce533c19409089",
+      "bytes": 138363
+    },
+    {
+      "path": "05_CSV/P23_Security_Tenancy_Controls.csv",
+      "sha256": "c5e73032cf9ac3aafd9b94ed943559adda0d3c478c7da2b8550642f2ba68dd43",
+      "bytes": 1341
+    },
+    {
+      "path": "05_CSV/P23_Source_Execution_Controls.csv",
+      "sha256": "1503a643429cc2ddca20ce1edfecb9a3619ee76dffee40dcb4f256f6c2fd2ae7",
+      "bytes": 3287
+    },
+    {
+      "path": "05_CSV/P23_Source_Implementation_Waves.csv",
+      "sha256": "57c55ce5b2ba82284a00a6f509e224d7c66082468663a17d4646a123b4ffcd64",
+      "bytes": 1138
+    },
+    {
+      "path": "05_CSV/P23_Test_Cases.csv",
+      "sha256": "740269fae7a1fc1a2ab838ab6f68619f27580082a73c9979b8858a1d991d4677",
+      "bytes": 69879
+    },
+    {
+      "path": "05_CSV/P23_Traceability.csv",
+      "sha256": "e1bd5242420c79f877d1c7afce996944357bcc43459256b6eea7b6cb10df4a13",
+      "bytes": 17470
+    },
+    {
+      "path": "06_JSON/P23_Reference_Architecture.json",
+      "sha256": "23b06d930ed36caafbb4bbaff865beb362f5fb9fc4532c75420adae8f561ad0a",
+      "bytes": 701
+    },
+    {
+      "path": "06_JSON/P23_Work_Item.schema.json",
+      "sha256": "0073270cd431f6dd0ca7d8a25897dd3dd54499e56bfdcd4302d07038a1b07804",
+      "bytes": 1254
+    },
+    {
+      "path": "07_Diagrams/P23_Development_Flow.mmd",
+      "sha256": "eb48a34cb7b7c23e9a117ccf6a427a345d88326e24cac6e9f40fcfccafde5737",
+      "bytes": 477
+    },
+    {
+      "path": "07_Diagrams/P23_Logical_Architecture.mmd",
+      "sha256": "1ce0729fbef9ee67d42d7f841bb631147fe3655c806becfb8d29c77abe7458df",
+      "bytes": 803
+    },
+    {
+      "path": "08_Architecture/P23_Architecture_Components.csv",
+      "sha256": "c99777c5eb0167a23c41801793f22dd439a3aa5b3bcca9c20ddc55f428fa3df4",
+      "bytes": 5741
+    },
+    {
+      "path": "08_Architecture/P23_Architecture_Decisions.csv",
+      "sha256": "bafebfb796bd761d26169fd9d211366a0308b0cbcedf801274640f5fcb911a20",
+      "bytes": 1891
+    },
+    {
+      "path": "10_Data_API_Contracts/P23_API_Contract_Catalog.csv",
+      "sha256": "e6c4d248c920d782ffbb4a8872f1eb271d78898bab770f3bbb2b5096bf8f3009",
+      "bytes": 10586
+    },
+    {
+      "path": "10_Data_API_Contracts/P23_Event_Catalog.csv",
+      "sha256": "a0a0237d5f2a25164a6668666ec0892dca751b38aeac7ed1675ad5c0e2a0d9ad",
+      "bytes": 2627
+    },
+    {
+      "path": "11_Security_Tenancy/P23_Security_Tenancy_Controls.csv",
+      "sha256": "c5e73032cf9ac3aafd9b94ed943559adda0d3c478c7da2b8550642f2ba68dd43",
+      "bytes": 1341
+    },
+    {
+      "path": "14_Testing_Quality/P23_Quality_Gates.csv",
+      "sha256": "db9d9ffd128848ea6dae561d415b3e818d5bd803ff31158953fb57adf15cc594",
+      "bytes": 863
+    },
+    {
+      "path": "15_Developer_AI_Handoff/P23_DEVELOPER_AI_BUILD_PROTOCOL.md",
+      "sha256": "7dc52fb44ad7b96ec468b60daa6df23a789795f4254d0205d4eab40cbcd30b5b",
+      "bytes": 788
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/.env.example",
+      "sha256": "7b6ca918a70d5eb69d1408316d8686bfbcdfb6bb896acdb19a48905f93ee51b6",
+      "bytes": 172
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/.github/workflows/quality-gates.yml",
+      "sha256": "fba9870d8f9c1bfaa8651ea89c0441c487a675c689840a5e34e4331819f9be8b",
+      "bytes": 374
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/CODEOWNERS.example",
+      "sha256": "bfbac7de7ad3b8a2c2488f350c8ec1864e7747b7f39d21d03b52f05bbc213c3d",
+      "bytes": 244
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/README.md",
+      "sha256": "65b4769652b373b80ab1ce6d14772f87f7d523cd03d8b8a43fa18864a724e550",
+      "bytes": 898
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/apps/api/src/README.md",
+      "sha256": "fb786b67b2ebfefb7077ecdea4385ac77bae3b93a084b74b8ef3564c38b1c489",
+      "bytes": 321
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/docs/adr/ADR-0000-template.md",
+      "sha256": "9ed8f5d8107814aacecfffcba8b48e40f8ee5ac2af7a924f9188e7c6fee8c808",
+      "bytes": 235
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/docs/requirements/WORK_ITEM_TEMPLATE.md",
+      "sha256": "b19fed6ec669548519aea89af49f6942b58c42d0601b9074aca67640755208ca",
+      "bytes": 249
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/packages/contracts/src/audit-event.ts",
+      "sha256": "72aa8d0899e1453ad7c6e9180549b428746d9fa0aa0a4743d07899f738901914",
+      "bytes": 275
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/packages/contracts/src/domain-event.ts",
+      "sha256": "bda3ad7ef918954336056c9fc84d2380de57085125bfb789b0a8c974124a6789",
+      "bytes": 186
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/packages/contracts/src/tenant-context.ts",
+      "sha256": "cabe11b4bf6d3e8aa11f11183c88f55975f427c5d7743e16af59cd2c85167692",
+      "bytes": 138
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/scripts/check-traceability.sh",
+      "sha256": "fac87c3d33f6edb6d2d625e5627fc237d482bfd181b3e9f570d5f38b3d1cfc75",
+      "bytes": 124
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform/services/ai-orchestrator/src/contracts.ts",
+      "sha256": "2f5c85657ebad84c5ad03409ff7a9f4957f69c5fe29834506bd2c5862c37b940",
+      "bytes": 422
+    },
+    {
+      "path": "16_Starter_Repository/grounup-platform-bootstrap.zip",
+      "sha256": "6e216374cb4130b3173dfd86b818c566401faaf3694721e930d611d307237ece",
+      "bytes": 4284
+    }
+  ]
+}

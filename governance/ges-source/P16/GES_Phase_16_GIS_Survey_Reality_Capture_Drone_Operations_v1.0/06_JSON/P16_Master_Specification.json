@@ -1,0 +1,146 @@
+{
+  "phase": "16",
+  "name": "GIS, Survey, Reality Capture & Drone Operations",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "GIS Core",
+      "purpose": "Enterprise geospatial layers, features, attributes, maps, symbology, topology, permissions and spatial search."
+    },
+    {
+      "name": "Coordinate Reference Systems",
+      "purpose": "Horizontal/vertical datums, coordinate systems, units, transformations, geoid models and metadata."
+    },
+    {
+      "name": "Survey Control",
+      "purpose": "Benchmarks, control points, monuments, baselines, traverses, networks, checks and adjustment evidence."
+    },
+    {
+      "name": "GNSS Survey",
+      "purpose": "Base/rover workflows, RTK/RTN, static observations, corrections, epochs, precision and quality checks."
+    },
+    {
+      "name": "Total Station Survey",
+      "purpose": "Instrument setup, backsight, foresight, traverses, stakeout, observations, prism constants and closures."
+    },
+    {
+      "name": "Digital Levels",
+      "purpose": "Differential leveling, loops, benchmarks, closures, elevation transfer and field-book records."
+    },
+    {
+      "name": "Construction Layout",
+      "purpose": "Points, lines, offsets, elevations, slopes, station/offset, stakeout, layout verification and as-staked records."
+    },
+    {
+      "name": "Topographic Survey",
+      "purpose": "Topo points, breaklines, features, surfaces, contours, coding, checks and deliverables."
+    },
+    {
+      "name": "Existing Conditions",
+      "purpose": "Utilities, structures, pavement, vegetation, drainage, terrain, site features and condition evidence."
+    },
+    {
+      "name": "Drone Operations",
+      "purpose": "Aircraft, pilots, missions, batteries, payloads, airspace/authorization records, checklists, maintenance and flight logs."
+    },
+    {
+      "name": "Photogrammetry",
+      "purpose": "Image capture, camera calibration, overlap, alignment, control, tie points, processing and accuracy."
+    },
+    {
+      "name": "LiDAR Reality Capture",
+      "purpose": "Aerial/terrestrial/mobile LiDAR, trajectories, calibration, point clouds, classifications and accuracy."
+    },
+    {
+      "name": "Point Cloud Management",
+      "purpose": "Point cloud storage, tiling, classification, filtering, registration, clipping, viewing and lineage."
+    },
+    {
+      "name": "Orthomosaic Management",
+      "purpose": "Orthorectification, mosaics, resolution, tiles, control, publication and historical comparison."
+    },
+    {
+      "name": "Surface & Terrain Models",
+      "purpose": "TINs, meshes, DEM/DSM/DTM, breaklines, contours, surface versions, comparisons and approvals."
+    },
+    {
+      "name": "Volumes & Earthwork",
+      "purpose": "Cut/fill, stockpiles, excavation, embankment, borrow/waste, shrink/swell assumptions and quantity evidence."
+    },
+    {
+      "name": "Progress & Change Detection",
+      "purpose": "Time-series surfaces/images, percent complete, elevation deltas, material movement and exception detection."
+    },
+    {
+      "name": "Corridor & Linear Infrastructure",
+      "purpose": "Alignments, profiles, stationing, offsets, cross-sections, corridors, roads, utilities and linear assets."
+    },
+    {
+      "name": "Utility Mapping",
+      "purpose": "Known/located utilities, potholes, locates, confidence, depth, survey evidence and clash references."
+    },
+    {
+      "name": "GIS Field Collection",
+      "purpose": "Mobile forms, offline maps, GNSS capture, photos, sketches, inspections and synchronization."
+    },
+    {
+      "name": "Reality Capture QA/QC",
+      "purpose": "Ground control, checkpoints, RMSE, residuals, density, completeness, calibration and acceptance."
+    },
+    {
+      "name": "Geofencing & Location Intelligence",
+      "purpose": "Project limits, exclusion zones, work zones, haul routes, asset zones, alerts and spatial rules."
+    },
+    {
+      "name": "Drone Media & Inspection",
+      "purpose": "Aerial photos/video, inspection missions, annotated observations, progress media and evidence."
+    },
+    {
+      "name": "Regulatory & Flight Compliance",
+      "purpose": "Configurable aviation, privacy, site, owner and company requirements with documented approvals/evidence."
+    },
+    {
+      "name": "Survey Deliverables",
+      "purpose": "Field books, point files, CAD/GIS exports, reports, plats, surfaces, certificates and transmittals."
+    },
+    {
+      "name": "Machine Control Handoff",
+      "purpose": "Governed export interfaces for models, surfaces, alignments, localization/control and Phase 17 handoff."
+    },
+    {
+      "name": "Spatial Analytics",
+      "purpose": "Heat maps, nearest/within analysis, spatial joins, route analysis, quantities, trends and geospatial KPIs."
+    },
+    {
+      "name": "AI Geospatial Intelligence",
+      "purpose": "Evidence-grounded feature recognition, change detection, surface analysis, anomaly detection and recommendations."
+    },
+    {
+      "name": "Geospatial Digital Twin",
+      "purpose": "Current spatial state linked to project, documents, quantities, assets, field work and historical reality capture."
+    }
+  ],
+  "counts": {
+    "requirements": 360,
+    "entities": 165,
+    "fields": 260,
+    "business_rules": 70,
+    "validation_rules": 70,
+    "workflows": 48,
+    "engines": 49,
+    "api_resources": 60,
+    "ui_surfaces": 42,
+    "reports": 34,
+    "kpis": 48,
+    "tests": 360
+  },
+  "critical_governance": [
+    "Every spatial product preserves CRS, datum, vertical datum/geoid and unit metadata.",
+    "Survey/reality-capture accuracy claims require QA evidence and authorized human acceptance.",
+    "Drone missions retain pilot, aircraft, payload, battery, flight and authorization evidence.",
+    "Regulatory/flight rules are configurable by jurisdiction and are not hard-coded as timeless assumptions.",
+    "AI may assist with feature recognition, change detection and anomaly review but may not certify survey accuracy or regulated flight authority.",
+    "Machine-control export packages require explicit validation and Phase 17 handoff controls."
+  ]
+}

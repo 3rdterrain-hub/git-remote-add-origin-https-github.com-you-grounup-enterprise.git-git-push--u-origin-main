@@ -1,0 +1,22 @@
+# Business Rules
+
+- **GES-P09-BR-001:** Worker assignment requires active employment and all mandatory credentials.
+- **GES-P09-BR-002:** Crew assignments shall not overlap unless the assignment type explicitly permits overlap.
+- **GES-P09-BR-003:** Union classification and agreement rules shall be resolved using work location and effective date.
+- **GES-P09-BR-004:** Prevailing wage decisions shall retain the determination source, version and calculation evidence.
+- **GES-P09-BR-005:** Certified payroll output shall reconcile approved time, classifications, rates, fringes and deductions.
+- **GES-P09-BR-006:** No AI recommendation may directly hire, terminate, discipline or change compensation without authorized human approval.
+- **GES-P09-BR-007:** Geolocation shall be collected only under approved tenant policy and disclosed worker consent rules.
+- **GES-P09-BR-008:** Sensitive HR data shall be restricted by least privilege and field-level security.
+- **GES-P09-BR-009:** Time entries shall retain original, edited and approved values with actor and timestamp.
+- **GES-P09-BR-010:** Credential expiration shall automatically affect eligibility according to configurable grace rules.
+- **GES-P09-BR-011:** Fatigue risk shall be advisory unless a configured safety threshold requires escalation.
+- **GES-P09-BR-012:** Performance decisions shall distinguish objective project evidence from manager commentary.
+- **GES-P09-BR-013:** Candidate records shall follow configurable retention and disposition requirements.
+- **GES-P09-BR-014:** Worker digital twin snapshots shall be versioned and reproducible from source evidence.
+- **GES-P09-BR-015:** Payroll exports shall be immutable after transmission; corrections require adjustment batches.
+- **GES-P09-BR-016:** Leave approvals shall evaluate available balance, staffing impact and applicable policy.
+- **GES-P09-BR-017:** Equipment qualification shall be model/asset-class specific where required by tenant policy.
+- **GES-P09-BR-018:** Union dispatch requests shall preserve referral sequence, response and acceptance evidence.
+- **GES-P09-BR-019:** Cross-tenant workforce records shall never be visible without explicit authorized shared-service configuration.
+- **GES-P09-BR-020:** Every workforce state transition shall create an audit event.

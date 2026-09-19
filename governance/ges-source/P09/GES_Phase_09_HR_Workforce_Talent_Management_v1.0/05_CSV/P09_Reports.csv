@@ -1,0 +1,16 @@
+Report ID,Report,Domain,Purpose,Security,Formats
+GES-P09-RPT-001,Workforce Headcount and Capacity,Workforce Planning,Governed report for workforce headcount and capacity.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-002,Recruiting Funnel,Recruiting and ATS,Governed report for recruiting funnel.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-003,Time to Fill,Onboarding,Governed report for time to fill.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-004,Crew Utilization,Employee Master,Governed report for crew utilization.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-005,Labor Availability,Skills and Competencies,Governed report for labor availability.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-006,Overtime and Fatigue Risk,Crew Management,Governed report for overtime and fatigue risk.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-007,Credential Compliance,Time and Attendance,Governed report for credential compliance.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-008,Training Completion,Workforce Scheduling,Governed report for training completion.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-009,Union Dispatch,Compensation and Payroll Integration,Governed report for union dispatch.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-010,Prevailing Wage Compliance,Union and Labor Agreements,Governed report for prevailing wage compliance.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-011,Certified Payroll Reconciliation,Prevailing Wage and Certified Payroll,Governed report for certified payroll reconciliation.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-012,Timecard Exceptions,Training and LMS,Governed report for timecard exceptions.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-013,Leave and Attendance,Licenses and Certifications,Governed report for leave and attendance.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-014,Performance and Development,Safety and Health Integration,Governed report for performance and development.,Role and tenant filtered,PDF; XLSX; CSV; dashboard
+GES-P09-RPT-015,Turnover and Retention,Leave and Absence,Governed report for turnover and retention.,Role and tenant filtered,PDF; XLSX; CSV; dashboard

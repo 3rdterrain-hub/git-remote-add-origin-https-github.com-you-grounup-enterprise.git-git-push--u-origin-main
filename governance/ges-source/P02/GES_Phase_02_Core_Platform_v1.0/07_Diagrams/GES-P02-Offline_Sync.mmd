@@ -1,0 +1,13 @@
+flowchart LR
+  A[Assigned Work] --> P[Encrypted Offline Pack]
+  P --> D[Trusted Device]
+  D --> Q[Offline Transaction Queue]
+  Q --> S[Sync Service]
+  S --> V[Validate Tenant, Actor, Base Version]
+  V --> C{Conflict?}
+  C -->|No| X[Apply]
+  C -->|Yes, Auto| M[Merge Policy]
+  C -->|Manual| R[Conflict Case]
+  X --> O[Sync Receipt and Deltas]
+  M --> O
+  R --> O

@@ -1,0 +1,13 @@
+flowchart LR
+ Commit --> Build[Build + SBOM + Provenance]
+ Build --> Test[Unit / Integration / Contract / Security]
+ Test --> Artifact[Immutable Artifact]
+ Artifact --> Dev[Dev]
+ Dev --> Stage[Staging]
+ Stage --> Perf[Performance / Migration / E2E]
+ Perf --> Approve[Release Approval]
+ Approve --> Canary[Canary or Blue/Green]
+ Canary --> Health{Health / SLO Pass?}
+ Health -->|Yes| Prod[Production Promotion]
+ Health -->|No| Rollback[Rollback / Halt]
+ Prod --> Evidence[Release Evidence Bundle]

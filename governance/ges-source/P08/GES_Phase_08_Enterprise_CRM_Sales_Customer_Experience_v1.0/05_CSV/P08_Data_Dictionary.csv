@@ -1,0 +1,37 @@
+Field,Type,Definition,Requirement
+tenant_id,UUID,Tenant isolation key,Required
+record_id,UUID,Canonical record identifier,Required
+record_version,Integer,Optimistic concurrency version,Required
+status_code,String,Configured lifecycle status,Required
+owner_user_id,UUID,Accountable owner,Conditional
+source_code,String,Originating source,Conditional
+created_at,Timestamp,Creation time in UTC,Required
+created_by,UUID,Creating principal,Required
+updated_at,Timestamp,Last update time in UTC,Required
+updated_by,UUID,Last updating principal,Required
+effective_from,Timestamp,Business effective start,Optional
+effective_to,Timestamp,Business effective end,Optional
+external_reference,String,External system identifier,Optional
+correlation_id,UUID,Cross-service transaction identifier,Required
+consent_status,String,Channel consent state,Conditional
+consent_basis,String,Legal or contractual basis,Conditional
+lead_score,Decimal,Current lead score,Conditional
+win_probability,Decimal,Opportunity probability 0-100,Conditional
+expected_value,Decimal,Expected commercial value,Conditional
+currency_code,String,ISO currency code,Conditional
+expected_close_date,Date,Expected opportunity close date,Conditional
+stage_entered_at,Timestamp,Current stage entry time,Conditional
+next_action_at,Timestamp,Scheduled next action,Optional
+customer_health_score,Decimal,Composite customer health,Optional
+ai_confidence,Decimal,AI output confidence 0-1,Conditional
+ai_source_refs,JSON Array,Sources supporting AI output,Conditional
+approval_status,String,Approval lifecycle state,Conditional
+retention_class,String,Retention policy classification,Required
+legal_hold_flag,Boolean,Legal hold indicator,Required
+is_deleted,Boolean,Soft deletion flag,Required
+deleted_at,Timestamp,Soft deletion time,Optional
+brand_profile_id,UUID,Resolved white-label brand,Conditional
+territory_id,UUID,Sales territory assignment,Optional
+campaign_id,UUID,Attributed campaign,Optional
+account_id,UUID,Related account,Conditional
+contact_id,UUID,Related contact,Conditional

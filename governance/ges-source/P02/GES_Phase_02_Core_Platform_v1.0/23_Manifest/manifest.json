@@ -1,0 +1,273 @@
+{
+  "package": "GES Phase 02 Core Platform",
+  "version": "1.0.0-review",
+  "created": "2026-07-21",
+  "file_count": 53,
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "size_bytes": 680,
+      "sha256": "537adbd4dcd522c8c174825e246eb050508528f368d3d67e03c05c8e36e65d2d"
+    },
+    {
+      "path": "02_Word/GES-P02-001-Core_Platform.docx",
+      "size_bytes": 50777,
+      "sha256": "7ba6c763c7607f5b4fa918ddd666d15a288a2fe47064c91edfd090f646023faf"
+    },
+    {
+      "path": "03_PDF/GES-P02-001-Core_Platform.pdf",
+      "size_bytes": 17378,
+      "sha256": "3c129e825f15caa4f5e9196ea43ca7bc321bfbfb6e119adbb47b1efdb159c17a"
+    },
+    {
+      "path": "04_Excel/GES-P02-001-Core_Platform_Control_Workbook.xlsx",
+      "size_bytes": 39186,
+      "sha256": "bfe3d8ecd8362e6e2bc253cd09981fba56627601544e373c782844a7c7a1ca89"
+    },
+    {
+      "path": "05_CSV/api_endpoints.csv",
+      "size_bytes": 2016,
+      "sha256": "c724b3883d1f0f927d0fa46ce0ce87b9c6cafee9d31479e6cd974f2f48531f30"
+    },
+    {
+      "path": "05_CSV/business_rules.csv",
+      "size_bytes": 4907,
+      "sha256": "ca589c6bae343156fcfa1a2bb322527af7a5f768e97afbefa821510f74f80a5d"
+    },
+    {
+      "path": "05_CSV/domain_catalog.csv",
+      "size_bytes": 970,
+      "sha256": "df86d9eae08954bc1d2e98241fed898f7c1e6f8d5377f3699c9f174d7779cf24"
+    },
+    {
+      "path": "05_CSV/engines.csv",
+      "size_bytes": 2132,
+      "sha256": "3f6427047667e563b1ab02de247810831f3c4166707e1912017b3f8ba2c8fb53"
+    },
+    {
+      "path": "05_CSV/entity_definitions.csv",
+      "size_bytes": 7998,
+      "sha256": "5db4390e87dad3efbe07c24e7eb3e09b2335af4fbb05f77d389b54333dc96e41"
+    },
+    {
+      "path": "05_CSV/reports.csv",
+      "size_bytes": 1464,
+      "sha256": "008bbe4d21ca507123d202772ea4284e6a2fe7aab4dd5338f5c1aec21b12e66d"
+    },
+    {
+      "path": "05_CSV/requirements_register.csv",
+      "size_bytes": 17018,
+      "sha256": "c4ab07af4a0e88f0229dd1c4953317d8cb178c38acdd85e6c3d3ac880fbd8f4b"
+    },
+    {
+      "path": "05_CSV/test_cases.csv",
+      "size_bytes": 13971,
+      "sha256": "d17584991cd6bd2bf4cc82ef6ec04856c710da42d2137707fd865aef83639617"
+    },
+    {
+      "path": "05_CSV/ui_surfaces.csv",
+      "size_bytes": 1646,
+      "sha256": "062d2ff9fefa48607751d85e70bb1e1ba523fb6e2bcd0f2630b2e5a76b99765c"
+    },
+    {
+      "path": "05_CSV/validation_rules.csv",
+      "size_bytes": 3915,
+      "sha256": "c232e58377053197f9f4d4a5a47506047901ac6b4c0827fa2f7f3591debcb93c"
+    },
+    {
+      "path": "05_CSV/workflows.csv",
+      "size_bytes": 3466,
+      "sha256": "e95969e26a5439ce431724f0383eaa664ebbb1f0477d2c47c87e9d03edb352ee"
+    },
+    {
+      "path": "06_JSON/api.json",
+      "size_bytes": 5025,
+      "sha256": "7cbf117bd2f767a3bed2547b001f177f9da2c806670be05e757e521d311abb0e"
+    },
+    {
+      "path": "06_JSON/business_rules.json",
+      "size_bytes": 9489,
+      "sha256": "13de5654595b83297f149d07dc2b8cea137420b9406aff8e32b2a3757881041f"
+    },
+    {
+      "path": "06_JSON/engines.json",
+      "size_bytes": 3468,
+      "sha256": "4f09a344f6954120462808908aad4fdc7bfbe521482c508f7fdb0046c96323fb"
+    },
+    {
+      "path": "06_JSON/entities.json",
+      "size_bytes": 14770,
+      "sha256": "65b4790848a56a87c6a43df4998ceae53b5b38d704b6aee99a10305c38ba3fdd"
+    },
+    {
+      "path": "06_JSON/phase_specification.json",
+      "size_bytes": 304,
+      "sha256": "e8feb96ac22ba01cff97d6b5b52c0899f7caafa04ac3aea29d79ad119c92aa6d"
+    },
+    {
+      "path": "06_JSON/reports.json",
+      "size_bytes": 2368,
+      "sha256": "c6be2b3a2e34db5943d6bf5de94f0b8836761dfc1ee918f922fd19fc379b22c3"
+    },
+    {
+      "path": "06_JSON/requirements.json",
+      "size_bytes": 30957,
+      "sha256": "774a79391a573954df1b6e128ba950251ab85d2572a907f97561ab79e4c96e12"
+    },
+    {
+      "path": "06_JSON/tests.json",
+      "size_bytes": 23969,
+      "sha256": "a1c966c41de7434f1552e07f2a1f3dbc3df3184cd53d27f7021e665f2154f810"
+    },
+    {
+      "path": "06_JSON/traceability.json",
+      "size_bytes": 23945,
+      "sha256": "234dc1a9710a3737cb83073a6b37ce58d7f854e268eb1185a634b77aa98f83dd"
+    },
+    {
+      "path": "06_JSON/ui_surfaces.json",
+      "size_bytes": 2743,
+      "sha256": "30e9b34d0bd428cca9b22c0f9321e8b9e897e06e34e588bd7e593ccad6ef357d"
+    },
+    {
+      "path": "06_JSON/validation_rules.json",
+      "size_bytes": 8486,
+      "sha256": "c9ff423ed8064dcc9f719a9f75ad799f264ec8e511550bb545ff6e928beb19b1"
+    },
+    {
+      "path": "06_JSON/workflows.json",
+      "size_bytes": 5524,
+      "sha256": "30c740c36a98a2d62bc1e2dc83734828bb7ee5caf8f59bf206873fef09686f7a"
+    },
+    {
+      "path": "07_Diagrams/GES-P02-AI_Execution.mmd",
+      "size_bytes": 338,
+      "sha256": "8d18a0830b6abdd23f0b7ec7bd574b756a24af8cdfd6668e12331b94f4e2198f"
+    },
+    {
+      "path": "07_Diagrams/GES-P02-Core_Platform_Architecture.mmd",
+      "size_bytes": 650,
+      "sha256": "5441b2373c871e0bcdf48493c585b60096d9805bf7dd98b88f9faffe4a995f2c"
+    },
+    {
+      "path": "07_Diagrams/GES-P02-Offline_Sync.mmd",
+      "size_bytes": 362,
+      "sha256": "84ca27be37f57669f44b5d572247216ed38461eb10b6f278ad909764402de905"
+    },
+    {
+      "path": "08_Business_Rules/GES-P02-Business_Rules.md",
+      "size_bytes": 4539,
+      "sha256": "4fa9393026ac5b70a0acaef1f7b7069ee79ea01c35c293679797b594fa0f7db5"
+    },
+    {
+      "path": "09_Validation_Rules/GES-P02-Validation_Rules.md",
+      "size_bytes": 2473,
+      "sha256": "4905eae0b2a04a2990903efa137aef1f8c68176175093a6fd206ac853a03fbc8"
+    },
+    {
+      "path": "10_Data_Dictionary/GES-P02-Data_Dictionary.md",
+      "size_bytes": 7241,
+      "sha256": "7d1e8c811a5048b013ef9abd62240c37e83bc90af64523b3bfea43f3ecdd5a2f"
+    },
+    {
+      "path": "11_Entity_Definitions/GES-P02-Entity_Definitions.md",
+      "size_bytes": 2281,
+      "sha256": "bff734270d3b0841b1014e491b11279cac1f605ebb91434abe3161c64add8aa9"
+    },
+    {
+      "path": "12_Workflows/GES-P02-Workflows.md",
+      "size_bytes": 3225,
+      "sha256": "ca7f236f4f06bd342240bd502eb32af26f6a29215182a3541a113fd69b60867d"
+    },
+    {
+      "path": "13_Engines/GES-P02-Engines.md",
+      "size_bytes": 2530,
+      "sha256": "b04a72346102ad5794e48cb634833fa29b5b5bdc07e04f5fce2ddfa8e3d7a9fa"
+    },
+    {
+      "path": "14_AI/GES-P02-AI_Platform.md",
+      "size_bytes": 628,
+      "sha256": "bea25d42325b45ce0ef62ff6e9b8e2e79e87e56ec62b7e42b6dc161673779477"
+    },
+    {
+      "path": "15_API/GES-P02-API_Specification.md",
+      "size_bytes": 2372,
+      "sha256": "1e9f73814596baa42782c9625fc18402d5cc2890bfd8e6210b28553dfd34ec65"
+    },
+    {
+      "path": "15_API/openapi.json",
+      "size_bytes": 11894,
+      "sha256": "307e498cea1abca1c4ed19b8f530481807a4276d98b3d645ace24be68a790189"
+    },
+    {
+      "path": "16_UI_UX/GES-P02-UI_UX.md",
+      "size_bytes": 1866,
+      "sha256": "8c6420931025449e5e961b3175048a59d0bc623e8e001ec1d77bdda162701207"
+    },
+    {
+      "path": "17_Reports/GES-P02-Reports.md",
+      "size_bytes": 1330,
+      "sha256": "6d39402833556ac3584b630915968cba3706a74c804d2b14ce29d4eaab4823d4"
+    },
+    {
+      "path": "18_Testing/GES-P02-Test_Plan.md",
+      "size_bytes": 7636,
+      "sha256": "10d719b1c6ef2801e0c1e6789750f128e1534dbf58686aba4e3ecc808eabe508"
+    },
+    {
+      "path": "19_Traceability/GES-P02-Traceability.md",
+      "size_bytes": 148,
+      "sha256": "b4b68d04b0347319b742af564486093a93fd3ff63ad7f8af26474c70fdc1bf9f"
+    },
+    {
+      "path": "19_Traceability/cross_reference.csv",
+      "size_bytes": 4148,
+      "sha256": "2a5cb0218108946bfa9aa228f9e8f5a2ae1e8bc00d37f0d3e2b86cae59f71004"
+    },
+    {
+      "path": "19_Traceability/dependency_matrix.csv",
+      "size_bytes": 5805,
+      "sha256": "1d3d9ad01f395b2722a655c4744c417d9ebc6ca52584d6697387118b16bae0d4"
+    },
+    {
+      "path": "19_Traceability/traceability_matrix.csv",
+      "size_bytes": 10200,
+      "sha256": "fed36f1c68c1458d796f63b5ffaca85e288dd7c1f1d4da121486c7782582515c"
+    },
+    {
+      "path": "20_Change_Log/CHANGELOG.md",
+      "size_bytes": 102,
+      "sha256": "f5ef0e2a18ffa8bc18e4530c40d93ad854980172373ece3497f8fd00397b3a8e"
+    },
+    {
+      "path": "21_Version_History/VERSION_HISTORY.md",
+      "size_bytes": 157,
+      "sha256": "a410a717bd3f5bd932d4a5949fd24abaa4b019dac5001fcb769252fc938be418"
+    },
+    {
+      "path": "22_Approval_Record/APPROVAL_RECORD.md",
+      "size_bytes": 440,
+      "sha256": "d92715e04d4c3b920fe4e10818ebbd3c6d0b74ce66d61848cf2fd666ffe8a75d"
+    },
+    {
+      "path": "24_Examples/Example_Event_and_Webhook.md",
+      "size_bytes": 295,
+      "sha256": "26319d6f349b4d3d85bb564bd3de3c4690b890d0211290dba15f9f70228c63cd"
+    },
+    {
+      "path": "24_Examples/Example_Offline_Sync.md",
+      "size_bytes": 384,
+      "sha256": "031bb0640fb19c703e3a4ac05a4c9b5439e6dbd6c76447b0720985d788c57346"
+    },
+    {
+      "path": "25_Archive/ARCHIVE_POLICY.md",
+      "size_bytes": 121,
+      "sha256": "7e5bf13cad3819e6ec00a000bcca9df190bc2b61627121f98fbe5d075b14f8de"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 680,
+      "sha256": "537adbd4dcd522c8c174825e246eb050508528f368d3d67e03c05c8e36e65d2d"
+    }
+  ]
+}

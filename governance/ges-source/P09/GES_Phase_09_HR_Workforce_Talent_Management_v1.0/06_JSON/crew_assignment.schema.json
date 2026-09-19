@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Crew Assignment",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "project_id",
+    "crew_id",
+    "shift_start",
+    "shift_end"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "crew_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "shift_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "shift_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eligibility_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "eligible",
+        "exception",
+        "ineligible"
+      ]
+    }
+  }
+}

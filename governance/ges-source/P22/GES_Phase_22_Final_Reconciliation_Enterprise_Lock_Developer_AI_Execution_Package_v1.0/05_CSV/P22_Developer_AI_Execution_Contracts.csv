@@ -1,0 +1,25 @@
+control_id,name,rule,enforcement
+P22-EXEC-001,Requirement Provenance,Every code/change task cites authoritative requirement IDs and source phase.,Block merge if absent.
+P22-EXEC-002,No Silent Assumptions,Missing business rules/formulas/permissions become governed gaps.,Do not invent.
+P22-EXEC-003,Test With Implementation,Mapped automated/manual acceptance evidence accompanies implementation.,Block completion without test evidence.
+P22-EXEC-004,Tenant Isolation,"All SaaS data, config, entitlements and branding remain tenant scoped.",Security gate.
+P22-EXEC-005,API Contract Discipline,Approved API/event schemas are versioned compatibility boundaries.,Breaking changes require new version/change approval.
+P22-EXEC-006,Data Migration Discipline,"Schema/data changes include migration, reconciliation and rollback.",Deployment gate.
+P22-EXEC-007,AI Governance,"AI models/prompts/tools require versioning, evaluation, guardrails, monitoring and human policy.",AI gate.
+P22-EXEC-008,Observability,Production features emit governed logs/metrics/traces and audit events.,SRE gate.
+P22-EXEC-009,Security by Default,"Least privilege, secrets management, encryption and vulnerability gates apply.",Security gate.
+P22-EXEC-010,Feature Flags,Incomplete/high-risk releases use governed feature flags when appropriate.,Release control.
+P22-EXEC-011,Rollback Ready,Every production-impacting release has verified rollback/recovery behavior.,Production gate.
+P22-EXEC-012,Traceability Update,Accepted changes update requirement-test-code-release traceability.,Definition of done.
+P22-EXEC-013,Human Approval Boundaries,"AI cannot approve legal, financial, security, safety, contractual or enterprise-lock decisions.",Governance gate.
+P22-EXEC-014,Canonical Libraries,Shared services/materials/resources/rates/assemblies use governed master-library identifiers.,Data governance gate.
+P22-EXEC-015,Audit Immutability,"Approval, release, pricing, commercial and security audit records preserve history.",Audit gate.
+P22-EXEC-016,Environment Promotion,Artifacts/configuration promote through approved environments; no ad hoc production mutation.,DevOps gate.
+P22-EXEC-017,White Label Governance,Branding/customization is configuration-driven and cannot fork core business logic silently.,SaaS architecture gate.
+P22-EXEC-018,Performance Acceptance,Critical workflows meet approved latency/throughput/capacity targets.,Performance gate.
+P22-EXEC-019,Accessibility Acceptance,User-facing surfaces meet approved accessibility criteria.,UX/QA gate.
+P22-EXEC-020,DR Acceptance,Backup/restore and RTO/RPO recovery evidence exists for critical services.,DR gate.
+P22-EXEC-021,Commercial Calculation Controls,Estimate/job cost/change/claim/payment calculations retain formula/version/source provenance.,Finance/commercial gate.
+P22-EXEC-022,Construction AI Evidence,Plan/spec/takeoff AI outputs retain source-page/location/confidence/review evidence.,AI/construction QA gate.
+P22-EXEC-023,Change Control,"Post-lock changes require change request, impact analysis, approvals, version update and regression scope.",Baseline control.
+P22-EXEC-024,Definition of Done,"Requirement implemented, tested, documented, observable, secure, traceable, accepted and releasable.",Completion gate.

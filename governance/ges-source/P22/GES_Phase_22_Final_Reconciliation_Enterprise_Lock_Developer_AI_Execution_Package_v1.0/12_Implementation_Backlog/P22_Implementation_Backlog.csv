@@ -1,0 +1,12 @@
+epic_id,wave,phases,purpose,exit_gate,status,owner,evidence
+GES-EPIC-01,Wave 0,Phase 00-01,"Product definition, requirements governance, decision rights and lock discipline",Approve scope and governance,Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-02,Wave 1,Phase 02-04,"Core platform, enterprise data model and master library registry","Stabilize shared schemas, tenancy, identity and libraries",Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-03,Wave 2,Phase 05-06,Estimating/cost intelligence and AI construction intelligence,Deliver core construction intelligence,Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-04,Wave 3,Phase 07-12,"Project management, CRM, HR, finance, procurement and fleet",Build operational business platform,Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-05,Wave 4,Phase 13-17,"BI, HSE, documents/drawings, GIS/reality capture, machine control","Build intelligence, compliance and field/digital systems",Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-06,Wave 5,Phase 18-19,Scheduling/resource planning and commercial/contracts/claims,"Integrate time, resources and commercial control",Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-07,Wave 6,Phase 20,"Enterprise integration, deployment, testing, governance and production readiness",Converge and harden platform for production,Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-08,Wave 7,Phase 21,"Master consolidation, cross-phase reconciliation, final traceability and implementation baseline",Approve and lock GES v1.0 implementation baseline,Not Started,Program/Architecture,Requirements + tests + release evidence
+GES-EPIC-09,Cross-Phase Reconciliation,Phase 00-22,Resolve/approve structural and semantic findings; reconcile canonical contracts.,All blocking findings closed or excepted,Not Started,Architecture/Governance,Disposition register
+GES-EPIC-10,Production Acceptance,Phase 20-22,"Execute production readiness, UAT, DR, security, migration and operational acceptance.",All mandatory acceptance gates approved,Not Started,QA/SRE/Business,Acceptance evidence
+GES-EPIC-11,Enterprise Lock,Phase 22,"Generate signed manifest, record approvals and lock GES v1.0.",Configuration Manager marks baseline Locked,Not Started,Configuration Management,Lock record + manifest

@@ -1,0 +1,126 @@
+Entity ID,Entity Name,Domain,Definition,Primary Key Strategy,Governance,System Role
+P12-ENT-001,Tenant,Fleet Registry,Canonical tenant record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-002,Legal Entity,Asset Lifecycle,Canonical legal entity record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-003,Business Unit,Preventive Maintenance,Canonical business unit record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-004,Fleet Asset,Corrective Maintenance,Canonical fleet asset record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-005,Asset Class,Inspections,Canonical asset class record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-006,Asset Type,Telematics & IoT,Canonical asset type record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-007,Asset Model,Fuel & Energy,Canonical asset model record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-008,Manufacturer,Parts & Components,Canonical manufacturer record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-009,Dealer,Work Orders,Canonical dealer record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-010,Ownership Record,Shop Operations,Canonical ownership record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-011,Lease Agreement,Field Service,Canonical lease agreement record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-012,Rental Agreement,Rental & Leased Assets,Canonical rental agreement record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-013,Asset Status History,Compliance,Canonical asset status history record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-014,Asset Location,Safety & Risk,Canonical asset location record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-015,Geofence,Utilization & Dispatch,Canonical geofence record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-016,Meter,Equipment Costing,Canonical meter record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-017,Meter Reading,Warranty & Claims,Canonical meter reading record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-018,Telematics Device,Tires & Undercarriage,Canonical telematics device record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-019,Telematics Provider,Attachments & Tools,Canonical telematics provider record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-020,Telematics Event,Documents & Media,Canonical telematics event record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-021,Diagnostic Trouble Code,Mobile & Offline,Canonical diagnostic trouble code record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-022,Engine Hour Reading,Fleet Intelligence,Canonical engine hour reading record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-023,Odometer Reading,Fleet Digital Twin,Canonical odometer reading record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-024,Fuel Transaction,Administration & Integration,Canonical fuel transaction record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-025,Fuel Card,Fleet Registry,Canonical fuel card record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-026,Fuel Tank,Asset Lifecycle,Canonical fuel tank record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-027,Fuel Delivery,Preventive Maintenance,Canonical fuel delivery record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-028,Charging Session,Corrective Maintenance,Canonical charging session record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-029,Energy Tariff,Inspections,Canonical energy tariff record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-030,Work Order,Telematics & IoT,Canonical work order record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-031,Work Order Task,Fuel & Energy,Canonical work order task record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-032,Maintenance Program,Parts & Components,Canonical maintenance program record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-033,Maintenance Trigger,Work Orders,Canonical maintenance trigger record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-034,Maintenance Schedule,Shop Operations,Canonical maintenance schedule record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-035,Service Interval,Field Service,Canonical service interval record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-036,Defect,Rental & Leased Assets,Canonical defect record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-037,Failure,Compliance,Canonical failure record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-038,Diagnostic Record,Safety & Risk,Canonical diagnostic record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-039,Repair Action,Utilization & Dispatch,Canonical repair action record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-040,Technician,Equipment Costing,Canonical technician record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-041,Technician Skill,Warranty & Claims,Canonical technician skill record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-042,Shop,Tires & Undercarriage,Canonical shop record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-043,Shop Bay,Attachments & Tools,Canonical shop bay record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-044,Service Truck,Documents & Media,Canonical service truck record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-045,Labor Entry,Mobile & Offline,Canonical labor entry record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-046,Part,Fleet Intelligence,Canonical part record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-047,Part Inventory Link,Fleet Digital Twin,Canonical part inventory link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-048,Part Issue,Administration & Integration,Canonical part issue record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-049,Core Return,Fleet Registry,Canonical core return record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-050,Component,Asset Lifecycle,Canonical component record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-051,Component Position,Preventive Maintenance,Canonical component position record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-052,Component Installation,Corrective Maintenance,Canonical component installation record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-053,Warranty,Inspections,Canonical warranty record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-054,Warranty Claim,Telematics & IoT,Canonical warranty claim record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-055,Inspection Template,Fuel & Energy,Canonical inspection template record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-056,Inspection,Parts & Components,Canonical inspection record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-057,Inspection Item,Work Orders,Canonical inspection item record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-058,Inspection Finding,Shop Operations,Canonical inspection finding record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-059,Corrective Action,Field Service,Canonical corrective action record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-060,Lockout Record,Rental & Leased Assets,Canonical lockout record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-061,Operator Authorization,Compliance,Canonical operator authorization record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-062,Asset Assignment,Safety & Risk,Canonical asset assignment record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-063,Reservation,Utilization & Dispatch,Canonical reservation record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-064,Dispatch,Equipment Costing,Canonical dispatch record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-065,Utilization Record,Warranty & Claims,Canonical utilization record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-066,Idle Event,Tires & Undercarriage,Canonical idle event record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-067,Downtime Event,Attachments & Tools,Canonical downtime event record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-068,Availability Calendar,Documents & Media,Canonical availability calendar record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-069,Rate Schedule,Mobile & Offline,Canonical rate schedule record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-070,Internal Rental Rate,Fleet Intelligence,Canonical internal rental rate record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-071,Cost Ledger,Fleet Digital Twin,Canonical cost ledger record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-072,Depreciation Profile,Administration & Integration,Canonical depreciation profile record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-073,Replacement Plan,Fleet Registry,Canonical replacement plan record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-074,Capital Request,Asset Lifecycle,Canonical capital request record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-075,Disposal Record,Preventive Maintenance,Canonical disposal record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-076,Auction Record,Corrective Maintenance,Canonical auction record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-077,Registration,Inspections,Canonical registration record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-078,Permit,Telematics & IoT,Canonical permit record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-079,Compliance Requirement,Fuel & Energy,Canonical compliance requirement record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-080,Compliance Evidence,Parts & Components,Canonical compliance evidence record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-081,Emissions Record,Work Orders,Canonical emissions record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-082,DOT Inspection,Shop Operations,Canonical dot inspection record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-083,Tire,Field Service,Canonical tire record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-084,Tire Position,Rental & Leased Assets,Canonical tire position record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-085,Tire Measurement,Compliance,Canonical tire measurement record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-086,Undercarriage Measurement,Safety & Risk,Canonical undercarriage measurement record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-087,Attachment,Utilization & Dispatch,Canonical attachment record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-088,Tool,Equipment Costing,Canonical tool record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-089,Calibration Record,Warranty & Claims,Canonical calibration record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-090,Custody Record,Tires & Undercarriage,Canonical custody record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-091,Accident Link,Attachments & Tools,Canonical accident link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-092,Safety Incident Link,Documents & Media,Canonical safety incident link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-093,Insurance Policy,Mobile & Offline,Canonical insurance policy record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-094,Insurance Claim,Fleet Intelligence,Canonical insurance claim record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-095,Document,Fleet Digital Twin,Canonical document record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-096,Photo,Administration & Integration,Canonical photo record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-097,Signature,Fleet Registry,Canonical signature record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-098,Approval,Asset Lifecycle,Canonical approval record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-099,Notification,Preventive Maintenance,Canonical notification record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-100,Alert,Corrective Maintenance,Canonical alert record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-101,Health Score,Inspections,Canonical health score record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-102,Risk Score,Telematics & IoT,Canonical risk score record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-103,Failure Prediction,Fuel & Energy,Canonical failure prediction record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-104,Recommendation,Parts & Components,Canonical recommendation record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-105,Digital Twin Snapshot,Work Orders,Canonical digital twin snapshot record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-106,Digital Twin Event,Shop Operations,Canonical digital twin event record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-107,Integration Endpoint,Field Service,Canonical integration endpoint record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-108,Integration Mapping,Rental & Leased Assets,Canonical integration mapping record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-109,Import Batch,Compliance,Canonical import batch record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-110,Export Batch,Safety & Risk,Canonical export batch record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-111,Audit Event,Utilization & Dispatch,Canonical audit event record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-112,Role,Equipment Costing,Canonical role record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-113,Permission,Warranty & Claims,Canonical permission record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-114,Configuration,Tires & Undercarriage,Canonical configuration record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-115,Custom Field,Attachments & Tools,Canonical custom field record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-116,Mobile Sync Batch,Documents & Media,Canonical mobile sync batch record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-117,Conflict Record,Mobile & Offline,Canonical conflict record record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-118,Vendor Link,Fleet Intelligence,Canonical vendor link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-119,Purchase Order Link,Fleet Digital Twin,Canonical purchase order link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-120,Invoice Link,Administration & Integration,Canonical invoice link record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-121,Project Charge,Fleet Registry,Canonical project charge record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-122,Project Assignment,Asset Lifecycle,Canonical project assignment record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-123,Crew Assignment,Preventive Maintenance,Canonical crew assignment record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-124,Jobsite,Corrective Maintenance,Canonical jobsite record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record
+P12-ENT-125,Weather Observation,Inspections,Canonical weather observation record supporting governed fleet and asset operations.,tenant_id,Effective-dated; auditable; API-addressable,System of Record

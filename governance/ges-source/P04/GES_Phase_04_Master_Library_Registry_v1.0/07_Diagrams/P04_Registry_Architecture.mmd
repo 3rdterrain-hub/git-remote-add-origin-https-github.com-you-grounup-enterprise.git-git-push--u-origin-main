@@ -1,0 +1,12 @@
+flowchart TD
+  A[Global Master Libraries] --> B[Inheritance and Override Engine]
+  C[Reseller / OEM Libraries] --> B
+  D[Tenant Libraries] --> B
+  B --> E[Resolved Context Library]
+  E --> F[Estimating]
+  E --> G[Project Management]
+  E --> H[CRM / HRM / Fleet]
+  E --> I[AI and Analytics]
+  J[Approval + Versioning] --> A
+  J --> C
+  J --> D

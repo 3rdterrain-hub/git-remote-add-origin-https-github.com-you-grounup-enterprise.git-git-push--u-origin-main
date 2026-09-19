@@ -1,0 +1,11 @@
+gate_id,gate,pass_rule,requirement
+P24-QG-01,Unit,Core modules pass unit tests,Required
+P24-QG-02,Repository isolation,Tenant repository negative tests pass,Required
+P24-QG-03,API contract,Request/error/pagination/idempotency contracts pass,Required
+P24-QG-04,Workflow,Transition/approval state tests pass,Required
+P24-QG-05,Audit,Required actions produce correct audit records,Required
+P24-QG-06,Migration,Schema migration test passes,Required for data change
+P24-QG-07,Security,SAST/dependency/secret scans pass approved threshold,Required
+P24-QG-08,Observability,Correlation/health/logging tests pass,Required
+P24-QG-09,Traceability,Changed feature references requirement/test IDs,Required
+P24-QG-10,E2E foundation,Tenant create -> membership -> context -> workflow -> audit path passes,Release gate

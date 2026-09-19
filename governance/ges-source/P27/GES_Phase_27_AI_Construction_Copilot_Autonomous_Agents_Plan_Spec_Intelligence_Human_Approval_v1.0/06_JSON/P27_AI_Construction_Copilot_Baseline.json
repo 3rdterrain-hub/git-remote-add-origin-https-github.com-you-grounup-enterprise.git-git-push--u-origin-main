@@ -1,0 +1,34 @@
+{
+  "phase": "27",
+  "name": "AI Construction Copilot, Autonomous Agents, Plan/Spec Intelligence & Human Approval",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase26": {
+    "requirements": 450,
+    "modules": 30,
+    "entities": 40,
+    "apis": 30,
+    "events": 19,
+    "business_rules": 25,
+    "security_controls": 12,
+    "quality_gates": 14
+  },
+  "counts": {
+    "requirements": 480,
+    "tests": 480,
+    "modules": 36,
+    "entities": 40,
+    "apis": 28,
+    "events": 23,
+    "business_rules": 28,
+    "security_controls": 14,
+    "quality_gates": 16,
+    "evaluations": 12
+  },
+  "authoritative_boundaries": [
+    "Phase 26 deterministic tools remain authoritative for estimate math",
+    "Phase 25 human-governed workflow remains authoritative for library publication",
+    "Human approval is required for protected writes/approvals/legal/safety/security actions",
+    "AI must expose evidence, uncertainty, and degraded/fallback state"
+  ]
+}

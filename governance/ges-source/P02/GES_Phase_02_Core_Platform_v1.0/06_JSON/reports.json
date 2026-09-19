@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0-review",
+  "reports": [
+    {
+      "report_id": "RPT-P02-001",
+      "name": "Platform Health Summary",
+      "audience": "Executive; SRE",
+      "purpose": "Availability, latency, errors, dependencies, queue health, and incidents"
+    },
+    {
+      "report_id": "RPT-P02-002",
+      "name": "Tenant Provisioning Report",
+      "audience": "Platform Admin",
+      "purpose": "Provisioning duration, resources, validation, failures, and rollback status"
+    },
+    {
+      "report_id": "RPT-P02-003",
+      "name": "API Usage and Reliability",
+      "audience": "Engineering; Product",
+      "purpose": "Requests, latency, errors, throttling, versions, consumers, and deprecations"
+    },
+    {
+      "report_id": "RPT-P02-004",
+      "name": "Job and Workflow Performance",
+      "audience": "Operations",
+      "purpose": "Volume, duration, retries, failure, dead letters, waiting states, and SLA breaches"
+    },
+    {
+      "report_id": "RPT-P02-005",
+      "name": "File and Search Operations",
+      "audience": "Records; Product",
+      "purpose": "Uploads, scans, quarantine, storage, indexing latency, search volume, and zero-result queries"
+    },
+    {
+      "report_id": "RPT-P02-006",
+      "name": "Integration Health",
+      "audience": "Integration Admin",
+      "purpose": "Connector runs, webhook delivery, event lag, import/export results, and credential expiry"
+    },
+    {
+      "report_id": "RPT-P02-007",
+      "name": "Mobile Offline Operations",
+      "audience": "Field Operations",
+      "purpose": "Pack downloads, sync latency, rejected changes, conflicts, device risks, and expired packs"
+    },
+    {
+      "report_id": "RPT-P02-008",
+      "name": "Security and Resilience",
+      "audience": "Security; SRE",
+      "purpose": "Session risk, blocked requests, secret rotation, backup status, restore tests, and DR readiness"
+    },
+    {
+      "report_id": "RPT-P02-009",
+      "name": "AI Platform Usage",
+      "audience": "AI Governance; Finance",
+      "purpose": "Executions, models, agents, tokens, tools, cost, errors, evaluation status, and blocked actions"
+    },
+    {
+      "report_id": "RPT-P02-010",
+      "name": "Localization and Conversion Audit",
+      "audience": "Data Governance",
+      "purpose": "Unit and currency conversions, sources, precision, failures, and exception rates"
+    }
+  ]
+}

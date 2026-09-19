@@ -1,0 +1,41 @@
+entity,primary_key,purpose,scope
+AIConversation,conversation_id,Copilot conversation/session,Tenant
+AIMessage,message_id,User/assistant/tool message,Tenant
+AIContextSnapshot,context_snapshot_id,Frozen authorized AI context,Tenant
+AITask,task_id,Agent task/work unit,Tenant
+AITaskStep,task_step_id,Agent plan/delegation step,Tenant
+AIAgentDefinition,agent_definition_id,Specialized agent configuration,Platform/Tenant
+AIToolDefinition,tool_definition_id,Callable tool schema/risk/permission metadata,Platform
+AIToolCall,tool_call_id,Tool invocation record,Tenant
+AIToolResult,tool_result_id,Tool result/evidence,Tenant
+AIApprovalRequest,approval_request_id,Protected action pending human decision,Tenant
+AIApprovalDecision,approval_decision_id,Human approval/rejection evidence,Tenant
+AIEvidenceReference,evidence_reference_id,Document/sheet/page/record/source reference,Tenant
+AICitation,citation_id,User-visible citation link,Tenant
+AIConfidence,confidence_id,Confidence/uncertainty record,Tenant
+AIModel,ai_model_id,Provider/model definition,Platform
+AIModelVersion,ai_model_version_id,Version/deployment state,Platform
+AIPromptTemplate,prompt_template_id,Governed prompt/instruction template,Platform/Tenant
+AIPromptVersion,prompt_version_id,Immutable prompt version,Platform/Tenant
+AIToolPolicy,tool_policy_id,Tool permission/risk policy,Platform/Tenant
+AIModelPolicy,model_policy_id,Allowed model/provider/risk use policy,Platform/Tenant
+AIEvaluationDataset,evaluation_dataset_id,Golden/eval example dataset,Platform/Tenant
+AIEvaluationCase,evaluation_case_id,Individual test/evaluation case,Platform/Tenant
+AIEvaluationRun,evaluation_run_id,Model/prompt/tool evaluation run,Platform/Tenant
+AIEvaluationResult,evaluation_result_id,Metric/score/failure result,Platform/Tenant
+AIFeedback,feedback_id,Human acceptance/rejection/correction,Tenant
+AICalibrationRecord,calibration_record_id,Controlled calibration evidence,Platform/Tenant
+AIIncident,ai_incident_id,AI safety/reliability incident,Tenant/Platform
+AIFallbackEvent,fallback_event_id,Model/tool/provider fallback occurrence,Tenant
+AIUsageRecord,usage_record_id,Token/cost/latency usage,Tenant
+AIRiskFinding,risk_finding_id,Agent-discovered risk with evidence,Tenant
+AIConflictFinding,conflict_finding_id,Cross-source conflict candidate,Tenant
+AIMissingInfoFinding,missing_info_id,Missing/ambiguous input candidate,Tenant
+AIQuantityCandidate,quantity_candidate_id,Evidence-backed proposed quantity,Tenant
+AIServiceMapping,service_mapping_id,Suggested service/assembly mapping,Tenant
+AIEstimateSuggestion,estimate_suggestion_id,Suggested estimate input/change,Tenant
+AIEstimateReview,estimate_review_id,Estimate review output,Tenant
+AIConstructionInsight,construction_insight_id,General project/construction insight,Tenant
+AIBackgroundRun,background_run_id,Authorized asynchronous agent run,Tenant
+AITrace,ai_trace_id,End-to-end model/tool/agent trace,Tenant
+AIRelease,ai_release_id,Approved model/prompt/policy deployment package,Platform

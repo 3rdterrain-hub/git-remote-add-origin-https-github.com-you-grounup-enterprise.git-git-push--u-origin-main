@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Machine Control Job",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "project_id",
+    "record_id",
+    "model_version",
+    "localization_version",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "machine_id": {
+      "type": "string"
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "localization_version": {
+      "type": "string"
+    },
+    "crs_code": {
+      "type": "string"
+    },
+    "vertical_datum": {
+      "type": "string"
+    },
+    "unit_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "checksum": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "safety_status": {
+      "type": "string"
+    },
+    "position_quality": {
+      "type": "string"
+    }
+  }
+}

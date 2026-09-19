@@ -1,0 +1,17 @@
+flowchart LR
+ Estimate[Phase 05 Estimate] --> Schedule[Scheduling Core]
+ Projects[Phase 07 Projects] --> Schedule
+ Workforce[Phase 09 Workforce] --> Resources[Resource Planning]
+ Procurement[Phase 11 Procurement] --> Resources
+ Fleet[Phase 12 Fleet] --> Resources
+ Schedule --> Resources
+ Resources --> Level[Leveling & Capacity]
+ Schedule --> Risk[Risk / Scenarios]
+ Schedule --> Look[Look-Ahead / Last Planner]
+ Look --> Field[Field Commitments]
+ Field --> Update[Progress Update]
+ Update --> Schedule
+ Schedule --> P13[Phase 13 Analytics]
+ Schedule --> Twin[Scheduling Digital Twin]
+ AI[AI Schedule Intelligence] --> Human[Human Review]
+ Human --> Schedule

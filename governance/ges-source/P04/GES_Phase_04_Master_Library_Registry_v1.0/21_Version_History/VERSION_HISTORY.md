@@ -1,0 +1,5 @@
+# Version History
+
+| Version | Date | Status | Description |
+|---|---|---|---|
+| 1.0.0 | 2026-07-24 | Review-ready | Initial complete specification |

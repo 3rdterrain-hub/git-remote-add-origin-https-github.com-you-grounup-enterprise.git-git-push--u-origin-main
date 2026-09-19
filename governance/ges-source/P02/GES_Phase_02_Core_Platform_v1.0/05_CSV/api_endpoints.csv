@@ -1,0 +1,23 @@
+﻿API_ID,Method,Path,Purpose,Permission,Primary_Entity
+API-P02-001,POST,/v1/auth/sessions,Create authenticated session,public/identity policy,Session
+API-P02-002,DELETE,/v1/auth/sessions/{sessionId},Revoke session,session.revoke,Session
+API-P02-003,POST,/v1/authorization/decisions,Evaluate authorization,authorization.evaluate,AuthorizationDecision
+API-P02-004,POST,/v1/files/uploads,Start file upload,file.create,FileObject
+API-P02-005,POST,/v1/files/uploads/{uploadId}/complete,Finalize file version,file.create,FileVersion
+API-P02-006,GET,/v1/search,Permission-aware search,search.execute,SearchDocument
+API-P02-007,POST,/v1/notifications,Create notification,notification.send,Notification
+API-P02-008,POST,/v1/schedules,Create schedule,schedule.manage,Schedule
+API-P02-009,POST,/v1/jobs,Submit background job,job.submit,BackgroundJob
+API-P02-010,GET,/v1/jobs/{jobId},Read job progress,job.read,BackgroundJob
+API-P02-011,POST,/v1/workflows/{definitionKey}/instances,Start workflow,workflow.start,WorkflowInstance
+API-P02-012,POST,/v1/rules/{ruleKey}/evaluate,Evaluate rule,rule.execute,RuleExecution
+API-P02-013,POST,/v1/webhook-subscriptions,Create webhook subscription,webhook.manage,WebhookSubscription
+API-P02-014,POST,/v1/connectors,Create connector instance,connector.manage,ConnectorInstance
+API-P02-015,POST,/v1/imports,Create import batch,import.create,ImportBatch
+API-P02-016,POST,/v1/exports,Create export package,export.create,ExportPackage
+API-P02-017,POST,/v1/mobile/offline-packs,Build offline pack,offlinepack.create,OfflinePack
+API-P02-018,POST,/v1/mobile/sync,Submit sync transactions,sync.execute,SyncTransaction
+API-P02-019,POST,/v1/feature-flags,Create feature flag,featureflag.manage,FeatureFlag
+API-P02-020,GET,/v1/platform/health,Read platform health,platform.health.read,HealthSnapshot
+API-P02-021,POST,/v1/ai/executions,Execute registered agent,ai.execute,AIExecution
+API-P02-022,POST,/v1/ai/tools/{toolKey}/invoke,Invoke AI tool,ai.tool.invoke,AIToolInvocation

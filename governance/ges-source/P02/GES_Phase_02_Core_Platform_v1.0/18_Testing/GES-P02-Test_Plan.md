@@ -1,0 +1,64 @@
+# Phase 02 Test Plan
+
+Test suites cover functionality, tenant isolation, authorization, retries, idempotency, performance, resilience, security, offline sync, event replay, restore, API compatibility, and AI governance.
+
+- **TEST-P02-001** Authentication framework - Expected: A tenant can configure approved providers and authentication policies without code changes.
+- **TEST-P02-002** Session management - Expected: Revoked or expired sessions cannot access APIs or user interfaces.
+- **TEST-P02-003** Service identities - Expected: Every service identity has explicit owner, scope, credentials, rotation, and audit history.
+- **TEST-P02-004** Authorization service - Expected: Every decision returns allow or deny, matched policy, effective scope, and correlation ID.
+- **TEST-P02-005** Device trust - Expected: Policy can require trusted devices for sensitive actions.
+- **TEST-P02-006** Tenant context propagation - Expected: No platform service may process a governed request without verified tenant context.
+- **TEST-P02-007** Tenant data isolation - Expected: Cross-tenant access attempts are blocked, logged, and testable.
+- **TEST-P02-008** Regional data placement - Expected: Configured regional placement is visible and enforced for governed data classes.
+- **TEST-P02-009** Provisioning automation - Expected: Provisioning produces a validation report and rollback plan.
+- **TEST-P02-010** Global identifier service - Expected: Identifiers remain stable across versions, imports, exports, and integrations.
+- **TEST-P02-011** Metadata framework - Expected: Metadata is versioned, validated, permissioned, and queryable.
+- **TEST-P02-012** Universal tagging - Expected: Tags support ownership, scope, synonyms, lifecycle, and search.
+- **TEST-P02-013** File and document service - Expected: Every file version has checksum, owner, classification, retention, and access policy.
+- **TEST-P02-014** Search service - Expected: Search results never expose unauthorized records or snippets.
+- **TEST-P02-015** Notification service - Expected: Every notification has delivery status, retry, deduplication, and audit.
+- **TEST-P02-016** Scheduler service - Expected: Schedules are versioned, observable, cancellable, and protected from duplicate execution.
+- **TEST-P02-017** Background job service - Expected: Jobs support priority, retry, idempotency, progress, cancellation, dead-letter handling, and audit.
+- **TEST-P02-018** Distributed cache - Expected: Cache failure cannot corrupt source-of-truth data.
+- **TEST-P02-019** Configuration service - Expected: Services can read effective configuration and subscribe to approved changes.
+- **TEST-P02-020** Feature flag service - Expected: Feature rollout and rollback are controlled without redeployment.
+- **TEST-P02-021** Workflow engine - Expected: Workflow state survives service restart and can be inspected.
+- **TEST-P02-022** Rules engine - Expected: Rule results are reproducible, explainable, and attributable to a rule version.
+- **TEST-P02-023** State machine framework - Expected: Invalid transitions are blocked and valid transitions emit events.
+- **TEST-P02-024** Timer and SLA engine - Expected: Timer behavior remains correct across time zones and downtime.
+- **TEST-P02-025** API gateway - Expected: The gateway enforces authentication, authorization, versioning, throttling, request limits, and correlation.
+- **TEST-P02-026** API versioning - Expected: Breaking changes require a new supported version and migration notice.
+- **TEST-P02-027** Webhook service - Expected: Consumers can verify signature, replay protection, event ID, and delivery attempt.
+- **TEST-P02-028** Event bus - Expected: Events have schema, tenant, producer, timestamp, correlation, causation, and idempotency keys.
+- **TEST-P02-029** Connector framework - Expected: Connector actions are observable and independently disableable.
+- **TEST-P02-030** Import engine - Expected: No invalid row is silently accepted.
+- **TEST-P02-031** Export engine - Expected: Exports record requester, criteria, file, checksum, retention, and expiration.
+- **TEST-P02-032** Mobile application shell - Expected: The shell supports secure login, navigation, camera, location, notifications, and local storage.
+- **TEST-P02-033** Offline data packs - Expected: Offline packs are encrypted, time-limited, versioned, and revocable.
+- **TEST-P02-034** Offline transaction queue - Expected: Queued changes preserve original user, device, timestamp, and correlation.
+- **TEST-P02-035** Synchronization engine - Expected: Sync results identify applied, rejected, merged, and manual-review changes.
+- **TEST-P02-036** Attachment synchronization - Expected: Duplicate or corrupt uploads are detected.
+- **TEST-P02-037** Structured logging - Expected: Logs exclude prohibited secrets and sensitive payloads by default.
+- **TEST-P02-038** Metrics and health - Expected: Health checks distinguish startup, readiness, liveness, and degraded state.
+- **TEST-P02-039** Distributed tracing - Expected: A correlation can be followed across service boundaries.
+- **TEST-P02-040** Alerting framework - Expected: Alerts contain runbook, impact, severity, and supporting evidence.
+- **TEST-P02-041** Encryption in transit - Expected: Insecure transport is rejected except isolated approved development environments.
+- **TEST-P02-042** Encryption at rest - Expected: Key use, rotation, access, and failure are auditable.
+- **TEST-P02-043** Secrets management - Expected: Secrets are never persisted in source code, ordinary logs, or user-visible configuration.
+- **TEST-P02-044** Malware and content scanning - Expected: Unsafe content cannot be opened or distributed before disposition.
+- **TEST-P02-045** Backup and restore - Expected: Restore tests prove stated recovery point and recovery time objectives.
+- **TEST-P02-046** Disaster recovery - Expected: Recovery exercises produce evidence and corrective actions.
+- **TEST-P02-047** Rate limiting and abuse control - Expected: Controls can be scoped and do not expose cross-tenant information.
+- **TEST-P02-048** Time zone framework - Expected: Scheduling and due dates remain correct through daylight-saving transitions.
+- **TEST-P02-049** Unit framework - Expected: Every quantity stores value, unit, precision, and conversion provenance.
+- **TEST-P02-050** Currency framework - Expected: No arithmetic combines different currencies without an explicit conversion.
+- **TEST-P02-051** Language and locale - Expected: Users can select supported locale without changing stored canonical values.
+- **TEST-P02-052** Model gateway - Expected: The gateway enforces model policy, tenant context, limits, logging, redaction, and fallback.
+- **TEST-P02-053** Agent registry - Expected: Unregistered or disabled agents cannot execute.
+- **TEST-P02-054** Tool execution service - Expected: Every tool invocation records input summary, output summary, result, duration, and correlation.
+- **TEST-P02-055** Prompt and policy registry - Expected: Production execution identifies exact prompt and policy versions.
+- **TEST-P02-056** Evidence and citation service - Expected: Evidence remains resolvable to the authorized source version.
+- **TEST-P02-057** AI evaluation framework - Expected: Failed release gates prevent promotion.
+- **TEST-P02-058** AI usage and cost metering - Expected: Usage reports reconcile to gateway records.
+- **TEST-P02-059** Platform event audit - Expected: Events can be correlated to request, actor, service, object, and tenant.
+- **TEST-P02-060** Data portability - Expected: Exports are complete, traceable, and do not include unauthorized shared data.

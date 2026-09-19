@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  title: GrounUp Phase 09 Workforce API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+security:
+  - oauth2: []
+paths:
+  /workers:
+    get:
+      summary: Search workers
+      responses:
+        '200': {description: Worker collection}
+    post:
+      summary: Create worker
+      responses:
+        '201': {description: Worker created}
+  /eligibility/check:
+    post:
+      summary: Check assignment eligibility
+      responses:
+        '200': {description: Eligibility result}
+  /crew-optimizer/recommend:
+    post:
+      summary: Recommend qualified crew alternatives
+      responses:
+        '200': {description: Explainable recommendations}
+  /time-entries:
+    post:
+      summary: Create time entry
+      responses:
+        '201': {description: Time entry created}
+  /certified-payroll/generate:
+    post:
+      summary: Generate certified payroll dataset
+      responses:
+        '202': {description: Generation accepted}
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes: {}

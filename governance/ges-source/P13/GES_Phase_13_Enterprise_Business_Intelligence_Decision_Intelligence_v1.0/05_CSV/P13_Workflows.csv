@@ -1,0 +1,29 @@
+workflow_id,name,domain,states,control
+P13-WF-001,Metric Definition & Certification,Executive Command Center,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-002,Data Source Onboarding,Semantic Metrics Layer,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-003,Ingestion & Quality Gate,Operational Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-004,Semantic Model Publication,Financial Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-005,Dashboard Publication,Project Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-006,Executive Scorecard Review,Estimating Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-007,Alert Investigation,CRM & Market Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-008,Insight Review & Approval,Workforce Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-009,Forecast Production,Procurement Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-010,Scenario Planning,Fleet Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-011,Root Cause Analysis,"Safety, Quality & Compliance Analytics",Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-012,Board Pack Production,Portfolio & Program Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-013,Report Subscription,Forecasting & Scenario Planning,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-014,Self-Service Dataset Access,AI Decision Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-015,Data Quality Incident,Data Platform & Lineage,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-016,Lineage Impact Analysis,Reporting & Distribution,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-017,Cross-Phase Reconciliation,Self-Service Analytics,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-018,AI Recommendation Review,Enterprise Digital Twin,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-019,Decision Capture,Executive Command Center,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-020,Benefit Realization Review,Semantic Metrics Layer,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-021,Portfolio Health Review,Operational Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-022,Project Health Review,Financial Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-023,Estimate-to-Actual Calibration,Project Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-024,Enterprise Digital Twin Refresh,Estimating Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-025,Executive Daily Brief,CRM & Market Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-026,Quarterly Strategy Review,Workforce Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-027,KPI Threshold Change,Procurement Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required
+P13-WF-028,Analytics Release & Rollback,Fleet Intelligence,Draft > Validate > Review > Approve > Publish/Execute > Monitor > Close,Owner approval and audit evidence required

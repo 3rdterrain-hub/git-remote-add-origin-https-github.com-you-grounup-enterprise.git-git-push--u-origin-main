@@ -1,0 +1,17 @@
+control_id,name,verification,status
+P29-SEC-001,Tenant analytics isolation,"Tenant A cannot query, export, benchmark-identify or AI-retrieve Tenant B protected analytics.",Required
+P29-SEC-002,Row security,"Row-level restrictions persist through semantic queries, dashboards, reports and exports.",Required
+P29-SEC-003,Column security,Restricted fields are hidden/masked according to policy.,Required
+P29-SEC-004,Warehouse service identity,Pipelines use scoped service identities and managed credentials.,Required
+P29-SEC-005,Lake/object security,"Analytical object zones enforce encryption, tenant/purpose access and lifecycle controls.",Required
+P29-SEC-006,Export auditing,Privileged/large/sensitive exports are audited and policy controlled.,Required
+P29-SEC-007,Query audit,"Sensitive semantic/ad-hoc queries retain actor, tenant and accessed asset metadata.",Required
+P29-SEC-008,Privacy deletion,Approved deletion requests propagate to governed analytical stores or documented exceptions.,Required
+P29-SEC-009,Feature/embedding security,AI feature/embedding access cannot exceed source-record permissions/classification.,Required
+P29-SEC-010,Pipeline code security,ETL/ELT code and dependencies pass secure SDLC gates.,Required
+P29-SEC-011,Credential separation,Analytics credentials are separated by environment and privilege.,Required
+P29-SEC-012,Metadata protection,Catalog/lineage must not expose restricted field names/content beyond permissions.,Required
+P29-SEC-013,Benchmark privacy,Cross-tenant benchmark outputs satisfy minimum aggregation/privacy policy.,Required
+P29-SEC-014,Subscription delivery,Scheduled report destinations/recipients are validated and permission checked.,Required
+P29-SEC-015,Report parameter security,Report parameters cannot bypass row/tenant/column policy.,Required
+P29-SEC-016,Audit integrity,Analytics audit and certification evidence is protected from ordinary mutation.,Required

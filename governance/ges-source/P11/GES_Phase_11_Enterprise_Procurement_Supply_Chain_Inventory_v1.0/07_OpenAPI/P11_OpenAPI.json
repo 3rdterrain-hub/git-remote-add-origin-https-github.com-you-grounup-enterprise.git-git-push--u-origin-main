@@ -1,0 +1,1539 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrounUp Phase 11 Procurement API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.grounup.example"
+    }
+  ],
+  "paths": {
+    "/api/v1/suppliers": {
+      "get": {
+        "summary": "GET Suppliers",
+        "operationId": "getSuppliers",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Suppliers",
+        "operationId": "postSuppliers",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/supplier-qualifications": {
+      "get": {
+        "summary": "GET Supplier Qualifications",
+        "operationId": "getSupplierQualifications",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Supplier Qualifications",
+        "operationId": "postSupplierQualifications",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/supplier-scorecards": {
+      "get": {
+        "summary": "GET Supplier Scorecards",
+        "operationId": "getSupplierScorecards",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Supplier Scorecards",
+        "operationId": "postSupplierScorecards",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/sourcing-events": {
+      "get": {
+        "summary": "GET Sourcing Events",
+        "operationId": "getSourcingEvents",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Sourcing Events",
+        "operationId": "postSourcingEvents",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/rfqs": {
+      "get": {
+        "summary": "GET Rfqs",
+        "operationId": "getRfqs",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Rfqs",
+        "operationId": "postRfqs",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/supplier-bids": {
+      "get": {
+        "summary": "GET Supplier Bids",
+        "operationId": "getSupplierBids",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Supplier Bids",
+        "operationId": "postSupplierBids",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/awards": {
+      "get": {
+        "summary": "GET Awards",
+        "operationId": "getAwards",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Awards",
+        "operationId": "postAwards",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/requisitions": {
+      "get": {
+        "summary": "GET Requisitions",
+        "operationId": "getRequisitions",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Requisitions",
+        "operationId": "postRequisitions",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/requisition-approvals": {
+      "get": {
+        "summary": "GET Requisition Approvals",
+        "operationId": "getRequisitionApprovals",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Requisition Approvals",
+        "operationId": "postRequisitionApprovals",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/purchase-orders": {
+      "get": {
+        "summary": "GET Purchase Orders",
+        "operationId": "getPurchaseOrders",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Purchase Orders",
+        "operationId": "postPurchaseOrders",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/po-changes": {
+      "get": {
+        "summary": "GET Po Changes",
+        "operationId": "getPoChanges",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Po Changes",
+        "operationId": "postPoChanges",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/blanket-releases": {
+      "get": {
+        "summary": "GET Blanket Releases",
+        "operationId": "getBlanketReleases",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Blanket Releases",
+        "operationId": "postBlanketReleases",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/subcontract-bids": {
+      "get": {
+        "summary": "GET Subcontract Bids",
+        "operationId": "getSubcontractBids",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Subcontract Bids",
+        "operationId": "postSubcontractBids",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/subcontracts": {
+      "get": {
+        "summary": "GET Subcontracts",
+        "operationId": "getSubcontracts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Subcontracts",
+        "operationId": "postSubcontracts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/items": {
+      "get": {
+        "summary": "GET Items",
+        "operationId": "getItems",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Items",
+        "operationId": "postItems",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs": {
+      "get": {
+        "summary": "GET Catalogs",
+        "operationId": "getCatalogs",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Catalogs",
+        "operationId": "postCatalogs",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses": {
+      "get": {
+        "summary": "GET Warehouses",
+        "operationId": "getWarehouses",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Warehouses",
+        "operationId": "postWarehouses",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory-balances": {
+      "get": {
+        "summary": "GET Inventory Balances",
+        "operationId": "getInventoryBalances",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Inventory Balances",
+        "operationId": "postInventoryBalances",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory-transactions": {
+      "get": {
+        "summary": "GET Inventory Transactions",
+        "operationId": "getInventoryTransactions",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Inventory Transactions",
+        "operationId": "postInventoryTransactions",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory-transfers": {
+      "get": {
+        "summary": "GET Inventory Transfers",
+        "operationId": "getInventoryTransfers",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Inventory Transfers",
+        "operationId": "postInventoryTransfers",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/cycle-counts": {
+      "get": {
+        "summary": "GET Cycle Counts",
+        "operationId": "getCycleCounts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Cycle Counts",
+        "operationId": "postCycleCounts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/receiving-appointments": {
+      "get": {
+        "summary": "GET Receiving Appointments",
+        "operationId": "getReceivingAppointments",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Receiving Appointments",
+        "operationId": "postReceivingAppointments",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/receipts": {
+      "get": {
+        "summary": "GET Receipts",
+        "operationId": "getReceipts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Receipts",
+        "operationId": "postReceipts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/inspections": {
+      "get": {
+        "summary": "GET Inspections",
+        "operationId": "getInspections",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Inspections",
+        "operationId": "postInspections",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/returns": {
+      "get": {
+        "summary": "GET Returns",
+        "operationId": "getReturns",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Returns",
+        "operationId": "postReturns",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/deliveries": {
+      "get": {
+        "summary": "GET Deliveries",
+        "operationId": "getDeliveries",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Deliveries",
+        "operationId": "postDeliveries",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/route-plans": {
+      "get": {
+        "summary": "GET Route Plans",
+        "operationId": "getRoutePlans",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Route Plans",
+        "operationId": "postRoutePlans",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/rentals": {
+      "get": {
+        "summary": "GET Rentals",
+        "operationId": "getRentals",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Rentals",
+        "operationId": "postRentals",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/off-rent-notices": {
+      "get": {
+        "summary": "GET Off Rent Notices",
+        "operationId": "getOffRentNotices",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Off Rent Notices",
+        "operationId": "postOffRentNotices",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/three-way-matches": {
+      "get": {
+        "summary": "GET Three Way Matches",
+        "operationId": "getThreeWayMatches",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Three Way Matches",
+        "operationId": "postThreeWayMatches",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/demand-forecasts": {
+      "get": {
+        "summary": "GET Demand Forecasts",
+        "operationId": "getDemandForecasts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Demand Forecasts",
+        "operationId": "postDemandForecasts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/reorder-recommendations": {
+      "get": {
+        "summary": "GET Reorder Recommendations",
+        "operationId": "getReorderRecommendations",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Reorder Recommendations",
+        "operationId": "postReorderRecommendations",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/price-forecasts": {
+      "get": {
+        "summary": "GET Price Forecasts",
+        "operationId": "getPriceForecasts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Price Forecasts",
+        "operationId": "postPriceForecasts",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/supply-risks": {
+      "get": {
+        "summary": "GET Supply Risks",
+        "operationId": "getSupplyRisks",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Supply Risks",
+        "operationId": "postSupplyRisks",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/digital-twin": {
+      "get": {
+        "summary": "GET Digital Twin",
+        "operationId": "getDigitalTwin",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Digital Twin",
+        "operationId": "postDigitalTwin",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    },
+    "/api/v1/ai-recommendations": {
+      "get": {
+        "summary": "GET Ai Recommendations",
+        "operationId": "getAiRecommendations",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Ai Recommendations",
+        "operationId": "postAiRecommendations",
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful governed response"
+          },
+          "400": {
+            "description": "Validation failure"
+          },
+          "403": {
+            "description": "Authorization failure"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://identity.grounup.example/oauth/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}

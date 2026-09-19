@@ -1,0 +1,21 @@
+Rule_ID,Rule_Name,Rule
+AI-BR-001,Material decisions require human approval,"AI outputs may not autonomously commit estimates, contracts, purchase orders, payroll, safety closures, or customer-facing commitments unless an approved automation policy explicitly permits it."
+AI-BR-002,Source-grounded answers,Project-specific factual answers must cite authorized source records or be labeled as assumptions.
+AI-BR-003,Tenant isolation,"AI retrieval, memory, logs, embeddings, and model context must remain isolated by tenant and authorized scope."
+AI-BR-004,No silent writeback,AI may propose changes but may not alter governed master data without an auditable approval workflow.
+AI-BR-005,Confidence disclosure,"Every recommendation affecting cost, quantity, duration, safety, compliance, or risk must display confidence and uncertainty."
+AI-BR-006,Prompt versioning,"Production prompts must be versioned, tested, approved, and rollback-capable."
+AI-BR-007,Model independence,Business logic and canonical data must not be embedded exclusively in one model provider.
+AI-BR-008,Least privilege tools,Agents receive only the tools and data permissions required for their assigned task.
+AI-BR-009,Retention governance,"Conversation, prompt, embedding, audit, and feedback retention follow tenant policy and legal holds."
+AI-BR-010,White-label disclosure control,Tenant branding may customize the AI identity while retaining required legal and safety disclosures.
+AI-BR-011,High-risk escalation,Low-confidence or conflicting results must be escalated instead of presented as definitive.
+AI-BR-012,Calculation traceability,"Numeric outputs must retain inputs, formulas, units, conversions, source rates, and manual adjustments."
+AI-BR-013,Feedback separation,User feedback must not update production behavior until validated through the learning pipeline.
+AI-BR-014,Marketplace review,"Third-party agents must pass security, privacy, functional, and compatibility review before publication."
+AI-BR-015,Data minimization,Only the minimum required data may be placed into model context or external model calls.
+AI-BR-016,Sensitive-data controls,"Sensitive HR, financial, legal, medical, and identity information requires enhanced access and masking controls."
+AI-BR-017,Action confirmation,"Destructive, external, financial, contractual, or irreversible actions require explicit confirmation."
+AI-BR-018,Evaluation gate,No agent or prompt version may be promoted without passing its required evaluation suite.
+AI-BR-019,Incident containment,"AI incidents must support rapid disablement by agent, prompt, tool, model, tenant, or feature."
+AI-BR-020,Canonical writeback,Approved AI outputs write back only through canonical APIs and governed entity services.

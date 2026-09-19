@@ -1,0 +1,47 @@
+entity,primary_key,purpose,scope
+AnalyticsDataset,dataset_id,Registered analytical dataset/data product,Tenant/Platform
+DatasetVersion,dataset_version_id,Immutable dataset schema/transformation version,Tenant/Platform
+DataContract,data_contract_id,Source/target schema and compatibility contract,Tenant/Platform
+Pipeline,pipeline_id,ETL/ELT/CDC pipeline definition,Tenant/Platform
+PipelineRun,pipeline_run_id,Pipeline execution record,Tenant/Platform
+PipelineCheckpoint,checkpoint_id,CDC/batch checkpoint,Tenant/Platform
+Transformation,transformation_id,Transformation code/query/model metadata,Tenant/Platform
+TransformationVersion,transformation_version_id,Immutable transformation version,Tenant/Platform
+DataQualityRule,quality_rule_id,Data quality rule,Tenant/Platform
+DataQualityResult,quality_result_id,Quality run result,Tenant/Platform
+ReconciliationRule,reconciliation_rule_id,Source-target reconciliation rule,Tenant/Platform
+ReconciliationResult,reconciliation_result_id,Reconciliation outcome,Tenant/Platform
+FreshnessSLA,freshness_sla_id,Data freshness expectation,Tenant/Platform
+FreshnessResult,freshness_result_id,Measured freshness,Tenant/Platform
+LineageNode,lineage_node_id,Dataset/column/model/report lineage node,Tenant/Platform
+LineageEdge,lineage_edge_id,Source-to-target lineage edge,Tenant/Platform
+MetadataAsset,metadata_asset_id,Cataloged technical/business asset,Tenant/Platform
+BusinessGlossaryTerm,glossary_term_id,Certified business definition,Tenant/Platform
+SemanticModel,semantic_model_id,Business semantic model,Tenant/Platform
+SemanticModelVersion,semantic_model_version_id,Immutable semantic model version,Tenant/Platform
+MetricDefinition,metric_definition_id,Certified metric formula/grain/filter,Tenant/Platform
+MetricVersion,metric_version_id,Immutable metric version,Tenant/Platform
+DimensionDefinition,dimension_definition_id,Semantic/dimensional definition,Tenant/Platform
+MeasureDefinition,measure_definition_id,Measure expression and format,Tenant/Platform
+ReportDefinition,report_definition_id,Governed report definition,Tenant
+ReportVersion,report_version_id,Immutable report version,Tenant
+ReportRun,report_run_id,Report execution record,Tenant
+Dashboard,dashboard_id,Dashboard definition,Tenant
+DashboardVersion,dashboard_version_id,Dashboard version,Tenant
+Subscription,subscription_id,Scheduled report/dashboard delivery,Tenant
+AnalyticsQuery,analytics_query_id,Audited semantic query,Tenant
+ExportRecord,export_record_id,Controlled analytical export,Tenant
+ForecastModel,forecast_model_id,Forecast definition/driver model,Tenant/Platform
+ForecastRun,forecast_run_id,Forecast execution,Tenant
+ForecastResult,forecast_result_id,Forecast output,Tenant
+ScenarioDefinition,scenario_definition_id,Analytical scenario assumptions,Tenant
+ScenarioRun,scenario_run_id,Scenario execution,Tenant
+BenchmarkSet,benchmark_set_id,Historical/regional benchmark population,Tenant/Platform
+BenchmarkResult,benchmark_result_id,Benchmark comparison,Tenant
+FeatureDefinition,feature_definition_id,AI-ready analytical feature,Tenant/Platform
+FeatureVersion,feature_version_id,Feature transformation/version,Tenant/Platform
+FeatureSnapshot,feature_snapshot_id,Point-in-time feature set,Tenant
+EmbeddingAsset,embedding_asset_id,Embedding metadata/provenance,Tenant
+AnalyticsSecurityPolicy,analytics_security_policy_id,Row/column/tenant analytics access policy,Tenant/Platform
+AnalyticsIncident,analytics_incident_id,Data/report/pipeline incident,Tenant/Platform
+AnalyticsAuditEvent,analytics_audit_event_id,Analytics access/change/export audit,Tenant/Platform

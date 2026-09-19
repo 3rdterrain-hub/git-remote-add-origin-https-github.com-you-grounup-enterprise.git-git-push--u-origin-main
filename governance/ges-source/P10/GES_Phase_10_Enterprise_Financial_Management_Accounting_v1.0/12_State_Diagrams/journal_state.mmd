@@ -1,0 +1,9 @@
+stateDiagram-v2
+[*] --> Draft
+Draft --> Submitted
+Submitted --> Approved
+Submitted --> Rejected
+Rejected --> Draft
+Approved --> Posted
+Posted --> Reversed
+Reversed --> [*]

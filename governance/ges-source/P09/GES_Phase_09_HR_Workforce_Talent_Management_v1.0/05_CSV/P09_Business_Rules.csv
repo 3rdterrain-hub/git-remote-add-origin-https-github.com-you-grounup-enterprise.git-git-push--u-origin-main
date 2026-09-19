@@ -1,0 +1,21 @@
+Rule ID,Domain,Rule,Enforcement,Status
+GES-P09-BR-001,Workforce Planning,Worker assignment requires active employment and all mandatory credentials.,Mandatory,Active
+GES-P09-BR-002,Recruiting and ATS,Crew assignments shall not overlap unless the assignment type explicitly permits overlap.,Mandatory,Active
+GES-P09-BR-003,Onboarding,Union classification and agreement rules shall be resolved using work location and effective date.,Mandatory,Active
+GES-P09-BR-004,Employee Master,"Prevailing wage decisions shall retain the determination source, version and calculation evidence.",Mandatory,Active
+GES-P09-BR-005,Skills and Competencies,"Certified payroll output shall reconcile approved time, classifications, rates, fringes and deductions.",Mandatory,Active
+GES-P09-BR-006,Crew Management,"No AI recommendation may directly hire, terminate, discipline or change compensation without authorized human approval.",Mandatory,Active
+GES-P09-BR-007,Time and Attendance,Geolocation shall be collected only under approved tenant policy and disclosed worker consent rules.,Mandatory,Active
+GES-P09-BR-008,Workforce Scheduling,Sensitive HR data shall be restricted by least privilege and field-level security.,Mandatory,Active
+GES-P09-BR-009,Compensation and Payroll Integration,"Time entries shall retain original, edited and approved values with actor and timestamp.",Mandatory,Active
+GES-P09-BR-010,Union and Labor Agreements,Credential expiration shall automatically affect eligibility according to configurable grace rules.,Mandatory,Active
+GES-P09-BR-011,Prevailing Wage and Certified Payroll,Fatigue risk shall be advisory unless a configured safety threshold requires escalation.,Mandatory,Active
+GES-P09-BR-012,Training and LMS,Performance decisions shall distinguish objective project evidence from manager commentary.,Mandatory,Active
+GES-P09-BR-013,Licenses and Certifications,Candidate records shall follow configurable retention and disposition requirements.,Mandatory,Active
+GES-P09-BR-014,Safety and Health Integration,Worker digital twin snapshots shall be versioned and reproducible from source evidence.,Mandatory,Active
+GES-P09-BR-015,Leave and Absence,Payroll exports shall be immutable after transmission; corrections require adjustment batches.,Mandatory,Active
+GES-P09-BR-016,Performance Management,"Leave approvals shall evaluate available balance, staffing impact and applicable policy.",Mandatory,Active
+GES-P09-BR-017,Career and Succession,Equipment qualification shall be model/asset-class specific where required by tenant policy.,Mandatory,Active
+GES-P09-BR-018,Employee and Manager Self-Service,"Union dispatch requests shall preserve referral sequence, response and acceptance evidence.",Mandatory,Active
+GES-P09-BR-019,Workforce Digital Twin,Cross-tenant workforce records shall never be visible without explicit authorized shared-service configuration.,Mandatory,Active
+GES-P09-BR-020,AI Workforce Intelligence,Every workforce state transition shall create an audit event.,Mandatory,Active

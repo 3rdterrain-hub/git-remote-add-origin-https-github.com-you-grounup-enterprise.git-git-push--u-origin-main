@@ -1,0 +1,25 @@
+# Phase 01 Canonical Entity Definitions
+
+- **ENT-P01-001 Tenant:** Top-level security and commercial boundary
+- **ENT-P01-002 OrganizationUnit:** Hierarchical company, office, department, or division
+- **ENT-P01-003 UserIdentity:** Human or service identity
+- **ENT-P01-004 Role:** Named collection of permission grants
+- **ENT-P01-005 Permission:** Atomic allowed action
+- **ENT-P01-006 RoleAssignment:** Assignment of role to identity and scope
+- **ENT-P01-007 Policy:** Governed policy identity
+- **ENT-P01-008 PolicyVersion:** Versioned policy content and applicability
+- **ENT-P01-009 PolicyAcknowledgment:** User acknowledgment evidence
+- **ENT-P01-010 ConfigurationDefinition:** Definition of a configurable key
+- **ENT-P01-011 ConfigurationValue:** Value at a particular scope and time
+- **ENT-P01-012 ApprovalPolicy:** Rules for approval routing
+- **ENT-P01-013 ApprovalRequest:** Instance requiring governed decision
+- **ENT-P01-014 ApprovalDecision:** Immutable approval action
+- **ENT-P01-015 Delegation:** Temporary authority delegation
+- **ENT-P01-016 AuditEvent:** Immutable governance event
+- **ENT-P01-017 DataClassification:** Governed classification and handling rules
+- **ENT-P01-018 RetentionSchedule:** Retention trigger and duration by record class
+- **ENT-P01-019 LegalHold:** Matter-based preservation requirement
+- **ENT-P01-020 ChangeRequest:** Controlled change to locked or governed artifacts
+- **ENT-P01-021 EmergencyAccessGrant:** Time-limited elevated access
+- **ENT-P01-022 Entitlement:** Tenant capability entitlement
+- **ENT-P01-023 AdministrativeCase:** Governance exception or review case

@@ -1,0 +1,101 @@
+{
+  "phase": "14",
+  "name": "Enterprise HSE, Safety, Environmental, Quality & Compliance Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Safety Management",
+      "purpose": "Safety plans, observations, hazards, controls, inspections and field safety execution."
+    },
+    {
+      "name": "Incident & Near-Miss Management",
+      "purpose": "Incident intake, classification, investigation, root cause, corrective actions and regulatory readiness."
+    },
+    {
+      "name": "JHA/JSA & Pre-Task Planning",
+      "purpose": "Job hazard analysis, daily pre-task plans, crew acknowledgement and changing-condition controls."
+    },
+    {
+      "name": "Permits to Work",
+      "purpose": "Confined space, hot work, excavation, lifting, electrical and other controlled-work permits."
+    },
+    {
+      "name": "Training & Competency",
+      "purpose": "Required training, toolbox talks, qualifications, expirations and competency verification."
+    },
+    {
+      "name": "Environmental Management",
+      "purpose": "Environmental plans, inspections, spills, stormwater, erosion control, waste and permit obligations."
+    },
+    {
+      "name": "Quality Management",
+      "purpose": "Inspection/test plans, hold points, NCRs, punch items, corrective action and quality records."
+    },
+    {
+      "name": "Compliance & Regulatory",
+      "purpose": "Regulatory obligations, inspections, evidence, deadlines, citations and compliance calendars."
+    },
+    {
+      "name": "Industrial Hygiene",
+      "purpose": "Exposure assessments, monitoring, PPE programs, respiratory/hearing controls and occupational hygiene."
+    },
+    {
+      "name": "Emergency Management",
+      "purpose": "Emergency action plans, drills, contacts, response roles and post-event review."
+    },
+    {
+      "name": "Subcontractor HSEQ",
+      "purpose": "Prequalification, orientation, compliance, observations, incidents and performance scorecards."
+    },
+    {
+      "name": "Equipment & Fleet Safety",
+      "purpose": "Daily inspections, lockout/tagout interfaces, operator authorization and equipment safety controls."
+    },
+    {
+      "name": "Public & Traffic Safety",
+      "purpose": "MOT/traffic control, public protection, pedestrian interfaces and site-access safety."
+    },
+    {
+      "name": "Corrective & Preventive Action",
+      "purpose": "CAPA ownership, due dates, verification, recurrence monitoring and effectiveness review."
+    },
+    {
+      "name": "Audit & Assurance",
+      "purpose": "Internal audits, field audits, management reviews, findings, evidence and closure."
+    },
+    {
+      "name": "HSEQ Analytics",
+      "purpose": "Leading/lagging indicators, trends, risk heat maps, recurrence, quality and environmental performance."
+    },
+    {
+      "name": "AI HSEQ Intelligence",
+      "purpose": "Evidence-grounded assistance for hazard recognition, classification, trend analysis and recommendations."
+    },
+    {
+      "name": "HSEQ Digital Twin",
+      "purpose": "Current safety, environmental, quality and compliance state linked to projects, crews, assets and locations."
+    }
+  ],
+  "counts": {
+    "requirements": 320,
+    "entities": 145,
+    "fields": 219,
+    "business_rules": 60,
+    "validation_rules": 60,
+    "workflows": 35,
+    "engines": 40,
+    "api_resources": 50,
+    "ui_surfaces": 35,
+    "reports": 30,
+    "kpis": 45,
+    "tests": 320
+  },
+  "critical_governance": [
+    "Stop-work authority cannot be overridden by AI",
+    "Competent/qualified-person controls remain human-authoritative",
+    "Quality hold points require authorized release",
+    "Regulatory classifications and notifications require governed review",
+    "AI recommendations require evidence, confidence and human approval for consequential action"
+  ]
+}

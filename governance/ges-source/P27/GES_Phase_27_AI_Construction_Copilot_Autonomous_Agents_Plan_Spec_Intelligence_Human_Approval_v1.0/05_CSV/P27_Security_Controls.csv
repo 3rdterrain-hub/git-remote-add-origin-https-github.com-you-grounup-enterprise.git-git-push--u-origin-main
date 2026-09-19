@@ -1,0 +1,15 @@
+control_id,name,verification,status
+P27-SEC-001,Prompt/tool tenant isolation,"Cross-tenant context must never enter prompts, retrieval results, tool arguments or agent memory.",Required
+P27-SEC-002,Tool allowlist,Agents may call only explicitly registered tools permitted by policy and actor scope.,Required
+P27-SEC-003,High-risk approval,Protected write/approve/send/export actions require configured human approval.,Required
+P27-SEC-004,Prompt injection,Retrieved documents/webhook/tool outputs cannot modify system/tool/security policy.,Required
+P27-SEC-005,Sensitive redaction,Secrets and restricted data are filtered/redacted before model transmission according to policy.,Required
+P27-SEC-006,Provider policy,Only approved providers/models may process each data classification/risk class.,Required
+P27-SEC-007,Evidence permission,Citations cannot expose documents/records the user lacks permission to open.,Required
+P27-SEC-008,AI audit,"Model, prompt, tool, actor, tenant, input evidence, output and approval traces are auditable for consequential tasks.",Required
+P27-SEC-009,Background-agent scope,"Autonomous runs use bounded service identity/actor authority, expiry and task scope.",Required
+P27-SEC-010,Memory retention,Conversation/agent memory follows configured retention and deletion rules.,Required
+P27-SEC-011,AI incident kill switch,High-risk AI capability/model/tool can be disabled quickly by authorized operators.,Required
+P27-SEC-012,Model supply chain,"Model/prompt/tool releases are versioned, reviewed and integrity tracked.",Required
+P27-SEC-013,No training leakage,Tenant data is not reused for external/provider training unless an explicit approved policy allows it.,Required
+P27-SEC-014,Output encoding,AI-generated content used in UI/API/file contexts is safely encoded/validated before execution/rendering.,Required

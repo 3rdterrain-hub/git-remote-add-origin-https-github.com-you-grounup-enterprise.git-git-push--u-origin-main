@@ -1,0 +1,181 @@
+{
+  "phase": "19",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "6f684945017b2cb3b6e67d2359059b24bfc40339c864209c924e78cef0c02c58",
+      "bytes": 1223
+    },
+    {
+      "path": "02_Word/GES-P19-001-Contract_Change_Order_Claims_Commercial_Management.docx",
+      "sha256": "035742cef1421a75948a273129b27bd8ec52d5316f1b86d400e8b59dc82f9131",
+      "bytes": 42041
+    },
+    {
+      "path": "03_PDF/GES-P19-001-Contract_Change_Order_Claims_Commercial_Management.pdf",
+      "sha256": "f7b56feed5cea3142570f60e8016fb047d406bd7d182b278ec9a2ff2ec150b51",
+      "bytes": 137725
+    },
+    {
+      "path": "04_Excel/GES-P19-001-Contract_Change_Order_Claims_Commercial_Management_Control_Workbook.xlsx",
+      "sha256": "f781828f4209d246233d10cbbeca1060618b07517279a28b9ac9de0b9a94be9e",
+      "bytes": 95344
+    },
+    {
+      "path": "05_CSV/P19_API_Endpoints.csv",
+      "sha256": "38687763dd2de489cd77a5992cc39e5e7718b95391d4a31bff6a702f46c9a4e9",
+      "bytes": 11216
+    },
+    {
+      "path": "05_CSV/P19_Business_Rules.csv",
+      "sha256": "a9663e03402a92ff7d8d7f2104c83be27fbad258dce1fd4140d61d000e568ce3",
+      "bytes": 21142
+    },
+    {
+      "path": "05_CSV/P19_Data_Dictionary.csv",
+      "sha256": "c1f0a5afa38d79e00a88024957ecb51b45e3cd48915ebb19bfca0e971df6949d",
+      "bytes": 81427
+    },
+    {
+      "path": "05_CSV/P19_Engines.csv",
+      "sha256": "8dcfaced8516afd42f743a1d5c5b94d90fef44bc9e7e442d85376b00b0a8b764",
+      "bytes": 16572
+    },
+    {
+      "path": "05_CSV/P19_Entities.csv",
+      "sha256": "614ee71b30ac8d70db90794e48a8813a14ca6235bd87b31e1eae682897c754e0",
+      "bytes": 40806
+    },
+    {
+      "path": "05_CSV/P19_KPIs.csv",
+      "sha256": "8c8da397ad055cc5c9e8a66918a180be2f2c6dcd065da87e76993c4ad0cca232",
+      "bytes": 11132
+    },
+    {
+      "path": "05_CSV/P19_Reports.csv",
+      "sha256": "e682affed3974cf1e523cddf4a89be3833d7d91d072e9093afb3259fc44aecc5",
+      "bytes": 8851
+    },
+    {
+      "path": "05_CSV/P19_Requirements.csv",
+      "sha256": "18349717249ab5cd32e00ce65cb732f8393bd9cb984987c50dc6df8dfcb7ce87",
+      "bytes": 192344
+    },
+    {
+      "path": "05_CSV/P19_Test_Cases.csv",
+      "sha256": "b79076751f0e74d31a5c837e15efc8f3c61bd8a0bd5e68203f1fbdfcbef8ce95",
+      "bytes": 140127
+    },
+    {
+      "path": "05_CSV/P19_Traceability.csv",
+      "sha256": "0d8f0397e8429b189c4e8d838c8e8b377bfd6cd36db06b814ec24624adaea1cc",
+      "bytes": 28194
+    },
+    {
+      "path": "05_CSV/P19_UI_Surfaces.csv",
+      "sha256": "5a0e26a785cdbf6b2e3da6f6d2a62aa6c2cfc446ba45aff64a1d96f3a0146880",
+      "bytes": 10307
+    },
+    {
+      "path": "05_CSV/P19_Validation_Rules.csv",
+      "sha256": "6310b094e9adf76f9f3ec82a4538582c7feb36c18b8f298a4d92b6054f3cbeea",
+      "bytes": 21794
+    },
+    {
+      "path": "05_CSV/P19_Workflows.csv",
+      "sha256": "ae72af6c2ad4f900eaab361df011b30f3e0f89295ae93aa7d88a7f23c63145b5",
+      "bytes": 12493
+    },
+    {
+      "path": "06_JSON/P19_Change_Order.schema.json",
+      "sha256": "0e8e8686a1e4981253ebf03f652c2dec5842d26447272507097f264a30e8067d",
+      "bytes": 850
+    },
+    {
+      "path": "06_JSON/P19_Master_Specification.json",
+      "sha256": "da33628a20f9319852de306e241e0a9827340ec61ab39d40c62b40c3fb5d2381",
+      "bytes": 6333
+    },
+    {
+      "path": "07_OpenAPI/P19_OpenAPI.json",
+      "sha256": "4e4adb4c387ade96c30c680571c2a063d45ed14b10cc104d32469f96a54a5910",
+      "bytes": 25661
+    },
+    {
+      "path": "08_Diagrams/P19_Change_Order_Workflow.mmd",
+      "sha256": "882511f587f7bb9d301c645af67ff987a1fc7388fb29adc24289b730aa08f039",
+      "bytes": 331
+    },
+    {
+      "path": "08_Diagrams/P19_Commercial_Architecture.mmd",
+      "sha256": "9be617b69fabaf248edfb07406802faab036ccc773a5d7bcf623b73e600d85d0",
+      "bytes": 608
+    },
+    {
+      "path": "09_Business_Rules/P19_Business_Rules.csv",
+      "sha256": "a9663e03402a92ff7d8d7f2104c83be27fbad258dce1fd4140d61d000e568ce3",
+      "bytes": 21142
+    },
+    {
+      "path": "10_Validation_Rules/P19_Validation_Rules.csv",
+      "sha256": "6310b094e9adf76f9f3ec82a4538582c7feb36c18b8f298a4d92b6054f3cbeea",
+      "bytes": 21794
+    },
+    {
+      "path": "11_Data_Dictionary/P19_Data_Dictionary.csv",
+      "sha256": "c1f0a5afa38d79e00a88024957ecb51b45e3cd48915ebb19bfca0e971df6949d",
+      "bytes": 81427
+    },
+    {
+      "path": "12_Entities/P19_Entities.csv",
+      "sha256": "614ee71b30ac8d70db90794e48a8813a14ca6235bd87b31e1eae682897c754e0",
+      "bytes": 40806
+    },
+    {
+      "path": "13_Workflows/P19_Workflows.csv",
+      "sha256": "ae72af6c2ad4f900eaab361df011b30f3e0f89295ae93aa7d88a7f23c63145b5",
+      "bytes": 12493
+    },
+    {
+      "path": "14_AI/P19_Engines.csv",
+      "sha256": "8dcfaced8516afd42f743a1d5c5b94d90fef44bc9e7e442d85376b00b0a8b764",
+      "bytes": 16572
+    },
+    {
+      "path": "15_APIs/P19_API_Endpoints.csv",
+      "sha256": "38687763dd2de489cd77a5992cc39e5e7718b95391d4a31bff6a702f46c9a4e9",
+      "bytes": 11216
+    },
+    {
+      "path": "16_UI_UX/P19_UI_Surfaces.csv",
+      "sha256": "5a0e26a785cdbf6b2e3da6f6d2a62aa6c2cfc446ba45aff64a1d96f3a0146880",
+      "bytes": 10307
+    },
+    {
+      "path": "17_Reports/P19_Reports.csv",
+      "sha256": "e682affed3974cf1e523cddf4a89be3833d7d91d072e9093afb3259fc44aecc5",
+      "bytes": 8851
+    },
+    {
+      "path": "18_Testing/P19_Test_Cases.csv",
+      "sha256": "b79076751f0e74d31a5c837e15efc8f3c61bd8a0bd5e68203f1fbdfcbef8ce95",
+      "bytes": 140127
+    },
+    {
+      "path": "19_Traceability/P19_Traceability.csv",
+      "sha256": "0d8f0397e8429b189c4e8d838c8e8b377bfd6cd36db06b814ec24624adaea1cc",
+      "bytes": 28194
+    },
+    {
+      "path": "20_Deployment/P19_Deployment_Guide.md",
+      "sha256": "76906c12e77b152935567fd68341e84cc9c0bdeee818d2e72146f2fdbb7af52c",
+      "bytes": 1308
+    },
+    {
+      "path": "21_Approvals/P19_Approval_Record.md",
+      "sha256": "bde68454af79751a316ffc8bf205984fcc70799cbe051aba335d16bbf53749a5",
+      "bytes": 344
+    }
+  ]
+}

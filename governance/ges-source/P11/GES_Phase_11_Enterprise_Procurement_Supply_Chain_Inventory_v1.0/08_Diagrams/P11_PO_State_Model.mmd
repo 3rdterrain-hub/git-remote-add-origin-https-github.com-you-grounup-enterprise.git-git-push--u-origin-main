@@ -1,0 +1,10 @@
+stateDiagram-v2
+[*] --> Draft
+Draft --> PendingApproval
+PendingApproval --> Approved
+PendingApproval --> Rejected
+Approved --> Issued
+Issued --> PartiallyReceived
+PartiallyReceived --> FullyReceived
+FullyReceived --> Closed
+Issued --> Cancelled

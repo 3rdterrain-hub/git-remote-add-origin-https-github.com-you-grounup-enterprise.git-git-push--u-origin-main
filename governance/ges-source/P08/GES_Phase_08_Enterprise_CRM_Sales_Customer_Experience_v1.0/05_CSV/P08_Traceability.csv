@@ -1,0 +1,181 @@
+Requirement ID,Module,Capability,Test ID,Execution Status,Approval Status
+GES-P08-REQ-001,CRM Foundation,Core Records,GES-P08-TST-001,Not Executed,Approval Pending
+GES-P08-REQ-002,CRM Foundation,Configuration,GES-P08-TST-002,Not Executed,Approval Pending
+GES-P08-REQ-003,CRM Foundation,Audit,GES-P08-TST-003,Not Executed,Approval Pending
+GES-P08-REQ-004,CRM Foundation,Integration,GES-P08-TST-004,Not Executed,Approval Pending
+GES-P08-REQ-005,CRM Foundation,Automation,GES-P08-TST-005,Not Executed,Approval Pending
+GES-P08-REQ-006,CRM Foundation,AI Assistance,GES-P08-TST-006,Not Executed,Approval Pending
+GES-P08-REQ-007,CRM Foundation,Experience,GES-P08-TST-007,Not Executed,Approval Pending
+GES-P08-REQ-008,CRM Foundation,Reporting,GES-P08-TST-008,Not Executed,Approval Pending
+GES-P08-REQ-009,CRM Foundation,Security,GES-P08-TST-009,Not Executed,Approval Pending
+GES-P08-REQ-010,Lead Capture & Attribution,Core Records,GES-P08-TST-010,Not Executed,Approval Pending
+GES-P08-REQ-011,Lead Capture & Attribution,Configuration,GES-P08-TST-011,Not Executed,Approval Pending
+GES-P08-REQ-012,Lead Capture & Attribution,Audit,GES-P08-TST-012,Not Executed,Approval Pending
+GES-P08-REQ-013,Lead Capture & Attribution,Integration,GES-P08-TST-013,Not Executed,Approval Pending
+GES-P08-REQ-014,Lead Capture & Attribution,Automation,GES-P08-TST-014,Not Executed,Approval Pending
+GES-P08-REQ-015,Lead Capture & Attribution,AI Assistance,GES-P08-TST-015,Not Executed,Approval Pending
+GES-P08-REQ-016,Lead Capture & Attribution,Experience,GES-P08-TST-016,Not Executed,Approval Pending
+GES-P08-REQ-017,Lead Capture & Attribution,Reporting,GES-P08-TST-017,Not Executed,Approval Pending
+GES-P08-REQ-018,Lead Capture & Attribution,Security,GES-P08-TST-018,Not Executed,Approval Pending
+GES-P08-REQ-019,Qualification & Scoring,Core Records,GES-P08-TST-019,Not Executed,Approval Pending
+GES-P08-REQ-020,Qualification & Scoring,Configuration,GES-P08-TST-020,Not Executed,Approval Pending
+GES-P08-REQ-021,Qualification & Scoring,Audit,GES-P08-TST-021,Not Executed,Approval Pending
+GES-P08-REQ-022,Qualification & Scoring,Integration,GES-P08-TST-022,Not Executed,Approval Pending
+GES-P08-REQ-023,Qualification & Scoring,Automation,GES-P08-TST-023,Not Executed,Approval Pending
+GES-P08-REQ-024,Qualification & Scoring,AI Assistance,GES-P08-TST-024,Not Executed,Approval Pending
+GES-P08-REQ-025,Qualification & Scoring,Experience,GES-P08-TST-025,Not Executed,Approval Pending
+GES-P08-REQ-026,Qualification & Scoring,Reporting,GES-P08-TST-026,Not Executed,Approval Pending
+GES-P08-REQ-027,Qualification & Scoring,Security,GES-P08-TST-027,Not Executed,Approval Pending
+GES-P08-REQ-028,Account & Contact 360,Core Records,GES-P08-TST-028,Not Executed,Approval Pending
+GES-P08-REQ-029,Account & Contact 360,Configuration,GES-P08-TST-029,Not Executed,Approval Pending
+GES-P08-REQ-030,Account & Contact 360,Audit,GES-P08-TST-030,Not Executed,Approval Pending
+GES-P08-REQ-031,Account & Contact 360,Integration,GES-P08-TST-031,Not Executed,Approval Pending
+GES-P08-REQ-032,Account & Contact 360,Automation,GES-P08-TST-032,Not Executed,Approval Pending
+GES-P08-REQ-033,Account & Contact 360,AI Assistance,GES-P08-TST-033,Not Executed,Approval Pending
+GES-P08-REQ-034,Account & Contact 360,Experience,GES-P08-TST-034,Not Executed,Approval Pending
+GES-P08-REQ-035,Account & Contact 360,Reporting,GES-P08-TST-035,Not Executed,Approval Pending
+GES-P08-REQ-036,Account & Contact 360,Security,GES-P08-TST-036,Not Executed,Approval Pending
+GES-P08-REQ-037,Opportunity & Pipeline,Core Records,GES-P08-TST-037,Not Executed,Approval Pending
+GES-P08-REQ-038,Opportunity & Pipeline,Configuration,GES-P08-TST-038,Not Executed,Approval Pending
+GES-P08-REQ-039,Opportunity & Pipeline,Audit,GES-P08-TST-039,Not Executed,Approval Pending
+GES-P08-REQ-040,Opportunity & Pipeline,Integration,GES-P08-TST-040,Not Executed,Approval Pending
+GES-P08-REQ-041,Opportunity & Pipeline,Automation,GES-P08-TST-041,Not Executed,Approval Pending
+GES-P08-REQ-042,Opportunity & Pipeline,AI Assistance,GES-P08-TST-042,Not Executed,Approval Pending
+GES-P08-REQ-043,Opportunity & Pipeline,Experience,GES-P08-TST-043,Not Executed,Approval Pending
+GES-P08-REQ-044,Opportunity & Pipeline,Reporting,GES-P08-TST-044,Not Executed,Approval Pending
+GES-P08-REQ-045,Opportunity & Pipeline,Security,GES-P08-TST-045,Not Executed,Approval Pending
+GES-P08-REQ-046,Site Visit & Discovery,Core Records,GES-P08-TST-046,Not Executed,Approval Pending
+GES-P08-REQ-047,Site Visit & Discovery,Configuration,GES-P08-TST-047,Not Executed,Approval Pending
+GES-P08-REQ-048,Site Visit & Discovery,Audit,GES-P08-TST-048,Not Executed,Approval Pending
+GES-P08-REQ-049,Site Visit & Discovery,Integration,GES-P08-TST-049,Not Executed,Approval Pending
+GES-P08-REQ-050,Site Visit & Discovery,Automation,GES-P08-TST-050,Not Executed,Approval Pending
+GES-P08-REQ-051,Site Visit & Discovery,AI Assistance,GES-P08-TST-051,Not Executed,Approval Pending
+GES-P08-REQ-052,Site Visit & Discovery,Experience,GES-P08-TST-052,Not Executed,Approval Pending
+GES-P08-REQ-053,Site Visit & Discovery,Reporting,GES-P08-TST-053,Not Executed,Approval Pending
+GES-P08-REQ-054,Site Visit & Discovery,Security,GES-P08-TST-054,Not Executed,Approval Pending
+GES-P08-REQ-055,Estimate Integration,Core Records,GES-P08-TST-055,Not Executed,Approval Pending
+GES-P08-REQ-056,Estimate Integration,Configuration,GES-P08-TST-056,Not Executed,Approval Pending
+GES-P08-REQ-057,Estimate Integration,Audit,GES-P08-TST-057,Not Executed,Approval Pending
+GES-P08-REQ-058,Estimate Integration,Integration,GES-P08-TST-058,Not Executed,Approval Pending
+GES-P08-REQ-059,Estimate Integration,Automation,GES-P08-TST-059,Not Executed,Approval Pending
+GES-P08-REQ-060,Estimate Integration,AI Assistance,GES-P08-TST-060,Not Executed,Approval Pending
+GES-P08-REQ-061,Estimate Integration,Experience,GES-P08-TST-061,Not Executed,Approval Pending
+GES-P08-REQ-062,Estimate Integration,Reporting,GES-P08-TST-062,Not Executed,Approval Pending
+GES-P08-REQ-063,Estimate Integration,Security,GES-P08-TST-063,Not Executed,Approval Pending
+GES-P08-REQ-064,Proposal & E-Signature,Core Records,GES-P08-TST-064,Not Executed,Approval Pending
+GES-P08-REQ-065,Proposal & E-Signature,Configuration,GES-P08-TST-065,Not Executed,Approval Pending
+GES-P08-REQ-066,Proposal & E-Signature,Audit,GES-P08-TST-066,Not Executed,Approval Pending
+GES-P08-REQ-067,Proposal & E-Signature,Integration,GES-P08-TST-067,Not Executed,Approval Pending
+GES-P08-REQ-068,Proposal & E-Signature,Automation,GES-P08-TST-068,Not Executed,Approval Pending
+GES-P08-REQ-069,Proposal & E-Signature,AI Assistance,GES-P08-TST-069,Not Executed,Approval Pending
+GES-P08-REQ-070,Proposal & E-Signature,Experience,GES-P08-TST-070,Not Executed,Approval Pending
+GES-P08-REQ-071,Proposal & E-Signature,Reporting,GES-P08-TST-071,Not Executed,Approval Pending
+GES-P08-REQ-072,Proposal & E-Signature,Security,GES-P08-TST-072,Not Executed,Approval Pending
+GES-P08-REQ-073,Contract Handoff,Core Records,GES-P08-TST-073,Not Executed,Approval Pending
+GES-P08-REQ-074,Contract Handoff,Configuration,GES-P08-TST-074,Not Executed,Approval Pending
+GES-P08-REQ-075,Contract Handoff,Audit,GES-P08-TST-075,Not Executed,Approval Pending
+GES-P08-REQ-076,Contract Handoff,Integration,GES-P08-TST-076,Not Executed,Approval Pending
+GES-P08-REQ-077,Contract Handoff,Automation,GES-P08-TST-077,Not Executed,Approval Pending
+GES-P08-REQ-078,Contract Handoff,AI Assistance,GES-P08-TST-078,Not Executed,Approval Pending
+GES-P08-REQ-079,Contract Handoff,Experience,GES-P08-TST-079,Not Executed,Approval Pending
+GES-P08-REQ-080,Contract Handoff,Reporting,GES-P08-TST-080,Not Executed,Approval Pending
+GES-P08-REQ-081,Contract Handoff,Security,GES-P08-TST-081,Not Executed,Approval Pending
+GES-P08-REQ-082,Marketing Automation,Core Records,GES-P08-TST-082,Not Executed,Approval Pending
+GES-P08-REQ-083,Marketing Automation,Configuration,GES-P08-TST-083,Not Executed,Approval Pending
+GES-P08-REQ-084,Marketing Automation,Audit,GES-P08-TST-084,Not Executed,Approval Pending
+GES-P08-REQ-085,Marketing Automation,Integration,GES-P08-TST-085,Not Executed,Approval Pending
+GES-P08-REQ-086,Marketing Automation,Automation,GES-P08-TST-086,Not Executed,Approval Pending
+GES-P08-REQ-087,Marketing Automation,AI Assistance,GES-P08-TST-087,Not Executed,Approval Pending
+GES-P08-REQ-088,Marketing Automation,Experience,GES-P08-TST-088,Not Executed,Approval Pending
+GES-P08-REQ-089,Marketing Automation,Reporting,GES-P08-TST-089,Not Executed,Approval Pending
+GES-P08-REQ-090,Marketing Automation,Security,GES-P08-TST-090,Not Executed,Approval Pending
+GES-P08-REQ-091,Communication Center,Core Records,GES-P08-TST-091,Not Executed,Approval Pending
+GES-P08-REQ-092,Communication Center,Configuration,GES-P08-TST-092,Not Executed,Approval Pending
+GES-P08-REQ-093,Communication Center,Audit,GES-P08-TST-093,Not Executed,Approval Pending
+GES-P08-REQ-094,Communication Center,Integration,GES-P08-TST-094,Not Executed,Approval Pending
+GES-P08-REQ-095,Communication Center,Automation,GES-P08-TST-095,Not Executed,Approval Pending
+GES-P08-REQ-096,Communication Center,AI Assistance,GES-P08-TST-096,Not Executed,Approval Pending
+GES-P08-REQ-097,Communication Center,Experience,GES-P08-TST-097,Not Executed,Approval Pending
+GES-P08-REQ-098,Communication Center,Reporting,GES-P08-TST-098,Not Executed,Approval Pending
+GES-P08-REQ-099,Communication Center,Security,GES-P08-TST-099,Not Executed,Approval Pending
+GES-P08-REQ-100,Customer Portal,Core Records,GES-P08-TST-100,Not Executed,Approval Pending
+GES-P08-REQ-101,Customer Portal,Configuration,GES-P08-TST-101,Not Executed,Approval Pending
+GES-P08-REQ-102,Customer Portal,Audit,GES-P08-TST-102,Not Executed,Approval Pending
+GES-P08-REQ-103,Customer Portal,Integration,GES-P08-TST-103,Not Executed,Approval Pending
+GES-P08-REQ-104,Customer Portal,Automation,GES-P08-TST-104,Not Executed,Approval Pending
+GES-P08-REQ-105,Customer Portal,AI Assistance,GES-P08-TST-105,Not Executed,Approval Pending
+GES-P08-REQ-106,Customer Portal,Experience,GES-P08-TST-106,Not Executed,Approval Pending
+GES-P08-REQ-107,Customer Portal,Reporting,GES-P08-TST-107,Not Executed,Approval Pending
+GES-P08-REQ-108,Customer Portal,Security,GES-P08-TST-108,Not Executed,Approval Pending
+GES-P08-REQ-109,Customer Success,Core Records,GES-P08-TST-109,Not Executed,Approval Pending
+GES-P08-REQ-110,Customer Success,Configuration,GES-P08-TST-110,Not Executed,Approval Pending
+GES-P08-REQ-111,Customer Success,Audit,GES-P08-TST-111,Not Executed,Approval Pending
+GES-P08-REQ-112,Customer Success,Integration,GES-P08-TST-112,Not Executed,Approval Pending
+GES-P08-REQ-113,Customer Success,Automation,GES-P08-TST-113,Not Executed,Approval Pending
+GES-P08-REQ-114,Customer Success,AI Assistance,GES-P08-TST-114,Not Executed,Approval Pending
+GES-P08-REQ-115,Customer Success,Experience,GES-P08-TST-115,Not Executed,Approval Pending
+GES-P08-REQ-116,Customer Success,Reporting,GES-P08-TST-116,Not Executed,Approval Pending
+GES-P08-REQ-117,Customer Success,Security,GES-P08-TST-117,Not Executed,Approval Pending
+GES-P08-REQ-118,Warranty & Service,Core Records,GES-P08-TST-118,Not Executed,Approval Pending
+GES-P08-REQ-119,Warranty & Service,Configuration,GES-P08-TST-119,Not Executed,Approval Pending
+GES-P08-REQ-120,Warranty & Service,Audit,GES-P08-TST-120,Not Executed,Approval Pending
+GES-P08-REQ-121,Warranty & Service,Integration,GES-P08-TST-121,Not Executed,Approval Pending
+GES-P08-REQ-122,Warranty & Service,Automation,GES-P08-TST-122,Not Executed,Approval Pending
+GES-P08-REQ-123,Warranty & Service,AI Assistance,GES-P08-TST-123,Not Executed,Approval Pending
+GES-P08-REQ-124,Warranty & Service,Experience,GES-P08-TST-124,Not Executed,Approval Pending
+GES-P08-REQ-125,Warranty & Service,Reporting,GES-P08-TST-125,Not Executed,Approval Pending
+GES-P08-REQ-126,Warranty & Service,Security,GES-P08-TST-126,Not Executed,Approval Pending
+GES-P08-REQ-127,Reputation & Reviews,Core Records,GES-P08-TST-127,Not Executed,Approval Pending
+GES-P08-REQ-128,Reputation & Reviews,Configuration,GES-P08-TST-128,Not Executed,Approval Pending
+GES-P08-REQ-129,Reputation & Reviews,Audit,GES-P08-TST-129,Not Executed,Approval Pending
+GES-P08-REQ-130,Reputation & Reviews,Integration,GES-P08-TST-130,Not Executed,Approval Pending
+GES-P08-REQ-131,Reputation & Reviews,Automation,GES-P08-TST-131,Not Executed,Approval Pending
+GES-P08-REQ-132,Reputation & Reviews,AI Assistance,GES-P08-TST-132,Not Executed,Approval Pending
+GES-P08-REQ-133,Reputation & Reviews,Experience,GES-P08-TST-133,Not Executed,Approval Pending
+GES-P08-REQ-134,Reputation & Reviews,Reporting,GES-P08-TST-134,Not Executed,Approval Pending
+GES-P08-REQ-135,Reputation & Reviews,Security,GES-P08-TST-135,Not Executed,Approval Pending
+GES-P08-REQ-136,Referral Management,Core Records,GES-P08-TST-136,Not Executed,Approval Pending
+GES-P08-REQ-137,Referral Management,Configuration,GES-P08-TST-137,Not Executed,Approval Pending
+GES-P08-REQ-138,Referral Management,Audit,GES-P08-TST-138,Not Executed,Approval Pending
+GES-P08-REQ-139,Referral Management,Integration,GES-P08-TST-139,Not Executed,Approval Pending
+GES-P08-REQ-140,Referral Management,Automation,GES-P08-TST-140,Not Executed,Approval Pending
+GES-P08-REQ-141,Referral Management,AI Assistance,GES-P08-TST-141,Not Executed,Approval Pending
+GES-P08-REQ-142,Referral Management,Experience,GES-P08-TST-142,Not Executed,Approval Pending
+GES-P08-REQ-143,Referral Management,Reporting,GES-P08-TST-143,Not Executed,Approval Pending
+GES-P08-REQ-144,Referral Management,Security,GES-P08-TST-144,Not Executed,Approval Pending
+GES-P08-REQ-145,Partner & Channel Management,Core Records,GES-P08-TST-145,Not Executed,Approval Pending
+GES-P08-REQ-146,Partner & Channel Management,Configuration,GES-P08-TST-146,Not Executed,Approval Pending
+GES-P08-REQ-147,Partner & Channel Management,Audit,GES-P08-TST-147,Not Executed,Approval Pending
+GES-P08-REQ-148,Partner & Channel Management,Integration,GES-P08-TST-148,Not Executed,Approval Pending
+GES-P08-REQ-149,Partner & Channel Management,Automation,GES-P08-TST-149,Not Executed,Approval Pending
+GES-P08-REQ-150,Partner & Channel Management,AI Assistance,GES-P08-TST-150,Not Executed,Approval Pending
+GES-P08-REQ-151,Partner & Channel Management,Experience,GES-P08-TST-151,Not Executed,Approval Pending
+GES-P08-REQ-152,Partner & Channel Management,Reporting,GES-P08-TST-152,Not Executed,Approval Pending
+GES-P08-REQ-153,Partner & Channel Management,Security,GES-P08-TST-153,Not Executed,Approval Pending
+GES-P08-REQ-154,AI Sales Intelligence,Core Records,GES-P08-TST-154,Not Executed,Approval Pending
+GES-P08-REQ-155,AI Sales Intelligence,Configuration,GES-P08-TST-155,Not Executed,Approval Pending
+GES-P08-REQ-156,AI Sales Intelligence,Audit,GES-P08-TST-156,Not Executed,Approval Pending
+GES-P08-REQ-157,AI Sales Intelligence,Integration,GES-P08-TST-157,Not Executed,Approval Pending
+GES-P08-REQ-158,AI Sales Intelligence,Automation,GES-P08-TST-158,Not Executed,Approval Pending
+GES-P08-REQ-159,AI Sales Intelligence,AI Assistance,GES-P08-TST-159,Not Executed,Approval Pending
+GES-P08-REQ-160,AI Sales Intelligence,Experience,GES-P08-TST-160,Not Executed,Approval Pending
+GES-P08-REQ-161,AI Sales Intelligence,Reporting,GES-P08-TST-161,Not Executed,Approval Pending
+GES-P08-REQ-162,AI Sales Intelligence,Security,GES-P08-TST-162,Not Executed,Approval Pending
+GES-P08-REQ-163,Revenue Forecasting,Core Records,GES-P08-TST-163,Not Executed,Approval Pending
+GES-P08-REQ-164,Revenue Forecasting,Configuration,GES-P08-TST-164,Not Executed,Approval Pending
+GES-P08-REQ-165,Revenue Forecasting,Audit,GES-P08-TST-165,Not Executed,Approval Pending
+GES-P08-REQ-166,Revenue Forecasting,Integration,GES-P08-TST-166,Not Executed,Approval Pending
+GES-P08-REQ-167,Revenue Forecasting,Automation,GES-P08-TST-167,Not Executed,Approval Pending
+GES-P08-REQ-168,Revenue Forecasting,AI Assistance,GES-P08-TST-168,Not Executed,Approval Pending
+GES-P08-REQ-169,Revenue Forecasting,Experience,GES-P08-TST-169,Not Executed,Approval Pending
+GES-P08-REQ-170,Revenue Forecasting,Reporting,GES-P08-TST-170,Not Executed,Approval Pending
+GES-P08-REQ-171,Revenue Forecasting,Security,GES-P08-TST-171,Not Executed,Approval Pending
+GES-P08-REQ-172,Security & Governance,Core Records,GES-P08-TST-172,Not Executed,Approval Pending
+GES-P08-REQ-173,Security & Governance,Configuration,GES-P08-TST-173,Not Executed,Approval Pending
+GES-P08-REQ-174,Security & Governance,Audit,GES-P08-TST-174,Not Executed,Approval Pending
+GES-P08-REQ-175,Security & Governance,Integration,GES-P08-TST-175,Not Executed,Approval Pending
+GES-P08-REQ-176,Security & Governance,Automation,GES-P08-TST-176,Not Executed,Approval Pending
+GES-P08-REQ-177,Security & Governance,AI Assistance,GES-P08-TST-177,Not Executed,Approval Pending
+GES-P08-REQ-178,Security & Governance,Experience,GES-P08-TST-178,Not Executed,Approval Pending
+GES-P08-REQ-179,Security & Governance,Reporting,GES-P08-TST-179,Not Executed,Approval Pending
+GES-P08-REQ-180,Security & Governance,Security,GES-P08-TST-180,Not Executed,Approval Pending

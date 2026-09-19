@@ -1,0 +1,15 @@
+flowchart LR
+ Client --> Corr[Correlation ID]
+ Corr --> AuthN[Authentication]
+ AuthN --> Tenant[Tenant Resolution]
+ Tenant --> Ent[Entitlement]
+ Ent --> AuthZ[Authorization Policy]
+ AuthZ --> Validate[Request Validation]
+ Validate --> Idem[Idempotency]
+ Idem --> Domain[Domain/Workflow]
+ Domain --> Data[Tenant-aware Data Access]
+ Domain --> Outbox[Domain Event Outbox]
+ Domain --> Audit[Audit Evidence]
+ Data --> Obs[Logs/Metrics/Traces]
+ Outbox --> Obs
+ Audit --> Obs

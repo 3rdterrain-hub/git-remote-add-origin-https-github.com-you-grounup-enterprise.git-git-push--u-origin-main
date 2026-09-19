@@ -1,0 +1,13 @@
+gate_id,gate,requirement,pass_rule
+QG-01,Formatting/Lint,Required,No blocking lint/format violations
+QG-02,Unit Tests,Required,Affected packages pass
+QG-03,Integration Tests,Required,Affected service/data integrations pass
+QG-04,Contract Tests,Required,API/event compatibility passes
+QG-05,Tenant Isolation Tests,Required,Cross-tenant access tests pass
+QG-06,Security Scan,Required,No unaccepted blocking findings
+QG-07,Migration Test,Conditional,Forward/reconcile/rollback tested for data changes
+QG-08,E2E Critical Path,Required for release,Critical user journeys pass
+QG-09,Performance,Release gate,Approved critical targets pass
+QG-10,AI Evaluation,Conditional,AI feature evaluation thresholds pass
+QG-11,Traceability,Required,Requirement/test/change references complete
+QG-12,Release Evidence,Required,Artifact provenance and approvals recorded

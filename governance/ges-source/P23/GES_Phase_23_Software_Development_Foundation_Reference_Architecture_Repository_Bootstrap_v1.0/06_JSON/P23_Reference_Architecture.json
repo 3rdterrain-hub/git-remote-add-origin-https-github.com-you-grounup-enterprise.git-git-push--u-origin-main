@@ -1,0 +1,23 @@
+{
+  "phase": "23",
+  "name": "Software Development Foundation, Reference Architecture & Repository Bootstrap",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "architecture_lock_state": "PROPOSED - NOT APPROVED",
+  "source_baseline": {
+    "phase22_requirements": 4785,
+    "phase22_execution_controls": 24,
+    "phase22_lock_state": "NOT LOCKED"
+  },
+  "counts": {
+    "phase23_requirements": 300,
+    "tests": 300,
+    "components": 48,
+    "api_contracts": 64,
+    "events": 16,
+    "security_controls": 12,
+    "quality_gates": 12,
+    "adrs": 8
+  },
+  "principle": "Behavioral requirements and governance come from GES. Vendor/framework choices remain proposed until architecture approval."
+}

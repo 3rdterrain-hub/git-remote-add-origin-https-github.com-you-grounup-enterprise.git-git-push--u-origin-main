@@ -1,0 +1,16 @@
+flowchart LR
+ Source[Source Control] --> CI[CI Build + Automated Tests]
+ CI --> Artifact[Signed Artifact Registry]
+ Artifact --> Dev[Development]
+ Dev --> QA[QA / Integration]
+ QA --> Stage[Staging / Pre-Prod]
+ Stage --> PRR[Production Readiness Review]
+ PRR --> Prod[Production]
+ Prod --> Obs[Observability / SLOs]
+ Obs --> Incident[Incident / Problem]
+ Prod --> DR[Backup / DR]
+ Req[Phase 00-20 Requirements] --> Trace[Traceability & Coverage]
+ Trace --> PRR
+ Security[Security / Privacy / Compliance] --> PRR
+ AI[AI Production Governance] --> PRR
+ Prod --> Twin[Platform Digital Twin / Control Tower]

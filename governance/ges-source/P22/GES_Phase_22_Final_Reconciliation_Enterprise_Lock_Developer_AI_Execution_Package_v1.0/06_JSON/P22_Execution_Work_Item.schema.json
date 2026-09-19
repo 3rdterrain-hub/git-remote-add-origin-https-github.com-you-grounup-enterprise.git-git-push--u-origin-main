@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GES Developer/AI Work Item",
+  "type": "object",
+  "required": [
+    "work_item_id",
+    "requirement_ids",
+    "phase",
+    "status",
+    "test_ids"
+  ],
+  "properties": {
+    "work_item_id": {
+      "type": "string"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "phase": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "Backlog",
+        "Ready",
+        "In Progress",
+        "Review",
+        "Accepted",
+        "Released"
+      ]
+    },
+    "test_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_uri": {
+      "type": "string"
+    },
+    "release_id": {
+      "type": "string"
+    },
+    "exception_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

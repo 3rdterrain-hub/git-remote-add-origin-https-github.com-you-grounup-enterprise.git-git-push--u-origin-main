@@ -1,0 +1,9 @@
+﻿UI_ID,Name,Primary_Users,Purpose
+UI-P03-001,Enterprise Data Catalog,Data Steward; Architect; Developer,"Browse domains, entities, fields, relationships, ownership, classification, and versions"
+UI-P03-002,Entity Definition Designer,Data Architect,"Design and version fields, constraints, relationships, lifecycle, and API/event mappings"
+UI-P03-003,Reference Data Manager,Data Steward,"Manage reference sets, values, translations, effective dates, and deprecation"
+UI-P03-004,Master Data Workbench,Data Steward; Operations,"Create, validate, duplicate-check, merge, and govern parties and resource masters"
+UI-P03-005,Data Quality Dashboard,Data Owner; Steward,"Quality scores, rule failures, trends, exceptions, ownership, and remediation"
+UI-P03-006,Lineage Explorer,Audit; Data Steward; AI Reviewer,"Trace imported, calculated, converted, and AI-generated values to sources and logic"
+UI-P03-007,Schema Change Console,Architect; Engineering; QA,"Impact analysis, compatibility, migration, reconciliation, release, and rollback"
+UI-P03-008,AI Writeback Review,Approver; Domain Owner,"Compare recommendation to current record, evidence, permissions, and proposed field changes"

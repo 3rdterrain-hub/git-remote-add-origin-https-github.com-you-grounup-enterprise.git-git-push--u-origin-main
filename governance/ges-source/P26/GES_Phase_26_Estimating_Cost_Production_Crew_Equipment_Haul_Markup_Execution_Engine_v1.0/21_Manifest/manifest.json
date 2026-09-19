@@ -1,0 +1,227 @@
+{
+  "phase": "26",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "1b712cad62139c9c39b9318adec30e25e1777dfba742869da408ef78c1683002",
+      "bytes": 1209
+    },
+    {
+      "path": "02_Word/GES-P26-001-Estimating_Cost_Production_Crew_Equipment_Haul_Markup_Execution_Engine.docx",
+      "sha256": "04b3f971e91da6a68b8b3aaa413ae0015a8142f6c88b69cf3b26b975065461b3",
+      "bytes": 39866
+    },
+    {
+      "path": "03_PDF/GES-P26-001-Estimating_Cost_Production_Crew_Equipment_Haul_Markup_Execution_Engine.pdf",
+      "sha256": "071c127ffcefc054d51b7b40168eca3aafb84e781820f98a00b6ae4752d9d866",
+      "bytes": 8998
+    },
+    {
+      "path": "04_Excel/GES-P26-001-Estimating_Execution_Engine_Control_Workbook.xlsx",
+      "sha256": "a2b101282c059ee7e334df514e697a8720139bd997051f0568bf4ab729e59c39",
+      "bytes": 71505
+    },
+    {
+      "path": "05_CSV/P26_API_Contracts.csv",
+      "sha256": "8138c6ee4d45c7e3ed98ab858c79a7bc4f43b27ddd72089245c46e7583c3a9d4",
+      "bytes": 6277
+    },
+    {
+      "path": "05_CSV/P26_Business_Rules.csv",
+      "sha256": "5e51a44fe47085e1bcff4616ac6836d5e8ea3321eaadb24176e10e90989ef27f",
+      "bytes": 3864
+    },
+    {
+      "path": "05_CSV/P26_Entities.csv",
+      "sha256": "5acc820af1db541511cca0d1192490597069a26b105d0c969ef090a2f3b917cf",
+      "bytes": 2942
+    },
+    {
+      "path": "05_CSV/P26_Event_Catalog.csv",
+      "sha256": "b985e395bd98cddbabecbb754933758b2c3eca6fd2fd880b3cf06de9a9e9d6b0",
+      "bytes": 4346
+    },
+    {
+      "path": "05_CSV/P26_Modules.csv",
+      "sha256": "048ac1bfeacfaa76959eae779ca2d543f999653d82d456290d5c49471e1a9217",
+      "bytes": 3194
+    },
+    {
+      "path": "05_CSV/P26_Quality_Gates.csv",
+      "sha256": "6aa3476a1b0705f46ccfddd659c7ebfa9982e3cd9a78963e371001661c030ab7",
+      "bytes": 1281
+    },
+    {
+      "path": "05_CSV/P26_Requirements.csv",
+      "sha256": "7a35061e101ea5da147c765640efb266ee97530437802277a820808b077863a5",
+      "bytes": 222627
+    },
+    {
+      "path": "05_CSV/P26_Security_Controls.csv",
+      "sha256": "810193dffdce7a3d9366110372f4adbd60181a90c5d66b8417616e815d2f2beb",
+      "bytes": 1500
+    },
+    {
+      "path": "05_CSV/P26_Test_Cases.csv",
+      "sha256": "f1f4ad058a950d796a0edf9eaa0fc2288912d02611ccbc8d1076c6000820d4e6",
+      "bytes": 150101
+    },
+    {
+      "path": "05_CSV/P26_Traceability.csv",
+      "sha256": "95d5aba57df4c49196595c1e830495079dc476669e459249276fd439f242fd57",
+      "bytes": 25261
+    },
+    {
+      "path": "06_JSON/P26_Calculation_Result.schema.json",
+      "sha256": "d2976b934fde94389efe9747c4d39f66a3696d5f159a5a11f13c83e73e1aa882",
+      "bytes": 1051
+    },
+    {
+      "path": "06_JSON/P26_Estimating_Execution_Baseline.json",
+      "sha256": "6923e9781cbba23d89308d0e5e51cc58781d4a0f3ccb7d568cd4b886eaf54b0b",
+      "bytes": 992
+    },
+    {
+      "path": "07_Diagrams/P26_Estimate_Calculation_Flow.mmd",
+      "sha256": "3c3786682edf51f5e73955f190d8496d04223977801fcd93f58de45c29d39da2",
+      "bytes": 798
+    },
+    {
+      "path": "07_Diagrams/P26_Truck_Cycle.mmd",
+      "sha256": "ab1773bbd880fe443d57327a9cfaa5086fbfecb89b0a6684e4a01759f26156bd",
+      "bytes": 392
+    },
+    {
+      "path": "08_Estimating_Architecture/P26_Entities.csv",
+      "sha256": "5acc820af1db541511cca0d1192490597069a26b105d0c969ef090a2f3b917cf",
+      "bytes": 2942
+    },
+    {
+      "path": "08_Estimating_Architecture/P26_Modules.csv",
+      "sha256": "048ac1bfeacfaa76959eae779ca2d543f999653d82d456290d5c49471e1a9217",
+      "bytes": 3194
+    },
+    {
+      "path": "10_Cost_Production_Engines/P26_Business_Rules.csv",
+      "sha256": "5e51a44fe47085e1bcff4616ac6836d5e8ea3321eaadb24176e10e90989ef27f",
+      "bytes": 3864
+    },
+    {
+      "path": "10_Cost_Production_Engines/P26_Formula_Registry.csv",
+      "sha256": "9e873c6e65f36940bd062819e620fa566b79ba9c7162473ee18ee677af0033a5",
+      "bytes": 2350
+    },
+    {
+      "path": "15_API_Event_Contracts/P26_API_Contracts.csv",
+      "sha256": "8138c6ee4d45c7e3ed98ab858c79a7bc4f43b27ddd72089245c46e7583c3a9d4",
+      "bytes": 6277
+    },
+    {
+      "path": "15_API_Event_Contracts/P26_Event_Catalog.csv",
+      "sha256": "b985e395bd98cddbabecbb754933758b2c3eca6fd2fd880b3cf06de9a9e9d6b0",
+      "bytes": 4346
+    },
+    {
+      "path": "16_Testing_QA/P26_Quality_Gates.csv",
+      "sha256": "6aa3476a1b0705f46ccfddd659c7ebfa9982e3cd9a78963e371001661c030ab7",
+      "bytes": 1281
+    },
+    {
+      "path": "16_Testing_QA/P26_Security_Controls.csv",
+      "sha256": "810193dffdce7a3d9366110372f4adbd60181a90c5d66b8417616e815d2f2beb",
+      "bytes": 1500
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/README.md",
+      "sha256": "7191521bfadb8a350b9627d6a8a06ac44d3f04d114824f4f0cd335509d018da6",
+      "bytes": 425
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/ai/estimate-assist.ts",
+      "sha256": "5e10b159c78f26a840322ab2ec4b0c244b10caecf4a547d1fb11a2e9d66f6c1a",
+      "bytes": 327
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/cost/labor.ts",
+      "sha256": "be7015572773ca11926dfc1975d68f135ce80bc5c1d5af571fe3dc6e46b8eeb1",
+      "bytes": 327
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/cost/material.ts",
+      "sha256": "10e6b6d5e06fad1bd4ce7f21e73d33cdf49d1c284eff246916a95777e4fd6ef4",
+      "bytes": 345
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/equipment/equipment.ts",
+      "sha256": "7e2ba6486a34e4f4803e1e38da5523e1a1b00670a49b6b15d7f98f5d89532322",
+      "bytes": 1054
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/markup/markup.ts",
+      "sha256": "6641bdaffe13be2875815cc4045a79cb697c91ba9436d35b4404003c6cbce44d",
+      "bytes": 442
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/model/types.ts",
+      "sha256": "6a95439e16c6424897c3023286b0701b9df81768738904ad625821b87298d4d5",
+      "bytes": 489
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/production/production.ts",
+      "sha256": "9d87e68d5297f20987faac0ed8be60f184b661d1368798ec4697fee64a6cdb95",
+      "bytes": 421
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/trace/trace.ts",
+      "sha256": "8c684d445a2adbe9e9d16a8eaffc0f51a97ce8362c0801f76ba16c046a15aa74",
+      "bytes": 312
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/trucking/haul-cost.ts",
+      "sha256": "b129406195b0743f8761da28c7cf95b6d346a877d8ebd7184c445c6539d02c40",
+      "bytes": 250
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/trucking/truck-cycle.ts",
+      "sha256": "d00760d873447a7de03ab7639744f14ba5549f6494130ba5d164c3d42efa53d5",
+      "bytes": 826
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/src/writeback/service-writeback.ts",
+      "sha256": "92362d6ba8e904be6a0e3639000e06339b9227b73a9bdb34fd2d66a1c54a0559",
+      "bytes": 289
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/tests/golden/reference-formulas.spec.md",
+      "sha256": "c322909a5937cf6c7b95a2a48c60d7d2f49556613318f5afb5d10a0df9cf1727",
+      "bytes": 352
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/tests/integration/snapshot-reproducibility.spec.md",
+      "sha256": "70f4a0b0222bec28560ff9851e20bbf1a51f8720131d4058f4b6d54ee194fa89",
+      "bytes": 233
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine/tests/security/estimate-isolation.spec.md",
+      "sha256": "69013a4cb65653e292953d01424daf579082b0e599738c41828d0c567361d41c",
+      "bytes": 152
+    },
+    {
+      "path": "17_Starter_Code/grounup-estimating-engine-bootstrap.zip",
+      "sha256": "e2180a7af940ce5ba50752ccce8bd8c1a18489bf14a0d084645f9673c45f5de9",
+      "bytes": 6018
+    },
+    {
+      "path": "18_Developer_AI_Handoff/P26_BUILD_PROTOCOL.md",
+      "sha256": "9900a8dc8284ba673390cfcfcb346636bd389264603ad2c77d970c6a0a0e0fe1",
+      "bytes": 987
+    },
+    {
+      "path": "20_Examples/P26_Example_Estimate_Inputs.csv",
+      "sha256": "0effa8b4148069ea6dd35aec96c4b5a8704bcb2b460f59fbd6a844dae2c9c52f",
+      "bytes": 510
+    }
+  ]
+}

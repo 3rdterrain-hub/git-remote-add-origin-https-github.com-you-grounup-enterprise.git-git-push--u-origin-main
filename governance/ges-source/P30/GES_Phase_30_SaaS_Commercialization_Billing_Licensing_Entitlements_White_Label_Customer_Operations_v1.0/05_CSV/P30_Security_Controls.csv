@@ -1,0 +1,19 @@
+control_id,name,verification,status
+P30-SEC-001,Commercial tenant isolation,"Tenant A cannot view or mutate Tenant B plans-as-applied, billing, usage, entitlements, branding or support data.",Required
+P30-SEC-002,Financial admin roles,Credits/refunds/write-offs/price overrides require scoped commercial roles and configured approvals.,Required
+P30-SEC-003,Payment data minimization,Do not store restricted payment credential data when provider tokens/references suffice.,Required
+P30-SEC-004,Billing PII protection,"Billing contacts, addresses, tax identifiers and payment metadata follow classification/privacy policy.",Required
+P30-SEC-005,Entitlement authorization,Entitlement checks cannot substitute for identity/authorization; both must pass.,Required
+P30-SEC-006,Usage event authentication,Metered usage ingestion authenticates trusted producers and validates tenant/resource scope.,Required
+P30-SEC-007,Webhook security,"Commercial webhooks use signing, replay protection and destination governance.",Required
+P30-SEC-008,Custom domain security,Domain ownership and certificate status are validated before activation.,Required
+P30-SEC-009,White-label safe fields,Brand customization is allowlisted/sanitized and cannot inject unsafe executable content.,Required
+P30-SEC-010,Partner isolation,Partners access only explicitly assigned tenants/resources and cannot infer other customer data.,Required
+P30-SEC-011,Support access control,Support impersonation/elevated access uses audited privileged workflows.,Required
+P30-SEC-012,Commercial audit integrity,Commercial audit/evidence is protected from ordinary mutation.,Required
+P30-SEC-013,Secrets separation,Payment/tax/email/domain-provider secrets use managed secrets and environment separation.,Required
+P30-SEC-014,Export control,"Invoice/customer/commercial exports apply classification, permission and audit controls.",Required
+P30-SEC-015,Fraud/abuse signals,"Suspicious trial, promotion, usage and payment patterns can trigger review without weakening due process controls.",Required
+P30-SEC-016,Data retention,"Commercial/financial retention and deletion follows legal, tax, privacy and contractual policy.",Required
+P30-SEC-017,API/admin rate controls,Commercial admin/API surfaces use security rate limiting independent from sellable API quotas.,Required
+P30-SEC-018,Incident correction safety,Commercial incidents use bounded correction workflows with reconciliation and rollback/compensation evidence.,Required

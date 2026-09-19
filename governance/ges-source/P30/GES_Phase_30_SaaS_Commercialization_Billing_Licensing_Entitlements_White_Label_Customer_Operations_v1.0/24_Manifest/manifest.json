@@ -1,0 +1,162 @@
+{
+  "phase": "30",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "4cd6423e029e45b9ffd51e3745ec824653916def6acaaace47ee633064baa797",
+      "bytes": 733
+    },
+    {
+      "path": "02_Word/GES-P30-001-SaaS_Commercialization_Billing_Licensing_Entitlements_White_Label.docx",
+      "sha256": "51b7fd9620e14aac24fc07fdc68ac178eeb1f4133a8b30c998789c816cb22785",
+      "bytes": 39864
+    },
+    {
+      "path": "03_PDF/GES-P30-001-SaaS_Commercialization_Billing_Licensing_Entitlements_White_Label.pdf",
+      "sha256": "a6741e354d684f4826f47d54e1f378ba34a00e24fe4344884032d6f2a2308b98",
+      "bytes": 10177
+    },
+    {
+      "path": "04_Excel/GES-P30-001-SaaS_Commercial_Control_Workbook.xlsx",
+      "sha256": "3541ce376c6ad4880683d56762d15f7ab7983a5c3eda4c3331f3f9aa9526acfa",
+      "bytes": 88448
+    },
+    {
+      "path": "05_CSV/P30_API_Contracts.csv",
+      "sha256": "be9c863c2a1ac524a2a17010c3666f66c1a6dca859773af9c64e9f3a1a16dc0b",
+      "bytes": 6434
+    },
+    {
+      "path": "05_CSV/P30_Business_Rules.csv",
+      "sha256": "376780fc0298d7726663c97fc22debf6d5b74db66dea716c6b1a5e2a67e333dc",
+      "bytes": 4911
+    },
+    {
+      "path": "05_CSV/P30_Entities.csv",
+      "sha256": "dccf1ce0aab6ce4cd5bb4b65934cede8e2aabba164797feef4739ba66367e92e",
+      "bytes": 3605
+    },
+    {
+      "path": "05_CSV/P30_Event_Catalog.csv",
+      "sha256": "7e04621cca25f47b203bb0b00858a9e6b6deda855c5c63c153374c12b43f6d86",
+      "bytes": 6831
+    },
+    {
+      "path": "05_CSV/P30_Modules.csv",
+      "sha256": "ab82461368bc4c3a891865ef34bd91d92391d576ba1946474caed26eb67e8ffd",
+      "bytes": 4625
+    },
+    {
+      "path": "05_CSV/P30_Quality_Gates.csv",
+      "sha256": "e9dd27a261ac4e62fc361b3db73b81b77c67aed5fdbae37eca02dd2dc3fb2342",
+      "bytes": 2264
+    },
+    {
+      "path": "05_CSV/P30_Requirements.csv",
+      "sha256": "5976d6ef06fe033b3e442231c82932a97d0817d6903a72fb0dcad15f408ac634",
+      "bytes": 272001
+    },
+    {
+      "path": "05_CSV/P30_Security_Controls.csv",
+      "sha256": "4614d24a280b3216142e28513d4b73b603df28521f2df1a6c4c92b1625f4545a",
+      "bytes": 2501
+    },
+    {
+      "path": "05_CSV/P30_Test_Cases.csv",
+      "sha256": "7dffac5e796b901f226ce029bf320e10e6b17fa534d76abbce1565073393ce32",
+      "bytes": 225458
+    },
+    {
+      "path": "05_CSV/P30_Traceability.csv",
+      "sha256": "32dc1d2e92108356c2160d83f1d45c44d8447d1e4bc0e498ba74d53bb6fbe261",
+      "bytes": 30301
+    },
+    {
+      "path": "06_JSON/P30_Commercial_Baseline.json",
+      "sha256": "6d9616816c9cf3de175488f3ab50e2ce5726e89dd576cc370c4cca40fe404f65",
+      "bytes": 1247
+    },
+    {
+      "path": "07_Diagrams/P30_Commercial_Architecture.mmd",
+      "sha256": "3d39ef7bc2ad1422b2b230ef8f8d439780d54722ebc4c4b3826387f475e1fa47",
+      "bytes": 548
+    },
+    {
+      "path": "07_Diagrams/P30_Entitlement_Resolution.mmd",
+      "sha256": "d3cf99f1d501e7c48ed2952a5ba3fa725ca6a5662867637e92e7182bac1542de",
+      "bytes": 337
+    },
+    {
+      "path": "07_Diagrams/P30_Subscription_Lifecycle.mmd",
+      "sha256": "5c8b5fe9e7a034db0181de06363a555524bba4d41334b0af143b881d5c2f3387",
+      "bytes": 375
+    },
+    {
+      "path": "09_Plans_Packaging/P30_Example_Plan_Catalog.csv",
+      "sha256": "3a3a74035a3dec1ff8a9a84df98605fa498da25eb0451ee9151f4e08814a9a59",
+      "bytes": 768
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/README.md",
+      "sha256": "b6cdbf9afc67780f404aa15c8c671cb6581807c0b702c203e3967e061ee084b9",
+      "bytes": 292
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/billing/proration.ts",
+      "sha256": "f424c5d7f5b1bbed79d63ab9a631f269a5f1073bb664bc8cad60101fca31e5e6",
+      "bytes": 323
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/branding/brand.ts",
+      "sha256": "3a10e32bae6a8ba6b4bf8f8f524cf3b58a2a0184d55fa8774c05444082b1f07c",
+      "bytes": 266
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/contracts/commercial.ts",
+      "sha256": "0e44e2d4094b0399310e06ef263ca2f9d186ed27c0bd4bd5febee38c375739c7",
+      "bytes": 358
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/entitlements/resolver.ts",
+      "sha256": "544a441bb32db08af33e1a92700ce5f7110c2fbf6abe5a3ef21a112024883deb",
+      "bytes": 302
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/security/commercial-security.ts",
+      "sha256": "fab51069a4756d95674dc862dcdd088c576542900b5b8ce9701dc12c132b09eb",
+      "bytes": 306
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/src/usage/usage.ts",
+      "sha256": "c726731d596595c475cf5c28057a181dc1106348bb47b22799b648e0509e3feb",
+      "bytes": 298
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/tests/billing/usage-idempotency.spec.md",
+      "sha256": "5774bc64cdf80b97c04848d229e9b6c47d769ccf820be78c756b5cd61616b06a",
+      "bytes": 143
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/tests/entitlements/golden-entitlements.spec.md",
+      "sha256": "dde135e1e663f043f3aea0c31f21db322b5894ad829a04d8fa80e319e5129779",
+      "bytes": 238
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform/tests/security/tenant-commercial-isolation.spec.md",
+      "sha256": "92556469a12238e02559368a3bb69ff9ef807568a18021f3e98250ce308ebce4",
+      "bytes": 165
+    },
+    {
+      "path": "21_Starter_Code/grounup-commercial-platform-bootstrap.zip",
+      "sha256": "20e1c36b2f3a6da3e9dcb94ddcfde6977549d112d12a8e0acf622bfee88e4952",
+      "bytes": 3599
+    },
+    {
+      "path": "22_Developer_AI_Handoff/P30_BUILD_PROTOCOL.md",
+      "sha256": "a94579d1a5fea51ad23a7cee7cd8721ed01a7b54ee40c7a3abb981828bbb29b6",
+      "bytes": 968
+    }
+  ]
+}

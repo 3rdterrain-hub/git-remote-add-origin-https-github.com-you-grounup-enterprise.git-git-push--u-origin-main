@@ -1,0 +1,43 @@
+ui_id,name,domain,capabilities,form_factor
+P16-UI-001,Geospatial Command Center,GIS Core,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-002,Enterprise Map,Coordinate Reference Systems,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-003,Project Map,Survey Control,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-004,Layer Catalog,GNSS Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-005,Spatial Search,Total Station Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-006,CRS & Datum Manager,Digital Levels,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-007,Survey Control Register,Construction Layout,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-008,Control Network Workspace,Topographic Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-009,GNSS Survey Workspace,Existing Conditions,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-010,Total Station Workspace,Drone Operations,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-011,Leveling Workspace,Photogrammetry,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-012,Construction Layout Center,LiDAR Reality Capture,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-013,Stakeout Mobile,Point Cloud Management,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-014,Topographic Survey Mobile,Orthomosaic Management,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-015,Existing Conditions Map,Surface & Terrain Models,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-016,Utility Mapping Center,Volumes & Earthwork,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-017,Drone Operations Center,Progress & Change Detection,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-018,Mission Planner,Corridor & Linear Infrastructure,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-019,Flight Compliance Center,Utility Mapping,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-020,Aircraft & Payload Register,GIS Field Collection,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-021,Battery Manager,Reality Capture QA/QC,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-022,Drone Flight Mobile,Geofencing & Location Intelligence,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-023,Photogrammetry Processing Review,Drone Media & Inspection,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-024,LiDAR Processing Review,Regulatory & Flight Compliance,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-025,Point Cloud Viewer,Survey Deliverables,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-026,Orthomosaic Viewer,Machine Control Handoff,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-027,Surface/Terrain Manager,Spatial Analytics,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-028,Cut/Fill & Volume Center,AI Geospatial Intelligence,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-029,Stockpile Volume Center,Geospatial Digital Twin,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-030,Progress Comparison,GIS Core,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-031,Change Detection Review,Coordinate Reference Systems,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-032,Corridor/Stationing Viewer,Survey Control,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-033,Field GIS Mobile,GNSS Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-034,Offline Map Manager,Total Station Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-035,Geofence & Spatial Alerts,Digital Levels,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-036,Aerial Inspection Center,Construction Layout,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-037,Reality Capture QA/QC,Topographic Survey,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-038,Survey Deliverables Center,Existing Conditions,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-039,Machine Control Handoff,Drone Operations,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-040,Spatial Analytics,Photogrammetry,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-041,AI Geospatial Review,LiDAR Reality Capture,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile
+P16-UI-042,Geospatial Digital Twin,Point Cloud Management,Map-first; role-based; coordinate-aware; quality indicators; evidence/lineage; responsive; field views support offline capture,Web/tablet/mobile

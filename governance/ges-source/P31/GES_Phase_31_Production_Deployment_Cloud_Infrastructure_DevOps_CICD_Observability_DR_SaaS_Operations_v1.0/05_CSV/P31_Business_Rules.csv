@@ -1,0 +1,41 @@
+rule_id,name,rule,severity
+P31-BR-001,No direct production mutation,Production infrastructure/application/configuration changes flow through governed deployment/change mechanisms except audited emergency procedures.,Blocking
+P31-BR-002,Immutable artifacts,A deployed artifact is immutable and identified by digest/version; production promotion reuses the same tested artifact rather than rebuilding it.,Blocking
+P31-BR-003,Environment separation,"Development, test, staging and production credentials/configuration/state are separated and not silently shared.",Blocking
+P31-BR-004,Production secrets,Production secrets are injected from managed secret systems and never stored in source or release packages.,Blocking
+P31-BR-005,IaC authority,Infrastructure is defined through approved IaC modules/stacks; manual drift is detected and reconciled.,Blocking
+P31-BR-006,IaC state protection,"Infrastructure state uses locking, encryption, backups and restricted access.",Blocking
+P31-BR-007,Policy before apply,Infrastructure and deployment changes pass required policy/security checks before production apply.,Blocking
+P31-BR-008,Build reproducibility,Build input/version/toolchain metadata is sufficient to reproduce or verify the release artifact.,Blocking
+P31-BR-009,Artifact provenance,"Release artifacts retain build, source revision, SBOM, signature/provenance and test evidence.",Blocking
+P31-BR-010,Promotion not rebuild,"Staging-to-production promotion uses the approved candidate artifact and configuration overlays, not a fresh unverified build.",Blocking
+P31-BR-011,Migration safety,"Database/data migrations declare compatibility, ordering, validation, rollback/forward-fix strategy and backup/recovery implications.",Blocking
+P31-BR-012,Backward compatibility,Zero/minimal-downtime releases use compatibility windows when application and schema versions overlap.,Blocking
+P31-BR-013,Deployment health gates,Traffic promotion depends on health/SLO/error/functional checks appropriate to deployment strategy.,Blocking
+P31-BR-014,Canary abort,Canary rollout halts or rolls back when configured error/latency/security/business thresholds are breached.,Blocking
+P31-BR-015,Rollback tested,Critical services have tested rollback/recovery procedures; rollback is not assumed possible without evidence.,Blocking
+P31-BR-016,Feature release separation,Deployment and feature activation can be separated through governed feature flags where risk warrants.,Blocking
+P31-BR-017,Observability required,"Production services emit structured logs, metrics and traces/correlation sufficient for support and incident diagnosis.",Blocking
+P31-BR-018,No secrets in logs,Logs/traces exclude secrets and protected content unless specifically approved/redacted.,Blocking
+P31-BR-019,SLO ownership,"Critical services have owner, SLI, SLO and alert/error-budget policy.",Blocking
+P31-BR-020,Actionable alerts,Alerts map to owner/severity/runbook and avoid unactionable noise by policy.,Blocking
+P31-BR-021,Incident evidence,"Incidents preserve timeline, detection, impact, containment, recovery, communications and follow-up actions.",Blocking
+P31-BR-022,Autoscaling bounded,"Autoscaling has safe minima/maxima, dependencies and budget/capacity constraints.",Blocking
+P31-BR-023,Retry safety,Retries use bounded attempts/backoff and only apply where operations are safe/idempotent or protected.,Blocking
+P31-BR-024,Timeouts explicit,Network/service calls use explicit timeouts appropriate to dependency behavior.,Blocking
+P31-BR-025,Circuit breaker,Critical remote dependencies can fail fast/degrade safely under repeated failures where applicable.,Blocking
+P31-BR-026,Backup immutability/security,"Backups are encrypted, access-controlled, retention-governed and protected from ordinary destructive access.",Blocking
+P31-BR-027,Restore is the proof,Backup success alone is insufficient; critical datasets/services require scheduled restore validation.,Blocking
+P31-BR-028,RTO/RPO evidence,Critical services have approved RTO/RPO targets with recovery design and exercise evidence.,Blocking
+P31-BR-029,DR dependency order,Disaster recovery follows documented dependency/order and validates tenant/security/integrity after recovery.,Blocking
+P31-BR-030,Multi-region caution,"Multi-region active/standby or active/active behavior is adopted only with explicit consistency, cost and operational design.",Blocking
+P31-BR-031,Runbook ownership,Every critical production service has a maintained operational runbook and named owner.,Blocking
+P31-BR-032,Maintenance governance,"Maintenance windows, expected impact, rollback and customer communications are governed when material.",Blocking
+P31-BR-033,Operational access,"Production admin access is least privilege, MFA/JIT where configured, audited and separated from ordinary development access.",Blocking
+P31-BR-034,Patch governance,"Runtime/OS/dependency patches follow risk-based cadence, testing and emergency procedures.",Blocking
+P31-BR-035,Cost allocation,"Production cloud resources carry governed tags/labels for environment, tenant/shared service, owner and cost center where feasible.",Blocking
+P31-BR-036,Budget alerts,Cloud cost budgets/anomalies alert responsible owners without automatically disabling critical services unless explicit policy allows it.,Blocking
+P31-BR-037,Preview cleanup,Temporary/preview environments expire and clean up resources/secrets/data according to policy.,Blocking
+P31-BR-038,Release evidence,"A production release retains exact artifact, configuration, migration, approvals, tests and deployment outcome.",Blocking
+P31-BR-039,Emergency change,"Emergency production change remains bounded, authorized, audited and retrospectively reconciled into normal configuration/IaC.",Blocking
+P31-BR-040,Production readiness truth,A component is not labeled production-ready solely because deployment automation exists; required Phase 20/22/28/31 gates must pass.,Blocking

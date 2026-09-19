@@ -1,0 +1,26 @@
+report_id,name,audience,purpose,formats
+P13-RPT-001,Executive Daily Brief,Executive/Manager,"Governed report for executive daily brief with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-002,Enterprise Scorecard,Executive/Manager,"Governed report for enterprise scorecard with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-003,Portfolio Health,Executive/Manager,"Governed report for portfolio health with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-004,Project Health,Executive/Manager,"Governed report for project health with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-005,Financial Performance,Executive/Manager,"Governed report for financial performance with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-006,Cash & Liquidity,Executive/Manager,"Governed report for cash & liquidity with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-007,WIP & Margin,Executive/Manager,"Governed report for wip & margin with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-008,Backlog & Pipeline,Executive/Manager,"Governed report for backlog & pipeline with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-009,Estimate-to-Actual,Executive/Manager,"Governed report for estimate-to-actual with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-010,Production & Productivity,Executive/Manager,"Governed report for production & productivity with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-011,Workforce Capacity,Executive/Manager,"Governed report for workforce capacity with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-012,Fleet Utilization & Cost,Executive/Manager,"Governed report for fleet utilization & cost with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-013,Procurement & Supplier,Executive/Manager,"Governed report for procurement & supplier with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-014,Inventory & Lead Time,Executive/Manager,"Governed report for inventory & lead time with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-015,Safety Performance,Executive/Manager,"Governed report for safety performance with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-016,Quality Performance,Executive/Manager,"Governed report for quality performance with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-017,Forecast Accuracy,Executive/Manager,"Governed report for forecast accuracy with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-018,Risk & Exceptions,Executive/Manager,"Governed report for risk & exceptions with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-019,Data Quality & Freshness,Executive/Manager,"Governed report for data quality & freshness with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-020,Board Performance Pack,Executive/Manager,"Governed report for board performance pack with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-021,Strategic Objectives,Executive/Manager,"Governed report for strategic objectives with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-022,Customer Profitability,Executive/Manager,"Governed report for customer profitability with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-023,Vendor Performance,Executive/Manager,"Governed report for vendor performance with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-024,Equipment Replacement,Executive/Manager,"Governed report for equipment replacement with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard
+P13-RPT-025,AI Recommendation Outcomes,Executive/Manager,"Governed report for ai recommendation outcomes with certified metrics, filters, lineage and export.",PDF/XLSX/CSV/dashboard

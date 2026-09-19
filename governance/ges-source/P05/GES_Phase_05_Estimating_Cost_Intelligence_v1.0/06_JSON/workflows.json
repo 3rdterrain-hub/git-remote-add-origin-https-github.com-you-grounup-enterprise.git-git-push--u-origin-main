@@ -1,0 +1,122 @@
+[
+  {
+    "workflow_id": "GES-P05-WF-001",
+    "name": "Estimate Creation",
+    "description": "Draft estimate from template, opportunity or blank.",
+    "trigger": "User or event",
+    "approval_required": "Conditional",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-002",
+    "name": "Document-to-Estimate",
+    "description": "Upload documents, classify, extract, review quantities and create draft lines.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-003",
+    "name": "Takeoff Revision Review",
+    "description": "Compare plan revisions and disposition detected changes.",
+    "trigger": "User or event",
+    "approval_required": "Conditional",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-004",
+    "name": "Vendor Quote Intake",
+    "description": "Capture quote, map items, validate dates and approve use.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-005",
+    "name": "Estimate Review and Approval",
+    "description": "Estimator review, operations review, executive approval and submission.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-006",
+    "name": "AI Recommendation Disposition",
+    "description": "Review AI evidence, accept/modify/reject and log rationale.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-007",
+    "name": "Scenario Comparison",
+    "description": "Create alternatives, run calculations and promote selected scenario.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-008",
+    "name": "Historical Calibration",
+    "description": "Compare estimated versus actual production and approve updates.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-009",
+    "name": "White-Label Provisioning",
+    "description": "Configure brand, domain, templates, sender identity and tenant inheritance.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-010",
+    "name": "Offline Field Sync",
+    "description": "Capture actuals offline, sync, resolve conflicts and post approved records.",
+    "trigger": "User or event",
+    "approval_required": "Conditional",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-011",
+    "name": "Estimate Reopen",
+    "description": "Request reopening, approve, clone version and preserve submitted version.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-012",
+    "name": "Change Order Pricing",
+    "description": "Create estimate from approved project change and route approval.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-013",
+    "name": "Bid Export",
+    "description": "Generate proposal, internal review book, schedule and audit package.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-014",
+    "name": "Rate Expiration Review",
+    "description": "Identify expiring rates and route owners for renewal.",
+    "trigger": "User or event",
+    "approval_required": "Conditional",
+    "status": "Proposed"
+  },
+  {
+    "workflow_id": "GES-P05-WF-015",
+    "name": "Risk Simulation",
+    "description": "Define uncertainty, run scenario/simulation and review results.",
+    "trigger": "User or event",
+    "approval_required": "Yes",
+    "status": "Proposed"
+  }
+]

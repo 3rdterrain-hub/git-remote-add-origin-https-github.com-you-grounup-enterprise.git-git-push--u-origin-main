@@ -1,0 +1,41 @@
+kpi_id,name,domain,definition,cadence,governance
+P13-KPI-001,Revenue,Executive Command Center,Governed formula defined in semantic metric registry for Revenue.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-002,Gross Margin %,Semantic Metrics Layer,Governed formula defined in semantic metric registry for Gross Margin %.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-003,EBITDA,Operational Intelligence,Governed formula defined in semantic metric registry for EBITDA.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-004,Operating Cash,Financial Intelligence,Governed formula defined in semantic metric registry for Operating Cash.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-005,Cash Forecast Accuracy,Project Intelligence,Governed formula defined in semantic metric registry for Cash Forecast Accuracy.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-006,WIP Over/Under Billing,Estimating Intelligence,Governed formula defined in semantic metric registry for WIP Over/Under Billing.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-007,Backlog,CRM & Market Intelligence,Governed formula defined in semantic metric registry for Backlog.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-008,Pipeline Coverage,Workforce Intelligence,Governed formula defined in semantic metric registry for Pipeline Coverage.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-009,Bid Win Rate,Procurement Intelligence,Governed formula defined in semantic metric registry for Bid Win Rate.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-010,Estimate Accuracy,Fleet Intelligence,Governed formula defined in semantic metric registry for Estimate Accuracy.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-011,Project Cost Variance,"Safety, Quality & Compliance Analytics",Governed formula defined in semantic metric registry for Project Cost Variance.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-012,Project Schedule Variance,Portfolio & Program Intelligence,Governed formula defined in semantic metric registry for Project Schedule Variance.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-013,Forecast at Completion,Forecasting & Scenario Planning,Governed formula defined in semantic metric registry for Forecast at Completion.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-014,Production Plan Attainment,AI Decision Intelligence,Governed formula defined in semantic metric registry for Production Plan Attainment.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-015,Labor Productivity,Data Platform & Lineage,Governed formula defined in semantic metric registry for Labor Productivity.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-016,Workforce Utilization,Reporting & Distribution,Governed formula defined in semantic metric registry for Workforce Utilization.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-017,Overtime %,Self-Service Analytics,Governed formula defined in semantic metric registry for Overtime %.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-018,Employee Retention,Enterprise Digital Twin,Governed formula defined in semantic metric registry for Employee Retention.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-019,Fleet Utilization,Executive Command Center,Governed formula defined in semantic metric registry for Fleet Utilization.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-020,Idle %,Semantic Metrics Layer,Governed formula defined in semantic metric registry for Idle %.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-021,Fuel Efficiency,Operational Intelligence,Governed formula defined in semantic metric registry for Fuel Efficiency.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-022,Equipment Downtime,Financial Intelligence,Governed formula defined in semantic metric registry for Equipment Downtime.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-023,Maintenance Cost / Hour,Project Intelligence,Governed formula defined in semantic metric registry for Maintenance Cost / Hour.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-024,Procurement Savings,Estimating Intelligence,Governed formula defined in semantic metric registry for Procurement Savings.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-025,Supplier On-Time Delivery,CRM & Market Intelligence,Governed formula defined in semantic metric registry for Supplier On-Time Delivery.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-026,Material Lead Time,Workforce Intelligence,Governed formula defined in semantic metric registry for Material Lead Time.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-027,Inventory Turnover,Procurement Intelligence,Governed formula defined in semantic metric registry for Inventory Turnover.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-028,Safety TRIR,Fleet Intelligence,Governed formula defined in semantic metric registry for Safety TRIR.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-029,Near-Miss Closure,"Safety, Quality & Compliance Analytics",Governed formula defined in semantic metric registry for Near-Miss Closure.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-030,Quality Rework %,Portfolio & Program Intelligence,Governed formula defined in semantic metric registry for Quality Rework %.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-031,Customer Profitability,Forecasting & Scenario Planning,Governed formula defined in semantic metric registry for Customer Profitability.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-032,Customer Retention,AI Decision Intelligence,Governed formula defined in semantic metric registry for Customer Retention.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-033,Data Freshness SLA,Data Platform & Lineage,Governed formula defined in semantic metric registry for Data Freshness SLA.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-034,Data Quality Pass Rate,Reporting & Distribution,Governed formula defined in semantic metric registry for Data Quality Pass Rate.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-035,Forecast Accuracy,Self-Service Analytics,Governed formula defined in semantic metric registry for Forecast Accuracy.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-036,AI Recommendation Acceptance,Enterprise Digital Twin,Governed formula defined in semantic metric registry for AI Recommendation Acceptance.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-037,AI Recommendation Benefit,Executive Command Center,Governed formula defined in semantic metric registry for AI Recommendation Benefit.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-038,Dashboard Adoption,Semantic Metrics Layer,Governed formula defined in semantic metric registry for Dashboard Adoption.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-039,Decision Cycle Time,Operational Intelligence,Governed formula defined in semantic metric registry for Decision Cycle Time.,Daily/Weekly/Monthly,Owner assigned
+P13-KPI-040,Strategic Objective Attainment,Financial Intelligence,Governed formula defined in semantic metric registry for Strategic Objective Attainment.,Daily/Weekly/Monthly,Owner assigned

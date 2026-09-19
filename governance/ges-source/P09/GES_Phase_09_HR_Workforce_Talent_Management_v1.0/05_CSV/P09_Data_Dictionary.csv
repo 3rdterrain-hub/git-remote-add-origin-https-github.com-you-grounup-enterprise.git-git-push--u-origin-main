@@ -1,0 +1,121 @@
+Field ID,Entity,Field,Data Type,Required,Definition,Control
+GES-P09-FLD-0001,Tenant Workforce Configuration,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0002,Tenant Workforce Configuration,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0003,Tenant Workforce Configuration,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0004,Tenant Workforce Configuration,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0005,Tenant Workforce Configuration,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0006,Tenant Workforce Configuration,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0007,Tenant Workforce Configuration,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0008,Tenant Workforce Configuration,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0009,Tenant Workforce Configuration,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0010,Tenant Workforce Configuration,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0011,Tenant Workforce Configuration,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0012,Tenant Workforce Configuration,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0013,Legal Employer,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0014,Legal Employer,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0015,Legal Employer,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0016,Legal Employer,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0017,Legal Employer,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0018,Legal Employer,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0019,Legal Employer,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0020,Legal Employer,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0021,Legal Employer,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0022,Legal Employer,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0023,Legal Employer,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0024,Legal Employer,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0025,Business Unit,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0026,Business Unit,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0027,Business Unit,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0028,Business Unit,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0029,Business Unit,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0030,Business Unit,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0031,Business Unit,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0032,Business Unit,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0033,Business Unit,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0034,Business Unit,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0035,Business Unit,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0036,Business Unit,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0037,Department,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0038,Department,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0039,Department,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0040,Department,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0041,Department,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0042,Department,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0043,Department,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0044,Department,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0045,Department,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0046,Department,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0047,Department,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0048,Department,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0049,Work Location,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0050,Work Location,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0051,Work Location,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0052,Work Location,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0053,Work Location,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0054,Work Location,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0055,Work Location,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0056,Work Location,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0057,Work Location,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0058,Work Location,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0059,Work Location,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0060,Work Location,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0061,Labor Region,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0062,Labor Region,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0063,Labor Region,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0064,Labor Region,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0065,Labor Region,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0066,Labor Region,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0067,Labor Region,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0068,Labor Region,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0069,Labor Region,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0070,Labor Region,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0071,Labor Region,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0072,Labor Region,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0073,Worker,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0074,Worker,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0075,Worker,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0076,Worker,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0077,Worker,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0078,Worker,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0079,Worker,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0080,Worker,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0081,Worker,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0082,Worker,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0083,Worker,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0084,Worker,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0085,Person,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0086,Person,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0087,Person,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0088,Person,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0089,Person,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0090,Person,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0091,Person,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0092,Person,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0093,Person,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0094,Person,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0095,Person,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0096,Person,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0097,Emergency Contact,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0098,Emergency Contact,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0099,Emergency Contact,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0100,Emergency Contact,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0101,Emergency Contact,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0102,Emergency Contact,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0103,Emergency Contact,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0104,Emergency Contact,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0105,Emergency Contact,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0106,Emergency Contact,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0107,Emergency Contact,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0108,Emergency Contact,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted
+GES-P09-FLD-0109,Employment Relationship,tenant_id,UUID,Yes,Tenant isolation key,Tenant configurable where permitted
+GES-P09-FLD-0110,Employment Relationship,id,UUID,Yes,Canonical record identifier,Tenant configurable where permitted
+GES-P09-FLD-0111,Employment Relationship,status,String,Yes,Lifecycle status,Tenant configurable where permitted
+GES-P09-FLD-0112,Employment Relationship,effective_start,DateTime,No,Effective period start,Tenant configurable where permitted
+GES-P09-FLD-0113,Employment Relationship,effective_end,DateTime,No,Effective period end,Tenant configurable where permitted
+GES-P09-FLD-0114,Employment Relationship,created_at,DateTime,Yes,Creation timestamp,Tenant configurable where permitted
+GES-P09-FLD-0115,Employment Relationship,created_by,UUID,Yes,Creating actor,Tenant configurable where permitted
+GES-P09-FLD-0116,Employment Relationship,updated_at,DateTime,Yes,Last update timestamp,Tenant configurable where permitted
+GES-P09-FLD-0117,Employment Relationship,updated_by,UUID,Yes,Updating actor,Tenant configurable where permitted
+GES-P09-FLD-0118,Employment Relationship,version,Integer,Yes,Optimistic concurrency version,Tenant configurable where permitted
+GES-P09-FLD-0119,Employment Relationship,source_system,String,No,Origin system,Tenant configurable where permitted
+GES-P09-FLD-0120,Employment Relationship,security_classification,String,Yes,Data sensitivity classification,Tenant configurable where permitted

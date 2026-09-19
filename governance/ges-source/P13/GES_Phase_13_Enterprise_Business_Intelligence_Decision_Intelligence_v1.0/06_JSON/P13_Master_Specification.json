@@ -1,0 +1,119 @@
+{
+  "phase": "13",
+  "name": "Enterprise Business Intelligence, Executive Analytics & Decision Intelligence",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Executive Command Center",
+      "purpose": "Enterprise scorecards, strategic objectives, portfolio health, exception management and executive narratives."
+    },
+    {
+      "name": "Semantic Metrics Layer",
+      "purpose": "Governed KPI definitions, dimensions, measures, calendars, units, ownership and certification."
+    },
+    {
+      "name": "Operational Intelligence",
+      "purpose": "Production, schedule, field, labor, equipment and resource analytics."
+    },
+    {
+      "name": "Financial Intelligence",
+      "purpose": "Revenue, margin, cash, WIP, cost, forecast and profitability analytics."
+    },
+    {
+      "name": "Project Intelligence",
+      "purpose": "Project health, cost/schedule variance, earned value, risk and forecast-at-completion."
+    },
+    {
+      "name": "Estimating Intelligence",
+      "purpose": "Estimate quality, bid performance, production assumptions, historical calibration and estimate-to-actual."
+    },
+    {
+      "name": "CRM & Market Intelligence",
+      "purpose": "Pipeline, win rate, customer profitability, segmentation, market and backlog analytics."
+    },
+    {
+      "name": "Workforce Intelligence",
+      "purpose": "Utilization, productivity, overtime, qualifications, retention and workforce capacity."
+    },
+    {
+      "name": "Procurement Intelligence",
+      "purpose": "Supplier performance, lead times, price trends, inventory and supply-chain risk."
+    },
+    {
+      "name": "Fleet Intelligence",
+      "purpose": "Utilization, idle time, fuel, maintenance, downtime, owning/operating cost and replacement analytics."
+    },
+    {
+      "name": "Safety, Quality & Compliance Analytics",
+      "purpose": "Leading/lagging indicators, incidents, observations, quality trends and compliance status."
+    },
+    {
+      "name": "Portfolio & Program Intelligence",
+      "purpose": "Cross-project portfolio performance, capital allocation, backlog and strategic capacity."
+    },
+    {
+      "name": "Forecasting & Scenario Planning",
+      "purpose": "Driver-based forecasts, what-if analysis, Monte Carlo-ready scenarios and sensitivity analysis."
+    },
+    {
+      "name": "AI Decision Intelligence",
+      "purpose": "Anomaly detection, root-cause assistance, recommendations, confidence, evidence and human approval."
+    },
+    {
+      "name": "Data Platform & Lineage",
+      "purpose": "Warehouse/lakehouse ingestion, transformations, lineage, freshness, quality and observability."
+    },
+    {
+      "name": "Reporting & Distribution",
+      "purpose": "Scheduled reports, subscriptions, alerts, exports, board packs and governed sharing."
+    },
+    {
+      "name": "Self-Service Analytics",
+      "purpose": "Role-based exploration, saved views, drill-through, natural-language query and certified datasets."
+    },
+    {
+      "name": "Enterprise Digital Twin",
+      "purpose": "Cross-phase enterprise state, snapshots, event lineage, scenario state and decision records."
+    }
+  ],
+  "counts": {
+    "requirements": 300,
+    "entities": 123,
+    "fields": 200,
+    "business_rules": 55,
+    "validation_rules": 55,
+    "workflows": 28,
+    "engines": 35,
+    "api_resources": 45,
+    "ui_surfaces": 25,
+    "reports": 25,
+    "kpis": 40,
+    "tests": 300
+  },
+  "integration_phases": [
+    "03",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "14",
+    "15",
+    "16",
+    "18",
+    "19",
+    "20",
+    "29"
+  ],
+  "ai_governance": {
+    "consequential_decisions": "human approval required",
+    "evidence": "required",
+    "confidence": "required",
+    "audit": "required",
+    "tenant_isolation": "required"
+  }
+}

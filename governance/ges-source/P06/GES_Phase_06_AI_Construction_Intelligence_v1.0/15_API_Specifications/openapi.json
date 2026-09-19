@@ -1,0 +1,229 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrounUp AI Construction Intelligence API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/ai/tasks": {
+      "post": {
+        "summary": "Create an AI task",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/tasks/{taskId}": {
+      "get": {
+        "summary": "Retrieve task status and result",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/tasks/{taskId}/approve": {
+      "post": {
+        "summary": "Approve an AI recommendation or action",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/tasks/{taskId}/reject": {
+      "post": {
+        "summary": "Reject an AI recommendation or action",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/conversations": {
+      "post": {
+        "summary": "Create conversation",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/conversations/{id}/messages": {
+      "post": {
+        "summary": "Send message",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/agents": {
+      "post": {
+        "summary": "Create draft agent",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/agents/{id}/deploy": {
+      "post": {
+        "summary": "Deploy approved agent version",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/prompts/{id}/evaluate": {
+      "post": {
+        "summary": "Run prompt evaluation suite",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/knowledge/ingest": {
+      "post": {
+        "summary": "Ingest knowledge source",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/knowledge/search": {
+      "get": {
+        "summary": "Search authorized knowledge",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/feedback": {
+      "post": {
+        "summary": "Submit feedback",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/usage": {
+      "get": {
+        "summary": "Retrieve AI usage and cost",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/audit": {
+      "get": {
+        "summary": "Search AI audit events",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/incidents": {
+      "post": {
+        "summary": "Create AI incident",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/incidents/{id}/contain": {
+      "post": {
+        "summary": "Contain affected deployment",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/evaluations": {
+      "get": {
+        "summary": "List evaluation results",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/marketplace/packages": {
+      "get": {
+        "summary": "Browse marketplace packages",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/tenant-config": {
+      "put": {
+        "summary": "Update tenant AI configuration",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/model-profiles": {
+      "get": {
+        "summary": "List model profiles",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/memories": {
+      "post": {
+        "summary": "Create authorized memory",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/ai/memories/{id}": {
+      "delete": {
+        "summary": "Delete memory record",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  }
+}

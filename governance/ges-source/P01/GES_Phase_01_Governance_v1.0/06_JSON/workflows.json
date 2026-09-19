@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0-review",
+  "workflows": [
+    {
+      "workflow_id": "WF-P01-001",
+      "name": "Tenant Provisioning",
+      "actors": "Platform Admin; Tenant Owner",
+      "states": "Requested; Validating; Provisioning; Verification; Active; Failed",
+      "trigger": "Provisioning request",
+      "core_steps": "Validate template, region, entitlements, owner, defaults; create tenant; run checks",
+      "output": "Active tenant or remediation case",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-002",
+      "name": "User Invitation and Activation",
+      "actors": "Admin; Invited User; Identity Provider",
+      "states": "Draft; Sent; Accepted; Verified; Active; Expired; Cancelled",
+      "trigger": "User invitation",
+      "core_steps": "Validate email and scope; send invitation; authenticate; accept terms; assign baseline access",
+      "output": "Active governed identity",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-003",
+      "name": "Role and Permission Change",
+      "actors": "Requester; Security Admin; Approver",
+      "states": "Draft; Submitted; Risk Review; Approved; Applied; Rejected; Revoked",
+      "trigger": "Access request",
+      "core_steps": "Evaluate requested permissions, conflicts, scope, duration, approval, and audit",
+      "output": "Updated role assignment",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-004",
+      "name": "Policy Publication",
+      "actors": "Policy Owner; Reviewer; Approver; Affected User",
+      "states": "Draft; Review; Approved; Scheduled; Active; Superseded; Retired",
+      "trigger": "Policy version prepared",
+      "core_steps": "Validate content, scope, dates, overlaps, approvals, publication, acknowledgment",
+      "output": "Active policy version",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P01-005",
+      "name": "Approval Request",
+      "actors": "Requester; Routing Engine; Approver",
+      "states": "Draft; Pending; In Review; Approved; Rejected; Cancelled; Expired",
+      "trigger": "Governed action submitted",
+      "core_steps": "Resolve policy and approvers; enforce independence and delegation; record immutable decision",
+      "output": "Authorized or rejected action",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-006",
+      "name": "Delegation",
+      "actors": "Delegator; Delegate; Approver",
+      "states": "Draft; Submitted; Approved; Active; Expired; Revoked",
+      "trigger": "Delegation request",
+      "core_steps": "Validate authority boundary, scope, duration, conflicts, and notice",
+      "output": "Active bounded delegation",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P01-007",
+      "name": "Emergency Access",
+      "actors": "Requester; Security Approver; Reviewer",
+      "states": "Requested; Approved; Active; Expired; Revoked; Under Review; Closed",
+      "trigger": "Break-glass request",
+      "core_steps": "Capture justification; approve; elevate; log; notify; auto-expire; conduct review",
+      "output": "Closed emergency access case",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-008",
+      "name": "Change Control",
+      "actors": "Author; Impact Reviewers; Change Control Board",
+      "states": "Draft; Submitted; Impact Review; Approved; Rejected; Implementing; Verified; Closed",
+      "trigger": "Change request",
+      "core_steps": "Assess business, data, security, AI, integration, migration, rollback, testing, and downstream impact",
+      "output": "Controlled successor version",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-009",
+      "name": "Retention and Disposition",
+      "actors": "Records Manager; System; Legal Reviewer",
+      "states": "Scheduled; Eligible; Hold Check; Approved; Disposed; Suppressed",
+      "trigger": "Retention trigger reached",
+      "core_steps": "Evaluate schedule, holds, investigations, approvals; execute disposition; record evidence",
+      "output": "Disposed record or hold exception",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P01-010",
+      "name": "AI Governance Proposal",
+      "actors": "User/Agent; Reviewer; Approver",
+      "states": "Generated; Evidence Check; Submitted; Review; Approved; Rejected; Applied",
+      "trigger": "AI proposes governed change",
+      "core_steps": "Validate permission, evidence, confidence, target diff, policy, approval, writeback, audit",
+      "output": "Approved writeback or rejected proposal",
+      "priority": "Critical"
+    }
+  ]
+}

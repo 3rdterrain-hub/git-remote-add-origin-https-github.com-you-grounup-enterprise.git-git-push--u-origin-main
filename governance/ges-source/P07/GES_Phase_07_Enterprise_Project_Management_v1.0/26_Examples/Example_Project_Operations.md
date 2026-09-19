@@ -1,0 +1,3 @@
+# Example - Five-Acre Site Development Operations
+
+An awarded earthwork estimate is converted to a project with a controlled budget, WBS, cost codes, baseline schedule, crew and equipment plan, procurement items, safety and quality plans. Field users capture daily labor, D6 dozer and excavator hours, fuel, haul cycles, placed quantities, compaction tests, weather, photos, and constraints. The Digital Twin combines the current schedule, approved budget, actual cost, production, equipment, documents, risks, and AI forecasts. A late storm-pipe delivery creates an alert, a constraint, and a recovery recommendation; the project manager decides whether to resequence work or pursue an alternate supplier.

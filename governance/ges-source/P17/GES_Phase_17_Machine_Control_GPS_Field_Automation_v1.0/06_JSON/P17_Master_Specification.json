@@ -1,0 +1,146 @@
+{
+  "phase": "17",
+  "name": "Machine Control, GPS & Field Automation",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Machine Control Core",
+      "purpose": "Governed machine-control projects, files, revisions, assignments, status and audit."
+    },
+    {
+      "name": "GPS/GNSS Positioning",
+      "purpose": "Machine GNSS receivers, correction services, localization, positioning quality and health."
+    },
+    {
+      "name": "Localization & Calibration",
+      "purpose": "Site calibration/localization, control points, residuals, validation, approvals and rollback."
+    },
+    {
+      "name": "3D Models & Surfaces",
+      "purpose": "Machine-ready surfaces, alignments, corridors, linework, grades, slope models and version control."
+    },
+    {
+      "name": "2D Guidance",
+      "purpose": "Horizontal/vertical guidance, line/offset, depth, cross-slope and simple grade control."
+    },
+    {
+      "name": "3D Guidance",
+      "purpose": "Real-time design comparison, cut/fill, blade/bucket position, grade, slope and tolerance."
+    },
+    {
+      "name": "Automatic Grade Control",
+      "purpose": "Automated blade/bucket/implement control, limits, enablement, intervention and operator authority."
+    },
+    {
+      "name": "Excavator Guidance",
+      "purpose": "Bucket tip, depth, slope, trench, pipe, bench, reach and avoidance guidance."
+    },
+    {
+      "name": "Dozer Guidance",
+      "purpose": "Blade elevation, cross-slope, cut/fill, pass tracking, surface conformance and productivity."
+    },
+    {
+      "name": "Grader Guidance",
+      "purpose": "Moldboard position, cross-slope, design line, surface conformance and finish grading."
+    },
+    {
+      "name": "Compactor Guidance",
+      "purpose": "Pass count, coverage, speed, amplitude/frequency references, target zones and compaction evidence."
+    },
+    {
+      "name": "Loader & Material Handling",
+      "purpose": "Stockpile/bench guidance, payload references, zones, haul destinations and production context."
+    },
+    {
+      "name": "Paver/Milling Guidance",
+      "purpose": "Stringless references, elevation/slope targets, milling depth, paving control and QA interfaces."
+    },
+    {
+      "name": "Trenching & Utilities",
+      "purpose": "Utility alignment, trench depth, grade, bedding, pipe invert, exclusion zones and as-built capture."
+    },
+    {
+      "name": "Road & Highway Machine Control",
+      "purpose": "Alignments, stationing, cross-sections, corridors, superelevation and DOT model references."
+    },
+    {
+      "name": "Site Models & Job Files",
+      "purpose": "Job-file creation, packaging, validation, delivery, device import and revision acknowledgement."
+    },
+    {
+      "name": "Field Data Sync",
+      "purpose": "Machine-to-cloud, cloud-to-machine, offline sync, conflict detection, resumable transfer and telemetry."
+    },
+    {
+      "name": "Machine Telemetry Integration",
+      "purpose": "Hours, position, utilization, idle, fuel, fault codes and machine-control activity linkage."
+    },
+    {
+      "name": "Operator Interface",
+      "purpose": "In-cab UX, alerts, revision status, quality indicators, operator acknowledgement and training mode."
+    },
+    {
+      "name": "Safety & Exclusion Controls",
+      "purpose": "Geofences, no-go zones, utilities, overhead hazards, slope limits and alert/escalation rules."
+    },
+    {
+      "name": "Design Change Management",
+      "purpose": "Changed surfaces/alignments, impact analysis, withdrawal, reissue and field acknowledgement."
+    },
+    {
+      "name": "As-Built & Production Capture",
+      "purpose": "Machine-measured elevations, passes, cut/fill progress, material movement and evidence."
+    },
+    {
+      "name": "Quality Assurance",
+      "purpose": "Tolerance checks, conformance, checkpoints, calibration status, model validation and exception handling."
+    },
+    {
+      "name": "Field Automation",
+      "purpose": "Automated workflows, digital work instructions, task sequencing, triggers, alerts and completion evidence."
+    },
+    {
+      "name": "Remote Support & Diagnostics",
+      "purpose": "Remote session controls, troubleshooting, software/firmware status, logs and support evidence."
+    },
+    {
+      "name": "Device & Firmware Management",
+      "purpose": "Controllers, displays, sensors, antennas, firmware, compatibility, configuration and release control."
+    },
+    {
+      "name": "Vendor/Platform Interoperability",
+      "purpose": "Trimble, Topcon, Leica and other vendor-neutral adapters, formats and mapping layers."
+    },
+    {
+      "name": "AI Machine Intelligence",
+      "purpose": "Evidence-grounded anomaly detection, optimization recommendations, diagnostics and model QA."
+    },
+    {
+      "name": "Machine Control Digital Twin",
+      "purpose": "Current model, localization, device, operator, machine, telemetry, production and quality state."
+    }
+  ],
+  "counts": {
+    "requirements": 380,
+    "entities": 175,
+    "fields": 280,
+    "business_rules": 75,
+    "validation_rules": 75,
+    "workflows": 51,
+    "engines": 55,
+    "api_resources": 68,
+    "ui_surfaces": 49,
+    "reports": 40,
+    "kpis": 51,
+    "tests": 380
+  },
+  "critical_governance": [
+    "Only approved model and localization revisions may be issued as authoritative machine-control jobs.",
+    "Machine-control job files retain CRS/datum/geoid/units, checksum, lineage and source handoff evidence from Phase 16.",
+    "Automatic grade/control enablement requires compatible equipment, healthy positioning, authorized operator and configured safety prerequisites.",
+    "AI cannot enable autonomous machine control, override geofences/no-go zones, certify localization/model accuracy, or publish safety-critical revisions.",
+    "Design changes require impact review, withdrawal/reissue controls and operator acknowledgement.",
+    "As-built and production data are traceable to exact job/model/localization/device/operator session."
+  ]
+}

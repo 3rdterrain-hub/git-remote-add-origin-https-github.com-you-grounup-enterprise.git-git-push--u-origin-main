@@ -1,0 +1,33 @@
+rule_id,name,rule,severity
+P30-BR-001,Immutable plan versions,Published plan versions are immutable; commercial changes create a new effective version.,Blocking
+P30-BR-002,Deterministic entitlement resolution,"Effective access is resolved from plan version, add-ons, contract overrides, trial state and approved flags without hidden manual bypass.",Blocking
+P30-BR-003,Security is not an entitlement,"Commercial entitlement cannot override Phase 28 security, authorization, privacy or tenant-isolation controls.",Blocking
+P30-BR-004,Operational continuity,Commercial suspension/cancellation behavior follows explicit policy and must not corrupt or silently delete tenant operational data.,Blocking
+P30-BR-005,Idempotent usage,Usage events use idempotency keys/business identity to prevent duplicate billing or quota consumption.,Blocking
+P30-BR-006,Usage traceability,"Invoice usage lines trace to meter definition, aggregation period and underlying accepted usage evidence.",Blocking
+P30-BR-007,Proration reproducibility,"Proration inputs, time basis, currency, plan/price versions and calculation results are reproducible.",Blocking
+P30-BR-008,Invoice immutability,Issued invoices are not silently edited; corrections use governed credits/adjustments/reissuance policy.,Blocking
+P30-BR-009,Payment provider abstraction,Provider state is synchronized through a controlled adapter; provider metadata does not become the sole internal source of commercial truth.,Blocking
+P30-BR-010,Failed payment policy,"Dunning, grace, suspension and reactivation follow versioned policy and preserve audit evidence.",Blocking
+P30-BR-011,Trial eligibility,"Trial eligibility, duration, conversion and repeat-trial policy are explicit and auditable.",Blocking
+P30-BR-012,Promotion eligibility,"Promotions/coupons enforce eligibility, redemption limits, effective dates and stacking rules.",Blocking
+P30-BR-013,Seat enforcement,Seat-based plans enforce licensed seat count according to hard/soft overage policy.,Blocking
+P30-BR-014,Quota enforcement,Usage/storage/API/AI/project limits expose consumption and threshold state before configured enforcement where feasible.,Blocking
+P30-BR-015,Enterprise overrides,"Negotiated overrides require explicit scope, approver, effective period and precedence.",Blocking
+P30-BR-016,Grandfathering,Legacy customers retain only explicitly grandfathered plan/price versions; migrations are recorded.,Blocking
+P30-BR-017,White-label isolation,Tenant/reseller branding cannot alter another tenant or platform security identity.,Blocking
+P30-BR-018,Custom domain verification,Custom domains require ownership verification and managed certificate/security lifecycle.,Blocking
+P30-BR-019,Branded communication safety,Custom email/document branding cannot spoof unauthorized senders or remove required legal/security notices.,Blocking
+P30-BR-020,Support entitlement,Support tier affects service channel/SLA eligibility but cannot change product security authorization.,Blocking
+P30-BR-021,Partner attribution,"Reseller/partner access and revenue attribution are explicit, tenant-approved where required, and auditable.",Blocking
+P30-BR-022,Marketplace entitlement,Marketplace/integration access requires both commercial entitlement and technical/security authorization.,Blocking
+P30-BR-023,API commercial limits,API plan limits are enforced separately from abuse/security rate limiting; security controls always take precedence.,Blocking
+P30-BR-024,Cancellation export,Configured cancellation/offboarding may offer permitted export windows without bypassing retention/privacy/legal policy.,Blocking
+P30-BR-025,Tax evidence,"Tax determination retains jurisdiction, inputs, provider/rule version and result evidence when applicable.",Blocking
+P30-BR-026,Currency consistency,Subscription/invoice calculations use explicit currency and governed conversion policy; original commercial amounts are preserved.,Blocking
+P30-BR-027,Revenue reconciliation,"Commercial analytics reconcile subscriptions, invoices, credits, payments and usage under defined rules.",Blocking
+P30-BR-028,No silent access expansion,"Billing correction, refund or payment success cannot silently grant capabilities outside effective entitlements.",Blocking
+P30-BR-029,Commercial SoD,"Sensitive plan publishing, credits, write-offs, refunds, contract overrides and manual entitlement actions use role/separation controls.",Blocking
+P30-BR-030,Commercial correction trace,"Manual correction retains reason, prior state, new state, actor/approval and impacted billing/access records.",Blocking
+P30-BR-031,Customer communication,"Material plan, price, renewal, suspension and deprecation notices follow configurable policy and evidence.",Blocking
+P30-BR-032,Feature deprecation,"Deprecated features have effective dates, impacted plan mapping and customer migration/communication controls.",Blocking

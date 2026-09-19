@@ -1,0 +1,15 @@
+stateDiagram-v2
+ [*] --> Potential
+ Potential --> Scoping
+ Scoping --> Pricing
+ Pricing --> Review
+ Review --> Authorized
+ Review --> Rejected
+ Authorized --> Negotiation
+ Negotiation --> Approved
+ Negotiation --> Rejected
+ Approved --> Executed
+ Executed --> Reconciled
+ Reconciled --> Closed
+ Rejected --> Closed
+ Closed --> [*]

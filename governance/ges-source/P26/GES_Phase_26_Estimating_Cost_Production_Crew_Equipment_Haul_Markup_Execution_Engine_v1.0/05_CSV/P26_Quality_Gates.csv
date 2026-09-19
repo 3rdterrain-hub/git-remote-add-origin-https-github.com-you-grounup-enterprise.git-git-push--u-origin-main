@@ -1,0 +1,15 @@
+gate_id,gate,pass_rule,requirement
+P26-QG-01,Cost Rollup,Direct-cost component and total formulas pass golden tests,Required
+P26-QG-02,Production & Duration,Production/modifier/duration tests pass,Required
+P26-QG-03,Crew Labor,Crew counts and labor-hour rollup tests pass,Required
+P26-QG-04,Equipment Rate,Hourly/daily/weekly/monthly selection policy tests pass,Required
+P26-QG-05,Fuel,Fuel quantity/cost tests pass,Required
+P26-QG-06,Truck Cycle/Count,"Cycle, trip and balanced truck count tests pass",Required
+P26-QG-07,Haul/Disposal,Trip/hour haul and disposal conversion tests pass,Required
+P26-QG-08,Markup,Parallel/stacked/ordered markup golden tests pass,Required
+P26-QG-09,Snapshot Reproducibility,Changed live libraries do not change frozen estimate results,Required
+P26-QG-10,Scenario Compare,Low/base/high/alternate scenarios preserve explicit assumptions,Required
+P26-QG-11,AI Boundary,AI cannot mutate/approve/freeze authoritative estimate state,Required
+P26-QG-12,Tenant Isolation,Cross-tenant estimate/rate/quote negative tests pass,Required
+P26-QG-13,Calculation Trace,Each engine output carries complete input/rule/version lineage,Release gate
+P26-QG-14,Estimate-to-Job Handoff,Approved estimate baseline exports exact version/snapshot,Release gate

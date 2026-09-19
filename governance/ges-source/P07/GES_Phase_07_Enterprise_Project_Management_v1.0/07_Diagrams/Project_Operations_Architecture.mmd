@@ -1,0 +1,15 @@
+flowchart TB
+ U[Web, Mobile, Portals] --> C[Project Command Center]
+ C --> M[Operations Modules]
+ M --> S[Scheduling and Field Operations]
+ M --> D[Document and Change Control]
+ M --> F[Cost, Procurement, Billing]
+ M --> Q[Safety and Quality]
+ S --> T[Project Digital Twin]
+ D --> T
+ F --> T
+ Q --> T
+ T --> A[AI Operations Center]
+ A --> C
+ M --> P[Canonical APIs and Event Bus]
+ P --> E[Phases 03-06 Data, Libraries, Estimating, AI Governance]

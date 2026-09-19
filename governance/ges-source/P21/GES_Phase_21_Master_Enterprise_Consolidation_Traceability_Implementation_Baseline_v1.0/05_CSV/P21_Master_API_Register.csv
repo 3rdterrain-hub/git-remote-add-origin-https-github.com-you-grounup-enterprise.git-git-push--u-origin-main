@@ -1,0 +1,795 @@
+phase,phase_title,api_id,method,path,resource,security,control
+01,Governance,API-P01-001,GET,/v1/tenants/{tenantId},,,
+01,Governance,API-P01-002,POST,/v1/tenants,,,
+01,Governance,API-P01-003,GET,/v1/organization-units,,,
+01,Governance,API-P01-004,POST,/v1/users/invitations,,,
+01,Governance,API-P01-005,POST,/v1/role-assignments,,,
+01,Governance,API-P01-006,DELETE,/v1/role-assignments/{id},,,
+01,Governance,API-P01-007,GET,/v1/effective-permissions,,,
+01,Governance,API-P01-008,POST,/v1/policies/{policyId}/versions,,,
+01,Governance,API-P01-009,POST,/v1/approval-requests,,,
+01,Governance,API-P01-010,POST,/v1/approval-requests/{id}/decisions,,,
+01,Governance,API-P01-011,POST,/v1/delegations,,,
+01,Governance,API-P01-012,GET,/v1/audit-events,,,
+01,Governance,API-P01-013,POST,/v1/legal-holds,,,
+01,Governance,API-P01-014,POST,/v1/change-requests,,,
+01,Governance,API-P01-015,POST,/v1/emergency-access,,,
+01,Governance,API-P01-016,POST,/v1/ai-governance/proposals,,,
+02,Core Platform,API-P02-001,POST,/v1/auth/sessions,,,
+02,Core Platform,API-P02-002,DELETE,/v1/auth/sessions/{sessionId},,,
+02,Core Platform,API-P02-003,POST,/v1/authorization/decisions,,,
+02,Core Platform,API-P02-004,POST,/v1/files/uploads,,,
+02,Core Platform,API-P02-005,POST,/v1/files/uploads/{uploadId}/complete,,,
+02,Core Platform,API-P02-006,GET,/v1/search,,,
+02,Core Platform,API-P02-007,POST,/v1/notifications,,,
+02,Core Platform,API-P02-008,POST,/v1/schedules,,,
+02,Core Platform,API-P02-009,POST,/v1/jobs,,,
+02,Core Platform,API-P02-010,GET,/v1/jobs/{jobId},,,
+02,Core Platform,API-P02-011,POST,/v1/workflows/{definitionKey}/instances,,,
+02,Core Platform,API-P02-012,POST,/v1/rules/{ruleKey}/evaluate,,,
+02,Core Platform,API-P02-013,POST,/v1/webhook-subscriptions,,,
+02,Core Platform,API-P02-014,POST,/v1/connectors,,,
+02,Core Platform,API-P02-015,POST,/v1/imports,,,
+02,Core Platform,API-P02-016,POST,/v1/exports,,,
+02,Core Platform,API-P02-017,POST,/v1/mobile/offline-packs,,,
+02,Core Platform,API-P02-018,POST,/v1/mobile/sync,,,
+02,Core Platform,API-P02-019,POST,/v1/feature-flags,,,
+02,Core Platform,API-P02-020,GET,/v1/platform/health,,,
+02,Core Platform,API-P02-021,POST,/v1/ai/executions,,,
+02,Core Platform,API-P02-022,POST,/v1/ai/tools/{toolKey}/invoke,,,
+03,Enterprise Data Model,API-P03-001,GET,/v1/data-model/entities,,,
+03,Enterprise Data Model,API-P03-002,GET,/v1/data-model/entities/{entityKey},,,
+03,Enterprise Data Model,API-P03-003,GET,/v1/data-model/reference-sets,,,
+03,Enterprise Data Model,API-P03-004,POST,/v1/data-model/reference-sets,,,
+03,Enterprise Data Model,API-P03-005,POST,/v1/master-data/parties,,,
+03,Enterprise Data Model,API-P03-006,POST,/v1/master-data/parties/{partyId}/merge,,,
+03,Enterprise Data Model,API-P03-007,POST,/v1/data-quality/evaluations,,,
+03,Enterprise Data Model,API-P03-008,GET,/v1/data-quality/exceptions,,,
+03,Enterprise Data Model,API-P03-009,POST,/v1/imports/{importId}/commit,,,
+03,Enterprise Data Model,API-P03-010,POST,/v1/exports,,,
+03,Enterprise Data Model,API-P03-011,GET,/v1/lineage/{entityType}/{entityId},,,
+03,Enterprise Data Model,API-P03-012,POST,/v1/ai-writebacks/{writebackId}/commit,,,
+04,Master Library Registry,,GET,/v1/libraries,,,
+04,Master Library Registry,,POST,/v1/libraries,,,
+04,Master Library Registry,,GET,/v1/libraries/{libraryId},,,
+04,Master Library Registry,,PATCH,/v1/libraries/{libraryId},,,
+04,Master Library Registry,,GET,/v1/libraries/{libraryId}/items,,,
+04,Master Library Registry,,POST,/v1/libraries/{libraryId}/items,,,
+04,Master Library Registry,,GET,/v1/library-items/{itemId},,,
+04,Master Library Registry,,PATCH,/v1/library-items/{itemId},,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/submit,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/approve,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/reject,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/publish,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/supersede,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/deprecate,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/rollback,,,
+04,Master Library Registry,,POST,/v1/library-imports,,,
+04,Master Library Registry,,GET,/v1/library-imports/{importId},,,
+04,Master Library Registry,,POST,/v1/library-imports/{importId}/validate,,,
+04,Master Library Registry,,POST,/v1/library-imports/{importId}/publish,,,
+04,Master Library Registry,,GET,/v1/library-search,,,
+04,Master Library Registry,,POST,/v1/library-resolve,,,
+04,Master Library Registry,,GET,/v1/library-items/{itemId}/history,,,
+04,Master Library Registry,,GET,/v1/library-items/{itemId}/impact,,,
+04,Master Library Registry,,POST,/v1/library-items/{itemId}/clone,,,
+05,Estimating Cost Intelligence,GES-P05-API-001,POST,/v1/estimates,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-002,GET,/v1/estimates/{id},,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-003,POST,/v1/estimates/{id}/versions,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-004,POST,/v1/estimates/{id}/calculate,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-005,POST,/v1/estimates/{id}/validate,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-006,POST,/v1/estimates/{id}/submit,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-007,POST,/v1/estimates/{id}/approve,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-008,POST,/v1/estimates/{id}/scenarios,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-009,POST,/v1/takeoff/documents,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-010,POST,/v1/takeoff/measurements,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-011,POST,/v1/takeoff/revision-comparisons,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-012,GET,/v1/assemblies,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-013,POST,/v1/production/calculate,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-014,POST,/v1/haul/calculate,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-015,POST,/v1/risk/simulations,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-016,GET,/v1/calculations/{trace_id},,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-017,POST,/v1/ai/recommendations/{id}/disposition,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-018,GET,/v1/configuration/tenant,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-019,PUT,/v1/configuration/white-label,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-020,POST,/v1/actuals,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-021,POST,/v1/calibration/proposals,,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-022,GET,/v1/reports/estimate-review/{id},,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-023,POST,/v1/exports/estimate/{id},,OAuth2/JWT,
+05,Estimating Cost Intelligence,GES-P05-API-024,POST,/v1/webhooks,,OAuth2/JWT,
+06,AI Construction Intelligence,,POST,/v1/ai/tasks,,,
+06,AI Construction Intelligence,,GET,/v1/ai/tasks/{taskId},,,
+06,AI Construction Intelligence,,POST,/v1/ai/tasks/{taskId}/approve,,,
+06,AI Construction Intelligence,,POST,/v1/ai/tasks/{taskId}/reject,,,
+06,AI Construction Intelligence,,POST,/v1/ai/conversations,,,
+06,AI Construction Intelligence,,POST,/v1/ai/conversations/{id}/messages,,,
+06,AI Construction Intelligence,,GET,/v1/ai/agents,,,
+06,AI Construction Intelligence,,POST,/v1/ai/agents,,,
+06,AI Construction Intelligence,,POST,/v1/ai/agents/{id}/deploy,,,
+06,AI Construction Intelligence,,POST,/v1/ai/prompts/{id}/evaluate,,,
+06,AI Construction Intelligence,,POST,/v1/ai/knowledge/ingest,,,
+06,AI Construction Intelligence,,GET,/v1/ai/knowledge/search,,,
+06,AI Construction Intelligence,,POST,/v1/ai/feedback,,,
+06,AI Construction Intelligence,,GET,/v1/ai/usage,,,
+06,AI Construction Intelligence,,GET,/v1/ai/audit,,,
+06,AI Construction Intelligence,,POST,/v1/ai/incidents,,,
+06,AI Construction Intelligence,,POST,/v1/ai/incidents/{id}/contain,,,
+06,AI Construction Intelligence,,GET,/v1/ai/evaluations,,,
+06,AI Construction Intelligence,,POST,/v1/ai/marketplace/packages,,,
+06,AI Construction Intelligence,,GET,/v1/ai/marketplace/packages,,,
+06,AI Construction Intelligence,,PUT,/v1/ai/tenant-config,,,
+06,AI Construction Intelligence,,GET,/v1/ai/model-profiles,,,
+06,AI Construction Intelligence,,POST,/v1/ai/memories,,,
+06,AI Construction Intelligence,,DELETE,/v1/ai/memories/{id},,,
+07,Enterprise Project Management,P07-API-001,GET,/projects,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-002,POST,/projects,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-003,GET,/projects/{projectId},,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-004,PATCH,/projects/{projectId},,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-005,POST,/projects/{projectId}/transitions,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-006,GET,/projects/{projectId}/digital-twin,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-007,GET,/projects/{projectId}/schedule,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-008,POST,/projects/{projectId}/schedule/updates,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-009,POST,/projects/{projectId}/daily-reports,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-010,POST,/projects/{projectId}/daily-reports/{id}/submit,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-011,GET,/projects/{projectId}/documents,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-012,POST,/projects/{projectId}/documents,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-013,POST,/projects/{projectId}/rfis,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-014,POST,/projects/{projectId}/submittals,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-015,POST,/projects/{projectId}/change-events,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-016,POST,/projects/{projectId}/change-orders,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-017,GET,/projects/{projectId}/cost-control,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-018,POST,/projects/{projectId}/commitments,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-019,POST,/projects/{projectId}/invoices,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-020,POST,/projects/{projectId}/inspections,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-021,POST,/projects/{projectId}/incidents,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-022,GET,/projects/{projectId}/alerts,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-023,POST,/projects/{projectId}/offline-packages,,OAuth2 + project authorization,
+07,Enterprise Project Management,P07-API-024,POST,/projects/{projectId}/offline-packages/{id}/sync,,OAuth2 + project authorization,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-001,POST,/v1/leads,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-002,GET,/v1/leads/{leadId},,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-003,POST,/v1/leads/{leadId}/qualify,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-004,POST,/v1/leads/{leadId}/assign,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-005,POST,/v1/accounts,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-006,GET,/v1/accounts/{accountId}/360,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-007,POST,/v1/contacts,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-008,POST,/v1/opportunities,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-009,PATCH,/v1/opportunities/{opportunityId}/stage,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-010,POST,/v1/opportunities/{opportunityId}/estimate-links,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-011,POST,/v1/proposals,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-012,POST,/v1/proposals/{proposalId}/issue,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-013,POST,/v1/proposals/{proposalId}/signature-requests,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-014,POST,/v1/signature-events/webhook,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-015,POST,/v1/opportunities/{opportunityId}/handoff,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-016,POST,/v1/automations/{automationId}/enrollments,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-017,POST,/v1/communications,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-018,GET,/v1/communications/threads/{threadId},,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-019,POST,/v1/portal/invitations,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-020,POST,/v1/review-requests,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-021,POST,/v1/referrals,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-022,POST,/v1/warranty-requests,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-023,GET,/v1/forecasts,,,
+08,Enterprise CRM Sales Customer Experience,GES-P08-API-024,GET,/v1/ai/next-best-actions,,,
+09,HR Workforce Talent Management,GES-P09-API-001,GET,/workers,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-002,POST,/workers,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-003,GET,/workers/{id},,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-004,PATCH,/workers/{id},,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-005,POST,/requisitions,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-006,POST,/candidates,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-007,POST,/applications,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-008,POST,/offers,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-009,POST,/onboarding-plans,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-010,GET,/credentials/expiring,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-011,POST,/crew-assignments,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-012,POST,/eligibility/check,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-013,POST,/time-entries,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-014,POST,/timecards/{id}/submit,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-015,POST,/timecards/{id}/approve,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-016,POST,/payroll-exports,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-017,POST,/union-dispatch-requests,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-018,POST,/prevailing-wage/resolve,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-019,POST,/certified-payroll/generate,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-020,POST,/training-enrollments,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-021,POST,/leave-requests,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-022,POST,/performance-reviews,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-023,POST,/workforce-forecasts,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-024,POST,/crew-optimizer/recommend,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-025,GET,/workforce-digital-twins/{workerId},,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-026,POST,/ai-workforce/recommendations,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-027,POST,/ai-workforce/recommendations/{id}/review,,OAuth2/OIDC + tenant authorization,
+09,HR Workforce Talent Management,GES-P09-API-028,GET,/workforce-kpis,,OAuth2/OIDC + tenant authorization,
+10,Enterprise Financial Management Accounting,API-P10-01,POST,/financial/journals,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-02,POST,/financial/journals/{id}/approve,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-03,POST,/financial/journals/{id}/post,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-04,POST,/financial/journals/{id}/reverse,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-05,POST,/ap/invoices,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-06,POST,/ap/invoices/{id}/match,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-07,POST,/ap/payments/batches,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-08,POST,/ap/payments/batches/{id}/release,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-09,POST,/ar/invoices,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-10,POST,/ar/receipts,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-11,POST,/ar/receipts/{id}/apply,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-12,POST,/ar/collections/cases,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-13,GET,/projects/{id}/job-cost,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-14,POST,/projects/{id}/budgets/revisions,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-15,POST,/projects/{id}/forecasts,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-16,POST,/projects/{id}/wip/run,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-17,POST,/billing/applications,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-18,POST,/billing/applications/{id}/approve,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-19,POST,/payroll/posting-batches,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-20,POST,/payroll/posting-batches/{id}/reconcile,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-21,POST,/banking/statements,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-22,POST,/banking/reconciliations,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-23,POST,/cash/forecasts,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-24,GET,/cash/position,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-25,POST,/assets,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-26,POST,/assets/depreciation/run,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-27,POST,/tax/transactions/calculate,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-28,POST,/consolidations/run,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-29,GET,/financial/reports/{reportCode},,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-30,POST,/financial/ai/recommendations,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-31,POST,/financial/ai/recommendations/{id}/decision,,OAuth2 + tenant context,
+10,Enterprise Financial Management Accounting,API-P10-32,GET,/financial/digital-twin,,OAuth2 + tenant context,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-001,,/api/v1/suppliers,Suppliers,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-002,,/api/v1/supplier-qualifications,Supplier Qualifications,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-003,,/api/v1/supplier-scorecards,Supplier Scorecards,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-004,,/api/v1/sourcing-events,Sourcing Events,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-005,,/api/v1/rfqs,Rfqs,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-006,,/api/v1/supplier-bids,Supplier Bids,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-007,,/api/v1/awards,Awards,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-008,,/api/v1/requisitions,Requisitions,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-009,,/api/v1/requisition-approvals,Requisition Approvals,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-010,,/api/v1/purchase-orders,Purchase Orders,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-011,,/api/v1/po-changes,Po Changes,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-012,,/api/v1/blanket-releases,Blanket Releases,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-013,,/api/v1/subcontract-bids,Subcontract Bids,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-014,,/api/v1/subcontracts,Subcontracts,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-015,,/api/v1/items,Items,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-016,,/api/v1/catalogs,Catalogs,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-017,,/api/v1/warehouses,Warehouses,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-018,,/api/v1/inventory-balances,Inventory Balances,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-019,,/api/v1/inventory-transactions,Inventory Transactions,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-020,,/api/v1/inventory-transfers,Inventory Transfers,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-021,,/api/v1/cycle-counts,Cycle Counts,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-022,,/api/v1/receiving-appointments,Receiving Appointments,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-023,,/api/v1/receipts,Receipts,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-024,,/api/v1/inspections,Inspections,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-025,,/api/v1/returns,Returns,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-026,,/api/v1/deliveries,Deliveries,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-027,,/api/v1/route-plans,Route Plans,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-028,,/api/v1/rentals,Rentals,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-029,,/api/v1/off-rent-notices,Off Rent Notices,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-030,,/api/v1/three-way-matches,Three Way Matches,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-031,,/api/v1/demand-forecasts,Demand Forecasts,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-032,,/api/v1/reorder-recommendations,Reorder Recommendations,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-033,,/api/v1/price-forecasts,Price Forecasts,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-034,,/api/v1/supply-risks,Supply Risks,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-035,,/api/v1/digital-twin,Digital Twin,OAuth2/OIDC + tenant and role authorization,
+11,Enterprise Procurement Supply Chain Inventory,P11-API-036,,/api/v1/ai-recommendations,Ai Recommendations,OAuth2/OIDC + tenant and role authorization,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-01,,,ASSETS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-02,,,ASSET CLASSES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-03,,,MODELS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-04,,,LOCATIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-05,,,METERS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-06,,,TELEMATICS EVENTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-07,,,FUEL TRANSACTIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-08,,,WORK ORDERS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-09,,,MAINTENANCE PROGRAMS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-10,,,MAINTENANCE SCHEDULES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-11,,,DEFECTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-12,,,INSPECTIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-13,,,FINDINGS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-14,,,TECHNICIANS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-15,,,SHOPS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-16,,,PARTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-17,,,COMPONENTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-18,,,WARRANTIES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-19,,,WARRANTY CLAIMS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-20,,,RESERVATIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-21,,,DISPATCHES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-22,,,UTILIZATION,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-23,,,DOWNTIME,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-24,,,RATES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-25,,,COST LEDGERS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-26,,,PROJECT CHARGES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-27,,,RENTALS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-28,,,COMPLIANCE RECORDS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-29,,,OPERATOR AUTHORIZATIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-30,,,TIRES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-31,,,UNDERCARRIAGE,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-32,,,ATTACHMENTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-33,,,CALIBRATIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-34,,,DOCUMENTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-35,,,ALERTS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-36,,,HEALTH SCORES,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-37,,,PREDICTIONS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-38,,,REPLACEMENT PLANS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-39,,,DIGITAL TWINS,OAuth2/OIDC + tenant RBAC,
+12,Enterprise Fleet Asset Maintenance Telematics,P12-API-40,,,REPORTS,OAuth2/OIDC + tenant RBAC,
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-001,GET/POST,/api/v1/analytics/metrics,metrics,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-002,GET/POST,/api/v1/analytics/semantic-models,semantic-models,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-003,GET/POST,/api/v1/analytics/datasets,datasets,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-004,GET/POST,/api/v1/analytics/data-products,data-products,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-005,GET/POST,/api/v1/analytics/sources,sources,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-006,GET/POST,/api/v1/analytics/ingestions,ingestions,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-007,GET/POST,/api/v1/analytics/quality-results,quality-results,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-008,GET/POST,/api/v1/analytics/lineage,lineage,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-009,GET/POST,/api/v1/analytics/dashboards,dashboards,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-010,GET/POST,/api/v1/analytics/scorecards,scorecards,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-011,GET/POST,/api/v1/analytics/objectives,objectives,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-012,GET/POST,/api/v1/analytics/kpis,kpis,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-013,GET/POST,/api/v1/analytics/reports,reports,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-014,GET/POST,/api/v1/analytics/subscriptions,subscriptions,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-015,GET/POST,/api/v1/analytics/alerts,alerts,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-016,GET/POST,/api/v1/analytics/forecasts,forecasts,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-017,GET/POST,/api/v1/analytics/scenarios,scenarios,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-018,GET/POST,/api/v1/analytics/sensitivities,sensitivities,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-019,GET/POST,/api/v1/analytics/anomalies,anomalies,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-020,GET/POST,/api/v1/analytics/insights,insights,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-021,GET/POST,/api/v1/analytics/recommendations,recommendations,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-022,GET/POST,/api/v1/analytics/decisions,decisions,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-023,GET/POST,/api/v1/analytics/evidence,evidence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-024,GET/POST,/api/v1/analytics/portfolios,portfolios,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-025,GET/POST,/api/v1/analytics/programs,programs,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-026,GET/POST,/api/v1/analytics/project-health,project-health,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-027,GET/POST,/api/v1/analytics/financial-intelligence,financial-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-028,GET/POST,/api/v1/analytics/workforce-intelligence,workforce-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-029,GET/POST,/api/v1/analytics/fleet-intelligence,fleet-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-030,GET/POST,/api/v1/analytics/procurement-intelligence,procurement-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-031,GET/POST,/api/v1/analytics/crm-intelligence,crm-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-032,GET/POST,/api/v1/analytics/estimating-intelligence,estimating-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-033,GET/POST,/api/v1/analytics/safety-intelligence,safety-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-034,GET/POST,/api/v1/analytics/quality-intelligence,quality-intelligence,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-035,GET/POST,/api/v1/analytics/benchmarks,benchmarks,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-036,GET/POST,/api/v1/analytics/executive-briefs,executive-briefs,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-037,GET/POST,/api/v1/analytics/board-packs,board-packs,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-038,GET/POST,/api/v1/analytics/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-039,GET/POST,/api/v1/analytics/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-040,GET/POST,/api/v1/analytics/analytics-usage,analytics-usage,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-041,GET/POST,/api/v1/analytics/forecast-accuracy,forecast-accuracy,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-042,GET/POST,/api/v1/analytics/data-freshness,data-freshness,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-043,GET/POST,/api/v1/analytics/entitlements,entitlements,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-044,GET/POST,/api/v1/analytics/saved-views,saved-views,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+13,Enterprise Business Intelligence Decision Intelligence,P13-API-045,GET/POST,/api/v1/analytics/exports,exports,OAuth2/JWT + RBAC/ABAC,Tenant-scoped; audited
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-001,GET/POST,/api/v1/hseq/plans,plans,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-002,GET/POST,/api/v1/hseq/hazards,hazards,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-003,GET/POST,/api/v1/hseq/risk-assessments,risk-assessments,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-004,GET/POST,/api/v1/hseq/controls,controls,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-005,GET/POST,/api/v1/hseq/jhas,jhas,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-006,GET/POST,/api/v1/hseq/pre-task-plans,pre-task-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-007,GET/POST,/api/v1/hseq/toolbox-talks,toolbox-talks,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-008,GET/POST,/api/v1/hseq/observations,observations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-009,GET/POST,/api/v1/hseq/stop-work,stop-work,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-010,GET/POST,/api/v1/hseq/incidents,incidents,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-011,GET/POST,/api/v1/hseq/near-misses,near-misses,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-012,GET/POST,/api/v1/hseq/investigations,investigations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-013,GET/POST,/api/v1/hseq/root-causes,root-causes,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-014,GET/POST,/api/v1/hseq/corrective-actions,corrective-actions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-015,GET/POST,/api/v1/hseq/permits,permits,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-016,GET/POST,/api/v1/hseq/confined-space,confined-space,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-017,GET/POST,/api/v1/hseq/hot-work,hot-work,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-018,GET/POST,/api/v1/hseq/excavation-permits,excavation-permits,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-019,GET/POST,/api/v1/hseq/lift-permits,lift-permits,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-020,GET/POST,/api/v1/hseq/loto,loto,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-021,GET/POST,/api/v1/hseq/training,training,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-022,GET/POST,/api/v1/hseq/certifications,certifications,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-023,GET/POST,/api/v1/hseq/qualifications,qualifications,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-024,GET/POST,/api/v1/hseq/inspections,inspections,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-025,GET/POST,/api/v1/hseq/findings,findings,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-026,GET/POST,/api/v1/hseq/audits,audits,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-027,GET/POST,/api/v1/hseq/regulatory-obligations,regulatory-obligations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-028,GET/POST,/api/v1/hseq/compliance-evidence,compliance-evidence,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-029,GET/POST,/api/v1/hseq/environmental-permits,environmental-permits,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-030,GET/POST,/api/v1/hseq/swppp,swppp,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-031,GET/POST,/api/v1/hseq/spills,spills,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-032,GET/POST,/api/v1/hseq/waste,waste,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-033,GET/POST,/api/v1/hseq/industrial-hygiene,industrial-hygiene,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-034,GET/POST,/api/v1/hseq/emergency-plans,emergency-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-035,GET/POST,/api/v1/hseq/emergency-events,emergency-events,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-036,GET/POST,/api/v1/hseq/quality-inspections,quality-inspections,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-037,GET/POST,/api/v1/hseq/itps,itps,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-038,GET/POST,/api/v1/hseq/ncrs,ncrs,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-039,GET/POST,/api/v1/hseq/test-results,test-results,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-040,GET/POST,/api/v1/hseq/hold-points,hold-points,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-041,GET/POST,/api/v1/hseq/punch-items,punch-items,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-042,GET/POST,/api/v1/hseq/subcontractor-hseq,subcontractor-hseq,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-043,GET/POST,/api/v1/hseq/fleet-safety,fleet-safety,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-044,GET/POST,/api/v1/hseq/traffic-safety,traffic-safety,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-045,GET/POST,/api/v1/hseq/kpis,kpis,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-046,GET/POST,/api/v1/hseq/alerts,alerts,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-047,GET/POST,/api/v1/hseq/insights,insights,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-048,GET/POST,/api/v1/hseq/recommendations,recommendations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-049,GET/POST,/api/v1/hseq/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+14,Enterprise HSE Safety Environmental Quality Compliance,P14-API-050,GET/POST,/api/v1/hseq/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; audited; safety-critical actions require explicit authority
+15,Enterprise Document Drawing Specification Information Management,P15-API-001,GET/POST,/api/v1/information/documents,documents,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-002,GET/POST,/api/v1/information/document-revisions,document-revisions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-003,GET/POST,/api/v1/information/document-sets,document-sets,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-004,GET/POST,/api/v1/information/drawings,drawings,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-005,GET/POST,/api/v1/information/drawing-sets,drawing-sets,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-006,GET/POST,/api/v1/information/specifications,specifications,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-007,GET/POST,/api/v1/information/addenda,addenda,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-008,GET/POST,/api/v1/information/submittals,submittals,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-009,GET/POST,/api/v1/information/submittal-reviews,submittal-reviews,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-010,GET/POST,/api/v1/information/rfis,rfis,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-011,GET/POST,/api/v1/information/rfi-responses,rfi-responses,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-012,GET/POST,/api/v1/information/transmittals,transmittals,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-013,GET/POST,/api/v1/information/distribution,distribution,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-014,GET/POST,/api/v1/information/correspondence,correspondence,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-015,GET/POST,/api/v1/information/meeting-records,meeting-records,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-016,GET/POST,/api/v1/information/decisions,decisions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-017,GET/POST,/api/v1/information/markups,markups,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-018,GET/POST,/api/v1/information/review-sessions,review-sessions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-019,GET/POST,/api/v1/information/approvals,approvals,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-020,GET/POST,/api/v1/information/issues,issues,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-021,GET/POST,/api/v1/information/ocr,ocr,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-022,GET/POST,/api/v1/information/extractions,extractions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-023,GET/POST,/api/v1/information/metadata,metadata,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-024,GET/POST,/api/v1/information/search,search,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-025,GET/POST,/api/v1/information/saved-searches,saved-searches,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-026,GET/POST,/api/v1/information/permissions,permissions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-027,GET/POST,/api/v1/information/external-shares,external-shares,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-028,GET/POST,/api/v1/information/controlled-copies,controlled-copies,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-029,GET/POST,/api/v1/information/retention,retention,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-030,GET/POST,/api/v1/information/legal-holds,legal-holds,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-031,GET/POST,/api/v1/information/disposition,disposition,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-032,GET/POST,/api/v1/information/field-document-sets,field-document-sets,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-033,GET/POST,/api/v1/information/offline-packages,offline-packages,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-034,GET/POST,/api/v1/information/bim-references,bim-references,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-035,GET/POST,/api/v1/information/coordination,coordination,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-036,GET/POST,/api/v1/information/as-builts,as-builts,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-037,GET/POST,/api/v1/information/om-manuals,om-manuals,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-038,GET/POST,/api/v1/information/warranties,warranties,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-039,GET/POST,/api/v1/information/turnover-packages,turnover-packages,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-040,GET/POST,/api/v1/information/owner-acceptance,owner-acceptance,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-041,GET/POST,/api/v1/information/conflicts,conflicts,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-042,GET/POST,/api/v1/information/cross-references,cross-references,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-043,GET/POST,/api/v1/information/scope-extractions,scope-extractions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-044,GET/POST,/api/v1/information/revision-impact,revision-impact,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-045,GET/POST,/api/v1/information/dependencies,dependencies,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-046,GET/POST,/api/v1/information/alerts,alerts,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-047,GET/POST,/api/v1/information/kpis,kpis,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-048,GET/POST,/api/v1/information/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-049,GET/POST,/api/v1/information/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-050,GET/POST,/api/v1/information/imports,imports,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-051,GET/POST,/api/v1/information/exports,exports,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-052,GET/POST,/api/v1/information/templates,templates,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-053,GET/POST,/api/v1/information/numbering-schemes,numbering-schemes,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+15,Enterprise Document Drawing Specification Information Management,P15-API-054,GET/POST,/api/v1/information/document-profiles,document-profiles,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; permission and revision-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-001,GET/POST,/api/v1/geospatial/maps,maps,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-002,GET/POST,/api/v1/geospatial/layers,layers,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-003,GET/POST,/api/v1/geospatial/features,features,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-004,GET/POST,/api/v1/geospatial/crs,crs,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-005,GET/POST,/api/v1/geospatial/transformations,transformations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-006,GET/POST,/api/v1/geospatial/control-points,control-points,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-007,GET/POST,/api/v1/geospatial/benchmarks,benchmarks,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-008,GET/POST,/api/v1/geospatial/survey-networks,survey-networks,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-009,GET/POST,/api/v1/geospatial/adjustments,adjustments,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-010,GET/POST,/api/v1/geospatial/gnss,gnss,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-011,GET/POST,/api/v1/geospatial/rtk-sessions,rtk-sessions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-012,GET/POST,/api/v1/geospatial/static-sessions,static-sessions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-013,GET/POST,/api/v1/geospatial/total-station,total-station,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-014,GET/POST,/api/v1/geospatial/level-runs,level-runs,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-015,GET/POST,/api/v1/geospatial/stakeout,stakeout,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-016,GET/POST,/api/v1/geospatial/topography,topography,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-017,GET/POST,/api/v1/geospatial/existing-conditions,existing-conditions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-018,GET/POST,/api/v1/geospatial/utilities,utilities,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-019,GET/POST,/api/v1/geospatial/potholes,potholes,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-020,GET/POST,/api/v1/geospatial/drones,drones,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-021,GET/POST,/api/v1/geospatial/pilots,pilots,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-022,GET/POST,/api/v1/geospatial/missions,missions,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-023,GET/POST,/api/v1/geospatial/flights,flights,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-024,GET/POST,/api/v1/geospatial/flight-authorizations,flight-authorizations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-025,GET/POST,/api/v1/geospatial/airspace-records,airspace-records,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-026,GET/POST,/api/v1/geospatial/batteries,batteries,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-027,GET/POST,/api/v1/geospatial/payloads,payloads,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-028,GET/POST,/api/v1/geospatial/drone-maintenance,drone-maintenance,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-029,GET/POST,/api/v1/geospatial/flight-media,flight-media,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-030,GET/POST,/api/v1/geospatial/image-sets,image-sets,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-031,GET/POST,/api/v1/geospatial/ground-control,ground-control,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-032,GET/POST,/api/v1/geospatial/checkpoints,checkpoints,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-033,GET/POST,/api/v1/geospatial/photogrammetry,photogrammetry,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-034,GET/POST,/api/v1/geospatial/orthomosaics,orthomosaics,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-035,GET/POST,/api/v1/geospatial/lidar,lidar,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-036,GET/POST,/api/v1/geospatial/point-clouds,point-clouds,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-037,GET/POST,/api/v1/geospatial/point-cloud-classifications,point-cloud-classifications,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-038,GET/POST,/api/v1/geospatial/surfaces,surfaces,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-039,GET/POST,/api/v1/geospatial/contours,contours,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-040,GET/POST,/api/v1/geospatial/alignments,alignments,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-041,GET/POST,/api/v1/geospatial/profiles,profiles,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-042,GET/POST,/api/v1/geospatial/cross-sections,cross-sections,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-043,GET/POST,/api/v1/geospatial/corridors,corridors,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-044,GET/POST,/api/v1/geospatial/volumes,volumes,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-045,GET/POST,/api/v1/geospatial/cut-fill,cut-fill,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-046,GET/POST,/api/v1/geospatial/stockpiles,stockpiles,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-047,GET/POST,/api/v1/geospatial/progress-captures,progress-captures,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-048,GET/POST,/api/v1/geospatial/change-detection,change-detection,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-049,GET/POST,/api/v1/geospatial/geofences,geofences,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-050,GET/POST,/api/v1/geospatial/haul-routes,haul-routes,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-051,GET/POST,/api/v1/geospatial/field-maps,field-maps,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-052,GET/POST,/api/v1/geospatial/offline-packages,offline-packages,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-053,GET/POST,/api/v1/geospatial/field-observations,field-observations,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-054,GET/POST,/api/v1/geospatial/accuracy-tests,accuracy-tests,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-055,GET/POST,/api/v1/geospatial/qa-reviews,qa-reviews,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-056,GET/POST,/api/v1/geospatial/survey-deliverables,survey-deliverables,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-057,GET/POST,/api/v1/geospatial/machine-control-handoffs,machine-control-handoffs,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-058,GET/POST,/api/v1/geospatial/spatial-insights,spatial-insights,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-059,GET/POST,/api/v1/geospatial/spatial-kpis,spatial-kpis,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-060,GET/POST,/api/v1/geospatial/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+16,GIS Survey Reality Capture Drone Operations,P16-API-061,GET/POST,/api/v1/geospatial/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant/project scoped; spatial-reference and quality-aware; audited
+17,Machine Control GPS Field Automation,P17-API-001,GET/POST,/api/v1/machine-control/projects,projects,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-002,GET/POST,/api/v1/machine-control/handoffs,handoffs,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-003,GET/POST,/api/v1/machine-control/jobs,jobs,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-004,GET/POST,/api/v1/machine-control/job-packages,job-packages,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-005,GET/POST,/api/v1/machine-control/models,models,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-006,GET/POST,/api/v1/machine-control/model-versions,model-versions,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-007,GET/POST,/api/v1/machine-control/surfaces,surfaces,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-008,GET/POST,/api/v1/machine-control/alignments,alignments,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-009,GET/POST,/api/v1/machine-control/corridors,corridors,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-010,GET/POST,/api/v1/machine-control/utilities,utilities,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-011,GET/POST,/api/v1/machine-control/localizations,localizations,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-012,GET/POST,/api/v1/machine-control/calibrations,calibrations,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-013,GET/POST,/api/v1/machine-control/control-references,control-references,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-014,GET/POST,/api/v1/machine-control/machines,machines,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-015,GET/POST,/api/v1/machine-control/attachments,attachments,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-016,GET/POST,/api/v1/machine-control/devices,devices,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-017,GET/POST,/api/v1/machine-control/receivers,receivers,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-018,GET/POST,/api/v1/machine-control/sensors,sensors,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-019,GET/POST,/api/v1/machine-control/correction-services,correction-services,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-020,GET/POST,/api/v1/machine-control/device-compatibility,device-compatibility,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-021,GET/POST,/api/v1/machine-control/firmware,firmware,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-022,GET/POST,/api/v1/machine-control/configurations,configurations,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-023,GET/POST,/api/v1/machine-control/assignments,assignments,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-024,GET/POST,/api/v1/machine-control/operator-authorizations,operator-authorizations,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-025,GET/POST,/api/v1/machine-control/job-loads,job-loads,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-026,GET/POST,/api/v1/machine-control/acknowledgements,acknowledgements,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-027,GET/POST,/api/v1/machine-control/guidance-sessions,guidance-sessions,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-028,GET/POST,/api/v1/machine-control/auto-control,auto-control,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-029,GET/POST,/api/v1/machine-control/manual-overrides,manual-overrides,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-030,GET/POST,/api/v1/machine-control/cut-fill,cut-fill,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-031,GET/POST,/api/v1/machine-control/grade,grade,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-032,GET/POST,/api/v1/machine-control/slope,slope,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-033,GET/POST,/api/v1/machine-control/passes,passes,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-034,GET/POST,/api/v1/machine-control/coverage,coverage,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-035,GET/POST,/api/v1/machine-control/compaction,compaction,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-036,GET/POST,/api/v1/machine-control/paving,paving,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-037,GET/POST,/api/v1/machine-control/milling,milling,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-038,GET/POST,/api/v1/machine-control/trenches,trenches,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-039,GET/POST,/api/v1/machine-control/pipe-inverts,pipe-inverts,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-040,GET/POST,/api/v1/machine-control/geofences,geofences,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-041,GET/POST,/api/v1/machine-control/hazards,hazards,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-042,GET/POST,/api/v1/machine-control/alerts,alerts,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-043,GET/POST,/api/v1/machine-control/position-quality,position-quality,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-044,GET/POST,/api/v1/machine-control/telemetry,telemetry,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-045,GET/POST,/api/v1/machine-control/production,production,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-046,GET/POST,/api/v1/machine-control/material-movement,material-movement,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-047,GET/POST,/api/v1/machine-control/as-builts,as-builts,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-048,GET/POST,/api/v1/machine-control/tolerance-checks,tolerance-checks,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-049,GET/POST,/api/v1/machine-control/conformance,conformance,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-050,GET/POST,/api/v1/machine-control/field-issues,field-issues,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-051,GET/POST,/api/v1/machine-control/design-changes,design-changes,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-052,GET/POST,/api/v1/machine-control/withdrawals,withdrawals,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-053,GET/POST,/api/v1/machine-control/reissues,reissues,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-054,GET/POST,/api/v1/machine-control/sync,sync,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-055,GET/POST,/api/v1/machine-control/offline-conflicts,offline-conflicts,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-056,GET/POST,/api/v1/machine-control/remote-support,remote-support,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-057,GET/POST,/api/v1/machine-control/diagnostics,diagnostics,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-058,GET/POST,/api/v1/machine-control/vendor-adapters,vendor-adapters,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-059,GET/POST,/api/v1/machine-control/file-conversions,file-conversions,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-060,GET/POST,/api/v1/machine-control/automation-rules,automation-rules,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-061,GET/POST,/api/v1/machine-control/automation-events,automation-events,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-062,GET/POST,/api/v1/machine-control/ai-insights,ai-insights,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-063,GET/POST,/api/v1/machine-control/kpis,kpis,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-064,GET/POST,/api/v1/machine-control/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+17,Machine Control GPS Field Automation,P17-API-065,GET/POST,/api/v1/machine-control/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,"Tenant/project/machine scoped; revision, safety and authorization-aware; audited"
+18,Enterprise Scheduling Resource Planning,P18-API-001,GET/POST,/api/v1/scheduling/schedules,schedules,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-002,GET/POST,/api/v1/scheduling/schedule-versions,schedule-versions,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-003,GET/POST,/api/v1/scheduling/baselines,baselines,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-004,GET/POST,/api/v1/scheduling/updates,updates,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-005,GET/POST,/api/v1/scheduling/wbs,wbs,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-006,GET/POST,/api/v1/scheduling/activities,activities,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-007,GET/POST,/api/v1/scheduling/relationships,relationships,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-008,GET/POST,/api/v1/scheduling/constraints,constraints,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-009,GET/POST,/api/v1/scheduling/milestones,milestones,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-010,GET/POST,/api/v1/scheduling/calendars,calendars,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-011,GET/POST,/api/v1/scheduling/shifts,shifts,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-012,GET/POST,/api/v1/scheduling/schedule-calculations,schedule-calculations,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-013,GET/POST,/api/v1/scheduling/critical-path,critical-path,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-014,GET/POST,/api/v1/scheduling/longest-path,longest-path,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-015,GET/POST,/api/v1/scheduling/progress,progress,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-016,GET/POST,/api/v1/scheduling/weighted-steps,weighted-steps,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-017,GET/POST,/api/v1/scheduling/earned-value,earned-value,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-018,GET/POST,/api/v1/scheduling/resources,resources,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-019,GET/POST,/api/v1/scheduling/resource-pools,resource-pools,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-020,GET/POST,/api/v1/scheduling/resource-availability,resource-availability,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-021,GET/POST,/api/v1/scheduling/resource-assignments,resource-assignments,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-022,GET/POST,/api/v1/scheduling/resource-demand,resource-demand,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-023,GET/POST,/api/v1/scheduling/resource-capacity,resource-capacity,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-024,GET/POST,/api/v1/scheduling/resource-leveling,resource-leveling,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-025,GET/POST,/api/v1/scheduling/crews,crews,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-026,GET/POST,/api/v1/scheduling/crew-plans,crew-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-027,GET/POST,/api/v1/scheduling/equipment-plans,equipment-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-028,GET/POST,/api/v1/scheduling/truck-plans,truck-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-029,GET/POST,/api/v1/scheduling/material-need-dates,material-need-dates,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-030,GET/POST,/api/v1/scheduling/subcontractor-plans,subcontractor-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-031,GET/POST,/api/v1/scheduling/look-aheads,look-aheads,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-032,GET/POST,/api/v1/scheduling/weekly-work-plans,weekly-work-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-033,GET/POST,/api/v1/scheduling/commitments,commitments,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-034,GET/POST,/api/v1/scheduling/ppc,ppc,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-035,GET/POST,/api/v1/scheduling/pull-plans,pull-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-036,GET/POST,/api/v1/scheduling/handoffs,handoffs,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-037,GET/POST,/api/v1/scheduling/buffers,buffers,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-038,GET/POST,/api/v1/scheduling/constraint-register,constraint-register,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-039,GET/POST,/api/v1/scheduling/weather-impacts,weather-impacts,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-040,GET/POST,/api/v1/scheduling/risk-events,risk-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-041,GET/POST,/api/v1/scheduling/schedule-risk,schedule-risk,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-042,GET/POST,/api/v1/scheduling/scenarios,scenarios,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-043,GET/POST,/api/v1/scheduling/what-if,what-if,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-044,GET/POST,/api/v1/scheduling/recovery-plans,recovery-plans,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-045,GET/POST,/api/v1/scheduling/acceleration,acceleration,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-046,GET/POST,/api/v1/scheduling/delay-events,delay-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-047,GET/POST,/api/v1/scheduling/fragnets,fragnets,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-048,GET/POST,/api/v1/scheduling/time-impact-analysis,time-impact-analysis,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-049,GET/POST,/api/v1/scheduling/portfolio-capacity,portfolio-capacity,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-050,GET/POST,/api/v1/scheduling/backlog-demand,backlog-demand,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-051,GET/POST,/api/v1/scheduling/cash-flow,cash-flow,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-052,GET/POST,/api/v1/scheduling/schedule-cost-links,schedule-cost-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-053,GET/POST,/api/v1/scheduling/forecast-completion,forecast-completion,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-054,GET/POST,/api/v1/scheduling/forecast-milestones,forecast-milestones,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-055,GET/POST,/api/v1/scheduling/schedule-quality,schedule-quality,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-056,GET/POST,/api/v1/scheduling/narratives,narratives,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-057,GET/POST,/api/v1/scheduling/alerts,alerts,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-058,GET/POST,/api/v1/scheduling/ai-insights,ai-insights,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-059,GET/POST,/api/v1/scheduling/kpis,kpis,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-060,GET/POST,/api/v1/scheduling/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-061,GET/POST,/api/v1/scheduling/imports,imports,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-062,GET/POST,/api/v1/scheduling/exports,exports,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+18,Enterprise Scheduling Resource Planning,P18-API-063,GET/POST,/api/v1/scheduling/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/portfolio scoped; version and baseline aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-001,GET/POST,/api/v1/commercial/contracts,contracts,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-002,GET/POST,/api/v1/commercial/contract-versions,contract-versions,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-003,GET/POST,/api/v1/commercial/amendments,amendments,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-004,GET/POST,/api/v1/commercial/clauses,clauses,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-005,GET/POST,/api/v1/commercial/obligations,obligations,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-006,GET/POST,/api/v1/commercial/notice-requirements,notice-requirements,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-007,GET/POST,/api/v1/commercial/notices,notices,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-008,GET/POST,/api/v1/commercial/notice-deliveries,notice-deliveries,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-009,GET/POST,/api/v1/commercial/potential-changes,potential-changes,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-010,GET/POST,/api/v1/commercial/change-orders,change-orders,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-011,GET/POST,/api/v1/commercial/change-versions,change-versions,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-012,GET/POST,/api/v1/commercial/change-directives,change-directives,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-013,GET/POST,/api/v1/commercial/authorizations,authorizations,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-014,GET/POST,/api/v1/commercial/approval-matrices,approval-matrices,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-015,GET/POST,/api/v1/commercial/change-pricing,change-pricing,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-016,GET/POST,/api/v1/commercial/change-line-items,change-line-items,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-017,GET/POST,/api/v1/commercial/tm-tickets,tm-tickets,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-018,GET/POST,/api/v1/commercial/force-account,force-account,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-019,GET/POST,/api/v1/commercial/rate-schedules,rate-schedules,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-020,GET/POST,/api/v1/commercial/contract-values,contract-values,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-021,GET/POST,/api/v1/commercial/commercial-exposure,commercial-exposure,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-022,GET/POST,/api/v1/commercial/claims,claims,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-023,GET/POST,/api/v1/commercial/claim-chronologies,claim-chronologies,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-024,GET/POST,/api/v1/commercial/claim-costs,claim-costs,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-025,GET/POST,/api/v1/commercial/claim-time,claim-time,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-026,GET/POST,/api/v1/commercial/claim-evidence,claim-evidence,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-027,GET/POST,/api/v1/commercial/delay-events,delay-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-028,GET/POST,/api/v1/commercial/disruption-events,disruption-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-029,GET/POST,/api/v1/commercial/acceleration-events,acceleration-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-030,GET/POST,/api/v1/commercial/differing-site-conditions,differing-site-conditions,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-031,GET/POST,/api/v1/commercial/scope-changes,scope-changes,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-032,GET/POST,/api/v1/commercial/payment-applications,payment-applications,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-033,GET/POST,/api/v1/commercial/retainage,retainage,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-034,GET/POST,/api/v1/commercial/backcharges,backcharges,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-035,GET/POST,/api/v1/commercial/allowances,allowances,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-036,GET/POST,/api/v1/commercial/contingencies,contingencies,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-037,GET/POST,/api/v1/commercial/price-adjustments,price-adjustments,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-038,GET/POST,/api/v1/commercial/escalation,escalation,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-039,GET/POST,/api/v1/commercial/insurance,insurance,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-040,GET/POST,/api/v1/commercial/bonds,bonds,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-041,GET/POST,/api/v1/commercial/lien-waivers,lien-waivers,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-042,GET/POST,/api/v1/commercial/disputes,disputes,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-043,GET/POST,/api/v1/commercial/negotiations,negotiations,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-044,GET/POST,/api/v1/commercial/settlements,settlements,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-045,GET/POST,/api/v1/commercial/commercial-forecasts,commercial-forecasts,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-046,GET/POST,/api/v1/commercial/margin-at-completion,margin-at-completion,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-047,GET/POST,/api/v1/commercial/closeout,closeout,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-048,GET/POST,/api/v1/commercial/ai-insights,ai-insights,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-049,GET/POST,/api/v1/commercial/kpis,kpis,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-050,GET/POST,/api/v1/commercial/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-051,GET/POST,/api/v1/commercial/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-052,GET/POST,/api/v1/commercial/imports,imports,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-053,GET/POST,/api/v1/commercial/exports,exports,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-054,GET/POST,/api/v1/commercial/templates,templates,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-055,GET/POST,/api/v1/commercial/jurisdiction-profiles,jurisdiction-profiles,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-056,GET/POST,/api/v1/commercial/evidence-links,evidence-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-057,GET/POST,/api/v1/commercial/schedule-links,schedule-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-058,GET/POST,/api/v1/commercial/cost-links,cost-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-059,GET/POST,/api/v1/commercial/document-links,document-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-060,GET/POST,/api/v1/commercial/rfi-links,rfi-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-061,GET/POST,/api/v1/commercial/submittal-links,submittal-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-062,GET/POST,/api/v1/commercial/procurement-links,procurement-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-063,GET/POST,/api/v1/commercial/subcontract-links,subcontract-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-064,GET/POST,/api/v1/commercial/payment-links,payment-links,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-065,GET/POST,/api/v1/commercial/commercial-alerts,commercial-alerts,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-066,GET/POST,/api/v1/commercial/commercial-reports,commercial-reports,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+19,Contract Change Order Claims Commercial Management,P19-API-067,GET/POST,/api/v1/commercial/commercial-permissions,commercial-permissions,OAuth2/JWT + RBAC/ABAC,Tenant/project/contract scoped; authority/deadline/version aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-001,GET/POST,/api/v1/platform/integrations,integrations,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-002,GET/POST,/api/v1/platform/integration-contracts,integration-contracts,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-003,GET/POST,/api/v1/platform/connectors,connectors,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-004,GET/POST,/api/v1/platform/apis,apis,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-005,GET/POST,/api/v1/platform/api-versions,api-versions,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-006,GET/POST,/api/v1/platform/event-schemas,event-schemas,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-007,GET/POST,/api/v1/platform/topics,topics,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-008,GET/POST,/api/v1/platform/queues,queues,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-009,GET/POST,/api/v1/platform/subscriptions,subscriptions,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-010,GET/POST,/api/v1/platform/sync-jobs,sync-jobs,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-011,GET/POST,/api/v1/platform/reconciliation,reconciliation,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-012,GET/POST,/api/v1/platform/identity-federation,identity-federation,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-013,GET/POST,/api/v1/platform/service-identities,service-identities,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-014,GET/POST,/api/v1/platform/environments,environments,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-015,GET/POST,/api/v1/platform/configurations,configurations,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-016,GET/POST,/api/v1/platform/feature-flags,feature-flags,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-017,GET/POST,/api/v1/platform/secrets,secrets,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-018,GET/POST,/api/v1/platform/certificates,certificates,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-019,GET/POST,/api/v1/platform/releases,releases,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-020,GET/POST,/api/v1/platform/builds,builds,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-021,GET/POST,/api/v1/platform/artifacts,artifacts,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-022,GET/POST,/api/v1/platform/deployments,deployments,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-023,GET/POST,/api/v1/platform/rollbacks,rollbacks,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-024,GET/POST,/api/v1/platform/change-records,change-records,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-025,GET/POST,/api/v1/platform/pipelines,pipelines,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-026,GET/POST,/api/v1/platform/infrastructure,infrastructure,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-027,GET/POST,/api/v1/platform/drift-findings,drift-findings,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-028,GET/POST,/api/v1/platform/container-images,container-images,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-029,GET/POST,/api/v1/platform/workloads,workloads,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-030,GET/POST,/api/v1/platform/databases,databases,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-031,GET/POST,/api/v1/platform/schema-migrations,schema-migrations,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-032,GET/POST,/api/v1/platform/backups,backups,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-033,GET/POST,/api/v1/platform/restore-tests,restore-tests,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-034,GET/POST,/api/v1/platform/security-findings,security-findings,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-035,GET/POST,/api/v1/platform/vulnerabilities,vulnerabilities,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-036,GET/POST,/api/v1/platform/privacy-controls,privacy-controls,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-037,GET/POST,/api/v1/platform/tenant-isolation-tests,tenant-isolation-tests,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-038,GET/POST,/api/v1/platform/logs,logs,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-039,GET/POST,/api/v1/platform/metrics,metrics,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-040,GET/POST,/api/v1/platform/traces,traces,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-041,GET/POST,/api/v1/platform/dashboards,dashboards,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-042,GET/POST,/api/v1/platform/alerts,alerts,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-043,GET/POST,/api/v1/platform/slis,slis,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-044,GET/POST,/api/v1/platform/slos,slos,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-045,GET/POST,/api/v1/platform/error-budgets,error-budgets,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-046,GET/POST,/api/v1/platform/performance-tests,performance-tests,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-047,GET/POST,/api/v1/platform/capacity,capacity,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-048,GET/POST,/api/v1/platform/dr-plans,dr-plans,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-049,GET/POST,/api/v1/platform/recovery-tests,recovery-tests,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-050,GET/POST,/api/v1/platform/test-plans,test-plans,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-051,GET/POST,/api/v1/platform/test-suites,test-suites,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-052,GET/POST,/api/v1/platform/test-runs,test-runs,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-053,GET/POST,/api/v1/platform/test-evidence,test-evidence,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-054,GET/POST,/api/v1/platform/defects,defects,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-055,GET/POST,/api/v1/platform/uat,uat,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-056,GET/POST,/api/v1/platform/requirements-coverage,requirements-coverage,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-057,GET/POST,/api/v1/platform/migration-mappings,migration-mappings,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-058,GET/POST,/api/v1/platform/migration-runs,migration-runs,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-059,GET/POST,/api/v1/platform/cutover,cutover,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-060,GET/POST,/api/v1/platform/readiness-reviews,readiness-reviews,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-061,GET/POST,/api/v1/platform/readiness-gates,readiness-gates,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-062,GET/POST,/api/v1/platform/runbooks,runbooks,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-063,GET/POST,/api/v1/platform/incidents,incidents,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-064,GET/POST,/api/v1/platform/problems,problems,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-065,GET/POST,/api/v1/platform/rcas,rcas,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-066,GET/POST,/api/v1/platform/corrective-actions,corrective-actions,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-067,GET/POST,/api/v1/platform/services,services,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-068,GET/POST,/api/v1/platform/service-levels,service-levels,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-069,GET/POST,/api/v1/platform/support-requests,support-requests,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-070,GET/POST,/api/v1/platform/tenants,tenants,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-071,GET/POST,/api/v1/platform/tenant-plans,tenant-plans,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-072,GET/POST,/api/v1/platform/entitlements,entitlements,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-073,GET/POST,/api/v1/platform/white-label-profiles,white-label-profiles,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-074,GET/POST,/api/v1/platform/compliance-controls,compliance-controls,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-075,GET/POST,/api/v1/platform/audit-evidence,audit-evidence,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-076,GET/POST,/api/v1/platform/access-reviews,access-reviews,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-077,GET/POST,/api/v1/platform/ai-evaluations,ai-evaluations,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-078,GET/POST,/api/v1/platform/ai-guardrails,ai-guardrails,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-079,GET/POST,/api/v1/platform/ai-monitoring,ai-monitoring,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-080,GET/POST,/api/v1/platform/hypercare,hypercare,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-081,GET/POST,/api/v1/platform/stabilization,stabilization,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-082,GET/POST,/api/v1/platform/digital-twin,digital-twin,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited
+20,Enterprise Integration Deployment Testing Governance Production Readiness,P20-API-083,GET/POST,/api/v1/platform/audit-events,audit-events,OAuth2/JWT + RBAC/ABAC + service identity,Tenant/environment scoped; version/security/readiness aware; audited

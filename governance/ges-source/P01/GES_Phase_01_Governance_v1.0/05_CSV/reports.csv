@@ -1,0 +1,9 @@
+﻿Report_ID,Name,Audience,Purpose
+RPT-P01-001,Governance Executive Summary,Executive; Governance Admin,"Tenant health, open risks, access exceptions, policy compliance, approval backlog, and emergency access"
+RPT-P01-002,Access Review Report,Security Admin; Auditor,"Users, roles, permissions, scopes, last activity, conflicts, and certification status"
+RPT-P01-003,Administrative Change Report,Auditor,"Configuration, role, policy, tenant, and administrative changes by period and actor"
+RPT-P01-004,Policy Compliance Report,Compliance Manager,"Active policies, acknowledgments, exceptions, overdue actions, and superseded versions"
+RPT-P01-005,Approval Performance,Workflow Admin,"Volume, cycle time, rejection, expiration, delegation, bottlenecks, and escalations"
+RPT-P01-006,Retention and Legal Hold,Records Manager; Legal,"Records due, disposed, suppressed, held, released, and exception reasons"
+RPT-P01-007,Emergency Access Review,Security; Auditor,"Requests, approvals, duration, actions, findings, and closure status"
+RPT-P01-008,AI Governance Activity,AI Governance,"Agent proposals, confidence, approvals, rejections, overrides, writebacks, and exceptions"

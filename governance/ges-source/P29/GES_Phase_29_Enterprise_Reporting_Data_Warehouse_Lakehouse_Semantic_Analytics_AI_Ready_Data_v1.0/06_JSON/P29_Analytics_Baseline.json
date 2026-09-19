@@ -1,0 +1,36 @@
+{
+  "phase": "29",
+  "name": "Enterprise Reporting, Data Warehouse/Lakehouse, Semantic Analytics & AI-Ready Data",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase28": {
+    "requirements": 500,
+    "modules": 40,
+    "entities": 48,
+    "apis": 32,
+    "events": 24,
+    "business_rules": 30,
+    "security_controls": 20,
+    "quality_gates": 18
+  },
+  "counts": {
+    "requirements": 520,
+    "tests": 520,
+    "modules": 42,
+    "entities": 46,
+    "apis": 26,
+    "events": 20,
+    "business_rules": 30,
+    "security_controls": 16,
+    "quality_gates": 18,
+    "candidate_metrics": 12
+  },
+  "principles": [
+    "Operational systems remain authoritative for transactions",
+    "Certified metrics are versioned and reproducible",
+    "Tenant/row/column security is enforced end-to-end",
+    "Data quality, reconciliation, freshness and lineage are release criteria",
+    "AI-ready feature/embedding data retains provenance and point-in-time correctness",
+    "Draft analytics are distinguished from certified enterprise reporting"
+  ]
+}

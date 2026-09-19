@@ -1,0 +1,6 @@
+plan_id,name,pricing_posture,example_packaging,target,status
+P30-PLAN-001,Starter,Example only,Core estimating/CRM; lower seats/projects/storage/API/AI allowances,Tenant admins,Draft
+P30-PLAN-002,Professional,Example only,"Expanded operations, fleet, workforce, analytics, integrations",Growing contractors,Draft
+P30-PLAN-003,Business,Example only,"Advanced controls, higher limits, multi-department operations, reporting",Mid-market contractors,Draft
+P30-PLAN-004,Enterprise,Contracted,"SSO/SCIM, advanced security/governance, negotiated limits/SLA, white label options",Large/complex organizations,Draft
+P30-PLAN-005,White Label Partner,Contracted,"Partner/reseller branding, tenant portfolio, negotiated modules and commercial terms",Resellers/partners,Draft

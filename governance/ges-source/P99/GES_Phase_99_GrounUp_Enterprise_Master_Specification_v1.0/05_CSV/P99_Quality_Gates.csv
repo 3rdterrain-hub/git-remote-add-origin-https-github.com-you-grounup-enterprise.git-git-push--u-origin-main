@@ -1,0 +1,21 @@
+gate_id,gate,pass_rule,requirement
+P99-QG-01,Master Source Integrity,Master repository ZIP and source phase provenance verify,Required
+P99-QG-02,Phase Completeness,Exactly Phase 01-32 incorporated,Required
+P99-QG-03,Requirement Registry,"8,600 unique source requirement IDs incorporated",Required
+P99-QG-04,Test Registry,"8,858 unique source test IDs incorporated",Required
+P99-QG-05,Definition Conflicts,0 canonical requirement/test definition conflicts,Required
+P99-QG-06,Dependency Registry,Dependency map parses and references valid phases,Required
+P99-QG-07,Build Sequence,All 32 phases represented in build sequence,Required
+P99-QG-08,Implementation Waves,Dependency-aware implementation waves documented,Required
+P99-QG-09,AI/Developer Protocol,Coding-agent and developer controls included,Required
+P99-QG-10,Deployment Roadmap,Environment promotion and stop conditions documented,Required
+P99-QG-11,Security Boundary,Phase 28 inheritance explicitly preserved,Required
+P99-QG-12,Deterministic Authority,Phase 26 calculation authority explicitly preserved,Required
+P99-QG-13,Certification Boundary,Phase 32 real-execution boundary explicitly preserved,Required
+P99-QG-14,CSV/JSON Parse,All Phase 99 control CSV/JSON files parse,Required
+P99-QG-15,Workbook QA,Spreadsheet formula scan and rendered dashboard pass,Required
+P99-QG-16,DOCX QA,DOCX renders cleanly,Required
+P99-QG-17,PDF QA,PDF renders cleanly,Required
+P99-QG-18,Manifest QA,Phase 99 SHA-256 manifest verifies,Required
+P99-QG-19,ZIP Integrity,Final Phase 99 ZIP CRC test passes,Required
+P99-QG-20,Product Certification Truth,Package remains NOT PRODUCTION CERTIFIED absent Phase 32 evidence,Required

@@ -1,0 +1,10 @@
+flowchart LR
+  S[Source Records and Documents] --> X[AI Execution]
+  X --> R[AI Recommendation]
+  R --> W[Proposed Writeback]
+  W --> C{Approval and Version Check}
+  C -->|Rejected| F[Feedback Record]
+  C -->|Approved| V[Validation]
+  V --> B[Business Record Update]
+  B --> L[Data Lineage and Audit Event]
+  L --> F

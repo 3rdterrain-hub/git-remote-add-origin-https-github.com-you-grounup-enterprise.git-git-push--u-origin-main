@@ -1,0 +1,32 @@
+# Canonical Data Dictionary
+
+- **FLD-001 / library_item_id** - string; required: Yes. Immutable globally unique identifier
+- **FLD-002 / tenant_id** - uuid; required: Conditional. Owning tenant; null for global records
+- **FLD-003 / library_id** - string; required: Yes. Parent library identifier
+- **FLD-004 / item_code** - string; required: Yes. Human-readable unique code within scope
+- **FLD-005 / name** - string; required: Yes. Primary display name
+- **FLD-006 / short_name** - string; required: No. Compact display label
+- **FLD-007 / description** - text; required: Yes. Controlled definition
+- **FLD-008 / category_id** - string; required: Yes. Primary category reference
+- **FLD-009 / subcategory_id** - string; required: No. Secondary category reference
+- **FLD-010 / status** - enum; required: Yes. Draft, Review, Approved, Active, Deprecated, Archived
+- **FLD-011 / version** - semver; required: Yes. Semantic version
+- **FLD-012 / effective_from** - date; required: Yes. Start of validity
+- **FLD-013 / effective_to** - date; required: No. End of validity
+- **FLD-014 / unit_id** - string; required: Conditional. Primary unit reference
+- **FLD-015 / source_type** - enum; required: Yes. Internal, vendor, standard, government, historical, AI-derived
+- **FLD-016 / source_reference** - string; required: Yes. Traceable source citation
+- **FLD-017 / confidence_score** - decimal; required: Yes. 0.00 to 1.00 confidence
+- **FLD-018 / approval_status** - enum; required: Yes. Pending, Approved, Rejected, Superseded
+- **FLD-019 / approved_by** - uuid; required: Conditional. Approver identity
+- **FLD-020 / approved_at** - datetime; required: Conditional. Approval timestamp
+- **FLD-021 / created_by** - uuid; required: Yes. Creator identity
+- **FLD-022 / created_at** - datetime; required: Yes. Creation timestamp
+- **FLD-023 / updated_by** - uuid; required: Yes. Last editor identity
+- **FLD-024 / updated_at** - datetime; required: Yes. Last update timestamp
+- **FLD-025 / tags** - array; required: No. Search and AI tags
+- **FLD-026 / keywords** - array; required: No. Synonyms and search keywords
+- **FLD-027 / relationships** - array; required: No. Typed references to related records
+- **FLD-028 / custom_fields** - json; required: No. Tenant-configured extensions
+- **FLD-029 / white_label_visibility** - enum; required: Yes. Platform, tenant, reseller, hidden
+- **FLD-030 / audit_hash** - string; required: Yes. Integrity hash of approved payload

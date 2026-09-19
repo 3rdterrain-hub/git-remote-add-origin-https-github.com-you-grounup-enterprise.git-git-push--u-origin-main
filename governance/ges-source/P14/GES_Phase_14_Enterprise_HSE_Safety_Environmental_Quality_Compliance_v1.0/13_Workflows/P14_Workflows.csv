@@ -1,0 +1,36 @@
+workflow_id,name,domain,states,control
+P14-WF-001,Hazard Identification & Control,Safety Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-002,JHA/JSA Creation & Approval,Incident & Near-Miss Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-003,Daily Pre-Task Planning,JHA/JSA & Pre-Task Planning,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-004,Toolbox Talk & Acknowledgement,Permits to Work,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-005,Safety Observation,Training & Competency,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-006,Stop Work & Release,Environmental Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-007,Incident Intake,Quality Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-008,Incident Triage,Compliance & Regulatory,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-009,Incident Investigation,Industrial Hygiene,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-010,Root Cause & CAPA,Emergency Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-011,Regulatory Notification,Subcontractor HSEQ,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-012,Safety Inspection,Equipment & Fleet Safety,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-013,Environmental Inspection,Public & Traffic Safety,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-014,SWPPP Inspection,Corrective & Preventive Action,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-015,Spill Response,Audit & Assurance,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-016,Waste Manifest,HSEQ Analytics,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-017,Permit-to-Work,AI HSEQ Intelligence,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-018,Confined Space Entry,HSEQ Digital Twin,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-019,Hot Work,Safety Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-020,Excavation Permit,Incident & Near-Miss Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-021,Lift Plan & Permit,JHA/JSA & Pre-Task Planning,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-022,LOTO / Energy Isolation,Permits to Work,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-023,Training Assignment & Completion,Training & Competency,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-024,Certification Expiration,Environmental Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-025,Subcontractor HSEQ Prequalification,Quality Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-026,Quality Inspection & Test,Compliance & Regulatory,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-027,NCR & Corrective Action,Industrial Hygiene,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-028,Hold/Witness Point Release,Emergency Management,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-029,Punch/Deficiency Closure,Subcontractor HSEQ,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-030,Internal Audit,Equipment & Fleet Safety,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-031,Regulatory Audit,Public & Traffic Safety,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-032,Emergency Drill/Event,Corrective & Preventive Action,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-033,Industrial Hygiene Monitoring,Audit & Assurance,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-034,Management Review,HSEQ Analytics,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval
+P14-WF-035,HSEQ Digital Twin Refresh,AI HSEQ Intelligence,Initiate > Assess > Control/Investigate > Review > Approve > Verify > Close,Critical states may block work or require competent-person approval

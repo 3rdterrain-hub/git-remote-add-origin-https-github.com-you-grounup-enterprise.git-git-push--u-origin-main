@@ -1,0 +1,13 @@
+metric_id,name,formula,source_domain,cadence,unit,status
+P29-KPI-001,Estimate Hit Rate,won_bids / submitted_bids,Estimate/CRM,Monthly,%,Certified candidate
+P29-KPI-002,Estimate Gross Margin %,(sell_value - estimated_cost) / sell_value,Estimating,Per estimate/month,%,Certified candidate
+P29-KPI-003,Job Cost Variance %,(actual_cost - budget_cost) / budget_cost,Project/Finance,Weekly/monthly,%,Certified candidate
+P29-KPI-004,Production Attainment %,actual_production / planned_production,Operations,Daily/weekly,%,Certified candidate
+P29-KPI-005,Schedule Performance Index,earned_value / planned_value,Scheduling,Weekly/monthly,ratio,Certified candidate
+P29-KPI-006,Equipment Utilization %,productive_hours / available_hours,Fleet,Daily/monthly,%,Certified candidate
+P29-KPI-007,Crew Utilization %,assigned_productive_hours / available_hours,Workforce,Weekly/monthly,%,Certified candidate
+P29-KPI-008,Change Exposure,approved_change + pending_change + forecast_change,Commercial,Weekly/monthly,currency,Certified candidate
+P29-KPI-009,Procurement On-Time %,on_time_deliveries / due_deliveries,Procurement,Monthly,%,Certified candidate
+P29-KPI-010,Safety Action Closure %,closed_on_time_actions / due_actions,HSE,Monthly,%,Certified candidate
+P29-KPI-011,AI Grounding Pass %,grounded_pass_cases / evaluated_cases,AI Governance,Per release,%,Certified candidate
+P29-KPI-012,Data Freshness Compliance %,datasets_within_sla / certified_datasets,Analytics,Daily,%,Certified candidate

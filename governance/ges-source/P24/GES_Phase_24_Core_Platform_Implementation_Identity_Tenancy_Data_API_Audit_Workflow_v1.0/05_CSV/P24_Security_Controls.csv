@@ -1,0 +1,9 @@
+control_id,name,verification,status
+P24-SEC-001,Cross-tenant negative tests,Every tenant-aware repository/API includes tests proving tenant A cannot access tenant B.,Required
+P24-SEC-002,Policy unit tests,Authorization policies include allow and deny cases.,Required
+P24-SEC-003,Input validation,External request payloads validated before domain invocation.,Required
+P24-SEC-004,Secret-free source,No credentials/secrets committed to source.,Required
+P24-SEC-005,Audit tamper controls,Audit storage/permissions prevent ordinary users from rewriting history.,Required
+P24-SEC-006,Sensitive logging,Logs exclude secrets and protected payloads unless specifically approved/redacted.,Required
+P24-SEC-007,Rate/abuse hooks,API kernel supports throttling hooks for sensitive endpoints.,Required
+P24-SEC-008,File permission checks,File metadata/download authorization is tenant and resource scoped.,Required

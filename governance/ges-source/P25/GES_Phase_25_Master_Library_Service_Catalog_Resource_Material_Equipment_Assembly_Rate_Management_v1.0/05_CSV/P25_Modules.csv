@@ -1,0 +1,25 @@
+module_id,name,layer,purpose
+P25-MOD-001,Library Registry,Core,"Global registry of library types, versions, ownership and publication state"
+P25-MOD-002,Service Catalog Service,Domain,"Services, categories, units, estimating mappings and downstream references"
+P25-MOD-003,Unit of Measure Service,Core,"Canonical units, conversions and dimensional validation"
+P25-MOD-004,Labor Resource Service,Domain,"Craft/classification, burden inputs and labor resource definitions"
+P25-MOD-005,Crew Template Service,Domain,"Crew compositions, default sizes and production references"
+P25-MOD-006,Equipment Resource Service,Domain,Equipment classes/models/capacity and owning/operating rate references
+P25-MOD-007,Truck Resource Service,Domain,"Truck classes, capacity, hourly/trip references and haul configuration"
+P25-MOD-008,Material Resource Service,Domain,"Material definitions, units, waste factors, density and source references"
+P25-MOD-009,Subcontract Resource Service,Domain,"Subcontract categories, unit rates, vendor/source references"
+P25-MOD-010,Disposal Service,Domain,"Disposal facilities/categories, fees, units, restrictions and source references"
+P25-MOD-011,Assembly Service,Domain,Reusable estimate assemblies and component dependency graph
+P25-MOD-012,Production Rate Service,Domain,Task/equipment/crew production rates with conditions and provenance
+P25-MOD-013,Labor Rate Service,Pricing,"Base wage, burden, union/custom profile and effective dates"
+P25-MOD-014,Equipment Rate Service,Pricing,Hourly/daily/weekly/monthly rate structures and fuel/operating inputs
+P25-MOD-015,Material Price Service,Pricing,"Supplier/material prices, freight references and effective dates"
+P25-MOD-016,Truck Rate Service,Pricing,"Hourly, load, trip and haul-rate definitions"
+P25-MOD-017,Subcontract Rate Service,Pricing,Vendor/subcontract unit-price references
+P25-MOD-018,Regional Profile Service,Pricing,"Location factors, geography hierarchy and price-profile selection"
+P25-MOD-019,Vendor Price Source Service,Pricing,"Quote/source documents, expiry and approved vendor price references"
+P25-MOD-020,Tenant Override Service,Configuration,Tenant-specific editable overrides without mutating base records
+P25-MOD-021,Publication & Version Service,Governance,Draft/review/approved/published/superseded lifecycle
+P25-MOD-022,Import/Bulk Edit Service,Operations,"CSV/JSON imports, mapping, validation, preview and governed commit"
+P25-MOD-023,AI Library Proposal Service,AI,AI-proposed additions/updates with source evidence and human approval
+P25-MOD-024,Estimator Library Gateway,Integration,Stable read/query/snapshot contracts for Phase 26 estimator implementation

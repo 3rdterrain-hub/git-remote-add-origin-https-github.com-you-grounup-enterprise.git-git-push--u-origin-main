@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GES v1.0 Implementation Baseline",
+  "type": "object",
+  "required": [
+    "baseline_id",
+    "version",
+    "status",
+    "phase_set",
+    "manifest_hash"
+  ],
+  "properties": {
+    "baseline_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "Draft",
+        "Review-ready",
+        "Approved",
+        "Locked",
+        "Superseded"
+      ]
+    },
+    "phase_set": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "manifest_hash": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

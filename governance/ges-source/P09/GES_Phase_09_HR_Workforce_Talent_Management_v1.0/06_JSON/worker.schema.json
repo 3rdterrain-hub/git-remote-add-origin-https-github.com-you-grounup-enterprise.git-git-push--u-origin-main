@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grounup.example/schemas/p09/worker.json",
+  "title": "Worker",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "id",
+    "employment_status",
+    "legal_name"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "legal_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "employment_status": {
+      "type": "string",
+      "enum": [
+        "prehire",
+        "active",
+        "leave",
+        "inactive",
+        "terminated",
+        "retired"
+      ]
+    },
+    "union_local_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "credential_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "security_classification": {
+      "type": "string"
+    }
+  }
+}

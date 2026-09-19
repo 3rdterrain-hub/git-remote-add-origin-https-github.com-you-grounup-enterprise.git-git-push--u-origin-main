@@ -1,0 +1,7 @@
+rule_code,dataset,field_or_scope,rule,severity
+DQ-EST-001,estimate_fact,estimate_id,not null + unique at defined grain,Blocking
+DQ-EST-002,estimate_fact,tenant_id,not null; must match partition/security context,Blocking
+DQ-JOB-001,job_cost_fact,actual_cost,numeric; source reconciliation within tolerance,Blocking
+DQ-FLEET-001,equipment_daily_fact,utilization_pct,0 <= value <= 1,Blocking
+DQ-SCHED-001,schedule_activity_fact,finish_date,finish >= start unless configured milestone semantics,Blocking
+DQ-AN-001,certified_dataset,freshness,within dataset SLA,Warning/Blocking per asset

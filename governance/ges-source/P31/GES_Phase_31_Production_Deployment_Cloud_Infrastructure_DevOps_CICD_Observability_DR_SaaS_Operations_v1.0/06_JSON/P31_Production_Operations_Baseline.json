@@ -1,0 +1,39 @@
+{
+  "phase": "31",
+  "name": "Production Deployment, Cloud Infrastructure, DevOps, CI/CD, Observability, DR & SaaS Operations",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase30": {
+    "requirements": 540,
+    "modules": 44,
+    "entities": 48,
+    "apis": 28,
+    "events": 30,
+    "rules": 32,
+    "security": 18,
+    "quality": 20
+  },
+  "counts": {
+    "requirements": 560,
+    "tests": 560,
+    "modules": 48,
+    "entities": 58,
+    "apis": 28,
+    "events": 30,
+    "business_rules": 40,
+    "security_controls": 20,
+    "quality_gates": 22,
+    "candidate_slos": 7
+  },
+  "technology_position": "Cloud/provider neutral. Production provider, orchestration, observability and CI/CD product selections remain architecture decisions.",
+  "principles": [
+    "Promote immutable tested artifacts rather than rebuild",
+    "Infrastructure and configuration are versioned and auditable",
+    "Production changes use controlled deployment paths",
+    "Observability and operational ownership are mandatory",
+    "Backup success is insufficient without restore validation",
+    "RTO/RPO must be demonstrated by exercises",
+    "Phase 28 security applies to all infrastructure and operational access",
+    "Production readiness remains gated by Phase 20/22 and this Phase 31 evidence"
+  ]
+}

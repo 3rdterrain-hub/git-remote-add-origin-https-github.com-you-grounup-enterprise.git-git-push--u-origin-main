@@ -1,0 +1,10 @@
+alerts:
+  required_fields:
+    - service_owner
+    - severity
+    - runbook
+    - signal
+    - threshold_or_condition
+    - escalation
+  suppress_during_approved_maintenance: true
+  protect_security_alerts_from_blanket_suppression: true

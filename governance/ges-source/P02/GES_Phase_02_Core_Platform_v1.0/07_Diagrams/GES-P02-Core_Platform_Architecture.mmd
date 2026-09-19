@@ -1,0 +1,17 @@
+flowchart TB
+  Clients[Web, Mobile, API Clients] --> Gateway[API Gateway]
+  Gateway --> Identity[Identity and Authorization]
+  Gateway --> Services[Domain and Platform Services]
+  Services --> Workflow[Workflow and Rules]
+  Services --> Files[Files and Search]
+  Services --> Jobs[Scheduler and Background Jobs]
+  Services --> Events[Event Bus and Webhooks]
+  Services --> Mobile[Offline Sync]
+  Services --> AI[AI Gateway, Agents, and Tools]
+  Services --> Data[(Tenant-Isolated Data)]
+  Workflow --> Events
+  Jobs --> Events
+  AI --> Identity
+  AI --> Events
+  Services --> Obs[Logs, Metrics, Traces, Alerts]
+  Data --> Backup[Backup and Recovery]

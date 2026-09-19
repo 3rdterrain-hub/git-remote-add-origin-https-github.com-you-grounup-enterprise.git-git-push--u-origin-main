@@ -1,0 +1,13 @@
+control_id,name,verification,status
+P25-SEC-001,Tenant isolation,Tenant library overrides/private pricing cannot be read by another tenant.,Required
+P25-SEC-002,Base library protection,Platform base records require platform-library authority to alter.,Required
+P25-SEC-003,Approval segregation,Configured approval policy prevents unauthorized self-approval where required.,Required
+P25-SEC-004,Vendor price confidentiality,Vendor quote/source metadata follows tenant and vendor-access permissions.,Required
+P25-SEC-005,Import validation,Imported files/rows are validated before commit; invalid rows cannot bypass rules.,Required
+P25-SEC-006,AI proposal boundary,AI can create proposals only; protected publication action requires authorized human.,Required
+P25-SEC-007,Snapshot immutability,Estimator library snapshots cannot be mutated after creation.,Required
+P25-SEC-008,Audit visibility,Audit access is role-scoped and does not expose restricted commercial data.,Required
+P25-SEC-009,Unit conversion governance,Only approved conversions can be used in published calculations.,Required
+P25-SEC-010,Source attachment permissions,Quote/source attachments inherit tenant/document access rules.,Required
+P25-SEC-011,Bulk edit permissions,Bulk mutation requires specific library-edit/import entitlement.,Required
+P25-SEC-012,API filtering,Search/query APIs apply tenant/base scope and field-level restrictions where configured.,Required

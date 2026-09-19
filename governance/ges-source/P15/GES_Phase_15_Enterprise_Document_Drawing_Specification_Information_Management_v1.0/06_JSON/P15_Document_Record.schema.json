@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Controlled Document Record",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "record_id",
+    "title",
+    "status",
+    "revision",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "string"
+    },
+    "checksum": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lineage_id": {
+      "type": "string"
+    },
+    "legal_hold_status": {
+      "type": "boolean"
+    }
+  }
+}

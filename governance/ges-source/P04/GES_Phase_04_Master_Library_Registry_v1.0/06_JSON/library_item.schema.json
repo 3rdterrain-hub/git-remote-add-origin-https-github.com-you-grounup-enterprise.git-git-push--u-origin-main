@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Master Library Item",
+  "type": "object",
+  "required": [
+    "library_item_id",
+    "library_id",
+    "item_code",
+    "name",
+    "description",
+    "status",
+    "version",
+    "effective_from",
+    "source_type",
+    "source_reference",
+    "confidence_score",
+    "approval_status",
+    "created_by",
+    "created_at",
+    "updated_by",
+    "updated_at",
+    "white_label_visibility",
+    "audit_hash"
+  ],
+  "properties": {
+    "library_item_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "library_id": {
+      "type": "string"
+    },
+    "item_code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "short_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category_id": {
+      "type": "string"
+    },
+    "subcategory_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "effective_from": {
+      "type": "string"
+    },
+    "effective_to": {
+      "type": "string"
+    },
+    "unit_id": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "source_reference": {
+      "type": "string"
+    },
+    "confidence_score": {
+      "type": "number"
+    },
+    "approval_status": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_by": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array"
+    },
+    "keywords": {
+      "type": "array"
+    },
+    "relationships": {
+      "type": "array"
+    },
+    "custom_fields": {
+      "type": "object"
+    },
+    "white_label_visibility": {
+      "type": "string"
+    },
+    "audit_hash": {
+      "type": "string"
+    }
+  }
+}

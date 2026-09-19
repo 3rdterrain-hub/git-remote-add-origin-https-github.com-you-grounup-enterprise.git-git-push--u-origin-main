@@ -1,0 +1,21 @@
+module_id,name,layer,purpose
+P99-MOD-001,Master Specification Authority,Governance,"Authority, incorporation and precedence across all phases"
+P99-MOD-002,Source Package Registry,Governance,"Exact Phase 01-32 package hashes, provenance and immutable-source tracking"
+P99-MOD-003,Master Requirement Registry,Traceability,Index of all incorporated governed requirements
+P99-MOD-004,Master Test Registry,Traceability,Index of all incorporated governed tests
+P99-MOD-005,Master Traceability Service,Traceability,Requirement-to-test-to-code-to-evidence mapping model
+P99-MOD-006,Dependency Graph,Architecture,Directed phase/dependency relationships and impact analysis
+P99-MOD-007,Build Sequence Controller,Implementation,Dependency-aware engineering implementation waves
+P99-MOD-008,ADR Governance,Architecture,Provider binding and architectural decision governance
+P99-MOD-009,Developer Execution Protocol,Engineering,"Definition of done, vertical-slice, test and documentation rules"
+P99-MOD-010,AI Coding Agent Protocol,Engineering AI,"Bounded coding-agent inputs, outputs and stop conditions"
+P99-MOD-011,Deterministic Authority Map,Engineering,Explicit non-AI authorities such as Phase 26 calculations
+P99-MOD-012,Security Inheritance Map,Security,Phase 28 controls propagated across all later layers
+P99-MOD-013,Data Authority Map,Data,"Operational, library, analytical and commercial source-of-truth boundaries"
+P99-MOD-014,Release Promotion Model,Release,"Environment promotion, gates, rollback and evidence"
+P99-MOD-015,Master Change Control,Governance,"Versioning, semantic-change and dependency impact workflow"
+P99-MOD-016,Exception/Risk Governance,Governance,"Explicit exceptions, risk acceptance and expiry/review"
+P99-MOD-017,Master QA Service,QA,"Archive, parse, semantic, manifest and rendering verification"
+P99-MOD-018,Certification Boundary,Certification,Separation of repository completion from real product certification
+P99-MOD-019,Release Archive,Release,"Exact master baseline, manifests and evidence references"
+P99-MOD-020,Master Navigation & Quickstart,Documentation,Developer/AI navigation through the full governed specification

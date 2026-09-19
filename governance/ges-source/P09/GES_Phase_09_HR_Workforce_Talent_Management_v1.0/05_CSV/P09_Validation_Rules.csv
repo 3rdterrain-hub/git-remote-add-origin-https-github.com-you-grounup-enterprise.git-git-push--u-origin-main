@@ -1,0 +1,21 @@
+Validation ID,Domain,Validation,Failure Handling,Status
+GES-P09-VR-001,Workforce Planning,Worker identifier is required and unique within a tenant.,Reject or route for authorized exception,Active
+GES-P09-VR-002,Recruiting and ATS,Employment start date must precede end date.,Reject or route for authorized exception,Active
+GES-P09-VR-003,Onboarding,Effective-dated records may not contain ambiguous overlapping periods.,Reject or route for authorized exception,Active
+GES-P09-VR-004,Employee Master,Time entry duration must be positive and within configured maximum shift limits.,Reject or route for authorized exception,Active
+GES-P09-VR-005,Skills and Competencies,Timecard approval requires all entries to have project and cost allocation where required.,Reject or route for authorized exception,Active
+GES-P09-VR-006,Crew Management,Credential issue date may not be after expiration date.,Reject or route for authorized exception,Active
+GES-P09-VR-007,Time and Attendance,"Crew assignment requires a valid project, shift and responsible supervisor.",Reject or route for authorized exception,Active
+GES-P09-VR-008,Workforce Scheduling,Union local must match an active labor agreement for union-rated work.,Reject or route for authorized exception,Active
+GES-P09-VR-009,Compensation and Payroll Integration,Prevailing wage classification must map to an approved determination classification.,Reject or route for authorized exception,Active
+GES-P09-VR-010,Union and Labor Agreements,Certified payroll week ending date must align with tenant payroll calendar.,Reject or route for authorized exception,Active
+GES-P09-VR-011,Prevailing Wage and Certified Payroll,Candidate consent is required before regulated screening.,Reject or route for authorized exception,Active
+GES-P09-VR-012,Training and LMS,Offer compensation must pass configured approval thresholds.,Reject or route for authorized exception,Active
+GES-P09-VR-013,Licenses and Certifications,Leave request end must not precede start.,Reject or route for authorized exception,Active
+GES-P09-VR-014,Safety and Health Integration,Performance review period must be closed before finalization.,Reject or route for authorized exception,Active
+GES-P09-VR-015,Leave and Absence,Medical restriction details must use restricted security classification.,Reject or route for authorized exception,Active
+GES-P09-VR-016,Performance Management,Payroll export totals must reconcile to approved source records.,Reject or route for authorized exception,Active
+GES-P09-VR-017,Career and Succession,Offline time entries must include device timestamp and synchronization provenance.,Reject or route for authorized exception,Active
+GES-P09-VR-018,Employee and Manager Self-Service,"AI recommendations must include confidence, evidence and model/prompt version.",Reject or route for authorized exception,Active
+GES-P09-VR-019,Workforce Digital Twin,Termination date requires final employment status and separation reason.,Reject or route for authorized exception,Active
+GES-P09-VR-020,AI Workforce Intelligence,Required onboarding tasks must be complete before activation unless waived by authorized role.,Reject or route for authorized exception,Active

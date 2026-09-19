@@ -1,0 +1,19 @@
+﻿from_component,depends_on,dependency_type
+EST,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+QTY,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+TAK,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+PRD,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+LAB,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+EQP,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+MAT,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+HAU,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+ASM,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+MUP,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+REG,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+RSK,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+AI,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+CFG,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+WLB,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+MOB,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+API,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required
+RPT,GES-P03 Enterprise Data Model; GES-P04 Master Library Registry,Required

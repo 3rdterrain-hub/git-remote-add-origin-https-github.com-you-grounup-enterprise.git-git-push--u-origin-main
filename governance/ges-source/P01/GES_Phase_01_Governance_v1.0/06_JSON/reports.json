@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0-review",
+  "reports": [
+    {
+      "report_id": "RPT-P01-001",
+      "name": "Governance Executive Summary",
+      "audience": "Executive; Governance Admin",
+      "purpose": "Tenant health, open risks, access exceptions, policy compliance, approval backlog, and emergency access"
+    },
+    {
+      "report_id": "RPT-P01-002",
+      "name": "Access Review Report",
+      "audience": "Security Admin; Auditor",
+      "purpose": "Users, roles, permissions, scopes, last activity, conflicts, and certification status"
+    },
+    {
+      "report_id": "RPT-P01-003",
+      "name": "Administrative Change Report",
+      "audience": "Auditor",
+      "purpose": "Configuration, role, policy, tenant, and administrative changes by period and actor"
+    },
+    {
+      "report_id": "RPT-P01-004",
+      "name": "Policy Compliance Report",
+      "audience": "Compliance Manager",
+      "purpose": "Active policies, acknowledgments, exceptions, overdue actions, and superseded versions"
+    },
+    {
+      "report_id": "RPT-P01-005",
+      "name": "Approval Performance",
+      "audience": "Workflow Admin",
+      "purpose": "Volume, cycle time, rejection, expiration, delegation, bottlenecks, and escalations"
+    },
+    {
+      "report_id": "RPT-P01-006",
+      "name": "Retention and Legal Hold",
+      "audience": "Records Manager; Legal",
+      "purpose": "Records due, disposed, suppressed, held, released, and exception reasons"
+    },
+    {
+      "report_id": "RPT-P01-007",
+      "name": "Emergency Access Review",
+      "audience": "Security; Auditor",
+      "purpose": "Requests, approvals, duration, actions, findings, and closure status"
+    },
+    {
+      "report_id": "RPT-P01-008",
+      "name": "AI Governance Activity",
+      "audience": "AI Governance",
+      "purpose": "Agent proposals, confidence, approvals, rejections, overrides, writebacks, and exceptions"
+    }
+  ]
+}

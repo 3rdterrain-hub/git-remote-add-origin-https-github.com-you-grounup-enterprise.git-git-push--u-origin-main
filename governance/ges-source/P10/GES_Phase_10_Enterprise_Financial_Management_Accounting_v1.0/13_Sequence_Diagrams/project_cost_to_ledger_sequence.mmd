@@ -1,0 +1,13 @@
+sequenceDiagram
+participant OPS as Phase 07 Operations
+participant JC as Job Cost Engine
+participant POST as Posting Engine
+participant GL as General Ledger
+participant TWIN as Financial Digital Twin
+OPS->>JC: Approved labor/equipment/material transaction
+JC->>JC: Validate project, cost code, period, dimensions
+JC->>POST: Create balanced accounting event
+POST->>GL: Post journal batch
+GL-->>POST: Posting result
+POST->>TWIN: Publish financial event
+TWIN-->>OPS: Updated cost, margin, forecast and alerts

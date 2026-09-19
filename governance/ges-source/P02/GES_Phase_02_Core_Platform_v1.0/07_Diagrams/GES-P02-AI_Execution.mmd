@@ -1,0 +1,10 @@
+flowchart LR
+  U[User or Workflow] --> G[AI Model Gateway]
+  G --> R[Agent Registry and Policy]
+  R --> A{Authorized?}
+  A -->|No| B[Blocked and Audited]
+  A -->|Yes| M[Model Execution]
+  M --> T[Permissioned Tool Service]
+  T --> E[Evidence and Citation]
+  E --> V[Evaluation and Output Validation]
+  V --> O[Result, Usage, Cost, Audit]

@@ -1,0 +1,37 @@
+# Registry Engines
+
+## ENG-001 - Library Registry Engine
+Registers library definitions, ownership and lifecycle.
+
+## ENG-002 - Inheritance and Override Engine
+Resolves global, reseller, tenant and project precedence.
+
+## ENG-003 - Version and Effective-Date Engine
+Selects valid immutable versions by context date.
+
+## ENG-004 - Validation Engine
+Executes schema, business and relationship validations.
+
+## ENG-005 - Duplicate Detection Engine
+Uses code, name, attributes and semantic similarity.
+
+## ENG-006 - Relationship Graph Engine
+Maintains typed dependencies and impact analysis.
+
+## ENG-007 - Approval and Publication Engine
+Controls review, approval, publish and rollback.
+
+## ENG-008 - Search and Indexing Engine
+Provides faceted, full-text and semantic retrieval.
+
+## ENG-009 - Import and Mapping Engine
+Stages, maps and validates CSV/Excel/API imports.
+
+## ENG-010 - White Label Resolution Engine
+Applies brand-specific visibility, terminology and templates.
+
+## ENG-011 - Confidence and Provenance Engine
+Scores reliability and enforces source evidence.
+
+## ENG-012 - Audit Integrity Engine
+Creates tamper-evident hashes and event history.

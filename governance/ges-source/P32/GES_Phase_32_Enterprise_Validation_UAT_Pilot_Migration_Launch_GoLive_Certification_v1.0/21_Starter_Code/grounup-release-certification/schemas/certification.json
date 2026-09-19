@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Release Certification",
+  "type": "object",
+  "required": [
+    "releaseId",
+    "artifactDigest",
+    "decision",
+    "gates",
+    "approvals"
+  ],
+  "properties": {
+    "releaseId": {
+      "type": "string"
+    },
+    "artifactDigest": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "GO",
+        "NO_GO",
+        "CERTIFIED",
+        "NOT_CERTIFIED"
+      ]
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "gateId",
+          "status",
+          "evidenceRefs"
+        ],
+        "properties": {
+          "gateId": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "EXCEPTION",
+              "PENDING"
+            ]
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "actor",
+          "decision",
+          "timestamp"
+        ],
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

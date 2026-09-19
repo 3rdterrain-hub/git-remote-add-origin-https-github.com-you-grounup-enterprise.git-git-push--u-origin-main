@@ -1,0 +1,17 @@
+event_id,event_name,version,envelope,delivery_control,status
+P23-EVT-001,tenant.provisioned,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-002,project.created,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-003,library.versioned,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-004,estimate.created,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-005,estimate.repriced,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-006,takeoff.reviewed,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-007,workflow.approved,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-008,document.versioned,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-009,crew.assigned,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-010,equipment.assigned,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-011,schedule.updated,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-012,contract.changed,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-013,ai.job.completed,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-014,ai.output.reviewed,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-015,release.promoted,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed
+P23-EVT-016,audit.recorded,v1,"tenant_id,event_id,occurred_at,actor/source,payload_version",At-least-once compatible; consumer idempotency required,Proposed

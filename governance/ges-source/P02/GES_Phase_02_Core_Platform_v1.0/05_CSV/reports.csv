@@ -1,0 +1,11 @@
+﻿Report_ID,Name,Audience,Purpose
+RPT-P02-001,Platform Health Summary,Executive; SRE,"Availability, latency, errors, dependencies, queue health, and incidents"
+RPT-P02-002,Tenant Provisioning Report,Platform Admin,"Provisioning duration, resources, validation, failures, and rollback status"
+RPT-P02-003,API Usage and Reliability,Engineering; Product,"Requests, latency, errors, throttling, versions, consumers, and deprecations"
+RPT-P02-004,Job and Workflow Performance,Operations,"Volume, duration, retries, failure, dead letters, waiting states, and SLA breaches"
+RPT-P02-005,File and Search Operations,Records; Product,"Uploads, scans, quarantine, storage, indexing latency, search volume, and zero-result queries"
+RPT-P02-006,Integration Health,Integration Admin,"Connector runs, webhook delivery, event lag, import/export results, and credential expiry"
+RPT-P02-007,Mobile Offline Operations,Field Operations,"Pack downloads, sync latency, rejected changes, conflicts, device risks, and expired packs"
+RPT-P02-008,Security and Resilience,Security; SRE,"Session risk, blocked requests, secret rotation, backup status, restore tests, and DR readiness"
+RPT-P02-009,AI Platform Usage,AI Governance; Finance,"Executions, models, agents, tokens, tools, cost, errors, evaluation status, and blocked actions"
+RPT-P02-010,Localization and Conversion Audit,Data Governance,"Unit and currency conversions, sources, precision, failures, and exception rates"

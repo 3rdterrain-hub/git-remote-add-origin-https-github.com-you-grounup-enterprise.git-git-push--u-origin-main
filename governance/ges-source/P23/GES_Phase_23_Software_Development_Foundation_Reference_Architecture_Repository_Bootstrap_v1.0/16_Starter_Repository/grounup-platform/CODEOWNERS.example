@@ -1,0 +1,6 @@
+# Replace placeholders with approved teams
+/apps/ @product-engineering
+/packages/contracts/ @architecture @data
+/services/ai-orchestrator/ @ai-governance @ai-engineering
+/infrastructure/ @platform-engineering @security
+/docs/adr/ @architecture

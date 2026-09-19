@@ -1,0 +1,11 @@
+flowchart LR
+A[Telematics / Inspection / PM Trigger] --> B[Defect or Due Event]
+B --> C{Safety Critical?}
+C -- Yes --> D[Out of Service / Lockout]
+C -- No --> E[Plan Work Order]
+D --> E
+E --> F[Approve and Schedule]
+F --> G[Execute Labor and Parts]
+G --> H[Quality Verification]
+H --> I[Return to Service]
+I --> J[Cost, Warranty, Project and Twin Updates]

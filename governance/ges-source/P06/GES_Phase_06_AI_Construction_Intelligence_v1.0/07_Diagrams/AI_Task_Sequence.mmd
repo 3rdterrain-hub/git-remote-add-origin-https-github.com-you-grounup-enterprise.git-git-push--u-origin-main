@@ -1,0 +1,15 @@
+sequenceDiagram
+ participant U as User
+ participant O as Orchestrator
+ participant K as Knowledge
+ participant A as Specialist Agent
+ participant H as Human Approver
+ participant C as Canonical API
+ U->>O: Submit task
+ O->>K: Retrieve authorized context
+ O->>A: Assign scoped work
+ A-->>O: Recommendation + confidence + citations
+ O->>H: Request approval when required
+ H-->>O: Approve or reject
+ O->>C: Execute approved writeback
+ O-->>U: Return result and audit reference

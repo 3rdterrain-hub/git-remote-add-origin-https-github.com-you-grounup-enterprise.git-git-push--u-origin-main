@@ -1,0 +1,6 @@
+service_code,name,category,unit,status,description
+SVC-EARTH-EXC-001,Mass Excavation,Earthwork,CY,Active,"Excavate, load/place or stockpile soil under defined access/production conditions."
+SVC-EARTH-GRD-001,Rough Grading,Earthwork,SY,Active,Rough grade site/subgrade to planned elevations.
+SVC-DEMO-POOL-001,Inground Pool Demolition,Demolition,EA,Active,Demolish/remove or abandon pool per approved scope.
+SVC-UTIL-TRN-001,Utility Trenching,Utilities,LF,Active,Excavate utility trench by depth/width/soil/access condition.
+SVC-DRAIN-FD-001,French Drain Installation,Drainage,LF,Active,"Excavate, stone, pipe, fabric and restore French drain system."

@@ -1,0 +1,146 @@
+{
+  "phase": "19",
+  "name": "Contract, Change Order, Claims & Commercial Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Commercial Management Core",
+      "purpose": "Project commercial controls, contract hierarchy, commitments, notices, changes, claims, entitlements, approvals and audit."
+    },
+    {
+      "name": "Prime Contract Management",
+      "purpose": "Owner/client agreements, amendments, exhibits, commercial terms, values, dates and obligations."
+    },
+    {
+      "name": "Subcontract Management",
+      "purpose": "Subcontracts, scopes, exhibits, flow-downs, commitments, changes, notices and closeout."
+    },
+    {
+      "name": "Purchase Contract Commercials",
+      "purpose": "Commercial terms linked to procurement commitments, allowances, escalation and delivery obligations."
+    },
+    {
+      "name": "Contract Clause Registry",
+      "purpose": "Governed clauses, clause types, obligations, notice periods, payment terms, change mechanisms and references."
+    },
+    {
+      "name": "Obligation Management",
+      "purpose": "Contractual obligations, owners, due dates, evidence, status, escalation and completion."
+    },
+    {
+      "name": "Notice Management",
+      "purpose": "Notice events, required recipients, contractual deadlines, delivery evidence, reservations and follow-up."
+    },
+    {
+      "name": "Potential Change Management",
+      "purpose": "Potential change events, source events, scope impacts, pricing status, schedule impacts and disposition."
+    },
+    {
+      "name": "Change Order Management",
+      "purpose": "PCOs, owner changes, subcontract changes, change directives, approvals, revisions and execution."
+    },
+    {
+      "name": "Change Pricing",
+      "purpose": "Labor, equipment, material, subcontract, trucking, burden, markup, tax, bond and allowance pricing."
+    },
+    {
+      "name": "T&M / Force Account",
+      "purpose": "Daily tickets, labor/equipment/material usage, signatures, backup, rates and reconciliation."
+    },
+    {
+      "name": "Change Authorization",
+      "purpose": "Proceed/no-proceed authority, field directives, not-to-exceed limits, approval matrices and audit."
+    },
+    {
+      "name": "Contract Value Control",
+      "purpose": "Original value, approved changes, pending changes, forecast changes, revised value and exposure."
+    },
+    {
+      "name": "Claims Management",
+      "purpose": "Claim events, theories/positions, chronology, cost/time components, evidence, review and status."
+    },
+    {
+      "name": "Delay & Disruption Records",
+      "purpose": "Schedule-linked delay, disruption, acceleration, inefficiency and contemporaneous evidence."
+    },
+    {
+      "name": "Differing Site Conditions",
+      "purpose": "Condition events, baseline information, observations, notice, investigation, cost/time impacts and evidence."
+    },
+    {
+      "name": "Scope & Design Change",
+      "purpose": "Drawing/spec/RFI/submittal-driven scope changes, responsibility, quantity/cost/time impacts and traceability."
+    },
+    {
+      "name": "Payment & Billing Commercials",
+      "purpose": "Applications for payment, pay items, retainage, stored materials, backcharges, deductions and certification."
+    },
+    {
+      "name": "Retainage & Holdbacks",
+      "purpose": "Retainage rules, release milestones, withholding reasons, balances and approvals."
+    },
+    {
+      "name": "Backcharges & Deductions",
+      "purpose": "Backcharge notices, support, responsibility, pricing, dispute status and settlement."
+    },
+    {
+      "name": "Allowances & Contingencies",
+      "purpose": "Contract allowances, owner contingencies, drawdowns, transfers, remaining balances and approvals."
+    },
+    {
+      "name": "Escalation & Price Adjustment",
+      "purpose": "Index/reference adjustments, fuel/material escalation, thresholds, calculations and contract basis."
+    },
+    {
+      "name": "Insurance, Bonds & Commercial Compliance",
+      "purpose": "Commercial certificates, bonds, limits, expiration, required endorsements and evidence references."
+    },
+    {
+      "name": "Lien & Waiver Administration",
+      "purpose": "Conditional/unconditional waivers, payment linkage, status, jurisdiction-configurable requirements and evidence."
+    },
+    {
+      "name": "Dispute Management",
+      "purpose": "Issues, negotiations, mediation/arbitration/litigation references, settlement authority and privileged-data controls."
+    },
+    {
+      "name": "Commercial Forecasting",
+      "purpose": "Pending/approved changes, claims exposure, contingency, margin-at-completion and cash/commercial forecasts."
+    },
+    {
+      "name": "Contract Closeout",
+      "purpose": "Final changes, releases, waivers, claims disposition, final payment, retainage and commercial archive."
+    },
+    {
+      "name": "AI Commercial Intelligence",
+      "purpose": "Evidence-grounded clause extraction, notice/deadline assistance, change classification, backup review and commercial risk recommendations."
+    },
+    {
+      "name": "Commercial Digital Twin",
+      "purpose": "Current contract, obligation, change, claim, payment, exposure, evidence and decision state."
+    }
+  ],
+  "counts": {
+    "requirements": 420,
+    "entities": 195,
+    "fields": 320,
+    "business_rules": 85,
+    "validation_rules": 85,
+    "workflows": 51,
+    "engines": 53,
+    "api_resources": 68,
+    "ui_surfaces": 49,
+    "reports": 44,
+    "kpis": 54,
+    "tests": 420
+  },
+  "critical_governance": [
+    "Contract/claim records support commercial administration and evidence management; the system does not autonomously make legal conclusions.",
+    "Binding notices, waivers, settlements, commitments and executed changes require authorized human approval/action.",
+    "Approved contract/change versions are immutable; superseding versions preserve prior states and audit history.",
+    "Notice deadlines and jurisdiction-specific rules are configurable and require source contract/jurisdiction basis.",
+    "AI outputs retain evidence/confidence and may assist clause extraction, notice finding, classification, backup review and risk analysis only.",
+    "Commercial values reconcile with finance/cost, schedule impacts, procurement/subcontracts and controlled documents."
+  ]
+}

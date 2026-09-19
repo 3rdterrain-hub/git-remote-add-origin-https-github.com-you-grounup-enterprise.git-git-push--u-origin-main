@@ -1,0 +1,43 @@
+module_id,name,layer,purpose
+P29-MOD-001,Analytics Control Plane,Analytics Platform,"Dataset, pipeline, model, metric, report and ownership registry"
+P29-MOD-002,Operational Replication Service,Data Integration,Read-only governed replication/CDC from operational domains
+P29-MOD-003,Batch Ingestion Service,Data Integration,Scheduled batch ingestion with checkpoints/retries/evidence
+P29-MOD-004,Streaming Ingestion Service,Data Integration,Near-real-time event ingestion with ordering/idempotency controls
+P29-MOD-005,Raw/Bronze Data Zone,Lakehouse,Immutable/raw analytical landing with source metadata
+P29-MOD-006,Validated/Silver Data Zone,Lakehouse,Cleaned/conformed data with quality/reconciliation state
+P29-MOD-007,Curated/Gold Data Zone,Lakehouse,Business-ready curated datasets and dimensional outputs
+P29-MOD-008,Warehouse Fact Service,Warehouse,"Fact table definitions, loads, partitioning and historical grain"
+P29-MOD-009,Dimension Service,Warehouse,Conformed dimensions and slowly changing dimension handling
+P29-MOD-010,Transformation Registry,ETL/ELT,Versioned SQL/code/model transformations and dependencies
+P29-MOD-011,Pipeline Orchestrator,ETL/ELT,"Schedules, dependencies, retries, backfills, SLAs and run state"
+P29-MOD-012,Schema/Data Contract Registry,Governance,"Source/target schemas, compatibility and owner contracts"
+P29-MOD-013,Data Quality Engine,Governance,"Completeness, validity, uniqueness, consistency and anomaly checks"
+P29-MOD-014,Reconciliation Engine,Governance,Source-to-analytics counts/amounts/control-total reconciliation
+P29-MOD-015,Freshness Monitor,Operations,Data recency/latency SLAs and stale-data alerting
+P29-MOD-016,Lineage Service,Governance,Column/dataset/report/model source-to-output lineage graph
+P29-MOD-017,Metadata Catalog,Governance,"Searchable business/technical metadata, owners and certifications"
+P29-MOD-018,Semantic Model Service,Analytics,"Governed dimensions, relationships, measures and query semantics"
+P29-MOD-019,Metric/KPI Registry,Analytics,"Certified metric formulas, grain, filters, owner and version"
+P29-MOD-020,Time Intelligence Service,Analytics,Calendar/fiscal/period comparisons and historical windows
+P29-MOD-021,Estimating Analytics Mart,Domain Analytics,"Estimate, line, production, price, margin and win/loss analytics"
+P29-MOD-022,Project/Job Cost Mart,Domain Analytics,Budget/actual/commitment/forecast/production analytics
+P29-MOD-023,Schedule Analytics Mart,Domain Analytics,"Milestone, float, performance, resource and forecast analytics"
+P29-MOD-024,Commercial Analytics Mart,Domain Analytics,Contract/change/claim/payment/exposure analytics
+P29-MOD-025,CRM/Sales Analytics Mart,Domain Analytics,Lead/opportunity/customer conversion and pipeline analytics
+P29-MOD-026,Workforce Analytics Mart,Domain Analytics,"Labor, crew, skills, utilization and capacity analytics"
+P29-MOD-027,Fleet Analytics Mart,Domain Analytics,"Equipment utilization, cost, maintenance, fuel and downtime analytics"
+P29-MOD-028,Procurement Analytics Mart,Domain Analytics,"Vendor, PO, price, lead-time and commitment analytics"
+P29-MOD-029,Safety Analytics Mart,Domain Analytics,"Incident, inspection, action and trend analytics"
+P29-MOD-030,AI/Document Analytics Mart,Domain Analytics,"AI usage/evals, document intelligence, review and evidence analytics"
+P29-MOD-031,Regional Benchmark Mart,Analytics,"Regional rates, production, cost and benchmark distributions"
+P29-MOD-032,Reporting Service,Reporting,"Governed reports, parameters, formats and report execution"
+P29-MOD-033,Dashboard Service,Reporting,Role-based operational/executive dashboards
+P29-MOD-034,Self-Service Analytics Service,Reporting,Permission-aware ad hoc exploration using certified semantic model
+P29-MOD-035,Subscription/Export Service,Reporting,"Scheduled reports, subscriptions and controlled exports"
+P29-MOD-036,Forecasting Service,Advanced Analytics,Time-series/driver-based forecasts with versioned assumptions
+P29-MOD-037,Scenario Analytics Service,Advanced Analytics,Scenario comparison across cost/production/schedule/commercial drivers
+P29-MOD-038,AI-Ready Feature Store,AI Data,Governed analytical features with source/version/freshness metadata
+P29-MOD-039,Embedding Metadata Registry,AI Data,Vector/embedding provenance and source/version permissions metadata
+P29-MOD-040,Analytics Security Service,Security,Tenant/row/column security and privacy enforcement
+P29-MOD-041,Analytics Observability Service,Operations,"Pipeline/query/report quality, performance and cost telemetry"
+P29-MOD-042,Analytics Incident Service,Operations,"Data incident triage, impact, backfill, correction and evidence"

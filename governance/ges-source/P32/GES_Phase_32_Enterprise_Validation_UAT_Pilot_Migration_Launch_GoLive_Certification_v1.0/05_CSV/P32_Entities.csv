@@ -1,0 +1,52 @@
+entity,primary_key,purpose,scope
+ValidationProgram,validation_program_id,Master validation program,Platform/Tenant/Release as applicable
+AcceptanceCriterion,acceptance_criterion_id,Objective acceptance rule,Platform/Tenant/Release as applicable
+AcceptanceEvidence,acceptance_evidence_id,Evidence artifact/reference,Platform/Tenant/Release as applicable
+RequirementClosure,requirement_closure_id,Requirement closure disposition,Platform/Tenant/Release as applicable
+TraceabilityClosure,traceability_closure_id,Traceability completeness result,Platform/Tenant/Release as applicable
+ValidationRun,validation_run_id,Integrated validation execution,Platform/Tenant/Release as applicable
+RegressionRun,regression_run_id,Regression certification run,Platform/Tenant/Release as applicable
+AcceptanceDecision,acceptance_decision_id,Formal acceptance/rejection,Platform/Tenant/Release as applicable
+UATCycle,uat_cycle_id,UAT cycle,Platform/Tenant/Release as applicable
+UATPersona,uat_persona_id,Business role/persona,Platform/Tenant/Release as applicable
+UATScenario,uat_scenario_id,UAT scenario,Platform/Tenant/Release as applicable
+UATExecution,uat_execution_id,Scenario execution,Platform/Tenant/Release as applicable
+UATSignoff,uat_signoff_id,UAT approval,Platform/Tenant/Release as applicable
+PilotTenant,pilot_tenant_id,Pilot tenant/cohort record,Platform/Tenant/Release as applicable
+PilotReadiness,pilot_readiness_id,Pilot readiness gate,Platform/Tenant/Release as applicable
+PilotObservation,pilot_observation_id,Pilot monitoring observation,Platform/Tenant/Release as applicable
+PilotFeedback,pilot_feedback_id,Pilot feedback item,Platform/Tenant/Release as applicable
+PilotExitDecision,pilot_exit_decision_id,Pilot exit disposition,Platform/Tenant/Release as applicable
+MigrationSource,migration_source_id,Migration source inventory,Platform/Tenant/Release as applicable
+MigrationMap,migration_map_id,Source-target mapping,Platform/Tenant/Release as applicable
+MigrationRule,migration_rule_id,Transformation/cleansing rule,Platform/Tenant/Release as applicable
+MigrationRun,migration_run_id,Migration execution,Platform/Tenant/Release as applicable
+MigrationBatch,migration_batch_id,Migration batch,Platform/Tenant/Release as applicable
+MigrationException,migration_exception_id,Migration exception/quarantine,Platform/Tenant/Release as applicable
+ReconciliationResult,reconciliation_result_id,Migration reconciliation evidence,Platform/Tenant/Release as applicable
+CutoverPlan,cutover_plan_id,Cutover plan,Platform/Tenant/Release as applicable
+CutoverStep,cutover_step_id,Cutover action/dependency,Platform/Tenant/Release as applicable
+CutoverRun,cutover_run_id,Cutover execution,Platform/Tenant/Release as applicable
+FreezeWindow,freeze_window_id,Change freeze period,Platform/Tenant/Release as applicable
+GoLiveDecision,go_live_decision_id,Go/no-go decision,Platform/Tenant/Release as applicable
+ProductionVerification,production_verification_id,Production verification result,Platform/Tenant/Release as applicable
+LaunchCommunication,launch_communication_id,Launch communication,Platform/Tenant/Release as applicable
+TrainingCourse,training_course_id,Training course,Platform/Tenant/Release as applicable
+TrainingAssignment,training_assignment_id,Training assignment,Platform/Tenant/Release as applicable
+TrainingCompletion,training_completion_id,Training completion,Platform/Tenant/Release as applicable
+SupportReadiness,support_readiness_id,Support readiness result,Platform/Tenant/Release as applicable
+HypercareWindow,hypercare_window_id,Hypercare period,Platform/Tenant/Release as applicable
+HypercareObservation,hypercare_observation_id,Hypercare health/issue observation,Platform/Tenant/Release as applicable
+Defect,defect_id,Defect record,Platform/Tenant/Release as applicable
+DefectRetest,defect_retest_id,Defect retest result,Platform/Tenant/Release as applicable
+Issue,issue_id,Issue record,Platform/Tenant/Release as applicable
+Risk,risk_id,Risk record,Platform/Tenant/Release as applicable
+RiskAcceptance,risk_acceptance_id,Residual risk approval,Platform/Tenant/Release as applicable
+KnownIssue,known_issue_id,Approved known issue,Platform/Tenant/Release as applicable
+CertificationGate,certification_gate_id,Final certification gate,Platform/Tenant/Release as applicable
+CertificationDecision,certification_decision_id,Final release certification,Platform/Tenant/Release as applicable
+EvidencePackage,evidence_package_id,Final evidence bundle,Platform/Tenant/Release as applicable
+KPIBaseline,kpi_baseline_id,Launch KPI baseline,Platform/Tenant/Release as applicable
+PostGoLiveReview,post_go_live_review_id,Post-launch review,Platform/Tenant/Release as applicable
+CustomerSuccessHandoff,cs_handoff_id,Customer success handoff,Platform/Tenant/Release as applicable
+ReleaseArchive,release_archive_id,Final release archive,Platform/Tenant/Release as applicable

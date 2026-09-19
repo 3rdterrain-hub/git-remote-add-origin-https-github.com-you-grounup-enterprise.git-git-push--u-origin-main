@@ -1,0 +1,31 @@
+rule_id,name,rule,severity
+P28-BR-001,Default deny,Access is denied unless an explicit policy grants the requested action in context.,Blocking
+P28-BR-002,Tenant isolation,"Tenant identity, data, cache, object, search, event and AI contexts may not cross tenant boundaries except explicitly governed platform operations.",Blocking
+P28-BR-003,Least privilege,Human and service identities receive the minimum permissions and scope required for approved duties.,Blocking
+P28-BR-004,MFA for privileged actions,Privileged/admin or configured high-risk actions require MFA/step-up authentication.,Blocking
+P28-BR-005,Privileged access expiry,Temporary privileged elevation expires automatically and retains approval/audit evidence.,Blocking
+P28-BR-006,Joiner/mover/leaver,"Identity lifecycle changes propagate to memberships, roles, sessions and service access according to configured rules.",Blocking
+P28-BR-007,Session revocation,Disabled/revoked identities or high-risk events can revoke active sessions/tokens.,Blocking
+P28-BR-008,Service identity ownership,"Every service identity has owner, purpose, scope, credential reference and rotation policy.",Blocking
+P28-BR-009,No secrets in source,"Production credentials, private keys and secrets may not be stored in source repositories or unprotected config.",Blocking
+P28-BR-010,Key rotation,Keys/secrets/certificates follow configured rotation and expiration policy with evidence.,Blocking
+P28-BR-011,Sensitive logs,Security/application logs exclude secrets and protected content unless specifically approved/redacted.,Blocking
+P28-BR-012,Data classification,Protected handling/retention/export rules derive from data classification and tenant/jurisdiction policy.,Blocking
+P28-BR-013,Encryption,Protected data uses approved encryption in transit and at rest according to classification/policy.,Blocking
+P28-BR-014,File scanning,Untrusted file uploads are validated/scanned before trusted processing or distribution.,Blocking
+P28-BR-015,API abuse controls,"Sensitive endpoints support rate limiting, replay/idempotency controls and anomaly monitoring.",Blocking
+P28-BR-016,Event authenticity,"Security-sensitive events retain publisher identity, tenant, schema/version and correlation context.",Blocking
+P28-BR-017,Search permission filtering,Search indexing/querying cannot return unauthorized records or snippets.,Blocking
+P28-BR-018,AI security inheritance,"AI retrieval/tool/model use may not bypass ordinary identity, tenant, classification or approval policy.",Blocking
+P28-BR-019,Prompt injection isolation,Untrusted retrieved content cannot override trusted system/tool/security instructions.,Blocking
+P28-BR-020,Secure SDLC gate,Blocking code/dependency/container/IaC/secret findings prevent promotion unless formally excepted.,Blocking
+P28-BR-021,Vulnerability ownership,"Every actionable vulnerability has severity, owner, due date/SLA and disposition evidence.",Blocking
+P28-BR-022,Security exception expiry,Risk exceptions expire and require re-review; they are not permanent silent bypasses.,Blocking
+P28-BR-023,Threat modeling,Material architecture/data/AI/integration changes require threat-model review based on configured risk triggers.,Blocking
+P28-BR-024,Alert integrity,Security alerts preserve triggering evidence and cannot be silently deleted by ordinary users.,Blocking
+P28-BR-025,Incident evidence,"Security incidents preserve chronology, containment/recovery actions and forensic evidence access history.",Blocking
+P28-BR-026,Access review,Privileged and configured sensitive access is periodically certified or revoked.,Blocking
+P28-BR-027,Segregation of duties,Configured incompatible roles/actions are denied or routed to explicit exception/review.,Blocking
+P28-BR-028,Break glass,"Emergency privileged access is time-bound, strongly authenticated, monitored and retrospectively reviewed.",Blocking
+P28-BR-029,Backup security,Backups use equivalent classification/encryption/access protections and restore validation.,Blocking
+P28-BR-030,Audit immutability,Security/auth/admin/compliance audit history is append-oriented and protected from ordinary mutation.,Blocking

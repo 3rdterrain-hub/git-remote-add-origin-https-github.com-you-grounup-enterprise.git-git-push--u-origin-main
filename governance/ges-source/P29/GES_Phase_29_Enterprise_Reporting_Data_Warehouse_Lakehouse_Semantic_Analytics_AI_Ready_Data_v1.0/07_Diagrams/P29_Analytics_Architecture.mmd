@@ -1,0 +1,16 @@
+flowchart LR
+ Ops[Operational Domain Systems] --> CDC[CDC / Batch / Events]
+ CDC --> Bronze[Bronze Raw Zone]
+ Bronze --> DQ[Data Quality + Contract Validation]
+ DQ --> Silver[Silver Conformed Zone]
+ Silver --> Warehouse[Warehouse Facts/Dimensions]
+ Silver --> Gold[Gold Curated Data Products]
+ Warehouse --> Semantic[Certified Semantic Model]
+ Gold --> Semantic
+ Semantic --> Reports[Reports / Dashboards / Self-Service]
+ Semantic --> Forecast[Forecast / Scenario / Benchmark]
+ Gold --> Features[AI-Ready Feature Store]
+ Gold --> Embeddings[Embedding Metadata Registry]
+ Reports --> Audit[Analytics Audit / Lineage / Freshness]
+ Forecast --> Audit
+ Features --> Audit

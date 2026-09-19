@@ -1,0 +1,182 @@
+{
+  "version": "1.0.0-review",
+  "base_path": "/v1",
+  "endpoints": [
+    {
+      "api_id": "API-P02-001",
+      "method": "POST",
+      "path": "/v1/auth/sessions",
+      "purpose": "Create authenticated session",
+      "permission": "public/identity policy",
+      "primary_entity": "Session"
+    },
+    {
+      "api_id": "API-P02-002",
+      "method": "DELETE",
+      "path": "/v1/auth/sessions/{sessionId}",
+      "purpose": "Revoke session",
+      "permission": "session.revoke",
+      "primary_entity": "Session"
+    },
+    {
+      "api_id": "API-P02-003",
+      "method": "POST",
+      "path": "/v1/authorization/decisions",
+      "purpose": "Evaluate authorization",
+      "permission": "authorization.evaluate",
+      "primary_entity": "AuthorizationDecision"
+    },
+    {
+      "api_id": "API-P02-004",
+      "method": "POST",
+      "path": "/v1/files/uploads",
+      "purpose": "Start file upload",
+      "permission": "file.create",
+      "primary_entity": "FileObject"
+    },
+    {
+      "api_id": "API-P02-005",
+      "method": "POST",
+      "path": "/v1/files/uploads/{uploadId}/complete",
+      "purpose": "Finalize file version",
+      "permission": "file.create",
+      "primary_entity": "FileVersion"
+    },
+    {
+      "api_id": "API-P02-006",
+      "method": "GET",
+      "path": "/v1/search",
+      "purpose": "Permission-aware search",
+      "permission": "search.execute",
+      "primary_entity": "SearchDocument"
+    },
+    {
+      "api_id": "API-P02-007",
+      "method": "POST",
+      "path": "/v1/notifications",
+      "purpose": "Create notification",
+      "permission": "notification.send",
+      "primary_entity": "Notification"
+    },
+    {
+      "api_id": "API-P02-008",
+      "method": "POST",
+      "path": "/v1/schedules",
+      "purpose": "Create schedule",
+      "permission": "schedule.manage",
+      "primary_entity": "Schedule"
+    },
+    {
+      "api_id": "API-P02-009",
+      "method": "POST",
+      "path": "/v1/jobs",
+      "purpose": "Submit background job",
+      "permission": "job.submit",
+      "primary_entity": "BackgroundJob"
+    },
+    {
+      "api_id": "API-P02-010",
+      "method": "GET",
+      "path": "/v1/jobs/{jobId}",
+      "purpose": "Read job progress",
+      "permission": "job.read",
+      "primary_entity": "BackgroundJob"
+    },
+    {
+      "api_id": "API-P02-011",
+      "method": "POST",
+      "path": "/v1/workflows/{definitionKey}/instances",
+      "purpose": "Start workflow",
+      "permission": "workflow.start",
+      "primary_entity": "WorkflowInstance"
+    },
+    {
+      "api_id": "API-P02-012",
+      "method": "POST",
+      "path": "/v1/rules/{ruleKey}/evaluate",
+      "purpose": "Evaluate rule",
+      "permission": "rule.execute",
+      "primary_entity": "RuleExecution"
+    },
+    {
+      "api_id": "API-P02-013",
+      "method": "POST",
+      "path": "/v1/webhook-subscriptions",
+      "purpose": "Create webhook subscription",
+      "permission": "webhook.manage",
+      "primary_entity": "WebhookSubscription"
+    },
+    {
+      "api_id": "API-P02-014",
+      "method": "POST",
+      "path": "/v1/connectors",
+      "purpose": "Create connector instance",
+      "permission": "connector.manage",
+      "primary_entity": "ConnectorInstance"
+    },
+    {
+      "api_id": "API-P02-015",
+      "method": "POST",
+      "path": "/v1/imports",
+      "purpose": "Create import batch",
+      "permission": "import.create",
+      "primary_entity": "ImportBatch"
+    },
+    {
+      "api_id": "API-P02-016",
+      "method": "POST",
+      "path": "/v1/exports",
+      "purpose": "Create export package",
+      "permission": "export.create",
+      "primary_entity": "ExportPackage"
+    },
+    {
+      "api_id": "API-P02-017",
+      "method": "POST",
+      "path": "/v1/mobile/offline-packs",
+      "purpose": "Build offline pack",
+      "permission": "offlinepack.create",
+      "primary_entity": "OfflinePack"
+    },
+    {
+      "api_id": "API-P02-018",
+      "method": "POST",
+      "path": "/v1/mobile/sync",
+      "purpose": "Submit sync transactions",
+      "permission": "sync.execute",
+      "primary_entity": "SyncTransaction"
+    },
+    {
+      "api_id": "API-P02-019",
+      "method": "POST",
+      "path": "/v1/feature-flags",
+      "purpose": "Create feature flag",
+      "permission": "featureflag.manage",
+      "primary_entity": "FeatureFlag"
+    },
+    {
+      "api_id": "API-P02-020",
+      "method": "GET",
+      "path": "/v1/platform/health",
+      "purpose": "Read platform health",
+      "permission": "platform.health.read",
+      "primary_entity": "HealthSnapshot"
+    },
+    {
+      "api_id": "API-P02-021",
+      "method": "POST",
+      "path": "/v1/ai/executions",
+      "purpose": "Execute registered agent",
+      "permission": "ai.execute",
+      "primary_entity": "AIExecution"
+    },
+    {
+      "api_id": "API-P02-022",
+      "method": "POST",
+      "path": "/v1/ai/tools/{toolKey}/invoke",
+      "purpose": "Invoke AI tool",
+      "permission": "ai.tool.invoke",
+      "primary_entity": "AIToolInvocation"
+    }
+  ]
+}

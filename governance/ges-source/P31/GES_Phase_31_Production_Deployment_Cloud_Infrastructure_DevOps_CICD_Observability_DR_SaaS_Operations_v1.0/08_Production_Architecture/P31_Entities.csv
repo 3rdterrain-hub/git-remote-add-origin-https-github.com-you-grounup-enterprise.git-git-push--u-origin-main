@@ -1,0 +1,59 @@
+entity,primary_key,purpose,scope
+CloudEnvironment,environment_id,Environment identity and lifecycle,Platform/Tenant where applicable
+CloudRegion,region_id,Cloud region/availability topology,Platform/Tenant where applicable
+NetworkSegment,network_segment_id,Network/subnet/security-zone definition,Platform/Tenant where applicable
+IngressEndpoint,ingress_endpoint_id,External/internal ingress endpoint,Platform/Tenant where applicable
+RuntimeService,runtime_service_id,Deployable application/service runtime,Platform/Tenant where applicable
+RuntimeRevision,runtime_revision_id,Immutable deployable revision,Platform/Tenant where applicable
+DatabaseCluster,database_cluster_id,Database infrastructure record,Platform/Tenant where applicable
+CacheCluster,cache_cluster_id,Cache infrastructure record,Platform/Tenant where applicable
+QueueResource,queue_resource_id,Queue/job resource,Platform/Tenant where applicable
+ObjectStore,object_store_id,Object storage resource,Platform/Tenant where applicable
+SearchCluster,search_cluster_id,Search infrastructure resource,Platform/Tenant where applicable
+AnalyticsRuntime,analytics_runtime_id,Analytics infrastructure record,Platform/Tenant where applicable
+AIRuntime,ai_runtime_id,AI runtime/inference/worker record,Platform/Tenant where applicable
+EnvironmentConfig,environment_config_id,Versioned non-secret config,Platform/Tenant where applicable
+SecretBinding,secret_binding_id,Workload-to-secret reference,Platform/Tenant where applicable
+IaCModule,iac_module_id,Infrastructure module,Platform/Tenant where applicable
+IaCStack,iac_stack_id,Environment stack,Platform/Tenant where applicable
+IaCPlan,iac_plan_id,Planned infrastructure change,Platform/Tenant where applicable
+IaCApply,iac_apply_id,Applied infrastructure change,Platform/Tenant where applicable
+PolicyCheck,policy_check_id,Policy-as-code result,Platform/Tenant where applicable
+Build,build_id,Build execution,Platform/Tenant where applicable
+BuildArtifact,artifact_id,Immutable software artifact,Platform/Tenant where applicable
+SBOM,sbom_id,Software bill of materials,Platform/Tenant where applicable
+ProvenanceRecord,provenance_id,Build/artifact provenance,Platform/Tenant where applicable
+TestRun,test_run_id,Automated test execution,Platform/Tenant where applicable
+Release,release_id,Release identity,Platform/Tenant where applicable
+ReleaseCandidate,release_candidate_id,Release candidate package,Platform/Tenant where applicable
+Deployment,deployment_id,Deployment execution,Platform/Tenant where applicable
+DeploymentStep,deployment_step_id,Deployment stage/action,Platform/Tenant where applicable
+MigrationRun,migration_run_id,Schema/data migration execution,Platform/Tenant where applicable
+FeatureFlagRelease,feature_flag_release_id,Release-time feature state,Platform/Tenant where applicable
+CanaryRun,canary_run_id,Canary rollout,Platform/Tenant where applicable
+RollbackRun,rollback_run_id,Rollback/recovery execution,Platform/Tenant where applicable
+ReleaseApproval,release_approval_id,Release approval decision,Platform/Tenant where applicable
+ReleaseEvidence,release_evidence_id,Release evidence bundle,Platform/Tenant where applicable
+ServiceOwner,service_owner_id,Operational service owner,Platform/Tenant where applicable
+ServiceLevelObjective,slo_id,SLO definition,Platform/Tenant where applicable
+ServiceLevelIndicator,sli_id,SLI definition,Platform/Tenant where applicable
+ErrorBudget,error_budget_id,Error budget status,Platform/Tenant where applicable
+AlertRule,alert_rule_id,Alert rule,Platform/Tenant where applicable
+AlertEvent,alert_event_id,Alert occurrence,Platform/Tenant where applicable
+OnCallRotation,oncall_rotation_id,On-call rotation,Platform/Tenant where applicable
+OperationalIncident,operational_incident_id,Production incident,Platform/Tenant where applicable
+IncidentTimeline,incident_timeline_id,Incident chronology,Platform/Tenant where applicable
+CapacityModel,capacity_model_id,Capacity/scaling model,Platform/Tenant where applicable
+ScalingPolicy,scaling_policy_id,Autoscaling rule,Platform/Tenant where applicable
+PerformanceBaseline,performance_baseline_id,Performance benchmark,Platform/Tenant where applicable
+BackupPolicy,backup_policy_id,Backup policy,Platform/Tenant where applicable
+BackupRun,backup_run_id,Backup execution,Platform/Tenant where applicable
+RestoreTest,restore_test_id,Restore validation,Platform/Tenant where applicable
+DisasterRecoveryPlan,dr_plan_id,DR plan,Platform/Tenant where applicable
+DisasterRecoveryExercise,dr_exercise_id,DR exercise/result,Platform/Tenant where applicable
+Runbook,runbook_id,Operational runbook,Platform/Tenant where applicable
+MaintenanceWindow,maintenance_window_id,Maintenance schedule,Platform/Tenant where applicable
+FinOpsAllocation,finops_allocation_id,Cloud cost allocation,Platform/Tenant where applicable
+CostBudget,cost_budget_id,Cloud cost budget,Platform/Tenant where applicable
+CostAnomaly,cost_anomaly_id,Cloud cost anomaly,Platform/Tenant where applicable
+DeploymentAuditEvent,deployment_audit_event_id,Deployment/change audit,Platform/Tenant where applicable

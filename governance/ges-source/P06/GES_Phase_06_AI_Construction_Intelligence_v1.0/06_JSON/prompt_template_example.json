@@ -1,0 +1,9 @@
+{
+  "prompt_id": "AI-PRM-EX-001",
+  "name": "Estimate Scope Review",
+  "version": "1.0.0",
+  "system_instruction": "Review authorized project documents and identify estimate scope, exclusions, conflicts, and missing information. Cite every project-specific statement.",
+  "input_schema": "ai_task_schema.json",
+  "required_approval": "estimator_review",
+  "status": "example"
+}

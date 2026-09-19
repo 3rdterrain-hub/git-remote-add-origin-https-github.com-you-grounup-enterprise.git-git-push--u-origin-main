@@ -1,0 +1,13 @@
+﻿UI_ID,Name,Primary_Users,Purpose
+UI-P01-001,Governance Dashboard,Governance Admin; Executive,"Tenant status, access risk, pending approvals, policy status, exceptions, recent admin changes"
+UI-P01-002,Organization Designer,Platform Admin,"Create and version company, office, department, and division hierarchy"
+UI-P01-003,User Administration,Identity Admin,"Invite, activate, suspend, terminate, restore, and inspect users"
+UI-P01-004,Role and Permission Studio,Security Admin,"Create roles, assign permissions, inspect effective access, and identify conflicts"
+UI-P01-005,Policy Center,Compliance Manager,"Draft, review, publish, acknowledge, supersede, and retire policies"
+UI-P01-006,Configuration Center,Platform Admin,"Define layered settings, preview effective values, compare scopes, and schedule changes"
+UI-P01-007,Approval Administration,Workflow Admin,"Configure approval policies, routing, delegations, thresholds, and escalation"
+UI-P01-008,Audit Explorer,Auditor; Security Admin,"Search, filter, correlate, export, and review immutable events"
+UI-P01-009,Records and Retention,Records Manager,"Manage classifications, schedules, legal holds, disposition, and exceptions"
+UI-P01-010,Change Control Board,Governance Reviewers,"Review impact, dependencies, approvals, implementation, verification, and closure"
+UI-P01-011,Emergency Access Console,Security Admin,"Approve, monitor, revoke, and review break-glass access"
+UI-P01-012,AI Governance Queue,AI Reviewer,"Review AI evidence, confidence, target diff, approval, and writeback status"

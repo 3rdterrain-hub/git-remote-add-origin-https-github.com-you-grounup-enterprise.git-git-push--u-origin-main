@@ -1,0 +1,29 @@
+api_id,method,path,purpose,security,control
+P32-API-001,GET,/api/v1/validation/programs/{id},Read validation program,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-002,GET,/api/v1/validation/closure,Read requirements/traceability closure,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-003,POST,/api/v1/validation/runs,Create validation run,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-004,POST,/api/v1/validation/evidence,Register acceptance evidence,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-005,POST,/api/v1/uat/cycles,Create UAT cycle,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-006,POST,/api/v1/uat/executions,Record UAT execution,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-007,POST,/api/v1/uat/signoffs,Record UAT signoff,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-008,GET,/api/v1/pilots,List pilot tenants/status,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-009,POST,/api/v1/pilots/{id}/readiness,Evaluate pilot readiness,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-010,POST,/api/v1/pilots/{id}/feedback,Record pilot feedback,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-011,POST,/api/v1/pilots/{id}/exit,Record pilot exit decision,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-012,GET,/api/v1/migrations/assessments,Read migration assessment,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-013,POST,/api/v1/migrations/runs,Start authorized migration run,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-014,GET,/api/v1/migrations/runs/{id}/reconciliation,Read reconciliation,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-015,POST,/api/v1/migrations/exceptions/{id}/disposition,Disposition migration exception,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-016,GET,/api/v1/cutover/plans/{id},Read cutover plan,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-017,POST,/api/v1/cutover/runs,Start approved cutover,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-018,POST,/api/v1/golive/decision,Record go/no-go decision,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-019,POST,/api/v1/golive/verify,Record production verification,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-020,GET,/api/v1/launch/readiness,Read launch readiness,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-021,GET,/api/v1/training/readiness,Read training readiness,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-022,GET,/api/v1/support/readiness,Read support/hypercare readiness,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-023,POST,/api/v1/defects,Create defect,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-024,POST,/api/v1/risks/{id}/acceptance,Record risk acceptance,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-025,GET,/api/v1/certification/gates,Read certification gates,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-026,POST,/api/v1/certification/decision,Record final certification decision,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-027,GET,/api/v1/certification/evidence-package,Read final evidence package,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted
+P32-API-028,GET,/api/v1/releases/archive/{id},Read release archive,Authenticated; role/tenant/release scope; Phase 28 controls,Approval/evidence mutations audited; final certification restricted

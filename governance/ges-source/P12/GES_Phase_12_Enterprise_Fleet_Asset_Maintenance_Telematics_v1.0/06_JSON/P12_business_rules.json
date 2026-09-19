@@ -1,0 +1,402 @@
+[
+  [
+    "P12-BR-001",
+    "Fleet Registry",
+    "Fleet Registry control 1",
+    "Apply configurable tenant policy to fleet registry transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-002",
+    "Asset Lifecycle",
+    "Asset Lifecycle control 2",
+    "Apply configurable tenant policy to asset lifecycle transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-003",
+    "Preventive Maintenance",
+    "Preventive Maintenance control 3",
+    "Apply configurable tenant policy to preventive maintenance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-004",
+    "Corrective Maintenance",
+    "Corrective Maintenance control 4",
+    "Apply configurable tenant policy to corrective maintenance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-005",
+    "Inspections",
+    "Inspections control 5",
+    "Apply configurable tenant policy to inspections transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-006",
+    "Telematics & IoT",
+    "Telematics & IoT control 6",
+    "Apply configurable tenant policy to telematics & iot transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-007",
+    "Fuel & Energy",
+    "Fuel & Energy control 7",
+    "Apply configurable tenant policy to fuel & energy transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-008",
+    "Parts & Components",
+    "Parts & Components control 8",
+    "Apply configurable tenant policy to parts & components transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-009",
+    "Work Orders",
+    "Work Orders control 9",
+    "Apply configurable tenant policy to work orders transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-010",
+    "Shop Operations",
+    "Shop Operations control 10",
+    "Apply configurable tenant policy to shop operations transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-011",
+    "Field Service",
+    "Field Service control 11",
+    "Apply configurable tenant policy to field service transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-012",
+    "Rental & Leased Assets",
+    "Rental & Leased Assets control 12",
+    "Apply configurable tenant policy to rental & leased assets transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-013",
+    "Compliance",
+    "Compliance control 13",
+    "Apply configurable tenant policy to compliance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-014",
+    "Safety & Risk",
+    "Safety & Risk control 14",
+    "Apply configurable tenant policy to safety & risk transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-015",
+    "Utilization & Dispatch",
+    "Utilization & Dispatch control 15",
+    "Apply configurable tenant policy to utilization & dispatch transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-016",
+    "Equipment Costing",
+    "Equipment Costing control 16",
+    "Apply configurable tenant policy to equipment costing transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-017",
+    "Warranty & Claims",
+    "Warranty & Claims control 17",
+    "Apply configurable tenant policy to warranty & claims transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-018",
+    "Tires & Undercarriage",
+    "Tires & Undercarriage control 18",
+    "Apply configurable tenant policy to tires & undercarriage transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-019",
+    "Attachments & Tools",
+    "Attachments & Tools control 19",
+    "Apply configurable tenant policy to attachments & tools transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-020",
+    "Documents & Media",
+    "Documents & Media control 20",
+    "Apply configurable tenant policy to documents & media transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-021",
+    "Mobile & Offline",
+    "Mobile & Offline control 21",
+    "Apply configurable tenant policy to mobile & offline transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-022",
+    "Fleet Intelligence",
+    "Fleet Intelligence control 22",
+    "Apply configurable tenant policy to fleet intelligence transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-023",
+    "Fleet Digital Twin",
+    "Fleet Digital Twin control 23",
+    "Apply configurable tenant policy to fleet digital twin transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-024",
+    "Administration & Integration",
+    "Administration & Integration control 24",
+    "Apply configurable tenant policy to administration & integration transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-025",
+    "Fleet Registry",
+    "Fleet Registry control 25",
+    "Apply configurable tenant policy to fleet registry transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-026",
+    "Asset Lifecycle",
+    "Asset Lifecycle control 26",
+    "Apply configurable tenant policy to asset lifecycle transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-027",
+    "Preventive Maintenance",
+    "Preventive Maintenance control 27",
+    "Apply configurable tenant policy to preventive maintenance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-028",
+    "Corrective Maintenance",
+    "Corrective Maintenance control 28",
+    "Apply configurable tenant policy to corrective maintenance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-029",
+    "Inspections",
+    "Inspections control 29",
+    "Apply configurable tenant policy to inspections transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-030",
+    "Telematics & IoT",
+    "Telematics & IoT control 30",
+    "Apply configurable tenant policy to telematics & iot transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-031",
+    "Fuel & Energy",
+    "Fuel & Energy control 31",
+    "Apply configurable tenant policy to fuel & energy transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-032",
+    "Parts & Components",
+    "Parts & Components control 32",
+    "Apply configurable tenant policy to parts & components transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-033",
+    "Work Orders",
+    "Work Orders control 33",
+    "Apply configurable tenant policy to work orders transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-034",
+    "Shop Operations",
+    "Shop Operations control 34",
+    "Apply configurable tenant policy to shop operations transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-035",
+    "Field Service",
+    "Field Service control 35",
+    "Apply configurable tenant policy to field service transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-036",
+    "Rental & Leased Assets",
+    "Rental & Leased Assets control 36",
+    "Apply configurable tenant policy to rental & leased assets transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-037",
+    "Compliance",
+    "Compliance control 37",
+    "Apply configurable tenant policy to compliance transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-038",
+    "Safety & Risk",
+    "Safety & Risk control 38",
+    "Apply configurable tenant policy to safety & risk transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-039",
+    "Utilization & Dispatch",
+    "Utilization & Dispatch control 39",
+    "Apply configurable tenant policy to utilization & dispatch transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-040",
+    "Equipment Costing",
+    "Equipment Costing control 40",
+    "Apply configurable tenant policy to equipment costing transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-041",
+    "Warranty & Claims",
+    "Warranty & Claims control 41",
+    "Apply configurable tenant policy to warranty & claims transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-042",
+    "Tires & Undercarriage",
+    "Tires & Undercarriage control 42",
+    "Apply configurable tenant policy to tires & undercarriage transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-043",
+    "Attachments & Tools",
+    "Attachments & Tools control 43",
+    "Apply configurable tenant policy to attachments & tools transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-044",
+    "Documents & Media",
+    "Documents & Media control 44",
+    "Apply configurable tenant policy to documents & media transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-045",
+    "Mobile & Offline",
+    "Mobile & Offline control 45",
+    "Apply configurable tenant policy to mobile & offline transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-046",
+    "Fleet Intelligence",
+    "Fleet Intelligence control 46",
+    "Apply configurable tenant policy to fleet intelligence transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-047",
+    "Fleet Digital Twin",
+    "Fleet Digital Twin control 47",
+    "Apply configurable tenant policy to fleet digital twin transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-048",
+    "Administration & Integration",
+    "Administration & Integration control 48",
+    "Apply configurable tenant policy to administration & integration transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ],
+  [
+    "P12-BR-049",
+    "Fleet Registry",
+    "Fleet Registry control 49",
+    "Apply configurable tenant policy to fleet registry transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Advisory",
+    "High"
+  ],
+  [
+    "P12-BR-050",
+    "Asset Lifecycle",
+    "Asset Lifecycle control 50",
+    "Apply configurable tenant policy to asset lifecycle transactions; block unsafe, unauthorized, duplicate, financially invalid, or noncompliant actions and require documented override authority for exceptions.",
+    "Blocking",
+    "High"
+  ]
+]

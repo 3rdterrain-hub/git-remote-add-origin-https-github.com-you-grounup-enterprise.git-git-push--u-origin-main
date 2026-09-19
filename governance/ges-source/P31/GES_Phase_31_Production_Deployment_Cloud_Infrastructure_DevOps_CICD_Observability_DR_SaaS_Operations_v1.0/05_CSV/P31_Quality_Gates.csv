@@ -1,0 +1,23 @@
+gate_id,gate,pass_rule,requirement
+P31-QG-01,Build Reproducibility,Release artifact digest/provenance can be verified against source/build evidence,Required
+P31-QG-02,Artifact Integrity,Artifact signing/provenance/SBOM policy passes,Required
+P31-QG-03,IaC Validation,"Plan, policy, security and drift checks pass",Required
+P31-QG-04,Environment Isolation,Cross-environment credentials/config/state boundary tests pass,Required
+P31-QG-05,Migration Safety,Forward migration plus validation and rollback/forward-fix rehearsal passes,Required
+P31-QG-06,Deployment Smoke,Health + critical smoke tests pass after deployment,Required
+P31-QG-07,Canary/Blue-Green,Progressive release stop/promote behavior matches thresholds,Required when used
+P31-QG-08,Rollback,Application/config/feature rollback test passes for critical services,Required
+P31-QG-09,Observability,Logs/metrics/traces/correlation and health checks are present for critical services,Required
+P31-QG-10,SLO/Alerting,Critical SLO breach generates actionable alert to correct owner/runbook,Required
+P31-QG-11,Load/Performance,Critical workflows meet approved latency/throughput/capacity targets,Release gate
+P31-QG-12,Autoscaling,Scale-up/down maintains service correctness within safe boundaries,Release gate
+P31-QG-13,Dependency Failure,Timeout/retry/circuit-breaker/degraded-mode tests pass as applicable,Required
+P31-QG-14,Backup,Scheduled encrypted backup completes with evidence,Required
+P31-QG-15,Restore,Critical restore test validates integrity/tenant/security and reconciliation,Release gate
+P31-QG-16,RTO/RPO,DR exercise demonstrates approved recovery objectives or approved exception,Release gate
+P31-QG-17,Region/Dependency Outage,Critical recovery/degraded-mode exercise passes according to architecture,Release gate
+P31-QG-18,Production Access,MFA/JIT/least-privilege/break-glass controls pass,Required
+P31-QG-19,Incident Response,Production incident/tabletop workflow and evidence pass,Release gate
+P31-QG-20,FinOps,Production cost allocation/budgets/anomaly alerts are operational,Required
+P31-QG-21,Preview Cleanup,Ephemeral environment cleanup and secret/data lifecycle tests pass,Required
+P31-QG-22,Release Evidence,Release bundle contains artifact/config/migration/tests/approvals/deployment outcome,Release gate

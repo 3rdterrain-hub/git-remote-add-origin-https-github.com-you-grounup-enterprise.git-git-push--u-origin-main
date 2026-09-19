@@ -1,0 +1,16 @@
+stateDiagram-v2
+ [*] --> Draft
+ Draft --> QualityCheck
+ QualityCheck --> ApprovedBaseline
+ QualityCheck --> Draft: revise
+ ApprovedBaseline --> Active
+ Active --> UpdateInProgress
+ UpdateInProgress --> Review
+ Review --> PublishedUpdate
+ Review --> UpdateInProgress: revise
+ PublishedUpdate --> Active
+ Active --> BaselineRevisionProposed
+ BaselineRevisionProposed --> ApprovedRebaseline
+ BaselineRevisionProposed --> Rejected
+ ApprovedRebaseline --> Active
+ Rejected --> Active

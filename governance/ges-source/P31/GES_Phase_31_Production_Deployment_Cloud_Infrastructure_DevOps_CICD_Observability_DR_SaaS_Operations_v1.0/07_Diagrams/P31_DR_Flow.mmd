@@ -1,0 +1,9 @@
+flowchart LR
+ Backup[Encrypted Backup / PITR] --> Validate[Scheduled Restore Validation]
+ Incident[Regional/Critical Failure] --> Declare[Declare DR]
+ Declare --> Plan[Dependency-Ordered DR Plan]
+ Plan --> Restore[Restore / Failover]
+ Restore --> Verify[Integrity / Tenant / Security / Reconciliation]
+ Verify --> Service[Restore Service]
+ Service --> Monitor[Heightened Monitoring]
+ Monitor --> RCA[Post-Incident / Corrective Actions]

@@ -1,0 +1,19 @@
+flowchart TB
+  Tenant[Tenant Boundary] --> Org[Organization Hierarchy]
+  Tenant --> Identity[Users and External Identities]
+  Identity --> RBAC[Roles, Permissions, Scope]
+  RBAC --> Approval[Approval and Delegation]
+  Tenant --> Policy[Policy and Configuration]
+  Policy --> Records[Classification, Retention, Legal Hold]
+  RBAC --> Audit[Immutable Audit]
+  Approval --> Audit
+  Policy --> Audit
+  Records --> Audit
+  AI[AI Agents] --> RBAC
+  AI --> Approval
+  Admin[Governance Console] --> Org
+  Admin --> Identity
+  Admin --> RBAC
+  Admin --> Policy
+  Admin --> Records
+  Admin --> Audit

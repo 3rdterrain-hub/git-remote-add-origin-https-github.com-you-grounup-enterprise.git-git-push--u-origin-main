@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Phase 13 Analytics Record",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "record_id",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metric_id": {
+      "type": "string"
+    },
+    "measure_value": {
+      "type": "number"
+    },
+    "lineage_id": {
+      "type": "string"
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

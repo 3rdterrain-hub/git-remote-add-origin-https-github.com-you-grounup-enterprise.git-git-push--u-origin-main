@@ -1,0 +1,10 @@
+stateDiagram-v2
+ [*] --> Draft
+ Draft --> InReview
+ InReview --> Returned
+ Returned --> Draft
+ InReview --> Approved
+ Approved --> Submitted
+ Submitted --> Accepted
+ Submitted --> Lost
+ Approved --> Superseded: New Version

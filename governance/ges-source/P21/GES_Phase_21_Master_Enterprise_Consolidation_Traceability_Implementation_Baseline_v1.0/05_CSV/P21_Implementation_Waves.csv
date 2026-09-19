@@ -1,0 +1,9 @@
+wave,phases,purpose,exit_gate
+Wave 0,Phase 00-01,"Product definition, requirements governance, decision rights and lock discipline",Approve scope and governance
+Wave 1,Phase 02-04,"Core platform, enterprise data model and master library registry","Stabilize shared schemas, tenancy, identity and libraries"
+Wave 2,Phase 05-06,Estimating/cost intelligence and AI construction intelligence,Deliver core construction intelligence
+Wave 3,Phase 07-12,"Project management, CRM, HR, finance, procurement and fleet",Build operational business platform
+Wave 4,Phase 13-17,"BI, HSE, documents/drawings, GIS/reality capture, machine control","Build intelligence, compliance and field/digital systems"
+Wave 5,Phase 18-19,Scheduling/resource planning and commercial/contracts/claims,"Integrate time, resources and commercial control"
+Wave 6,Phase 20,"Enterprise integration, deployment, testing, governance and production readiness",Converge and harden platform for production
+Wave 7,Phase 21,"Master consolidation, cross-phase reconciliation, final traceability and implementation baseline",Approve and lock GES v1.0 implementation baseline

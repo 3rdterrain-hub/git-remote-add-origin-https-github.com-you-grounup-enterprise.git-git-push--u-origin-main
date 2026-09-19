@@ -1,0 +1,15 @@
+stateDiagram-v2
+[*] --> Planned
+Planned --> Acquired
+Acquired --> Commissioned
+Commissioned --> Available
+Available --> Assigned
+Assigned --> Available
+Available --> Maintenance
+Assigned --> Maintenance
+Maintenance --> Available
+Maintenance --> OutOfService
+OutOfService --> Maintenance
+Available --> Retired
+Retired --> Disposed
+Disposed --> [*]

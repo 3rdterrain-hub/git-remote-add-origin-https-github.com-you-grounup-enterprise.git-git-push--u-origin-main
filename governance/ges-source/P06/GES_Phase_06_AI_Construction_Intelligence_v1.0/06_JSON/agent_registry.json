@@ -1,0 +1,142 @@
+[
+  {
+    "agent_id": "AI-AGT-001",
+    "name": "Orchestration Agent",
+    "purpose": "Routes tasks, decomposes work, coordinates specialist agents, and assembles final responses.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-002",
+    "name": "Document Intelligence Agent",
+    "purpose": "Reads plans, specifications, addenda, reports, contracts, manuals, and project files.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-003",
+    "name": "Takeoff Agent",
+    "purpose": "Extracts measurable quantities and generates traceable takeoff records.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-004",
+    "name": "Estimating Agent",
+    "purpose": "Creates estimate-ready line items, resource buildups, pricing scenarios, and assumptions.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-005",
+    "name": "Production Agent",
+    "purpose": "Recommends crews, equipment spreads, production rates, durations, and fuel usage.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-006",
+    "name": "Risk Agent",
+    "purpose": "Identifies scope gaps, conflicts, uncertainty, constructability risk, and commercial exposure.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-007",
+    "name": "Scheduling Agent",
+    "purpose": "Generates sequencing, durations, constraints, and schedule-impact forecasts.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-008",
+    "name": "Project Management Agent",
+    "purpose": "Supports RFIs, submittals, change events, budget forecasting, and progress controls.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-009",
+    "name": "Field Operations Agent",
+    "purpose": "Analyzes daily reports, field production, photos, timecards, and job conditions.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-010",
+    "name": "Safety Agent",
+    "purpose": "Supports JHAs/JSAs, hazard identification, training checks, and safety observations.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-011",
+    "name": "Fleet Agent",
+    "purpose": "Optimizes assignments, utilization, maintenance forecasts, rental decisions, and fuel.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-012",
+    "name": "Procurement Agent",
+    "purpose": "Compares quotes, lead times, vendor performance, substitutions, and buyout status.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-013",
+    "name": "CRM Agent",
+    "purpose": "Scores leads, drafts communications, recommends follow-ups, and forecasts pipeline.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-014",
+    "name": "HR and Workforce Agent",
+    "purpose": "Supports staffing, certification checks, training, attendance, and workforce planning.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-015",
+    "name": "Financial Intelligence Agent",
+    "purpose": "Forecasts cash flow, profitability, cost-to-complete, and variance drivers.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-016",
+    "name": "Executive Agent",
+    "purpose": "Produces executive summaries, KPI explanations, strategic alerts, and decision briefs.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-017",
+    "name": "Quality Agent",
+    "purpose": "Supports inspections, punch lists, nonconformance review, and corrective actions.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-018",
+    "name": "Compliance Agent",
+    "purpose": "Checks tenant policies, contract requirements, records retention, and regulatory controls.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-019",
+    "name": "Customer Portal Agent",
+    "purpose": "Answers authorized customer questions using project-scoped, approved information.",
+    "status": "draft",
+    "version": "1.0.0"
+  },
+  {
+    "agent_id": "AI-AGT-020",
+    "name": "Vendor and Subcontractor Agent",
+    "purpose": "Supports onboarding, compliance, bid leveling, performance, and communication.",
+    "status": "draft",
+    "version": "1.0.0"
+  }
+]

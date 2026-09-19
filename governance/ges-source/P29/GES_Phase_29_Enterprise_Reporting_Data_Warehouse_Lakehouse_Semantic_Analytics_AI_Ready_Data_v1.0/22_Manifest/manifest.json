@@ -1,0 +1,217 @@
+{
+  "phase": "29",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "1a18319666a30f0ebd59cc797bf0eea820ffa0686ac09ee22194c9c40b78abd6",
+      "bytes": 1082
+    },
+    {
+      "path": "02_Word/GES-P29-001-Enterprise_Reporting_Data_Warehouse_Lakehouse_Semantic_Analytics_AI_Ready_Data.docx",
+      "sha256": "2fa88e5ae23ea1ac4caa71f497dd92f5bec2ed9b46d9da2beea8eab02c2cbedc",
+      "bytes": 39921
+    },
+    {
+      "path": "03_PDF/GES-P29-001-Enterprise_Reporting_Data_Warehouse_Lakehouse_Semantic_Analytics_AI_Ready_Data.pdf",
+      "sha256": "4ca215b1161de892072c11049c1d9b8ef0e6038516f6d5bb823c17d19c543cc6",
+      "bytes": 10333
+    },
+    {
+      "path": "04_Excel/GES-P29-001-Enterprise_Analytics_Control_Workbook.xlsx",
+      "sha256": "88f49467ec6e4f77eedbd030efaf4567c372d7c53d26fe4bc5a85afe0f3acda7",
+      "bytes": 86933
+    },
+    {
+      "path": "05_CSV/P29_API_Contracts.csv",
+      "sha256": "244a8edc2fbe0a7bf451b1062e69360e5a82a873ed0cfffa222540f9c0c19fd6",
+      "bytes": 5889
+    },
+    {
+      "path": "05_CSV/P29_Business_Rules.csv",
+      "sha256": "57762e4feb017ee1e2db32bbfc026391148e35538a77aa48df2711fc69a90d10",
+      "bytes": 4299
+    },
+    {
+      "path": "05_CSV/P29_Entities.csv",
+      "sha256": "27a6917f3004095e60092b05134409ec051def6071650c30775f95ffa5421652",
+      "bytes": 3635
+    },
+    {
+      "path": "05_CSV/P29_Event_Catalog.csv",
+      "sha256": "dbf4bb189d9541227bac662f1bdce99a5a1a852d2cd01b6c74fcde51a203c47b",
+      "bytes": 5148
+    },
+    {
+      "path": "05_CSV/P29_Modules.csv",
+      "sha256": "0e9fc441b8acf23dde76246c54fbdf94914e92b233c42f4edf17d2d112a8b06c",
+      "bytes": 4693
+    },
+    {
+      "path": "05_CSV/P29_Quality_Gates.csv",
+      "sha256": "11a4e8eb8364fafb8a1f3efc8da082c5648bfe5edf15e86567f3a532ff6e2f14",
+      "bytes": 1837
+    },
+    {
+      "path": "05_CSV/P29_Requirements.csv",
+      "sha256": "ff101854b20ea0033b52955afed4f913f65299e61e5d070bac3ef8e80c4638b1",
+      "bytes": 280847
+    },
+    {
+      "path": "05_CSV/P29_Security_Controls.csv",
+      "sha256": "620d3d1df55409db85c5b11c5dddcf56aedaf047907bce18050e925cef79a664",
+      "bytes": 1943
+    },
+    {
+      "path": "05_CSV/P29_Test_Cases.csv",
+      "sha256": "eb8f44b17843ec2d71c56ae74898b9db08425394a68b47f1de7c40e1788ec5dc",
+      "bytes": 209411
+    },
+    {
+      "path": "05_CSV/P29_Traceability.csv",
+      "sha256": "81304712853d7f12670749fbfa2283bff66568b6832ede75436663a42085e63e",
+      "bytes": 29181
+    },
+    {
+      "path": "06_JSON/P29_Analytics_Baseline.json",
+      "sha256": "d078504ce10d8d714f89c3b7459f301900e54ee0f0724ad4ba9327ed2c86531c",
+      "bytes": 1079
+    },
+    {
+      "path": "06_JSON/P29_Metric_Definition.schema.json",
+      "sha256": "b0fc6eff647df78ca973b9f4263b4354c39f1e595e11daa44827c25c369925fb",
+      "bytes": 1248
+    },
+    {
+      "path": "07_Diagrams/P29_Analytics_Architecture.mmd",
+      "sha256": "5c36a0c555c4643c414e27695310e47d1f173033ffe36b5f4915250d7cd36ecf",
+      "bytes": 668
+    },
+    {
+      "path": "07_Diagrams/P29_Data_Quality_Lineage.mmd",
+      "sha256": "1b9477b8d0a2dcc64c8993bad2285824a8f7ae684ad40727be69ca170cd811fb",
+      "bytes": 482
+    },
+    {
+      "path": "07_Diagrams/P29_Metric_Lifecycle.mmd",
+      "sha256": "c4674b700e1c034fd125606f53656d0e37ac06edcd796094dcf4666554be6deb",
+      "bytes": 185
+    },
+    {
+      "path": "08_Analytics_Architecture/P29_Entities.csv",
+      "sha256": "27a6917f3004095e60092b05134409ec051def6071650c30775f95ffa5421652",
+      "bytes": 3635
+    },
+    {
+      "path": "08_Analytics_Architecture/P29_Modules.csv",
+      "sha256": "0e9fc441b8acf23dde76246c54fbdf94914e92b233c42f4edf17d2d112a8b06c",
+      "bytes": 4693
+    },
+    {
+      "path": "11_Semantic_Model/P29_Candidate_Certified_Metrics.csv",
+      "sha256": "e8a8cae96f4e8ab1ffdfbd6891f70773d9b95a543c0f878028865bda29216354",
+      "bytes": 1493
+    },
+    {
+      "path": "12_Data_Quality_Lineage/P29_Business_Rules.csv",
+      "sha256": "57762e4feb017ee1e2db32bbfc026391148e35538a77aa48df2711fc69a90d10",
+      "bytes": 4299
+    },
+    {
+      "path": "16_API_Event_Contracts/P29_API_Contracts.csv",
+      "sha256": "244a8edc2fbe0a7bf451b1062e69360e5a82a873ed0cfffa222540f9c0c19fd6",
+      "bytes": 5889
+    },
+    {
+      "path": "16_API_Event_Contracts/P29_Event_Catalog.csv",
+      "sha256": "dbf4bb189d9541227bac662f1bdce99a5a1a852d2cd01b6c74fcde51a203c47b",
+      "bytes": 5148
+    },
+    {
+      "path": "17_Testing_Governance/P29_Quality_Gates.csv",
+      "sha256": "11a4e8eb8364fafb8a1f3efc8da082c5648bfe5edf15e86567f3a532ff6e2f14",
+      "bytes": 1837
+    },
+    {
+      "path": "17_Testing_Governance/P29_Security_Controls.csv",
+      "sha256": "620d3d1df55409db85c5b11c5dddcf56aedaf047907bce18050e925cef79a664",
+      "bytes": 1943
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/README.md",
+      "sha256": "37c6f064c9ede690844edab5c9e12c527a85c5a44268af34bb826f530adb9d0c",
+      "bytes": 460
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/contracts/dataset.ts",
+      "sha256": "ecf8ce608340b288fb61264cdf529ccaf45332e2e3d8737033fd6c8ba88b2626",
+      "bytes": 392
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/contracts/metric.ts",
+      "sha256": "b40ba8a33d68cba21c969f2707e7621d321ebbf483b65b789d8bb45beb788a58",
+      "bytes": 279
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/features/feature.ts",
+      "sha256": "463ba1fa6fcc33cce6139703bc459d63e71f9b7aab529d38a238d8b5e02945ac",
+      "bytes": 310
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/lineage/lineage.ts",
+      "sha256": "7b7dec159a47ba1769556ecd1ed74411d464a0d3c59cea12d415015f47cbfa13",
+      "bytes": 197
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/quality/quality.ts",
+      "sha256": "921ed68bacb8a8034bb82f3ca780cc8796589f32282bcbd1aeb6ecfbe080337a",
+      "bytes": 398
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/reconciliation/reconcile.ts",
+      "sha256": "612001af103e7659c581665aee08bbf1ec49c3baca6711c63e9bee4366531304",
+      "bytes": 477
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/security/analytics-context.ts",
+      "sha256": "b5d9081678738b264b1ebff380909650d94c9da36e096e6a89c32f637f02899f",
+      "bytes": 180
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/src/semantic/query.ts",
+      "sha256": "ab8268ce61126277e41bd3dcbbccc361758f2b36c07ae147cab9e035a6e2fef2",
+      "bytes": 506
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/tests/metrics/golden-metric.spec.md",
+      "sha256": "f611fec7e196ae88ba69d087dc9ca7ef81d291eba5d3da4d86d723510f0570ce",
+      "bytes": 270
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/tests/quality/reconciliation.spec.md",
+      "sha256": "8502da7f4b3924ba08691931e598a2beb02a4fd0504c4f54c6c1539bad40e2f3",
+      "bytes": 240
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform/tests/security/tenant-analytics-isolation.spec.md",
+      "sha256": "a32de3a0f42ed6aaf10381f9637776a44ac2432513b0bf349d49598e216c8fd4",
+      "bytes": 232
+    },
+    {
+      "path": "18_Starter_Code/grounup-analytics-platform-bootstrap.zip",
+      "sha256": "e6c8592f446aa0ea2207f5c66472fbab5ff7043d7ece56d35300c2bbb27452fa",
+      "bytes": 4518
+    },
+    {
+      "path": "19_Developer_AI_Handoff/P29_BUILD_PROTOCOL.md",
+      "sha256": "2f704bc3c7ab1b826001d01e4bd2e15d374681e88cc51d58c53d4ea614099573",
+      "bytes": 964
+    },
+    {
+      "path": "21_Examples/P29_Example_Data_Quality_Rules.csv",
+      "sha256": "e6978db1211213963fc53319ee9de682906300c11ea5567de39942c365022894",
+      "bytes": 591
+    }
+  ]
+}

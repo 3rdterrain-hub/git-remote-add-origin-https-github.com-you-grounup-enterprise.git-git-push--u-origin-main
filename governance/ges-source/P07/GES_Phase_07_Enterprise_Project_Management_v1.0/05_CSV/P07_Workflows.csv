@@ -1,0 +1,16 @@
+Workflow_ID,Workflow,Summary
+P07-WF-001,Project Award to Setup,Awarded estimate -> project shell -> contract setup -> WBS/cost codes -> budget import -> team assignment -> kickoff approval
+P07-WF-002,Preconstruction Gate,Scope validation -> permits -> procurement plan -> baseline schedule -> safety/quality plans -> mobilization approval
+P07-WF-003,Schedule Baseline and Update,Build schedule -> logic review -> resource review -> baseline approval -> periodic status -> variance analysis -> recovery action
+P07-WF-004,Daily Field Reporting,Offline/online capture -> validation -> supervisor review -> approval -> cost/production posting -> digital twin refresh
+P07-WF-005,RFI Management,Draft -> internal review -> issue -> response -> impact review -> close or route to change event
+P07-WF-006,Submittal Management,Register -> prepare -> internal review -> submit -> review cycles -> approved disposition -> distribution
+P07-WF-007,Document Revision Control,Receive/create -> classify -> review -> issue -> distribute -> supersede -> acknowledge
+P07-WF-008,Change Event to Contract Modification,Identify -> scope review -> estimate -> schedule impact -> negotiate -> approve -> budget/contract update
+P07-WF-009,Commitment and Procurement,Need identified -> requisition -> bid comparison -> approval -> PO/subcontract -> delivery/performance -> closeout
+P07-WF-010,Invoice and Pay Application,Receive -> validate -> code -> match -> approve -> post -> pay/bill -> retainage update
+P07-WF-011,Quality Deficiency,Inspect -> record deficiency -> assign -> correct -> verify -> close -> trend analysis
+P07-WF-012,Safety Incident,Report -> immediate response -> notifications -> investigation -> corrective actions -> regulatory/claim follow-up -> closure
+P07-WF-013,Risk and Issue Management,Identify -> assess -> assign -> response plan -> monitor -> escalate -> close/convert
+P07-WF-014,Project Closeout,Readiness check -> punch -> as-builts/O&M/warranties -> financial close -> acceptance -> archive
+P07-WF-015,Offline Synchronization,Prepare scoped package -> encrypt -> capture changes -> reconnect -> validate -> conflict resolve -> post -> audit

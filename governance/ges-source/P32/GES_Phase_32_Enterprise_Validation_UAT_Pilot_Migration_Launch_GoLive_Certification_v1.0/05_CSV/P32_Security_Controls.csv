@@ -1,0 +1,21 @@
+control_id,name,verification,status
+P32-SEC-001,Acceptance role separation,Final security/production approvals are restricted to authorized roles and cannot be self-approved where separation is required.,Required
+P32-SEC-002,Evidence integrity,Acceptance evidence references are protected from ordinary alteration/deletion.,Required
+P32-SEC-003,UAT tenant isolation,UAT/pilot environments and tenants enforce Phase 28 authorization/isolation.,Required
+P32-SEC-004,Migration credential control,Migration tools use bounded identities/secrets and do not expose source/target credentials to ordinary users.,Required
+P32-SEC-005,Migration data protection,"Migration extracts/staging files follow encryption, retention and cleanup controls.",Required
+P32-SEC-006,Cutover privileged access,Cutover production access is time/scoped/audited and uses approved operational identities.,Required
+P32-SEC-007,Go-live approval integrity,"Go/no-go records identify actor, authority, time, scope and evidence state.",Required
+P32-SEC-008,Training data safety,Training environments avoid unapproved production sensitive data.,Required
+P32-SEC-009,Support privileged access,Hypercare/support elevated access uses audited privileged workflows.,Required
+P32-SEC-010,Defect privacy,Defect evidence/screenshots/logs do not expose sensitive data beyond authorized need.,Required
+P32-SEC-011,Risk register access,Sensitive security/contractual risks have appropriate access restrictions.,Required
+P32-SEC-012,Known issue disclosure control,Internal security-sensitive known issues are not exposed beyond approved audiences.,Required
+P32-SEC-013,Certification audit,"Certification changes, approvals and exceptions are auditable.",Required
+P32-SEC-014,Evidence export control,Final evidence packages obey classification and access policy.,Required
+P32-SEC-015,Pilot consent/config,Pilot activation and feature scope are explicit and auditable.,Required
+P32-SEC-016,Production verification safety,Verification tests avoid destructive or cross-tenant actions in production.,Required
+P32-SEC-017,Migration deletion safety,Source/staging cleanup occurs only after reconciliation/retention decision and authorization.,Required
+P32-SEC-018,Release archive integrity,Release archive uses hashes/manifests and protected storage.,Required
+P32-SEC-019,Incident escalation,Security incidents discovered during UAT/pilot/go-live route through Phase 28/31 incident controls.,Required
+P32-SEC-020,Break-glass acceptance,"Emergency acceptance exceptions are time-bounded, documented and retrospectively reviewed.",Required

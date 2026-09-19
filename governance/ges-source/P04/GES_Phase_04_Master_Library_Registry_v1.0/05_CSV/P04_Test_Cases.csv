@@ -1,0 +1,98 @@
+﻿Test Case ID,Requirement ID,Test Objective,Expected Result
+TC-P04-001,GES-P04-REQ-001,Verify registry and ownership behavior,Pass when requirement is demonstrably satisfied
+TC-P04-002,GES-P04-REQ-002,Verify canonical identifiers behavior,Pass when requirement is demonstrably satisfied
+TC-P04-003,GES-P04-REQ-003,Verify tenant isolation behavior,Pass when requirement is demonstrably satisfied
+TC-P04-004,GES-P04-REQ-004,Verify global inheritance behavior,Pass when requirement is demonstrably satisfied
+TC-P04-005,GES-P04-REQ-005,Verify tenant overrides behavior,Pass when requirement is demonstrably satisfied
+TC-P04-006,GES-P04-REQ-006,Verify white-label scoping behavior,Pass when requirement is demonstrably satisfied
+TC-P04-007,GES-P04-REQ-007,Verify role-based access behavior,Pass when requirement is demonstrably satisfied
+TC-P04-008,GES-P04-REQ-008,Verify approval workflow behavior,Pass when requirement is demonstrably satisfied
+TC-P04-009,GES-P04-REQ-009,Verify version control behavior,Pass when requirement is demonstrably satisfied
+TC-P04-010,GES-P04-REQ-010,Verify effective dating behavior,Pass when requirement is demonstrably satisfied
+TC-P04-011,GES-P04-REQ-011,Verify historical pinning behavior,Pass when requirement is demonstrably satisfied
+TC-P04-012,GES-P04-REQ-012,Verify bulk imports behavior,Pass when requirement is demonstrably satisfied
+TC-P04-013,GES-P04-REQ-013,Verify schema mapping behavior,Pass when requirement is demonstrably satisfied
+TC-P04-014,GES-P04-REQ-014,Verify duplicate detection behavior,Pass when requirement is demonstrably satisfied
+TC-P04-015,GES-P04-REQ-015,Verify source provenance behavior,Pass when requirement is demonstrably satisfied
+TC-P04-016,GES-P04-REQ-016,Verify confidence scoring behavior,Pass when requirement is demonstrably satisfied
+TC-P04-017,GES-P04-REQ-017,Verify relationship graph behavior,Pass when requirement is demonstrably satisfied
+TC-P04-018,GES-P04-REQ-018,Verify impact analysis behavior,Pass when requirement is demonstrably satisfied
+TC-P04-019,GES-P04-REQ-019,Verify unit governance behavior,Pass when requirement is demonstrably satisfied
+TC-P04-020,GES-P04-REQ-020,Verify regional precedence behavior,Pass when requirement is demonstrably satisfied
+TC-P04-021,GES-P04-REQ-021,Verify search indexing behavior,Pass when requirement is demonstrably satisfied
+TC-P04-022,GES-P04-REQ-022,Verify semantic search behavior,Pass when requirement is demonstrably satisfied
+TC-P04-023,GES-P04-REQ-023,Verify synonyms behavior,Pass when requirement is demonstrably satisfied
+TC-P04-024,GES-P04-REQ-024,Verify custom fields behavior,Pass when requirement is demonstrably satisfied
+TC-P04-025,GES-P04-REQ-025,Verify audit events behavior,Pass when requirement is demonstrably satisfied
+TC-P04-026,GES-P04-REQ-026,Verify integrity hashes behavior,Pass when requirement is demonstrably satisfied
+TC-P04-027,GES-P04-REQ-027,Verify rollback behavior,Pass when requirement is demonstrably satisfied
+TC-P04-028,GES-P04-REQ-028,Verify deprecation behavior,Pass when requirement is demonstrably satisfied
+TC-P04-029,GES-P04-REQ-029,Verify replacement mapping behavior,Pass when requirement is demonstrably satisfied
+TC-P04-030,GES-P04-REQ-030,Verify api access behavior,Pass when requirement is demonstrably satisfied
+TC-P04-031,GES-P04-REQ-031,Verify webhooks behavior,Pass when requirement is demonstrably satisfied
+TC-P04-032,GES-P04-REQ-032,Verify caching behavior,Pass when requirement is demonstrably satisfied
+TC-P04-033,GES-P04-REQ-033,Verify offline sync behavior,Pass when requirement is demonstrably satisfied
+TC-P04-034,GES-P04-REQ-034,Verify conflict resolution behavior,Pass when requirement is demonstrably satisfied
+TC-P04-035,GES-P04-REQ-035,Verify data export behavior,Pass when requirement is demonstrably satisfied
+TC-P04-036,GES-P04-REQ-036,Verify data retention behavior,Pass when requirement is demonstrably satisfied
+TC-P04-037,GES-P04-REQ-037,Verify localization behavior,Pass when requirement is demonstrably satisfied
+TC-P04-038,GES-P04-REQ-038,Verify currency precision behavior,Pass when requirement is demonstrably satisfied
+TC-P04-039,GES-P04-REQ-039,Verify tax mapping behavior,Pass when requirement is demonstrably satisfied
+TC-P04-040,GES-P04-REQ-040,Verify ai indexing behavior,Pass when requirement is demonstrably satisfied
+TC-P04-041,GES-P04-REQ-041,Verify prompt governance behavior,Pass when requirement is demonstrably satisfied
+TC-P04-042,GES-P04-REQ-042,Verify training datasets behavior,Pass when requirement is demonstrably satisfied
+TC-P04-043,GES-P04-REQ-043,Verify formula testing behavior,Pass when requirement is demonstrably satisfied
+TC-P04-044,GES-P04-REQ-044,Verify rate calibration behavior,Pass when requirement is demonstrably satisfied
+TC-P04-045,GES-P04-REQ-045,Verify vendor quote linkage behavior,Pass when requirement is demonstrably satisfied
+TC-P04-046,GES-P04-REQ-046,Verify document linkage behavior,Pass when requirement is demonstrably satisfied
+TC-P04-047,GES-P04-REQ-047,Verify safety compliance behavior,Pass when requirement is demonstrably satisfied
+TC-P04-048,GES-P04-REQ-048,Verify quality controls behavior,Pass when requirement is demonstrably satisfied
+TC-P04-049,GES-P04-REQ-049,Verify dot mappings behavior,Pass when requirement is demonstrably satisfied
+TC-P04-050,GES-P04-REQ-050,Verify csi mappings behavior,Pass when requirement is demonstrably satisfied
+TC-P04-051,GES-P04-REQ-051,Verify municipal mappings behavior,Pass when requirement is demonstrably satisfied
+TC-P04-052,GES-P04-REQ-052,Verify service assemblies behavior,Pass when requirement is demonstrably satisfied
+TC-P04-053,GES-P04-REQ-053,Verify crew templates behavior,Pass when requirement is demonstrably satisfied
+TC-P04-054,GES-P04-REQ-054,Verify equipment productivity behavior,Pass when requirement is demonstrably satisfied
+TC-P04-055,GES-P04-REQ-055,Verify crew productivity behavior,Pass when requirement is demonstrably satisfied
+TC-P04-056,GES-P04-REQ-056,Verify fuel modeling behavior,Pass when requirement is demonstrably satisfied
+TC-P04-057,GES-P04-REQ-057,Verify trucking cycles behavior,Pass when requirement is demonstrably satisfied
+TC-P04-058,GES-P04-REQ-058,Verify disposal facilities behavior,Pass when requirement is demonstrably satisfied
+TC-P04-059,GES-P04-REQ-059,Verify rental rates behavior,Pass when requirement is demonstrably satisfied
+TC-P04-060,GES-P04-REQ-060,Verify maintenance intervals behavior,Pass when requirement is demonstrably satisfied
+TC-P04-061,GES-P04-REQ-061,Verify inventory controls behavior,Pass when requirement is demonstrably satisfied
+TC-P04-062,GES-P04-REQ-062,Verify time codes behavior,Pass when requirement is demonstrably satisfied
+TC-P04-063,GES-P04-REQ-063,Verify payroll codes behavior,Pass when requirement is demonstrably satisfied
+TC-P04-064,GES-P04-REQ-064,Verify accounting mappings behavior,Pass when requirement is demonstrably satisfied
+TC-P04-065,GES-P04-REQ-065,Verify dashboard definitions behavior,Pass when requirement is demonstrably satisfied
+TC-P04-066,GES-P04-REQ-066,Verify report definitions behavior,Pass when requirement is demonstrably satisfied
+TC-P04-067,GES-P04-REQ-067,Verify notification templates behavior,Pass when requirement is demonstrably satisfied
+TC-P04-068,GES-P04-REQ-068,Verify workflow definitions behavior,Pass when requirement is demonstrably satisfied
+TC-P04-069,GES-P04-REQ-069,Verify inspection forms behavior,Pass when requirement is demonstrably satisfied
+TC-P04-070,GES-P04-REQ-070,Verify checklists behavior,Pass when requirement is demonstrably satisfied
+TC-P04-071,GES-P04-REQ-071,Verify template management behavior,Pass when requirement is demonstrably satisfied
+TC-P04-072,GES-P04-REQ-072,Verify brand terminology behavior,Pass when requirement is demonstrably satisfied
+TC-P04-073,GES-P04-REQ-073,Verify custom domains behavior,Pass when requirement is demonstrably satisfied
+TC-P04-074,GES-P04-REQ-074,Verify oem reseller hierarchy behavior,Pass when requirement is demonstrably satisfied
+TC-P04-075,GES-P04-REQ-075,Verify marketplace packaging behavior,Pass when requirement is demonstrably satisfied
+TC-P04-076,GES-P04-REQ-076,Verify usage analytics behavior,Pass when requirement is demonstrably satisfied
+TC-P04-077,GES-P04-REQ-077,Verify data quality kpis behavior,Pass when requirement is demonstrably satisfied
+TC-P04-078,GES-P04-REQ-078,Verify periodic review behavior,Pass when requirement is demonstrably satisfied
+TC-P04-079,GES-P04-REQ-079,Verify emergency correction behavior,Pass when requirement is demonstrably satisfied
+TC-P04-080,GES-P04-REQ-080,Verify four-eyes approval behavior,Pass when requirement is demonstrably satisfied
+TC-P04-081,GES-P04-REQ-081,Verify publication scheduling behavior,Pass when requirement is demonstrably satisfied
+TC-P04-082,GES-P04-REQ-082,Verify sandbox promotion behavior,Pass when requirement is demonstrably satisfied
+TC-P04-083,GES-P04-REQ-083,Verify environment portability behavior,Pass when requirement is demonstrably satisfied
+TC-P04-084,GES-P04-REQ-084,Verify migration support behavior,Pass when requirement is demonstrably satisfied
+TC-P04-085,GES-P04-REQ-085,Verify backward compatibility behavior,Pass when requirement is demonstrably satisfied
+TC-P04-086,GES-P04-REQ-086,Verify performance targets behavior,Pass when requirement is demonstrably satisfied
+TC-P04-087,GES-P04-REQ-087,Verify availability targets behavior,Pass when requirement is demonstrably satisfied
+TC-P04-088,GES-P04-REQ-088,Verify disaster recovery behavior,Pass when requirement is demonstrably satisfied
+TC-P04-089,GES-P04-REQ-089,Verify encryption behavior,Pass when requirement is demonstrably satisfied
+TC-P04-090,GES-P04-REQ-090,Verify privacy behavior,Pass when requirement is demonstrably satisfied
+TC-P04-091,GES-P04-REQ-091,Verify accessibility behavior,Pass when requirement is demonstrably satisfied
+TC-P04-092,GES-P04-REQ-092,Verify mobile usability behavior,Pass when requirement is demonstrably satisfied
+TC-P04-093,GES-P04-REQ-093,Verify no-code administration behavior,Pass when requirement is demonstrably satisfied
+TC-P04-094,GES-P04-REQ-094,Verify test automation behavior,Pass when requirement is demonstrably satisfied
+TC-P04-095,GES-P04-REQ-095,Verify traceability behavior,Pass when requirement is demonstrably satisfied
+TC-P04-096,GES-P04-REQ-096,Verify approval record behavior,Pass when requirement is demonstrably satisfied
+TC-P04-097,GES-P04-REQ-097,Verify manifest integrity behavior,Pass when requirement is demonstrably satisfied

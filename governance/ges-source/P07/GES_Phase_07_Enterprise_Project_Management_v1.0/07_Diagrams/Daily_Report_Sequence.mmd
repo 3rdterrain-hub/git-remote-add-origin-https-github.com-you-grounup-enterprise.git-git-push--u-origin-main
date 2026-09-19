@@ -1,0 +1,13 @@
+sequenceDiagram
+ participant F as Field User
+ participant M as Mobile App
+ participant A as API
+ participant V as Validation/Post Engine
+ participant T as Digital Twin
+ participant P as Project Manager
+ F->>M: Capture labor, equipment, production, weather, photos
+ M->>A: Sync signed payload
+ A->>V: Authorize and validate
+ V-->>M: Conflict or validation response
+ V->>T: Post approved operational facts
+ T->>P: Refresh health, cost, schedule, and alerts

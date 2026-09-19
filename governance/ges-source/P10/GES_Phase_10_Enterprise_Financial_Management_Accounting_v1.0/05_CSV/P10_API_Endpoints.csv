@@ -1,0 +1,33 @@
+API ID,Method,Path,Purpose,Security,Controls
+API-P10-01,POST,/financial/journals,Create journal,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-02,POST,/financial/journals/{id}/approve,Approve journal,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-03,POST,/financial/journals/{id}/post,Post journal,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-04,POST,/financial/journals/{id}/reverse,Reverse journal,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-05,POST,/ap/invoices,Create vendor invoice,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-06,POST,/ap/invoices/{id}/match,Run invoice match,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-07,POST,/ap/payments/batches,Create payment batch,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-08,POST,/ap/payments/batches/{id}/release,Release payment batch,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-09,POST,/ar/invoices,Create customer invoice,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-10,POST,/ar/receipts,Record cash receipt,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-11,POST,/ar/receipts/{id}/apply,Apply receipt,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-12,POST,/ar/collections/cases,Create collection case,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-13,GET,/projects/{id}/job-cost,Get project job cost,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-14,POST,/projects/{id}/budgets/revisions,Create budget revision,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-15,POST,/projects/{id}/forecasts,Create forecast,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-16,POST,/projects/{id}/wip/run,Run WIP,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-17,POST,/billing/applications,Create billing application,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-18,POST,/billing/applications/{id}/approve,Approve billing application,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-19,POST,/payroll/posting-batches,Import payroll posting batch,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-20,POST,/payroll/posting-batches/{id}/reconcile,Reconcile payroll posting,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-21,POST,/banking/statements,Import bank statement,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-22,POST,/banking/reconciliations,Create bank reconciliation,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-23,POST,/cash/forecasts,Create cash forecast,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-24,GET,/cash/position,Get cash position,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-25,POST,/assets,Create fixed asset,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-26,POST,/assets/depreciation/run,Run depreciation,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-27,POST,/tax/transactions/calculate,Calculate tax,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-28,POST,/consolidations/run,Run consolidation,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-29,GET,/financial/reports/{reportCode},Run financial report,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-30,POST,/financial/ai/recommendations,Request AI recommendation,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-31,POST,/financial/ai/recommendations/{id}/decision,Decide AI recommendation,OAuth2 + tenant context,Idempotency key for mutations; audit event required
+API-P10-32,GET,/financial/digital-twin,Get Financial Digital Twin,OAuth2 + tenant context,Idempotency key for mutations; audit event required

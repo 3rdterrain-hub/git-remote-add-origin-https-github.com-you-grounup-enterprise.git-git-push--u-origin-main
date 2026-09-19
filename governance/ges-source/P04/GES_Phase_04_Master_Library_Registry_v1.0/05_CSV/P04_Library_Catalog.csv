@@ -1,0 +1,51 @@
+﻿Library ID,Library Name,Domain,Purpose,Scope
+LIB-001,Master Service Library,Estimating,"Services, scopes, inclusions, exclusions, units, assemblies",Global
+LIB-002,Master Resource Library,Estimating,"Labor, equipment, material and subcontract resources",Global
+LIB-003,Master Material Library,Cost,"Materials, grades, sizes, vendors, freight and waste",Global
+LIB-004,Master Equipment Library,Fleet,"Equipment classes, capacities, rates and productivity",Global
+LIB-005,Master Fleet Library,Fleet,"Owned, leased and rented asset registry",Tenant
+LIB-006,Master Labor Library,HRM,"Trades, classifications, wages, burden and rules",Tenant
+LIB-007,Master Crew Library,Operations,"Crew templates, roles and equipment combinations",Tenant
+LIB-008,Master Vendor Library,Procurement,"Suppliers, contacts, terms and performance",Tenant
+LIB-009,Master Customer Library,CRM,"Customer accounts, contacts and segmentation",Tenant
+LIB-010,Master Subcontractor Library,Procurement,"Subcontractor capabilities, rates and compliance",Tenant
+LIB-011,Master Production Rate Library,Estimating,Baseline and conditional production rates,Hybrid
+LIB-012,Master Cost Code Library,Finance,"Cost codes, phase codes and accounting mappings",Hybrid
+LIB-013,Master Assembly Library,Estimating,Reusable service assemblies and resource compositions,Hybrid
+LIB-014,Master CSI Library,Standards,"CSI divisions, sections and mappings",Global
+LIB-015,Master DOT Bid Item Library,Infrastructure,"DOT pay items, units and regional mappings",Global
+LIB-016,Master Municipal Bid Item Library,Infrastructure,Municipal bid items and owner-specific mappings,Global
+LIB-017,Master Unit Library,Reference,"Units, dimensions and conversion rules",Global
+LIB-018,Master Currency Library,Reference,"Currencies, precision and exchange-rate controls",Global
+LIB-019,Master Tax Library,Finance,"Tax jurisdictions, rules and exemptions",Tenant
+LIB-020,Master Safety Library,Safety,"Hazards, controls, PPE and compliance references",Hybrid
+LIB-021,Master Specification Library,Documents,Technical specifications and clause indexing,Hybrid
+LIB-022,Master Drawing Symbol Library,Takeoff,"Plan symbols, abbreviations and recognition metadata",Global
+LIB-023,Master AI Knowledge Library,AI,Approved knowledge chunks and source provenance,Hybrid
+LIB-024,Master Prompt Library,AI,"Versioned prompts, roles, guardrails and outputs",Hybrid
+LIB-025,Master Risk Library,Risk,"Risk categories, triggers, impacts and mitigations",Hybrid
+LIB-026,Master Quality Library,Quality,"Quality standards, acceptance criteria and NCR logic",Hybrid
+LIB-027,Master Inspection Library,Quality,"Inspection types, forms, checkpoints and evidence",Hybrid
+LIB-028,Master Checklist Library,Operations,Reusable checklists by process and role,Hybrid
+LIB-029,Master Workflow Library,Platform,"Workflow definitions, states, transitions and SLAs",Hybrid
+LIB-030,Master Report Library,Analytics,Governed report definitions and access rules,Hybrid
+LIB-031,Master Dashboard Library,Analytics,"Dashboard layouts, KPIs and role assignments",Hybrid
+LIB-032,Master Notification Library,Platform,"Events, channels, templates and escalation rules",Hybrid
+LIB-033,Master Template Library,Documents,"Document, estimate, proposal and form templates",Hybrid
+LIB-034,Master Document Library,Documents,Controlled document categories and retention,Hybrid
+LIB-035,Master Formula Library,Calculation,"Versioned formulas, variables and test cases",Global
+LIB-036,Master Location Factor Library,Cost,Geographic cost and productivity factors,Global
+LIB-037,Master Regional Pricing Library,Cost,"Regional labor, material and equipment price sets",Hybrid
+LIB-038,Master Equipment Productivity Library,Production,Machine-specific production curves and modifiers,Global
+LIB-039,Master Crew Productivity Library,Production,Crew production curves and balancing logic,Hybrid
+LIB-040,Master Disposal Library,Hauling,"Facilities, materials accepted, fees and hours",Tenant
+LIB-041,Master Trucking Library,Hauling,"Truck types, capacities, cycles and rates",Hybrid
+LIB-042,Master Rental Rate Library,Cost,"Rental sources, rate periods and terms",Tenant
+LIB-043,Master Fuel Library,Cost,"Fuel types, prices, burn rates and emissions factors",Hybrid
+LIB-044,Master Maintenance Library,Fleet,"Maintenance plans, intervals, parts and labor",Tenant
+LIB-045,Master Asset Library,Fleet,"Assets, ownership, status and lifecycle",Tenant
+LIB-046,Master Inventory Library,Inventory,"Stock items, locations, reorder and valuation",Tenant
+LIB-047,Master Time Code Library,HRM,"Time categories, payroll mapping and permissions",Tenant
+LIB-048,Master Payroll Code Library,HRM,"Earnings, deductions, benefits and tax mappings",Tenant
+LIB-049,Master Accounting Mapping Library,Finance,"GL, job cost, tax and system integration mappings",Tenant
+LIB-050,Master AI Training Library,AI,"Approved examples, feedback and evaluation datasets",Hybrid

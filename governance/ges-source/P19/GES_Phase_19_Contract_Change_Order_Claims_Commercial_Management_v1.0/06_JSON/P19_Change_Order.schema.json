@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Change Order",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "project_id",
+    "contract_id",
+    "record_id",
+    "change_status",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "change_version": {
+      "type": "string"
+    },
+    "change_status": {
+      "type": "string"
+    },
+    "approved_change_value": {
+      "type": "number"
+    },
+    "notice_due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_uri": {
+      "type": "string"
+    }
+  }
+}

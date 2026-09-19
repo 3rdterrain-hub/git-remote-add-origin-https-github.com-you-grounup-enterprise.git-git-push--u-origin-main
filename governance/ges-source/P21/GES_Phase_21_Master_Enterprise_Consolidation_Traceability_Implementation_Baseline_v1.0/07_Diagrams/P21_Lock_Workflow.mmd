@@ -1,0 +1,14 @@
+stateDiagram-v2
+ [*] --> Consolidate
+ Consolidate --> StructuralScan
+ StructuralScan --> Reconcile
+ Reconcile --> CrossPhaseReview
+ CrossPhaseReview --> GapClosure
+ GapClosure --> Acceptance
+ Acceptance --> Approved
+ Acceptance --> Rework
+ Rework --> Reconcile
+ Approved --> BaselineManifest
+ BaselineManifest --> Locked
+ Locked --> Implementation
+ Implementation --> [*]

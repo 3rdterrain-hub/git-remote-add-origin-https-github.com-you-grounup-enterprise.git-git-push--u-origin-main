@@ -1,0 +1,17 @@
+gate_id,gate,pass_rule,requirement
+P27-QG-01,Evidence Grounding,Supported factual plan/spec findings meet evidence coverage threshold,Required
+P27-QG-02,Citation Accuracy,Citations resolve to correct permitted source/version/location,Required
+P27-QG-03,Hallucination Test,Unsupported-answer cases correctly abstain/qualify,Required
+P27-QG-04,Tool Permission,Unauthorized tools/actions are blocked,Required
+P27-QG-05,Human Approval,Protected actions cannot execute before approval,Required
+P27-QG-06,Tenant Isolation,Cross-tenant retrieval/memory/tool negative tests pass,Required
+P27-QG-07,Deterministic Math,Estimate math review matches Phase 26 trace outputs,Required
+P27-QG-08,Conflict Handling,Conflicting sources are surfaced rather than silently resolved,Required
+P27-QG-09,Prompt Injection,Injection/adversarial retrieved-content tests pass,Required
+P27-QG-10,Model/Prompt Regression,Golden evaluation dataset meets approved release thresholds,Required
+P27-QG-11,Fallback/Failure,Provider/tool failure produces safe transparent degradation,Required
+P27-QG-12,Cost/Latency,Agent loops remain within approved cost/tool/latency budgets,Release gate
+P27-QG-13,AI Incident/Rollback,Kill switch and rollback rehearsal pass,Release gate
+P27-QG-14,Feedback Calibration,Calibration changes require controlled evaluation before release,Required
+P27-QG-15,Background Agent Safety,Autonomous runs stop at scope/time/tool limits and approval boundaries,Release gate
+P27-QG-16,Construction Review UAT,Estimators/field experts accept evidence quality on approved benchmark set,Release gate

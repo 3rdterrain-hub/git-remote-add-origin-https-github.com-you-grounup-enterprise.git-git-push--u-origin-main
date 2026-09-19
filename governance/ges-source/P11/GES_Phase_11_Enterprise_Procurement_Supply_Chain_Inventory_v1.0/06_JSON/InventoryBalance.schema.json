@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grounup.example/schemas/p11/InventoryBalance.json",
+  "title": "InventoryBalance",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "company_id",
+    "warehouse_id"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "item_id": {
+      "type": "string"
+    },
+    "on_hand_quantity": {
+      "type": "number"
+    },
+    "available_quantity": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false
+}

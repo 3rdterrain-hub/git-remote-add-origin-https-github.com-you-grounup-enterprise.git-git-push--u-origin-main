@@ -1,0 +1,20 @@
+{
+  "phase": "09",
+  "name": "Enterprise Human Resources, Workforce & Talent Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "counts": {
+    "requirements": 210,
+    "entities": 94,
+    "business_rules": 20,
+    "validation_rules": 20,
+    "workflows": 20,
+    "engines": 24,
+    "apis": 28,
+    "ui_surfaces": 15,
+    "reports": 15,
+    "kpis": 25,
+    "tests": 210
+  },
+  "lock_tag": "GES-P09-v1.0.0"
+}

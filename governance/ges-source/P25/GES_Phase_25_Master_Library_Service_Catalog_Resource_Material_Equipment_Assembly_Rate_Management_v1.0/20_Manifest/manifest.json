@@ -1,0 +1,227 @@
+{
+  "phase": "25",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "4488f3f4e6bb1b09e2d8f9a7b55b8713dec51329aa099d700a4cce55d4c69c77",
+      "bytes": 1055
+    },
+    {
+      "path": "02_Word/GES-P25-001-Master_Library_Service_Catalog_Resource_Material_Equipment_Assembly_Rate_Management.docx",
+      "sha256": "0551769c74de4f7955f7265d152872db2a7e67b530291a84d196ffbca2bb2fe5",
+      "bytes": 38838
+    },
+    {
+      "path": "03_PDF/GES-P25-001-Master_Library_Service_Catalog_Resource_Material_Equipment_Assembly_Rate_Management.pdf",
+      "sha256": "a7c3b1e1ce0b9c2afb3f710998b3225ef165b5382541d385bdb7df8689b5787f",
+      "bytes": 6475
+    },
+    {
+      "path": "04_Excel/GES-P25-001-Master_Library_Service_Catalog_Control_Workbook.xlsx",
+      "sha256": "10d7284a6bcda4da0b3bb54fa8e1a4f6b745b71251c2c30c8204b83a68314886",
+      "bytes": 57922
+    },
+    {
+      "path": "05_CSV/P25_API_Contracts.csv",
+      "sha256": "2146333060768024e695820262d5aa75fa0867fdeba85d11e7ae8eb715aea468",
+      "bytes": 5999
+    },
+    {
+      "path": "05_CSV/P25_Business_Rules.csv",
+      "sha256": "e0d7f428e027062e40166fe2a074752682805f655ef31f7ec6260e7f09ebb060",
+      "bytes": 2518
+    },
+    {
+      "path": "05_CSV/P25_Entities.csv",
+      "sha256": "b365bceb4a12d8522071d00114c70a8301b0821f08e1145786772498ceb7a9a5",
+      "bytes": 2591
+    },
+    {
+      "path": "05_CSV/P25_Event_Catalog.csv",
+      "sha256": "364b7013aedb12bffd41446f58a9c3f8f45866dd3bbb6622e50411ddbba675a0",
+      "bytes": 3147
+    },
+    {
+      "path": "05_CSV/P25_Modules.csv",
+      "sha256": "684a6d9c4a3d15f4c3873f546017fceefe9d1675c7580966661b46ab93c73aac",
+      "bytes": 2690
+    },
+    {
+      "path": "05_CSV/P25_Quality_Gates.csv",
+      "sha256": "fd92fbe99c184adef825a25a37ca0c2635e037eba21897cebc49cd293f951fa3",
+      "bytes": 1129
+    },
+    {
+      "path": "05_CSV/P25_Requirements.csv",
+      "sha256": "4068c6d0b4cdad41b7d3a9cf60e245e653d5343257e1ea8f247454c72907e97d",
+      "bytes": 174489
+    },
+    {
+      "path": "05_CSV/P25_Security_Controls.csv",
+      "sha256": "6acf98031558285b2971557cf7bda8d2979c640cdc8238a8dd1306004f1e3319",
+      "bytes": 1448
+    },
+    {
+      "path": "05_CSV/P25_Test_Cases.csv",
+      "sha256": "264ef9c78161c4d2d2f8bdb0534c97d220f7134c7f14d1c01700bed3d34ab5f1",
+      "bytes": 139537
+    },
+    {
+      "path": "05_CSV/P25_Traceability.csv",
+      "sha256": "c66413d49a29ef830ece99059cab6dd2c4f2155ff6081084ada758c7a4275014",
+      "bytes": 22461
+    },
+    {
+      "path": "06_JSON/P25_Library_Record.schema.json",
+      "sha256": "3558e250ad9409a0b5b7a4adf36a7d175979272f664c28306c0f993debd7563b",
+      "bytes": 1254
+    },
+    {
+      "path": "06_JSON/P25_Master_Library_Baseline.json",
+      "sha256": "eeaedc871521b2624a1b8704ef1b08bba333e12cacc97e8832ad8e0d6aa78db5",
+      "bytes": 934
+    },
+    {
+      "path": "07_Diagrams/P25_Estimator_Library_Flow.mmd",
+      "sha256": "27660f10c48db1ccee41b59311020402d2c4ed1b25275a9430c9b1255dadda29",
+      "bytes": 547
+    },
+    {
+      "path": "07_Diagrams/P25_Library_Lifecycle.mmd",
+      "sha256": "d70d3efdabb2f992d86ecf77560ed2c78570317f5b41514bc353203d831e8ef3",
+      "bytes": 218
+    },
+    {
+      "path": "08_Master_Library_Architecture/P25_Entities.csv",
+      "sha256": "b365bceb4a12d8522071d00114c70a8301b0821f08e1145786772498ceb7a9a5",
+      "bytes": 2591
+    },
+    {
+      "path": "08_Master_Library_Architecture/P25_Modules.csv",
+      "sha256": "684a6d9c4a3d15f4c3873f546017fceefe9d1675c7580966661b46ab93c73aac",
+      "bytes": 2690
+    },
+    {
+      "path": "11_Assemblies_Rates/P25_Business_Rules.csv",
+      "sha256": "e0d7f428e027062e40166fe2a074752682805f655ef31f7ec6260e7f09ebb060",
+      "bytes": 2518
+    },
+    {
+      "path": "14_API_Event_Contracts/P25_API_Contracts.csv",
+      "sha256": "2146333060768024e695820262d5aa75fa0867fdeba85d11e7ae8eb715aea468",
+      "bytes": 5999
+    },
+    {
+      "path": "14_API_Event_Contracts/P25_Event_Catalog.csv",
+      "sha256": "364b7013aedb12bffd41446f58a9c3f8f45866dd3bbb6622e50411ddbba675a0",
+      "bytes": 3147
+    },
+    {
+      "path": "15_Testing_Security/P25_Quality_Gates.csv",
+      "sha256": "fd92fbe99c184adef825a25a37ca0c2635e037eba21897cebc49cd293f951fa3",
+      "bytes": 1129
+    },
+    {
+      "path": "15_Testing_Security/P25_Security_Controls.csv",
+      "sha256": "6acf98031558285b2971557cf7bda8d2979c640cdc8238a8dd1306004f1e3319",
+      "bytes": 1448
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/README.md",
+      "sha256": "437b97a4fe4397e41e45f82c45cbe79b2479e259ce622f1ab11c5b253261be28",
+      "bytes": 401
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/db/migrations/0001_master_library_reference.sql",
+      "sha256": "804c104687feddf9b2242b39074666d989d95211d5b2a489832017c02d2e03d2",
+      "bytes": 852
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/ai/library-proposal.ts",
+      "sha256": "2d8d9fbfe65f1181d3e2de8a0d35247cf64e45f74f377ea516cb6edca6785349",
+      "bytes": 390
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/events/library-events.ts",
+      "sha256": "51efdc54af7df6b62d81286488ef8891c803064ba3fe54bf3842ea100c1bfe74",
+      "bytes": 246
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/imports/import-preview.ts",
+      "sha256": "121d8bc989ddf524069396125ad9c2bac06a1d5f0a2d0b0dd92a973ae16347dd",
+      "bytes": 288
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/model/assembly.ts",
+      "sha256": "075bddc3b2b08705d3eb3e90c241f5d9549acd2957e77dfdd03d1940e6804551",
+      "bytes": 499
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/model/library-record.ts",
+      "sha256": "f394975ea0a1672fea6dd9e1135fad4a590fe684475b5123ae843878a5cb5ee3",
+      "bytes": 441
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/model/money-rate.ts",
+      "sha256": "ba5a9d971260e0aee3a50b496de0cd5eb694d834be00e388c5b041db0ae51865",
+      "bytes": 183
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/services/library-resolver.ts",
+      "sha256": "492e806869c986eb905ff0f2d0d803c9fe596221e6ad1fc24d73dbe990f531dd",
+      "bytes": 494
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/src/services/snapshot.ts",
+      "sha256": "54e834aa0679628c6d92603e8b957f2b906fb75fc854f3d83d3afa55653ac376",
+      "bytes": 544
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/tests/integration/estimator-snapshot.spec.md",
+      "sha256": "fc836ac6cefd6c1d41ca9470cfad63492275a162fd56d1865c152b7c1835d65c",
+      "bytes": 247
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/tests/security/tenant-library-isolation.spec.md",
+      "sha256": "c32a328c4d2dcb21686884cc1c47d8710586740ca953684561c876cc3de700e5",
+      "bytes": 236
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library/tests/unit/ai-writeback-boundary.spec.md",
+      "sha256": "25318bb21cb44b44539a33a746e931663a0bcfc2cc12dfdad9b479d56ce5747e",
+      "bytes": 224
+    },
+    {
+      "path": "16_Starter_Code/grounup-master-library-bootstrap.zip",
+      "sha256": "b689a14da8b76051fb3622dc1f2a98a632a6dcde22a5a792233ee328febff554",
+      "bytes": 5141
+    },
+    {
+      "path": "17_Developer_AI_Handoff/P25_BUILD_PROTOCOL.md",
+      "sha256": "1453380161280496e7344bb434f0c66864f5c46a7a52fe4d8b7a62a06b1dd606",
+      "bytes": 795
+    },
+    {
+      "path": "19_Examples/P25_Example_Assemblies.csv",
+      "sha256": "be231fe2be9a90403d24118f811f0bfecdd2d0fe0ed819ee244d1b637db91385",
+      "bytes": 226
+    },
+    {
+      "path": "19_Examples/P25_Example_Equipment.csv",
+      "sha256": "cc1c7441b617b543ad36b3aed02dafa8cb5fbd296248daddeb0dae331eaca196",
+      "bytes": 341
+    },
+    {
+      "path": "19_Examples/P25_Example_Materials.csv",
+      "sha256": "f33900aae26a7845a089d1b572bb3ed540407650f9b2c54c9c7c87128362a3bf",
+      "bytes": 242
+    },
+    {
+      "path": "19_Examples/P25_Example_Services.csv",
+      "sha256": "c498a8fcb5967bd080071b8c578089e0b00b2a94157e6a6c37e5a4af136c4049",
+      "bytes": 657
+    }
+  ]
+}

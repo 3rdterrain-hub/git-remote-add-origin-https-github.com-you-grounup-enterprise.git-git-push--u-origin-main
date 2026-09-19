@@ -1,0 +1,24 @@
+# Phase 07 Validation Rules
+
+| Rule ID | Rule |
+| --- | --- |
+| P07-VR-001 | Project dates must be logically ordered and use the project timezone. |
+| P07-VR-002 | Percent complete must be between 0 and 100 and conform to the selected progress method. |
+| P07-VR-003 | Schedule relationships may not create unapproved circular logic. |
+| P07-VR-004 | Actual finish requires actual start and 100 percent completion. |
+| P07-VR-005 | Budget and cost transaction amounts require currency and non-null cost-code mapping. |
+| P07-VR-006 | Daily labor hours exceeding tenant thresholds require explanation and approval. |
+| P07-VR-007 | Equipment meter readings may not decrease unless a documented meter replacement or correction exists. |
+| P07-VR-008 | Production quantities require a valid unit and cannot duplicate the same source event. |
+| P07-VR-009 | Document revision identifiers must be unique within the document series. |
+| P07-VR-010 | RFI due dates may not precede the issue date. |
+| P07-VR-011 | Submittal review cycles must preserve reviewer, disposition, dates, and returned files. |
+| P07-VR-012 | Change-order values must equal the sum of approved change lines within tolerance. |
+| P07-VR-013 | Invoices may not exceed commitment balance without a controlled exception. |
+| P07-VR-014 | Retainage percentages must remain within contract-defined limits. |
+| P07-VR-015 | Inspection results require checklist completion or documented not-applicable reasons. |
+| P07-VR-016 | Incident records require severity, date/time, location, reporter, and notification status. |
+| P07-VR-017 | Offline payloads must pass schema, authorization, version, and malware checks. |
+| P07-VR-018 | External portal shares require an expiration date unless policy explicitly allows otherwise. |
+| P07-VR-019 | AI-generated claims must include confidence, evidence references, and model/task version. |
+| P07-VR-020 | Closeout cannot be approved while mandatory unresolved punch or warranty-prep items remain. |

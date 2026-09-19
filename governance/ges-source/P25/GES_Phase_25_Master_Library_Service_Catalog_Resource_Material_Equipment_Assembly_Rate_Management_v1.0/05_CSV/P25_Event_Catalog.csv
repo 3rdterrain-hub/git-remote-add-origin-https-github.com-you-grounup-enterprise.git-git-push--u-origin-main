@@ -1,0 +1,16 @@
+event_id,event_name,version,envelope,delivery,status
+P25-EVT-001,library.record.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-002,library.record.versioned,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-003,library.record.submitted,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-004,library.record.approved,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-005,library.record.published,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-006,library.record.superseded,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-007,service.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-008,assembly.versioned,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-009,rate.versioned,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-010,vendorprice.approved,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-011,override.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-012,import.committed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-013,ai.libraryproposal.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-014,ai.libraryproposal.approved,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed
+P25-EVT-015,library.snapshot.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,record_id,record_version,actor,payload",Outbox; idempotent consumers; source requirement IDs,Proposed

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp AI Task",
+  "type": "object",
+  "required": [
+    "task_id",
+    "tenant_id",
+    "agent_id",
+    "intent",
+    "status"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "intent": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "running",
+        "awaiting_approval",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "citations": {
+      "type": "array"
+    },
+    "assumptions": {
+      "type": "array"
+    },
+    "result": {}
+  }
+}

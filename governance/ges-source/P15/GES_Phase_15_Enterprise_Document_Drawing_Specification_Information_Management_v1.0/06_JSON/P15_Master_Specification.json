@@ -1,0 +1,102 @@
+{
+  "phase": "15",
+  "name": "Enterprise Document, Drawing, Specification & Construction Information Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Document Control",
+      "purpose": "Controlled creation, numbering, metadata, status, revisions, distribution, retention and supersession."
+    },
+    {
+      "name": "Drawing Management",
+      "purpose": "Drawing registers, sheets, revisions, disciplines, sets, overlays, markups and issued-for-purpose states."
+    },
+    {
+      "name": "Specification Management",
+      "purpose": "Specification sections, revisions, addenda, requirements, references and drawing/spec coordination."
+    },
+    {
+      "name": "Submittals",
+      "purpose": "Submittal packages, items, reviewers, due dates, review cycles, dispositions and closeout."
+    },
+    {
+      "name": "RFIs",
+      "purpose": "RFI creation, routing, response, impact, linked documents, drawings, cost/schedule effects and closure."
+    },
+    {
+      "name": "Transmittals & Distribution",
+      "purpose": "Formal issue packages, recipients, acknowledgements, purpose-of-issue and distribution evidence."
+    },
+    {
+      "name": "Correspondence & Records",
+      "purpose": "Letters, notices, meeting records, emails imported as records, decisions and contractual correspondence."
+    },
+    {
+      "name": "Version & Revision Control",
+      "purpose": "Immutable revision history, comparison, supersession, rollback, effective versions and audit evidence."
+    },
+    {
+      "name": "Markup & Review",
+      "purpose": "Collaborative markup, comments, redlines, stamps, review sessions, issue resolution and approval."
+    },
+    {
+      "name": "OCR & Content Extraction",
+      "purpose": "Text extraction, document classification, metadata proposals, table extraction and searchable indexing."
+    },
+    {
+      "name": "Plan & Spec Intelligence",
+      "purpose": "AI-assisted plan/spec reading, scope extraction, requirement detection, cross-reference and conflict detection."
+    },
+    {
+      "name": "Document Search & Retrieval",
+      "purpose": "Full-text, metadata, semantic, sheet, section, project, discipline and permission-aware search."
+    },
+    {
+      "name": "Records Retention & Legal Hold",
+      "purpose": "Retention schedules, disposition, legal holds, immutable evidence and deletion controls."
+    },
+    {
+      "name": "External Collaboration",
+      "purpose": "Controlled guest access, consultant/subcontractor review, secure sharing and expiring links."
+    },
+    {
+      "name": "Field Document Access",
+      "purpose": "Mobile/offline current-set access, QR/location links, acknowledgements and sync controls."
+    },
+    {
+      "name": "BIM/CDE Coordination",
+      "purpose": "Model/document references, common data environment states, issue links and coordination records."
+    },
+    {
+      "name": "Closeout & Turnover",
+      "purpose": "As-builts, O&M manuals, warranties, training records, turnover packages and owner acceptance."
+    },
+    {
+      "name": "Document Intelligence Digital Twin",
+      "purpose": "Current information state across projects, revisions, decisions, relationships and downstream impacts."
+    }
+  ],
+  "counts": {
+    "requirements": 340,
+    "entities": 155,
+    "fields": 240,
+    "business_rules": 65,
+    "validation_rules": 65,
+    "workflows": 36,
+    "engines": 45,
+    "api_resources": 55,
+    "ui_surfaces": 38,
+    "reports": 32,
+    "kpis": 45,
+    "tests": 340
+  },
+  "critical_governance": [
+    "One authoritative current revision per controlled information context",
+    "Superseded versions remain immutable and traceable",
+    "Permissions apply to search, previews, downloads, exports and AI retrieval",
+    "AI extraction and Q&A must cite source evidence and revision",
+    "AI cannot autonomously issue contractual responses or publish authoritative revisions",
+    "Legal hold overrides normal disposition"
+  ]
+}

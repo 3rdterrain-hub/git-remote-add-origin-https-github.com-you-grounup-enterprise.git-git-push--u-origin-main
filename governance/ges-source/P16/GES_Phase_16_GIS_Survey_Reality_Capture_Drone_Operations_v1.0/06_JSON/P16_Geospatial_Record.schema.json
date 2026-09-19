@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Geospatial Record",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "record_id",
+    "crs_code",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "crs_code": {
+      "type": "string"
+    },
+    "vertical_datum": {
+      "type": "string"
+    },
+    "unit_code": {
+      "type": "string"
+    },
+    "geometry_uri": {
+      "type": "string"
+    },
+    "quality_status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lineage_id": {
+      "type": "string"
+    },
+    "accuracy_horizontal": {
+      "type": "number"
+    },
+    "accuracy_vertical": {
+      "type": "number"
+    }
+  }
+}

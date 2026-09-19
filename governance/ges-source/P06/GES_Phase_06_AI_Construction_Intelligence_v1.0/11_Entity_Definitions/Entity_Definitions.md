@@ -1,0 +1,40 @@
+- **AI-ENT-001 - AI Agent:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-002 - Agent Version:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-003 - Agent Capability:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-004 - Agent Tool Permission:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-005 - Prompt Template:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-006 - Prompt Version:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-007 - Model Profile:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-008 - Model Routing Rule:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-009 - Knowledge Source:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-010 - Knowledge Document:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-011 - Document Chunk:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-012 - Embedding Record:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-013 - Knowledge Graph Node:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-014 - Knowledge Graph Edge:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-015 - AI Conversation:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-016 - AI Message:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-017 - AI Task:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-018 - AI Task Step:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-019 - Tool Invocation:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-020 - AI Recommendation:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-021 - AI Assumption:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-022 - AI Citation:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-023 - AI Confidence Assessment:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-024 - Human Approval:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-025 - AI Feedback:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-026 - Evaluation Suite:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-027 - Evaluation Case:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-028 - Evaluation Result:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-029 - Guardrail Policy:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-030 - AI Incident:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-031 - AI Audit Event:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-032 - Memory Record:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-033 - Tenant AI Configuration:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-034 - White-label AI Persona:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-035 - AI Usage Meter:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-036 - AI Cost Ledger:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-037 - AI Marketplace Package:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-038 - Agent Deployment:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-039 - AI Data Retention Policy:** Canonical governed entity supporting the Phase 06 AI platform.
+- **AI-ENT-040 - AI Consent Record:** Canonical governed entity supporting the Phase 06 AI platform.

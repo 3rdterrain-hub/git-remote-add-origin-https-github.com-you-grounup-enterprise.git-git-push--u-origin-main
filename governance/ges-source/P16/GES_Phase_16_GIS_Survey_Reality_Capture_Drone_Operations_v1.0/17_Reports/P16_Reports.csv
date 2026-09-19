@@ -1,0 +1,35 @@
+report_id,name,audience,purpose,formats
+P16-RPT-001,Survey Control Report,Survey/GIS/Operations/Executive,"Governed survey control report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-002,Control Network Adjustment,Survey/GIS/Operations/Executive,"Governed control network adjustment with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-003,GNSS Quality Report,Survey/GIS/Operations/Executive,"Governed gnss quality report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-004,RTK Session Report,Survey/GIS/Operations/Executive,"Governed rtk session report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-005,Traverse Closure Report,Survey/GIS/Operations/Executive,"Governed traverse closure report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-006,Level Closure Report,Survey/GIS/Operations/Executive,"Governed level closure report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-007,Stakeout Report,Survey/GIS/Operations/Executive,"Governed stakeout report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-008,As-Staked Report,Survey/GIS/Operations/Executive,"Governed as-staked report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-009,Topographic Survey Summary,Survey/GIS/Operations/Executive,"Governed topographic survey summary with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-010,Utility Mapping Report,Survey/GIS/Operations/Executive,"Governed utility mapping report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-011,Drone Mission Report,Survey/GIS/Operations/Executive,"Governed drone mission report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-012,Flight Log Report,Survey/GIS/Operations/Executive,"Governed flight log report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-013,Aircraft/Battery Readiness,Survey/GIS/Operations/Executive,"Governed aircraft/battery readiness with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-014,Photogrammetry Accuracy Report,Survey/GIS/Operations/Executive,"Governed photogrammetry accuracy report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-015,LiDAR Accuracy Report,Survey/GIS/Operations/Executive,"Governed lidar accuracy report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-016,Point Cloud QA Report,Survey/GIS/Operations/Executive,"Governed point cloud qa report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-017,Orthomosaic QA Report,Survey/GIS/Operations/Executive,"Governed orthomosaic qa report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-018,Surface Approval Report,Survey/GIS/Operations/Executive,"Governed surface approval report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-019,Cut/Fill Volume Report,Survey/GIS/Operations/Executive,"Governed cut/fill volume report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-020,Stockpile Volume Report,Survey/GIS/Operations/Executive,"Governed stockpile volume report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-021,Earthwork Movement Report,Survey/GIS/Operations/Executive,"Governed earthwork movement report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-022,Progress Surface Comparison,Survey/GIS/Operations/Executive,"Governed progress surface comparison with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-023,Change Detection Report,Survey/GIS/Operations/Executive,"Governed change detection report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-024,Corridor/Stationing Report,Survey/GIS/Operations/Executive,"Governed corridor/stationing report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-025,Field GIS Collection,Survey/GIS/Operations/Executive,"Governed field gis collection with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-026,Geofence Alert Report,Survey/GIS/Operations/Executive,"Governed geofence alert report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-027,Reality Capture QA Scorecard,Survey/GIS/Operations/Executive,"Governed reality capture qa scorecard with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-028,Survey Deliverable Register,Survey/GIS/Operations/Executive,"Governed survey deliverable register with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-029,Machine Control Handoff Report,Survey/GIS/Operations/Executive,"Governed machine control handoff report with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-030,Spatial Data Quality,Survey/GIS/Operations/Executive,"Governed spatial data quality with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-031,Spatial Compliance,Survey/GIS/Operations/Executive,"Governed spatial compliance with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-032,Spatial KPI Scorecard,Survey/GIS/Operations/Executive,"Governed spatial kpi scorecard with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-033,AI Geospatial Review,Survey/GIS/Operations/Executive,"Governed ai geospatial review with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV
+P16-RPT-034,Geospatial Digital Twin Status,Survey/GIS/Operations/Executive,"Governed geospatial digital twin status with spatial reference, quality metadata, evidence and drill-through.",Map/Dashboard/PDF/XLSX/CSV

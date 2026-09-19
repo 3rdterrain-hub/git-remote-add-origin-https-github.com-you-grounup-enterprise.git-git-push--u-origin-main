@@ -1,0 +1,32 @@
+{
+  "phase": "10",
+  "title": "Enterprise Financial Management & Accounting",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "proposed_lock_tag": "GES-P10-v1.0.0",
+  "counts": {
+    "requirements": 240,
+    "entities": 110,
+    "data_dictionary_fields": 150,
+    "business_rules": 40,
+    "validation_rules": 40,
+    "workflows": 20,
+    "engines": 25,
+    "apis": 32,
+    "ui_surfaces": 18,
+    "reports": 18,
+    "kpis": 30,
+    "tests": 240
+  },
+  "dependencies": [
+    "GES-P01",
+    "GES-P02",
+    "GES-P03",
+    "GES-P04",
+    "GES-P05",
+    "GES-P06",
+    "GES-P07",
+    "GES-P08",
+    "GES-P09"
+  ]
+}

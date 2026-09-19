@@ -1,0 +1,16 @@
+# Report Definitions
+
+| ID | Report | Purpose |
+| --- | --- | --- |
+| P07-RPT-001 | Project Executive Summary | Health, key changes, forecast, risks, decisions, and next actions |
+| P07-RPT-002 | Project Cost Report | Budget, revisions, commitments, actuals, pending changes, ETC, EAC, and variance |
+| P07-RPT-003 | Schedule Performance Report | Baseline/current dates, float, critical path, slippage, and recovery actions |
+| P07-RPT-004 | Three-Week Look-Ahead | Activities, crews, equipment, constraints, commitments, and readiness |
+| P07-RPT-005 | Daily Field Report | Weather, workforce, equipment, work performed, quantities, deliveries, visitors, issues, and photos |
+| P07-RPT-006 | Productivity Report | Installed quantities, labor/equipment hours, unit cost, production rate, plan, and trend |
+| P07-RPT-007 | Change Management Log | Change events, pricing, approvals, contract status, cost and schedule exposure |
+| P07-RPT-008 | RFI and Submittal Log | Status, responsibility, due dates, aging, impacts, and overdue items |
+| P07-RPT-009 | Procurement Status Report | Buyout, submittal, fabrication, lead time, required-on-site, delivery, and risk |
+| P07-RPT-010 | Quality and Punch Report | Inspections, deficiencies, corrective actions, punch aging, and acceptance |
+| P07-RPT-011 | Safety Performance Report | Leading/lagging indicators, observations, incidents, actions, and training |
+| P07-RPT-012 | Closeout Readiness Report | Punch, documents, as-builts, O&M, warranties, permits, financials, and acceptance |

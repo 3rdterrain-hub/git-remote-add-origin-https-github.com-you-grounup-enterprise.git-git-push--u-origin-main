@@ -1,0 +1,12 @@
+flowchart LR
+  D[Draft Request] --> V[Validate]
+  V --> R[Resolve Approval Policy]
+  R --> C[Conflict and Delegation Check]
+  C --> P[Pending Approval]
+  P --> A{Decision}
+  A -->|Approve| X[Authorized Action]
+  A -->|Reject| J[Rejected]
+  A -->|Expire| E[Expired]
+  X --> U[Immutable Audit and Notification]
+  J --> U
+  E --> U

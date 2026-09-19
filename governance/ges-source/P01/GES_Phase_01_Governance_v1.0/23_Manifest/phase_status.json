@@ -1,0 +1,9 @@
+{
+  "phase_id": "01",
+  "phase_name": "Governance",
+  "version": "1.0.0-review",
+  "status": "review-ready",
+  "locked": false,
+  "intended_lock_tag": "GES-P01-v1.0.0",
+  "completion_percent": 90
+}

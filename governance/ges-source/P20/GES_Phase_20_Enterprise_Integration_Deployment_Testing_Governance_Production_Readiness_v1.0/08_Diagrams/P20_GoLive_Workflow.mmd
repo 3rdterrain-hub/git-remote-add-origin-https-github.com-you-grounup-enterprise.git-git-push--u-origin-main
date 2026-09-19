@@ -1,0 +1,16 @@
+stateDiagram-v2
+ [*] --> Build
+ Build --> AutomatedTest
+ AutomatedTest --> QA
+ QA --> UAT
+ UAT --> ReadinessReview
+ ReadinessReview --> Blocked: gate failure
+ Blocked --> ReadinessReview: remediate
+ ReadinessReview --> Approved
+ Approved --> Cutover
+ Cutover --> Production
+ Production --> Hypercare
+ Hypercare --> Stabilized
+ Stabilized --> OperationalHandoff
+ OperationalHandoff --> EnterpriseLocked
+ EnterpriseLocked --> [*]

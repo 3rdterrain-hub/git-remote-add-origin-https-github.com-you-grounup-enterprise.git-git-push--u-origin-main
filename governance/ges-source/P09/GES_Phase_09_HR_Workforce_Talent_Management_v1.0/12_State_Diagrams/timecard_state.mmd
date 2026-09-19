@@ -1,0 +1,10 @@
+stateDiagram-v2
+[*] --> Draft
+Draft --> Submitted
+Submitted --> Returned: validation or reviewer issue
+Returned --> Draft
+Submitted --> Approved
+Approved --> Exported
+Exported --> Adjusted: correction required
+Adjusted --> Exported
+Exported --> [*]

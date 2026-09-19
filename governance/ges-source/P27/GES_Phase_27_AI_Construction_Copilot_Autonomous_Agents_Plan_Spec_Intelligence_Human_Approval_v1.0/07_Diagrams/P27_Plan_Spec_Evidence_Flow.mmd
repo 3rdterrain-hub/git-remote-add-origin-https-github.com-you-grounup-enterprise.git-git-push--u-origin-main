@@ -1,0 +1,9 @@
+flowchart LR
+ Docs[Plans / Specs / Addenda / RFIs / Submittals] --> Parse[Document Intelligence]
+ Parse --> Evidence[Page/Sheet/Section Evidence]
+ Evidence --> Retrieve[Permission-Aware Retrieval]
+ Retrieve --> Agent[Plan / Spec / Scope Agent]
+ Agent --> Candidate[Finding / Quantity / Service Candidate]
+ Candidate --> Confidence[Confidence + Conflict Check]
+ Confidence --> Review[Human Review when required]
+ Review --> P26[Deterministic Estimate Tools]

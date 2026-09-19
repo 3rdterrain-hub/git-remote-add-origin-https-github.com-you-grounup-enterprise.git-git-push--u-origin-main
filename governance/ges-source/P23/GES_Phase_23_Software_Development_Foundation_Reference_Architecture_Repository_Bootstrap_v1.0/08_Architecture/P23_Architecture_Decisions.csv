@@ -1,0 +1,9 @@
+adr_id,decision,status,position,rationale,approval_rule
+ADR-0001,Repository strategy,Proposed,"Use a governed monorepo blueprint so shared contracts, apps, services, tests and infrastructure version together.",Phase 22 requires traceability and controlled release.,Approve before production implementation.
+ADR-0002,Technology selection status,Proposed,Do not treat a specific framework/cloud/database vendor as approved unless separately authorized. Starter code uses portable contracts and placeholders.,Source specification governs behavior more strongly than vendor choice.,Select stack through architecture approval.
+ADR-0003,Service boundaries,Proposed,Use modular domain boundaries with a modular-monolith-first option and extraction seams for services requiring independent scale/isolation.,Reduces premature distributed complexity while preserving enterprise boundaries.,Architecture review required.
+ADR-0004,Tenant isolation,Required,"Tenant context must be explicit at identity, authorization, data, cache, object, search and audit boundaries.",Phase 22 execution controls require tenant isolation.,Mandatory.
+ADR-0005,API/event contracts,Required,Contract-first versioned APIs/events with compatibility tests and idempotency for integration operations.,Phase 22 API discipline.,Mandatory.
+ADR-0006,AI provider abstraction,Required,"AI models/providers are replaceable behind governed orchestration, evaluation and evidence interfaces.",Avoid provider lock and preserve AI governance.,Mandatory.
+ADR-0007,Audit/evidence,Required,Governed business decisions and AI outputs preserve actor/source/version/time/evidence metadata.,Audit and traceability requirements.,Mandatory.
+ADR-0008,Infrastructure portability,Proposed,Separate logical platform contracts from cloud-specific implementation modules.,White-label/SaaS longevity and change control.,Approve provider later.

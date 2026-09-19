@@ -1,0 +1,32 @@
+{
+  "phase": "25",
+  "name": "Master Library, Service Catalog, Resource/Material/Equipment, Assembly & Rate Management",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase24": {
+    "requirements": 360,
+    "modules": 18,
+    "apis": 20,
+    "events": 13,
+    "security_controls": 8,
+    "quality_gates": 10
+  },
+  "counts": {
+    "requirements": 400,
+    "tests": 400,
+    "modules": 24,
+    "entities": 34,
+    "apis": 27,
+    "events": 15,
+    "business_rules": 18,
+    "security_controls": 12,
+    "quality_gates": 12
+  },
+  "core_behavior": [
+    "All services/libraries editable through governed tenant/base versioning",
+    "AI writeback is proposal-first and human approved",
+    "Estimator snapshots preserve historical reproducibility",
+    "Service catalog accepts governed estimator-created services",
+    "Rates preserve source/effective date/geography/unit/currency provenance"
+  ]
+}

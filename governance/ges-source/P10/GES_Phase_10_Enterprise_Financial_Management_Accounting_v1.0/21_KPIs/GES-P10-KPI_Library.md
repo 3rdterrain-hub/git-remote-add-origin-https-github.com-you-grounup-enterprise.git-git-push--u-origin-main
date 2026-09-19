@@ -1,0 +1,34 @@
+# Phase 10 KPI Library
+
+| ID | KPI | Definition | Unit | Cadence | Audience |
+|---|---|---|---|---|---|
+| KPI-P10-01 | Revenue | Governed calculation for Revenue. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-02 | Gross Profit | Governed calculation for Gross Profit. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-03 | Gross Margin % | Governed calculation for Gross Margin %. | Percent | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-04 | Operating Income | Governed calculation for Operating Income. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-05 | Net Income | Governed calculation for Net Income. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-06 | EBITDA | Governed calculation for EBITDA. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-07 | Working Capital | Governed calculation for Working Capital. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-08 | Current Ratio | Governed calculation for Current Ratio. | Days/Ratio | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-09 | Days Cash on Hand | Governed calculation for Days Cash on Hand. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-10 | Operating Cash Flow | Governed calculation for Operating Cash Flow. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-11 | Backlog | Governed calculation for Backlog. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-12 | Committed Cost | Governed calculation for Committed Cost. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-13 | Cost to Complete | Governed calculation for Cost to Complete. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-14 | Estimate at Completion | Governed calculation for Estimate at Completion. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-15 | Forecast Margin % | Governed calculation for Forecast Margin %. | Percent | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-16 | WIP Overbilling | Governed calculation for WIP Overbilling. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-17 | WIP Underbilling | Governed calculation for WIP Underbilling. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-18 | Days Sales Outstanding | Governed calculation for Days Sales Outstanding. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-19 | Days Payable Outstanding | Governed calculation for Days Payable Outstanding. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-20 | Billing Cycle Time | Governed calculation for Billing Cycle Time. | Days/Ratio | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-21 | Collection Effectiveness | Governed calculation for Collection Effectiveness. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-22 | AP Invoice Cycle Time | Governed calculation for AP Invoice Cycle Time. | Days/Ratio | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-23 | Cash Forecast Accuracy | Governed calculation for Cash Forecast Accuracy. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-24 | Budget Variance | Governed calculation for Budget Variance. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-25 | Project Cost Variance | Governed calculation for Project Cost Variance. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-26 | Labor Cost Variance | Governed calculation for Labor Cost Variance. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-27 | Equipment Cost Variance | Governed calculation for Equipment Cost Variance. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-28 | Close Cycle Time | Governed calculation for Close Cycle Time. | Days/Ratio | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-29 | Unreconciled Balance | Governed calculation for Unreconciled Balance. | USD | Daily/Period Close | CFO, Controller, Project Executive |
+| KPI-P10-30 | AI Exception Resolution Rate | Governed calculation for AI Exception Resolution Rate. | Percent | Daily/Period Close | CFO, Controller, Project Executive |

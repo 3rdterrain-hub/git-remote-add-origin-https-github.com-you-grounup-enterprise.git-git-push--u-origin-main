@@ -1,0 +1,8 @@
+{
+  "phase_id": "02",
+  "phase_name": "Core Platform",
+  "version": "1.0.0-review",
+  "status": "review",
+  "purpose": "Define the common runtime, integration, mobile, security, observability, localization, and AI platform services used by all GrounUp domains.",
+  "intended_lock_tag": "GES-P02-v1.0.0"
+}

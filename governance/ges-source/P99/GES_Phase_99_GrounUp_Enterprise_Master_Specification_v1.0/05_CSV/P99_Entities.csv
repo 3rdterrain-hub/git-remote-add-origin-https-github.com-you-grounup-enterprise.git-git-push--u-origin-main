@@ -1,0 +1,17 @@
+entity,primary_key,purpose
+MasterSpecification,master_specification_id,Phase 99 release identity/version
+IncorporatedPhase,incorporated_phase_id,Phase 01-32 source package provenance
+IncorporatedRequirement,incorporated_requirement_id,Reference to original governed requirement ID
+IncorporatedTest,incorporated_test_id,Reference to original governed test ID
+MasterDependency,master_dependency_id,Directed dependency relationship
+ImplementationWave,implementation_wave_id,Dependency-aware engineering wave
+AuthorityRule,authority_rule_id,Source-of-truth/precedence rule
+ArchitectureDecision,architecture_decision_id,ADR record/reference
+RequirementImplementationLink,implementation_link_id,Requirement-to-code/config linkage
+RequirementEvidenceLink,evidence_link_id,Requirement/test-to-evidence linkage
+MasterChangeRequest,master_change_request_id,Governed specification change
+MasterException,master_exception_id,Approved exception/risk linkage
+ReleaseBaseline,release_baseline_id,Exact source/code/config/migration scope
+ReleaseGate,release_gate_id,Master release quality gate
+MasterManifestEntry,manifest_entry_id,File hash/provenance entry
+CertificationBoundary,certification_boundary_id,Repository/product certification status boundary

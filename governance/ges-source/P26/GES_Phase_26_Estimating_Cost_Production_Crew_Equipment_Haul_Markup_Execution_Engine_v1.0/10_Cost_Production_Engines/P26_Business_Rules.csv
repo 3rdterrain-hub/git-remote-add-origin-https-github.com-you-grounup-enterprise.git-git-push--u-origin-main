@@ -1,0 +1,26 @@
+rule_id,name,rule,severity
+P26-BR-001,Snapshot required,Every reproducible estimate calculation references a Phase 25 library snapshot or explicit immutable record versions.,Blocking
+P26-BR-002,Direct cost rollup,Direct cost = labor + equipment + fuel where separated + material + subcontract + trucking/haul + disposal + approved direct mobilization/other direct cost.,Blocking
+P26-BR-003,Production duration,Base duration hours = work quantity / production rate when units are compatible; modifiers adjust the governing production or duration according to configured method.,Blocking
+P26-BR-004,Crew labor hours,Labor hours = duration hours × summed crew member counts unless resource scheduling rule specifies otherwise.,Blocking
+P26-BR-005,Equipment hours,"Equipment runtime hours derive from equipment participation duration/utilization, not automatically equal to total project duration.",Blocking
+P26-BR-006,Equipment rate selection,Hourly/daily/weekly/monthly equipment rates are selected using configured rental/ownership rate policy; do not linearly infer rates unless policy permits.,Blocking
+P26-BR-007,Fuel quantity,Fuel quantity = configured consumption rate × runtime hours × applicable utilization/load factor when defined.,Blocking
+P26-BR-008,Truck cycle,Truck cycle = load + outbound haul + dump/queue + return + configured delays.,Blocking
+P26-BR-009,Truck count balance,"Required truck count is based on loader/source production, truck payload and cycle time, rounded according to configured dispatch policy.",Blocking
+P26-BR-010,Trip count,"Trips = haul quantity / effective truck payload, rounded up for discrete loads unless partial-load policy permits otherwise.",Blocking
+P26-BR-011,Haul cost modes,Haul cost supports cycle/trip-based and hourly modes; shortcut methods are not substituted when trip-based calculation is configured.,Blocking
+P26-BR-012,Disposal conversion,Disposal tonnage requires approved density/conversion when source quantity is volumetric.,Blocking
+P26-BR-013,Material quantity,Purchase quantity = installed quantity × (1 + waste factor) unless an approved alternate formula applies.,Blocking
+P26-BR-014,Regional factor,Regional/location factors apply only to configured cost categories and do not double-adjust explicit vendor/custom quotes.,Blocking
+P26-BR-015,Markup sequencing,Markup calculations preserve configured parallel/stacked basis and step order; the engine does not silently change method.,Blocking
+P26-BR-016,O&P trace,Overhead and profit are separate governed components even when presented as a combined percentage.,Blocking
+P26-BR-017,Contingency basis,Contingency basis and exclusions are explicit and versioned.,Blocking
+P26-BR-018,Unit sell price,Unit sell price = sell total / priced quantity for nonzero quantity with controlled rounding.,Blocking
+P26-BR-019,Low/base/high,"Low/base/high ranges are scenario outputs from explicit assumptions, not arbitrary percentage padding unless configured.",Blocking
+P26-BR-020,Override audit,"Manual overrides require reason, actor, prior value, new value, scope and audit evidence.",Blocking
+P26-BR-021,AI advisory,"AI may recommend service mapping, assumptions, risks or crew/equipment alternatives but cannot silently mutate or approve estimate values.",Blocking
+P26-BR-022,Service writeback,"A new service created during estimating becomes a Phase 25 writeback proposal/draft through governed approval, not an untracked local label.",Blocking
+P26-BR-023,Estimate freeze,Approved/frozen estimate versions are immutable; revision creates a new version.,Blocking
+P26-BR-024,Calculation trace,"Every engine result preserves inputs, formula/rule ID, library versions, units, rounding and output.",Blocking
+P26-BR-025,Job baseline,Job-cost/project handoff references the exact approved estimate version and snapshot.,Blocking

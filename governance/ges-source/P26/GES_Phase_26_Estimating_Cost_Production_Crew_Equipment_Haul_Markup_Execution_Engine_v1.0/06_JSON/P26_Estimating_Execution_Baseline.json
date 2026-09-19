@@ -1,0 +1,37 @@
+{
+  "phase": "26",
+  "name": "Estimating, Cost, Production, Crew/Equipment, Haul/Disposal, Markup & Execution Engine",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase25": {
+    "requirements": 400,
+    "modules": 24,
+    "entities": 34,
+    "apis": 27,
+    "events": 15,
+    "business_rules": 18,
+    "security_controls": 12,
+    "quality_gates": 12
+  },
+  "counts": {
+    "requirements": 450,
+    "tests": 450,
+    "modules": 30,
+    "entities": 40,
+    "apis": 30,
+    "events": 19,
+    "business_rules": 25,
+    "formulas": 20,
+    "security_controls": 12,
+    "quality_gates": 14
+  },
+  "calculation_principles": [
+    "Deterministic, traceable formulas",
+    "Immutable Phase 25 library snapshots",
+    "Trip-based haul supported as first-class method",
+    "Crew and equipment production integrated",
+    "Markup basis/order explicit",
+    "AI advisory only",
+    "Approved estimator-created services write back through Phase 25 governance"
+  ]
+}

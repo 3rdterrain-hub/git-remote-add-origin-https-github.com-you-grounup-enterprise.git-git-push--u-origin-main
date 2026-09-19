@@ -1,0 +1,21 @@
+control_id,name,verification,status
+P28-SEC-001,Authentication enforcement,Protected endpoints reject unauthenticated/invalid/expired/revoked credentials.,Required
+P28-SEC-002,MFA enforcement,Configured privileged/high-risk actions require valid step-up/MFA state.,Required
+P28-SEC-003,RBAC/ABAC default deny,Policy unit and integration tests include deny cases and no-policy cases.,Required
+P28-SEC-004,Tenant negative tests,Tenant A cannot read/write/search/export/AI-retrieve Tenant B protected records.,Required
+P28-SEC-005,Privilege escalation tests,Users cannot self-assign or escalate roles outside authority.,Required
+P28-SEC-006,Service identity rotation,Expired/revoked service credentials fail; rotation evidence is recorded.,Required
+P28-SEC-007,Secrets scan,Repository/pipeline scanning blocks committed credentials/private keys.,Required
+P28-SEC-008,Dependency vulnerability gate,Critical/high findings follow approved remediation/exception policy.,Required
+P28-SEC-009,Container/IaC security gate,Container and infrastructure checks pass approved security policy.,Required
+P28-SEC-010,File malware/format validation,Untrusted upload benchmark files are quarantined/rejected appropriately.,Required
+P28-SEC-011,Injection protection,SQL/command/template/path/header injection benchmark cases are blocked/encoded.,Required
+P28-SEC-012,Prompt injection protection,AI retrieved-content adversarial cases cannot alter trusted policies/tools.,Required
+P28-SEC-013,Rate/replay protection,Sensitive APIs enforce configured throttling/replay/idempotency controls.,Required
+P28-SEC-014,Audit tamper test,Ordinary users cannot alter/delete protected audit records.,Required
+P28-SEC-015,Search leakage test,Unauthorized search results/snippets/counts are not exposed.,Required
+P28-SEC-016,Encryption validation,Approved TLS/encryption/key policy is verifiable in deployed environments.,Required
+P28-SEC-017,Access review test,Review decisions revoke/retain access exactly as approved.,Required
+P28-SEC-018,SoD test,Incompatible role/action combinations trigger configured deny/review.,Required
+P28-SEC-019,Incident kill controls,Authorized operators can disable compromised credentials/integrations/AI capabilities quickly.,Required
+P28-SEC-020,Backup/restore security,"Restore preserves tenant isolation, encryption and access policy.",Required

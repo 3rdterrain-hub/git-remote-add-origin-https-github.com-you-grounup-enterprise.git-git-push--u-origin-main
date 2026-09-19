@@ -1,0 +1,238 @@
+{
+  "phase": "08",
+  "title": "Enterprise CRM, Sales & Customer Experience Platform",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "proposed_lock_tag": "GES-P08-v1.0.0",
+  "counts": {
+    "requirements": 180,
+    "entities": 72,
+    "business_rules": 24,
+    "validation_rules": 24,
+    "workflows": 15,
+    "engines": 20,
+    "api_endpoints": 24,
+    "ui_surfaces": 12,
+    "reports": 12,
+    "kpis": 20,
+    "test_cases": 180
+  },
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "size_bytes": 869,
+      "sha256": "275876effbe286c7a99e2eae6e6de294b734dbb646c5952d734e01b8461043c3"
+    },
+    {
+      "path": "02_Word/GES-P08-001-Enterprise_CRM_Sales_Customer_Experience.docx",
+      "size_bytes": 53198,
+      "sha256": "1365a5faf9122e0a28cc5d11bdf7ef3331059d3d7b0de86c2ae8daf30dad6d3b"
+    },
+    {
+      "path": "03_PDF/GES-P08-001-Enterprise_CRM_Sales_Customer_Experience.pdf",
+      "size_bytes": 20690,
+      "sha256": "8fc3819a6c1917b2b78da055d8de106330841b53f0b1bcc5c28be08236898608"
+    },
+    {
+      "path": "04_Excel/GES-P08-001-Enterprise_CRM_Sales_Customer_Experience_Control_Workbook.xlsx",
+      "size_bytes": 46462,
+      "sha256": "85f1e809ad04ee8098ecd478f27634de0189e0fb6e5c5e84f55d66e2e5190f61"
+    },
+    {
+      "path": "05_CSV/P08_API_Endpoints.csv",
+      "size_bytes": 1654,
+      "sha256": "d03079c83a419632a8af0aa4792922553154ce4e543339e19e920962dd422edc"
+    },
+    {
+      "path": "05_CSV/P08_Business_Rules.csv",
+      "size_bytes": 2949,
+      "sha256": "0b1fc44a719a2a55e006e5c791e9c99ca65f3130f68c4223c63895f40c6fcba7"
+    },
+    {
+      "path": "05_CSV/P08_Data_Dictionary.csv",
+      "size_bytes": 2073,
+      "sha256": "44f08c6c0e0346b313937c4870c3f7c1e5e6fbd4cee5822c7df796da2b8194a3"
+    },
+    {
+      "path": "05_CSV/P08_Engines.csv",
+      "size_bytes": 2428,
+      "sha256": "d29bf3cc75b4b2b9f876eb9b3b28c922d026241727be76e4ff9b15220ad81eda"
+    },
+    {
+      "path": "05_CSV/P08_Entities.csv",
+      "size_bytes": 12752,
+      "sha256": "82d4cc1651df8c4678f0ea392fbd9c5d65327275b695282c0ec9e73479a15b24"
+    },
+    {
+      "path": "05_CSV/P08_KPIs.csv",
+      "size_bytes": 1963,
+      "sha256": "e1515956c5778ea3201bc2cc0147d40bb2f5ec8bc1e0b88cf024184bbda1c5f9"
+    },
+    {
+      "path": "05_CSV/P08_Reports.csv",
+      "size_bytes": 1380,
+      "sha256": "84c5c2e9207e5e6e0a6e307e6c702ce3372179c323f9e0a99b26a81f2584b73c"
+    },
+    {
+      "path": "05_CSV/P08_Requirements.csv",
+      "size_bytes": 42495,
+      "sha256": "598fb840f6a39b4b701696c3e358b8fbda1b70ae7caefe51d29fe35374aa131e"
+    },
+    {
+      "path": "05_CSV/P08_Test_Cases.csv",
+      "size_bytes": 62986,
+      "sha256": "62b5f53edbb07b353eef8b127c2147e4518ce0c7bf1de37c3c0cf49374df6f61"
+    },
+    {
+      "path": "05_CSV/P08_Traceability.csv",
+      "size_bytes": 17222,
+      "sha256": "56c594886989f970ba653b65c22ab456601b5d089685d2702a76ddf966abd1d1"
+    },
+    {
+      "path": "05_CSV/P08_UI_Surfaces.csv",
+      "size_bytes": 1408,
+      "sha256": "a3923134d4d01bd6b47f1fb477480ea465c31514cfbdd3d6c4f7419b30114045"
+    },
+    {
+      "path": "05_CSV/P08_Validation_Rules.csv",
+      "size_bytes": 2440,
+      "sha256": "aee3d0ce8730d1ccd4f02e3a59c0931e9ba3b8b6d6557e42b633fc1f6d13c73d"
+    },
+    {
+      "path": "05_CSV/P08_Workflows.csv",
+      "size_bytes": 2004,
+      "sha256": "f910fe41f9a68885be0fd1787688e2876af3a3136a8b3505ac9576b2c3606595"
+    },
+    {
+      "path": "06_JSON/customer_360_example.json",
+      "size_bytes": 664,
+      "sha256": "2be500c66c6f913d68b0bc7a48819e65d125dac215f838986e051d1023a21be7"
+    },
+    {
+      "path": "06_JSON/opportunity_schema.json",
+      "size_bytes": 1020,
+      "sha256": "43fdebd96a90ee9aecc3ab6a060c2e88a3b20a2d0ec1f866667b90c583e23166"
+    },
+    {
+      "path": "06_JSON/proposal_example.json",
+      "size_bytes": 363,
+      "sha256": "400325e697db92d735a1ba85430c0cf5ea913b9f37eb90f4280240e374b71e37"
+    },
+    {
+      "path": "07_Diagrams/CRM_Architecture.mmd",
+      "size_bytes": 463,
+      "sha256": "240ea9c8df402c7fee4083793517cb8e35eca9c66b6aa3cdb130f3e7c8152953"
+    },
+    {
+      "path": "07_Diagrams/Customer_Lifecycle_State.mmd",
+      "size_bytes": 381,
+      "sha256": "802404a8403a4dc23dd52091d2bd9d11e401b0bc0d1d8f287345054557d4f5ea"
+    },
+    {
+      "path": "07_Diagrams/Proposal_Sequence.mmd",
+      "size_bytes": 452,
+      "sha256": "ec64845c8781c6b8bf2019ca433a0f845c666a26c94f12647cf64fb9dae744f2"
+    },
+    {
+      "path": "08_Business_Rules/Business_Rules.md",
+      "size_bytes": 3146,
+      "sha256": "b5c7fb0b96c4cdba82e7525c39cebeca52829a1ca94c8c8e237bf8824e1517e4"
+    },
+    {
+      "path": "09_Validation_Rules/Validation_Rules.md",
+      "size_bytes": 2645,
+      "sha256": "abd0b3f58d8d2e3daed0051fbb96d952aff67816d0b05f3aa3d2d6c349163a40"
+    },
+    {
+      "path": "10_Data_Dictionary/P08_Data_Dictionary.csv",
+      "size_bytes": 2073,
+      "sha256": "44f08c6c0e0346b313937c4870c3f7c1e5e6fbd4cee5822c7df796da2b8194a3"
+    },
+    {
+      "path": "11_Entity_Definitions/Entity_Definitions.md",
+      "size_bytes": 10034,
+      "sha256": "0f96d4e698957fb942f0c4110171060199f85fa0b88b91093817fb7924fc41e5"
+    },
+    {
+      "path": "12_Workflows/Workflow_Specifications.md",
+      "size_bytes": 2146,
+      "sha256": "e794ca71157cad4214578ebfe3a37a43091fe50d1db61eee0579e3613092fc28"
+    },
+    {
+      "path": "13_Engines/Engine_Specifications.md",
+      "size_bytes": 2571,
+      "sha256": "13adeaf768752443930e25d699c493318307b5c9e6b88258a6bffa259c45b78b"
+    },
+    {
+      "path": "14_AI_Sales/AI_Sales_Intelligence_Specification.md",
+      "size_bytes": 699,
+      "sha256": "2f5b9d698be4bcbb0d2fc14d8701a6083072ceba62f17115e61c66c3d673d529"
+    },
+    {
+      "path": "15_API_Specifications/API_Specification.md",
+      "size_bytes": 2076,
+      "sha256": "901f40476cbae589d1395d0a43cb720ee11a99b94f783c47502e4804704e2f4d"
+    },
+    {
+      "path": "15_API_Specifications/openapi.json",
+      "size_bytes": 13531,
+      "sha256": "e9f53b0ffeb2e759091451b5d3f4cf5d6e8dcc92646e279da0b9734dcffcbb26"
+    },
+    {
+      "path": "16_UI_UX/UI_UX_Specification.md",
+      "size_bytes": 1603,
+      "sha256": "b3dcf7bc7f161c9620e506c6534b00c8789c189aa141415baa2c5b8f556e1768"
+    },
+    {
+      "path": "17_Mobile/Mobile_CRM_Specification.md",
+      "size_bytes": 430,
+      "sha256": "c38360078b0be41d0bc7b34b07fdbec5040f18a3c07a95bdebc8491d4f228f04"
+    },
+    {
+      "path": "18_Reports/Report_Definitions.md",
+      "size_bytes": 1476,
+      "sha256": "ecf786e25540a6defebee4f6ae47a9587d23cdb33936e80fb86aac7624d6f3e5"
+    },
+    {
+      "path": "19_KPIs/KPI_Library.md",
+      "size_bytes": 2129,
+      "sha256": "c027335a43939ca0ed1c74a7f1ffd51fa985bfbc3778a2bb46f85981ee235f75"
+    },
+    {
+      "path": "20_Testing/Test_Strategy.md",
+      "size_bytes": 455,
+      "sha256": "88f0bf7f485aed6872bdaae527660cc96d28117e97aeddb05cc3d30df068bb30"
+    },
+    {
+      "path": "21_Traceability/Traceability_Readme.md",
+      "size_bytes": 176,
+      "sha256": "85f7561e0b6c57e979f9d4b4ab2bf1ad5b5f8e3c9043ff98e04fe6f16a84c3f4"
+    },
+    {
+      "path": "22_Change_Log/CHANGELOG.md",
+      "size_bytes": 219,
+      "sha256": "03419f871c1d1dde4200bf3e1d9d319db7b01463b92f55def7bf3c96223df896"
+    },
+    {
+      "path": "23_Version_History/Version_History.csv",
+      "size_bytes": 114,
+      "sha256": "615683bc904b675116727c78c032060aca90578ff8fce5254db86787cfba5924"
+    },
+    {
+      "path": "24_Approval_Record/Approval_Record.md",
+      "size_bytes": 773,
+      "sha256": "cbfef3631234f01e7c0ce2b6a459b91445cc28d251148a77118cc06ec1081c71"
+    },
+    {
+      "path": "26_Examples/Example_Customer_Lifecycle.md",
+      "size_bytes": 794,
+      "sha256": "309377ec1f757acbec5bd4263adb0373cd78b9a722c2658b2ebf076321578244"
+    },
+    {
+      "path": "27_Deployment/Deployment_Guide.md",
+      "size_bytes": 605,
+      "sha256": "222a21e624579831c0597ff6d2a1ec5d738b5fc80f246d9803a4387f4ad0e97e"
+    }
+  ],
+  "file_count": 44
+}

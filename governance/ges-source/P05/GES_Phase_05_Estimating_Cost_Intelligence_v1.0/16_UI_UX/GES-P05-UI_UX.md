@@ -1,0 +1,18 @@
+# UI/UX Specification
+
+The system uses progressive disclosure, role-based workspaces, keyboard-friendly grids, accessible forms, saved views, guided workflows, inline explanations and responsive layouts. Tenant administrators may configure terminology, fields, forms, dashboards and workflows without changing the core.
+
+| ui_id | name | channel | primary_role | description |
+|---|---|---|---|---|
+| GES-P05-UI-001 | Estimate Workspace | Web | Estimator | Tree, grid, detail panel, calculation trace and AI assistant. |
+| GES-P05-UI-002 | Quick Estimate | Web/Mobile | Owner | Guided wizard for small contractors. |
+| GES-P05-UI-003 | Takeoff Studio | Web | Estimator | Document viewer, calibration, measurements, layers and revision compare. |
+| GES-P05-UI-004 | Cost Library Browser | Web | Estimator/Admin | Search, filter, compare and approve rates. |
+| GES-P05-UI-005 | Crew & Production Designer | Web | Estimator/Operations | Visual crew balance, bottleneck and duration modeling. |
+| GES-P05-UI-006 | Scenario Compare | Web | Estimator/Executive | Side-by-side cost, duration, risk and margin comparison. |
+| GES-P05-UI-007 | Estimate Review Center | Web/Tablet | Reviewer | Exceptions, assumptions, overrides, AI decisions and approvals. |
+| GES-P05-UI-008 | Field Actuals | Mobile | Foreman | Offline time, quantity, equipment, tickets, photos and notes. |
+| GES-P05-UI-009 | Configuration Studio | Web | Tenant Admin | No-code fields, forms, workflows, rules, terminology and defaults. |
+| GES-P05-UI-010 | Brand Studio | Web | Tenant/OEM Admin | Logo, theme, domain, emails, reports, portals and mobile branding. |
+| GES-P05-UI-011 | Executive Estimating Dashboard | Web | Executive | Pipeline, win rate, margin, variance, risk and estimator performance. |
+| GES-P05-UI-012 | Customer Proposal Portal | Responsive Web | Customer | Review scope, alternates, documents and electronic acceptance. |

@@ -1,0 +1,20 @@
+{
+  "phase_id": "GES-P05",
+  "name": "Estimating & Cost Intelligence Engine",
+  "version": "1.0.0",
+  "status": "REVIEW-READY",
+  "date": "2026-07-25",
+  "purpose": "Define the governed, explainable, configurable estimating and cost-intelligence platform for GrounUp SaaS, web, mobile, white-label, and OEM deployments.",
+  "principles": [
+    "Explainable by default",
+    "Configuration before customization",
+    "Tenant isolation",
+    "Role-based simplicity",
+    "Human approval for material decisions",
+    "Versioned calculations",
+    "Offline-capable field capture",
+    "API-first interoperability",
+    "White-label readiness",
+    "Auditable AI"
+  ]
+}

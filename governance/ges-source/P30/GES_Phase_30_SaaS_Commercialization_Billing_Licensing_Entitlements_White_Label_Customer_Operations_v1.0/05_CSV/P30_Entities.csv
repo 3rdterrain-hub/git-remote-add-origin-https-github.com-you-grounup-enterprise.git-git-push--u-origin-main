@@ -1,0 +1,49 @@
+entity,primary_key,purpose,scope
+Product,product_id,Sellable product family,Tenant/Platform
+SKU,sku_id,Sellable SKU/version,Tenant/Platform
+Plan,plan_id,Commercial plan identity,Tenant/Platform
+PlanVersion,plan_version_id,Immutable effective plan version,Tenant/Platform
+PlanFeature,plan_feature_id,Plan-to-feature inclusion,Tenant/Platform
+Price,price_id,Price definition,Tenant/Platform
+PriceVersion,price_version_id,Immutable effective price version,Tenant/Platform
+TenantCommercialProfile,tenant_commercial_profile_id,Tenant commercial configuration,Tenant/Platform
+BillingAccount,billing_account_id,Bill-to profile,Tenant/Platform
+Subscription,subscription_id,Tenant subscription,Tenant/Platform
+SubscriptionItem,subscription_item_id,Subscribed product/add-on,Tenant/Platform
+SubscriptionChange,subscription_change_id,Scheduled/applied plan change,Tenant/Platform
+Invoice,invoice_id,Invoice header/state,Tenant/Platform
+InvoiceLine,invoice_line_id,Invoice charge/credit line,Tenant/Platform
+Payment,payment_id,Payment state,Tenant/Platform
+CreditMemo,credit_memo_id,Credit document,Tenant/Platform
+Adjustment,adjustment_id,Governed billing adjustment,Tenant/Platform
+TaxResult,tax_result_id,Tax calculation/evidence,Tenant/Platform
+UsageEvent,usage_event_id,Idempotent metered usage input,Tenant/Platform
+UsageAggregate,usage_aggregate_id,Period usage total,Tenant/Platform
+MeterDefinition,meter_definition_id,Billable/limit usage metric,Tenant/Platform
+QuotaDefinition,quota_definition_id,Quota rule,Tenant/Platform
+QuotaState,quota_state_id,Current quota consumption/state,Tenant/Platform
+LicenseGrant,license_grant_id,License scope and validity,Tenant/Platform
+EntitlementDefinition,entitlement_definition_id,Capability/limit definition,Tenant/Platform
+EntitlementGrant,entitlement_grant_id,Effective tenant entitlement,Tenant/Platform
+SeatAssignment,seat_assignment_id,User seat assignment,Tenant/Platform
+Trial,trial_id,Trial lifecycle,Tenant/Platform
+Promotion,promotion_id,Promotion definition,Tenant/Platform
+Coupon,coupon_id,Coupon/redemption definition,Tenant/Platform
+Renewal,renewal_id,Renewal lifecycle record,Tenant/Platform
+DunningCase,dunning_case_id,Failed-payment recovery case,Tenant/Platform
+EnterpriseContract,enterprise_contract_id,Negotiated commercial agreement metadata,Tenant/Platform
+ContractOverride,contract_override_id,Approved plan/price/limit override,Tenant/Platform
+BrandProfile,brand_profile_id,White-label brand profile,Tenant/Platform
+CustomDomain,custom_domain_id,Verified tenant/reseller domain,Tenant/Platform
+CommunicationTemplate,communication_template_id,Branded customer communication,Tenant/Platform
+Partner,partner_id,Reseller/partner record,Tenant/Platform
+PartnerCustomer,partner_customer_id,Partner-to-tenant attribution,Tenant/Platform
+MarketplaceListing,marketplace_listing_id,Integration/add-on listing,Tenant/Platform
+IntegrationEntitlement,integration_entitlement_id,Tenant integration access,Tenant/Platform
+OnboardingPlan,onboarding_plan_id,Customer activation checklist,Tenant/Platform
+CustomerHealthSnapshot,customer_health_snapshot_id,Adoption/health snapshot,Tenant/Platform
+SupportPlan,support_plan_id,Support entitlement/tier,Tenant/Platform
+SupportCase,support_case_id,Customer support case,Tenant/Platform
+ServiceLevelCommitment,service_level_commitment_id,Commercial SLA/SLO commitment,Tenant/Platform
+CommercialAuditEvent,commercial_audit_event_id,Commercial audit evidence,Tenant/Platform
+CommercialIncident,commercial_incident_id,Billing/access/provisioning incident,Tenant/Platform

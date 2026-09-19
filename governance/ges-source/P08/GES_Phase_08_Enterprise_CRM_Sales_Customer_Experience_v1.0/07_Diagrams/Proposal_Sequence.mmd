@@ -1,0 +1,11 @@
+sequenceDiagram
+Sales->>CRM: Request proposal from approved estimate
+CRM->>Estimating: Retrieve approved scenario
+Estimating-->>CRM: Scope, quantities, price, assumptions
+CRM->>Approval: Evaluate commercial thresholds
+Approval-->>CRM: Approved
+CRM->>Document: Generate branded proposal version
+CRM->>Customer: Issue proposal
+Customer->>Signature: Review and sign
+Signature-->>CRM: Evidence and completed artifact
+CRM->>ProjectOps: Create award handoff

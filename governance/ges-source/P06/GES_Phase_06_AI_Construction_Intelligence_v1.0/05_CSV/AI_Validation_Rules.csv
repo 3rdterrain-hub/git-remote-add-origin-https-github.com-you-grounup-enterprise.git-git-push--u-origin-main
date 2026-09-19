@@ -1,0 +1,21 @@
+Rule_ID,Rule_Name,Validation
+AI-VR-001,Agent ID uniqueness,Agent identifiers must be globally unique within the registry.
+AI-VR-002,Prompt checksum,Every prompt version must store an immutable checksum.
+AI-VR-003,Citation validity,Citations must resolve to an authorized source and stable locator.
+AI-VR-004,Confidence range,Confidence values must be between 0 and 1.
+AI-VR-005,Approval identity,"Approvals must capture actor, timestamp, decision, scope, and version."
+AI-VR-006,Tool allowlist,Tool calls must match the agent deployment allowlist.
+AI-VR-007,Tenant scope,Every AI record must include tenant scope unless explicitly global.
+AI-VR-008,Model status,Only approved active model profiles may serve production traffic.
+AI-VR-009,Evaluation completeness,Required evaluation cases must complete before promotion.
+AI-VR-010,Retention date,Retention or deletion dates must be computable for governed records.
+AI-VR-011,Unit consistency,Quantitative AI outputs must include canonical unit codes.
+AI-VR-012,Schema conformity,Structured outputs must validate against the assigned JSON schema.
+AI-VR-013,Memory sensitivity,Sensitive content cannot be stored in long-term memory without policy authorization.
+AI-VR-014,Version dependency,"Agent deployments must pin prompt, policy, model, and tool versions."
+AI-VR-015,Rollback target,A production deployment must identify a valid rollback target.
+AI-VR-016,Marketplace signature,Published packages must be signed and checksum verified.
+AI-VR-017,Cost limit,Requests exceeding tenant cost limits must be rejected or routed for approval.
+AI-VR-018,PII masking,Configured sensitive fields must be masked before external model transmission.
+AI-VR-019,Incident severity,AI incidents must use an approved severity value.
+AI-VR-020,Audit immutability,AI audit events must be append-only and tamper-evident.

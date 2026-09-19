@@ -1,0 +1,31 @@
+module_id,name,layer,purpose
+P26-MOD-001,Estimate Service,Domain,"Estimate header, lifecycle, versions, ownership, status and approval"
+P26-MOD-002,Estimate Line Service,Domain,"Service/line-item selection, quantities, units, notes and source evidence"
+P26-MOD-003,Assembly Expansion Engine,Engine,Expand versioned assemblies into estimate resource components
+P26-MOD-004,Library Snapshot Resolver,Engine,Resolve immutable Phase 25 library snapshot/version inputs
+P26-MOD-005,Quantity Engine,Engine,Normalize input/takeoff quantities and approved unit conversions
+P26-MOD-006,Production Engine,Engine,Determine base production and modifiers for task/scenario
+P26-MOD-007,Crew Engine,Engine,"Resolve crew composition, crew size, labor hours and crew alternatives"
+P26-MOD-008,Labor Cost Engine,Engine,Base labor + burden + overtime/shift rules where configured
+P26-MOD-009,Equipment Selection Engine,Engine,Select compatible equipment class/model options for work
+P26-MOD-010,Equipment Cost Engine,Engine,Apply hourly/daily/weekly/monthly rate policy to required duration
+P26-MOD-011,Fuel Engine,Engine,Estimate fuel quantity/cost from configured consumption and runtime assumptions
+P26-MOD-012,Truck Cycle Engine,Engine,Load/haul/dump/return cycle model with capacity and delays
+P26-MOD-013,Truck Count Engine,Engine,Determine truck count required to balance source/placement production
+P26-MOD-014,Haul Cost Engine,Engine,Trip/hour/load-based hauling cost with distance and cycle evidence
+P26-MOD-015,Disposal Engine,Engine,Disposal quantity/fee/tonnage and facility/source logic
+P26-MOD-016,Material Cost Engine,Engine,"Material quantity, waste, price, freight/source and unit conversion"
+P26-MOD-017,Subcontract Cost Engine,Engine,Subcontract quantity/rate/quote resolution
+P26-MOD-018,Duration Engine,Engine,Work quantity divided by governing production adjusted for shifts/calendars
+P26-MOD-019,Mobilization Engine,Engine,Equipment/crew mobilization and demobilization cost/time
+P26-MOD-020,Indirect Cost Engine,Engine,Project-specific indirect/general-condition allocation
+P26-MOD-021,Regionalization Engine,Engine,Apply allowed regional/location profile factors without double adjustment
+P26-MOD-022,Markup Engine,Engine,"Configured markup sequence, overhead, profit, contingency and exclusions"
+P26-MOD-023,Tax & Bond Engine,Engine,Configured tax/bond treatment and calculation basis
+P26-MOD-024,Unit Price Engine,Engine,Calculate sell unit price from total sell amount and quantity
+P26-MOD-025,Scenario Engine,Engine,Low/base/high and alternate crew/equipment/haul/shift comparisons
+P26-MOD-026,Confidence Engine,Engine,Input completeness/source age/override/review confidence scoring
+P26-MOD-027,AI Estimate Assist,AI,Suggest mappings/assumptions/risks with evidence; never silently changes approved estimate
+P26-MOD-028,Estimate Review Workflow,Governance,"Review, approval, exceptions and estimate freeze"
+P26-MOD-029,Service Catalog Writeback,Integration,Approved new service/assembly definitions written to Phase 25 catalog
+P26-MOD-030,Estimate Baseline Export,Integration,Proposal/job-cost/schedule/project handoff with immutable estimate baseline

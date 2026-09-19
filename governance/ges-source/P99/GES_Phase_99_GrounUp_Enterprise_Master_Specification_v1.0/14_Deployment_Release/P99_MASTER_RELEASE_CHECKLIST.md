@@ -1,0 +1,15 @@
+# Phase 99 Master Release Checklist
+- Exact governed master baseline/version identified
+- Source phase ZIP hashes verified
+- Requirement/test registries loaded
+- Dependencies/build waves reviewed
+- ADRs approved for provider bindings
+- Required security/tenant tests pass
+- Deterministic calculation golden tests pass
+- API/event/schema compatibility reviewed
+- Migrations tested
+- Observability/runbooks ready
+- Backup/restore/DR gates pass where required
+- UAT/pilot/migration/cutover gates executed under Phase 32 before product certification
+- Final release artifact/configuration/migration scope recorded
+- Evidence package and authorized approvals complete

@@ -1,0 +1,86 @@
+[
+  {
+    "ui_id": "GES-P05-UI-001",
+    "name": "Estimate Workspace",
+    "channel": "Web",
+    "primary_role": "Estimator",
+    "description": "Tree, grid, detail panel, calculation trace and AI assistant."
+  },
+  {
+    "ui_id": "GES-P05-UI-002",
+    "name": "Quick Estimate",
+    "channel": "Web/Mobile",
+    "primary_role": "Owner",
+    "description": "Guided wizard for small contractors."
+  },
+  {
+    "ui_id": "GES-P05-UI-003",
+    "name": "Takeoff Studio",
+    "channel": "Web",
+    "primary_role": "Estimator",
+    "description": "Document viewer, calibration, measurements, layers and revision compare."
+  },
+  {
+    "ui_id": "GES-P05-UI-004",
+    "name": "Cost Library Browser",
+    "channel": "Web",
+    "primary_role": "Estimator/Admin",
+    "description": "Search, filter, compare and approve rates."
+  },
+  {
+    "ui_id": "GES-P05-UI-005",
+    "name": "Crew & Production Designer",
+    "channel": "Web",
+    "primary_role": "Estimator/Operations",
+    "description": "Visual crew balance, bottleneck and duration modeling."
+  },
+  {
+    "ui_id": "GES-P05-UI-006",
+    "name": "Scenario Compare",
+    "channel": "Web",
+    "primary_role": "Estimator/Executive",
+    "description": "Side-by-side cost, duration, risk and margin comparison."
+  },
+  {
+    "ui_id": "GES-P05-UI-007",
+    "name": "Estimate Review Center",
+    "channel": "Web/Tablet",
+    "primary_role": "Reviewer",
+    "description": "Exceptions, assumptions, overrides, AI decisions and approvals."
+  },
+  {
+    "ui_id": "GES-P05-UI-008",
+    "name": "Field Actuals",
+    "channel": "Mobile",
+    "primary_role": "Foreman",
+    "description": "Offline time, quantity, equipment, tickets, photos and notes."
+  },
+  {
+    "ui_id": "GES-P05-UI-009",
+    "name": "Configuration Studio",
+    "channel": "Web",
+    "primary_role": "Tenant Admin",
+    "description": "No-code fields, forms, workflows, rules, terminology and defaults."
+  },
+  {
+    "ui_id": "GES-P05-UI-010",
+    "name": "Brand Studio",
+    "channel": "Web",
+    "primary_role": "Tenant/OEM Admin",
+    "description": "Logo, theme, domain, emails, reports, portals and mobile branding."
+  },
+  {
+    "ui_id": "GES-P05-UI-011",
+    "name": "Executive Estimating Dashboard",
+    "channel": "Web",
+    "primary_role": "Executive",
+    "description": "Pipeline, win rate, margin, variance, risk and estimator performance."
+  },
+  {
+    "ui_id": "GES-P05-UI-012",
+    "name": "Customer Proposal Portal",
+    "channel": "Responsive Web",
+    "primary_role": "Customer",
+    "description": "Review scope, alternates, documents and electronic acceptance."
+  }
+]

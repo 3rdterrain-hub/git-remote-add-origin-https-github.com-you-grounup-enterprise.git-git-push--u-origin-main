@@ -1,0 +1,14 @@
+flowchart LR
+ Identity[Identity Events] --> SIEM[Security Telemetry Pipeline]
+ API[API/App Events] --> SIEM
+ AI[AI Security Events] --> SIEM
+ Infra[Infrastructure/Runtime] --> SIEM
+ Vuln[Vulnerability Findings] --> SIEM
+ SIEM --> Detect[Detection Rules / Anomaly]
+ Detect --> Alerts[Security Alerts]
+ Alerts --> Triage[Triage]
+ Triage --> Incident[Security Incident]
+ Incident --> Contain[Contain / Revoke / Disable]
+ Contain --> Recover[Recover / Restore / Rotate]
+ Recover --> RCA[Root Cause / Corrective Actions]
+ RCA --> Controls[Policy / Detection / SDLC Updates]

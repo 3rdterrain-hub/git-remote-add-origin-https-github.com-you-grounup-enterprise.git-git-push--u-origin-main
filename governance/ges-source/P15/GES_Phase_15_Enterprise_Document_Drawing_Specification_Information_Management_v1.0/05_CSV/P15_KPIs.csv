@@ -1,0 +1,46 @@
+kpi_id,name,domain,definition,cadence,governance
+P15-KPI-001,Current Document Compliance,Document Control,Governed metric definition for Current Document Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-002,Current Drawing Set Compliance,Drawing Management,Governed metric definition for Current Drawing Set Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-003,Metadata Completeness,Specification Management,Governed metric definition for Metadata Completeness.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-004,Revision Processing Time,Submittals,Governed metric definition for Revision Processing Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-005,Review Cycle Time,RFIs,Governed metric definition for Review Cycle Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-006,Approval Cycle Time,Transmittals & Distribution,Governed metric definition for Approval Cycle Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-007,Submittal On-Time %,Correspondence & Records,Governed metric definition for Submittal On-Time %.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-008,Submittal Review Cycle Time,Version & Revision Control,Governed metric definition for Submittal Review Cycle Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-009,RFI Response Time,Markup & Review,Governed metric definition for RFI Response Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-010,Open RFI Aging,OCR & Content Extraction,Governed metric definition for Open RFI Aging.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-011,Transmittal Acknowledgement %,Plan & Spec Intelligence,Governed metric definition for Transmittal Acknowledgement %.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-012,Distribution Accuracy,Document Search & Retrieval,Governed metric definition for Distribution Accuracy.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-013,Markup Resolution Time,Records Retention & Legal Hold,Governed metric definition for Markup Resolution Time.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-014,Superseded Copy Exposure,External Collaboration,Governed metric definition for Superseded Copy Exposure.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-015,External Share Compliance,Field Document Access,Governed metric definition for External Share Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-016,Legal Hold Compliance,BIM/CDE Coordination,Governed metric definition for Legal Hold Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-017,Retention Disposition Compliance,Closeout & Turnover,Governed metric definition for Retention Disposition Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-018,OCR Success Rate,Document Intelligence Digital Twin,Governed metric definition for OCR Success Rate.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-019,Classification Accuracy,Document Control,Governed metric definition for Classification Accuracy.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-020,Metadata Proposal Acceptance,Drawing Management,Governed metric definition for Metadata Proposal Acceptance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-021,Search Success Rate,Specification Management,Governed metric definition for Search Success Rate.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-022,Search Time to Document,Submittals,Governed metric definition for Search Time to Document.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-023,Document Download Volume,RFIs,Governed metric definition for Document Download Volume.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-024,Mobile Current-Set Sync,Transmittals & Distribution,Governed metric definition for Mobile Current-Set Sync.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-025,Offline Sync Success,Correspondence & Records,Governed metric definition for Offline Sync Success.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-026,Drawing Compare Usage,Version & Revision Control,Governed metric definition for Drawing Compare Usage.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-027,Specification Compare Usage,Markup & Review,Governed metric definition for Specification Compare Usage.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-028,Conflict Finding Closure,OCR & Content Extraction,Governed metric definition for Conflict Finding Closure.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-029,Cross-Reference Finding Closure,Plan & Spec Intelligence,Governed metric definition for Cross-Reference Finding Closure.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-030,Closeout Completeness,Document Search & Retrieval,Governed metric definition for Closeout Completeness.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-031,As-Built Completion,Records Retention & Legal Hold,Governed metric definition for As-Built Completion.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-032,O&M Manual Completion,External Collaboration,Governed metric definition for O&M Manual Completion.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-033,Turnover Acceptance,Field Document Access,Governed metric definition for Turnover Acceptance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-034,Document Audit Exceptions,BIM/CDE Coordination,Governed metric definition for Document Audit Exceptions.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-035,Permission Exceptions,Closeout & Turnover,Governed metric definition for Permission Exceptions.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-036,Controlled Copy Compliance,Document Intelligence Digital Twin,Governed metric definition for Controlled Copy Compliance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-037,Revision Impact Review Completion,Document Control,Governed metric definition for Revision Impact Review Completion.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-038,Document Alert Closure,Drawing Management,Governed metric definition for Document Alert Closure.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-039,AI Extraction Acceptance,Specification Management,Governed metric definition for AI Extraction Acceptance.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-040,AI Answer Evidence Coverage,Submittals,Governed metric definition for AI Answer Evidence Coverage.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-041,AI Confidence Review Rate,RFIs,Governed metric definition for AI Confidence Review Rate.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-042,Document Digital Twin Freshness,Transmittals & Distribution,Governed metric definition for Document Digital Twin Freshness.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-043,Document Storage Growth,Correspondence & Records,Governed metric definition for Document Storage Growth.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-044,Information Workflow SLA,Version & Revision Control,Governed metric definition for Information Workflow SLA.,Daily/Weekly/Monthly,Certified semantic definition and owner required
+P15-KPI-045,Information Management Adoption,Markup & Review,Governed metric definition for Information Management Adoption.,Daily/Weekly/Monthly,Certified semantic definition and owner required

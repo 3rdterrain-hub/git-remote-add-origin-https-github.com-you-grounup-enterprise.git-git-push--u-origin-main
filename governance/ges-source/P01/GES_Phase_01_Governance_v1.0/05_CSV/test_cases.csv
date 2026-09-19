@@ -1,0 +1,16 @@
+﻿Test_ID,Requirement_ID,Scenario,Preconditions,Steps,Expected_Result,Status
+TEST-P01-001,GOV-000001,Cross-tenant isolation,Two active tenants and users,Attempt to read tenant B record as tenant A user,Request denied and audit event recorded,Planned
+TEST-P01-002,GOV-000003,Permission grant,Active user and role,Assign role with project-scoped permission,Authorized project action succeeds; other projects remain denied,Planned
+TEST-P01-003,GOV-000005,Segregation of duties,Dual-control approval policy,Requester attempts self-approval,Approval blocked with conflict reason,Planned
+TEST-P01-004,GOV-000006,User suspension,Active user with sessions,Suspend user,All sessions revoked; sign-in blocked; history retained,Planned
+TEST-P01-005,GOV-000008,Policy overlap,Existing active version,Activate overlapping version,Activation blocked until replacement transaction resolves overlap,Planned
+TEST-P01-006,GOV-000009,Configuration precedence,"Values at tenant, company, and project",Resolve effective project value,Highest authorized active layer returned with source lineage,Planned
+TEST-P01-007,GOV-000010,Approval routing,Amount and risk-based policy,Submit qualifying request,Correct stages and eligible approvers generated,Planned
+TEST-P01-008,GOV-000012,Audit completeness,Material admin change,Change a role assignment,"Audit event includes actor, action, object, time, before/after reference, correlation",Planned
+TEST-P01-009,GOV-000014,Legal hold,Expired retention and active hold,Run disposition,Purge suppressed and exception logged,Planned
+TEST-P01-010,GOV-000016,Locked baseline change,Locked policy version,Attempt direct edit,Edit rejected; change request path offered,Planned
+TEST-P01-011,GOV-000017,AI authorization,AI agent lacks permission,Agent attempts protected action,Action denied and agent/tool audit event recorded,Planned
+TEST-P01-012,GOV-000018,AI proposal approval,Material AI record change,Submit proposal and approve,Writeback occurs only after approval and preserves evidence,Planned
+TEST-P01-013,GOV-000020,Break-glass expiry,Approved 30-minute grant,Wait beyond expiration,Access automatically revoked and review case opened,Planned
+TEST-P01-014,GOV-000022,Tenant provisioning,Valid tenant template,Provision tenant,"Tenant, owner, defaults, entitlements, and validation report created",Planned
+TEST-P01-015,GOV-000023,Entitlement expiration,Expired feature entitlement,Start new feature workflow,New use blocked; historical records remain readable per policy,Planned

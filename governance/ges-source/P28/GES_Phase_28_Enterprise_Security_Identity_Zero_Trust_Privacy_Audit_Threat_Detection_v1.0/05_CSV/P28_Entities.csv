@@ -1,0 +1,49 @@
+entity,primary_key,purpose,scope
+SecurityPolicy,security_policy_id,Versioned security policy,Platform/Tenant
+SecurityPolicyVersion,security_policy_version_id,Immutable policy version,Platform/Tenant
+Identity,identity_id,Human identity,Tenant/Platform
+IdentityProviderLink,idp_link_id,External identity mapping,Tenant
+MFAEnrollment,mfa_enrollment_id,MFA method/enrollment state,Tenant
+TenantMembership,membership_id,Identity tenant membership,Tenant
+Role,role_id,RBAC role,Tenant/Platform
+Permission,permission_id,Atomic permission/action,Platform
+RolePermission,role_permission_id,Role permission binding,Tenant/Platform
+RoleAssignment,role_assignment_id,Identity/service role assignment,Tenant
+AttributePolicy,attribute_policy_id,ABAC policy,Tenant/Platform
+PolicyDecision,policy_decision_id,Allow/deny decision evidence,Tenant
+PrivilegedElevation,elevation_id,Temporary privileged access,Tenant/Platform
+ServiceIdentity,service_identity_id,Service/machine identity,Tenant/Platform
+CredentialReference,credential_reference_id,Secret/key/cert reference metadata,Tenant/Platform
+Session,session_id,Authenticated session context,Tenant
+DeviceContext,device_context_id,Device/risk posture metadata,Tenant
+DataClassification,classification_id,Data classification definition,Platform
+DataClassificationAssignment,classification_assignment_id,Resource classification label,Tenant
+PrivacyPurpose,privacy_purpose_id,Approved processing purpose,Platform/Tenant
+RetentionRule,retention_rule_id,Retention/deletion policy,Platform/Tenant
+DeletionRequest,deletion_request_id,Governed deletion workflow,Tenant
+KeyReference,key_reference_id,Encryption key metadata,Platform/Tenant
+KeyRotation,key_rotation_id,Key rotation evidence,Platform/Tenant
+SecretReference,secret_reference_id,Secret metadata/owner/rotation,Platform/Tenant
+Certificate,certificate_id,Certificate inventory record,Platform/Tenant
+SecurityFinding,security_finding_id,Vulnerability/security finding,Platform/Tenant
+Vulnerability,vulnerability_id,Vulnerability record,Platform/Tenant
+VulnerabilityException,vulnerability_exception_id,Approved risk exception,Platform/Tenant
+ThreatModel,threat_model_id,Threat model,Platform/Tenant
+Threat,threat_id,Threat scenario,Platform/Tenant
+Mitigation,mitigation_id,Threat mitigation/control,Platform/Tenant
+AttackSurfaceAsset,attack_surface_asset_id,Exposed asset inventory,Platform/Tenant
+SecurityEvent,security_event_id,Normalized security telemetry event,Tenant/Platform
+DetectionRule,detection_rule_id,Threat detection rule,Platform/Tenant
+SecurityAlert,security_alert_id,Security alert,Tenant/Platform
+SecurityIncident,security_incident_id,Security incident,Tenant/Platform
+IncidentTimeline,incident_timeline_id,Incident chronology,Tenant/Platform
+ForensicArtifact,forensic_artifact_id,Preserved evidence artifact,Tenant/Platform
+AccessReview,access_review_id,Periodic access certification,Tenant/Platform
+AccessReviewItem,access_review_item_id,Individual access review decision,Tenant/Platform
+SoDRule,sod_rule_id,Segregation-of-duties rule,Tenant/Platform
+SoDViolation,sod_violation_id,Detected incompatible access/action,Tenant/Platform
+ComplianceControl,compliance_control_id,Control definition/mapping,Platform/Tenant
+ControlEvidence,control_evidence_id,Compliance/security evidence,Platform/Tenant
+PolicyAttestation,policy_attestation_id,Policy acknowledgment/attestation,Tenant/Platform
+SecurityException,security_exception_id,Approved security exception,Tenant/Platform
+SecurityMetric,security_metric_id,Security KPI result,Platform/Tenant

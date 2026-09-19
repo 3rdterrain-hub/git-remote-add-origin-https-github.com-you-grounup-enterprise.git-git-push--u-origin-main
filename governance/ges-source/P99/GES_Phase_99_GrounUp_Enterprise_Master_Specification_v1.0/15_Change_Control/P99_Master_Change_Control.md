@@ -1,0 +1,2 @@
+# Master Change Control
+Source phase ZIPs are immutable. Corrections create a new package version and new source hash. Requirement IDs stay stable; semantic changes require change evidence. Dependency changes require impact review. Production releases reference exact code artifact digest, config version, migration version and GES baseline. Emergency changes are reconciled into governed source/code/config after stabilization.

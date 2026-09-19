@@ -1,0 +1,64 @@
+# Canonical Entity Definitions
+
+| Entity ID | Entity | Definition |
+| --- | --- | --- |
+| P07-ENT-001 | Project | Core project identity, hierarchy, organization, location, lifecycle, and governance |
+| P07-ENT-002 | ProjectPhase | Governed project lifecycle phase and gate status |
+| P07-ENT-003 | ProjectParticipant | Internal or external stakeholder role and access |
+| P07-ENT-004 | ProjectRoleAssignment | Time-bounded role assignment for a project |
+| P07-ENT-005 | ProjectCalendar | Working calendars, holidays, shifts, and exceptions |
+| P07-ENT-006 | WBSNode | Work breakdown structure node |
+| P07-ENT-007 | CostCode | Project cost classification mapped to master registry |
+| P07-ENT-008 | BudgetLine | Original, revised, committed, actual, forecast, and variance values |
+| P07-ENT-009 | BudgetRevision | Approved budget transfer or change |
+| P07-ENT-010 | Schedule | Project schedule container and version |
+| P07-ENT-011 | ScheduleBaseline | Approved schedule baseline snapshot |
+| P07-ENT-012 | ScheduleActivity | Activity, logic, dates, constraints, resources, progress |
+| P07-ENT-013 | ScheduleRelationship | Predecessor-successor dependency |
+| P07-ENT-014 | ScheduleUpdate | Periodic status date and update package |
+| P07-ENT-015 | LookAheadPlan | Near-term planning window |
+| P07-ENT-016 | Constraint | Planning constraint with owner and due date |
+| P07-ENT-017 | DailyReport | Daily field record and approval status |
+| P07-ENT-018 | DailyLaborEntry | Worker or crew hours by cost code and activity |
+| P07-ENT-019 | DailyEquipmentEntry | Equipment hours, idle time, meter, fuel, location |
+| P07-ENT-020 | ProductionEntry | Installed quantity, unit, location, operation, and source |
+| P07-ENT-021 | WeatherObservation | Observed and forecast weather relevant to project |
+| P07-ENT-022 | DeliveryRecord | Material/equipment delivery and receipt evidence |
+| P07-ENT-023 | FieldPhoto | Geotagged, timestamped, categorized project image |
+| P07-ENT-024 | VoiceNote | Transcribed field note linked to project context |
+| P07-ENT-025 | Document | Controlled document metadata and content reference |
+| P07-ENT-026 | DocumentRevision | Immutable revision, status, issue purpose, and supersession |
+| P07-ENT-027 | DrawingSheet | Drawing sheet index and revision |
+| P07-ENT-028 | RFI | Question, response, impact, dates, and responsible parties |
+| P07-ENT-029 | Submittal | Submittal package, review cycle, status, and due dates |
+| P07-ENT-030 | Meeting | Meeting record, attendees, agenda, decisions, minutes |
+| P07-ENT-031 | ActionItem | Assigned action with due date and completion evidence |
+| P07-ENT-032 | ChangeEvent | Potential or confirmed scope/cost/schedule change |
+| P07-ENT-033 | ChangeOrder | Approved contract modification |
+| P07-ENT-034 | Commitment | Purchase order, subcontract, or other committed cost |
+| P07-ENT-035 | Invoice | Vendor or subcontractor invoice |
+| P07-ENT-036 | PayApplication | Owner billing or subcontractor payment application |
+| P07-ENT-037 | RetainageRecord | Retainage earned, held, released, and balance |
+| P07-ENT-038 | ForecastSnapshot | Forecast-at-completion and cash-flow snapshot |
+| P07-ENT-039 | ResourceAssignment | Labor, crew, equipment, truck, or subcontractor assignment |
+| P07-ENT-040 | ProcurementItem | Required material/service with need-by and lead time |
+| P07-ENT-041 | Inspection | Quality or safety inspection |
+| P07-ENT-042 | Deficiency | Observed nonconformance or incomplete work |
+| P07-ENT-043 | CorrectiveAction | Required corrective action and verification |
+| P07-ENT-044 | PunchItem | Punch-list item and closeout evidence |
+| P07-ENT-045 | SafetyPlan | Project safety plan and governed revision |
+| P07-ENT-046 | JHA | Job hazard analysis or task plan |
+| P07-ENT-047 | ToolboxTalk | Safety talk, attendees, topic, and acknowledgement |
+| P07-ENT-048 | Incident | Safety, environmental, property, or quality incident |
+| P07-ENT-049 | Permit | Permit, authority, status, conditions, and expiration |
+| P07-ENT-050 | CloseoutPackage | Required closeout deliverables and acceptance |
+| P07-ENT-051 | WarrantyItem | Warranty obligation, dates, issue, and resolution |
+| P07-ENT-052 | DigitalTwinSnapshot | Time-stamped project operational state |
+| P07-ENT-053 | RiskItem | Project risk, probability, impact, response, and owner |
+| P07-ENT-054 | Issue | Operational issue requiring resolution |
+| P07-ENT-055 | ProjectAlert | Generated alert with severity, source, evidence, and disposition |
+| P07-ENT-056 | ApprovalRequest | Governed approval request and decision history |
+| P07-ENT-057 | ExternalPortalAccess | Scoped external user access and expiration |
+| P07-ENT-058 | OfflineSyncPackage | Encrypted mobile sync package, conflicts, and resolution |
+| P07-ENT-059 | IntegrationEvent | Versioned event emitted or consumed |
+| P07-ENT-060 | AuditEvent | Immutable record of material user, system, or AI action |

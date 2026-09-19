@@ -1,0 +1,231 @@
+{
+  "package": "GES Phase 11 - Enterprise Procurement, Supply Chain & Inventory Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "lock_tag": "GES-P11-v1.0.0",
+  "counts": {
+    "requirements": 260,
+    "entities": 120,
+    "data_dictionary_fields": 160,
+    "business_rules": 45,
+    "validation_rules": 45,
+    "workflows": 24,
+    "engines": 30,
+    "apis": 36,
+    "ui_surfaces": 22,
+    "reports": 20,
+    "kpis": 35,
+    "tests": 260
+  },
+  "traceability": {
+    "requirements_mapped": 260,
+    "unique_tests": 260
+  },
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "fb0fcc8e86e8d74bb1713cee799d2b2bde8481e103393020476911499701c209",
+      "bytes": 1148
+    },
+    {
+      "path": "02_Word/GES-P11-001-Enterprise_Procurement_Supply_Chain_Inventory.docx",
+      "sha256": "78bb4c9446065ca8fa06f46330f56061ee2ec013fab455bf14f62513e33bb2b9",
+      "bytes": 45353
+    },
+    {
+      "path": "03_PDF/GES-P11-001-Enterprise_Procurement_Supply_Chain_Inventory.pdf",
+      "sha256": "e456e28bbc75ad3db8577d3b7f576c7974c47955d560174d381ff0475b034ee4",
+      "bytes": 396754
+    },
+    {
+      "path": "04_Excel/GES-P11-001-Enterprise_Procurement_Supply_Chain_Inventory_Control_Workbook.xlsx",
+      "sha256": "621929a6b6a5fe45b5e43c35ad11d241a7d57b81fe86b7496b47ff79a40ea951",
+      "bytes": 66288
+    },
+    {
+      "path": "05_CSV/P11_API_Endpoints.csv",
+      "sha256": "2a59752ac45cc3cdc56c599ec07bb2290a6390d9b4e136e47e6c2cace4a99c44",
+      "bytes": 5708
+    },
+    {
+      "path": "05_CSV/P11_Business_Rules.csv",
+      "sha256": "a86cb3a7973f62f54f8ff6be21637fa68471a8f16e0213ea27b9de495bcda7eb",
+      "bytes": 10798
+    },
+    {
+      "path": "05_CSV/P11_Data_Dictionary.csv",
+      "sha256": "56db563e1c806e21e8f821418eb0ef460d623a663cd0a27d3df3f301114fa460",
+      "bytes": 28413
+    },
+    {
+      "path": "05_CSV/P11_Engines.csv",
+      "sha256": "407e4eb36fb471c12fcf9ee9e8b5377edf039f8e4dd4b99e1dce6ffd498479d4",
+      "bytes": 7880
+    },
+    {
+      "path": "05_CSV/P11_Entities.csv",
+      "sha256": "2b158ddb80d62844c792674a38879bf9709115e3266776d3a0421e6463affae0",
+      "bytes": 23359
+    },
+    {
+      "path": "05_CSV/P11_KPIs.csv",
+      "sha256": "4984839aecf502d38f7a3c3ebb38ea2bbadac31995b85a5542b49e8d442b5d83",
+      "bytes": 5920
+    },
+    {
+      "path": "05_CSV/P11_Reports.csv",
+      "sha256": "3e961b3f09afeac730aee27cf000a820abdf941ee166710621af396a62967fc1",
+      "bytes": 4103
+    },
+    {
+      "path": "05_CSV/P11_Requirements.csv",
+      "sha256": "f04900a0175d3ab040b5e578d4d6f668830047aac998013fee60ae885630cbfa",
+      "bytes": 87892
+    },
+    {
+      "path": "05_CSV/P11_Test_Cases.csv",
+      "sha256": "c6b43c7ef82702a08204d518d1362d96846011a1907ce4a793037df475dc2225",
+      "bytes": 96918
+    },
+    {
+      "path": "05_CSV/P11_Traceability.csv",
+      "sha256": "419e18723bc1b5caf40553ab21157230a0f2c40e532c3ca8f4d851b1251b3b18",
+      "bytes": 23147
+    },
+    {
+      "path": "05_CSV/P11_UI_Surfaces.csv",
+      "sha256": "d09b2304f5a80dccda75ee1ff975cff19bee0331d66e6fdeeafb349b4f6cd588",
+      "bytes": 4026
+    },
+    {
+      "path": "05_CSV/P11_Validation_Rules.csv",
+      "sha256": "9d2053492993754111da53c1330f3bff125a2ff1b6d7998c6f4705de24c5a7f5",
+      "bytes": 8770
+    },
+    {
+      "path": "05_CSV/P11_Workflows.csv",
+      "sha256": "2c587745a20b0869b31826dba2e484c4674d42629d76c277bfe0b9777ebe2dbc",
+      "bytes": 5739
+    },
+    {
+      "path": "06_JSON/InventoryBalance.schema.json",
+      "sha256": "3e84449427e28f4e634f1880305869703db0c3fea7ff8e85f3368e251ac4cae1",
+      "bytes": 626
+    },
+    {
+      "path": "06_JSON/P11_Master_Specification.json",
+      "sha256": "217f382602c7780115ab5fe49499107ef48e965ec4bc0d7121769eeed4a2dabd",
+      "bytes": 3123
+    },
+    {
+      "path": "06_JSON/PurchaseOrder.schema.json",
+      "sha256": "d54b66139ec3b0e997f3894693400f3737e15df1a63d1a5640ec075fd961f5cf",
+      "bytes": 618
+    },
+    {
+      "path": "06_JSON/PurchaseRequisition.schema.json",
+      "sha256": "8d2f956d4f3f0e1ea52c0be7a6fedaa669977be080bf3e8a72ba8cd333399ddf",
+      "bytes": 624
+    },
+    {
+      "path": "06_JSON/Receipt.schema.json",
+      "sha256": "1be5a2fec736e47cd0278b4dcc071ea4ec43b573c41f23e10843fe785a27109e",
+      "bytes": 597
+    },
+    {
+      "path": "06_JSON/Supplier.schema.json",
+      "sha256": "4c34a3767170d5e41f018ad25b4093859fc2fd9afe706d03d68843cc2ebca915",
+      "bytes": 593
+    },
+    {
+      "path": "07_OpenAPI/P11_OpenAPI.json",
+      "sha256": "4a081cfb269dcfa1f76def610db276836929ed83adf65e1122a793d66c032070",
+      "bytes": 36110
+    },
+    {
+      "path": "08_Diagrams/P11_PO_State_Model.mmd",
+      "sha256": "316d0453ebdc0cf45737c5f15d41543e4c03901704352ff8d073f14ba3e7f2b1",
+      "bytes": 245
+    },
+    {
+      "path": "08_Diagrams/P11_Procure_to_Pay.mmd",
+      "sha256": "f2375bb8e3375f41fbf7e1dc49269e8f9aea216922cd586d56e26bf62ab5a00a",
+      "bytes": 236
+    },
+    {
+      "path": "08_Diagrams/P11_Supply_Chain_Digital_Twin.mmd",
+      "sha256": "cde9e9774b2e62e667b494f3475a71b3bf67d1dbb83b4d667918f11cb55b4f6f",
+      "bytes": 274
+    },
+    {
+      "path": "09_Business_Rules/Business_Rules.md",
+      "sha256": "edfe0d31a51589328d2e8938522ae1158bacea0712b754cdef4f4002c45d60a5",
+      "bytes": 8952
+    },
+    {
+      "path": "10_Validation_Rules/Validation_Rules.md",
+      "sha256": "73d60b49e65cf8fa2c8af30763a508c083d37c5b93ee917c528d82e112e12c1e",
+      "bytes": 6144
+    },
+    {
+      "path": "11_Data_Dictionary/Data_Dictionary.md",
+      "sha256": "0f5e9275d1d5e1a83f5b617bb7df5672a960fee53f0628546ec9cef4d37d68c7",
+      "bytes": 187
+    },
+    {
+      "path": "12_Entities/Entity_Definitions.md",
+      "sha256": "85701a7a294b9380c9db46b37ede8bff4139bf7df332645502324c72299e2551",
+      "bytes": 9374
+    },
+    {
+      "path": "13_Workflows/Workflow_Specification.md",
+      "sha256": "c9c25eb6662101a863cf4011dbc128b7d3be6abf6c08afeb2d6d9bc2b14bc83a",
+      "bytes": 4173
+    },
+    {
+      "path": "14_Engines_AI/Engine_and_AI_Specification.md",
+      "sha256": "4917c4b22ea9489342c0211c1e8620ebb42ec3f4f251ab696d84e2f01e481a61",
+      "bytes": 8085
+    },
+    {
+      "path": "15_APIs/API_Specification.md",
+      "sha256": "f892803b57c5e42fb503c926939c417b177c76d90c6683c0ef164064df77579f",
+      "bytes": 196
+    },
+    {
+      "path": "16_UI_UX/UI_UX_Specification.md",
+      "sha256": "83bfb62658b088dffca117e20d5de68feb093f6c391f697548dd70f88d5a7b34",
+      "bytes": 282
+    },
+    {
+      "path": "17_Reports/Reporting_and_KPI_Specification.md",
+      "sha256": "14cb273c06592a847a2a788017c124c36e280e7a1e65707a59f8c7dfcbd3ed21",
+      "bytes": 179
+    },
+    {
+      "path": "18_Testing/Testing_Strategy.md",
+      "sha256": "d6c794ae10d83666ccd84e8e1bec83437165f4521feab345075cfecedf274c45",
+      "bytes": 246
+    },
+    {
+      "path": "19_Traceability/Traceability_Statement.md",
+      "sha256": "516a970e68b967081e65260893e363840689b02f6528c98090804c574428b618",
+      "bytes": 157
+    },
+    {
+      "path": "20_Deployment/Deployment_Guide.md",
+      "sha256": "7d6a479c33c11884a7e02721b965a65aeb3665726701e0b0edb9388232157354",
+      "bytes": 479
+    },
+    {
+      "path": "21_Approvals/Approval_Record.md",
+      "sha256": "0081b14fc8f88773ef5f2808baf04f08f06037bb67ac558b796cc71b2e5aca93",
+      "bytes": 570
+    },
+    {
+      "path": "23_Examples/Example_Procure_to_Pay.json",
+      "sha256": "bc5fb4c92af27202aa2c78e6a134d7bf233878ed5e688c8907169ada2fb52069",
+      "bytes": 357
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+flowchart LR
+ Req[Requirements / Prior Phase Gates] --> Val[Integrated Validation]
+ Val --> UAT[UAT]
+ UAT --> Pilot[Pilot]
+ Pilot --> Mig[Migration Dry Run / Reconciliation]
+ Mig --> Ready[Cutover Readiness]
+ Ready --> Go{Go / No-Go}
+ Go -->|No-Go| Fix[Resolve Defects / Risks]
+ Fix --> Val
+ Go -->|Go| Prod[Production Cutover]
+ Prod --> Verify[Production Verification]
+ Verify --> Hyper[Hypercare]
+ Hyper --> Cert[Final Certification / Archive]

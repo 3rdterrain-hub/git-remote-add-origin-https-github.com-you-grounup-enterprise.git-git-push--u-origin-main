@@ -1,0 +1,19 @@
+rule_id,name,rule,severity
+P99-BR-001,Incorporation by reference,Phase 99 incorporates all verified Phase 01-32 governed requirements/tests by reference and preserves original IDs.,Blocking
+P99-BR-002,Detailed source wins,A derived summary cannot override the detailed governing source artifact.,Blocking
+P99-BR-003,No silent conflict resolution,Apparent source conflicts require controlled change/ADR disposition.,Blocking
+P99-BR-004,Deterministic estimate authority,Phase 26 remains authoritative for estimate calculation math.,Blocking
+P99-BR-005,Security everywhere,Phase 28 security applies to all implementation/release layers.,Blocking
+P99-BR-006,AI cannot widen authority,"AI recommendations/tools cannot widen data access, approval authority or deterministic calculation authority.",Blocking
+P99-BR-007,Analytics not transaction authority,Phase 29 analytical stores do not silently overwrite operational authorities.,Blocking
+P99-BR-008,Entitlement plus authorization,Commercial entitlement and security authorization must both permit protected capability access.,Blocking
+P99-BR-009,Immutable release artifacts,Production promotion uses the exact tested artifact and controlled configuration/migration references.,Blocking
+P99-BR-010,Evidence before acceptance,Missing required evidence cannot be represented as PASS.,Blocking
+P99-BR-011,Exact-scope certification,Certification applies only to the exact release/artifact/configuration/migration scope named.,Blocking
+P99-BR-012,Source ZIP immutability,The incorporated phase ZIPs are not edited in place.,Blocking
+P99-BR-013,Stable IDs,Existing governed IDs remain stable across master consolidation.,Blocking
+P99-BR-014,Versioned semantic change,Changing governed meaning requires version/change evidence and impact analysis.,Blocking
+P99-BR-015,Provider binding via ADR,Provider-neutral boundaries require approved ADR before binding.,Blocking
+P99-BR-016,Stop on blocking gate,Implementation/promotion stops on unresolved blocking gates.,Blocking
+P99-BR-017,Real Phase 32 execution,Production certification cannot be inferred from Phase 99 package completion.,Blocking
+P99-BR-018,Master manifest required,Every Phase 99 release carries SHA-256 provenance/manifest.,Blocking

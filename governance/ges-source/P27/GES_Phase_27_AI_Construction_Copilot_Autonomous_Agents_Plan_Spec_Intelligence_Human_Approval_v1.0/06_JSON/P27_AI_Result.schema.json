@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Governed AI Result",
+  "type": "object",
+  "required": [
+    "result_id",
+    "tenant_id",
+    "task_id",
+    "agent_id",
+    "model_version",
+    "prompt_version",
+    "evidence",
+    "status",
+    "source_requirement_ids"
+  ],
+  "properties": {
+    "result_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "prompt_version": {
+      "type": "string"
+    },
+    "tool_versions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "status": {
+      "enum": [
+        "Draft",
+        "Advisory",
+        "PendingHumanReview",
+        "Approved",
+        "Rejected",
+        "Failed",
+        "Degraded"
+      ]
+    },
+    "requires_human_review": {
+      "type": "boolean"
+    },
+    "source_requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output": {},
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

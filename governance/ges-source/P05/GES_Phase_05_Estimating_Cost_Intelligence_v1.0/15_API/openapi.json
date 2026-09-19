@@ -1,0 +1,494 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrounUp Estimating & Cost Intelligence API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.grounup.example/v1"
+    }
+  ],
+  "paths": {
+    "/estimates": {
+      "post": {
+        "summary": "Create estimate",
+        "operationId": "GES_P05_API_001",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}": {
+      "get": {
+        "summary": "Read estimate",
+        "operationId": "GES_P05_API_002",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/versions": {
+      "post": {
+        "summary": "Create immutable version",
+        "operationId": "GES_P05_API_003",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/calculate": {
+      "post": {
+        "summary": "Calculate estimate",
+        "operationId": "GES_P05_API_004",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/validate": {
+      "post": {
+        "summary": "Validate estimate",
+        "operationId": "GES_P05_API_005",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/submit": {
+      "post": {
+        "summary": "Submit for approval",
+        "operationId": "GES_P05_API_006",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/approve": {
+      "post": {
+        "summary": "Approve estimate",
+        "operationId": "GES_P05_API_007",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/estimates/{id}/scenarios": {
+      "post": {
+        "summary": "Create scenario",
+        "operationId": "GES_P05_API_008",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/takeoff/documents": {
+      "post": {
+        "summary": "Upload takeoff document",
+        "operationId": "GES_P05_API_009",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/takeoff/measurements": {
+      "post": {
+        "summary": "Create measurement",
+        "operationId": "GES_P05_API_010",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/takeoff/revision-comparisons": {
+      "post": {
+        "summary": "Compare revisions",
+        "operationId": "GES_P05_API_011",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/assemblies": {
+      "get": {
+        "summary": "List assemblies",
+        "operationId": "GES_P05_API_012",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/production/calculate": {
+      "post": {
+        "summary": "Calculate production",
+        "operationId": "GES_P05_API_013",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/haul/calculate": {
+      "post": {
+        "summary": "Calculate hauling",
+        "operationId": "GES_P05_API_014",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/risk/simulations": {
+      "post": {
+        "summary": "Run risk simulation",
+        "operationId": "GES_P05_API_015",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/calculations/{trace_id}": {
+      "get": {
+        "summary": "Read calculation trace",
+        "operationId": "GES_P05_API_016",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/ai/recommendations/{id}/disposition": {
+      "post": {
+        "summary": "Disposition AI recommendation",
+        "operationId": "GES_P05_API_017",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/configuration/tenant": {
+      "get": {
+        "summary": "Read tenant configuration",
+        "operationId": "GES_P05_API_018",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/configuration/white-label": {
+      "put": {
+        "summary": "Update white-label configuration",
+        "operationId": "GES_P05_API_019",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/actuals": {
+      "post": {
+        "summary": "Post actual production",
+        "operationId": "GES_P05_API_020",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/calibration/proposals": {
+      "post": {
+        "summary": "Create calibration proposal",
+        "operationId": "GES_P05_API_021",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/reports/estimate-review/{id}": {
+      "get": {
+        "summary": "Generate review report",
+        "operationId": "GES_P05_API_022",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/exports/estimate/{id}": {
+      "post": {
+        "summary": "Create export package",
+        "operationId": "GES_P05_API_023",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/webhooks": {
+      "post": {
+        "summary": "Register webhook",
+        "operationId": "GES_P05_API_024",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    }
+  }
+}

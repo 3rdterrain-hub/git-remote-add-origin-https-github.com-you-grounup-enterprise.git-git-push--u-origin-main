@@ -1,0 +1,21 @@
+phase,title,version,source_archive,file_count,requirements,tests,entities,engines,apis,ui_surfaces,status
+01,Governance,v1.0,GES_Phase_01_Governance_v1.0.zip,51,25,15,23,0,16,12,Included
+02,Core Platform,v1.0,GES_Phase_02_Core_Platform_v1.0.zip,55,60,60,36,12,22,12,Included
+03,Enterprise Data Model,v1.0,GES_Phase_03_Enterprise_Data_Model_v1.0.zip,53,75,75,82,10,12,8,Included
+04,Master Library Registry,v1.0,GES_Phase_04_Master_Library_Registry_v1.0.zip,39,97,97,0,12,24,0,Included
+05,Estimating Cost Intelligence,v1.0,GES_Phase_05_Estimating_Cost_Intelligence_v1.0.zip,55,108,108,40,20,24,12,Included
+06,AI Construction Intelligence,v1.0,GES_Phase_06_AI_Construction_Intelligence_v1.0.zip,40,120,120,40,0,24,12,Included
+07,Enterprise Project Management,v1.0,GES_Phase_07_Enterprise_Project_Management_v1.0.zip,44,160,160,60,20,24,12,Included
+08,Enterprise CRM Sales Customer Experience,v1.0,GES_Phase_08_Enterprise_CRM_Sales_Customer_Experience_v1.0.zip,44,180,180,72,20,24,12,Included
+09,HR Workforce Talent Management,v1.0,GES_Phase_09_HR_Workforce_Talent_Management_v1.0.zip,46,210,210,94,24,28,15,Included
+10,Enterprise Financial Management Accounting,v1.0,GES_Phase_10_Enterprise_Financial_Management_Accounting_v1.0.zip,47,240,240,110,25,32,18,Included
+11,Enterprise Procurement Supply Chain Inventory,v1.0,GES_Phase_11_Enterprise_Procurement_Supply_Chain_Inventory_v1.0.zip,44,260,260,120,30,36,22,Included
+12,Enterprise Fleet Asset Maintenance Telematics,v1.0,GES_Phase_12_Enterprise_Fleet_Asset_Maintenance_Telematics_v1.0.zip,52,280,280,125,32,40,22,Included
+13,Enterprise Business Intelligence Decision Intelligence,v1.0,GES_Phase_13_Enterprise_Business_Intelligence_Decision_Intelligence_v1.0.zip,37,300,300,123,35,45,25,Included
+14,Enterprise HSE Safety Environmental Quality Compliance,v1.0,GES_Phase_14_Enterprise_HSE_Safety_Environmental_Quality_Compliance_v1.0.zip,37,320,320,145,40,50,35,Included
+15,Enterprise Document Drawing Specification Information Management,v1.0,GES_Phase_15_Enterprise_Document_Drawing_Specification_Information_Management_v1.0.zip,37,340,340,155,45,54,38,Included
+16,GIS Survey Reality Capture Drone Operations,v1.0,GES_Phase_16_GIS_Survey_Reality_Capture_Drone_Operations_v1.0.zip,37,360,360,165,49,61,42,Included
+17,Machine Control GPS Field Automation,v1.0,GES_Phase_17_Machine_Control_GPS_Field_Automation_v1.0.zip,37,380,380,175,55,65,49,Included
+18,Enterprise Scheduling Resource Planning,v1.0,GES_Phase_18_Enterprise_Scheduling_Resource_Planning_v1.0.zip,37,400,400,185,59,63,49,Included
+19,Contract Change Order Claims Commercial Management,v1.0,GES_Phase_19_Contract_Change_Order_Claims_Commercial_Management_v1.0.zip,37,420,420,186,53,67,49,Included
+20,Enterprise Integration Deployment Testing Governance Production Readiness,v1.0,GES_Phase_20_Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness_v1.0.zip,37,450,450,207,66,83,50,Included

@@ -1,0 +1,7 @@
+agent_code,name,access_mode,data_scope,allowed_tools,risk_class,boundary
+AGENT-PLAN,Plan Sheet Agent,Read,Plans/drawings,"plan_search,document_read,evidence_create",Advisory,No writes
+AGENT-SPEC,Specification Agent,Read,Specifications,"spec_search,document_read,evidence_create",Advisory,No writes
+AGENT-EST-REVIEW,Estimate Review Agent,Read/Calculate,Estimate + Phase 26 tools,"estimate_read,calculation_trace,phase26_calculate",Advisory,Cannot mutate estimate
+AGENT-RISK,Construction Risk Agent,Read,Project/estimate/docs,"project_read,estimate_read,document_search",Advisory,No protected writes
+AGENT-WRITEBACK,Library Proposal Agent,Propose,Phase 25 library proposals,"library_read,proposal_create",Approval,Cannot publish
+AGENT-OPS,Background Operations Agent,Scoped,Configured project tasks,approved_tool_subset,Configured,Explicit scope/time/stop conditions

@@ -1,0 +1,3 @@
+service,unit,quantity,production_rate,production_unit,duration,duration_unit,crew_size,crew_basis,labor_rate,labor_rate_unit,equipment_rate,equipment_rate_unit,fuel_burn,fuel_burn_unit,fuel_price,fuel_price_unit,haul_distance,haul_distance_unit,truck_payload,truck_payload_unit
+Mass Excavation,CY,10000,500,CY/HR,20,HR,2,operator-count,40,$/HR,4500,$/WK,8,gal/HR,4.0,$/gal,15,miles,20,CY/truck
+Utility Trenching,LF,1200,100,LF/HR,12,HR,3,crew-count,38,$/HR,1200,$/DAY,5,gal/HR,4.0,$/gal,5,miles,16,CY/truck

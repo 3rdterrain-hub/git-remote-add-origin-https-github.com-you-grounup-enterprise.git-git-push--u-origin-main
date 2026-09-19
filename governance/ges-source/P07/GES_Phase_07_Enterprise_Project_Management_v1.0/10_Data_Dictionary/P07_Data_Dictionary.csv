@@ -1,0 +1,41 @@
+Field,Data_Type,Required,Definition
+tenant_id,UUID,Yes,Tenant isolation key
+company_id,UUID,Yes,Owning company
+project_id,UUID,Yes,Project key
+record_id,UUID,Yes,Entity record key
+record_number,String,Conditional,Human-readable controlled identifier
+record_type,Code,Yes,Configured entity subtype
+status,Code,Yes,Lifecycle state
+revision,String,Conditional,Controlled revision identifier
+version,Integer,Yes,Optimistic concurrency version
+title,String,Yes,User-readable title
+description,Text,No,Detailed narrative
+wbs_id,UUID,No,Work breakdown reference
+cost_code_id,UUID,No,Cost-code reference
+location_id,UUID,No,Project location reference
+activity_id,UUID,No,Schedule-activity reference
+responsible_party_id,UUID,No,Responsible person or organization
+priority,Code,No,Priority or urgency
+severity,Code,No,Impact or alert severity
+currency_code,ISO-4217,Conditional,Currency for monetary values
+amount,Decimal,Conditional,Monetary amount
+quantity,Decimal,Conditional,Measured quantity
+unit_id,UUID,Conditional,Unit reference
+planned_start,Datetime,No,Planned start
+planned_finish,Datetime,No,Planned finish
+actual_start,Datetime,No,Actual start
+actual_finish,Datetime,No,Actual finish
+due_at,Datetime,No,Required completion time
+data_date,Date,No,Status or reporting date
+source_type,Code,Yes,Originating source category
+source_id,UUID,No,Originating source record
+confidence_score,Decimal,No,AI or data confidence from 0 to 1
+freshness_at,Datetime,No,Timestamp of latest source refresh
+created_at,Datetime,Yes,Creation timestamp
+created_by,UUID,Yes,Creator identity
+updated_at,Datetime,Yes,Last update timestamp
+updated_by,UUID,Yes,Last updater
+approved_at,Datetime,No,Approval timestamp
+approved_by,UUID,No,Approver identity
+is_deleted,Boolean,Yes,Soft-delete flag
+metadata,JSON,No,Governed extension values

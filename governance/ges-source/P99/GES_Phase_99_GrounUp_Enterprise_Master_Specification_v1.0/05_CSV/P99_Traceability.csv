@@ -1,0 +1,181 @@
+requirement_id,test_id,incorporated_source,master_domain,status
+P99-REQ-001,P99-TST-001,P01-P32 incorporated baseline,Master Authority,Mapped
+P99-REQ-002,P99-TST-002,P01-P32 incorporated baseline,Immutable Sources,Mapped
+P99-REQ-003,P99-TST-003,P01-P32 incorporated baseline,No Silent Reconciliation,Mapped
+P99-REQ-004,P99-TST-004,P01-P32 incorporated baseline,Requirement Incorporation,Mapped
+P99-REQ-005,P99-TST-005,P01-P32 incorporated baseline,Test Incorporation,Mapped
+P99-REQ-006,P99-TST-006,P01-P32 incorporated baseline,Phase Identity,Mapped
+P99-REQ-007,P99-TST-007,P01-P32 incorporated baseline,Traceability Minimum,Mapped
+P99-REQ-008,P99-TST-008,P01-P32 incorporated baseline,Change Control,Mapped
+P99-REQ-009,P99-TST-009,P01-P32 incorporated baseline,Phase 22 Lock,Mapped
+P99-REQ-010,P99-TST-010,P01-P32 incorporated baseline,Phase 24 Foundation,Mapped
+P99-REQ-011,P99-TST-011,P01-P32 incorporated baseline,Phase 25 Authority,Mapped
+P99-REQ-012,P99-TST-012,P01-P32 incorporated baseline,Phase 26 Authority,Mapped
+P99-REQ-013,P99-TST-013,P01-P32 incorporated baseline,AI Math Boundary,Mapped
+P99-REQ-014,P99-TST-014,P01-P32 incorporated baseline,Phase 27 AI Boundary,Mapped
+P99-REQ-015,P99-TST-015,P01-P32 incorporated baseline,Phase 28 Security,Mapped
+P99-REQ-016,P99-TST-016,P01-P32 incorporated baseline,Security vs Entitlement,Mapped
+P99-REQ-017,P99-TST-017,P01-P32 incorporated baseline,Phase 29 Authority,Mapped
+P99-REQ-018,P99-TST-018,P01-P32 incorporated baseline,Phase 31 Release Rule,Mapped
+P99-REQ-019,P99-TST-019,P01-P32 incorporated baseline,Phase 32 Truth Rule,Mapped
+P99-REQ-020,P99-TST-020,P01-P32 incorporated baseline,Production Certification,Mapped
+P99-REQ-021,P99-TST-021,P01-P32 incorporated baseline,Tenant Isolation,Mapped
+P99-REQ-022,P99-TST-022,P01-P32 incorporated baseline,Default Deny,Mapped
+P99-REQ-023,P99-TST-023,P01-P32 incorporated baseline,Secrets,Mapped
+P99-REQ-024,P99-TST-024,P01-P32 incorporated baseline,Schema Change,Mapped
+P99-REQ-025,P99-TST-025,P01-P32 incorporated baseline,API Compatibility,Mapped
+P99-REQ-026,P99-TST-026,P01-P32 incorporated baseline,Provider Neutrality,Mapped
+P99-REQ-027,P99-TST-027,P01-P32 incorporated baseline,Architecture Decisions,Mapped
+P99-REQ-028,P99-TST-028,P01-P32 incorporated baseline,Build Order,Mapped
+P99-REQ-029,P99-TST-029,P01-P32 incorporated baseline,Security From Start,Mapped
+P99-REQ-030,P99-TST-030,P01-P32 incorporated baseline,Golden Tests,Mapped
+P99-REQ-031,P99-TST-031,P01-P32 incorporated baseline,Evidence Before Pass,Mapped
+P99-REQ-032,P99-TST-032,P01-P32 incorporated baseline,No Test Weakening,Mapped
+P99-REQ-033,P99-TST-033,P01-P32 incorporated baseline,AI Coding Agent Contract,Mapped
+P99-REQ-034,P99-TST-034,P01-P32 incorporated baseline,AI Source Discipline,Mapped
+P99-REQ-035,P99-TST-035,P01-P32 incorporated baseline,Deployment Promotion,Mapped
+P99-REQ-036,P99-TST-036,P01-P32 incorporated baseline,Stop Conditions,Mapped
+P99-REQ-037,P99-TST-037,P01-P32 incorporated baseline,Backup/Restore,Mapped
+P99-REQ-038,P99-TST-038,P01-P32 incorporated baseline,RTO/RPO,Mapped
+P99-REQ-039,P99-TST-039,P01-P32 incorporated baseline,Operational Ownership,Mapped
+P99-REQ-040,P99-TST-040,P01-P32 incorporated baseline,White Label Boundary,Mapped
+P99-REQ-041,P99-TST-041,P01-P32 incorporated baseline,Master Manifest,Mapped
+P99-REQ-042,P99-TST-042,P01-P32 incorporated baseline,Release Archive,Mapped
+P99-REQ-043,P99-TST-043,P01-P32 incorporated baseline,Derived Artifact Rule,Mapped
+P99-REQ-044,P99-TST-044,P01-P32 incorporated baseline,Exception Expiry,Mapped
+P99-REQ-045,P99-TST-045,P01-P32 incorporated baseline,No False Completion,Mapped
+P99-REQ-046,P99-TST-046,P01-P32 incorporated baseline,Master Libraries,Mapped
+P99-REQ-047,P99-TST-047,P01-P32 incorporated baseline,Deterministic Estimating,Mapped
+P99-REQ-048,P99-TST-048,P01-P32 incorporated baseline,AI Governance,Mapped
+P99-REQ-049,P99-TST-049,P01-P32 incorporated baseline,Security Inheritance,Mapped
+P99-REQ-050,P99-TST-050,P01-P32 incorporated baseline,Analytics Governance,Mapped
+P99-REQ-051,P99-TST-051,P01-P32 incorporated baseline,Commercial Governance,Mapped
+P99-REQ-052,P99-TST-052,P01-P32 incorporated baseline,Production Operations,Mapped
+P99-REQ-053,P99-TST-053,P01-P32 incorporated baseline,UAT & Pilot,Mapped
+P99-REQ-054,P99-TST-054,P01-P32 incorporated baseline,Migration & Cutover,Mapped
+P99-REQ-055,P99-TST-055,P01-P32 incorporated baseline,Certification,Mapped
+P99-REQ-056,P99-TST-056,P01-P32 incorporated baseline,Change Control,Mapped
+P99-REQ-057,P99-TST-057,P01-P32 incorporated baseline,Versioning,Mapped
+P99-REQ-058,P99-TST-058,P01-P32 incorporated baseline,Release Management,Mapped
+P99-REQ-059,P99-TST-059,P01-P32 incorporated baseline,Provider Neutrality,Mapped
+P99-REQ-060,P99-TST-060,P01-P32 incorporated baseline,Tenant Isolation,Mapped
+P99-REQ-061,P99-TST-061,P01-P32 incorporated baseline,Audit & Evidence,Mapped
+P99-REQ-062,P99-TST-062,P01-P32 incorporated baseline,Testing,Mapped
+P99-REQ-063,P99-TST-063,P01-P32 incorporated baseline,Quality Gates,Mapped
+P99-REQ-064,P99-TST-064,P01-P32 incorporated baseline,Documentation,Mapped
+P99-REQ-065,P99-TST-065,P01-P32 incorporated baseline,Developer Execution,Mapped
+P99-REQ-066,P99-TST-066,P01-P32 incorporated baseline,AI Coding Agents,Mapped
+P99-REQ-067,P99-TST-067,P01-P32 incorporated baseline,Exception Management,Mapped
+P99-REQ-068,P99-TST-068,P01-P32 incorporated baseline,Risk Acceptance,Mapped
+P99-REQ-069,P99-TST-069,P01-P32 incorporated baseline,Operational Ownership,Mapped
+P99-REQ-070,P99-TST-070,P01-P32 incorporated baseline,Deployment Promotion,Mapped
+P99-REQ-071,P99-TST-071,P01-P32 incorporated baseline,Rollback & Recovery,Mapped
+P99-REQ-072,P99-TST-072,P01-P32 incorporated baseline,Disaster Recovery,Mapped
+P99-REQ-073,P99-TST-073,P01-P32 incorporated baseline,Support & Hypercare,Mapped
+P99-REQ-074,P99-TST-074,P01-P32 incorporated baseline,Release Archive,Mapped
+P99-REQ-075,P99-TST-075,P01-P32 incorporated baseline,Master Authority,Mapped
+P99-REQ-076,P99-TST-076,P01-P32 incorporated baseline,Source Incorporation,Mapped
+P99-REQ-077,P99-TST-077,P01-P32 incorporated baseline,Requirement Precedence,Mapped
+P99-REQ-078,P99-TST-078,P01-P32 incorporated baseline,Traceability,Mapped
+P99-REQ-079,P99-TST-079,P01-P32 incorporated baseline,Dependency Governance,Mapped
+P99-REQ-080,P99-TST-080,P01-P32 incorporated baseline,Implementation Order,Mapped
+P99-REQ-081,P99-TST-081,P01-P32 incorporated baseline,Architecture Decisions,Mapped
+P99-REQ-082,P99-TST-082,P01-P32 incorporated baseline,Data Governance,Mapped
+P99-REQ-083,P99-TST-083,P01-P32 incorporated baseline,Master Libraries,Mapped
+P99-REQ-084,P99-TST-084,P01-P32 incorporated baseline,Deterministic Estimating,Mapped
+P99-REQ-085,P99-TST-085,P01-P32 incorporated baseline,AI Governance,Mapped
+P99-REQ-086,P99-TST-086,P01-P32 incorporated baseline,Security Inheritance,Mapped
+P99-REQ-087,P99-TST-087,P01-P32 incorporated baseline,Analytics Governance,Mapped
+P99-REQ-088,P99-TST-088,P01-P32 incorporated baseline,Commercial Governance,Mapped
+P99-REQ-089,P99-TST-089,P01-P32 incorporated baseline,Production Operations,Mapped
+P99-REQ-090,P99-TST-090,P01-P32 incorporated baseline,UAT & Pilot,Mapped
+P99-REQ-091,P99-TST-091,P01-P32 incorporated baseline,Migration & Cutover,Mapped
+P99-REQ-092,P99-TST-092,P01-P32 incorporated baseline,Certification,Mapped
+P99-REQ-093,P99-TST-093,P01-P32 incorporated baseline,Change Control,Mapped
+P99-REQ-094,P99-TST-094,P01-P32 incorporated baseline,Versioning,Mapped
+P99-REQ-095,P99-TST-095,P01-P32 incorporated baseline,Release Management,Mapped
+P99-REQ-096,P99-TST-096,P01-P32 incorporated baseline,Provider Neutrality,Mapped
+P99-REQ-097,P99-TST-097,P01-P32 incorporated baseline,Tenant Isolation,Mapped
+P99-REQ-098,P99-TST-098,P01-P32 incorporated baseline,Audit & Evidence,Mapped
+P99-REQ-099,P99-TST-099,P01-P32 incorporated baseline,Testing,Mapped
+P99-REQ-100,P99-TST-100,P01-P32 incorporated baseline,Quality Gates,Mapped
+P99-REQ-101,P99-TST-101,P01-P32 incorporated baseline,Documentation,Mapped
+P99-REQ-102,P99-TST-102,P01-P32 incorporated baseline,Developer Execution,Mapped
+P99-REQ-103,P99-TST-103,P01-P32 incorporated baseline,AI Coding Agents,Mapped
+P99-REQ-104,P99-TST-104,P01-P32 incorporated baseline,Exception Management,Mapped
+P99-REQ-105,P99-TST-105,P01-P32 incorporated baseline,Risk Acceptance,Mapped
+P99-REQ-106,P99-TST-106,P01-P32 incorporated baseline,Operational Ownership,Mapped
+P99-REQ-107,P99-TST-107,P01-P32 incorporated baseline,Deployment Promotion,Mapped
+P99-REQ-108,P99-TST-108,P01-P32 incorporated baseline,Rollback & Recovery,Mapped
+P99-REQ-109,P99-TST-109,P01-P32 incorporated baseline,Disaster Recovery,Mapped
+P99-REQ-110,P99-TST-110,P01-P32 incorporated baseline,Support & Hypercare,Mapped
+P99-REQ-111,P99-TST-111,P01-P32 incorporated baseline,Release Archive,Mapped
+P99-REQ-112,P99-TST-112,P01-P32 incorporated baseline,Master Authority,Mapped
+P99-REQ-113,P99-TST-113,P01-P32 incorporated baseline,Source Incorporation,Mapped
+P99-REQ-114,P99-TST-114,P01-P32 incorporated baseline,Requirement Precedence,Mapped
+P99-REQ-115,P99-TST-115,P01-P32 incorporated baseline,Traceability,Mapped
+P99-REQ-116,P99-TST-116,P01-P32 incorporated baseline,Dependency Governance,Mapped
+P99-REQ-117,P99-TST-117,P01-P32 incorporated baseline,Implementation Order,Mapped
+P99-REQ-118,P99-TST-118,P01-P32 incorporated baseline,Architecture Decisions,Mapped
+P99-REQ-119,P99-TST-119,P01-P32 incorporated baseline,Data Governance,Mapped
+P99-REQ-120,P99-TST-120,P01-P32 incorporated baseline,Master Libraries,Mapped
+P99-REQ-121,P99-TST-121,P01-P32 incorporated baseline,Deterministic Estimating,Mapped
+P99-REQ-122,P99-TST-122,P01-P32 incorporated baseline,AI Governance,Mapped
+P99-REQ-123,P99-TST-123,P01-P32 incorporated baseline,Security Inheritance,Mapped
+P99-REQ-124,P99-TST-124,P01-P32 incorporated baseline,Analytics Governance,Mapped
+P99-REQ-125,P99-TST-125,P01-P32 incorporated baseline,Commercial Governance,Mapped
+P99-REQ-126,P99-TST-126,P01-P32 incorporated baseline,Production Operations,Mapped
+P99-REQ-127,P99-TST-127,P01-P32 incorporated baseline,UAT & Pilot,Mapped
+P99-REQ-128,P99-TST-128,P01-P32 incorporated baseline,Migration & Cutover,Mapped
+P99-REQ-129,P99-TST-129,P01-P32 incorporated baseline,Certification,Mapped
+P99-REQ-130,P99-TST-130,P01-P32 incorporated baseline,Change Control,Mapped
+P99-REQ-131,P99-TST-131,P01-P32 incorporated baseline,Versioning,Mapped
+P99-REQ-132,P99-TST-132,P01-P32 incorporated baseline,Release Management,Mapped
+P99-REQ-133,P99-TST-133,P01-P32 incorporated baseline,Provider Neutrality,Mapped
+P99-REQ-134,P99-TST-134,P01-P32 incorporated baseline,Tenant Isolation,Mapped
+P99-REQ-135,P99-TST-135,P01-P32 incorporated baseline,Audit & Evidence,Mapped
+P99-REQ-136,P99-TST-136,P01-P32 incorporated baseline,Testing,Mapped
+P99-REQ-137,P99-TST-137,P01-P32 incorporated baseline,Quality Gates,Mapped
+P99-REQ-138,P99-TST-138,P01-P32 incorporated baseline,Documentation,Mapped
+P99-REQ-139,P99-TST-139,P01-P32 incorporated baseline,Developer Execution,Mapped
+P99-REQ-140,P99-TST-140,P01-P32 incorporated baseline,AI Coding Agents,Mapped
+P99-REQ-141,P99-TST-141,P01-P32 incorporated baseline,Exception Management,Mapped
+P99-REQ-142,P99-TST-142,P01-P32 incorporated baseline,Risk Acceptance,Mapped
+P99-REQ-143,P99-TST-143,P01-P32 incorporated baseline,Operational Ownership,Mapped
+P99-REQ-144,P99-TST-144,P01-P32 incorporated baseline,Deployment Promotion,Mapped
+P99-REQ-145,P99-TST-145,P01-P32 incorporated baseline,Rollback & Recovery,Mapped
+P99-REQ-146,P99-TST-146,P01-P32 incorporated baseline,Disaster Recovery,Mapped
+P99-REQ-147,P99-TST-147,P01-P32 incorporated baseline,Support & Hypercare,Mapped
+P99-REQ-148,P99-TST-148,P01-P32 incorporated baseline,Release Archive,Mapped
+P99-REQ-149,P99-TST-149,P01-P32 incorporated baseline,Master Authority,Mapped
+P99-REQ-150,P99-TST-150,P01-P32 incorporated baseline,Source Incorporation,Mapped
+P99-REQ-151,P99-TST-151,P01-P32 incorporated baseline,Requirement Precedence,Mapped
+P99-REQ-152,P99-TST-152,P01-P32 incorporated baseline,Traceability,Mapped
+P99-REQ-153,P99-TST-153,P01-P32 incorporated baseline,Dependency Governance,Mapped
+P99-REQ-154,P99-TST-154,P01-P32 incorporated baseline,Implementation Order,Mapped
+P99-REQ-155,P99-TST-155,P01-P32 incorporated baseline,Architecture Decisions,Mapped
+P99-REQ-156,P99-TST-156,P01-P32 incorporated baseline,Data Governance,Mapped
+P99-REQ-157,P99-TST-157,P01-P32 incorporated baseline,Master Libraries,Mapped
+P99-REQ-158,P99-TST-158,P01-P32 incorporated baseline,Deterministic Estimating,Mapped
+P99-REQ-159,P99-TST-159,P01-P32 incorporated baseline,AI Governance,Mapped
+P99-REQ-160,P99-TST-160,P01-P32 incorporated baseline,Security Inheritance,Mapped
+P99-REQ-161,P99-TST-161,P01-P32 incorporated baseline,Analytics Governance,Mapped
+P99-REQ-162,P99-TST-162,P01-P32 incorporated baseline,Commercial Governance,Mapped
+P99-REQ-163,P99-TST-163,P01-P32 incorporated baseline,Production Operations,Mapped
+P99-REQ-164,P99-TST-164,P01-P32 incorporated baseline,UAT & Pilot,Mapped
+P99-REQ-165,P99-TST-165,P01-P32 incorporated baseline,Migration & Cutover,Mapped
+P99-REQ-166,P99-TST-166,P01-P32 incorporated baseline,Certification,Mapped
+P99-REQ-167,P99-TST-167,P01-P32 incorporated baseline,Change Control,Mapped
+P99-REQ-168,P99-TST-168,P01-P32 incorporated baseline,Versioning,Mapped
+P99-REQ-169,P99-TST-169,P01-P32 incorporated baseline,Release Management,Mapped
+P99-REQ-170,P99-TST-170,P01-P32 incorporated baseline,Provider Neutrality,Mapped
+P99-REQ-171,P99-TST-171,P01-P32 incorporated baseline,Tenant Isolation,Mapped
+P99-REQ-172,P99-TST-172,P01-P32 incorporated baseline,Audit & Evidence,Mapped
+P99-REQ-173,P99-TST-173,P01-P32 incorporated baseline,Testing,Mapped
+P99-REQ-174,P99-TST-174,P01-P32 incorporated baseline,Quality Gates,Mapped
+P99-REQ-175,P99-TST-175,P01-P32 incorporated baseline,Documentation,Mapped
+P99-REQ-176,P99-TST-176,P01-P32 incorporated baseline,Developer Execution,Mapped
+P99-REQ-177,P99-TST-177,P01-P32 incorporated baseline,AI Coding Agents,Mapped
+P99-REQ-178,P99-TST-178,P01-P32 incorporated baseline,Exception Management,Mapped
+P99-REQ-179,P99-TST-179,P01-P32 incorporated baseline,Risk Acceptance,Mapped
+P99-REQ-180,P99-TST-180,P01-P32 incorporated baseline,Operational Ownership,Mapped

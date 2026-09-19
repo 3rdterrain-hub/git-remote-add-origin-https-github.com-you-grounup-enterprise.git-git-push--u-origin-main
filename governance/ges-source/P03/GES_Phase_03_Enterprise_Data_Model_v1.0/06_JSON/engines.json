@@ -1,0 +1,74 @@
+{
+  "engines": [
+    {
+      "engine_id": "ENG-P03-001",
+      "name": "Identifier Engine",
+      "inputs": "entity type; tenant; source context",
+      "outputs": "immutable global identifier; alias mapping",
+      "core_rule": "Identifiers are stable and non-guessable"
+    },
+    {
+      "engine_id": "ENG-P03-002",
+      "name": "Reference Resolution Engine",
+      "inputs": "entity reference; tenant; effective date",
+      "outputs": "resolved active record or validation error",
+      "core_rule": "Tenant, lifecycle, and effective dates must be compatible"
+    },
+    {
+      "engine_id": "ENG-P03-003",
+      "name": "Master Data Matching Engine",
+      "inputs": "party or resource attributes; aliases; external IDs",
+      "outputs": "candidate duplicates; confidence; match reasons",
+      "core_rule": "No automatic merge above configured risk threshold"
+    },
+    {
+      "engine_id": "ENG-P03-004",
+      "name": "Effective Dating Engine",
+      "inputs": "records; key dimensions; start/end dates",
+      "outputs": "active version; overlap result; timeline",
+      "core_rule": "Enforce non-overlap where declared"
+    },
+    {
+      "engine_id": "ENG-P03-005",
+      "name": "Data Quality Engine",
+      "inputs": "entity data; quality rules; thresholds",
+      "outputs": "scores; failed rules; exceptions",
+      "core_rule": "Never silently change source values"
+    },
+    {
+      "engine_id": "ENG-P03-006",
+      "name": "Lineage Engine",
+      "inputs": "source values; transformations; rules; AI execution",
+      "outputs": "lineage graph; provenance references",
+      "core_rule": "Every derived value is traceable to inputs and logic"
+    },
+    {
+      "engine_id": "ENG-P03-007",
+      "name": "Schema Compatibility Engine",
+      "inputs": "old schema; new schema; consumers",
+      "outputs": "breaking-change assessment; migration requirements",
+      "core_rule": "Published contracts require declared compatibility"
+    },
+    {
+      "engine_id": "ENG-P03-008",
+      "name": "Retention Resolution Engine",
+      "inputs": "entity; classification; jurisdiction; hold",
+      "outputs": "retention schedule; disposition eligibility",
+      "core_rule": "Legal hold overrides expiration"
+    },
+    {
+      "engine_id": "ENG-P03-009",
+      "name": "Unit and Currency Context Engine",
+      "inputs": "value; unit/currency; effective conversion",
+      "outputs": "normalized value; display value; provenance",
+      "core_rule": "No implicit cross-context arithmetic"
+    },
+    {
+      "engine_id": "ENG-P03-010",
+      "name": "AI Writeback Guard Engine",
+      "inputs": "recommendation; actor; record version; approval; policy",
+      "outputs": "allow/deny; required review; writeback payload",
+      "core_rule": "AI cannot exceed caller or agent authority"
+    }
+  ]
+}

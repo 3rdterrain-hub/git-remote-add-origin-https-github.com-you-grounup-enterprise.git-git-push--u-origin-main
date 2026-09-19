@@ -1,0 +1,13 @@
+control_id,name,verification,status
+P26-SEC-001,Tenant isolation,"Estimate values, vendor quotes, custom rates and overrides cannot cross tenant boundaries.",Required
+P26-SEC-002,Estimate permissions,Read/edit/calculate/approve/export/writeback permissions are independently policy controlled.,Required
+P26-SEC-003,Approval segregation,Approval policy may prevent estimate preparer from self-approving above configured thresholds.,Required
+P26-SEC-004,Override authority,Protected price/rate/markup overrides require explicit entitlement and reason.,Required
+P26-SEC-005,AI boundary,"AI estimate assistance cannot directly approve, freeze, export as authoritative, or write published library data.",Required
+P26-SEC-006,Calculation input validation,"Units, numeric ranges and required snapshot references validate before calculation.",Required
+P26-SEC-007,Quote confidentiality,Vendor/customer-specific pricing follows role and project permissions.,Required
+P26-SEC-008,Audit visibility,Calculation and override audit detail is permission scoped.,Required
+P26-SEC-009,Frozen immutability,Approved/frozen estimate versions reject direct mutation.,Required
+P26-SEC-010,Export authority,Proposal/job baseline export requires approved scope/status per tenant policy.,Required
+P26-SEC-011,Service writeback control,Estimator writeback requires catalog permission and governed review.,Required
+P26-SEC-012,Evidence access,Plan/spec/quote evidence follows source document permissions.,Required

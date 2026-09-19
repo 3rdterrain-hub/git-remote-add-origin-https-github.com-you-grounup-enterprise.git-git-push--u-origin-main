@@ -1,0 +1,12 @@
+flowchart LR
+ Q[Quantity] --> P[Production] --> H[Hours]
+ H --> L[Labor Cost]
+ H --> E[Equipment Cost]
+ Q --> M[Material Cost]
+ Q --> T[Haul Disposal]
+ L --> D[Direct Cost]
+ E --> D
+ M --> D
+ T --> D
+ D --> K[Markup Margin] --> S[Sell Amount]
+ S --> X[Calculation Trace]

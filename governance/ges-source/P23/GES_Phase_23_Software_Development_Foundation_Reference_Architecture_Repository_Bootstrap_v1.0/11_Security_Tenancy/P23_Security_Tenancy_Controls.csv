@@ -1,0 +1,13 @@
+control_id,name,rule,verification
+P23-SEC-001,Tenant context required,All authenticated business requests carry resolved tenant context.,Block request without valid context.
+P23-SEC-002,Least privilege,Authorization policies default deny.,Policy tests required.
+P23-SEC-003,Data scoping,Queries/mutations enforce tenant/project scope.,Automated isolation tests.
+P23-SEC-004,Secrets,No production secrets in source/config repositories.,Secret scanning gate.
+P23-SEC-005,Encryption,TLS in transit; protected data encryption at rest through approved platform controls.,Security review.
+P23-SEC-006,Audit,Privileged/admin/security/financial/AI approval actions generate audit records.,Audit test.
+P23-SEC-007,Dependency security,Dependencies and containers are scanned before promotion.,CI gate.
+P23-SEC-008,SAST/secret scan,Source changes pass static and secret scanning.,CI gate.
+P23-SEC-009,Session/token policy,Token/session lifetimes and revocation follow approved identity policy.,Identity tests.
+P23-SEC-010,File safety,Uploads are validated/scanned and served with permission checks.,File security gate.
+P23-SEC-011,Rate limiting,Sensitive/public integration endpoints support throttling/abuse controls.,Edge test.
+P23-SEC-012,Break glass,"Emergency privileged access is time-bound, logged and reviewed.",Governance review.

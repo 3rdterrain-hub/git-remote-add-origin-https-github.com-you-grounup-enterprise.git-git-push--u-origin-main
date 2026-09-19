@@ -1,0 +1,13 @@
+gate_id,gate,pass_rule,requirement
+P25-QG-01,Version Lifecycle,Draft-review-approve-publish-supersede tests pass,Required
+P25-QG-02,Tenant Isolation,Cross-tenant pricing/override negative tests pass,Required
+P25-QG-03,Unit/Conversion,Dimensional validation and conversion tests pass,Required
+P25-QG-04,Assembly Dependencies,Missing/cyclic/invalid dependencies are blocked,Required
+P25-QG-05,Effective Dating,Correct version selected at time/location/profile,Required
+P25-QG-06,Snapshot Reproducibility,Snapshot values remain stable after library changes,Required
+P25-QG-07,Import Preview/Commit,Preview diffs equal committed validated changes,Required
+P25-QG-08,AI Writeback,AI proposal cannot publish without human authority,Required
+P25-QG-09,API Contracts,Query/version/pagination/error contracts pass,Required
+P25-QG-10,Audit/Provenance,Protected mutations produce complete evidence,Required
+P25-QG-11,Performance,Large library search and snapshot creation meet approved targets,Release gate
+P25-QG-12,Estimator Gateway,Published/snapshot library data can be consumed deterministically by estimator,Release gate

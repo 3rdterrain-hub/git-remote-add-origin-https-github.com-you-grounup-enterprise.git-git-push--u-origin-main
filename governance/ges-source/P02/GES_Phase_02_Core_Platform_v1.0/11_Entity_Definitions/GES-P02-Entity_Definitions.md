@@ -1,0 +1,38 @@
+# Canonical Entities
+
+- **ENT-P02-001 PlatformRequest:** Normalized inbound request context
+- **ENT-P02-002 Session:** Authenticated interactive or service session
+- **ENT-P02-003 Device:** Registered client device
+- **ENT-P02-004 AuthorizationDecision:** Explainable access decision
+- **ENT-P02-005 ServiceIdentity:** Non-human platform identity
+- **ENT-P02-006 MetadataDefinition:** Governed extension field definition
+- **ENT-P02-007 MetadataValue:** Value attached to governed object
+- **ENT-P02-008 TagDefinition:** Governed tag definition
+- **ENT-P02-009 TagAssignment:** Tag applied to an object
+- **ENT-P02-010 FileObject:** Logical file identity
+- **ENT-P02-011 FileVersion:** Immutable content version
+- **ENT-P02-012 SearchDocument:** Permission-aware indexed representation
+- **ENT-P02-013 Notification:** Outbound communication instance
+- **ENT-P02-014 NotificationTemplate:** Versioned message template
+- **ENT-P02-015 Schedule:** One-time or recurring execution plan
+- **ENT-P02-016 BackgroundJob:** Durable asynchronous work item
+- **ENT-P02-017 WorkflowInstance:** Durable workflow execution
+- **ENT-P02-018 WorkflowDefinition:** Versioned workflow graph
+- **ENT-P02-019 RuleDefinition:** Versioned deterministic rule
+- **ENT-P02-020 RuleExecution:** Recorded rule evaluation
+- **ENT-P02-021 DomainEvent:** Versioned event envelope
+- **ENT-P02-022 EventDelivery:** Consumer delivery state
+- **ENT-P02-023 WebhookSubscription:** Tenant outbound webhook configuration
+- **ENT-P02-024 WebhookDelivery:** Signed delivery attempt
+- **ENT-P02-025 ConnectorInstance:** Configured external system connector
+- **ENT-P02-026 ImportBatch:** Governed import execution
+- **ENT-P02-027 ExportPackage:** Governed export artifact
+- **ENT-P02-028 OfflinePack:** Encrypted field data package
+- **ENT-P02-029 SyncTransaction:** Offline-originating change
+- **ENT-P02-030 ConflictCase:** Manual or governed sync conflict
+- **ENT-P02-031 FeatureFlag:** Versioned rollout control
+- **ENT-P02-032 SecretReference:** Reference to protected secret
+- **ENT-P02-033 BackupSet:** Encrypted recovery point
+- **ENT-P02-034 AIAgentDefinition:** Registered AI agent version
+- **ENT-P02-035 AIExecution:** Governed AI request execution
+- **ENT-P02-036 AIToolInvocation:** Permissioned AI tool call

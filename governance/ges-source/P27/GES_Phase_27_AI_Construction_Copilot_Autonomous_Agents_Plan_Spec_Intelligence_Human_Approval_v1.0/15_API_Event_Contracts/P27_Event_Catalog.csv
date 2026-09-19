@@ -1,0 +1,24 @@
+event_id,event_name,version,envelope,delivery,status
+P27-EVT-001,ai.conversation.started,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-002,ai.message.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-003,ai.task.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-004,ai.task.delegated,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-005,ai.tool.requested,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-006,ai.tool.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-007,ai.approval.requested,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-008,ai.approval.approved,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-009,ai.approval.rejected,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-010,ai.plananalysis.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-011,ai.specanalysis.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-012,ai.quantitycandidate.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-013,ai.servicemapping.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-014,ai.estimatesuggestion.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-015,ai.estimatereview.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-016,ai.riskfinding.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-017,ai.conflictfinding.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-018,ai.missinginfo.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-019,ai.evaluation.completed,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-020,ai.feedback.recorded,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-021,ai.incident.created,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-022,ai.fallback.triggered,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed
+P27-EVT-023,ai.release.promoted,v1,"event_id,event_name,version,tenant_id,project_id,task_id,occurred_at,correlation_id,model/prompt/tool versions,payload",Outbox; tenant scoped; evidence/audit linked,Proposed

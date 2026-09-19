@@ -1,0 +1,51 @@
+ui_id,name,domain,capabilities,form_factor
+P20-UI-001,Platform Control Tower,Enterprise Integration Architecture,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-002,Integration Registry,API Governance,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-003,Connector Manager,Event & Messaging Platform,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-004,API Governance Center,Data Integration & Synchronization,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-005,Event & Messaging Center,Identity & Access Integration,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-006,Sync/Reconciliation Center,External Connectors,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-007,Identity Integration Center,Environment Strategy,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-008,Environment Manager,Configuration Management,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-009,Configuration Manager,CI/CD & Release Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-010,Feature Flag Center,Infrastructure as Code,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-011,Secrets/Certificate Status,Container & Runtime Platform,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-012,CI/CD Pipeline Center,Database & Storage Readiness,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-013,Release Manager,Security Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-014,Deployment Center,Privacy & Data Protection,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-015,Rollback Center,Observability,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-016,Infrastructure as Code Center,Reliability Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-017,Runtime/Container Health,Performance & Scalability,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-018,Database Migration Center,Disaster Recovery & Business Continuity,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-019,Backup/Restore Center,Testing Governance,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-020,Security Readiness Center,Automated Test Platform,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-021,Privacy/Data Protection Center,Requirements Traceability & Coverage,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-022,Observability Center,Data Migration & Cutover,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-023,SLO/Error Budget Center,Production Readiness Review,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-024,Reliability Center,Release & Change Management,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-025,Performance/Capacity Center,Incident & Problem Management,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-026,Disaster Recovery Center,Service Management & Support,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-027,Master Test Center,Tenant Provisioning & SaaS Operations,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-028,Automated Test Runs,Compliance & Audit Readiness,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-029,Requirements Coverage Matrix,AI/ML Production Governance,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-030,Defect Center,Enterprise Go-Live & Hypercare,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-031,UAT Center,Platform Digital Twin & Control Tower,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-032,Migration Factory,Enterprise Integration Architecture,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-033,Cutover Command Center,API Governance,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-034,Production Readiness Review,Event & Messaging Platform,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-035,Go-Live Decision Board,Data Integration & Synchronization,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-036,Incident Command Center,Identity & Access Integration,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-037,Problem/RCA Center,External Connectors,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-038,Service Management Center,Environment Strategy,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-039,Knowledge/Runbook Center,Configuration Management,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-040,Tenant Provisioning,CI/CD & Release Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-041,Plan & Entitlement Manager,Infrastructure as Code,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-042,White-Label Configuration,Container & Runtime Platform,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-043,Compliance/Audit Center,Database & Storage Readiness,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-044,Access Review Center,Security Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-045,AI Production Governance,Privacy & Data Protection,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-046,AI Evaluation Center,Observability,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-047,Hypercare Command Center,Reliability Engineering,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-048,Stabilization Dashboard,Performance & Scalability,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-049,Platform Digital Twin,Disaster Recovery & Business Continuity,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile
+P20-UI-050,Platform Administration,Testing Governance,Role-based; tenant/environment/version visible; readiness and risk status; evidence drill-through; approval state; responsive,Web/tablet/mobile

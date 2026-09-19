@@ -1,0 +1,26 @@
+{
+  "project_id": "00000000-0000-0000-0000-000000000007",
+  "snapshot_at": "2026-07-24T20:00:00-04:00",
+  "health_score": 82,
+  "freshness": {
+    "schedule": "2026-07-24T17:00:00-04:00",
+    "cost": "2026-07-24T18:30:00-04:00",
+    "field": "2026-07-24T19:15:00-04:00"
+  },
+  "cost": {
+    "approved_budget": 12500000,
+    "forecast_at_completion": 12875000,
+    "variance": -375000
+  },
+  "schedule": {
+    "data_date": "2026-07-24",
+    "critical_path_delay_days": 6
+  },
+  "alerts": [
+    {
+      "severity": "high",
+      "type": "procurement",
+      "summary": "Storm pipe delivery threatens Activity U-240"
+    }
+  ]
+}

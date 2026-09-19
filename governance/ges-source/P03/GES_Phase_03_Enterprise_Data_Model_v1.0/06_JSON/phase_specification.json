@@ -1,0 +1,7 @@
+{
+  "phase_id": "03",
+  "phase_name": "Enterprise Data Model",
+  "version": "1.0.0-review",
+  "status": "review-ready",
+  "intended_lock_tag": "GES-P03-v1.0.0"
+}

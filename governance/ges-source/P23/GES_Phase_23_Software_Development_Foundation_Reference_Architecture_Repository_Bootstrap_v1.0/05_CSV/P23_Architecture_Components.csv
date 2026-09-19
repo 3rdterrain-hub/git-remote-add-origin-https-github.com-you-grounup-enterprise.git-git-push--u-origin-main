@@ -1,0 +1,49 @@
+component_id,name,layer,purpose,source_alignment,status
+P23-COMP-001,Web Application Shell,Presentation,"Responsive SaaS web shell, navigation, tenant context, feature flags",Phase 22 UX/tenant requirements,Proposed
+P23-COMP-002,Mobile/Field Shell,Presentation,Field-optimized responsive/PWA boundary; native client may be added later,Field workflows,Proposed
+P23-COMP-003,API Gateway/BFF,Edge,"Authenticated API entry, routing, rate limits, request correlation",API/security requirements,Proposed
+P23-COMP-004,Identity Service,Platform,"Authentication, SSO/MFA integration boundary, session/token policy",Identity/security,Proposed
+P23-COMP-005,Authorization Service,Platform,RBAC/ABAC/policy evaluation with tenant and project scopes,Permissions,Proposed
+P23-COMP-006,Tenant Service,Platform,"Tenant provisioning, isolation, entitlement and lifecycle",SaaS/white-label,Proposed
+P23-COMP-007,Configuration Service,Platform,"Tenant/system configuration, feature flags, branding",Customization,Proposed
+P23-COMP-008,Audit Service,Platform,Immutable audit/event evidence for governed actions,Audit/compliance,Proposed
+P23-COMP-009,Workflow Service,Platform,"Approvals, states, assignments, escalations, evidence",Workflow governance,Proposed
+P23-COMP-010,Notification Service,Platform,Email/SMS/push/in-app adapter boundary,Operations,Proposed
+P23-COMP-011,File/Object Service,Platform,"Documents, drawings, photos, attachments, version metadata",Documents,Proposed
+P23-COMP-012,Search Service,Platform,Permission-aware search/index abstraction,Enterprise search,Proposed
+P23-COMP-013,Master Library Service,Domain,Services/materials/resources/assemblies/rates/library governance,Master Library Registry,Proposed
+P23-COMP-014,Estimating Service,Domain,"Estimate lifecycle, line items, assemblies, pricing orchestration",Estimating,Proposed
+P23-COMP-015,Takeoff Service,Domain,"Quantities, measurements, source evidence, takeoff state",Takeoff,Proposed
+P23-COMP-016,Production Engine,Domain,Crew/equipment/truck production calculation boundary,Production intelligence,Proposed
+P23-COMP-017,Cost Engine,Domain,Labor/equipment/material/subcontract cost rollups,Costing,Proposed
+P23-COMP-018,Markup/Pricing Engine,Domain,"Markup, O&P, contingency, price policy orchestration",Pricing,Proposed
+P23-COMP-019,Haul/Disposal Engine,Domain,"Trip-based haul, trucking, disposal and distance logic",Haul intelligence,Proposed
+P23-COMP-020,Regionalization Engine,Domain,"Location factors, profiles, vendor/rate sources",Regional pricing,Proposed
+P23-COMP-021,Project Service,Domain,Project/job lifecycle and shared project context,Project management,Proposed
+P23-COMP-022,CRM Service,Domain,"Accounts, contacts, leads, opportunities and follow-up",CRM,Proposed
+P23-COMP-023,Workforce Service,Domain,"People, crews, skills, labor assignments",HR/workforce,Proposed
+P23-COMP-024,Fleet Service,Domain,"Equipment, vehicles, utilization, maintenance, fuel hooks",Fleet,Proposed
+P23-COMP-025,Procurement Service,Domain,"Vendors, RFQs, POs, receipts, commitments",Procurement,Proposed
+P23-COMP-026,Finance Adapter,Domain/Integration,Accounting/job-cost integration boundary,Finance,Proposed
+P23-COMP-027,Scheduling Service,Domain,"Activities, dependencies, calendars, resource loading",Scheduling,Proposed
+P23-COMP-028,Commercial Service,Domain,"Contracts, changes, claims, payment/commercial records",Commercial,Proposed
+P23-COMP-029,Safety Service,Domain,"HSE records, inspections, incidents, controls",HSE,Proposed
+P23-COMP-030,Document Control Service,Domain,Submittals/RFIs/drawings/specs/version control,Document control,Proposed
+P23-COMP-031,GIS/Reality Service,Domain,"Spatial assets, surfaces, imagery/reality capture metadata",GIS/reality,Proposed
+P23-COMP-032,Machine Data Adapter,Integration,Machine control/telematics integration boundary,Machine control,Proposed
+P23-COMP-033,AI Orchestrator,AI,"Model/provider abstraction, tool routing, policy, evidence",AI governance,Proposed
+P23-COMP-034,Plan Intelligence Worker,AI,"Plan/spec parsing, sheet/page evidence, confidence/review",Construction AI,Proposed
+P23-COMP-035,AI Evaluation Service,AI,"Regression/evaluation datasets, scores, release gates",AI governance,Proposed
+P23-COMP-036,Integration Hub,Integration,"External connector/adapters, retries, idempotency",Integrations,Proposed
+P23-COMP-037,Event Bus Abstraction,Integration,Domain-event publication/consumption boundary,Event architecture,Proposed
+P23-COMP-038,Relational Data Store,Data,Transactional canonical records with tenant boundaries,Data model,Proposed
+P23-COMP-039,Cache/Queue Abstraction,Data,"Ephemeral cache, jobs, locks, throttling",Performance,Proposed
+P23-COMP-040,Analytics Pipeline,Data,Operational-to-analytics governed data movement,BI/analytics,Proposed
+P23-COMP-041,Observability Stack,Operations,"Logs, metrics, traces, alerts, correlation",Phase 20 operations,Proposed
+P23-COMP-042,Secrets/Key Boundary,Security,"Secrets, keys, encryption integration abstraction",Security,Proposed
+P23-COMP-043,CI Pipeline,DevOps,"Build, lint, test, scan, package, provenance",CI/CD,Proposed
+P23-COMP-044,CD Pipeline,DevOps,"Environment promotion, approvals, migrations, rollback",CI/CD,Proposed
+P23-COMP-045,IaC Repository,DevOps,Infrastructure definitions and environment policy,Infrastructure,Proposed
+P23-COMP-046,Test Harness,Quality,Unit/integration/contract/E2E/performance/security test foundation,Testing,Proposed
+P23-COMP-047,Traceability Service/Index,Governance,Requirement-to-code-test-release evidence index,Traceability,Proposed
+P23-COMP-048,Architecture Decision Registry,Governance,"ADR lifecycle, supersession and owner approval",Architecture governance,Proposed

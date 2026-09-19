@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grounup.example/schemas/p11/PurchaseRequisition.json",
+  "title": "PurchaseRequisition",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "company_id",
+    "requisition_id"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "requisition_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "required_date": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

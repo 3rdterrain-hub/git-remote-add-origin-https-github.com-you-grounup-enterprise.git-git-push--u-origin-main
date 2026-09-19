@@ -1,0 +1,84 @@
+# Canonical Entity Definitions
+
+- **ENT-P03-001 Tenant** (Foundation): Top-level data isolation and subscription boundary
+- **ENT-P03-002 Organization** (Foundation): Operating organization within a tenant
+- **ENT-P03-003 LegalEntity** (Foundation): Registered company or legal business entity
+- **ENT-P03-004 BusinessUnit** (Foundation): Operational division, branch, or department
+- **ENT-P03-005 Location** (Foundation): Reusable physical or virtual location
+- **ENT-P03-006 Project** (Work & Delivery): Primary unit of planned and executed work
+- **ENT-P03-007 UserAccount** (Foundation): Interactive platform identity
+- **ENT-P03-008 Person** (Party & Relationship): Natural person record
+- **ENT-P03-009 Team** (Foundation): Named working group
+- **ENT-P03-010 RoleDefinition** (Foundation): Governed responsibility and permission role
+- **ENT-P03-011 Party** (Party & Relationship): Common customer, vendor, employee, or organization identity
+- **ENT-P03-012 OrganizationParty** (Party & Relationship): Organization represented as a party
+- **ENT-P03-013 ContactPoint** (Party & Relationship): Email, phone, website, or messaging contact
+- **ENT-P03-014 Address** (Party & Relationship): Postal and physical address
+- **ENT-P03-015 PartyRelationship** (Party & Relationship): Typed relationship between parties
+- **ENT-P03-016 CustomerAccount** (Party & Relationship): Commercial customer account
+- **ENT-P03-017 VendorAccount** (Party & Relationship): Supplier or subcontractor account
+- **ENT-P03-018 EmployeeProfile** (Party & Relationship): Employment profile linked to a person
+- **ENT-P03-019 Qualification** (Safety & Quality): Certification, license, training, or competency
+- **ENT-P03-020 Opportunity** (Work & Delivery): Potential work or revenue pursuit
+- **ENT-P03-021 Estimate** (Work & Delivery): Versioned cost and price model
+- **ENT-P03-022 EstimateVersion** (Work & Delivery): Immutable estimate revision
+- **ENT-P03-023 EstimateLine** (Work & Delivery): Detailed quantity, resource, cost, and price line
+- **ENT-P03-024 Proposal** (Work & Delivery): Customer-facing offer
+- **ENT-P03-025 Contract** (Work & Delivery): Executed agreement governing work
+- **ENT-P03-026 WorkOrder** (Work & Delivery): Authorized work package
+- **ENT-P03-027 Task** (Work & Delivery): Assignable unit of work
+- **ENT-P03-028 ScheduleActivity** (Work & Delivery): Planned activity with dates, logic, and progress
+- **ENT-P03-029 DailyReport** (Work & Delivery): Daily field production and condition record
+- **ENT-P03-030 ApprovalRequest** (Work & Delivery): Governed approval case
+- **ENT-P03-031 ApprovalDecision** (Work & Delivery): Recorded approval outcome
+- **ENT-P03-032 LaborResource** (Resources): Labor classification or person capacity
+- **ENT-P03-033 Crew** (Resources): Reusable group of labor and equipment
+- **ENT-P03-034 CrewMember** (Resources): Crew membership with role and effective dates
+- **ENT-P03-035 EquipmentAsset** (Resources): Owned, leased, or rented equipment
+- **ENT-P03-036 FleetVehicle** (Resources): Road-licensed fleet vehicle
+- **ENT-P03-037 MaterialItem** (Resources): Material catalog item
+- **ENT-P03-038 ServiceItem** (Resources): Service catalog item
+- **ENT-P03-039 ResourceRate** (Resources): Effective labor, equipment, material, or service rate
+- **ENT-P03-040 VendorQuote** (Resources): Vendor-specific quote and terms
+- **ENT-P03-041 CostCode** (Financial): Standard cost classification
+- **ENT-P03-042 Budget** (Financial): Approved financial plan
+- **ENT-P03-043 BudgetLine** (Financial): Budget amount by cost, period, or work scope
+- **ENT-P03-044 Commitment** (Financial): Purchase order, subcontract, or committed cost
+- **ENT-P03-045 Invoice** (Financial): Receivable or payable invoice
+- **ENT-P03-046 Payment** (Financial): Money received or paid
+- **ENT-P03-047 CostTransaction** (Financial): Actual, accrued, committed, or forecast cost
+- **ENT-P03-048 TaxDefinition** (Financial): Tax rule and jurisdiction
+- **ENT-P03-049 CurrencyRate** (Financial): Versioned exchange rate
+- **ENT-P03-050 Document** (Documents & Records): Logical document record
+- **ENT-P03-051 DocumentVersion** (Documents & Records): Immutable document content version
+- **ENT-P03-052 AttachmentLink** (Documents & Records): Link between a document and business object
+- **ENT-P03-053 RecordClassification** (Documents & Records): Security, retention, and handling classification
+- **ENT-P03-054 ElectronicSignature** (Documents & Records): Signature evidence and status
+- **ENT-P03-055 Site** (Location & Spatial): Project or customer site
+- **ENT-P03-056 Parcel** (Location & Spatial): Property or land parcel reference
+- **ENT-P03-057 SpatialReference** (Location & Spatial): Coordinate reference system
+- **ENT-P03-058 GeometryReference** (Location & Spatial): Stored or linked geometry representation
+- **ENT-P03-059 StationRange** (Location & Spatial): Linear stationing interval
+- **ENT-P03-060 Jurisdiction** (Location & Spatial): Governing geographic authority
+- **ENT-P03-061 SafetyIncident** (Safety & Quality): Safety or environmental incident
+- **ENT-P03-062 Inspection** (Safety & Quality): Structured inspection event
+- **ENT-P03-063 Observation** (Safety & Quality): Safety, quality, or field observation
+- **ENT-P03-064 CorrectiveAction** (Safety & Quality): Action to resolve a finding
+- **ENT-P03-065 Permit** (Safety & Quality): Permit, authorization, or compliance record
+- **ENT-P03-066 AIAgent** (AI & Automation): Governed AI agent definition
+- **ENT-P03-067 AIExecution** (AI & Automation): Single AI execution record
+- **ENT-P03-068 AIRecommendation** (AI & Automation): Structured AI recommendation
+- **ENT-P03-069 AIWriteback** (AI & Automation): Proposed or completed AI data change
+- **ENT-P03-070 FeedbackRecord** (AI & Automation): Human or outcome feedback on AI/system output
+- **ENT-P03-071 ExternalIdentifier** (Integration & Audit): Identifier from another system
+- **ENT-P03-072 SourceSystem** (Integration & Audit): External or legacy system definition
+- **ENT-P03-073 DataMapping** (Integration & Audit): Field and value mapping specification
+- **ENT-P03-074 ImportBatch** (Integration & Audit): Governed data import
+- **ENT-P03-075 DomainEvent** (Integration & Audit): Versioned business or platform event
+- **ENT-P03-076 DataLineage** (Integration & Audit): Origin and transformation lineage
+- **ENT-P03-077 ChangeRecord** (Integration & Audit): Versioned record change metadata
+- **ENT-P03-078 AuditEvent** (Integration & Audit): Immutable actor-action-object audit event
+- **ENT-P03-079 ReferenceSet** (Foundation): Governed code and lookup collection
+- **ENT-P03-080 ReferenceValue** (Foundation): Effective-dated lookup value
+- **ENT-P03-081 CustomFieldDefinition** (Foundation): Tenant-governed extensible field
+- **ENT-P03-082 CustomFieldValue** (Foundation): Typed custom field value

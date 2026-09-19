@@ -1,0 +1,242 @@
+[
+  {
+    "rule_id": "GES-P05-BR-001",
+    "title": "Immutable approved versions",
+    "rule": "An approved estimate version shall not be edited; changes require a new version.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-002",
+    "title": "Calculation trace required",
+    "rule": "Every sell amount shall retain traceable quantity, rate, formula, factors and markup sources.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-003",
+    "title": "Tenant isolation",
+    "rule": "No tenant may access another tenant\u2019s estimates, pricing, actuals or configurations.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-004",
+    "title": "AI requires disposition",
+    "rule": "Material AI recommendations shall be accepted, modified or rejected by an authorized user.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-005",
+    "title": "Unit compatibility",
+    "rule": "Quantity and resource units shall be dimensionally compatible before calculation.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-006",
+    "title": "Effective-date pricing",
+    "rule": "Pricing records shall be selected using estimate date and effective-date rules.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-007",
+    "title": "Quote precedence",
+    "rule": "Approved project-specific quotes override regional and library prices for their scope.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-008",
+    "title": "Markup sequence",
+    "rule": "Markup profiles shall define whether each component is additive, compounded or margin-targeted.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-009",
+    "title": "No hidden overrides",
+    "rule": "Manual overrides shall require reason, author and timestamp.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-010",
+    "title": "Crew balance",
+    "rule": "Crew output shall be constrained by the bottleneck resource unless an approved rule states otherwise.",
+    "severity": "Critical",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-011",
+    "title": "Haul cycle completeness",
+    "rule": "Truck calculations shall include load, travel, unload, return, queue and delay components.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-012",
+    "title": "Swell and shrink separation",
+    "rule": "Bank, loose and compacted volumes shall not be treated as interchangeable.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-013",
+    "title": "Confidence propagation",
+    "rule": "Estimate confidence shall consider source confidence, quantity confidence, rate confidence and risk.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-014",
+    "title": "Historical calibration approval",
+    "rule": "Actual-based calibration shall not update master rates without review and approval.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-015",
+    "title": "Role-based visibility",
+    "rule": "User workspaces shall expose only permitted modules, records and actions.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-016",
+    "title": "White-label inheritance",
+    "rule": "OEM child tenants shall inherit allowed defaults while preserving approved local overrides.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-017",
+    "title": "Offline conflict handling",
+    "rule": "Offline changes shall use deterministic conflict detection and review.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-018",
+    "title": "Currency consistency",
+    "rule": "A single estimate version shall use one base currency with explicit conversion records when needed.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-019",
+    "title": "Tax jurisdiction",
+    "rule": "Tax rules shall be selected from project jurisdiction and effective date.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-020",
+    "title": "Estimate lock",
+    "rule": "Submitted estimates shall be locked from unapproved edits.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-021",
+    "title": "Source retention",
+    "rule": "Referenced plans, quotes and attachments shall be retained according to policy.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-022",
+    "title": "Scenario isolation",
+    "rule": "Scenario changes shall not alter the baseline estimate until promoted.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-023",
+    "title": "Rounding policy",
+    "rule": "Rounding shall occur only at configured stages and retain unrounded calculation values.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-024",
+    "title": "Negative cost control",
+    "rule": "Negative quantities or rates require an approved adjustment type.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-025",
+    "title": "Deletion policy",
+    "rule": "Used master records shall be retired, not deleted.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-026",
+    "title": "Regional override priority",
+    "rule": "Tenant and project overrides shall follow an explicit precedence hierarchy.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-027",
+    "title": "Production factor bounds",
+    "rule": "Condition factors outside configured bounds require approval.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-028",
+    "title": "Fuel model selection",
+    "rule": "Equipment fuel may use measured, manufacturer, historical or formula sources with source type recorded.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-029",
+    "title": "Bid audit export",
+    "rule": "The system shall produce a review package containing assumptions, exceptions and calculation lineage.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  },
+  {
+    "rule_id": "GES-P05-BR-030",
+    "title": "Template governance",
+    "rule": "Published templates require version, owner and approval status.",
+    "severity": "High",
+    "enforcement": "System",
+    "status": "Proposed"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "vendor": "Ohio Equipment Rental",
+  "invoice_number": "OER-2026-0715",
+  "invoice_date": "2026-07-15",
+  "gross_amount": 18450.0,
+  "retainage": 0,
+  "project": "Monroe Street Berm",
+  "cost_code": "31-23-00",
+  "match_status": "matched",
+  "approval_status": "pending_controller"
+}

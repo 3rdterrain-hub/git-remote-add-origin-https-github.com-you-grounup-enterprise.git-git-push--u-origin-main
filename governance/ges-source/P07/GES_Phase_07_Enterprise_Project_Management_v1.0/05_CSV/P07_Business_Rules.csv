@@ -1,0 +1,21 @@
+Rule_ID,Rule
+P07-BR-001,"Project creation requires an owning tenant, company, project manager, base currency, timezone, and lifecycle template."
+P07-BR-002,A project may not enter Construction until required preconstruction gates are approved or formally waived.
+P07-BR-003,"Approved estimate values become the initial control budget through a traceable import, not direct copy-over."
+P07-BR-004,"Original budget, contract value, and approved baselines are immutable; adjustments use controlled revisions."
+P07-BR-005,Only one active approved schedule baseline may exist per baseline type and project.
+P07-BR-006,Progress updates must use a defined data date and retain prior schedule-update snapshots.
+P07-BR-007,Daily reports may be edited until submitted; post-approval corrections require a revision record.
+P07-BR-008,"Labor, equipment, and production entries must map to authorized cost codes and project locations when required."
+P07-BR-009,Document revisions never overwrite prior revisions and must clearly identify the current revision.
+P07-BR-010,RFI and submittal responses cannot be treated as contract changes unless routed through change management.
+P07-BR-011,"Change events must separately identify scope, cost, schedule, risk, and contractual impacts."
+P07-BR-012,Committed cost must originate from an approved commitment or approved controlled exception.
+P07-BR-013,"Forecast-at-completion must reconcile approved budget, commitments, actual costs, pending changes, and remaining forecast."
+P07-BR-014,External users may access only explicitly shared records and redacted fields within an active access period.
+P07-BR-015,Offline changes require conflict checks against server versions before writeback.
+P07-BR-016,AI recommendations remain advisory until accepted by an authorized user; high-impact actions require approval.
+P07-BR-017,Digital twin snapshots must preserve source timestamps and data freshness indicators.
+P07-BR-018,Safety incidents and serious quality events require immediate escalation under tenant-defined thresholds.
+P07-BR-019,Project closeout requires completion or approved waiver of defined closeout deliverables.
+P07-BR-020,All material actions and approvals must create immutable audit events.

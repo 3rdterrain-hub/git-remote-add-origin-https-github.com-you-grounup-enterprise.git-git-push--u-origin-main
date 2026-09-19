@@ -1,0 +1,14 @@
+flowchart LR
+ P16[Phase 16 Survey/GIS Handoff] --> Validate[Model & Localization Validation]
+ Validate --> Jobs[Machine Job Packaging]
+ Jobs --> Cloud[Machine Control Cloud]
+ Cloud --> Machine[Machine / In-Cab System]
+ Machine --> Telemetry[Telemetry & Production]
+ Telemetry --> Cloud
+ Cloud --> QA[Conformance / QA]
+ QA --> P07[Project Operations]
+ QA --> P13[Enterprise Analytics]
+ QA --> P16[As-Built Spatial State]
+ Cloud --> AI[AI Machine Intelligence]
+ AI --> Human[Human Review]
+ Cloud --> Twin[Machine Control Digital Twin]

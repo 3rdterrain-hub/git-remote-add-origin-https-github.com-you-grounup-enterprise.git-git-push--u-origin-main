@@ -1,0 +1,21 @@
+entity,primary_key,purpose,scope
+Tenant,tenant_id,Tenant identity/lifecycle root,Tenant scoped root
+UserIdentity,identity_id,External/internal identity mapping,Tenant membership aware
+TenantMembership,membership_id,User-to-tenant relationship,Tenant scoped
+Role,role_id,Named role definition,Tenant/system scope
+PolicyBinding,binding_id,Role/attribute/resource policy binding,Tenant scoped
+Plan,plan_id,Commercial SaaS plan definition,Platform scope
+Entitlement,entitlement_id,Feature/limit definition,Platform scope
+TenantEntitlement,tenant_entitlement_id,Tenant entitlement assignment,Tenant scoped
+BrandProfile,brand_profile_id,White-label visual/config profile,Tenant scoped
+FeatureFlag,feature_flag_id,Governed feature definition,Platform scope
+FeatureFlagAssignment,assignment_id,Tenant/environment feature value,Tenant scoped
+ConfigurationEntry,configuration_id,Versioned config key/value metadata,Tenant or platform
+AuditEvent,audit_event_id,Governed append-oriented audit evidence,Tenant scoped
+WorkflowDefinition,workflow_definition_id,Versioned workflow model,Tenant/platform
+WorkflowInstance,workflow_instance_id,Running workflow state,Tenant scoped
+ApprovalDecision,approval_decision_id,Human/system approval evidence,Tenant scoped
+DomainEventOutbox,event_id,Transactional event publication record,Tenant scoped
+IdempotencyRecord,idempotency_id,Write deduplication/result record,Tenant scoped
+FileObjectMetadata,file_id,File/object metadata and authorization scope,Tenant scoped
+TraceabilityRecord,traceability_id,Requirement/test/change/release evidence link,Tenant/platform

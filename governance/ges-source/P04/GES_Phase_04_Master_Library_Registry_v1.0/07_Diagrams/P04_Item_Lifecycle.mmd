@@ -1,0 +1,10 @@
+stateDiagram-v2
+  [*] --> Draft
+  Draft --> Review: submit
+  Review --> Approved: approve
+  Review --> Draft: changes requested
+  Approved --> Active: publish
+  Active --> Deprecated: deprecate
+  Active --> Superseded: publish successor
+  Deprecated --> Archived
+  Superseded --> Archived

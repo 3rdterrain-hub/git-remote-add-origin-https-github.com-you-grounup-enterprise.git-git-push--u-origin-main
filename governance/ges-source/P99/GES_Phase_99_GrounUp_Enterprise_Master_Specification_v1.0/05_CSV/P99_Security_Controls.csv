@@ -1,0 +1,9 @@
+control_id,name,verification,status
+P99-SEC-001,Master source integrity,All incorporated source package hashes match the verified master baseline.,Required
+P99-SEC-002,Tenant control inheritance,Master implementation instructions preserve Phase 28 tenant-isolation/default-deny rules.,Required
+P99-SEC-003,Secret exclusion,Master package/instructions contain no live production secrets or credentials.,Required
+P99-SEC-004,Release evidence integrity,Master manifest/evidence records are hash-verifiable.,Required
+P99-SEC-005,AI execution boundary,Coding-agent instructions explicitly prohibit widening access/authority or bypassing controls.,Required
+P99-SEC-006,Provider-neutrality protection,No unapproved provider is represented as mandatory production authority.,Required
+P99-SEC-007,Certification integrity,Repository completion is not mislabeled as production certification.,Required
+P99-SEC-008,Source immutability,Original incorporated phase ZIPs remain unchanged.,Required

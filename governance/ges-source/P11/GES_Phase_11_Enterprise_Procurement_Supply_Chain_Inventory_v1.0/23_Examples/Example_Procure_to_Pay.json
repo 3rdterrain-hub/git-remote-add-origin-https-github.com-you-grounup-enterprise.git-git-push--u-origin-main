@@ -1,0 +1,14 @@
+{
+  "project": "P-1001",
+  "material_request": {
+    "item": "Aggregate Base",
+    "quantity": 500,
+    "uom": "TON"
+  },
+  "requisition_status": "Approved",
+  "supplier": "Approved Supplier A",
+  "purchase_order": "PO-10001",
+  "receipt_quantity": 498.5,
+  "inspection": "Accepted with variance",
+  "match_status": "Exception - quantity tolerance review"
+}

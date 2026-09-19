@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grounup.example/schemas/p12/fleet-asset.json",
+  "title": "Phase 12 Fleet Asset",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "asset_id",
+    "asset_number",
+    "asset_class",
+    "lifecycle_status"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "asset_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "asset_number": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asset_class": {
+      "type": "string"
+    },
+    "lifecycle_status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "acquired",
+        "commissioned",
+        "available",
+        "assigned",
+        "maintenance",
+        "out_of_service",
+        "retired",
+        "disposed"
+      ]
+    },
+    "meter": {
+      "type": "number",
+      "minimum": 0
+    },
+    "location": {
+      "type": "object"
+    },
+    "health_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    }
+  },
+  "additionalProperties": true
+}

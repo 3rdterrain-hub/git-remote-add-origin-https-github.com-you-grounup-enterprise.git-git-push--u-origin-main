@@ -1,0 +1,6 @@
+role,scope,read,edit,approve,admin,notes
+Estimator,Project/Tenant,Estimate + permitted libraries,Draft estimates,No by default,No,Tenant configurable
+Estimate Approver,Project/Tenant,Estimate + trace,Review comments,Approve within limits,No,SoD rules configurable
+Security Administrator,Platform/Tenant,Security config/evidence,Security config,Security changes,Restricted,MFA + JIT elevation
+AI Governance Reviewer,Platform/Tenant,AI eval/release evidence,Review records,Approve AI releases/policies,No,Cannot bypass security policy
+Service Account,Explicit resources only,As scoped,As scoped,No human approval,No,Machine identity; least privilege

@@ -1,0 +1,19 @@
+gate_id,gate,pass_rule,requirement
+P29-QG-01,Source Reconciliation,Certified financial/estimate/project facts reconcile within approved tolerances,Required
+P29-QG-02,Tenant Isolation,Cross-tenant query/report/export/feature negative tests pass,Required
+P29-QG-03,Schema Contract,Schema compatibility and breaking-change tests pass,Required
+P29-QG-04,Pipeline Idempotency,Retry/backfill produces no duplicate governed facts,Required
+P29-QG-05,Data Quality,Blocking completeness/validity/uniqueness rules pass,Required
+P29-QG-06,Freshness,Certified assets meet freshness SLA or visibly enter stale state,Required
+P29-QG-07,Lineage,Certified metric/report lineage is complete to governed source,Required
+P29-QG-08,Metric Golden Tests,Certified metric formulas match controlled examples,Required
+P29-QG-09,Historical Reproduction,Historical report can be reproduced with prior versions/snapshot context,Required
+P29-QG-10,Row/Column Security,Semantic/report/export field security tests pass,Required
+P29-QG-11,Dashboard UAT,Role dashboards match approved business expectations,Release gate
+P29-QG-12,Performance,Critical dashboard/query/report targets meet approved latency/cost thresholds,Release gate
+P29-QG-13,Forecast Backtest,Forecast methods meet approved benchmark/backtest criteria where used,Conditional
+P29-QG-14,Point-in-Time Features,Training/eval feature snapshots prove no future leakage,Required for AI features
+P29-QG-15,Privacy Propagation,Retention/deletion benchmark flows pass,Required
+P29-QG-16,Analytics Incident Recovery,Backfill/correction revalidation exercise passes,Release gate
+P29-QG-17,Subscription Security,Scheduled delivery recipient/security tests pass,Required
+P29-QG-18,Executive Metric Certification,"Executive scorecard metrics have owner, formula, lineage and approval",Release gate

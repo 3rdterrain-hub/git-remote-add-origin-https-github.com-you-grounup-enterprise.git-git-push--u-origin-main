@@ -1,0 +1,37 @@
+API_ID,Path,Methods,Resource,Security,Controls
+P11-API-001,/api/v1/suppliers,GET/POST/PATCH,Suppliers,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-002,/api/v1/supplier-qualifications,GET/POST/PATCH,Supplier Qualifications,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-003,/api/v1/supplier-scorecards,GET/POST/PATCH,Supplier Scorecards,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-004,/api/v1/sourcing-events,GET/POST/PATCH,Sourcing Events,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-005,/api/v1/rfqs,GET/POST/PATCH,Rfqs,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-006,/api/v1/supplier-bids,GET/POST/PATCH,Supplier Bids,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-007,/api/v1/awards,GET/POST/PATCH,Awards,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-008,/api/v1/requisitions,GET/POST/PATCH,Requisitions,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-009,/api/v1/requisition-approvals,GET/POST/PATCH,Requisition Approvals,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-010,/api/v1/purchase-orders,GET/POST/PATCH,Purchase Orders,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-011,/api/v1/po-changes,GET/POST/PATCH,Po Changes,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-012,/api/v1/blanket-releases,GET/POST/PATCH,Blanket Releases,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-013,/api/v1/subcontract-bids,GET/POST/PATCH,Subcontract Bids,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-014,/api/v1/subcontracts,GET/POST/PATCH,Subcontracts,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-015,/api/v1/items,GET/POST/PATCH,Items,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-016,/api/v1/catalogs,GET/POST/PATCH,Catalogs,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-017,/api/v1/warehouses,GET/POST/PATCH,Warehouses,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-018,/api/v1/inventory-balances,GET/POST/PATCH,Inventory Balances,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-019,/api/v1/inventory-transactions,GET/POST/PATCH,Inventory Transactions,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-020,/api/v1/inventory-transfers,GET/POST/PATCH,Inventory Transfers,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-021,/api/v1/cycle-counts,GET/POST/PATCH,Cycle Counts,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-022,/api/v1/receiving-appointments,GET/POST/PATCH,Receiving Appointments,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-023,/api/v1/receipts,GET/POST/PATCH,Receipts,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-024,/api/v1/inspections,GET/POST/PATCH,Inspections,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-025,/api/v1/returns,GET/POST/PATCH,Returns,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-026,/api/v1/deliveries,GET/POST/PATCH,Deliveries,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-027,/api/v1/route-plans,GET/POST/PATCH,Route Plans,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-028,/api/v1/rentals,GET/POST/PATCH,Rentals,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-029,/api/v1/off-rent-notices,GET/POST/PATCH,Off Rent Notices,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-030,/api/v1/three-way-matches,GET/POST/PATCH,Three Way Matches,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-031,/api/v1/demand-forecasts,GET/POST/PATCH,Demand Forecasts,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-032,/api/v1/reorder-recommendations,GET/POST/PATCH,Reorder Recommendations,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-033,/api/v1/price-forecasts,GET/POST/PATCH,Price Forecasts,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-034,/api/v1/supply-risks,GET/POST/PATCH,Supply Risks,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-035,/api/v1/digital-twin,GET/POST/PATCH,Digital Twin,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes
+P11-API-036,/api/v1/ai-recommendations,GET/POST/PATCH,Ai Recommendations,OAuth2/OIDC + tenant and role authorization,Idempotency and audit event required for writes

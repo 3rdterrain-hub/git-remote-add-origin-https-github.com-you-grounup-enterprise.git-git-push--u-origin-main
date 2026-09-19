@@ -1,0 +1,13 @@
+flowchart LR
+ Source[Source Record/Events] --> Contract[Schema/Data Contract]
+ Contract --> Pipeline[Versioned Pipeline/Transformation]
+ Pipeline --> Quality[Quality Checks]
+ Quality --> Recon[Reconciliation]
+ Recon --> Dataset[Certified Dataset]
+ Dataset --> Metric[Certified Metric]
+ Metric --> Report[Report/Dashboard]
+ Source -.lineage.-> Dataset
+ Dataset -.lineage.-> Metric
+ Metric -.lineage.-> Report
+ Quality --> Incident[Analytics Incident if blocking]
+ Recon --> Incident

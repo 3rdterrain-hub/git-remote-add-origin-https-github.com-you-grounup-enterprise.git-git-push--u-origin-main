@@ -1,0 +1,22 @@
+# Phase 02 Validation Rules
+
+- **GES-P02-VAL-000001 API Request.tenant_id:** Required for governed endpoints and must match authenticated context. Severity: Error.
+- **GES-P02-VAL-000002 API Request.idempotency_key:** Required for retryable create and command endpoints; max 128 characters. Severity: Error.
+- **GES-P02-VAL-000003 Event.event_id:** Required UUID/ULID and unique per producer. Severity: Error.
+- **GES-P02-VAL-000004 Event.schema_version:** Required and supported by publisher contract. Severity: Error.
+- **GES-P02-VAL-000005 File.checksum:** Required SHA-256 for accepted content. Severity: Error.
+- **GES-P02-VAL-000006 File.classification:** Required and permitted for tenant and uploader. Severity: Error.
+- **GES-P02-VAL-000007 Schedule.rrule_or_datetime:** Must parse, include timezone context, and not exceed policy frequency. Severity: Error.
+- **GES-P02-VAL-000008 Background Job.max_attempts:** Integer between 1 and tenant policy maximum. Severity: Error.
+- **GES-P02-VAL-000009 Webhook Subscription.endpoint_url:** HTTPS required outside approved development; address must pass SSRF protection. Severity: Error.
+- **GES-P02-VAL-000010 Webhook Event.signature:** Required and computed using active subscription secret/version. Severity: Error.
+- **GES-P02-VAL-000011 Offline Pack.expires_at:** Required and within mobile security policy. Severity: Error.
+- **GES-P02-VAL-000012 Sync Transaction.base_version:** Required for update and delete operations. Severity: Error.
+- **GES-P02-VAL-000013 Quantity.unit_code:** Must exist in active unit registry and be compatible with dimension. Severity: Error.
+- **GES-P02-VAL-000014 Money.currency_code:** Valid active ISO currency code required. Severity: Error.
+- **GES-P02-VAL-000015 AI Request.agent_version:** Required and active in agent registry. Severity: Error.
+- **GES-P02-VAL-000016 AI Tool Call.permission_decision_id:** Required before protected tool execution. Severity: Error.
+- **GES-P02-VAL-000017 Configuration.value:** Must match declared type, range, enum, and scope override policy. Severity: Error.
+- **GES-P02-VAL-000018 Feature Flag.allocation_percent:** Number from 0 through 100. Severity: Error.
+- **GES-P02-VAL-000019 Secret.rotation_due_at:** Required for rotatable credentials and within maximum age policy. Severity: Error.
+- **GES-P02-VAL-000020 Backup.restore_test_status:** Production backup set requires successful or scheduled restore verification. Severity: Warning.

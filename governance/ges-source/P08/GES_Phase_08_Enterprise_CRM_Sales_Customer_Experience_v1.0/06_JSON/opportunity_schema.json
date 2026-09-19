@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Phase 08 Opportunity",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "opportunity_id",
+    "account_id",
+    "stage_code",
+    "currency_code"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "opportunity_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "account_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "stage_code": {
+      "type": "string"
+    },
+    "expected_value": {
+      "type": "number",
+      "minimum": 0
+    },
+    "currency_code": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    },
+    "win_probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "expected_close_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimate_links": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  }
+}

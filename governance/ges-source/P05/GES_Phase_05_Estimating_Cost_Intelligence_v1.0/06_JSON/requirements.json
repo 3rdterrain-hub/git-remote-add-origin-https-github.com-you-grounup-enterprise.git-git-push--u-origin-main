@@ -1,0 +1,1082 @@
+[
+  {
+    "requirement_id": "GES-P05-REQ-001",
+    "module_code": "EST",
+    "title": "Estimate Core canonical model",
+    "requirement": "The platform shall provide estimate core canonical model for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-002",
+    "module_code": "EST",
+    "title": "Estimate Core configurable rules",
+    "requirement": "The platform shall provide estimate core configurable rules for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-003",
+    "module_code": "EST",
+    "title": "Estimate Core auditability",
+    "requirement": "The platform shall provide estimate core auditability for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-004",
+    "module_code": "EST",
+    "title": "Estimate Core permissions",
+    "requirement": "The platform shall provide estimate core permissions for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-005",
+    "module_code": "EST",
+    "title": "Estimate Core import/export",
+    "requirement": "The platform shall provide estimate core import/export for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-006",
+    "module_code": "EST",
+    "title": "Estimate Core validation and testing",
+    "requirement": "The platform shall provide estimate core validation and testing for estimate lifecycle, alternates, versions, approvals, lock/reopen, compare and export.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate estimate core validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-007",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence canonical model",
+    "requirement": "The platform shall provide quantity intelligence canonical model for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-008",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence configurable rules",
+    "requirement": "The platform shall provide quantity intelligence configurable rules for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-009",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence auditability",
+    "requirement": "The platform shall provide quantity intelligence auditability for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-010",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence permissions",
+    "requirement": "The platform shall provide quantity intelligence permissions for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-011",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence import/export",
+    "requirement": "The platform shall provide quantity intelligence import/export for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-012",
+    "module_code": "QTY",
+    "title": "Quantity Intelligence validation and testing",
+    "requirement": "The platform shall provide quantity intelligence validation and testing for manual, imported and ai-derived quantities with geometry, units, factors and confidence.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate quantity intelligence validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-013",
+    "module_code": "TAK",
+    "title": "Takeoff canonical model",
+    "requirement": "The platform shall provide takeoff canonical model for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-014",
+    "module_code": "TAK",
+    "title": "Takeoff configurable rules",
+    "requirement": "The platform shall provide takeoff configurable rules for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-015",
+    "module_code": "TAK",
+    "title": "Takeoff auditability",
+    "requirement": "The platform shall provide takeoff auditability for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-016",
+    "module_code": "TAK",
+    "title": "Takeoff permissions",
+    "requirement": "The platform shall provide takeoff permissions for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-017",
+    "module_code": "TAK",
+    "title": "Takeoff import/export",
+    "requirement": "The platform shall provide takeoff import/export for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-018",
+    "module_code": "TAK",
+    "title": "Takeoff validation and testing",
+    "requirement": "The platform shall provide takeoff validation and testing for pdf/cad/bim/gis/drone source ingestion, calibration, measurement, annotations and revision comparison.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate takeoff validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-019",
+    "module_code": "PRD",
+    "title": "Production canonical model",
+    "requirement": "The platform shall provide production canonical model for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-020",
+    "module_code": "PRD",
+    "title": "Production configurable rules",
+    "requirement": "The platform shall provide production configurable rules for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-021",
+    "module_code": "PRD",
+    "title": "Production auditability",
+    "requirement": "The platform shall provide production auditability for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-022",
+    "module_code": "PRD",
+    "title": "Production permissions",
+    "requirement": "The platform shall provide production permissions for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-023",
+    "module_code": "PRD",
+    "title": "Production import/export",
+    "requirement": "The platform shall provide production import/export for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-024",
+    "module_code": "PRD",
+    "title": "Production validation and testing",
+    "requirement": "The platform shall provide production validation and testing for production rates, crew/equipment balance, conditions, learning curves and historical calibration.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate production validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-025",
+    "module_code": "LAB",
+    "title": "Labor Cost canonical model",
+    "requirement": "The platform shall provide labor cost canonical model for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-026",
+    "module_code": "LAB",
+    "title": "Labor Cost configurable rules",
+    "requirement": "The platform shall provide labor cost configurable rules for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-027",
+    "module_code": "LAB",
+    "title": "Labor Cost auditability",
+    "requirement": "The platform shall provide labor cost auditability for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-028",
+    "module_code": "LAB",
+    "title": "Labor Cost permissions",
+    "requirement": "The platform shall provide labor cost permissions for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-029",
+    "module_code": "LAB",
+    "title": "Labor Cost import/export",
+    "requirement": "The platform shall provide labor cost import/export for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-030",
+    "module_code": "LAB",
+    "title": "Labor Cost validation and testing",
+    "requirement": "The platform shall provide labor cost validation and testing for wages, burdens, overtime, union, travel, per diem and role productivity.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate labor cost validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-031",
+    "module_code": "EQP",
+    "title": "Equipment Cost canonical model",
+    "requirement": "The platform shall provide equipment cost canonical model for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-032",
+    "module_code": "EQP",
+    "title": "Equipment Cost configurable rules",
+    "requirement": "The platform shall provide equipment cost configurable rules for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-033",
+    "module_code": "EQP",
+    "title": "Equipment Cost auditability",
+    "requirement": "The platform shall provide equipment cost auditability for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-034",
+    "module_code": "EQP",
+    "title": "Equipment Cost permissions",
+    "requirement": "The platform shall provide equipment cost permissions for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-035",
+    "module_code": "EQP",
+    "title": "Equipment Cost import/export",
+    "requirement": "The platform shall provide equipment cost import/export for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-036",
+    "module_code": "EQP",
+    "title": "Equipment Cost validation and testing",
+    "requirement": "The platform shall provide equipment cost validation and testing for owned/rented cost, utilization, fuel, maintenance, wear, attachments and standby.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate equipment cost validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-037",
+    "module_code": "MAT",
+    "title": "Material Cost canonical model",
+    "requirement": "The platform shall provide material cost canonical model for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-038",
+    "module_code": "MAT",
+    "title": "Material Cost configurable rules",
+    "requirement": "The platform shall provide material cost configurable rules for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-039",
+    "module_code": "MAT",
+    "title": "Material Cost auditability",
+    "requirement": "The platform shall provide material cost auditability for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-040",
+    "module_code": "MAT",
+    "title": "Material Cost permissions",
+    "requirement": "The platform shall provide material cost permissions for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-041",
+    "module_code": "MAT",
+    "title": "Material Cost import/export",
+    "requirement": "The platform shall provide material cost import/export for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-042",
+    "module_code": "MAT",
+    "title": "Material Cost validation and testing",
+    "requirement": "The platform shall provide material cost validation and testing for quotes, freight, waste, minimums, escalation, lead time and substitutions.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate material cost validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-043",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal canonical model",
+    "requirement": "The platform shall provide hauling & disposal canonical model for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-044",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal configurable rules",
+    "requirement": "The platform shall provide hauling & disposal configurable rules for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-045",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal auditability",
+    "requirement": "The platform shall provide hauling & disposal auditability for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-046",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal permissions",
+    "requirement": "The platform shall provide hauling & disposal permissions for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-047",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal import/export",
+    "requirement": "The platform shall provide hauling & disposal import/export for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-048",
+    "module_code": "HAU",
+    "title": "Hauling & Disposal validation and testing",
+    "requirement": "The platform shall provide hauling & disposal validation and testing for trip cycles, payload, truck count, queues, tipping, swell/shrink and route constraints.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate hauling & disposal validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-049",
+    "module_code": "ASM",
+    "title": "Assemblies canonical model",
+    "requirement": "The platform shall provide assemblies canonical model for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-050",
+    "module_code": "ASM",
+    "title": "Assemblies configurable rules",
+    "requirement": "The platform shall provide assemblies configurable rules for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-051",
+    "module_code": "ASM",
+    "title": "Assemblies auditability",
+    "requirement": "The platform shall provide assemblies auditability for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-052",
+    "module_code": "ASM",
+    "title": "Assemblies permissions",
+    "requirement": "The platform shall provide assemblies permissions for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-053",
+    "module_code": "ASM",
+    "title": "Assemblies import/export",
+    "requirement": "The platform shall provide assemblies import/export for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-054",
+    "module_code": "ASM",
+    "title": "Assemblies validation and testing",
+    "requirement": "The platform shall provide assemblies validation and testing for reusable resource-driven work packages with formulas, options and constraints.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate assemblies validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-055",
+    "module_code": "MUP",
+    "title": "Markup & Margin canonical model",
+    "requirement": "The platform shall provide markup & margin canonical model for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-056",
+    "module_code": "MUP",
+    "title": "Markup & Margin configurable rules",
+    "requirement": "The platform shall provide markup & margin configurable rules for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-057",
+    "module_code": "MUP",
+    "title": "Markup & Margin auditability",
+    "requirement": "The platform shall provide markup & margin auditability for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-058",
+    "module_code": "MUP",
+    "title": "Markup & Margin permissions",
+    "requirement": "The platform shall provide markup & margin permissions for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-059",
+    "module_code": "MUP",
+    "title": "Markup & Margin import/export",
+    "requirement": "The platform shall provide markup & margin import/export for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-060",
+    "module_code": "MUP",
+    "title": "Markup & Margin validation and testing",
+    "requirement": "The platform shall provide markup & margin validation and testing for overhead, contingency, bonds, tax, profit, fee, margin targets and bid rounding.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate markup & margin validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-061",
+    "module_code": "REG",
+    "title": "Regional Pricing canonical model",
+    "requirement": "The platform shall provide regional pricing canonical model for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-062",
+    "module_code": "REG",
+    "title": "Regional Pricing configurable rules",
+    "requirement": "The platform shall provide regional pricing configurable rules for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-063",
+    "module_code": "REG",
+    "title": "Regional Pricing auditability",
+    "requirement": "The platform shall provide regional pricing auditability for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-064",
+    "module_code": "REG",
+    "title": "Regional Pricing permissions",
+    "requirement": "The platform shall provide regional pricing permissions for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-065",
+    "module_code": "REG",
+    "title": "Regional Pricing import/export",
+    "requirement": "The platform shall provide regional pricing import/export for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-066",
+    "module_code": "REG",
+    "title": "Regional Pricing validation and testing",
+    "requirement": "The platform shall provide regional pricing validation and testing for location factors, labor/equipment/material indices, vendor zones and effective dates.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate regional pricing validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-067",
+    "module_code": "RSK",
+    "title": "Risk & Confidence canonical model",
+    "requirement": "The platform shall provide risk & confidence canonical model for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-068",
+    "module_code": "RSK",
+    "title": "Risk & Confidence configurable rules",
+    "requirement": "The platform shall provide risk & confidence configurable rules for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-069",
+    "module_code": "RSK",
+    "title": "Risk & Confidence auditability",
+    "requirement": "The platform shall provide risk & confidence auditability for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-070",
+    "module_code": "RSK",
+    "title": "Risk & Confidence permissions",
+    "requirement": "The platform shall provide risk & confidence permissions for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-071",
+    "module_code": "RSK",
+    "title": "Risk & Confidence import/export",
+    "requirement": "The platform shall provide risk & confidence import/export for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-072",
+    "module_code": "RSK",
+    "title": "Risk & Confidence validation and testing",
+    "requirement": "The platform shall provide risk & confidence validation and testing for risk register, uncertainty ranges, sensitivity, scenario and monte carlo specifications.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate risk & confidence validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-073",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor canonical model",
+    "requirement": "The platform shall provide ai estimating advisor canonical model for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-074",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor configurable rules",
+    "requirement": "The platform shall provide ai estimating advisor configurable rules for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-075",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor auditability",
+    "requirement": "The platform shall provide ai estimating advisor auditability for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-076",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor permissions",
+    "requirement": "The platform shall provide ai estimating advisor permissions for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-077",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor import/export",
+    "requirement": "The platform shall provide ai estimating advisor import/export for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-078",
+    "module_code": "AI",
+    "title": "AI Estimating Advisor validation and testing",
+    "requirement": "The platform shall provide ai estimating advisor validation and testing for document reading, recommendations, anomaly detection, explainability and approval gates.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate ai estimating advisor validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-079",
+    "module_code": "CFG",
+    "title": "Configuration Studio canonical model",
+    "requirement": "The platform shall provide configuration studio canonical model for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-080",
+    "module_code": "CFG",
+    "title": "Configuration Studio configurable rules",
+    "requirement": "The platform shall provide configuration studio configurable rules for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-081",
+    "module_code": "CFG",
+    "title": "Configuration Studio auditability",
+    "requirement": "The platform shall provide configuration studio auditability for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-082",
+    "module_code": "CFG",
+    "title": "Configuration Studio permissions",
+    "requirement": "The platform shall provide configuration studio permissions for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-083",
+    "module_code": "CFG",
+    "title": "Configuration Studio import/export",
+    "requirement": "The platform shall provide configuration studio import/export for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-084",
+    "module_code": "CFG",
+    "title": "Configuration Studio validation and testing",
+    "requirement": "The platform shall provide configuration studio validation and testing for no-code fields, forms, workflows, rules, terminology, themes and tenant overrides.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate configuration studio validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-085",
+    "module_code": "WLB",
+    "title": "White Label & OEM canonical model",
+    "requirement": "The platform shall provide white label & oem canonical model for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-086",
+    "module_code": "WLB",
+    "title": "White Label & OEM configurable rules",
+    "requirement": "The platform shall provide white label & oem configurable rules for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-087",
+    "module_code": "WLB",
+    "title": "White Label & OEM auditability",
+    "requirement": "The platform shall provide white label & oem auditability for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-088",
+    "module_code": "WLB",
+    "title": "White Label & OEM permissions",
+    "requirement": "The platform shall provide white label & oem permissions for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-089",
+    "module_code": "WLB",
+    "title": "White Label & OEM import/export",
+    "requirement": "The platform shall provide white label & oem import/export for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-090",
+    "module_code": "WLB",
+    "title": "White Label & OEM validation and testing",
+    "requirement": "The platform shall provide white label & oem validation and testing for branding, domains, sender identities, portal skinning, reseller hierarchy and app variants.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate white label & oem validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-091",
+    "module_code": "MOB",
+    "title": "Field & Mobile canonical model",
+    "requirement": "The platform shall provide field & mobile canonical model for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-092",
+    "module_code": "MOB",
+    "title": "Field & Mobile configurable rules",
+    "requirement": "The platform shall provide field & mobile configurable rules for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-093",
+    "module_code": "MOB",
+    "title": "Field & Mobile auditability",
+    "requirement": "The platform shall provide field & mobile auditability for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-094",
+    "module_code": "MOB",
+    "title": "Field & Mobile permissions",
+    "requirement": "The platform shall provide field & mobile permissions for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-095",
+    "module_code": "MOB",
+    "title": "Field & Mobile import/export",
+    "requirement": "The platform shall provide field & mobile import/export for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-096",
+    "module_code": "MOB",
+    "title": "Field & Mobile validation and testing",
+    "requirement": "The platform shall provide field & mobile validation and testing for offline capture, actual production, time, equipment, tickets, photos and sync.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate field & mobile validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-097",
+    "module_code": "API",
+    "title": "Integration canonical model",
+    "requirement": "The platform shall provide integration canonical model for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-098",
+    "module_code": "API",
+    "title": "Integration configurable rules",
+    "requirement": "The platform shall provide integration configurable rules for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-099",
+    "module_code": "API",
+    "title": "Integration auditability",
+    "requirement": "The platform shall provide integration auditability for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-100",
+    "module_code": "API",
+    "title": "Integration permissions",
+    "requirement": "The platform shall provide integration permissions for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-101",
+    "module_code": "API",
+    "title": "Integration import/export",
+    "requirement": "The platform shall provide integration import/export for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-102",
+    "module_code": "API",
+    "title": "Integration validation and testing",
+    "requirement": "The platform shall provide integration validation and testing for public apis, webhooks, import/export and accounting/erp/telematics links.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate integration validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-103",
+    "module_code": "RPT",
+    "title": "Reporting canonical model",
+    "requirement": "The platform shall provide reporting canonical model for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting canonical model with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-104",
+    "module_code": "RPT",
+    "title": "Reporting configurable rules",
+    "requirement": "The platform shall provide reporting configurable rules for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting configurable rules with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-105",
+    "module_code": "RPT",
+    "title": "Reporting auditability",
+    "requirement": "The platform shall provide reporting auditability for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting auditability with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-106",
+    "module_code": "RPT",
+    "title": "Reporting permissions",
+    "requirement": "The platform shall provide reporting permissions for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Must",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting permissions with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-107",
+    "module_code": "RPT",
+    "title": "Reporting import/export",
+    "requirement": "The platform shall provide reporting import/export for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting import/export with tenant-specific configuration, role controls, version history, and traceable output."
+  },
+  {
+    "requirement_id": "GES-P05-REQ-108",
+    "module_code": "RPT",
+    "title": "Reporting validation and testing",
+    "requirement": "The platform shall provide reporting validation and testing for estimate review, variance, benchmark, profitability, audit and executive dashboards.",
+    "priority": "Should",
+    "source": "GES roadmap",
+    "status": "Proposed",
+    "acceptance_criteria": "Demonstrate reporting validation and testing with tenant-specific configuration, role controls, version history, and traceable output."
+  }
+]

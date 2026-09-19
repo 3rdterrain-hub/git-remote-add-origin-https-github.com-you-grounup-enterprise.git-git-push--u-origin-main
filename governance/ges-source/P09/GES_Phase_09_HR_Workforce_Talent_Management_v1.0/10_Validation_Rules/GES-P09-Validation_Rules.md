@@ -1,0 +1,22 @@
+# Validation Rules
+
+- **GES-P09-VR-001:** Worker identifier is required and unique within a tenant. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-002:** Employment start date must precede end date. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-003:** Effective-dated records may not contain ambiguous overlapping periods. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-004:** Time entry duration must be positive and within configured maximum shift limits. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-005:** Timecard approval requires all entries to have project and cost allocation where required. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-006:** Credential issue date may not be after expiration date. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-007:** Crew assignment requires a valid project, shift and responsible supervisor. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-008:** Union local must match an active labor agreement for union-rated work. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-009:** Prevailing wage classification must map to an approved determination classification. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-010:** Certified payroll week ending date must align with tenant payroll calendar. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-011:** Candidate consent is required before regulated screening. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-012:** Offer compensation must pass configured approval thresholds. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-013:** Leave request end must not precede start. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-014:** Performance review period must be closed before finalization. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-015:** Medical restriction details must use restricted security classification. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-016:** Payroll export totals must reconcile to approved source records. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-017:** Offline time entries must include device timestamp and synchronization provenance. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-018:** AI recommendations must include confidence, evidence and model/prompt version. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-019:** Termination date requires final employment status and separation reason. Failure: Reject or route for authorized exception.
+- **GES-P09-VR-020:** Required onboarding tasks must be complete before activation unless waived by authorized role. Failure: Reject or route for authorized exception.

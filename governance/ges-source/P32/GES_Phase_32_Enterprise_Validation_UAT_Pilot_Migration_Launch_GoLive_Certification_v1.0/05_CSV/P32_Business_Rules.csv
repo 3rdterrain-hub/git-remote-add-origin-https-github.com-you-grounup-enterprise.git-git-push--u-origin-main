@@ -1,0 +1,41 @@
+rule_id,name,rule,severity
+P32-BR-001,Evidence before pass,No acceptance criterion may be marked passed without traceable evidence.,Blocking
+P32-BR-002,No hidden waiver,"Failed/blocking criteria require explicit exception, residual risk and authorized approval; status cannot be silently changed to pass.",Blocking
+P32-BR-003,Traceability closure,Final certification requires required requirements to map to tests/results/evidence or approved exceptions.,Blocking
+P32-BR-004,UAT independence,UAT represents business/user acceptance and is not replaced by developer unit or integration testing.,Blocking
+P32-BR-005,Representative personas,"UAT covers authorized representative roles, tenant configurations and critical workflows.",Blocking
+P32-BR-006,Pilot isolation,Pilot tenants remain subject to normal tenant/security controls and cannot use production shortcuts that bypass governance.,Blocking
+P32-BR-007,Pilot exit,"Pilot expansion requires defined exit criteria, defect disposition, support readiness and owner approval.",Blocking
+P32-BR-008,Migration dry run,Material migrations require representative dry runs before production cutover.,Blocking
+P32-BR-009,Migration reconciliation,"Migration success requires reconciliation of counts, relationships, balances/control totals and exceptions as applicable.",Blocking
+P32-BR-010,Migration exception control,Rejected/unmapped/invalid records are quarantined or explicitly dispositioned; they are not silently dropped.,Blocking
+P32-BR-011,Migration rollback,Cutover has explicit rollback or forward-recovery strategy with decision point and data-consistency implications.,Blocking
+P32-BR-012,Cutover dependency order,"Cutover steps declare dependencies, owner, expected duration, verification and rollback/stop condition.",Blocking
+P32-BR-013,Change freeze,Material go-live uses a defined change freeze or controlled exception process.,Blocking
+P32-BR-014,Go/no-go authority,Only named authorized decision makers can approve production go-live.,Blocking
+P32-BR-015,No-go is valid,The system/process must support a no-go decision without pressure to mark incomplete gates passed.,Blocking
+P32-BR-016,Production verification,"Go-live is not complete until critical production workflows, security and tenant boundaries are verified.",Blocking
+P32-BR-017,Training readiness,Required administrators/support roles complete training or receive approved exception before launch.,Blocking
+P32-BR-018,Support readiness,"Support routing, severity, escalation, knowledge/runbooks and ownership are ready before customer launch.",Blocking
+P32-BR-019,Hypercare bounded,"Hypercare has start/end criteria, enhanced monitoring, ownership and handoff to steady-state operations.",Blocking
+P32-BR-020,Defect severity,Defects use consistent severity/priority definitions and release-blocking rules.,Blocking
+P32-BR-021,Retest required,A fixed blocking defect is not closed until retest evidence passes.,Blocking
+P32-BR-022,Known issue transparency,"Accepted known issues document impact, workaround if legitimate, owner, target disposition and communication requirements.",Blocking
+P32-BR-023,Risk acceptance,"Residual risk acceptance identifies scope, likelihood/impact, mitigation, approver and expiration/review where applicable.",Blocking
+P32-BR-024,Security certification,Security acceptance cannot be overridden by commercial or schedule pressure without formal authorized risk process.,Blocking
+P32-BR-025,Performance certification,Critical performance/capacity gates must use approved representative workloads.,Blocking
+P32-BR-026,Data acceptance,Migration/data quality acceptance is separate from application functional acceptance.,Blocking
+P32-BR-027,AI acceptance,"AI features are accepted against grounding, permission, confidence, audit and human-control requirements, not subjective demo quality alone.",Blocking
+P32-BR-028,Analytics acceptance,"Certified reports/metrics are accepted against definitions, freshness, reconciliation and permissions.",Blocking
+P32-BR-029,Commercial acceptance,"Plan, billing, usage and entitlement acceptance requires deterministic reconciliation and security boundary tests.",Blocking
+P32-BR-030,Operational acceptance,"Monitoring, alerts, runbooks, backup/restore, DR, production access and on-call readiness must be evidenced.",Blocking
+P32-BR-031,Final certification aggregation,"Final release certification aggregates business, product, security, data, operations and customer readiness gates.",Blocking
+P32-BR-032,Certification immutability,A signed/approved certification record is versioned and not silently rewritten; later changes create a new decision/release record.,Blocking
+P32-BR-033,Evidence retention,Final evidence package and signoffs follow release/audit retention policy.,Blocking
+P32-BR-034,Launch communication,Customer-facing launch statements must match actually certified capabilities and known limitations.,Blocking
+P32-BR-035,KPI baseline,"Launch success measures establish baseline, owner, formula/source and review period.",Blocking
+P32-BR-036,Customer success handoff,"Post-launch ownership for adoption, health, support risks and renewal/expansion signals is explicit.",Blocking
+P32-BR-037,Post-go-live review,"Material launch incidents, defects and process failures feed corrective actions and future release gates.",Blocking
+P32-BR-038,Archive completeness,"Final release archive includes specifications, manifests, code/package references, approvals, known issues and evidence indexes.",Blocking
+P32-BR-039,Production release naming,GES v1.0 production certification applies only to the exact version/artifact/configuration scope named in the certification.,Blocking
+P32-BR-040,No false completion,"Phase 32 artifacts define and manage acceptance; they do not claim real-world UAT, pilot, migration or production certification has occurred until evidence is populated and approved.",Blocking

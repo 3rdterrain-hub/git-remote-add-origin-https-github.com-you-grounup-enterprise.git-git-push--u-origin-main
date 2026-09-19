@@ -1,0 +1,24 @@
+# Engine Specifications
+
+| ID | Engine | Definition |
+|---|---|---|
+| GES-P08-ENG-001 | Lead Capture Engine | Normalizes inbound forms, calls, emails, ads, imports, and partner submissions. |
+| GES-P08-ENG-002 | Identity Resolution Engine | Matches and merges people and organizations using governed confidence thresholds. |
+| GES-P08-ENG-003 | Attribution Engine | Calculates first-touch, last-touch, multi-touch, and configurable campaign attribution. |
+| GES-P08-ENG-004 | Lead Scoring Engine | Scores fit, intent, engagement, geography, service alignment, and risk. |
+| GES-P08-ENG-005 | Assignment Engine | Routes work by territory, trade, capacity, account rules, and service-level objectives. |
+| GES-P08-ENG-006 | Pipeline Engine | Manages stages, transitions, aging, velocity, and probability. |
+| GES-P08-ENG-007 | Opportunity Valuation Engine | Combines estimate values, alternatives, allowances, probability, and expected close date. |
+| GES-P08-ENG-008 | Proposal Generation Engine | Builds branded proposals from approved scope, pricing, options, terms, and templates. |
+| GES-P08-ENG-009 | Commercial Approval Engine | Routes discounts, margin exceptions, payment terms, and risk clauses. |
+| GES-P08-ENG-010 | E-Signature Orchestration Engine | Coordinates identity, signing order, evidence, callbacks, and tamper validation. |
+| GES-P08-ENG-011 | Marketing Automation Engine | Executes event-, schedule-, and behavior-triggered journeys. |
+| GES-P08-ENG-012 | Communication Orchestration Engine | Coordinates email, SMS, calls, portal, notifications, and suppression. |
+| GES-P08-ENG-013 | Customer Intelligence Engine | Maintains the 360-degree customer profile and timeline. |
+| GES-P08-ENG-014 | Next Best Action Engine | Ranks follow-up, nurture, cross-sell, retention, and escalation actions. |
+| GES-P08-ENG-015 | Revenue Forecast Engine | Produces weighted, category, scenario, and confidence-based forecasts. |
+| GES-P08-ENG-016 | Customer Health Engine | Scores engagement, project experience, payment, warranty, survey, and communication signals. |
+| GES-P08-ENG-017 | Reputation Engine | Manages surveys, review requests, public review ingestion, and response workflow. |
+| GES-P08-ENG-018 | Referral Engine | Attributes referrals, validates eligibility, and manages rewards. |
+| GES-P08-ENG-019 | Partner Channel Engine | Supports reseller, OEM, franchise, GC, builder, and municipal relationship workflows. |
+| GES-P08-ENG-020 | CRM Audit & Compliance Engine | Enforces retention, consent, legal hold, export controls, and audit evidence. |

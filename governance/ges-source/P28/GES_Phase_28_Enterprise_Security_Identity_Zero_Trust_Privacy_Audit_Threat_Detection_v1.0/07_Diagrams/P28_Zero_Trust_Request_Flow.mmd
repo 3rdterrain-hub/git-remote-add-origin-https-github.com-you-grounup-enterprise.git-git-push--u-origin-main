@@ -1,0 +1,15 @@
+flowchart LR
+ Request --> AuthN[Authenticate]
+ AuthN --> Risk[Session/Device/Risk Context]
+ Risk --> Tenant[Tenant Resolution]
+ Tenant --> Class[Data/Resource Classification]
+ Class --> PDP[Policy Decision Point]
+ PDP --> MFA{Step-Up Required?}
+ MFA -->|Yes| Step[Strong Reauthentication/MFA]
+ MFA -->|No| PEP[Policy Enforcement]
+ Step --> PEP
+ PEP --> Service[Authorized Service/Tool]
+ Service --> Audit[Security + Business Audit]
+ Service --> Telemetry[Security Telemetry]
+ Telemetry --> Detect[Threat Detection]
+ Detect --> Alert[Alert / Incident]

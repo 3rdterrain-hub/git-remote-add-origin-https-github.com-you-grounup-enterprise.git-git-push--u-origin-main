@@ -1,0 +1,11 @@
+stateDiagram-v2
+[*] --> Captured
+Captured --> Validated
+Validated --> Matched
+Validated --> Exception
+Exception --> Validated
+Matched --> Approved
+Approved --> Scheduled
+Scheduled --> Paid
+Paid --> Reconciled
+Reconciled --> [*]

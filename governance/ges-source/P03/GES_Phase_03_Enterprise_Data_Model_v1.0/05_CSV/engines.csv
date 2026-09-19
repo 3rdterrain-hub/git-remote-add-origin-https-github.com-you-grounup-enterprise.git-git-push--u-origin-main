@@ -1,0 +1,11 @@
+﻿Engine_ID,Name,Inputs,Outputs,Core_Rule
+ENG-P03-001,Identifier Engine,entity type; tenant; source context,immutable global identifier; alias mapping,Identifiers are stable and non-guessable
+ENG-P03-002,Reference Resolution Engine,entity reference; tenant; effective date,resolved active record or validation error,"Tenant, lifecycle, and effective dates must be compatible"
+ENG-P03-003,Master Data Matching Engine,party or resource attributes; aliases; external IDs,candidate duplicates; confidence; match reasons,No automatic merge above configured risk threshold
+ENG-P03-004,Effective Dating Engine,records; key dimensions; start/end dates,active version; overlap result; timeline,Enforce non-overlap where declared
+ENG-P03-005,Data Quality Engine,entity data; quality rules; thresholds,scores; failed rules; exceptions,Never silently change source values
+ENG-P03-006,Lineage Engine,source values; transformations; rules; AI execution,lineage graph; provenance references,Every derived value is traceable to inputs and logic
+ENG-P03-007,Schema Compatibility Engine,old schema; new schema; consumers,breaking-change assessment; migration requirements,Published contracts require declared compatibility
+ENG-P03-008,Retention Resolution Engine,entity; classification; jurisdiction; hold,retention schedule; disposition eligibility,Legal hold overrides expiration
+ENG-P03-009,Unit and Currency Context Engine,value; unit/currency; effective conversion,normalized value; display value; provenance,No implicit cross-context arithmetic
+ENG-P03-010,AI Writeback Guard Engine,recommendation; actor; record version; approval; policy,allow/deny; required review; writeback payload,AI cannot exceed caller or agent authority

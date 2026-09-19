@@ -1,0 +1,162 @@
+[
+  {
+    "validation_id": "GES-P05-VR-001",
+    "field": "Estimate.name",
+    "rule": "Required and 3-200 characters",
+    "error_message": "Enter an estimate name.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-002",
+    "field": "Estimate.currency",
+    "rule": "ISO 4217 code",
+    "error_message": "Select a valid currency.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-003",
+    "field": "EstimateLine.quantity",
+    "rule": "Numeric and not null",
+    "error_message": "Enter a valid quantity.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-004",
+    "field": "EstimateLine.unit",
+    "rule": "Active unit and dimension-compatible",
+    "error_message": "Select a compatible unit.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-005",
+    "field": "EstimateLine.unit_cost",
+    "rule": "Numeric; negative requires adjustment type",
+    "error_message": "Enter a valid unit cost.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-006",
+    "field": "ProductionRate.output",
+    "rule": "Greater than zero",
+    "error_message": "Production output must be greater than zero.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-007",
+    "field": "LaborRate.effective_from",
+    "rule": "Required date",
+    "error_message": "Enter an effective date.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-008",
+    "field": "EquipmentRate.rate_basis",
+    "rule": "Hourly, daily, weekly, monthly or unit",
+    "error_message": "Select a valid rate basis.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-009",
+    "field": "MaterialPrice.vendor_id",
+    "rule": "Required when source type is vendor",
+    "error_message": "Select the vendor.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-010",
+    "field": "TruckCycle.payload",
+    "rule": "Greater than zero and within vehicle limit",
+    "error_message": "Enter a valid payload.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-011",
+    "field": "TruckCycle.distance",
+    "rule": "Nonnegative",
+    "error_message": "Distance cannot be negative.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-012",
+    "field": "MarkupProfile.sequence",
+    "rule": "Unique positive integers",
+    "error_message": "Correct markup sequence.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-013",
+    "field": "RegionalFactor.factor",
+    "rule": "Within configured min/max",
+    "error_message": "Regional factor is outside allowed range.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-014",
+    "field": "AIRecommendation.confidence",
+    "rule": "0-100",
+    "error_message": "Confidence must be 0 through 100.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-015",
+    "field": "ApprovalStep.decision",
+    "rule": "Approved, Rejected, Returned or Pending",
+    "error_message": "Select a valid decision.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-016",
+    "field": "WhiteLabelConfiguration.domain",
+    "rule": "Unique verified domain when enabled",
+    "error_message": "Verify and assign a unique domain.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-017",
+    "field": "CustomFieldDefinition.data_type",
+    "rule": "Supported field type",
+    "error_message": "Select a supported data type.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-018",
+    "field": "ActualProductionRecord.work_date",
+    "rule": "Not future beyond policy",
+    "error_message": "Enter a valid work date.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-019",
+    "field": "EstimateVersion.version_no",
+    "rule": "Unique within estimate",
+    "error_message": "Version number already exists.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  },
+  {
+    "validation_id": "GES-P05-VR-020",
+    "field": "VendorQuote.expiration_date",
+    "rule": "On or after issue date",
+    "error_message": "Quote expiration must follow issue date.",
+    "timing": "Save and submit",
+    "severity": "Error"
+  }
+]

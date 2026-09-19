@@ -1,0 +1,11 @@
+﻿Domain,Purpose
+Identity & Access,"Authentication, authorization, sessions, service identities, and device trust"
+Tenancy,"Tenant context, isolation, provisioning, and regional placement"
+Platform Services,"Files, search, notifications, scheduler, jobs, cache, metadata, tags, and audit"
+Workflow & Rules,"Workflow orchestration, rules execution, approvals, state transitions, and timers"
+Integration,"API gateway, webhooks, connectors, imports, exports, and event contracts"
+Mobile & Offline,"Mobile shell, offline data packs, sync, conflict resolution, and field resilience"
+Observability,"Logs, metrics, traces, health checks, alerting, and operational dashboards"
+Security,"Encryption, secrets, key management, secure configuration, threat controls, and recovery"
+Localization,"Time zones, languages, currencies, units, regional formats, and calendars"
+AI Platform,"Agent registry, model gateway, tool execution, evidence, policy, and AI event logging"

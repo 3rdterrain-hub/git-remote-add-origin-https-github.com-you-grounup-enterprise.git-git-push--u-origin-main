@@ -1,0 +1,31 @@
+{
+  "project_id": "00000000-0000-0000-0000-000000000007",
+  "report_date": "2026-07-24",
+  "shift": "Day",
+  "weather": {
+    "condition": "Partly cloudy",
+    "high_f": 84
+  },
+  "labor": [
+    {
+      "crew": "Earthwork Crew A",
+      "regular_hours": 80,
+      "overtime_hours": 4
+    }
+  ],
+  "equipment": [
+    {
+      "asset": "Excavator 350",
+      "productive_hours": 8.5,
+      "idle_hours": 1.0
+    }
+  ],
+  "production": [
+    {
+      "operation": "Mass excavation",
+      "quantity": 2150,
+      "unit": "CY"
+    }
+  ],
+  "status": "submitted"
+}

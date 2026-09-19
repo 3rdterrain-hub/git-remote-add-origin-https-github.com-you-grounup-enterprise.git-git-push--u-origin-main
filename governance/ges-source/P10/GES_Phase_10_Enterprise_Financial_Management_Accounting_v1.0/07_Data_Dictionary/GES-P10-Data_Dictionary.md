@@ -1,0 +1,154 @@
+# Phase 10 Data Dictionary
+
+| Entity | Field | Type | Definition | Required | Control |
+|---|---|---|---|---|---|
+| FinancialTenantProfile | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| FinancialTenantProfile | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| LegalEntity | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| LegalEntity | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| LegalEntity | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| LegalEntity | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| LegalEntity | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| LegalEntity | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| LegalEntity | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| LegalEntity | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| LegalEntity | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| LegalEntity | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| Company | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| Company | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| Company | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| Company | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| Company | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| Company | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| Company | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| Company | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| Company | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| Company | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| BusinessUnit | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| BusinessUnit | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| BusinessUnit | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| FiscalCalendar | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| FiscalCalendar | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| FiscalCalendar | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| FiscalPeriod | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| FiscalPeriod | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| FiscalPeriod | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| Currency | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| Currency | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| Currency | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| Currency | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| Currency | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| Currency | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| Currency | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| Currency | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| Currency | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| Currency | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| ExchangeRate | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| ExchangeRate | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| ExchangeRate | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| ChartOfAccounts | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| ChartOfAccounts | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| ChartOfAccounts | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| Account | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| Account | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| Account | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| Account | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| Account | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| Account | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| Account | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| Account | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| Account | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| Account | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| AccountingDimension | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| AccountingDimension | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| AccountingDimension | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| DimensionValue | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| DimensionValue | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| DimensionValue | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| DimensionValue | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| DimensionValue | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| DimensionValue | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| DimensionValue | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| DimensionValue | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| DimensionValue | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| DimensionValue | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| PostingProfile | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| PostingProfile | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| PostingProfile | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| PostingProfile | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| PostingProfile | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| PostingProfile | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| PostingProfile | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| PostingProfile | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| PostingProfile | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| PostingProfile | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| NumberSequence | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| NumberSequence | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| NumberSequence | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| NumberSequence | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| NumberSequence | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| NumberSequence | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| NumberSequence | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| NumberSequence | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| NumberSequence | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| NumberSequence | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |
+| FinancialPolicy | tenant_id | UUID | Owning tenant identifier | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | company_id | UUID | Owning legal entity/company | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | id | UUID | Canonical record identifier | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | status | String | Controlled lifecycle status | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | created_at | DateTime | Creation timestamp | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | created_by | UUID | Creating principal | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | updated_at | DateTime | Last update timestamp | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | updated_by | UUID | Last updating principal | Y | Tenant-scoped; audit controlled |
+| FinancialPolicy | effective_from | Date | Effective start date | N | Tenant-scoped; audit controlled |
+| FinancialPolicy | effective_to | Date | Effective end date | N | Tenant-scoped; audit controlled |

@@ -1,0 +1,125 @@
+{
+  "version": "1.0.0-review",
+  "workflows": [
+    {
+      "workflow_id": "WF-P02-001",
+      "name": "Authenticated Request",
+      "actors": "Client; Gateway; Identity; Authorization; Service",
+      "states": "Received; Authenticated; Authorized; Processing; Completed; Failed",
+      "trigger": "Inbound request",
+      "core_steps": "Validate transport; authenticate; resolve tenant; authorize; execute; audit; respond",
+      "output": "Governed response",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-002",
+      "name": "File Upload and Acceptance",
+      "actors": "User; File Service; Scanner; Classifier",
+      "states": "Initiated; Uploading; Checksumming; Scanning; Accepted; Quarantined; Rejected",
+      "trigger": "Upload initiated",
+      "core_steps": "Create upload session; stream chunks; verify checksum; scan; classify; create immutable version; index",
+      "output": "Accepted file version or quarantine case",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-003",
+      "name": "Search Indexing",
+      "actors": "Domain Service; Event Bus; Search Indexer",
+      "states": "Queued; Reading; Transforming; ACL Build; Indexed; Failed",
+      "trigger": "Source record event",
+      "core_steps": "Read source; create permission tokens; transform fields; index; mark version",
+      "output": "Permission-aware search document",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P02-004",
+      "name": "Background Job Execution",
+      "actors": "Producer; Job Service; Worker",
+      "states": "Queued; Claimed; Running; Retry; Succeeded; Failed; Dead-lettered",
+      "trigger": "Job submitted",
+      "core_steps": "Validate payload; claim lease; execute; checkpoint; retry; dead-letter; notify",
+      "output": "Durable job result",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-005",
+      "name": "Durable Workflow Execution",
+      "actors": "Workflow Engine; Domain Services; Approvers",
+      "states": "Created; Running; Waiting; Compensating; Completed; Failed; Cancelled",
+      "trigger": "Workflow start",
+      "core_steps": "Load definition; execute steps; persist state; wait timers/events; retry or compensate",
+      "output": "Workflow outcome and history",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-006",
+      "name": "Webhook Delivery",
+      "actors": "Event Bus; Webhook Service; Consumer",
+      "states": "Queued; Signed; Sending; Delivered; Retry; Failed; Dead-lettered",
+      "trigger": "Subscribed event",
+      "core_steps": "Build payload; sign; deliver; capture response; backoff; dead-letter; notify",
+      "output": "Delivery result",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P02-007",
+      "name": "Import Batch",
+      "actors": "User; Import Engine; Validator; Domain Services",
+      "states": "Uploaded; Mapping; Validating; Preview; Importing; Completed; Failed",
+      "trigger": "Import file submitted",
+      "core_steps": "Parse; map; validate rows; preview; approve; write idempotently; report errors",
+      "output": "Import results and audit",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P02-008",
+      "name": "Offline Synchronization",
+      "actors": "Mobile Client; Sync Service; Domain Service",
+      "states": "Prepared; Uploading; Evaluating; Applying; Conflict; Completed; Failed",
+      "trigger": "Connectivity restored or sync requested",
+      "core_steps": "Authenticate device; upload queue; validate base versions; apply or resolve; download deltas; confirm",
+      "output": "Sync receipt and updated local state",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-009",
+      "name": "Feature Rollout",
+      "actors": "Product Owner; Release Manager; Flag Service",
+      "states": "Draft; Review; Active; Paused; Expanded; Rolled Back; Retired",
+      "trigger": "Feature ready",
+      "core_steps": "Define targeting; approve; enable small cohort; monitor; expand or rollback",
+      "output": "Controlled rollout",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P02-010",
+      "name": "Secret Rotation",
+      "actors": "Owner; Secret Manager; Dependent Service",
+      "states": "Scheduled; Creating; Updating; Verifying; Revoking Old; Completed; Failed",
+      "trigger": "Rotation due",
+      "core_steps": "Create new secret; update references; verify; revoke old; audit",
+      "output": "Rotated credential",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-011",
+      "name": "Backup and Restore Verification",
+      "actors": "Backup Service; Operator; Verification Environment",
+      "states": "Scheduled; Backing Up; Available; Restoring; Verifying; Passed; Failed",
+      "trigger": "Backup schedule",
+      "core_steps": "Create encrypted backup; verify checksum; restore isolated; run validation; record evidence",
+      "output": "Verified recovery point",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P02-012",
+      "name": "AI Execution",
+      "actors": "User/Workflow; AI Gateway; Agent Runtime; Tool Service",
+      "states": "Requested; Policy Check; Running; Tool Await; Evidence Check; Completed; Blocked; Failed",
+      "trigger": "AI capability invoked",
+      "core_steps": "Resolve agent/version; authorize; redact; call model; execute tools; attach evidence; meter; audit",
+      "output": "Governed AI result",
+      "priority": "Critical"
+    }
+  ]
+}

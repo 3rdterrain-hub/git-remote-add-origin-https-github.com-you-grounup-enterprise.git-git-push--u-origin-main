@@ -1,0 +1,140 @@
+{
+  "version": "1.0.0-review",
+  "test_cases": [
+    {
+      "test_id": "TEST-P01-001",
+      "requirement_id": "GOV-000001",
+      "scenario": "Cross-tenant isolation",
+      "preconditions": "Two active tenants and users",
+      "steps": "Attempt to read tenant B record as tenant A user",
+      "expected_result": "Request denied and audit event recorded",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-002",
+      "requirement_id": "GOV-000003",
+      "scenario": "Permission grant",
+      "preconditions": "Active user and role",
+      "steps": "Assign role with project-scoped permission",
+      "expected_result": "Authorized project action succeeds; other projects remain denied",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-003",
+      "requirement_id": "GOV-000005",
+      "scenario": "Segregation of duties",
+      "preconditions": "Dual-control approval policy",
+      "steps": "Requester attempts self-approval",
+      "expected_result": "Approval blocked with conflict reason",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-004",
+      "requirement_id": "GOV-000006",
+      "scenario": "User suspension",
+      "preconditions": "Active user with sessions",
+      "steps": "Suspend user",
+      "expected_result": "All sessions revoked; sign-in blocked; history retained",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-005",
+      "requirement_id": "GOV-000008",
+      "scenario": "Policy overlap",
+      "preconditions": "Existing active version",
+      "steps": "Activate overlapping version",
+      "expected_result": "Activation blocked until replacement transaction resolves overlap",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-006",
+      "requirement_id": "GOV-000009",
+      "scenario": "Configuration precedence",
+      "preconditions": "Values at tenant, company, and project",
+      "steps": "Resolve effective project value",
+      "expected_result": "Highest authorized active layer returned with source lineage",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-007",
+      "requirement_id": "GOV-000010",
+      "scenario": "Approval routing",
+      "preconditions": "Amount and risk-based policy",
+      "steps": "Submit qualifying request",
+      "expected_result": "Correct stages and eligible approvers generated",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-008",
+      "requirement_id": "GOV-000012",
+      "scenario": "Audit completeness",
+      "preconditions": "Material admin change",
+      "steps": "Change a role assignment",
+      "expected_result": "Audit event includes actor, action, object, time, before/after reference, correlation",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-009",
+      "requirement_id": "GOV-000014",
+      "scenario": "Legal hold",
+      "preconditions": "Expired retention and active hold",
+      "steps": "Run disposition",
+      "expected_result": "Purge suppressed and exception logged",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-010",
+      "requirement_id": "GOV-000016",
+      "scenario": "Locked baseline change",
+      "preconditions": "Locked policy version",
+      "steps": "Attempt direct edit",
+      "expected_result": "Edit rejected; change request path offered",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-011",
+      "requirement_id": "GOV-000017",
+      "scenario": "AI authorization",
+      "preconditions": "AI agent lacks permission",
+      "steps": "Agent attempts protected action",
+      "expected_result": "Action denied and agent/tool audit event recorded",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-012",
+      "requirement_id": "GOV-000018",
+      "scenario": "AI proposal approval",
+      "preconditions": "Material AI record change",
+      "steps": "Submit proposal and approve",
+      "expected_result": "Writeback occurs only after approval and preserves evidence",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-013",
+      "requirement_id": "GOV-000020",
+      "scenario": "Break-glass expiry",
+      "preconditions": "Approved 30-minute grant",
+      "steps": "Wait beyond expiration",
+      "expected_result": "Access automatically revoked and review case opened",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-014",
+      "requirement_id": "GOV-000022",
+      "scenario": "Tenant provisioning",
+      "preconditions": "Valid tenant template",
+      "steps": "Provision tenant",
+      "expected_result": "Tenant, owner, defaults, entitlements, and validation report created",
+      "status": "Planned"
+    },
+    {
+      "test_id": "TEST-P01-015",
+      "requirement_id": "GOV-000023",
+      "scenario": "Entitlement expiration",
+      "preconditions": "Expired feature entitlement",
+      "steps": "Start new feature workflow",
+      "expected_result": "New use blocked; historical records remain readable per policy",
+      "status": "Planned"
+    }
+  ]
+}

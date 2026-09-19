@@ -1,0 +1,39 @@
+{
+  "phase": "28",
+  "name": "Enterprise Security, Identity, Zero Trust, Privacy, Audit & Threat Detection",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase27": {
+    "requirements": 480,
+    "modules": 36,
+    "entities": 40,
+    "apis": 28,
+    "events": 23,
+    "business_rules": 28,
+    "security_controls": 14,
+    "quality_gates": 16
+  },
+  "counts": {
+    "requirements": 500,
+    "tests": 500,
+    "modules": 40,
+    "entities": 48,
+    "apis": 32,
+    "events": 24,
+    "business_rules": 30,
+    "security_controls": 20,
+    "quality_gates": 18,
+    "threats": 16
+  },
+  "non_negotiable_controls": [
+    "Default deny and least privilege",
+    "Strict tenant isolation",
+    "MFA/step-up for privileged risk",
+    "Managed secrets/keys/certificates",
+    "Protected audit integrity",
+    "Secure SDLC gates",
+    "AI security inherits ordinary access/data policies",
+    "Security exceptions are time-bound and auditable",
+    "Backups preserve equivalent security controls"
+  ]
+}

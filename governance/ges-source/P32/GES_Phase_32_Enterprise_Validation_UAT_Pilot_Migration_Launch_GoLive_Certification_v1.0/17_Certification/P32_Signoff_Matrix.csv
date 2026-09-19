@@ -1,0 +1,9 @@
+approval,approver_role,scope,status,requirement
+Business Acceptance,Business Owner,Critical workflows/UAT/business rules,Pending evidence,Required
+Product Acceptance,Product Owner,"Scope, requirements, UX, known issues",Pending evidence,Required
+Security Acceptance,Security Authority,Security/privacy/tenant/supply-chain gates,Pending evidence,Required
+Data Acceptance,Data/Migration Owner,"Migration, reconciliation, analytics data",Pending evidence,Required if migration/data
+Operations Acceptance,SRE/Operations Owner,"Monitoring, support, backup/restore, DR",Pending evidence,Required
+Commercial Acceptance,Finance/RevOps/Product,"Billing, entitlements, plans, usage",Pending evidence,Required for SaaS
+Customer/Pilot Acceptance,Authorized Pilot/UAT Sponsor,Pilot/UAT exit criteria,Pending evidence,Required before broad launch
+Executive Go-Live,Authorized Go-Live Authority,Aggregated go/no-go decision,Pending evidence,Final

@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0-review",
+  "ui_surfaces": [
+    {
+      "ui_id": "UI-P01-001",
+      "name": "Governance Dashboard",
+      "primary_users": "Governance Admin; Executive",
+      "purpose": "Tenant status, access risk, pending approvals, policy status, exceptions, recent admin changes"
+    },
+    {
+      "ui_id": "UI-P01-002",
+      "name": "Organization Designer",
+      "primary_users": "Platform Admin",
+      "purpose": "Create and version company, office, department, and division hierarchy"
+    },
+    {
+      "ui_id": "UI-P01-003",
+      "name": "User Administration",
+      "primary_users": "Identity Admin",
+      "purpose": "Invite, activate, suspend, terminate, restore, and inspect users"
+    },
+    {
+      "ui_id": "UI-P01-004",
+      "name": "Role and Permission Studio",
+      "primary_users": "Security Admin",
+      "purpose": "Create roles, assign permissions, inspect effective access, and identify conflicts"
+    },
+    {
+      "ui_id": "UI-P01-005",
+      "name": "Policy Center",
+      "primary_users": "Compliance Manager",
+      "purpose": "Draft, review, publish, acknowledge, supersede, and retire policies"
+    },
+    {
+      "ui_id": "UI-P01-006",
+      "name": "Configuration Center",
+      "primary_users": "Platform Admin",
+      "purpose": "Define layered settings, preview effective values, compare scopes, and schedule changes"
+    },
+    {
+      "ui_id": "UI-P01-007",
+      "name": "Approval Administration",
+      "primary_users": "Workflow Admin",
+      "purpose": "Configure approval policies, routing, delegations, thresholds, and escalation"
+    },
+    {
+      "ui_id": "UI-P01-008",
+      "name": "Audit Explorer",
+      "primary_users": "Auditor; Security Admin",
+      "purpose": "Search, filter, correlate, export, and review immutable events"
+    },
+    {
+      "ui_id": "UI-P01-009",
+      "name": "Records and Retention",
+      "primary_users": "Records Manager",
+      "purpose": "Manage classifications, schedules, legal holds, disposition, and exceptions"
+    },
+    {
+      "ui_id": "UI-P01-010",
+      "name": "Change Control Board",
+      "primary_users": "Governance Reviewers",
+      "purpose": "Review impact, dependencies, approvals, implementation, verification, and closure"
+    },
+    {
+      "ui_id": "UI-P01-011",
+      "name": "Emergency Access Console",
+      "primary_users": "Security Admin",
+      "purpose": "Approve, monitor, revoke, and review break-glass access"
+    },
+    {
+      "ui_id": "UI-P01-012",
+      "name": "AI Governance Queue",
+      "primary_users": "AI Reviewer",
+      "purpose": "Review AI evidence, confidence, target diff, approval, and writeback status"
+    }
+  ]
+}

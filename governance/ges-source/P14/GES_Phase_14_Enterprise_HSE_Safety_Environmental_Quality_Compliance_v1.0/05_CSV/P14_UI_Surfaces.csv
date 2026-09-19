@@ -1,0 +1,36 @@
+ui_id,name,domain,capabilities,form_factor
+P14-UI-001,HSEQ Command Center,Safety Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-002,Safety Dashboard,Incident & Near-Miss Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-003,Environmental Dashboard,JHA/JSA & Pre-Task Planning,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-004,Quality Dashboard,Permits to Work,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-005,Compliance Dashboard,Training & Competency,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-006,Hazard & Risk Register,Environmental Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-007,JHA/JSA Workspace,Quality Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-008,Pre-Task Planning Mobile,Compliance & Regulatory,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-009,Toolbox Talk Mobile,Industrial Hygiene,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-010,Safety Observation Mobile,Emergency Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-011,Stop Work Center,Subcontractor HSEQ,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-012,Incident & Near-Miss Center,Equipment & Fleet Safety,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-013,Investigation Workspace,Public & Traffic Safety,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-014,CAPA Center,Corrective & Preventive Action,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-015,Permit-to-Work Center,Audit & Assurance,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-016,Training & Competency,HSEQ Analytics,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-017,Inspection Center,AI HSEQ Intelligence,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-018,Audit & Assurance,HSEQ Digital Twin,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-019,Environmental Compliance,Safety Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-020,SWPPP & Erosion Control,Incident & Near-Miss Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-021,Spill & Waste Management,JHA/JSA & Pre-Task Planning,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-022,Industrial Hygiene,Permits to Work,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-023,Emergency Management,Training & Competency,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-024,Quality ITP & Testing,Environmental Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-025,NCR & Deficiency Center,Quality Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-026,Subcontractor HSEQ,Compliance & Regulatory,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-027,Fleet & Operator Safety,Industrial Hygiene,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-028,Traffic/Public Safety,Emergency Management,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-029,Regulatory Calendar,Subcontractor HSEQ,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-030,HSEQ Analytics,Equipment & Fleet Safety,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-031,AI HSEQ Review,Public & Traffic Safety,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-032,Evidence & Audit Trail,Corrective & Preventive Action,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-033,HSEQ Administration,Audit & Assurance,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-034,Mobile Safety Home,HSEQ Analytics,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile
+P14-UI-035,HSEQ Digital Twin,AI HSEQ Intelligence,Role-based; mobile-first where field-facing; offline capture where configured; signatures/photos/evidence; accessibility,Web/tablet/mobile

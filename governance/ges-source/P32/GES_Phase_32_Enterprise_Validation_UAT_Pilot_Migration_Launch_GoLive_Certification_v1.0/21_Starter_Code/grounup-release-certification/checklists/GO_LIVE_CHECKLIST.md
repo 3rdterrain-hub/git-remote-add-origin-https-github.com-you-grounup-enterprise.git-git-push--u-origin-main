@@ -1,0 +1,12 @@
+# Go-Live Checklist
+- Exact release/artifact/configuration identified
+- Required requirements and traceability closed
+- UAT signed off
+- Pilot exit approved
+- Migration dry run/reconciliation approved
+- Security/performance/operations gates approved
+- Support/training/hypercare ready
+- Cutover dependencies, freeze, rollback and communications approved
+- Known issues and residual risks dispositioned
+- Authorized GO decision recorded
+- Production verification plan ready

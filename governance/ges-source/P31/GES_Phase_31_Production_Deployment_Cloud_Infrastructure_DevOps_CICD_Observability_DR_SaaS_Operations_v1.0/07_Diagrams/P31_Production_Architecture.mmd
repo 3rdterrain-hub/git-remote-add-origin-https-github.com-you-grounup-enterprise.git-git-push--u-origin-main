@@ -1,0 +1,20 @@
+flowchart TB
+ Internet --> Edge[DNS / CDN / WAF / Ingress]
+ Edge --> Runtime[Application Runtime]
+ Runtime --> DB[(Relational Database)]
+ Runtime --> Cache[(Cache)]
+ Runtime --> Queue[Queue / Workers]
+ Runtime --> Obj[(Object Storage)]
+ Runtime --> Search[Search]
+ Runtime --> Analytics[Analytics Runtime]
+ Runtime --> AI[AI Runtime]
+ Runtime --> Obs[Logs / Metrics / Traces]
+ DB --> Backup[Backup / PITR]
+ Obj --> Backup
+ Obs --> Alert[Alerts / SLOs]
+ Alert --> OnCall[On-Call / Incident]
+ IaC[Infrastructure as Code] --> Runtime
+ CICD[CI/CD] --> Runtime
+ Security[Phase 28 Security] --> Edge
+ Security --> Runtime
+ Security --> CICD

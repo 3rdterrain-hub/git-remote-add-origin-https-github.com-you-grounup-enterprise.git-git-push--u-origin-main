@@ -1,0 +1,12 @@
+﻿Reference_Set,Code,Label,Status
+record_status,draft,Draft,active
+record_status,active,Active,active
+record_status,inactive,Inactive,active
+record_status,archived,Archived,active
+approval_status,pending,Pending,active
+approval_status,approved,Approved,active
+approval_status,rejected,Rejected,active
+data_classification,public,Public,active
+data_classification,internal,Internal,active
+data_classification,confidential,Confidential,active
+data_classification,restricted,Restricted,active

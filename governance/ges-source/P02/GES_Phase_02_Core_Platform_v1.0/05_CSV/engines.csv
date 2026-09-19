@@ -1,0 +1,13 @@
+﻿Engine_ID,Name,Inputs,Outputs,Core_Rule
+ENG-P02-001,Authorization Decision Engine,actor; tenant; action; resource; scope; policy; session risk,allow/deny; reason; matched policy; effective scope; decision_id,Deterministic and side-effect free
+ENG-P02-002,Configuration Resolution Engine,configuration key; environment; tenant; company; project; user; date,effective value; source layer; version; validation,Highest authorized active override wins
+ENG-P02-003,Workflow Orchestration Engine,workflow definition; object; variables; events; timers,durable state; step history; outcome,Persist before external side effects
+ENG-P02-004,Rules Evaluation Engine,rule version; typed inputs,typed output; result; explanation; execution_id,Same inputs and version yield same result
+ENG-P02-005,Job Dispatch Engine,job type; priority; tenant; capacity; retry policy,worker lease; execution schedule; retry/dead-letter outcome,At-least-once processing
+ENG-P02-006,Search Indexing Engine,source object; schema; ACL; analyzer configuration,versioned search document,Authorization filtered at query time
+ENG-P02-007,Notification Routing Engine,event; recipient; preference; template; urgency,channel deliveries; deduplication key; escalation,Honor mandatory notifications over opt-out
+ENG-P02-008,Synchronization Engine,offline transactions; server versions; conflict policies,applied changes; conflicts; receipt; deltas,Deterministic conflict resolution
+ENG-P02-009,Unit Conversion Engine,value; source unit; target unit; precision,converted value; formula/version; rounding,Dimension compatibility required
+ENG-P02-010,Currency Conversion Engine,amount; source currency; target currency; rate source/date,converted amount; rate; provenance,No implicit conversion
+ENG-P02-011,AI Policy Engine,actor; tenant; agent; model; prompt; data classes; tool request,allow/block; restrictions; evidence requirements,"Intersection of user, agent, tenant, and tool policy"
+ENG-P02-012,AI Cost Metering Engine,model usage; tokens; tools; tenant pricing profile,usage record; estimated cost; allocation dimensions,Reconcile to gateway execution

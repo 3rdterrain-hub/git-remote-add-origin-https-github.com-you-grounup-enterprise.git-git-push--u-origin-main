@@ -1,0 +1,53 @@
+report_id,name,audience,purpose,formats
+P20-RPT-001,Integration Inventory,Engineering/Operations/Security/Product/Executive,"Governed integration inventory with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-002,Connector Health,Engineering/Operations/Security/Product/Executive,"Governed connector health with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-003,API Lifecycle,Engineering/Operations/Security/Product/Executive,"Governed api lifecycle with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-004,Event Delivery Health,Engineering/Operations/Security/Product/Executive,"Governed event delivery health with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-005,Sync/Reconciliation,Engineering/Operations/Security/Product/Executive,"Governed sync/reconciliation with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-006,Identity/Federation Compliance,Engineering/Operations/Security/Product/Executive,"Governed identity/federation compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-007,Environment Inventory,Engineering/Operations/Security/Product/Executive,"Governed environment inventory with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-008,Configuration Drift,Engineering/Operations/Security/Product/Executive,"Governed configuration drift with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-009,Feature Flag Status,Engineering/Operations/Security/Product/Executive,"Governed feature flag status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-010,Release Readiness,Engineering/Operations/Security/Product/Executive,"Governed release readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-011,Deployment Audit,Engineering/Operations/Security/Product/Executive,"Governed deployment audit with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-012,Rollback Readiness,Engineering/Operations/Security/Product/Executive,"Governed rollback readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-013,Infrastructure Drift,Engineering/Operations/Security/Product/Executive,"Governed infrastructure drift with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-014,Runtime Health,Engineering/Operations/Security/Product/Executive,"Governed runtime health with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-015,Database Migration Status,Engineering/Operations/Security/Product/Executive,"Governed database migration status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-016,Backup/Restore Compliance,Engineering/Operations/Security/Product/Executive,"Governed backup/restore compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-017,Security Readiness,Engineering/Operations/Security/Product/Executive,"Governed security readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-018,Vulnerability Aging,Engineering/Operations/Security/Product/Executive,"Governed vulnerability aging with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-019,Privacy Control Status,Engineering/Operations/Security/Product/Executive,"Governed privacy control status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-020,Tenant Isolation Test,Engineering/Operations/Security/Product/Executive,"Governed tenant isolation test with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-021,Observability Coverage,Engineering/Operations/Security/Product/Executive,"Governed observability coverage with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-022,SLO Compliance,Engineering/Operations/Security/Product/Executive,"Governed slo compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-023,Error Budget,Engineering/Operations/Security/Product/Executive,"Governed error budget with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-024,Reliability Risk,Engineering/Operations/Security/Product/Executive,"Governed reliability risk with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-025,Performance Test,Engineering/Operations/Security/Product/Executive,"Governed performance test with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-026,Capacity Forecast,Engineering/Operations/Security/Product/Executive,"Governed capacity forecast with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-027,DR Readiness,Engineering/Operations/Security/Product/Executive,"Governed dr readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-028,RTO/RPO Compliance,Engineering/Operations/Security/Product/Executive,"Governed rto/rpo compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-029,Test Execution,Engineering/Operations/Security/Product/Executive,"Governed test execution with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-030,Regression Coverage,Engineering/Operations/Security/Product/Executive,"Governed regression coverage with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-031,Requirements Coverage,Engineering/Operations/Security/Product/Executive,"Governed requirements coverage with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-032,Defect Aging,Engineering/Operations/Security/Product/Executive,"Governed defect aging with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-033,UAT Status,Engineering/Operations/Security/Product/Executive,"Governed uat status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-034,Migration Readiness,Engineering/Operations/Security/Product/Executive,"Governed migration readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-035,Migration Reconciliation,Engineering/Operations/Security/Product/Executive,"Governed migration reconciliation with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-036,Cutover Readiness,Engineering/Operations/Security/Product/Executive,"Governed cutover readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-037,Production Readiness,Engineering/Operations/Security/Product/Executive,"Governed production readiness with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-038,Go-Live Checklist,Engineering/Operations/Security/Product/Executive,"Governed go-live checklist with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-039,Incident Metrics,Engineering/Operations/Security/Product/Executive,"Governed incident metrics with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-040,Problem/RCA Aging,Engineering/Operations/Security/Product/Executive,"Governed problem/rca aging with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-041,Service Level Compliance,Engineering/Operations/Security/Product/Executive,"Governed service level compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-042,Tenant Provisioning,Engineering/Operations/Security/Product/Executive,"Governed tenant provisioning with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-043,White-Label Configuration Audit,Engineering/Operations/Security/Product/Executive,"Governed white-label configuration audit with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-044,Compliance Evidence,Engineering/Operations/Security/Product/Executive,"Governed compliance evidence with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-045,Access Review,Engineering/Operations/Security/Product/Executive,"Governed access review with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-046,AI Production Evaluation,Engineering/Operations/Security/Product/Executive,"Governed ai production evaluation with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-047,AI Guardrail Compliance,Engineering/Operations/Security/Product/Executive,"Governed ai guardrail compliance with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-048,Hypercare Status,Engineering/Operations/Security/Product/Executive,"Governed hypercare status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-049,Stabilization Report,Engineering/Operations/Security/Product/Executive,"Governed stabilization report with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-050,Platform KPI Scorecard,Engineering/Operations/Security/Product/Executive,"Governed platform kpi scorecard with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-051,Platform Digital Twin Status,Engineering/Operations/Security/Product/Executive,"Governed platform digital twin status with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV
+P20-RPT-052,Executive Go-Live Dashboard,Engineering/Operations/Security/Product/Executive,"Governed executive go-live dashboard with environment, tenant, release, evidence and ownership context.",Dashboard/PDF/XLSX/CSV

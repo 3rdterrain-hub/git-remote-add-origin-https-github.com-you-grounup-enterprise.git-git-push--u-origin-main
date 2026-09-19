@@ -1,0 +1,25 @@
+﻿api_id,method,path,summary,auth,tenant_scoped,idempotency
+GES-P05-API-001,POST,/v1/estimates,Create estimate,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-002,GET,/v1/estimates/{id},Read estimate,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-003,POST,/v1/estimates/{id}/versions,Create immutable version,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-004,POST,/v1/estimates/{id}/calculate,Calculate estimate,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-005,POST,/v1/estimates/{id}/validate,Validate estimate,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-006,POST,/v1/estimates/{id}/submit,Submit for approval,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-007,POST,/v1/estimates/{id}/approve,Approve estimate,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-008,POST,/v1/estimates/{id}/scenarios,Create scenario,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-009,POST,/v1/takeoff/documents,Upload takeoff document,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-010,POST,/v1/takeoff/measurements,Create measurement,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-011,POST,/v1/takeoff/revision-comparisons,Compare revisions,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-012,GET,/v1/assemblies,List assemblies,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-013,POST,/v1/production/calculate,Calculate production,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-014,POST,/v1/haul/calculate,Calculate hauling,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-015,POST,/v1/risk/simulations,Run risk simulation,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-016,GET,/v1/calculations/{trace_id},Read calculation trace,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-017,POST,/v1/ai/recommendations/{id}/disposition,Disposition AI recommendation,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-018,GET,/v1/configuration/tenant,Read tenant configuration,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-019,PUT,/v1/configuration/white-label,Update white-label configuration,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-020,POST,/v1/actuals,Post actual production,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-021,POST,/v1/calibration/proposals,Create calibration proposal,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-022,GET,/v1/reports/estimate-review/{id},Generate review report,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-023,POST,/v1/exports/estimate/{id},Create export package,OAuth2/JWT,Yes,Required for POST where applicable
+GES-P05-API-024,POST,/v1/webhooks,Register webhook,OAuth2/JWT,Yes,Required for POST where applicable

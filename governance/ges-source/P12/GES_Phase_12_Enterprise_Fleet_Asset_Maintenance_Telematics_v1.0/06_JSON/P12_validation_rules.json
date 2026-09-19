@@ -1,0 +1,402 @@
+[
+  [
+    "P12-VR-001",
+    "Fleet Registry",
+    "Fleet Registry validation 1",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet registry transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-002",
+    "Asset Lifecycle",
+    "Asset Lifecycle validation 2",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the asset lifecycle transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-003",
+    "Preventive Maintenance",
+    "Preventive Maintenance validation 3",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the preventive maintenance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-004",
+    "Corrective Maintenance",
+    "Corrective Maintenance validation 4",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the corrective maintenance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-005",
+    "Inspections",
+    "Inspections validation 5",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the inspections transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-006",
+    "Telematics & IoT",
+    "Telematics & IoT validation 6",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the telematics & iot transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-007",
+    "Fuel & Energy",
+    "Fuel & Energy validation 7",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fuel & energy transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-008",
+    "Parts & Components",
+    "Parts & Components validation 8",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the parts & components transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-009",
+    "Work Orders",
+    "Work Orders validation 9",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the work orders transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-010",
+    "Shop Operations",
+    "Shop Operations validation 10",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the shop operations transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-011",
+    "Field Service",
+    "Field Service validation 11",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the field service transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-012",
+    "Rental & Leased Assets",
+    "Rental & Leased Assets validation 12",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the rental & leased assets transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-013",
+    "Compliance",
+    "Compliance validation 13",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the compliance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-014",
+    "Safety & Risk",
+    "Safety & Risk validation 14",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the safety & risk transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-015",
+    "Utilization & Dispatch",
+    "Utilization & Dispatch validation 15",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the utilization & dispatch transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-016",
+    "Equipment Costing",
+    "Equipment Costing validation 16",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the equipment costing transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-017",
+    "Warranty & Claims",
+    "Warranty & Claims validation 17",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the warranty & claims transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-018",
+    "Tires & Undercarriage",
+    "Tires & Undercarriage validation 18",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the tires & undercarriage transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-019",
+    "Attachments & Tools",
+    "Attachments & Tools validation 19",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the attachments & tools transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-020",
+    "Documents & Media",
+    "Documents & Media validation 20",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the documents & media transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-021",
+    "Mobile & Offline",
+    "Mobile & Offline validation 21",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the mobile & offline transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-022",
+    "Fleet Intelligence",
+    "Fleet Intelligence validation 22",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet intelligence transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-023",
+    "Fleet Digital Twin",
+    "Fleet Digital Twin validation 23",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet digital twin transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-024",
+    "Administration & Integration",
+    "Administration & Integration validation 24",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the administration & integration transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-025",
+    "Fleet Registry",
+    "Fleet Registry validation 25",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet registry transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-026",
+    "Asset Lifecycle",
+    "Asset Lifecycle validation 26",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the asset lifecycle transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-027",
+    "Preventive Maintenance",
+    "Preventive Maintenance validation 27",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the preventive maintenance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-028",
+    "Corrective Maintenance",
+    "Corrective Maintenance validation 28",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the corrective maintenance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-029",
+    "Inspections",
+    "Inspections validation 29",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the inspections transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-030",
+    "Telematics & IoT",
+    "Telematics & IoT validation 30",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the telematics & iot transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-031",
+    "Fuel & Energy",
+    "Fuel & Energy validation 31",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fuel & energy transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-032",
+    "Parts & Components",
+    "Parts & Components validation 32",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the parts & components transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-033",
+    "Work Orders",
+    "Work Orders validation 33",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the work orders transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-034",
+    "Shop Operations",
+    "Shop Operations validation 34",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the shop operations transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-035",
+    "Field Service",
+    "Field Service validation 35",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the field service transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-036",
+    "Rental & Leased Assets",
+    "Rental & Leased Assets validation 36",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the rental & leased assets transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-037",
+    "Compliance",
+    "Compliance validation 37",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the compliance transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-038",
+    "Safety & Risk",
+    "Safety & Risk validation 38",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the safety & risk transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-039",
+    "Utilization & Dispatch",
+    "Utilization & Dispatch validation 39",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the utilization & dispatch transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-040",
+    "Equipment Costing",
+    "Equipment Costing validation 40",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the equipment costing transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-041",
+    "Warranty & Claims",
+    "Warranty & Claims validation 41",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the warranty & claims transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-042",
+    "Tires & Undercarriage",
+    "Tires & Undercarriage validation 42",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the tires & undercarriage transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-043",
+    "Attachments & Tools",
+    "Attachments & Tools validation 43",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the attachments & tools transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-044",
+    "Documents & Media",
+    "Documents & Media validation 44",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the documents & media transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-045",
+    "Mobile & Offline",
+    "Mobile & Offline validation 45",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the mobile & offline transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-046",
+    "Fleet Intelligence",
+    "Fleet Intelligence validation 46",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet intelligence transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-047",
+    "Fleet Digital Twin",
+    "Fleet Digital Twin validation 47",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet digital twin transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-048",
+    "Administration & Integration",
+    "Administration & Integration validation 48",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the administration & integration transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-049",
+    "Fleet Registry",
+    "Fleet Registry validation 49",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the fleet registry transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ],
+  [
+    "P12-VR-050",
+    "Asset Lifecycle",
+    "Asset Lifecycle validation 50",
+    "Validate required identifiers, dates, meter sequence, quantities, costs, authorization, lifecycle state, evidence, and tenant ownership before persisting the asset lifecycle transaction.",
+    "Reject with actionable error",
+    "API, UI, Import"
+  ]
+]

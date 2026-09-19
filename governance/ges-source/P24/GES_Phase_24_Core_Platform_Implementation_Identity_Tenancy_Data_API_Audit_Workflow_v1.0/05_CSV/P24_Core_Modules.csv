@@ -1,0 +1,19 @@
+module_id,name,layer,purpose
+P24-MOD-001,Request Context,Platform,"Correlation ID, actor, tenant, environment and request metadata"
+P24-MOD-002,Identity Adapter,Security,Provider-neutral authentication/SSO boundary
+P24-MOD-003,Authorization Policy,Security,Default-deny RBAC/ABAC policy evaluation
+P24-MOD-004,Tenant Registry,SaaS,"Tenant lifecycle, status and provisioning state"
+P24-MOD-005,Entitlement Service,SaaS,"Plans, features, limits and entitlement evaluation"
+P24-MOD-006,Brand Configuration,SaaS,White-label branding/configuration without business-logic forks
+P24-MOD-007,Data Access Boundary,Data,Tenant-aware repository/unit-of-work contracts
+P24-MOD-008,Migration Runner,Data,"Versioned forward migration, validation and rollback hooks"
+P24-MOD-009,API Kernel,API,"Validation, errors, pagination, idempotency, versioning and middleware"
+P24-MOD-010,Event Publisher,Events,Versioned domain-event envelope/outbox boundary
+P24-MOD-011,Audit Ledger,Governance,Append-oriented governed audit/evidence records
+P24-MOD-012,Workflow Kernel,Platform,"State transitions, approvals, assignments and escalation hooks"
+P24-MOD-013,Notification Port,Platform,Provider-neutral notification request boundary
+P24-MOD-014,File Metadata Port,Platform,Permission-aware file/object metadata boundary
+P24-MOD-015,Feature Flag Service,Platform,Tenant/environment feature evaluation
+P24-MOD-016,Configuration Registry,Platform,Versioned platform/tenant configuration
+P24-MOD-017,Observability Kernel,Operations,"Structured logs, metrics, traces and health"
+P24-MOD-018,Traceability Hook,Governance,Requirement/test/release evidence metadata

@@ -1,0 +1,181 @@
+{
+  "phase": "16",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "e591b7e8e7f9c3caefded9a93f5fb25399f5280f888fdee0193bc24f1bd7f6b5",
+      "bytes": 1230
+    },
+    {
+      "path": "02_Word/GES-P16-001-GIS_Survey_Reality_Capture_Drone_Operations.docx",
+      "sha256": "ed2d2332cad85d57e18c075ee0d5d25a446fad1e549853ae607b5ee30296a826",
+      "bytes": 42323
+    },
+    {
+      "path": "03_PDF/GES-P16-001-GIS_Survey_Reality_Capture_Drone_Operations.pdf",
+      "sha256": "e31f53f518b3099525947ca2c4217d23549db3d3406a41fc29f6105eb4e9824c",
+      "bytes": 18354
+    },
+    {
+      "path": "04_Excel/GES-P16-001-GIS_Survey_Reality_Capture_Drone_Operations_Control_Workbook.xlsx",
+      "sha256": "3b4ac64d7feda26e52215b5e7daca8194808cdbc90ae0f53d39a9b4b5babc868",
+      "bytes": 84136
+    },
+    {
+      "path": "05_CSV/P16_API_Endpoints.csv",
+      "sha256": "8ec7bb3b4eeffeb1a9e8c79b307de9b6ce59f774f7fe90737de857edb3e9517a",
+      "bytes": 9634
+    },
+    {
+      "path": "05_CSV/P16_Business_Rules.csv",
+      "sha256": "cda85ea6bfef9e91e4671c51e6494afa66ec7058fad112f0c5e2f8eb76fecc07",
+      "bytes": 15699
+    },
+    {
+      "path": "05_CSV/P16_Data_Dictionary.csv",
+      "sha256": "9b9de9669b185cb5f557769acb2aada2160d514c2128e294b9e72adf77e117bb",
+      "bytes": 62105
+    },
+    {
+      "path": "05_CSV/P16_Engines.csv",
+      "sha256": "fea43f8a56eb6591d1c9a46500e6833d5776c1f1d965ac278cd299df4f6604d0",
+      "bytes": 15329
+    },
+    {
+      "path": "05_CSV/P16_Entities.csv",
+      "sha256": "ec3d49884c5bcf443e6955f0ae1459c14e5dd981ad2b8299278bd94cd8aefce0",
+      "bytes": 35458
+    },
+    {
+      "path": "05_CSV/P16_KPIs.csv",
+      "sha256": "b81bc8df820dc9c974fc3de66797f6e121449552d2f67465b86452aa4c2b4ffb",
+      "bytes": 9483
+    },
+    {
+      "path": "05_CSV/P16_Reports.csv",
+      "sha256": "4ea7b3fd1fc18adc1dbff69ae0e78a359f2cc6642cd2096f7638f7d72f841b9a",
+      "bytes": 6843
+    },
+    {
+      "path": "05_CSV/P16_Requirements.csv",
+      "sha256": "59669d7039c63e79b58e753da8a828ab807386952a23386a6ff4902f63fcd4bb",
+      "bytes": 157355
+    },
+    {
+      "path": "05_CSV/P16_Test_Cases.csv",
+      "sha256": "6a418dac9c3dda45314544df0e44cbc48d798fc1030881d9b0f25469c6502627",
+      "bytes": 98901
+    },
+    {
+      "path": "05_CSV/P16_Traceability.csv",
+      "sha256": "40353dd23a2710322bd1030388073f86717a11515d16d630fb355ebc0bd6137b",
+      "bytes": 24174
+    },
+    {
+      "path": "05_CSV/P16_UI_Surfaces.csv",
+      "sha256": "cdf9ff01d5de542a55acd557b99e91acd82302a0b28af855db3359da31df9577",
+      "bytes": 8429
+    },
+    {
+      "path": "05_CSV/P16_Validation_Rules.csv",
+      "sha256": "6bc7f9f3f9aef9a40c1bfdedf9d0401e1f3fd1fc2cd92fabc7f86bbc5a22a34c",
+      "bytes": 17007
+    },
+    {
+      "path": "05_CSV/P16_Workflows.csv",
+      "sha256": "721951f6d57a3d27819807f2ca7af0cc740011fc9d47710d8994953e21c7c771",
+      "bytes": 9876
+    },
+    {
+      "path": "06_JSON/P16_Geospatial_Record.schema.json",
+      "sha256": "7fc6478423785e7eed5fc8e525ece4396b6dd7b9cece931bcee0d514038773f8",
+      "bytes": 883
+    },
+    {
+      "path": "06_JSON/P16_Master_Specification.json",
+      "sha256": "3b2b3a0e3c9537372b2fa5351af08c2aa774f7374cbd1cdac9ddae9db4198af2",
+      "bytes": 6144
+    },
+    {
+      "path": "07_OpenAPI/P16_OpenAPI.json",
+      "sha256": "6a6e0d4eb0de6fb0913c4f10c1d1037366fec900a454c26fe40c7a2c828c9b93",
+      "bytes": 23051
+    },
+    {
+      "path": "08_Diagrams/P16_Drone_Mission_Workflow.mmd",
+      "sha256": "64c0609f831a77f40a15256279d93416c268d2def2a1a040054963f786799a67",
+      "bytes": 364
+    },
+    {
+      "path": "08_Diagrams/P16_Geospatial_Architecture.mmd",
+      "sha256": "846b275306dfaa9585ea1188d7516147244eea731e88e6b78b278a3511887340",
+      "bytes": 549
+    },
+    {
+      "path": "09_Business_Rules/P16_Business_Rules.csv",
+      "sha256": "cda85ea6bfef9e91e4671c51e6494afa66ec7058fad112f0c5e2f8eb76fecc07",
+      "bytes": 15699
+    },
+    {
+      "path": "10_Validation_Rules/P16_Validation_Rules.csv",
+      "sha256": "6bc7f9f3f9aef9a40c1bfdedf9d0401e1f3fd1fc2cd92fabc7f86bbc5a22a34c",
+      "bytes": 17007
+    },
+    {
+      "path": "11_Data_Dictionary/P16_Data_Dictionary.csv",
+      "sha256": "9b9de9669b185cb5f557769acb2aada2160d514c2128e294b9e72adf77e117bb",
+      "bytes": 62105
+    },
+    {
+      "path": "12_Entities/P16_Entities.csv",
+      "sha256": "ec3d49884c5bcf443e6955f0ae1459c14e5dd981ad2b8299278bd94cd8aefce0",
+      "bytes": 35458
+    },
+    {
+      "path": "13_Workflows/P16_Workflows.csv",
+      "sha256": "721951f6d57a3d27819807f2ca7af0cc740011fc9d47710d8994953e21c7c771",
+      "bytes": 9876
+    },
+    {
+      "path": "14_AI/P16_Engines.csv",
+      "sha256": "fea43f8a56eb6591d1c9a46500e6833d5776c1f1d965ac278cd299df4f6604d0",
+      "bytes": 15329
+    },
+    {
+      "path": "15_APIs/P16_API_Endpoints.csv",
+      "sha256": "8ec7bb3b4eeffeb1a9e8c79b307de9b6ce59f774f7fe90737de857edb3e9517a",
+      "bytes": 9634
+    },
+    {
+      "path": "16_UI_UX/P16_UI_Surfaces.csv",
+      "sha256": "cdf9ff01d5de542a55acd557b99e91acd82302a0b28af855db3359da31df9577",
+      "bytes": 8429
+    },
+    {
+      "path": "17_Reports/P16_Reports.csv",
+      "sha256": "4ea7b3fd1fc18adc1dbff69ae0e78a359f2cc6642cd2096f7638f7d72f841b9a",
+      "bytes": 6843
+    },
+    {
+      "path": "18_Testing/P16_Test_Cases.csv",
+      "sha256": "6a418dac9c3dda45314544df0e44cbc48d798fc1030881d9b0f25469c6502627",
+      "bytes": 98901
+    },
+    {
+      "path": "19_Traceability/P16_Traceability.csv",
+      "sha256": "40353dd23a2710322bd1030388073f86717a11515d16d630fb355ebc0bd6137b",
+      "bytes": 24174
+    },
+    {
+      "path": "20_Deployment/P16_Deployment_Guide.md",
+      "sha256": "391d1a908a68a3364c402374805d49cfaafab4a038611d5d4e993764d2742e41",
+      "bytes": 1130
+    },
+    {
+      "path": "21_Approvals/P16_Approval_Record.md",
+      "sha256": "d96c7f4a618c0a0b76e5469206f78e578e899de90b88fb590b0eb75894edcbd5",
+      "bytes": 314
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+﻿Rule ID,Title,Rule
+BR-001,Single Source of Truth,Every governed master value must originate from one registered library record.
+BR-002,Immutable Identity,Approved records retain immutable IDs across revisions and deployments.
+BR-003,Tenant Isolation,Tenant-owned records must never be visible across tenants without explicit sharing.
+BR-004,Global Inheritance,Tenants may inherit global records and override only fields marked configurable.
+BR-005,Approval Before Use,Draft or rejected records cannot be used in production calculations.
+BR-006,Effective Dating,Only records valid for the transaction date may be selected.
+BR-007,Version Pinning,Estimates and projects pin the exact library version used.
+BR-008,No Silent Replacement,Superseding a record must not silently rewrite historical transactions.
+BR-009,Source Provenance,"Every cost, rate, formula and AI knowledge record requires a traceable source."
+BR-010,Confidence Governance,AI-derived or inferred records require confidence scoring and review thresholds.
+BR-011,Unit Compatibility,Relationships and formulas may combine only dimensionally compatible units.
+BR-012,White Label Segregation,Brand-specific templates and content must remain scoped to the owning brand.
+BR-013,Custom Field Safety,Tenant custom fields may extend but not redefine protected canonical fields.
+BR-014,Deprecation Window,Deprecated items remain searchable for historical traceability but cannot be newly selected.
+BR-015,Four-Eyes Approval,"High-impact pricing, formula and compliance changes require separate author and approver."
+BR-016,Bulk Import Staging,Bulk imports enter staging and require validation before publication.
+BR-017,Duplicate Prevention,Potential duplicates must be flagged before approval.
+BR-018,Regional Precedence,"Project-specific pricing overrides regional, tenant and global defaults in controlled order."
+BR-019,Audit Completeness,"Every create, edit, approval, rejection and archive action must be auditable."
+BR-020,Rollback Capability,Published versions must support rollback without deleting audit history.

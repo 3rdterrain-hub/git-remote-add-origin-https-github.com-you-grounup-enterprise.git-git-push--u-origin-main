@@ -1,0 +1,134 @@
+{
+  "version": "1.0.0-review",
+  "base_path": "/v1",
+  "endpoints": [
+    {
+      "api_id": "API-P01-001",
+      "method": "GET",
+      "path": "/v1/tenants/{tenantId}",
+      "purpose": "Read tenant",
+      "permission": "tenant.read",
+      "primary_entity": "Tenant"
+    },
+    {
+      "api_id": "API-P01-002",
+      "method": "POST",
+      "path": "/v1/tenants",
+      "purpose": "Provision tenant",
+      "permission": "platform.tenant.create",
+      "primary_entity": "Tenant"
+    },
+    {
+      "api_id": "API-P01-003",
+      "method": "GET",
+      "path": "/v1/organization-units",
+      "purpose": "List organization units",
+      "permission": "organization.read",
+      "primary_entity": "OrganizationUnit"
+    },
+    {
+      "api_id": "API-P01-004",
+      "method": "POST",
+      "path": "/v1/users/invitations",
+      "purpose": "Invite user",
+      "permission": "user.invite",
+      "primary_entity": "UserIdentity"
+    },
+    {
+      "api_id": "API-P01-005",
+      "method": "POST",
+      "path": "/v1/role-assignments",
+      "purpose": "Assign role",
+      "permission": "access.assign",
+      "primary_entity": "RoleAssignment"
+    },
+    {
+      "api_id": "API-P01-006",
+      "method": "DELETE",
+      "path": "/v1/role-assignments/{id}",
+      "purpose": "Revoke assignment",
+      "permission": "access.revoke",
+      "primary_entity": "RoleAssignment"
+    },
+    {
+      "api_id": "API-P01-007",
+      "method": "GET",
+      "path": "/v1/effective-permissions",
+      "purpose": "Resolve effective permissions",
+      "permission": "access.inspect",
+      "primary_entity": "Permission"
+    },
+    {
+      "api_id": "API-P01-008",
+      "method": "POST",
+      "path": "/v1/policies/{policyId}/versions",
+      "purpose": "Create policy version",
+      "permission": "policy.manage",
+      "primary_entity": "PolicyVersion"
+    },
+    {
+      "api_id": "API-P01-009",
+      "method": "POST",
+      "path": "/v1/approval-requests",
+      "purpose": "Create approval request",
+      "permission": "approval.request",
+      "primary_entity": "ApprovalRequest"
+    },
+    {
+      "api_id": "API-P01-010",
+      "method": "POST",
+      "path": "/v1/approval-requests/{id}/decisions",
+      "purpose": "Record approval decision",
+      "permission": "approval.decide",
+      "primary_entity": "ApprovalDecision"
+    },
+    {
+      "api_id": "API-P01-011",
+      "method": "POST",
+      "path": "/v1/delegations",
+      "purpose": "Create delegation",
+      "permission": "delegation.manage",
+      "primary_entity": "Delegation"
+    },
+    {
+      "api_id": "API-P01-012",
+      "method": "GET",
+      "path": "/v1/audit-events",
+      "purpose": "Search audit events",
+      "permission": "audit.read",
+      "primary_entity": "AuditEvent"
+    },
+    {
+      "api_id": "API-P01-013",
+      "method": "POST",
+      "path": "/v1/legal-holds",
+      "purpose": "Create legal hold",
+      "permission": "legalhold.manage",
+      "primary_entity": "LegalHold"
+    },
+    {
+      "api_id": "API-P01-014",
+      "method": "POST",
+      "path": "/v1/change-requests",
+      "purpose": "Submit change request",
+      "permission": "change.request",
+      "primary_entity": "ChangeRequest"
+    },
+    {
+      "api_id": "API-P01-015",
+      "method": "POST",
+      "path": "/v1/emergency-access",
+      "purpose": "Request break-glass access",
+      "permission": "emergency.request",
+      "primary_entity": "EmergencyAccessGrant"
+    },
+    {
+      "api_id": "API-P01-016",
+      "method": "POST",
+      "path": "/v1/ai-governance/proposals",
+      "purpose": "Submit AI proposal",
+      "permission": "ai.proposal.submit",
+      "primary_entity": "AIActionProposal"
+    }
+  ]
+}

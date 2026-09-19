@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VendorInvoice",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "company_id",
+    "vendor_id",
+    "invoice_number",
+    "invoice_date",
+    "currency",
+    "lines"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "company_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "vendor_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1
+    }
+  }
+}

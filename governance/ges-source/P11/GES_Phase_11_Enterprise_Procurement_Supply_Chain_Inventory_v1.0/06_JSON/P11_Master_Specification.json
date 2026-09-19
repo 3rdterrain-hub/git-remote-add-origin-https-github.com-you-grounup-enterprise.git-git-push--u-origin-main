@@ -1,0 +1,95 @@
+{
+  "phase": "11",
+  "title": "Enterprise Procurement, Supply Chain & Inventory Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "lock_tag": "GES-P11-v1.0.0",
+  "metrics": {
+    "requirements": 260,
+    "entities": 120,
+    "data_dictionary_fields": 160,
+    "business_rules": 45,
+    "validation_rules": 45,
+    "workflows": 24,
+    "engines": 30,
+    "apis": 36,
+    "ui_surfaces": 22,
+    "reports": 20,
+    "kpis": 35,
+    "tests": 260
+  },
+  "modules": [
+    {
+      "name": "Procurement Planning",
+      "description": "Demand planning, procurement schedules, long-lead strategy, budget and commitment controls"
+    },
+    {
+      "name": "Supplier Management",
+      "description": "Supplier onboarding, classification, prequalification, compliance, risk and performance"
+    },
+    {
+      "name": "Strategic Sourcing",
+      "description": "RFIs, RFQs, RFPs, bid leveling, negotiation, award and sourcing events"
+    },
+    {
+      "name": "Purchase Requisitions",
+      "description": "Field, office, project, emergency, rental and replenishment requests with approvals"
+    },
+    {
+      "name": "Purchase Orders",
+      "description": "Standard, blanket, release, service, rental, material and change-order purchase orders"
+    },
+    {
+      "name": "Subcontract Procurement",
+      "description": "Bid invitations, scope leveling, subcontract awards, compliance and change control"
+    },
+    {
+      "name": "Inventory Control",
+      "description": "Stock, non-stock, bulk, serialized, lot-controlled, consumable and project inventory"
+    },
+    {
+      "name": "Warehouse Operations",
+      "description": "Receiving, put-away, picking, packing, transfers, shipping and cycle counts"
+    },
+    {
+      "name": "Material Receiving",
+      "description": "Delivery appointments, inspections, quantities, photos, damages, returns and backorders"
+    },
+    {
+      "name": "Construction Logistics",
+      "description": "Delivery windows, route plans, laydown areas, crane picks and just-in-time sequencing"
+    },
+    {
+      "name": "Rental Management",
+      "description": "Rental requests, contracts, mobilization, utilization, damage, fuel and off-rent control"
+    },
+    {
+      "name": "Catalog and Item Master",
+      "description": "Items, materials, substitutions, units, manufacturers, pricing and approved sources"
+    },
+    {
+      "name": "Procure-to-Pay Integration",
+      "description": "Three-way match, invoice exceptions, accruals, commitments and payment readiness"
+    },
+    {
+      "name": "Supply Chain Analytics",
+      "description": "Lead times, savings, stockouts, turnover, forecast accuracy and supplier scorecards"
+    },
+    {
+      "name": "AI Procurement Intelligence",
+      "description": "Demand forecasts, alternate-source recommendations, anomaly detection and explainability"
+    },
+    {
+      "name": "Supply Chain Digital Twin",
+      "description": "Live model of demand, commitments, stock, logistics, risk, cost and schedule impact"
+    }
+  ],
+  "integration_phases": [
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P09",
+    "P10"
+  ]
+}

@@ -1,0 +1,14 @@
+event_id,event_name,version,envelope,delivery,status
+P24-EVT-001,tenant.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-002,tenant.status.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-003,membership.created,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-004,entitlement.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-005,brand.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-006,configuration.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-007,featureflag.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-008,policy.changed,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-009,workflow.started,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-010,workflow.transitioned,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-011,approval.recorded,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-012,file.registered,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed
+P24-EVT-013,audit.recorded,v1,"event_id,event_name,version,tenant_id,occurred_at,correlation_id,actor,payload",Outbox + idempotent consumer,Proposed

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Library Record",
+  "type": "object",
+  "required": [
+    "library_record_id",
+    "library_type",
+    "record_code",
+    "name",
+    "version",
+    "status",
+    "effective_from"
+  ],
+  "properties": {
+    "library_record_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "library_type": {
+      "type": "string"
+    },
+    "record_code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "enum": [
+        "Draft",
+        "In Review",
+        "Approved",
+        "Published",
+        "Superseded",
+        "Archived"
+      ]
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "effective_to": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "source_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "source_requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

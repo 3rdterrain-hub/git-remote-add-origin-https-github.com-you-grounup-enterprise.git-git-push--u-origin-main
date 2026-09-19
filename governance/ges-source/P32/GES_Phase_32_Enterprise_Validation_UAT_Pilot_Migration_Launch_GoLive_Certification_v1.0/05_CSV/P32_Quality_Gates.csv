@@ -1,0 +1,25 @@
+gate_id,gate,pass_rule,requirement
+P32-QG-01,Requirements Closure,All required Phase 1-32 requirements have passing evidence or approved exception,Final gate
+P32-QG-02,Traceability Closure,Required requirement-test-evidence mappings are complete,Final gate
+P32-QG-03,Regression,Critical regression suite passes,Required
+P32-QG-04,Security Acceptance,Required Phase 28/31 security gates pass or authorized exceptions exist,Final gate
+P32-QG-05,Performance Acceptance,Critical workflows meet approved production performance/capacity targets,Final gate
+P32-QG-06,Accessibility Acceptance,Required accessibility acceptance passes or exceptions approved,Required
+P32-QG-07,Data/Migration Acceptance,"Dry run, reconciliation, exception and rollback/forward recovery evidence pass",Final gate
+P32-QG-08,Analytics Acceptance,"Certified metric/report correctness, freshness and permission tests pass",Required
+P32-QG-09,AI Acceptance,Grounding/permission/confidence/human-control tests pass for enabled AI capabilities,Required
+P32-QG-10,Commercial Acceptance,Billing/entitlement/usage/plan tests reconcile,Required
+P32-QG-11,Operational Acceptance,Observability/on-call/runbooks/backup/restore/DR readiness passes,Final gate
+P32-QG-12,UAT,Business-critical UAT scenarios pass and authorized signoff recorded,Final gate
+P32-QG-13,Pilot Readiness,Pilot cohort/config/data/training/support gates pass,Required
+P32-QG-14,Pilot Exit,Pilot exit criteria and defect/risk disposition approved,Final gate before broad launch
+P32-QG-15,Cutover Readiness,"Cutover plan, owners, timing, freeze, rollback and comms approved",Final gate
+P32-QG-16,Training Readiness,Required admin/support/end-user enablement complete or approved exception,Required
+P32-QG-17,Support Readiness,"Support/hypercare routing, staffing, KB/runbooks and escalation ready",Final gate
+P32-QG-18,Go/No-Go,Authorized decision makers record GO for exact release scope,Final gate
+P32-QG-19,Production Verification,Critical post-deploy production checks pass,Final gate
+P32-QG-20,Known Issues,"All known release issues have severity, impact, owner, disposition and communication state",Required
+P32-QG-21,Residual Risk,All open blocking/high residual risks have authorized acceptance or are resolved,Final gate
+P32-QG-22,Evidence Package,Final evidence index/package is complete and integrity checked,Final gate
+P32-QG-23,Certification,Business/Product/Security/Operations/Data approvals recorded,Final gate
+P32-QG-24,Release Archive,Final versioned release package and manifests archived,Final gate

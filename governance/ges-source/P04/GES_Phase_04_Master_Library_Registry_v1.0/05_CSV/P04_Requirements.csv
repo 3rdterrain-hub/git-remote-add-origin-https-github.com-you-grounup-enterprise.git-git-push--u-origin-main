@@ -1,0 +1,98 @@
+﻿Requirement ID,Topic,Requirement,Priority,Phase
+GES-P04-REQ-001,Registry and ownership,The platform shall provide governed registry and ownership capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-002,Canonical identifiers,The platform shall provide governed canonical identifiers capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-003,Tenant isolation,The platform shall provide governed tenant isolation capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-004,Global inheritance,The platform shall provide governed global inheritance capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-005,Tenant overrides,The platform shall provide governed tenant overrides capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-006,White-label scoping,The platform shall provide governed white-label scoping capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-007,Role-based access,The platform shall provide governed role-based access capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-008,Approval workflow,The platform shall provide governed approval workflow capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-009,Version control,The platform shall provide governed version control capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-010,Effective dating,The platform shall provide governed effective dating capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-011,Historical pinning,The platform shall provide governed historical pinning capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-012,Bulk imports,The platform shall provide governed bulk imports capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-013,Schema mapping,The platform shall provide governed schema mapping capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-014,Duplicate detection,The platform shall provide governed duplicate detection capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-015,Source provenance,The platform shall provide governed source provenance capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-016,Confidence scoring,The platform shall provide governed confidence scoring capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-017,Relationship graph,The platform shall provide governed relationship graph capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-018,Impact analysis,The platform shall provide governed impact analysis capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-019,Unit governance,The platform shall provide governed unit governance capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-020,Regional precedence,The platform shall provide governed regional precedence capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-021,Search indexing,The platform shall provide governed search indexing capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-022,Semantic search,The platform shall provide governed semantic search capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-023,Synonyms,The platform shall provide governed synonyms capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-024,Custom fields,The platform shall provide governed custom fields capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-025,Audit events,The platform shall provide governed audit events capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-026,Integrity hashes,The platform shall provide governed integrity hashes capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-027,Rollback,The platform shall provide governed rollback capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-028,Deprecation,The platform shall provide governed deprecation capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-029,Replacement mapping,The platform shall provide governed replacement mapping capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-030,API access,The platform shall provide governed api access capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-031,Webhooks,The platform shall provide governed webhooks capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-032,Caching,The platform shall provide governed caching capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-033,Offline sync,The platform shall provide governed offline sync capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-034,Conflict resolution,The platform shall provide governed conflict resolution capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-035,Data export,The platform shall provide governed data export capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-036,Data retention,The platform shall provide governed data retention capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-037,Localization,The platform shall provide governed localization capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-038,Currency precision,The platform shall provide governed currency precision capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-039,Tax mapping,The platform shall provide governed tax mapping capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-040,AI indexing,The platform shall provide governed ai indexing capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-041,Prompt governance,The platform shall provide governed prompt governance capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-042,Training datasets,The platform shall provide governed training datasets capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-043,Formula testing,The platform shall provide governed formula testing capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-044,Rate calibration,The platform shall provide governed rate calibration capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-045,Vendor quote linkage,The platform shall provide governed vendor quote linkage capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-046,Document linkage,The platform shall provide governed document linkage capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-047,Safety compliance,The platform shall provide governed safety compliance capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-048,Quality controls,The platform shall provide governed quality controls capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-049,DOT mappings,The platform shall provide governed dot mappings capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-050,CSI mappings,The platform shall provide governed csi mappings capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-051,Municipal mappings,The platform shall provide governed municipal mappings capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-052,Service assemblies,The platform shall provide governed service assemblies capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-053,Crew templates,The platform shall provide governed crew templates capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-054,Equipment productivity,The platform shall provide governed equipment productivity capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-055,Crew productivity,The platform shall provide governed crew productivity capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-056,Fuel modeling,The platform shall provide governed fuel modeling capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-057,Trucking cycles,The platform shall provide governed trucking cycles capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-058,Disposal facilities,The platform shall provide governed disposal facilities capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-059,Rental rates,The platform shall provide governed rental rates capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-060,Maintenance intervals,The platform shall provide governed maintenance intervals capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-061,Inventory controls,The platform shall provide governed inventory controls capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-062,Time codes,The platform shall provide governed time codes capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-063,Payroll codes,The platform shall provide governed payroll codes capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-064,Accounting mappings,The platform shall provide governed accounting mappings capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-065,Dashboard definitions,The platform shall provide governed dashboard definitions capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-066,Report definitions,The platform shall provide governed report definitions capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-067,Notification templates,The platform shall provide governed notification templates capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-068,Workflow definitions,The platform shall provide governed workflow definitions capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-069,Inspection forms,The platform shall provide governed inspection forms capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-070,Checklists,The platform shall provide governed checklists capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-071,Template management,The platform shall provide governed template management capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-072,Brand terminology,The platform shall provide governed brand terminology capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-073,Custom domains,The platform shall provide governed custom domains capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-074,OEM reseller hierarchy,The platform shall provide governed oem reseller hierarchy capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-075,Marketplace packaging,The platform shall provide governed marketplace packaging capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-076,Usage analytics,The platform shall provide governed usage analytics capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-077,Data quality KPIs,The platform shall provide governed data quality kpis capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-078,Periodic review,The platform shall provide governed periodic review capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-079,Emergency correction,The platform shall provide governed emergency correction capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-080,Four-eyes approval,The platform shall provide governed four-eyes approval capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-081,Publication scheduling,The platform shall provide governed publication scheduling capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-082,Sandbox promotion,The platform shall provide governed sandbox promotion capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-083,Environment portability,The platform shall provide governed environment portability capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-084,Migration support,The platform shall provide governed migration support capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-085,Backward compatibility,The platform shall provide governed backward compatibility capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-086,Performance targets,The platform shall provide governed performance targets capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-087,Availability targets,The platform shall provide governed availability targets capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-088,Disaster recovery,The platform shall provide governed disaster recovery capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-089,Encryption,The platform shall provide governed encryption capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-090,Privacy,The platform shall provide governed privacy capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-091,Accessibility,The platform shall provide governed accessibility capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-092,Mobile usability,The platform shall provide governed mobile usability capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-093,No-code administration,The platform shall provide governed no-code administration capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-094,Test automation,The platform shall provide governed test automation capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-095,Traceability,The platform shall provide governed traceability capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-096,Approval record,The platform shall provide governed approval record capabilities for the Master Library Registry.,Must,P04
+GES-P04-REQ-097,Manifest integrity,The platform shall provide governed manifest integrity capabilities for the Master Library Registry.,Must,P04

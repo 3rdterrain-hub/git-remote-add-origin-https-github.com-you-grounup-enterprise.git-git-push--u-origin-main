@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Estimate Calculation Result",
+  "type": "object",
+  "required": [
+    "calculation_id",
+    "estimate_id",
+    "estimate_version",
+    "scenario_id",
+    "library_snapshot_id",
+    "formula_id",
+    "inputs",
+    "output",
+    "source_requirement_ids"
+  ],
+  "properties": {
+    "calculation_id": {
+      "type": "string"
+    },
+    "estimate_id": {
+      "type": "string"
+    },
+    "estimate_version": {
+      "type": "integer"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "library_snapshot_id": {
+      "type": "string"
+    },
+    "formula_id": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "output": {
+      "type": "object"
+    },
+    "rounding_policy_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

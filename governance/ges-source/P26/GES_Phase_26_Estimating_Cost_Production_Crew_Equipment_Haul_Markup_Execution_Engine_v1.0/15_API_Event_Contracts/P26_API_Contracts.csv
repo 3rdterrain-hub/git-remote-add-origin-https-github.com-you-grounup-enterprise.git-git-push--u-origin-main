@@ -1,0 +1,31 @@
+api_id,method,path,purpose,security,control
+P26-API-001,POST,/api/v1/estimates,Create estimate,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-002,GET,/api/v1/estimates/{id},Read estimate,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-003,PATCH,/api/v1/estimates/{id},Update draft estimate metadata,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-004,POST,/api/v1/estimates/{id}/versions,Create estimate version,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-005,POST,/api/v1/estimates/{id}/lines,Add estimate line,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-006,PATCH,/api/v1/estimates/{id}/lines/{lineId},Update estimate line,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-007,POST,/api/v1/estimates/{id}/lines/{lineId}/expand,Expand service/assembly resources,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-008,POST,/api/v1/estimates/{id}/calculate,Calculate/recalculate estimate,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-009,POST,/api/v1/estimates/{id}/scenarios,Create estimate scenario,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-010,GET,/api/v1/estimates/{id}/scenarios/{scenarioId},Read scenario,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-011,POST,/api/v1/estimates/{id}/scenarios/{scenarioId}/calculate,Calculate scenario,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-012,GET,/api/v1/estimates/{id}/calculation-trace,Read calculation trace,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-013,POST,/api/v1/estimates/{id}/overrides,Apply governed override,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-014,POST,/api/v1/estimates/{id}/review,Submit/review estimate,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-015,POST,/api/v1/estimates/{id}/approve,Approve/freeze estimate version,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-016,POST,/api/v1/estimates/{id}/exports,Create proposal/job-cost export,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-017,POST,/api/v1/estimates/{id}/writeback,Propose service/assembly writeback,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-018,POST,/api/v1/production/calculate,Calculate production,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-019,POST,/api/v1/crews/recommend,Recommend crew alternatives,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-020,POST,/api/v1/equipment/select,Recommend compatible equipment alternatives,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-021,POST,/api/v1/equipment/cost,Calculate equipment cost,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-022,POST,/api/v1/fuel/calculate,Calculate fuel estimate,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-023,POST,/api/v1/trucking/cycle,Calculate truck cycle,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-024,POST,/api/v1/trucking/count,Calculate truck count,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-025,POST,/api/v1/haul/calculate,Calculate haul cost,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-026,POST,/api/v1/disposal/calculate,Calculate disposal cost,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-027,POST,/api/v1/materials/calculate,Calculate material cost,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-028,POST,/api/v1/markup/calculate,Calculate markup/sell price,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-029,POST,/api/v1/estimates/compare,Compare scenarios/versions,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited
+P26-API-030,POST,/api/v1/ai/estimate-assist,Generate evidence-grounded estimate assistance,Authenticated; tenant scoped; estimate permission checked,Calculation results return formula/version/input provenance; writes audited

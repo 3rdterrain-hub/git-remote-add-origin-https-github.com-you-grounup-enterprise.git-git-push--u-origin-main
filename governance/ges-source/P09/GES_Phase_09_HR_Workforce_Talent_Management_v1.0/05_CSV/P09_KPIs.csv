@@ -1,0 +1,26 @@
+KPI ID,KPI,Unit,Definition,Frequency,Presentation
+GES-P09-KPI-001,Active Headcount,count,Configured calculation for active headcount using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-002,Available Workforce Capacity,hours,Configured calculation for available workforce capacity using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-003,Labor Demand Gap,hours,Configured calculation for labor demand gap using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-004,Time to Fill,days,Configured calculation for time to fill using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-005,Offer Acceptance Rate,percent,Configured calculation for offer acceptance rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-006,New Hire Onboarding Completion,percent,Configured calculation for new hire onboarding completion using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-007,Crew Utilization,percent,Configured calculation for crew utilization using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-008,Schedule Fill Rate,percent,Configured calculation for schedule fill rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-009,Overtime Rate,percent,Configured calculation for overtime rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-010,Timecard Approval Cycle,hours,Configured calculation for timecard approval cycle using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-011,Payroll Exception Rate,percent,Configured calculation for payroll exception rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-012,Credential Compliance,percent,Configured calculation for credential compliance using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-013,Training Completion,percent,Configured calculation for training completion using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-014,Union Dispatch Fill Rate,percent,Configured calculation for union dispatch fill rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-015,Certified Payroll Accuracy,percent,Configured calculation for certified payroll accuracy using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-016,Absence Rate,percent,Configured calculation for absence rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-017,Voluntary Turnover,percent,Configured calculation for voluntary turnover using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-018,Retention Risk Population,count,Configured calculation for retention risk population using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-019,Performance Review Completion,percent,Configured calculation for performance review completion using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-020,Internal Promotion Rate,percent,Configured calculation for internal promotion rate using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-021,Succession Coverage,percent,Configured calculation for succession coverage using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-022,Fatigue High-Risk Shifts,count,Configured calculation for fatigue high-risk shifts using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-023,Qualified Operators by Equipment Class,count,Configured calculation for qualified operators by equipment class using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-024,Labor Cost Variance,$,Configured calculation for labor cost variance using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard
+GES-P09-KPI-025,Workforce Forecast Accuracy,percent,Configured calculation for workforce forecast accuracy using governed effective-dated records.,Daily/Weekly/Monthly,Role-filtered dashboard

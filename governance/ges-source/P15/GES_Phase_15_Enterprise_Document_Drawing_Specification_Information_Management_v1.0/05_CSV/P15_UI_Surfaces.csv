@@ -1,0 +1,39 @@
+ui_id,name,domain,capabilities,form_factor
+P15-UI-001,Information Management Home,Document Control,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-002,Document Register,Drawing Management,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-003,Drawing Register,Specification Management,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-004,Specification Register,Submittals,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-005,Current Drawing Set,RFIs,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-006,Document Viewer,Transmittals & Distribution,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-007,Drawing Viewer & Markup,Correspondence & Records,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-008,Revision Compare,Version & Revision Control,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-009,Specification Compare,Markup & Review,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-010,Submittal Center,OCR & Content Extraction,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-011,RFI Center,Plan & Spec Intelligence,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-012,Transmittal Center,Document Search & Retrieval,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-013,Correspondence Center,Records Retention & Legal Hold,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-014,Review & Approval Inbox,External Collaboration,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-015,Markup Sessions,Field Document Access,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-016,Issue & Coordination Center,BIM/CDE Coordination,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-017,OCR/Classification Review,Closeout & Turnover,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-018,AI Plan & Spec Review,Document Intelligence Digital Twin,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-019,Conflict & Cross-Reference Review,Document Control,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-020,Enterprise Search,Drawing Management,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-021,Saved Search & Alerts,Specification Management,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-022,External Sharing Center,Submittals,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-023,Field Document Mobile,RFIs,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-024,Offline Current Set,Transmittals & Distribution,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-025,BIM/CDE Coordination,Correspondence & Records,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-026,Retention & Legal Hold,Version & Revision Control,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-027,Closeout & Turnover,Markup & Review,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-028,As-Built Manager,OCR & Content Extraction,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-029,O&M Manual Manager,Plan & Spec Intelligence,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-030,Document Administration,Document Search & Retrieval,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-031,Metadata & Numbering Studio,Records Retention & Legal Hold,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-032,Permission Administration,External Collaboration,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-033,Audit & Distribution History,Field Document Access,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-034,Document Analytics,BIM/CDE Coordination,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-035,Document Digital Twin,Closeout & Turnover,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-036,Mobile Viewer,Document Intelligence Digital Twin,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-037,Guest Review Portal,Document Control,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable
+P15-UI-038,Controlled Copy Manager,Drawing Management,Permission-aware; revision banner; full-text/metadata search; responsive; evidence/audit access; accessibility,Web/tablet/mobile/guest as applicable

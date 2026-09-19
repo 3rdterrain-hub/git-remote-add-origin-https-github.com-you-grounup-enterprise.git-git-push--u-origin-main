@@ -1,0 +1,26 @@
+ui_id,name,domain,capabilities,form_factor
+P13-UI-001,Executive Command Center,Executive Command Center,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-002,CEO Dashboard,Semantic Metrics Layer,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-003,COO Operations Dashboard,Operational Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-004,CFO Finance Dashboard,Financial Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-005,Project Executive Dashboard,Project Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-006,Estimating Intelligence,Estimating Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-007,CRM & Market Intelligence,CRM & Market Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-008,Workforce Intelligence,Workforce Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-009,Procurement Intelligence,Procurement Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-010,Fleet Intelligence,Fleet Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-011,Safety & Quality Intelligence,"Safety, Quality & Compliance Analytics",Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-012,Portfolio Explorer,Portfolio & Program Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-013,Project Health Explorer,Forecasting & Scenario Planning,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-014,KPI Studio,AI Decision Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-015,Semantic Model Studio,Data Platform & Lineage,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-016,Forecast & Scenario Studio,Reporting & Distribution,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-017,Alert & Exception Center,Self-Service Analytics,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-018,AI Insight Review,Enterprise Digital Twin,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-019,Decision Journal,Executive Command Center,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-020,Board Pack Builder,Semantic Metrics Layer,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-021,Self-Service Analytics,Operational Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-022,Data Quality & Lineage,Financial Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-023,Analytics Administration,Project Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-024,Mobile Executive Brief,Estimating Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views
+P13-UI-025,Enterprise Digital Twin,CRM & Market Intelligence,Role-based responsive web; drill-through; filters; export; accessibility; audit-aware,Desktop/tablet; selected mobile views

@@ -1,0 +1,9 @@
+stateDiagram-v2
+ [*] --> Reported
+ Reported --> Triaged
+ Triaged --> Investigating
+ Investigating --> ActionsAssigned
+ ActionsAssigned --> Verification
+ Verification --> Closed
+ Verification --> ActionsAssigned: ineffective
+ Closed --> [*]

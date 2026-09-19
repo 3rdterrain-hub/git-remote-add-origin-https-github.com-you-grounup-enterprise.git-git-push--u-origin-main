@@ -1,0 +1,31 @@
+report_id,name,audience,purpose,formats
+P14-RPT-001,Executive HSEQ Scorecard,Executive/HSEQ/Operations,"Governed executive hseq scorecard report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-002,Safety Leading Indicators,Executive/HSEQ/Operations,"Governed safety leading indicators report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-003,Safety Lagging Indicators,Executive/HSEQ/Operations,"Governed safety lagging indicators report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-004,Incident & Near-Miss,Executive/HSEQ/Operations,"Governed incident & near-miss report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-005,Recordability Review,Executive/HSEQ/Operations,"Governed recordability review report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-006,Open Corrective Actions,Executive/HSEQ/Operations,"Governed open corrective actions report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-007,Overdue HSEQ Actions,Executive/HSEQ/Operations,"Governed overdue hseq actions report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-008,Training Compliance,Executive/HSEQ/Operations,"Governed training compliance report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-009,Certification Expiration,Executive/HSEQ/Operations,"Governed certification expiration report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-010,JHA/Pre-Task Compliance,Executive/HSEQ/Operations,"Governed jha/pre-task compliance report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-011,Safety Observation Trends,Executive/HSEQ/Operations,"Governed safety observation trends report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-012,Environmental Compliance,Executive/HSEQ/Operations,"Governed environmental compliance report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-013,SWPPP Inspection,Executive/HSEQ/Operations,"Governed swppp inspection report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-014,Spill & Release,Executive/HSEQ/Operations,"Governed spill & release report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-015,Waste & Manifest,Executive/HSEQ/Operations,"Governed waste & manifest report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-016,Quality Performance,Executive/HSEQ/Operations,"Governed quality performance report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-017,NCR & Rework,Executive/HSEQ/Operations,"Governed ncr & rework report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-018,ITP/Test Results,Executive/HSEQ/Operations,"Governed itp/test results report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-019,Audit & Findings,Executive/HSEQ/Operations,"Governed audit & findings report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-020,Regulatory Compliance,Executive/HSEQ/Operations,"Governed regulatory compliance report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-021,Subcontractor HSEQ,Executive/HSEQ/Operations,"Governed subcontractor hseq report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-022,Fleet Safety,Executive/HSEQ/Operations,"Governed fleet safety report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-023,Operator Authorization,Executive/HSEQ/Operations,"Governed operator authorization report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-024,Traffic/Public Safety,Executive/HSEQ/Operations,"Governed traffic/public safety report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-025,Industrial Hygiene,Executive/HSEQ/Operations,"Governed industrial hygiene report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-026,Emergency Readiness,Executive/HSEQ/Operations,"Governed emergency readiness report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-027,Risk Heat Map,Executive/HSEQ/Operations,"Governed risk heat map report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-028,Recurrence Analysis,Executive/HSEQ/Operations,"Governed recurrence analysis report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-029,HSEQ Cost,Executive/HSEQ/Operations,"Governed hseq cost report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV
+P14-RPT-030,HSEQ Board Pack,Executive/HSEQ/Operations,"Governed hseq board pack report with scope, evidence, trend and drill-through.",Dashboard/PDF/XLSX/CSV

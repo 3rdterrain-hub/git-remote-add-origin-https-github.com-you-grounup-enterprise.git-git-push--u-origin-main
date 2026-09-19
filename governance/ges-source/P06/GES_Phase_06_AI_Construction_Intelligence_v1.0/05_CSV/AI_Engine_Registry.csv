@@ -1,0 +1,21 @@
+Engine_ID,Engine_Name
+AI-ENG-001,Agent Orchestration Engine
+AI-ENG-002,Intent and Task Classification Engine
+AI-ENG-003,Context Assembly Engine
+AI-ENG-004,Retrieval and Reranking Engine
+AI-ENG-005,Construction Knowledge Graph Engine
+AI-ENG-006,Prompt and Policy Resolution Engine
+AI-ENG-007,Tool and API Execution Engine
+AI-ENG-008,Human Approval Engine
+AI-ENG-009,Confidence and Uncertainty Engine
+AI-ENG-010,Citation and Provenance Engine
+AI-ENG-011,Memory Management Engine
+AI-ENG-012,Model Routing Engine
+AI-ENG-013,Cost and Token Control Engine
+AI-ENG-014,AI Safety and Guardrail Engine
+AI-ENG-015,Evaluation and Benchmark Engine
+AI-ENG-016,Feedback and Learning Engine
+AI-ENG-017,Multimodal Processing Engine
+AI-ENG-018,Tenant Knowledge Isolation Engine
+AI-ENG-019,AI Audit and Observability Engine
+AI-ENG-020,AI Marketplace Packaging Engine

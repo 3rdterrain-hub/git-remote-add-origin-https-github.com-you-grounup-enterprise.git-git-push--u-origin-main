@@ -1,0 +1,156 @@
+entity_id,name,domain,definition,key,governance
+P15-ENT-001,Document,Document Control,Canonical information-management entity for Document.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-002,DocumentRevision,Drawing Management,Canonical information-management entity for DocumentRevision.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-003,DocumentVersion,Specification Management,Canonical information-management entity for DocumentVersion.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-004,DocumentType,Submittals,Canonical information-management entity for DocumentType.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-005,DocumentStatus,RFIs,Canonical information-management entity for DocumentStatus.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-006,DocumentNumber,Transmittals & Distribution,Canonical information-management entity for DocumentNumber.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-007,DocumentMetadata,Correspondence & Records,Canonical information-management entity for DocumentMetadata.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-008,DocumentRelationship,Version & Revision Control,Canonical information-management entity for DocumentRelationship.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-009,DocumentLink,Markup & Review,Canonical information-management entity for DocumentLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-010,DocumentFolder,OCR & Content Extraction,Canonical information-management entity for DocumentFolder.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-011,DocumentCollection,Plan & Spec Intelligence,Canonical information-management entity for DocumentCollection.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-012,DocumentSet,Document Search & Retrieval,Canonical information-management entity for DocumentSet.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-013,DocumentPackage,Records Retention & Legal Hold,Canonical information-management entity for DocumentPackage.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-014,DocumentTemplate,External Collaboration,Canonical information-management entity for DocumentTemplate.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-015,Drawing,Field Document Access,Canonical information-management entity for Drawing.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-016,DrawingSheet,BIM/CDE Coordination,Canonical information-management entity for DrawingSheet.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-017,DrawingSet,Closeout & Turnover,Canonical information-management entity for DrawingSet.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-018,DrawingRevision,Document Intelligence Digital Twin,Canonical information-management entity for DrawingRevision.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-019,DrawingDiscipline,Document Control,Canonical information-management entity for DrawingDiscipline.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-020,DrawingScale,Drawing Management,Canonical information-management entity for DrawingScale.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-021,DrawingStatus,Specification Management,Canonical information-management entity for DrawingStatus.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-022,DrawingIssuePurpose,Submittals,Canonical information-management entity for DrawingIssuePurpose.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-023,DrawingRegister,RFIs,Canonical information-management entity for DrawingRegister.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-024,Specification,Transmittals & Distribution,Canonical information-management entity for Specification.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-025,SpecificationSection,Correspondence & Records,Canonical information-management entity for SpecificationSection.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-026,SpecificationRevision,Version & Revision Control,Canonical information-management entity for SpecificationRevision.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-027,Addendum,Markup & Review,Canonical information-management entity for Addendum.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-028,Bulletin,OCR & Content Extraction,Canonical information-management entity for Bulletin.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-029,RequirementClause,Plan & Spec Intelligence,Canonical information-management entity for RequirementClause.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-030,ReferenceStandard,Document Search & Retrieval,Canonical information-management entity for ReferenceStandard.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-031,Submittal,Records Retention & Legal Hold,Canonical information-management entity for Submittal.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-032,SubmittalPackage,External Collaboration,Canonical information-management entity for SubmittalPackage.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-033,SubmittalItem,Field Document Access,Canonical information-management entity for SubmittalItem.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-034,SubmittalReview,BIM/CDE Coordination,Canonical information-management entity for SubmittalReview.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-035,SubmittalResponse,Closeout & Turnover,Canonical information-management entity for SubmittalResponse.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-036,SubmittalDisposition,Document Intelligence Digital Twin,Canonical information-management entity for SubmittalDisposition.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-037,SubmittalReviewer,Document Control,Canonical information-management entity for SubmittalReviewer.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-038,RFI,Drawing Management,Canonical information-management entity for RFI.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-039,RFIQuestion,Specification Management,Canonical information-management entity for RFIQuestion.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-040,RFIResponse,Submittals,Canonical information-management entity for RFIResponse.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-041,RFIReviewer,RFIs,Canonical information-management entity for RFIReviewer.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-042,RFIImpact,Transmittals & Distribution,Canonical information-management entity for RFIImpact.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-043,Transmittal,Correspondence & Records,Canonical information-management entity for Transmittal.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-044,TransmittalItem,Version & Revision Control,Canonical information-management entity for TransmittalItem.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-045,TransmittalRecipient,Markup & Review,Canonical information-management entity for TransmittalRecipient.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-046,DistributionList,OCR & Content Extraction,Canonical information-management entity for DistributionList.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-047,DistributionRecord,Plan & Spec Intelligence,Canonical information-management entity for DistributionRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-048,Acknowledgement,Document Search & Retrieval,Canonical information-management entity for Acknowledgement.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-049,Correspondence,Records Retention & Legal Hold,Canonical information-management entity for Correspondence.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-050,Letter,External Collaboration,Canonical information-management entity for Letter.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-051,Notice,Field Document Access,Canonical information-management entity for Notice.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-052,MeetingRecord,BIM/CDE Coordination,Canonical information-management entity for MeetingRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-053,DecisionRecord,Closeout & Turnover,Canonical information-management entity for DecisionRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-054,MarkupSession,Document Intelligence Digital Twin,Canonical information-management entity for MarkupSession.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-055,Markup,Document Control,Canonical information-management entity for Markup.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-056,MarkupComment,Drawing Management,Canonical information-management entity for MarkupComment.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-057,Redline,Specification Management,Canonical information-management entity for Redline.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-058,ReviewStamp,Submittals,Canonical information-management entity for ReviewStamp.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-059,ReviewCycle,RFIs,Canonical information-management entity for ReviewCycle.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-060,ReviewAssignment,Transmittals & Distribution,Canonical information-management entity for ReviewAssignment.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-061,Approval,Correspondence & Records,Canonical information-management entity for Approval.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-062,ApprovalStep,Version & Revision Control,Canonical information-management entity for ApprovalStep.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-063,ApprovalSignature,Markup & Review,Canonical information-management entity for ApprovalSignature.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-064,Issue,OCR & Content Extraction,Canonical information-management entity for Issue.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-065,IssueLink,Plan & Spec Intelligence,Canonical information-management entity for IssueLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-066,IssueResolution,Document Search & Retrieval,Canonical information-management entity for IssueResolution.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-067,DocumentComment,Records Retention & Legal Hold,Canonical information-management entity for DocumentComment.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-068,DocumentMention,External Collaboration,Canonical information-management entity for DocumentMention.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-069,DocumentTask,Field Document Access,Canonical information-management entity for DocumentTask.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-070,DocumentNotification,BIM/CDE Coordination,Canonical information-management entity for DocumentNotification.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-071,FileBlob,Closeout & Turnover,Canonical information-management entity for FileBlob.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-072,FileChecksum,Document Intelligence Digital Twin,Canonical information-management entity for FileChecksum.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-073,FileFormat,Document Control,Canonical information-management entity for FileFormat.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-074,Preview,Drawing Management,Canonical information-management entity for Preview.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-075,Thumbnail,Specification Management,Canonical information-management entity for Thumbnail.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-076,OCRJob,Submittals,Canonical information-management entity for OCRJob.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-077,OCRText,RFIs,Canonical information-management entity for OCRText.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-078,ExtractedTable,Transmittals & Distribution,Canonical information-management entity for ExtractedTable.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-079,ExtractedMetadata,Correspondence & Records,Canonical information-management entity for ExtractedMetadata.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-080,ClassificationResult,Version & Revision Control,Canonical information-management entity for ClassificationResult.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-081,SearchIndexRecord,Markup & Review,Canonical information-management entity for SearchIndexRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-082,SemanticChunk,OCR & Content Extraction,Canonical information-management entity for SemanticChunk.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-083,EmbeddingReference,Plan & Spec Intelligence,Canonical information-management entity for EmbeddingReference.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-084,SearchQuery,Document Search & Retrieval,Canonical information-management entity for SearchQuery.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-085,SavedSearch,Records Retention & Legal Hold,Canonical information-management entity for SavedSearch.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-086,SearchResultAudit,External Collaboration,Canonical information-management entity for SearchResultAudit.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-087,PermissionPolicy,Field Document Access,Canonical information-management entity for PermissionPolicy.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-088,AccessGrant,BIM/CDE Coordination,Canonical information-management entity for AccessGrant.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-089,ExternalShare,Closeout & Turnover,Canonical information-management entity for ExternalShare.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-090,ShareLink,Document Intelligence Digital Twin,Canonical information-management entity for ShareLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-091,GuestUser,Document Control,Canonical information-management entity for GuestUser.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-092,DownloadAudit,Drawing Management,Canonical information-management entity for DownloadAudit.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-093,PrintAudit,Specification Management,Canonical information-management entity for PrintAudit.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-094,WatermarkPolicy,Submittals,Canonical information-management entity for WatermarkPolicy.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-095,RetentionPolicy,RFIs,Canonical information-management entity for RetentionPolicy.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-096,RetentionSchedule,Transmittals & Distribution,Canonical information-management entity for RetentionSchedule.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-097,LegalHold,Correspondence & Records,Canonical information-management entity for LegalHold.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-098,DispositionRequest,Version & Revision Control,Canonical information-management entity for DispositionRequest.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-099,DispositionApproval,Markup & Review,Canonical information-management entity for DispositionApproval.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-100,ArchiveRecord,OCR & Content Extraction,Canonical information-management entity for ArchiveRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-101,RecordCategory,Plan & Spec Intelligence,Canonical information-management entity for RecordCategory.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-102,FieldDocumentSet,Document Search & Retrieval,Canonical information-management entity for FieldDocumentSet.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-103,OfflinePackage,Records Retention & Legal Hold,Canonical information-management entity for OfflinePackage.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-104,OfflineSync,External Collaboration,Canonical information-management entity for OfflineSync.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-105,QRCodeLink,Field Document Access,Canonical information-management entity for QRCodeLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-106,LocationDocumentLink,BIM/CDE Coordination,Canonical information-management entity for LocationDocumentLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-107,EquipmentDocumentLink,Closeout & Turnover,Canonical information-management entity for EquipmentDocumentLink.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-108,BIMModelReference,Document Intelligence Digital Twin,Canonical information-management entity for BIMModelReference.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-109,BIMIssueReference,Document Control,Canonical information-management entity for BIMIssueReference.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-110,CDEState,Drawing Management,Canonical information-management entity for CDEState.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-111,CoordinationRecord,Specification Management,Canonical information-management entity for CoordinationRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-112,AsBuiltRecord,Submittals,Canonical information-management entity for AsBuiltRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-113,OMManual,RFIs,Canonical information-management entity for OMManual.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-114,WarrantyDocument,Transmittals & Distribution,Canonical information-management entity for WarrantyDocument.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-115,TrainingDocument,Correspondence & Records,Canonical information-management entity for TrainingDocument.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-116,TurnoverPackage,Version & Revision Control,Canonical information-management entity for TurnoverPackage.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-117,TurnoverItem,Markup & Review,Canonical information-management entity for TurnoverItem.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-118,OwnerAcceptance,OCR & Content Extraction,Canonical information-management entity for OwnerAcceptance.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-119,DocumentRequirement,Plan & Spec Intelligence,Canonical information-management entity for DocumentRequirement.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-120,DocumentComplianceCheck,Document Search & Retrieval,Canonical information-management entity for DocumentComplianceCheck.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-121,ConflictFinding,Records Retention & Legal Hold,Canonical information-management entity for ConflictFinding.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-122,CrossReferenceFinding,External Collaboration,Canonical information-management entity for CrossReferenceFinding.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-123,ScopeExtraction,Field Document Access,Canonical information-management entity for ScopeExtraction.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-124,QuantityReference,BIM/CDE Coordination,Canonical information-management entity for QuantityReference.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-125,AIExtraction,Closeout & Turnover,Canonical information-management entity for AIExtraction.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-126,AIConfidence,Document Intelligence Digital Twin,Canonical information-management entity for AIConfidence.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-127,EvidenceReference,Document Control,Canonical information-management entity for EvidenceReference.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-128,HumanReview,Drawing Management,Canonical information-management entity for HumanReview.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-129,OverrideRecord,Specification Management,Canonical information-management entity for OverrideRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-130,DocumentDigitalTwinState,Submittals,Canonical information-management entity for DocumentDigitalTwinState.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-131,DocumentDigitalTwinEvent,RFIs,Canonical information-management entity for DocumentDigitalTwinEvent.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-132,DocumentDigitalTwinRelationship,Transmittals & Distribution,Canonical information-management entity for DocumentDigitalTwinRelationship.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-133,RevisionImpact,Correspondence & Records,Canonical information-management entity for RevisionImpact.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-134,DownstreamDependency,Version & Revision Control,Canonical information-management entity for DownstreamDependency.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-135,DocumentAuditEvent,Markup & Review,Canonical information-management entity for DocumentAuditEvent.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-136,DocumentImportJob,OCR & Content Extraction,Canonical information-management entity for DocumentImportJob.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-137,BulkUploadJob,Plan & Spec Intelligence,Canonical information-management entity for BulkUploadJob.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-138,MetadataMapping,Document Search & Retrieval,Canonical information-management entity for MetadataMapping.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-139,NamingConvention,Records Retention & Legal Hold,Canonical information-management entity for NamingConvention.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-140,NumberingScheme,External Collaboration,Canonical information-management entity for NumberingScheme.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-141,ProjectDocumentProfile,Field Document Access,Canonical information-management entity for ProjectDocumentProfile.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-142,DocumentRole,BIM/CDE Coordination,Canonical information-management entity for DocumentRole.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-143,DocumentPermission,Closeout & Turnover,Canonical information-management entity for DocumentPermission.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-144,DocumentSubscription,Document Intelligence Digital Twin,Canonical information-management entity for DocumentSubscription.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-145,DocumentAlert,Document Control,Canonical information-management entity for DocumentAlert.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-146,DocumentKPI,Drawing Management,Canonical information-management entity for DocumentKPI.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-147,DocumentReportRun,Specification Management,Canonical information-management entity for DocumentReportRun.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-148,DocumentExportJob,Submittals,Canonical information-management entity for DocumentExportJob.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-149,DocumentAPIClient,RFIs,Canonical information-management entity for DocumentAPIClient.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-150,IntegrationMapping,Transmittals & Distribution,Canonical information-management entity for IntegrationMapping.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-151,EmailRecord,Correspondence & Records,Canonical information-management entity for EmailRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-152,EmailAttachmentRecord,Version & Revision Control,Canonical information-management entity for EmailAttachmentRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-153,PhotoRecord,Markup & Review,Canonical information-management entity for PhotoRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-154,VideoRecord,OCR & Content Extraction,Canonical information-management entity for VideoRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed
+P15-ENT-155,ScanRecord,Plan & Spec Intelligence,Canonical information-management entity for ScanRecord.,tenant_id + record_id,Versioned/audited; project scoped; retention governed

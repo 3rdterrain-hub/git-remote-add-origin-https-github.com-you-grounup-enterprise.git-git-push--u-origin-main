@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FinancialDigitalTwin",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "as_of",
+    "cash",
+    "revenue",
+    "cost",
+    "forecast"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cash": {
+      "type": "object"
+    },
+    "revenue": {
+      "type": "object"
+    },
+    "cost": {
+      "type": "object"
+    },
+    "forecast": {
+      "type": "object"
+    },
+    "risk_alerts": {
+      "type": "array"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+rule_id,name,rule,severity
+P24-BR-001,Tenant isolation,No business data access without resolved tenant scope unless explicitly platform-admin scoped.,Blocking
+P24-BR-002,Default deny,Authorization denies when no explicit policy permits action.,Blocking
+P24-BR-003,Audit privileged actions,Admin/security/config/approval actions create audit evidence.,Blocking
+P24-BR-004,White label separation,Brand configuration cannot alter protected core business rules.,Blocking
+P24-BR-005,Idempotent writes,Retry-sensitive create/execute endpoints support idempotency keys.,Blocking
+P24-BR-006,Workflow transitions,State transitions must be valid for definition/version and actor policy.,Blocking
+P24-BR-007,Approval evidence,"Approval records retain actor, time, decision, source version and evidence.",Blocking
+P24-BR-008,Config versioning,Governed configuration changes retain version/history and actor.,Blocking
+P24-BR-009,Feature evaluation,Feature flags resolve by environment and tenant with safe defaults.,Blocking
+P24-BR-010,Event provenance,"Domain events include tenant, correlation, version and source record metadata.",Blocking
+P24-BR-011,Traceability,Accepted changes reference GES requirement and test IDs.,Blocking
+P24-BR-012,Health semantics,Readiness fails when critical dependencies required for safe traffic are unavailable.,Blocking

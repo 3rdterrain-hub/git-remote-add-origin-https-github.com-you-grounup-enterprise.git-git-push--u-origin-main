@@ -1,0 +1,13 @@
+Field,Type,Requirement,Definition
+tenant_id,string,Required,Tenant isolation key
+agent_id,string,Required,Agent registry identifier
+version,semver,Required,Immutable artifact version
+status,enum,Required,Lifecycle state
+confidence,decimal,Conditional,Calibrated 0-1 confidence
+assumptions,array,Conditional,Explicit assumptions
+citations,array,Conditional,Authorized source references
+approval_required,boolean,Required,Whether human approval is required
+created_at,datetime,Required,Creation timestamp
+created_by,string,Required,Actor identifier
+audit_id,string,Required,Immutable audit reference
+retention_policy_id,string,Required,Retention policy reference

@@ -1,0 +1,12 @@
+name: quality-gates
+on: [push, pull_request]
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Governance placeholder
+        run: |
+          echo "Phase 23 bootstrap: replace with approved toolchain commands."
+          test -f docs/requirements/WORK_ITEM_TEMPLATE.md
+          test -f docs/adr/ADR-0000-template.md

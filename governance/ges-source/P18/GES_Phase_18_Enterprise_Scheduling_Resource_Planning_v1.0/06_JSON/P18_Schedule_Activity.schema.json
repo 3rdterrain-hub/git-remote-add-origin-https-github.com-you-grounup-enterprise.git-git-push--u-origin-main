@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Schedule Activity",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "project_id",
+    "activity_id",
+    "activity_name",
+    "calendar_id",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "schedule_id": {
+      "type": "string"
+    },
+    "activity_id": {
+      "type": "string"
+    },
+    "activity_name": {
+      "type": "string"
+    },
+    "calendar_id": {
+      "type": "string"
+    },
+    "duration_remaining": {
+      "type": "number"
+    },
+    "start_forecast": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finish_forecast": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_float": {
+      "type": "number"
+    },
+    "critical_flag": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

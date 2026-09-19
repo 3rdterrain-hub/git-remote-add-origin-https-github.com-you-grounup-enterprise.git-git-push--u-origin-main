@@ -1,0 +1,13 @@
+﻿API_ID,Method,Path,Purpose,Permission,Primary_Entity
+API-P03-001,GET,/v1/data-model/entities,List canonical entity definitions,data_model.read,EntityDefinition
+API-P03-002,GET,/v1/data-model/entities/{entityKey},Read entity definition and fields,data_model.read,EntityDefinition
+API-P03-003,GET,/v1/data-model/reference-sets,List reference sets,reference.read,ReferenceSet
+API-P03-004,POST,/v1/data-model/reference-sets,Create reference set,reference.manage,ReferenceSet
+API-P03-005,POST,/v1/master-data/parties,Create party master,party.create,Party
+API-P03-006,POST,/v1/master-data/parties/{partyId}/merge,Merge party records,party.merge,Party
+API-P03-007,POST,/v1/data-quality/evaluations,Evaluate record quality,data_quality.evaluate,QualityEvaluation
+API-P03-008,GET,/v1/data-quality/exceptions,List quality exceptions,data_quality.read,DataQualityException
+API-P03-009,POST,/v1/imports/{importId}/commit,Commit validated import,import.commit,ImportBatch
+API-P03-010,POST,/v1/exports,Create canonical export,export.create,ExportPackage
+API-P03-011,GET,/v1/lineage/{entityType}/{entityId},Read record lineage,lineage.read,DataLineage
+API-P03-012,POST,/v1/ai-writebacks/{writebackId}/commit,Commit approved AI writeback,ai_writeback.commit,AIWriteback

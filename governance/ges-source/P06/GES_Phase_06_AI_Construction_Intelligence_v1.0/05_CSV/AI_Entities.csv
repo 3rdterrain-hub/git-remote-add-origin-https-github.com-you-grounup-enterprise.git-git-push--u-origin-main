@@ -1,0 +1,41 @@
+Entity_ID,Entity_Name
+AI-ENT-001,AI Agent
+AI-ENT-002,Agent Version
+AI-ENT-003,Agent Capability
+AI-ENT-004,Agent Tool Permission
+AI-ENT-005,Prompt Template
+AI-ENT-006,Prompt Version
+AI-ENT-007,Model Profile
+AI-ENT-008,Model Routing Rule
+AI-ENT-009,Knowledge Source
+AI-ENT-010,Knowledge Document
+AI-ENT-011,Document Chunk
+AI-ENT-012,Embedding Record
+AI-ENT-013,Knowledge Graph Node
+AI-ENT-014,Knowledge Graph Edge
+AI-ENT-015,AI Conversation
+AI-ENT-016,AI Message
+AI-ENT-017,AI Task
+AI-ENT-018,AI Task Step
+AI-ENT-019,Tool Invocation
+AI-ENT-020,AI Recommendation
+AI-ENT-021,AI Assumption
+AI-ENT-022,AI Citation
+AI-ENT-023,AI Confidence Assessment
+AI-ENT-024,Human Approval
+AI-ENT-025,AI Feedback
+AI-ENT-026,Evaluation Suite
+AI-ENT-027,Evaluation Case
+AI-ENT-028,Evaluation Result
+AI-ENT-029,Guardrail Policy
+AI-ENT-030,AI Incident
+AI-ENT-031,AI Audit Event
+AI-ENT-032,Memory Record
+AI-ENT-033,Tenant AI Configuration
+AI-ENT-034,White-label AI Persona
+AI-ENT-035,AI Usage Meter
+AI-ENT-036,AI Cost Ledger
+AI-ENT-037,AI Marketplace Package
+AI-ENT-038,Agent Deployment
+AI-ENT-039,AI Data Retention Policy
+AI-ENT-040,AI Consent Record

@@ -1,0 +1,146 @@
+entity_id,name,domain,definition,key,governance
+P14-ENT-001,HSEQPlan,Safety Management,Canonical HSEQ entity for HSEQPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-002,SafetyPlan,Incident & Near-Miss Management,Canonical HSEQ entity for SafetyPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-003,EnvironmentalPlan,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for EnvironmentalPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-004,QualityPlan,Permits to Work,Canonical HSEQ entity for QualityPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-005,CompliancePlan,Training & Competency,Canonical HSEQ entity for CompliancePlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-006,Hazard,Environmental Management,Canonical HSEQ entity for Hazard.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-007,HazardCategory,Quality Management,Canonical HSEQ entity for HazardCategory.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-008,RiskAssessment,Compliance & Regulatory,Canonical HSEQ entity for RiskAssessment.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-009,RiskMatrix,Industrial Hygiene,Canonical HSEQ entity for RiskMatrix.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-010,ControlMeasure,Emergency Management,Canonical HSEQ entity for ControlMeasure.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-011,HierarchyOfControl,Subcontractor HSEQ,Canonical HSEQ entity for HierarchyOfControl.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-012,JHA,Equipment & Fleet Safety,Canonical HSEQ entity for JHA.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-013,JHARevision,Public & Traffic Safety,Canonical HSEQ entity for JHARevision.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-014,JHAAcknowledgement,Corrective & Preventive Action,Canonical HSEQ entity for JHAAcknowledgement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-015,PreTaskPlan,Audit & Assurance,Canonical HSEQ entity for PreTaskPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-016,ToolboxTalk,HSEQ Analytics,Canonical HSEQ entity for ToolboxTalk.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-017,SafetyMeeting,AI HSEQ Intelligence,Canonical HSEQ entity for SafetyMeeting.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-018,SafetyObservation,HSEQ Digital Twin,Canonical HSEQ entity for SafetyObservation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-019,PositiveObservation,Safety Management,Canonical HSEQ entity for PositiveObservation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-020,UnsafeCondition,Incident & Near-Miss Management,Canonical HSEQ entity for UnsafeCondition.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-021,UnsafeAct,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for UnsafeAct.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-022,StopWorkEvent,Permits to Work,Canonical HSEQ entity for StopWorkEvent.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-023,StopWorkRelease,Training & Competency,Canonical HSEQ entity for StopWorkRelease.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-024,Incident,Environmental Management,Canonical HSEQ entity for Incident.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-025,NearMiss,Quality Management,Canonical HSEQ entity for NearMiss.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-026,FirstAidCase,Compliance & Regulatory,Canonical HSEQ entity for FirstAidCase.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-027,RecordableCase,Industrial Hygiene,Canonical HSEQ entity for RecordableCase.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-028,LostTimeCase,Emergency Management,Canonical HSEQ entity for LostTimeCase.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-029,PropertyDamageEvent,Subcontractor HSEQ,Canonical HSEQ entity for PropertyDamageEvent.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-030,EnvironmentalIncident,Equipment & Fleet Safety,Canonical HSEQ entity for EnvironmentalIncident.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-031,QualityIncident,Public & Traffic Safety,Canonical HSEQ entity for QualityIncident.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-032,IncidentPerson,Corrective & Preventive Action,Canonical HSEQ entity for IncidentPerson.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-033,IncidentWitness,Audit & Assurance,Canonical HSEQ entity for IncidentWitness.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-034,IncidentStatement,HSEQ Analytics,Canonical HSEQ entity for IncidentStatement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-035,IncidentPhoto,AI HSEQ Intelligence,Canonical HSEQ entity for IncidentPhoto.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-036,IncidentInvestigation,HSEQ Digital Twin,Canonical HSEQ entity for IncidentInvestigation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-037,RootCause,Safety Management,Canonical HSEQ entity for RootCause.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-038,ContributingFactor,Incident & Near-Miss Management,Canonical HSEQ entity for ContributingFactor.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-039,CorrectiveAction,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for CorrectiveAction.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-040,PreventiveAction,Permits to Work,Canonical HSEQ entity for PreventiveAction.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-041,ActionVerification,Training & Competency,Canonical HSEQ entity for ActionVerification.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-042,ActionEffectivenessReview,Environmental Management,Canonical HSEQ entity for ActionEffectivenessReview.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-043,PermitToWork,Quality Management,Canonical HSEQ entity for PermitToWork.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-044,HotWorkPermit,Compliance & Regulatory,Canonical HSEQ entity for HotWorkPermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-045,ConfinedSpacePermit,Industrial Hygiene,Canonical HSEQ entity for ConfinedSpacePermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-046,ExcavationPermit,Emergency Management,Canonical HSEQ entity for ExcavationPermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-047,LiftPermit,Subcontractor HSEQ,Canonical HSEQ entity for LiftPermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-048,ElectricalPermit,Equipment & Fleet Safety,Canonical HSEQ entity for ElectricalPermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-049,LOTORecord,Public & Traffic Safety,Canonical HSEQ entity for LOTORecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-050,EnergyIsolationPoint,Corrective & Preventive Action,Canonical HSEQ entity for EnergyIsolationPoint.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-051,CompetentPerson,Audit & Assurance,Canonical HSEQ entity for CompetentPerson.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-052,QualifiedPerson,HSEQ Analytics,Canonical HSEQ entity for QualifiedPerson.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-053,TrainingRequirement,AI HSEQ Intelligence,Canonical HSEQ entity for TrainingRequirement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-054,TrainingCourse,HSEQ Digital Twin,Canonical HSEQ entity for TrainingCourse.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-055,TrainingRecord,Safety Management,Canonical HSEQ entity for TrainingRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-056,Certification,Incident & Near-Miss Management,Canonical HSEQ entity for Certification.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-057,Qualification,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for Qualification.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-058,Orientation,Permits to Work,Canonical HSEQ entity for Orientation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-059,PPERequirement,Training & Competency,Canonical HSEQ entity for PPERequirement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-060,PPEIssue,Environmental Management,Canonical HSEQ entity for PPEIssue.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-061,InspectionTemplate,Quality Management,Canonical HSEQ entity for InspectionTemplate.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-062,Inspection,Compliance & Regulatory,Canonical HSEQ entity for Inspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-063,InspectionItem,Industrial Hygiene,Canonical HSEQ entity for InspectionItem.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-064,InspectionFinding,Emergency Management,Canonical HSEQ entity for InspectionFinding.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-065,Audit,Subcontractor HSEQ,Canonical HSEQ entity for Audit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-066,AuditFinding,Equipment & Fleet Safety,Canonical HSEQ entity for AuditFinding.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-067,ManagementReview,Public & Traffic Safety,Canonical HSEQ entity for ManagementReview.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-068,RegulatoryRequirement,Corrective & Preventive Action,Canonical HSEQ entity for RegulatoryRequirement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-069,ComplianceObligation,Audit & Assurance,Canonical HSEQ entity for ComplianceObligation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-070,ComplianceEvidence,HSEQ Analytics,Canonical HSEQ entity for ComplianceEvidence.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-071,ComplianceDeadline,AI HSEQ Intelligence,Canonical HSEQ entity for ComplianceDeadline.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-072,RegulatoryInspection,HSEQ Digital Twin,Canonical HSEQ entity for RegulatoryInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-073,Citation,Safety Management,Canonical HSEQ entity for Citation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-074,EnvironmentalPermit,Incident & Near-Miss Management,Canonical HSEQ entity for EnvironmentalPermit.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-075,SWPPP,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for SWPPP.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-076,StormwaterInspection,Permits to Work,Canonical HSEQ entity for StormwaterInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-077,ErosionControlInspection,Training & Competency,Canonical HSEQ entity for ErosionControlInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-078,Spill,Environmental Management,Canonical HSEQ entity for Spill.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-079,SpillResponse,Quality Management,Canonical HSEQ entity for SpillResponse.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-080,WasteProfile,Compliance & Regulatory,Canonical HSEQ entity for WasteProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-081,WasteManifest,Industrial Hygiene,Canonical HSEQ entity for WasteManifest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-082,WasteShipment,Emergency Management,Canonical HSEQ entity for WasteShipment.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-083,AirEmissionRecord,Subcontractor HSEQ,Canonical HSEQ entity for AirEmissionRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-084,WaterDischargeRecord,Equipment & Fleet Safety,Canonical HSEQ entity for WaterDischargeRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-085,NoiseMonitoring,Public & Traffic Safety,Canonical HSEQ entity for NoiseMonitoring.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-086,DustMonitoring,Corrective & Preventive Action,Canonical HSEQ entity for DustMonitoring.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-087,ExposureAssessment,Audit & Assurance,Canonical HSEQ entity for ExposureAssessment.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-088,IndustrialHygieneSample,HSEQ Analytics,Canonical HSEQ entity for IndustrialHygieneSample.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-089,RespiratorFitTest,AI HSEQ Intelligence,Canonical HSEQ entity for RespiratorFitTest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-090,HearingTest,HSEQ Digital Twin,Canonical HSEQ entity for HearingTest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-091,EmergencyPlan,Safety Management,Canonical HSEQ entity for EmergencyPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-092,EmergencyDrill,Incident & Near-Miss Management,Canonical HSEQ entity for EmergencyDrill.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-093,EmergencyContact,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for EmergencyContact.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-094,EmergencyEvent,Permits to Work,Canonical HSEQ entity for EmergencyEvent.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-095,NCR,Training & Competency,Canonical HSEQ entity for NCR.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-096,QualityInspection,Environmental Management,Canonical HSEQ entity for QualityInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-097,InspectionTestPlan,Quality Management,Canonical HSEQ entity for InspectionTestPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-098,HoldPoint,Compliance & Regulatory,Canonical HSEQ entity for HoldPoint.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-099,WitnessPoint,Industrial Hygiene,Canonical HSEQ entity for WitnessPoint.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-100,TestResult,Emergency Management,Canonical HSEQ entity for TestResult.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-101,MaterialTest,Subcontractor HSEQ,Canonical HSEQ entity for MaterialTest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-102,CompactionTest,Equipment & Fleet Safety,Canonical HSEQ entity for CompactionTest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-103,ConcreteTest,Public & Traffic Safety,Canonical HSEQ entity for ConcreteTest.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-104,PunchItem,Corrective & Preventive Action,Canonical HSEQ entity for PunchItem.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-105,Deficiency,Audit & Assurance,Canonical HSEQ entity for Deficiency.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-106,ReworkRecord,HSEQ Analytics,Canonical HSEQ entity for ReworkRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-107,SubcontractorHSEQProfile,AI HSEQ Intelligence,Canonical HSEQ entity for SubcontractorHSEQProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-108,SubcontractorPrequalification,HSEQ Digital Twin,Canonical HSEQ entity for SubcontractorPrequalification.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-109,SubcontractorScorecard,Safety Management,Canonical HSEQ entity for SubcontractorScorecard.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-110,FleetSafetyInspection,Incident & Near-Miss Management,Canonical HSEQ entity for FleetSafetyInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-111,OperatorAuthorization,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for OperatorAuthorization.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-112,TrafficControlPlan,Permits to Work,Canonical HSEQ entity for TrafficControlPlan.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-113,MOTInspection,Training & Competency,Canonical HSEQ entity for MOTInspection.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-114,PublicSafetyIssue,Environmental Management,Canonical HSEQ entity for PublicSafetyIssue.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-115,HSEQKPI,Quality Management,Canonical HSEQ entity for HSEQKPI.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-116,HSEQAlert,Compliance & Regulatory,Canonical HSEQ entity for HSEQAlert.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-117,RiskHeatMap,Industrial Hygiene,Canonical HSEQ entity for RiskHeatMap.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-118,LeadingIndicator,Emergency Management,Canonical HSEQ entity for LeadingIndicator.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-119,LaggingIndicator,Subcontractor HSEQ,Canonical HSEQ entity for LaggingIndicator.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-120,HSEQInsight,Equipment & Fleet Safety,Canonical HSEQ entity for HSEQInsight.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-121,HSEQRecommendation,Public & Traffic Safety,Canonical HSEQ entity for HSEQRecommendation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-122,HSEQDecisionRecord,Corrective & Preventive Action,Canonical HSEQ entity for HSEQDecisionRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-123,EvidenceReference,Audit & Assurance,Canonical HSEQ entity for EvidenceReference.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-124,HSEQDigitalTwinState,HSEQ Analytics,Canonical HSEQ entity for HSEQDigitalTwinState.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-125,HSEQDigitalTwinEvent,AI HSEQ Intelligence,Canonical HSEQ entity for HSEQDigitalTwinEvent.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-126,HSEQDigitalTwinScenario,HSEQ Digital Twin,Canonical HSEQ entity for HSEQDigitalTwinScenario.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-127,RegulatoryJurisdiction,Safety Management,Canonical HSEQ entity for RegulatoryJurisdiction.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-128,LocationRiskProfile,Incident & Near-Miss Management,Canonical HSEQ entity for LocationRiskProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-129,ProjectRiskProfile,JHA/JSA & Pre-Task Planning,Canonical HSEQ entity for ProjectRiskProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-130,CrewRiskProfile,Permits to Work,Canonical HSEQ entity for CrewRiskProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-131,AssetRiskProfile,Training & Competency,Canonical HSEQ entity for AssetRiskProfile.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-132,SafetyCommittee,Environmental Management,Canonical HSEQ entity for SafetyCommittee.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-133,SafetyCampaign,Quality Management,Canonical HSEQ entity for SafetyCampaign.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-134,LessonsLearned,Compliance & Regulatory,Canonical HSEQ entity for LessonsLearned.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-135,SafetyBulletin,Industrial Hygiene,Canonical HSEQ entity for SafetyBulletin.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-136,QualityBulletin,Emergency Management,Canonical HSEQ entity for QualityBulletin.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-137,EnvironmentalBulletin,Subcontractor HSEQ,Canonical HSEQ entity for EnvironmentalBulletin.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-138,ComplianceAttestation,Equipment & Fleet Safety,Canonical HSEQ entity for ComplianceAttestation.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-139,DocumentAcknowledgement,Public & Traffic Safety,Canonical HSEQ entity for DocumentAcknowledgement.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-140,ReturnToWorkRestriction,Corrective & Preventive Action,Canonical HSEQ entity for ReturnToWorkRestriction.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-141,MedicalRestriction,Audit & Assurance,Canonical HSEQ entity for MedicalRestriction.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-142,CaseManagementRecord,HSEQ Analytics,Canonical HSEQ entity for CaseManagementRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-143,ClaimReference,AI HSEQ Intelligence,Canonical HSEQ entity for ClaimReference.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-144,InsuranceNotification,HSEQ Digital Twin,Canonical HSEQ entity for InsuranceNotification.,tenant_id + record_id,Project/location scoped; audited; retention governed
+P14-ENT-145,HSEQCostRecord,Safety Management,Canonical HSEQ entity for HSEQCostRecord.,tenant_id + record_id,Project/location scoped; audited; retention governed

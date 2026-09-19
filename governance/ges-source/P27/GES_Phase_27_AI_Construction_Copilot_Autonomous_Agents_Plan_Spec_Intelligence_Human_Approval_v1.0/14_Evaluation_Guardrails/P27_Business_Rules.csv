@@ -1,0 +1,29 @@
+rule_id,name,rule,severity
+P27-BR-001,Deterministic math boundary,Authoritative estimate math is executed by Phase 26 deterministic tools; AI does not independently invent authoritative cost totals.,Blocking
+P27-BR-002,Evidence required,Plan/spec/estimate findings must link to available source evidence or explicitly state that evidence is unavailable.,Blocking
+P27-BR-003,No silent mutation,"AI cannot silently change approved estimates, libraries, contracts, schedules, safety controls or project records.",Blocking
+P27-BR-004,Approval risk classes,Tools/actions are assigned risk classes that determine whether human approval is required before execution.,Blocking
+P27-BR-005,Tenant isolation,"Retrieval, memory, prompts, tool calls and outputs remain tenant/project scoped.",Blocking
+P27-BR-006,Permission inheritance,AI retrieval/tool access cannot exceed the permissions of the requesting actor or authorized service identity.,Blocking
+P27-BR-007,Citation granularity,Document intelligence preserves document/version plus page/sheet/section/record-level location when source format supports it.,Blocking
+P27-BR-008,Confidence disclosure,Low-confidence or conflicting findings are marked for review and cannot be presented as verified facts.,Blocking
+P27-BR-009,Conflict preservation,"When sources conflict, AI surfaces the conflict and evidence; it does not silently choose an authoritative interpretation unless governance defines precedence.",Blocking
+P27-BR-010,Model/prompt traceability,"Every consequential AI result retains provider/model, prompt/policy, tool versions and evaluation release metadata.",Blocking
+P27-BR-011,Agent delegation limit,Delegated agents inherit least-privilege tool and data permissions from the parent task and cannot expand them.,Blocking
+P27-BR-012,Background run authorization,"Autonomous/background agent runs require explicit configured authorization, scope and stop conditions.",Blocking
+P27-BR-013,Estimate review boundary,AI review may flag math/inputs/risks but must call Phase 26 traces/calculations to verify authoritative formula results.,Blocking
+P27-BR-014,Service writeback boundary,AI can propose new services/assemblies; publication remains Phase 25 governed human approval.,Blocking
+P27-BR-015,Safety advisory boundary,"AI safety guidance cannot replace competent/qualified-person authority, stop-work controls, permits or regulated decisions.",Blocking
+P27-BR-016,Commercial advisory boundary,"AI may organize commercial evidence but cannot make binding legal conclusions, waive rights or send binding notices without authorization.",Blocking
+P27-BR-017,Evaluation gate,New or materially changed model/prompt/tool releases require approved evaluation evidence before production use at protected risk levels.,Blocking
+P27-BR-018,Fallback,"When an AI provider/tool is unavailable or fails policy/evaluation checks, the system fails safely or uses an approved fallback without hiding the degraded state.",Blocking
+P27-BR-019,Prompt injection defense,Retrieved content is treated as untrusted data and cannot override system/tool/tenant/security policies.,Blocking
+P27-BR-020,Memory minimization,"Long-lived AI memory stores only governed, necessary tenant/project context and respects retention/deletion policy.",Blocking
+P27-BR-021,Feedback governance,Human feedback is recorded as evidence and may influence calibration only through approved controlled processes.,Blocking
+P27-BR-022,AI incident response,"Unsafe, incorrect or unauthorized AI behavior can trigger incident handling, feature/model rollback and evidence preservation.",Blocking
+P27-BR-023,Cost/latency budgets,Agent loops honor configured token/cost/latency/tool-call limits and stop/escalate when exceeded.,Blocking
+P27-BR-024,Protected output labeling,Draft/advisory AI outputs are clearly distinguished from approved/authoritative records.,Blocking
+P27-BR-025,Human decision evidence,"Approval/rejection records retain reviewer, time, decision, reason, evidence and exact proposed action.",Blocking
+P27-BR-026,Evaluation reproducibility,"Evaluation runs retain dataset, model, prompt, tool versions and metric definitions.",Blocking
+P27-BR-027,Source freshness,"AI may warn when pricing, quote, drawing, specification or other source evidence is stale/superseded.",Blocking
+P27-BR-028,No hidden auto-approval,AI confidence score alone cannot satisfy a human approval gate.,Blocking

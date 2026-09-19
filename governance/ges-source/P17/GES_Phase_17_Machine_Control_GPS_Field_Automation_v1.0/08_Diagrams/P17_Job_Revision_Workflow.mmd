@@ -1,0 +1,15 @@
+stateDiagram-v2
+ [*] --> Draft
+ Draft --> Validating
+ Validating --> Approved
+ Validating --> Rejected
+ Approved --> Distributed
+ Distributed --> Acknowledged
+ Acknowledged --> Active
+ Active --> Withdrawn: design change
+ Withdrawn --> Reissued
+ Reissued --> Acknowledged
+ Active --> Completed
+ Completed --> Archived
+ Archived --> [*]
+ Rejected --> Draft

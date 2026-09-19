@@ -1,0 +1,19 @@
+gate_id,gate,pass_rule,requirement
+P28-QG-01,Authentication,Valid/invalid/expired/revoked authentication tests pass,Required
+P28-QG-02,MFA/Step-Up,High-risk step-up tests pass,Required
+P28-QG-03,Authorization,RBAC/ABAC default-deny test suite passes,Required
+P28-QG-04,Tenant Isolation,Cross-tenant negative test suite passes,Required
+P28-QG-05,Secrets/Keys,No-secret and rotation tests pass,Required
+P28-QG-06,API Security,Validation/rate/replay/injection tests pass,Required
+P28-QG-07,File/Object Security,Upload scanning and permission tests pass,Required
+P28-QG-08,AI Security,Prompt/tool/provider/classification security tests pass,Required
+P28-QG-09,Secure SDLC,SAST/dependency/container/IaC/secret gates pass,Required
+P28-QG-10,Threat Models,Required systems/changes have current threat models and mitigations,Required
+P28-QG-11,Vulnerability Management,Blocking findings resolved or approved exception exists,Required
+P28-QG-12,Audit Integrity,Security audit tamper/retention tests pass,Required
+P28-QG-13,Detection,Critical benchmark security events generate expected alerts,Required
+P28-QG-14,Incident Response,Tabletop/technical containment and evidence workflow passes,Release gate
+P28-QG-15,Access Review,Privileged/sensitive access review workflow passes,Required
+P28-QG-16,SoD,Segregation-of-duties benchmark rules pass,Required
+P28-QG-17,Backup/Recovery Security,Encrypted restore/tenant isolation verification passes,Release gate
+P28-QG-18,Penetration/Security UAT,Approved security assessment has no unresolved blocking findings,Release gate

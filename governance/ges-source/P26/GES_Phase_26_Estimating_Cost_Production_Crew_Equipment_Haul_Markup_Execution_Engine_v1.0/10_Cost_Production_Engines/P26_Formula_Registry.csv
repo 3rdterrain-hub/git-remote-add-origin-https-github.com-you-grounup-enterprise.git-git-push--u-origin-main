@@ -1,0 +1,21 @@
+formula_id,name,formula,control,output
+P26-FRM-001,Duration Hours,quantity / production_rate,quantity and production rate must have compatible output units,hours
+P26-FRM-002,Crew Labor Hours,duration_hours * crew_member_count,sum across crew roles,labor-hours
+P26-FRM-003,Labor Cost,labor_hours * loaded_labor_rate,or explicit base + burden components,currency
+P26-FRM-004,Equipment Cost,"selected_rate_policy(runtime, hourly,daily,weekly,monthly)",rate policy governs cheapest/contracted/actual rental basis,currency
+P26-FRM-005,Fuel Quantity,runtime_hours * fuel_consumption_per_hour * load_factor,load_factor optional/default per policy,fuel-unit
+P26-FRM-006,Fuel Cost,fuel_quantity * fuel_unit_price,effective-dated fuel price,currency
+P26-FRM-007,Truck Cycle Minutes,load + outbound + dump_queue + return + delays,all components explicit,minutes/cycle
+P26-FRM-008,Truck Trips,ceil(haul_quantity / effective_payload),unless partial-load policy differs,trips
+P26-FRM-009,Truck Count,ceil(source_production_per_hour * cycle_hours / payload),balance rule may use target utilization/buffer,trucks
+P26-FRM-010,Hourly Haul Cost,truck_count * truck_hourly_rate * haul_duration_hours,plus configured mobilization/fees,currency
+P26-FRM-011,Trip Haul Cost,trips * trip_rate,trip rate may derive from cycle and hourly rate,currency
+P26-FRM-012,Disposal Tons,volume * approved_density_conversion,only when density is governed,tons
+P26-FRM-013,Material Purchase Qty,installed_qty * (1 + waste_factor),waste factor decimal,purchase-unit
+P26-FRM-014,Material Cost,purchase_qty * unit_price + configured freight,regional/vendor rule applies,currency
+P26-FRM-015,Direct Cost,sum governed direct cost components,component categories explicit,currency
+P26-FRM-016,Sell Price,apply configured markup/contingency/O&P/tax/bond sequence to governed bases,parallel vs stacked preserved,currency
+P26-FRM-017,Unit Sell Price,sell_price / priced_quantity,quantity > 0,currency/unit
+P26-FRM-018,Production Adjusted,base_production * product_of_applicable_rate_modifiers,if modifier policy is production-based,quantity/hour
+P26-FRM-019,Duration Adjusted,base_duration * product_of_applicable_duration_modifiers,if modifier policy is duration-based,hours
+P26-FRM-020,Confidence,weighted score of input/source/review factors,weights/version governed,0-100

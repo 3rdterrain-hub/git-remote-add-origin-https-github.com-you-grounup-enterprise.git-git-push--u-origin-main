@@ -1,0 +1,33 @@
+order,phase,title,stage,direct_prerequisites,artifact_role,exit_condition
+1,P01,Governance,"A - Governance, Core Data, Libraries, Estimating & AI Specifications",,Specification baseline,Controlled artifact + mapped test/evidence
+2,P02,Core Platform,"A - Governance, Core Data, Libraries, Estimating & AI Specifications",P01,Specification baseline,Controlled artifact + mapped test/evidence
+3,P03,Enterprise Data Model,"A - Governance, Core Data, Libraries, Estimating & AI Specifications","P01,P02",Specification baseline,Controlled artifact + mapped test/evidence
+4,P04,Master Library Registry,"A - Governance, Core Data, Libraries, Estimating & AI Specifications","P01,P02,P03",Specification baseline,Controlled artifact + mapped test/evidence
+5,P05,Estimating Cost Intelligence,"A - Governance, Core Data, Libraries, Estimating & AI Specifications","P01,P02,P03,P04",Specification baseline,Controlled artifact + mapped test/evidence
+6,P06,AI Construction Intelligence,"A - Governance, Core Data, Libraries, Estimating & AI Specifications","P01,P02",Specification baseline,Controlled artifact + mapped test/evidence
+7,P07,Enterprise Project Management,B - Operational Business Domain Specifications,"P01,P02,P03,P04,P05",Specification baseline,Controlled artifact + mapped test/evidence
+8,P08,Enterprise CRM Sales Customer Experience,B - Operational Business Domain Specifications,"P01,P02,P03,P07",Specification baseline,Controlled artifact + mapped test/evidence
+9,P09,HR Workforce Talent Management,B - Operational Business Domain Specifications,"P01,P02,P03,P07",Specification baseline,Controlled artifact + mapped test/evidence
+10,P10,Enterprise Financial Management Accounting,B - Operational Business Domain Specifications,"P01,P02,P03,P05,P07",Specification baseline,Controlled artifact + mapped test/evidence
+11,P11,Enterprise Procurement Supply Chain Inventory,B - Operational Business Domain Specifications,"P01,P02,P03,P04,P05,P07,P10",Specification baseline,Controlled artifact + mapped test/evidence
+12,P12,Enterprise Fleet Asset Maintenance Telematics,B - Operational Business Domain Specifications,"P01,P02,P03,P04,P05,P07,P11",Specification baseline,Controlled artifact + mapped test/evidence
+13,P13,Enterprise Business Intelligence Decision Intelligence,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P06",Specification baseline,Controlled artifact + mapped test/evidence
+14,P14,Enterprise HSE Safety Environmental Quality Compliance,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P07",Specification baseline,Controlled artifact + mapped test/evidence
+15,P15,Enterprise Document Drawing Specification Information Management,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P06,P07",Specification baseline,Controlled artifact + mapped test/evidence
+16,P16,GIS Survey Reality Capture Drone Operations,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P07,P15",Specification baseline,Controlled artifact + mapped test/evidence
+17,P17,Machine Control GPS Field Automation,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P07,P16",Specification baseline,Controlled artifact + mapped test/evidence
+18,P18,Enterprise Scheduling Resource Planning,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P05,P07,P17",Specification baseline,Controlled artifact + mapped test/evidence
+19,P19,Contract Change Order Claims Commercial Management,"C - Intelligence, Compliance, Information & Field Systems","P01,P02,P03,P05,P07,P10,P18",Specification baseline,Controlled artifact + mapped test/evidence
+20,P20,Enterprise Integration Deployment Testing Governance Production Readiness,"D - Integration, Consolidation & Enterprise Lock","P01,P02,P03,P05,P06,P07,P08,P09,P10,P11,P12,P13,P14,P15,P16,P17,P18,P19",Specification baseline,Controlled artifact + mapped test/evidence
+21,P21,Master Enterprise Consolidation Traceability Implementation Baseline,"D - Integration, Consolidation & Enterprise Lock",P20,Specification baseline,Controlled artifact + mapped test/evidence
+22,P22,Final Reconciliation Enterprise Lock Developer AI Execution Package,"D - Integration, Consolidation & Enterprise Lock",P21,Specification baseline,Controlled artifact + mapped test/evidence
+23,P23,Software Development Foundation Reference Architecture Repository Bootstrap,E - Engineering Foundation & Core Platform,P22,Implementation/acceptance package,Controlled artifact + mapped test/evidence
+24,P24,Core Platform Implementation Identity Tenancy Data API Audit Workflow,E - Engineering Foundation & Core Platform,P23,Implementation/acceptance package,Controlled artifact + mapped test/evidence
+25,P25,Master Library Service Catalog Resource Material Equipment Assembly Rate Management,F - Master Data & Deterministic Estimating Implementation,"P04,P24",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+26,P26,Estimating Cost Production Crew Equipment Haul Markup Execution Engine,F - Master Data & Deterministic Estimating Implementation,"P05,P25",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+27,P27,AI Construction Copilot Autonomous Agents Plan Spec Intelligence Human Approval,"G - AI, Security, Analytics, SaaS & Production Operations","P06,P15,P26",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+28,P28,Enterprise Security Identity Zero Trust Privacy Audit Threat Detection,"G - AI, Security, Analytics, SaaS & Production Operations","P24,P27",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+29,P29,Enterprise Reporting Data Warehouse Lakehouse Semantic Analytics AI Ready Data,"G - AI, Security, Analytics, SaaS & Production Operations","P13,P25,P26,P27,P28",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+30,P30,SaaS Commercialization Billing Licensing Entitlements White Label Customer Operations,"G - AI, Security, Analytics, SaaS & Production Operations","P28,P29",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+31,P31,Production Deployment Cloud Infrastructure DevOps CICD Observability DR SaaS Operations,"G - AI, Security, Analytics, SaaS & Production Operations","P28,P29,P30",Implementation/acceptance package,Controlled artifact + mapped test/evidence
+32,P32,Enterprise Validation UAT Pilot Migration Launch GoLive Certification,"H - Validation, Pilot, Go-Live & Certification","P28,P29,P30,P31",Implementation/acceptance package,Controlled artifact + mapped test/evidence

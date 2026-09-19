@@ -1,0 +1,22 @@
+phase,title,prerequisites,implementation_rule,status
+P01,Governance,Phase 00 Product Definition / Requirements Register,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P02,Core Platform,Phase 01,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P03,Enterprise Data Model,Phase 01; Phase 02,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P04,Master Library Registry,Phase 01; Phase 02,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P05,Estimating Cost Intelligence,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P06,AI Construction Intelligence,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P07,Enterprise Project Management,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P08,Enterprise CRM Sales Customer Experience,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P09,HR Workforce Talent Management,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P10,Enterprise Financial Management Accounting,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P11,Enterprise Procurement Supply Chain Inventory,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P12,Enterprise Fleet Asset Maintenance Telematics,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P13,Enterprise Business Intelligence Decision Intelligence,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P14,Enterprise HSE Safety Environmental Quality Compliance,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P15,Enterprise Document Drawing Specification Information Management,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P16,GIS Survey Reality Capture Drone Operations,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P17,Machine Control GPS Field Automation,Phase 01; Phase 02; Phase 03; Phase 04,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P18,Enterprise Scheduling Resource Planning,Phase 01-17 relevant operational data foundations,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P19,Contract Change Order Claims Commercial Management,Phase 05; Phase 07; Phase 10; Phase 11; Phase 15; Phase 18,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P20,Enterprise Integration Deployment Testing Governance Production Readiness,Phase 01-19,Build/validate prerequisite contracts first; domain development may proceed in parallel after shared foundations are stable.,Required
+P21,Master Enterprise Consolidation & Implementation Baseline,Phase 00-20,"Reconcile, approve, lock, then execute software delivery by dependency waves.",Required

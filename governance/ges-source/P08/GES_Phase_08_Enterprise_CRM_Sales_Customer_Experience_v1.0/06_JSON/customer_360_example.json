@@ -1,0 +1,35 @@
+{
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "account": {
+    "name": "Example Property Owner",
+    "segment": "Residential"
+  },
+  "contacts": [
+    {
+      "name": "Example Customer",
+      "role": "Owner"
+    }
+  ],
+  "open_opportunities": [
+    {
+      "service": "Drainage improvement",
+      "stage": "Proposal Sent",
+      "expected_value": 18500,
+      "currency": "USD"
+    }
+  ],
+  "projects": [
+    {
+      "status": "Completed",
+      "customer_satisfaction": 9
+    }
+  ],
+  "health": {
+    "score": 86,
+    "status": "Healthy"
+  },
+  "next_best_actions": [
+    "Follow up on proposal",
+    "Request project referral after closeout"
+  ]
+}

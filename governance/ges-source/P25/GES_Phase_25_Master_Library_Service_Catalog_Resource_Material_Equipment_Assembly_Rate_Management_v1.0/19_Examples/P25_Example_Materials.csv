@@ -1,0 +1,4 @@
+material_code,name,category,unit,density,density_unit,note
+MAT-AGG-304,ODOT 304 Aggregate,Aggregate,TON,125.0,LB/CF,Example seed only
+MAT-TOPSOIL,Topsoil,Soil,CY,,,Example seed only
+MAT-PIPE-PVC6,6 in PVC Pipe,Pipe,LF,,,Example seed only

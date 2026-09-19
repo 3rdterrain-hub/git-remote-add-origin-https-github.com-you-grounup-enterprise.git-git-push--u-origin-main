@@ -1,0 +1,100 @@
+{
+  "endpoints": [
+    {
+      "api_id": "API-P03-001",
+      "method": "GET",
+      "path": "/v1/data-model/entities",
+      "purpose": "List canonical entity definitions",
+      "permission": "data_model.read",
+      "primary_entity": "EntityDefinition"
+    },
+    {
+      "api_id": "API-P03-002",
+      "method": "GET",
+      "path": "/v1/data-model/entities/{entityKey}",
+      "purpose": "Read entity definition and fields",
+      "permission": "data_model.read",
+      "primary_entity": "EntityDefinition"
+    },
+    {
+      "api_id": "API-P03-003",
+      "method": "GET",
+      "path": "/v1/data-model/reference-sets",
+      "purpose": "List reference sets",
+      "permission": "reference.read",
+      "primary_entity": "ReferenceSet"
+    },
+    {
+      "api_id": "API-P03-004",
+      "method": "POST",
+      "path": "/v1/data-model/reference-sets",
+      "purpose": "Create reference set",
+      "permission": "reference.manage",
+      "primary_entity": "ReferenceSet"
+    },
+    {
+      "api_id": "API-P03-005",
+      "method": "POST",
+      "path": "/v1/master-data/parties",
+      "purpose": "Create party master",
+      "permission": "party.create",
+      "primary_entity": "Party"
+    },
+    {
+      "api_id": "API-P03-006",
+      "method": "POST",
+      "path": "/v1/master-data/parties/{partyId}/merge",
+      "purpose": "Merge party records",
+      "permission": "party.merge",
+      "primary_entity": "Party"
+    },
+    {
+      "api_id": "API-P03-007",
+      "method": "POST",
+      "path": "/v1/data-quality/evaluations",
+      "purpose": "Evaluate record quality",
+      "permission": "data_quality.evaluate",
+      "primary_entity": "QualityEvaluation"
+    },
+    {
+      "api_id": "API-P03-008",
+      "method": "GET",
+      "path": "/v1/data-quality/exceptions",
+      "purpose": "List quality exceptions",
+      "permission": "data_quality.read",
+      "primary_entity": "DataQualityException"
+    },
+    {
+      "api_id": "API-P03-009",
+      "method": "POST",
+      "path": "/v1/imports/{importId}/commit",
+      "purpose": "Commit validated import",
+      "permission": "import.commit",
+      "primary_entity": "ImportBatch"
+    },
+    {
+      "api_id": "API-P03-010",
+      "method": "POST",
+      "path": "/v1/exports",
+      "purpose": "Create canonical export",
+      "permission": "export.create",
+      "primary_entity": "ExportPackage"
+    },
+    {
+      "api_id": "API-P03-011",
+      "method": "GET",
+      "path": "/v1/lineage/{entityType}/{entityId}",
+      "purpose": "Read record lineage",
+      "permission": "lineage.read",
+      "primary_entity": "DataLineage"
+    },
+    {
+      "api_id": "API-P03-012",
+      "method": "POST",
+      "path": "/v1/ai-writebacks/{writebackId}/commit",
+      "purpose": "Commit approved AI writeback",
+      "permission": "ai_writeback.commit",
+      "primary_entity": "AIWriteback"
+    }
+  ]
+}

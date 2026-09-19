@@ -1,0 +1,31 @@
+rule_id,name,rule,severity
+P29-BR-001,Operational source authority,Analytics never silently overwrites authoritative operational records; corrections flow through governed source or analytical correction policy.,Blocking
+P29-BR-002,Tenant isolation,Warehouse/lakehouse/query/report/export/feature data remains tenant isolated according to Phase 28 policy.,Blocking
+P29-BR-003,Certified metrics,Executive/official reports use certified metric definitions and versions.,Blocking
+P29-BR-004,Metric grain,"Every metric defines grain, numerator/denominator or expression, filters, time basis, units and owner.",Blocking
+P29-BR-005,Historical reproducibility,Historical reports can resolve the metric/model/transformation versions and source snapshot/time used.,Blocking
+P29-BR-006,Lineage,Certified datasets/metrics/reports preserve source-to-output lineage.,Blocking
+P29-BR-007,Freshness disclosure,Reports/dashboards expose or can retrieve data freshness/status when material.,Blocking
+P29-BR-008,Quality gate,Failed blocking data-quality/reconciliation checks prevent certification/publication of affected outputs.,Blocking
+P29-BR-009,Late arriving data,"Late-arriving facts/dimensions are handled through governed correction/backfill logic, preserving history.",Blocking
+P29-BR-010,Schema evolution,Breaking schema changes require versioning/migration and downstream impact review.,Blocking
+P29-BR-011,SCD history,Configured master/reference dimensions preserve historical attributes using governed slowly changing dimension policy.,Blocking
+P29-BR-012,Row/column security,"Semantic/report queries enforce tenant, role, project, classification and field-level policy.",Blocking
+P29-BR-013,Export control,"Analytical exports apply permission, classification, audit and size/rate policy.",Blocking
+P29-BR-014,Report versioning,Published reports/dashboards are versioned; material definition changes create new versions.,Blocking
+P29-BR-015,Self-service boundary,Self-service users may compose queries only from permitted/certified semantic fields unless granted advanced access.,Blocking
+P29-BR-016,Reconciliation,Financial/commercial/estimate/job-cost control totals reconcile to authoritative sources under defined tolerances.,Blocking
+P29-BR-017,Benchmark anonymity,Shared benchmark populations must follow tenant/privacy policy and cannot expose another tenant’s identifiable data.,Blocking
+P29-BR-018,Forecast labeling,Forecasts/scenarios are labeled as model outputs with assumptions/version and are not presented as actuals.,Blocking
+P29-BR-019,Feature point-in-time correctness,AI-ready feature snapshots prevent future-data leakage for historical training/evaluation use.,Blocking
+P29-BR-020,Embedding permissions,"Embedding/vector metadata retains source tenant, source record/version and access policy references.",Blocking
+P29-BR-021,No unauthorized AI bypass,AI analytics access uses the same certified/permissioned semantic and source controls as human analytics.,Blocking
+P29-BR-022,Pipeline idempotency,Retry/backfill pipelines avoid duplicate analytical facts according to configured business keys/checkpoints.,Blocking
+P29-BR-023,Data incident trace,"Corrections/backfills retain incident, impacted outputs, prior state and revalidation evidence.",Blocking
+P29-BR-024,Cost/performance governance,Warehouse/lakehouse/query resource use is monitored and optimized without changing certified semantics.,Blocking
+P29-BR-025,Deletion propagation,Approved privacy/deletion requirements propagate to analytical copies according to retention/legal policy.,Blocking
+P29-BR-026,Audit,"Dataset/model/metric/report publication, privileged queries and exports create audit evidence.",Blocking
+P29-BR-027,Time-zone/calendar consistency,Metric/report time calculations use explicit timezone/fiscal/calendar definitions.,Blocking
+P29-BR-028,Currency/unit semantics,Cross-region/currency/unit analytics use governed conversions and preserve original values where required.,Blocking
+P29-BR-029,AI evaluation data,"AI evaluation/training feature datasets retain approved source, version, inclusion/exclusion and privacy metadata.",Blocking
+P29-BR-030,Certified versus draft,Draft/unverified datasets and metrics are visibly distinguished from certified assets.,Blocking

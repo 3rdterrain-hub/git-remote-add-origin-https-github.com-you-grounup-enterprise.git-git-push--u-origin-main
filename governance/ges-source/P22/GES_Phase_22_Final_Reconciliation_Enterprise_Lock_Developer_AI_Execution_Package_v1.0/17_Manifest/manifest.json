@@ -1,0 +1,137 @@
+{
+  "phase": "22",
+  "version": "1.0.0",
+  "baseline_state": "NOT LOCKED",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "5850e93f9433e20581eb2947da50bbb1d5e261f416159f72e9c3a404b8b30183",
+      "bytes": 907
+    },
+    {
+      "path": "02_Word/GES-P22-001-Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Package.docx",
+      "sha256": "29f4a23d5cf303397c0ed0234e1fa422af3b99ce22ea70a5317b2227dcd57fd1",
+      "bytes": 39696
+    },
+    {
+      "path": "03_PDF/GES-P22-001-Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Package.pdf",
+      "sha256": "c1116b60c6f4dccfab6c75b0a1e8b5fd869e1254ffa3441f56dbd9316cabf7bf",
+      "bytes": 8048
+    },
+    {
+      "path": "04_Excel/GES-P22-001-Final_Reconciliation_Enterprise_Lock_Developer_AI_Execution_Control_Workbook.xlsx",
+      "sha256": "e217c37741ce0567883ea3b9d5b97dc0dce65d9ee5bb07b3cf9c6261de2b938d",
+      "bytes": 308471
+    },
+    {
+      "path": "05_CSV/P22_Dependency_Register.csv",
+      "sha256": "65a532dc82ec767180bd98cd0fdcb3173fedf09c2e1d5bc38a5eb50746f91a88",
+      "bytes": 4512
+    },
+    {
+      "path": "05_CSV/P22_Developer_AI_Execution_Contracts.csv",
+      "sha256": "1503a643429cc2ddca20ce1edfecb9a3619ee76dffee40dcb4f256f6c2fd2ae7",
+      "bytes": 3287
+    },
+    {
+      "path": "05_CSV/P22_Final_Gates.csv",
+      "sha256": "712e5223067142cccde301d42a2b64a52db9f1fcd6cd4e0e2b7eb522d4f29479",
+      "bytes": 1122
+    },
+    {
+      "path": "05_CSV/P22_Final_Requirements_Register.csv",
+      "sha256": "491a5199059d615b59fabcd2f9b26daf3c6cfee025ed837bfd56cfd7525a6b4d",
+      "bytes": 2501291
+    },
+    {
+      "path": "05_CSV/P22_Implementation_Backlog.csv",
+      "sha256": "24e4d11a7070048a045d378b46904111077c5975930323a318a197b8a8096e57",
+      "bytes": 2509
+    },
+    {
+      "path": "05_CSV/P22_Implementation_Waves.csv",
+      "sha256": "57c55ce5b2ba82284a00a6f509e224d7c66082468663a17d4646a123b4ffcd64",
+      "bytes": 1138
+    },
+    {
+      "path": "05_CSV/P22_Requirements.csv",
+      "sha256": "cf19585a0f404702919b5c03bb6d9750b1a43b86a7b6e60a72508d0bf36e3ba6",
+      "bytes": 94086
+    },
+    {
+      "path": "05_CSV/P22_Source_Findings_Register.csv",
+      "sha256": "aa64eb337dc1b80db2b7cb7c4fedc8de8221c1b7d828ff3cf27c0193c04075ac",
+      "bytes": 53219
+    },
+    {
+      "path": "05_CSV/P22_Test_Cases.csv",
+      "sha256": "bad4ac017bad12fdb1ff0e1836a400c8d207905331f871612daa179ef7873372",
+      "bytes": 48904
+    },
+    {
+      "path": "05_CSV/P22_Traceability.csv",
+      "sha256": "8d78b2b581d5c3a84d8b7cf83079c6375a308882890bce1252ccfe75e4889cc1",
+      "bytes": 12824
+    },
+    {
+      "path": "06_JSON/P22_Execution_Work_Item.schema.json",
+      "sha256": "fa4c6b46e6f38ae06277990eb573f8a3b8e282c1434719aeb6849d37127561e8",
+      "bytes": 941
+    },
+    {
+      "path": "06_JSON/P22_Final_Enterprise_Baseline.json",
+      "sha256": "cfd0c959c22a6424e3f6de2b095efa92db6ae37c5e6b801737e29bb5e46df9ee",
+      "bytes": 808
+    },
+    {
+      "path": "07_Diagrams/P22_Final_Lock_Flow.mmd",
+      "sha256": "9afe06b1f6d158f725ee6890a8c950f2c63324e7320dd0ac8de1553d24409b8c",
+      "bytes": 546
+    },
+    {
+      "path": "08_Reconciliation/P22_Source_Findings_Register.csv",
+      "sha256": "aa64eb337dc1b80db2b7cb7c4fedc8de8221c1b7d828ff3cf27c0193c04075ac",
+      "bytes": 53219
+    },
+    {
+      "path": "09_Final_Requirements/P22_Final_Requirements_Register.csv",
+      "sha256": "491a5199059d615b59fabcd2f9b26daf3c6cfee025ed837bfd56cfd7525a6b4d",
+      "bytes": 2501291
+    },
+    {
+      "path": "11_Architecture_Baseline/P22_Architecture_Baseline.md",
+      "sha256": "819c347145214576fe9c35d83132434c8e15835a768029590cb5dec61a88843b",
+      "bytes": 634
+    },
+    {
+      "path": "12_Implementation_Backlog/P22_Implementation_Backlog.csv",
+      "sha256": "24e4d11a7070048a045d378b46904111077c5975930323a318a197b8a8096e57",
+      "bytes": 2509
+    },
+    {
+      "path": "13_Developer_AI_Execution/P22_DEVELOPER_AI_START_HERE.md",
+      "sha256": "c72da01698983351b5e72c4170ebacf9b3b3c17d8f03d0069dc4c603afbb78f6",
+      "bytes": 1041
+    },
+    {
+      "path": "13_Developer_AI_Execution/P22_Developer_AI_Execution_Contracts.csv",
+      "sha256": "1503a643429cc2ddca20ce1edfecb9a3619ee76dffee40dcb4f256f6c2fd2ae7",
+      "bytes": 3287
+    },
+    {
+      "path": "14_Test_Acceptance/P22_Test_Cases.csv",
+      "sha256": "bad4ac017bad12fdb1ff0e1836a400c8d207905331f871612daa179ef7873372",
+      "bytes": 48904
+    },
+    {
+      "path": "15_Governance_Approvals/P22_Final_Gates.csv",
+      "sha256": "712e5223067142cccde301d42a2b64a52db9f1fcd6cd4e0e2b7eb522d4f29479",
+      "bytes": 1122
+    },
+    {
+      "path": "16_Release_Lock/P22_GES_v1_LOCK_CHECKLIST.md",
+      "sha256": "099f9668617a2c6f6b61c893c5838ef738a83c56a9e6b2940e9d0fb015ca07cd",
+      "bytes": 740
+    }
+  ]
+}

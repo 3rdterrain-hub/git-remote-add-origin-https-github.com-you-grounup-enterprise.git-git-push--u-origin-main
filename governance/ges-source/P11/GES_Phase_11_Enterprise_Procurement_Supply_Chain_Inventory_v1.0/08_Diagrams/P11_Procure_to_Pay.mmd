@@ -1,0 +1,9 @@
+flowchart LR
+A[Project Demand] --> B[Requisition]
+B --> C{Approval}
+C -->|Approved| D[Sourcing / PO]
+D --> E[Delivery and Receipt]
+E --> F[Inspection]
+F --> G[Three-Way Match]
+G --> H[Phase 10 AP]
+C -->|Rejected| I[Return for Revision]

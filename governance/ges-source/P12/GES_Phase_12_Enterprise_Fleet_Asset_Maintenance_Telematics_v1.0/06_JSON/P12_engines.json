@@ -1,0 +1,258 @@
+[
+  [
+    "P12-ENG-01",
+    "Asset Registry Engine",
+    "Fleet Registry",
+    "Deterministic and/or governed AI service for asset registry engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-02",
+    "Lifecycle State Engine",
+    "Asset Lifecycle",
+    "Deterministic and/or governed AI service for lifecycle state engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-03",
+    "Maintenance Due Engine",
+    "Preventive Maintenance",
+    "Deterministic and/or governed AI service for maintenance due engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-04",
+    "Work Order Orchestration Engine",
+    "Corrective Maintenance",
+    "Deterministic and/or governed AI service for work order orchestration engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-05",
+    "Inspection Rules Engine",
+    "Inspections",
+    "Deterministic and/or governed AI service for inspection rules engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-06",
+    "Defect Severity Engine",
+    "Telematics & IoT",
+    "Deterministic and/or governed AI service for defect severity engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-07",
+    "Telematics Normalization Engine",
+    "Fuel & Energy",
+    "Deterministic and/or governed AI service for telematics normalization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-08",
+    "Meter Integrity Engine",
+    "Parts & Components",
+    "Deterministic and/or governed AI service for meter integrity engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-09",
+    "Fuel Reconciliation Engine",
+    "Work Orders",
+    "Deterministic and/or governed AI service for fuel reconciliation engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-10",
+    "Idle Analytics Engine",
+    "Shop Operations",
+    "Deterministic and/or governed AI service for idle analytics engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-11",
+    "Utilization Engine",
+    "Field Service",
+    "Deterministic and/or governed AI service for utilization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-12",
+    "Availability Engine",
+    "Rental & Leased Assets",
+    "Deterministic and/or governed AI service for availability engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-13",
+    "Dispatch Optimization Engine",
+    "Compliance",
+    "Deterministic and/or governed AI service for dispatch optimization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-14",
+    "Parts Demand Engine",
+    "Safety & Risk",
+    "Deterministic and/or governed AI service for parts demand engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-15",
+    "Warranty Eligibility Engine",
+    "Utilization & Dispatch",
+    "Deterministic and/or governed AI service for warranty eligibility engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-16",
+    "Warranty Recovery Engine",
+    "Equipment Costing",
+    "Deterministic and/or governed AI service for warranty recovery engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-17",
+    "Compliance Calendar Engine",
+    "Warranty & Claims",
+    "Deterministic and/or governed AI service for compliance calendar engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-18",
+    "Operator Authorization Engine",
+    "Tires & Undercarriage",
+    "Deterministic and/or governed AI service for operator authorization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-19",
+    "Equipment Cost Engine",
+    "Attachments & Tools",
+    "Deterministic and/or governed AI service for equipment cost engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-20",
+    "Internal Rate Engine",
+    "Documents & Media",
+    "Deterministic and/or governed AI service for internal rate engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-21",
+    "Project Chargeback Engine",
+    "Mobile & Offline",
+    "Deterministic and/or governed AI service for project chargeback engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-22",
+    "Replacement Planning Engine",
+    "Fleet Intelligence",
+    "Deterministic and/or governed AI service for replacement planning engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-23",
+    "Failure Prediction Engine",
+    "Fleet Digital Twin",
+    "Deterministic and/or governed AI service for failure prediction engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-24",
+    "Asset Health Score Engine",
+    "Administration & Integration",
+    "Deterministic and/or governed AI service for asset health score engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-25",
+    "Tire Wear Engine",
+    "Fleet Registry",
+    "Deterministic and/or governed AI service for tire wear engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-26",
+    "Undercarriage Wear Engine",
+    "Asset Lifecycle",
+    "Deterministic and/or governed AI service for undercarriage wear engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-27",
+    "Rental Optimization Engine",
+    "Preventive Maintenance",
+    "Deterministic and/or governed AI service for rental optimization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-28",
+    "Geofence Event Engine",
+    "Corrective Maintenance",
+    "Deterministic and/or governed AI service for geofence event engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-29",
+    "Alert Prioritization Engine",
+    "Inspections",
+    "Deterministic and/or governed AI service for alert prioritization engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-30",
+    "Mobile Sync Engine",
+    "Telematics & IoT",
+    "Deterministic and/or governed AI service for mobile sync engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-31",
+    "Fleet Digital Twin Engine",
+    "Fuel & Energy",
+    "Deterministic and/or governed AI service for fleet digital twin engine.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ],
+  [
+    "P12-ENG-32",
+    "Fleet AI Copilot",
+    "Parts & Components",
+    "Deterministic and/or governed AI service for fleet ai copilot.",
+    "Human approval required for financial, safety, compliance, disposal, or vendor-impacting decisions.",
+    "Inputs, outputs, model/rule version, confidence, overrides, and audit evidence retained."
+  ]
+]

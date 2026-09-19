@@ -1,0 +1,21 @@
+gate_id,gate,pass_rule,requirement
+P30-QG-01,Catalog/Plan Versioning,Published plan/price versions are immutable and effective-date tests pass,Required
+P30-QG-02,Entitlement Golden Tests,Representative plan/add-on/override/trial combinations resolve expected capabilities/limits,Required
+P30-QG-03,Tenant Isolation,Cross-tenant billing/usage/entitlement/branding/support negative tests pass,Required
+P30-QG-04,Usage Idempotency,Duplicate/replayed usage cannot double bill or double consume quota,Required
+P30-QG-05,Invoice Reconciliation,"Invoice lines reconcile to subscription, price, proration, usage, credit and tax inputs",Required
+P30-QG-06,Proration Golden Tests,Upgrade/downgrade mid-cycle examples reproduce expected charge/credit results,Required
+P30-QG-07,Dunning Lifecycle,Failure/grace/suspension/recovery state-machine tests pass,Required
+P30-QG-08,Seat/Quota Enforcement,Hard/soft limit behavior and warnings match plan policy,Required
+P30-QG-09,Trial/Promotion Abuse Controls,Eligibility/redemption/expiry/repeat rules pass,Required
+P30-QG-10,White Label Isolation,Brand/domain changes are tenant-scoped and sanitized,Required
+P30-QG-11,Custom Domain Security,Ownership/certificate lifecycle tests pass,Required
+P30-QG-12,Partner/Reseller Isolation,Partner assignments and access boundaries pass,Required
+P30-QG-13,Marketplace/Integration Entitlement,Commercial + security authorization combination tests pass,Required
+P30-QG-14,Commercial SoD,Sensitive manual commercial actions enforce configured approval/separation,Required
+P30-QG-15,Financial Correction,Credit/refund/adjustment workflows preserve issued-record history and reconciliation,Release gate
+P30-QG-16,Revenue Analytics Reconciliation,MRR/ARR/bookings/churn movements reconcile to governed commercial facts,Release gate
+P30-QG-17,Customer Onboarding Activation,Provisioning/security/configuration gates pass before activation,Release gate
+P30-QG-18,Cancellation/Offboarding,"Access, export, retention and data lifecycle behavior matches policy",Release gate
+P30-QG-19,Performance/Scale,Entitlement lookup and usage ingestion meet approved load targets,Release gate
+P30-QG-20,Incident Recovery,Billing/access correction exercise passes with evidence,Release gate

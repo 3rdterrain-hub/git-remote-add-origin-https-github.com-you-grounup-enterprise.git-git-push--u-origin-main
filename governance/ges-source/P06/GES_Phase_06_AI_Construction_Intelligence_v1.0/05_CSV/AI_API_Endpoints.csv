@@ -1,0 +1,25 @@
+Method,Path,Purpose
+POST,/v1/ai/tasks,Create an AI task
+GET,/v1/ai/tasks/{taskId},Retrieve task status and result
+POST,/v1/ai/tasks/{taskId}/approve,Approve an AI recommendation or action
+POST,/v1/ai/tasks/{taskId}/reject,Reject an AI recommendation or action
+POST,/v1/ai/conversations,Create conversation
+POST,/v1/ai/conversations/{id}/messages,Send message
+GET,/v1/ai/agents,List authorized agents
+POST,/v1/ai/agents,Create draft agent
+POST,/v1/ai/agents/{id}/deploy,Deploy approved agent version
+POST,/v1/ai/prompts/{id}/evaluate,Run prompt evaluation suite
+POST,/v1/ai/knowledge/ingest,Ingest knowledge source
+GET,/v1/ai/knowledge/search,Search authorized knowledge
+POST,/v1/ai/feedback,Submit feedback
+GET,/v1/ai/usage,Retrieve AI usage and cost
+GET,/v1/ai/audit,Search AI audit events
+POST,/v1/ai/incidents,Create AI incident
+POST,/v1/ai/incidents/{id}/contain,Contain affected deployment
+GET,/v1/ai/evaluations,List evaluation results
+POST,/v1/ai/marketplace/packages,Submit marketplace package
+GET,/v1/ai/marketplace/packages,Browse marketplace packages
+PUT,/v1/ai/tenant-config,Update tenant AI configuration
+GET,/v1/ai/model-profiles,List model profiles
+POST,/v1/ai/memories,Create authorized memory
+DELETE,/v1/ai/memories/{id},Delete memory record

@@ -1,0 +1,10 @@
+{
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "asset_id": "11111111-1111-1111-1111-111111111111",
+  "asset_number": "EQ-1001",
+  "asset_class": "Hydraulic Excavator",
+  "lifecycle_status": "available",
+  "meter": 4821.4,
+  "health_score": 87.5,
+  "current_project": "PRJ-2048"
+}

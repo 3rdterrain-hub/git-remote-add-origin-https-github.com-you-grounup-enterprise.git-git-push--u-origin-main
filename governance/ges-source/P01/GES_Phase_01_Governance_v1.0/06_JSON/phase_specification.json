@@ -1,0 +1,8 @@
+{
+  "phase_id": "01",
+  "phase_name": "Governance",
+  "version": "1.0.0-review",
+  "status": "review",
+  "purpose": "Establish the enterprise governance and administration foundation for GrounUp.",
+  "lock_tag": "GES-P01-v1.0.0"
+}

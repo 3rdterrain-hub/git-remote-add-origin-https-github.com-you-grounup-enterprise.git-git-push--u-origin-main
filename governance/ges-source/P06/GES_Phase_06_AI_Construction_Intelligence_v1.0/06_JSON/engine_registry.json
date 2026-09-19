@@ -1,0 +1,82 @@
+[
+  {
+    "engine_id": "AI-ENG-001",
+    "name": "Agent Orchestration Engine"
+  },
+  {
+    "engine_id": "AI-ENG-002",
+    "name": "Intent and Task Classification Engine"
+  },
+  {
+    "engine_id": "AI-ENG-003",
+    "name": "Context Assembly Engine"
+  },
+  {
+    "engine_id": "AI-ENG-004",
+    "name": "Retrieval and Reranking Engine"
+  },
+  {
+    "engine_id": "AI-ENG-005",
+    "name": "Construction Knowledge Graph Engine"
+  },
+  {
+    "engine_id": "AI-ENG-006",
+    "name": "Prompt and Policy Resolution Engine"
+  },
+  {
+    "engine_id": "AI-ENG-007",
+    "name": "Tool and API Execution Engine"
+  },
+  {
+    "engine_id": "AI-ENG-008",
+    "name": "Human Approval Engine"
+  },
+  {
+    "engine_id": "AI-ENG-009",
+    "name": "Confidence and Uncertainty Engine"
+  },
+  {
+    "engine_id": "AI-ENG-010",
+    "name": "Citation and Provenance Engine"
+  },
+  {
+    "engine_id": "AI-ENG-011",
+    "name": "Memory Management Engine"
+  },
+  {
+    "engine_id": "AI-ENG-012",
+    "name": "Model Routing Engine"
+  },
+  {
+    "engine_id": "AI-ENG-013",
+    "name": "Cost and Token Control Engine"
+  },
+  {
+    "engine_id": "AI-ENG-014",
+    "name": "AI Safety and Guardrail Engine"
+  },
+  {
+    "engine_id": "AI-ENG-015",
+    "name": "Evaluation and Benchmark Engine"
+  },
+  {
+    "engine_id": "AI-ENG-016",
+    "name": "Feedback and Learning Engine"
+  },
+  {
+    "engine_id": "AI-ENG-017",
+    "name": "Multimodal Processing Engine"
+  },
+  {
+    "engine_id": "AI-ENG-018",
+    "name": "Tenant Knowledge Isolation Engine"
+  },
+  {
+    "engine_id": "AI-ENG-019",
+    "name": "AI Audit and Observability Engine"
+  },
+  {
+    "engine_id": "AI-ENG-020",
+    "name": "AI Marketplace Packaging Engine"
+  }
+]

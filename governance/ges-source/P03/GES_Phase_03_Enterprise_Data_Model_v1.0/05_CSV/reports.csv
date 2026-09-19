@@ -1,0 +1,9 @@
+﻿Report_ID,Name,Audience,Purpose
+RPT-P03-001,Enterprise Data Model Inventory,Architecture; Product,"Domains, entities, fields, owners, classifications, and release versions"
+RPT-P03-002,Data Quality Scorecard,Executives; Data Owners,"Completeness, validity, uniqueness, consistency, timeliness, and exception trends"
+RPT-P03-003,Master Data Duplicate Report,Data Steward,"Duplicate candidates, confidence, reasons, merge status, and unresolved risk"
+RPT-P03-004,Schema Change Impact,Engineering; Product,"Changed entities, fields, contracts, consumers, migrations, tests, and compatibility"
+RPT-P03-005,Import Reconciliation,Data Steward; Audit,"Source counts, accepted, rejected, merged, totals, lineage, and unresolved exceptions"
+RPT-P03-006,Lineage and Provenance Audit,Audit; AI Governance,"Origin, transformations, formulas, AI execution, evidence, and approving actors"
+RPT-P03-007,Retention and Legal Hold,Records; Legal,"Retention schedules, eligible records, holds, archives, and disposition exceptions"
+RPT-P03-008,AI Writeback Activity,AI Governance; Domain Owners,"Recommendations, approvals, rejections, commits, failures, evidence, and feedback"

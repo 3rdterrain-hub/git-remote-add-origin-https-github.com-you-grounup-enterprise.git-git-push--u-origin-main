@@ -1,0 +1,16 @@
+flowchart TB
+  Foundation --> Party[Party and Relationship]
+  Foundation --> Work[Work and Delivery]
+  Party --> Work
+  Resources --> Work
+  Work --> Financial
+  Work --> Docs[Documents and Records]
+  Work --> Spatial[Location and Spatial]
+  Work --> SQ[Safety and Quality]
+  AI[AI and Automation] --> Work
+  AI --> Resources
+  AI --> Financial
+  Integration[Integration and Audit] --> Foundation
+  Integration --> Work
+  Integration --> Financial
+  Docs --> Integration

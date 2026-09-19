@@ -1,0 +1,13 @@
+stateDiagram-v2
+ [*] --> Awarded
+ Awarded --> Setup
+ Setup --> Preconstruction
+ Preconstruction --> Mobilization: gate approved
+ Mobilization --> Construction
+ Construction --> SubstantialCompletion
+ SubstantialCompletion --> PunchList
+ PunchList --> Closeout
+ Closeout --> Warranty
+ Warranty --> Archived
+ Construction --> OnHold
+ OnHold --> Construction

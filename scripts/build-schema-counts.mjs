@@ -114,9 +114,18 @@ const ROWS = [
   ['Database & function tests', [...walk('tests/db', ts), ...walk('tests/functions', ts)]],
   ['Governance & traceability tests', walk('tests/governance', ts)],
   [`Web application (${routes} routes, ${appPages.length} app screens)`, walk('apps/web/src', ts)],
+  /*
+   * `governance/ges-source` is excluded for the same reason the generated
+   * catalog migrations are: it is not hand-written work. It holds the GES
+   * Phase 01-32 and Phase 99 packages as they were issued — 323 Markdown files
+   * among 1,384 artifacts — and counting somebody else's specification as this
+   * project's documentation would overstate the build by a third. They are the
+   * baseline the platform is built against; they are just not written here.
+   */
   ['Documentation',
     [...walk('.', (n) => md(n) && false), ...walk('docs', md),
-     ...walk('governance', md), ...['README.md']]],
+     ...walk('governance', md).filter((f) => !f.includes('ges-source')),
+     ...['README.md']]],
   ['Seed & tooling', [...walk('tools', mjs), ...walk('scripts', mjs)]],
 ];
 

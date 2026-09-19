@@ -1,0 +1,121 @@
+Entity_ID,Entity,Module,Definition,Core_Fields,Authority
+P11-ENT-001,Supplier,Procurement Planning,Canonical Supplier record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-002,SupplierSite,Supplier Management,Canonical SupplierSite record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-003,SupplierContact,Strategic Sourcing,Canonical SupplierContact record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-004,SupplierClassification,Purchase Requisitions,Canonical SupplierClassification record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-005,SupplierQualification,Purchase Orders,Canonical SupplierQualification record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-006,SupplierInsurance,Subcontract Procurement,Canonical SupplierInsurance record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-007,SupplierLicense,Inventory Control,Canonical SupplierLicense record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-008,SupplierCertificate,Warehouse Operations,Canonical SupplierCertificate record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-009,SupplierRiskAssessment,Material Receiving,Canonical SupplierRiskAssessment record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-010,SupplierPerformanceReview,Construction Logistics,Canonical SupplierPerformanceReview record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-011,SupplierScorecard,Rental Management,Canonical SupplierScorecard record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-012,SupplierPriceHistory,Catalog and Item Master,Canonical SupplierPriceHistory record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-013,ApprovedSupplier,Procure-to-Pay Integration,Canonical ApprovedSupplier record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-014,SupplierDiversityRecord,Supply Chain Analytics,Canonical SupplierDiversityRecord record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-015,SupplierBankChangeRequest,AI Procurement Intelligence,Canonical SupplierBankChangeRequest record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-016,SourcingEvent,Supply Chain Digital Twin,Canonical SourcingEvent record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-017,RFI,Procurement Planning,Canonical RFI record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-018,RFQ,Supplier Management,Canonical RFQ record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-019,RFP,Strategic Sourcing,Canonical RFP record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-020,BidInvitation,Purchase Requisitions,Canonical BidInvitation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-021,SupplierBid,Purchase Orders,Canonical SupplierBid record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-022,BidLine,Subcontract Procurement,Canonical BidLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-023,BidClarification,Inventory Control,Canonical BidClarification record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-024,BidComparison,Warehouse Operations,Canonical BidComparison record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-025,NegotiationRound,Material Receiving,Canonical NegotiationRound record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-026,AwardRecommendation,Construction Logistics,Canonical AwardRecommendation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-027,SourcingAward,Rental Management,Canonical SourcingAward record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-028,PurchaseRequisition,Catalog and Item Master,Canonical PurchaseRequisition record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-029,RequisitionLine,Procure-to-Pay Integration,Canonical RequisitionLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-030,RequisitionApproval,Supply Chain Analytics,Canonical RequisitionApproval record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-031,EmergencyPurchaseRequest,AI Procurement Intelligence,Canonical EmergencyPurchaseRequest record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-032,MaterialRequest,Supply Chain Digital Twin,Canonical MaterialRequest record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-033,RentalRequest,Procurement Planning,Canonical RentalRequest record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-034,ServiceRequest,Supplier Management,Canonical ServiceRequest record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-035,PurchaseOrder,Strategic Sourcing,Canonical PurchaseOrder record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-036,PurchaseOrderLine,Purchase Requisitions,Canonical PurchaseOrderLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-037,BlanketPurchaseOrder,Purchase Orders,Canonical BlanketPurchaseOrder record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-038,ReleaseOrder,Subcontract Procurement,Canonical ReleaseOrder record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-039,PurchaseOrderChange,Inventory Control,Canonical PurchaseOrderChange record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-040,PurchaseOrderApproval,Warehouse Operations,Canonical PurchaseOrderApproval record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-041,Commitment,Material Receiving,Canonical Commitment record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-042,SubcontractBidPackage,Construction Logistics,Canonical SubcontractBidPackage record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-043,SubcontractorBid,Rental Management,Canonical SubcontractorBid record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-044,SubcontractAward,Catalog and Item Master,Canonical SubcontractAward record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-045,Subcontract,Procure-to-Pay Integration,Canonical Subcontract record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-046,SubcontractLine,Supply Chain Analytics,Canonical SubcontractLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-047,SubcontractChange,AI Procurement Intelligence,Canonical SubcontractChange record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-048,Item,Supply Chain Digital Twin,Canonical Item record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-049,ItemCategory,Procurement Planning,Canonical ItemCategory record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-050,ItemAttribute,Supplier Management,Canonical ItemAttribute record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-051,Manufacturer,Strategic Sourcing,Canonical Manufacturer record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-052,ManufacturerPart,Purchase Requisitions,Canonical ManufacturerPart record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-053,UnitOfMeasure,Purchase Orders,Canonical UnitOfMeasure record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-054,UnitConversion,Subcontract Procurement,Canonical UnitConversion record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-055,MaterialSubstitution,Inventory Control,Canonical MaterialSubstitution record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-056,Catalog,Warehouse Operations,Canonical Catalog record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-057,CatalogItem,Material Receiving,Canonical CatalogItem record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-058,PriceAgreement,Construction Logistics,Canonical PriceAgreement record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-059,Warehouse,Rental Management,Canonical Warehouse record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-060,WarehouseZone,Catalog and Item Master,Canonical WarehouseZone record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-061,BinLocation,Procure-to-Pay Integration,Canonical BinLocation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-062,InventoryBalance,Supply Chain Analytics,Canonical InventoryBalance record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-063,InventoryLot,AI Procurement Intelligence,Canonical InventoryLot record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-064,SerializedInventory,Supply Chain Digital Twin,Canonical SerializedInventory record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-065,InventoryReservation,Procurement Planning,Canonical InventoryReservation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-066,InventoryAllocation,Supplier Management,Canonical InventoryAllocation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-067,InventoryTransaction,Strategic Sourcing,Canonical InventoryTransaction record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-068,InventoryAdjustment,Purchase Requisitions,Canonical InventoryAdjustment record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-069,InventoryTransfer,Purchase Orders,Canonical InventoryTransfer record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-070,CycleCount,Subcontract Procurement,Canonical CycleCount record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-071,PhysicalInventory,Inventory Control,Canonical PhysicalInventory record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-072,CountSheet,Warehouse Operations,Canonical CountSheet record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-073,ReceivingAppointment,Material Receiving,Canonical ReceivingAppointment record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-074,Receipt,Construction Logistics,Canonical Receipt record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-075,ReceiptLine,Rental Management,Canonical ReceiptLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-076,ReceivingInspection,Catalog and Item Master,Canonical ReceivingInspection record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-077,DamageReport,Procure-to-Pay Integration,Canonical DamageReport record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-078,ReturnAuthorization,Supply Chain Analytics,Canonical ReturnAuthorization record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-079,SupplierReturn,AI Procurement Intelligence,Canonical SupplierReturn record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",System of Record
+P11-ENT-080,Backorder,Supply Chain Digital Twin,Canonical Backorder record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-081,Shipment,Procurement Planning,Canonical Shipment record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-082,ShipmentLine,Supplier Management,Canonical ShipmentLine record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-083,PickList,Strategic Sourcing,Canonical PickList record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-084,PackingList,Purchase Requisitions,Canonical PackingList record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-085,Delivery,Purchase Orders,Canonical Delivery record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-086,DeliveryStop,Subcontract Procurement,Canonical DeliveryStop record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-087,DeliveryWindow,Inventory Control,Canonical DeliveryWindow record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-088,RoutePlan,Warehouse Operations,Canonical RoutePlan record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-089,LaydownArea,Material Receiving,Canonical LaydownArea record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-090,CranePickPlan,Construction Logistics,Canonical CranePickPlan record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-091,LogisticsConstraint,Rental Management,Canonical LogisticsConstraint record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-092,RentalContract,Catalog and Item Master,Canonical RentalContract record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-093,RentalAsset,Procure-to-Pay Integration,Canonical RentalAsset record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-094,RentalRate,Supply Chain Analytics,Canonical RentalRate record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-095,RentalUsage,AI Procurement Intelligence,Canonical RentalUsage record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-096,OffRentNotice,Supply Chain Digital Twin,Canonical OffRentNotice record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-097,RentalDamage,Procurement Planning,Canonical RentalDamage record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-098,FuelCharge,Supplier Management,Canonical FuelCharge record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-099,ThreeWayMatch,Strategic Sourcing,Canonical ThreeWayMatch record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-100,MatchException,Purchase Requisitions,Canonical MatchException record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-101,ProcurementAccrual,Purchase Orders,Canonical ProcurementAccrual record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-102,InvoiceReadiness,Subcontract Procurement,Canonical InvoiceReadiness record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-103,DemandForecast,Inventory Control,Canonical DemandForecast record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-104,ReplenishmentPolicy,Warehouse Operations,Canonical ReplenishmentPolicy record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-105,SafetyStockPolicy,Material Receiving,Canonical SafetyStockPolicy record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-106,ReorderRecommendation,Construction Logistics,Canonical ReorderRecommendation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-107,LeadTimeProfile,Rental Management,Canonical LeadTimeProfile record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-108,PriceForecast,Catalog and Item Master,Canonical PriceForecast record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-109,SupplyRisk,Procure-to-Pay Integration,Canonical SupplyRisk record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-110,SupplyChainScenario,Supply Chain Analytics,Canonical SupplyChainScenario record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-111,DigitalTwinSnapshot,AI Procurement Intelligence,Canonical DigitalTwinSnapshot record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-112,AIRecommendation,Supply Chain Digital Twin,Canonical AIRecommendation record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-113,AIOverride,Procurement Planning,Canonical AIOverride record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-114,ProcurementAuditEvent,Supplier Management,Canonical ProcurementAuditEvent record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-115,ProcurementReference115,Strategic Sourcing,Canonical ProcurementReference115 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-116,ProcurementReference116,Purchase Requisitions,Canonical ProcurementReference116 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-117,ProcurementReference117,Purchase Orders,Canonical ProcurementReference117 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-118,ProcurementReference118,Subcontract Procurement,Canonical ProcurementReference118 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-119,ProcurementReference119,Inventory Control,Canonical ProcurementReference119 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference
+P11-ENT-120,ProcurementReference120,Warehouse Operations,Canonical ProcurementReference120 record governed by Phase 11.,"tenant_id, company_id, record_id, status, effective dates, audit fields",Reference

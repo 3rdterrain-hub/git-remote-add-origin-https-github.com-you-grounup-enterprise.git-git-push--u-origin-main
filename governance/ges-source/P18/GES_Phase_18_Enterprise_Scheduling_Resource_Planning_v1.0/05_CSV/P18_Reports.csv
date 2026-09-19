@@ -1,0 +1,43 @@
+report_id,name,audience,purpose,formats
+P18-RPT-001,Master Schedule,Project Controls/Operations/Executive,"Governed master schedule with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-002,Baseline Comparison,Project Controls/Operations/Executive,"Governed baseline comparison with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-003,Schedule Update Report,Project Controls/Operations/Executive,"Governed schedule update report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-004,Critical Path Report,Project Controls/Operations/Executive,"Governed critical path report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-005,Longest Path Report,Project Controls/Operations/Executive,"Governed longest path report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-006,Float Report,Project Controls/Operations/Executive,"Governed float report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-007,Milestone Forecast,Project Controls/Operations/Executive,"Governed milestone forecast with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-008,Schedule Quality Report,Project Controls/Operations/Executive,"Governed schedule quality report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-009,Resource Loading,Project Controls/Operations/Executive,"Governed resource loading with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-010,Resource Overload,Project Controls/Operations/Executive,"Governed resource overload with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-011,Crew Demand,Project Controls/Operations/Executive,"Governed crew demand with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-012,Equipment Demand,Project Controls/Operations/Executive,"Governed equipment demand with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-013,Truck Demand,Project Controls/Operations/Executive,"Governed truck demand with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-014,Material Need-Date,Project Controls/Operations/Executive,"Governed material need-date with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-015,Subcontractor Capacity,Project Controls/Operations/Executive,"Governed subcontractor capacity with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-016,Look-Ahead Report,Project Controls/Operations/Executive,"Governed look-ahead report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-017,Weekly Work Plan,Project Controls/Operations/Executive,"Governed weekly work plan with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-018,PPC Report,Project Controls/Operations/Executive,"Governed ppc report with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-019,Constraint Register,Project Controls/Operations/Executive,"Governed constraint register with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-020,Constraint Aging,Project Controls/Operations/Executive,"Governed constraint aging with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-021,Weather Impact,Project Controls/Operations/Executive,"Governed weather impact with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-022,Schedule Risk,Project Controls/Operations/Executive,"Governed schedule risk with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-023,Confidence Date,Project Controls/Operations/Executive,"Governed confidence date with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-024,Scenario Comparison,Project Controls/Operations/Executive,"Governed scenario comparison with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-025,Recovery Plan,Project Controls/Operations/Executive,"Governed recovery plan with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-026,Acceleration Options,Project Controls/Operations/Executive,"Governed acceleration options with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-027,Delay Event Log,Project Controls/Operations/Executive,"Governed delay event log with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-028,Time Impact Analysis,Project Controls/Operations/Executive,"Governed time impact analysis with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-029,Portfolio Capacity,Project Controls/Operations/Executive,"Governed portfolio capacity with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-030,Backlog Resource Forecast,Project Controls/Operations/Executive,"Governed backlog resource forecast with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-031,Earned Value,Project Controls/Operations/Executive,"Governed earned value with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-032,Schedule Performance Index,Project Controls/Operations/Executive,"Governed schedule performance index with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-033,Cash Flow Forecast,Project Controls/Operations/Executive,"Governed cash flow forecast with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-034,Forecast Completion,Project Controls/Operations/Executive,"Governed forecast completion with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-035,Schedule Variance,Project Controls/Operations/Executive,"Governed schedule variance with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-036,Production vs Schedule,Project Controls/Operations/Executive,"Governed production vs schedule with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-037,Resource Utilization,Project Controls/Operations/Executive,"Governed resource utilization with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-038,Critical Resource Bottlenecks,Project Controls/Operations/Executive,"Governed critical resource bottlenecks with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-039,Schedule Alerts,Project Controls/Operations/Executive,"Governed schedule alerts with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-040,AI Delay/Recovery Review,Project Controls/Operations/Executive,"Governed ai delay/recovery review with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-041,Scheduling KPI Scorecard,Project Controls/Operations/Executive,"Governed scheduling kpi scorecard with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV
+P18-RPT-042,Scheduling Digital Twin Status,Project Controls/Operations/Executive,"Governed scheduling digital twin status with schedule version, baseline, calendar/resource context and drill-through.",Gantt/Dashboard/PDF/XLSX/CSV

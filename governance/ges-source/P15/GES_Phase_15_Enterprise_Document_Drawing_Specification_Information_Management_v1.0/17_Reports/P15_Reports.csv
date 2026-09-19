@@ -1,0 +1,33 @@
+report_id,name,audience,purpose,formats
+P15-RPT-001,Master Document Register,Information Management/Project/Executive,"Governed master document register with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-002,Drawing Register,Information Management/Project/Executive,"Governed drawing register with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-003,Specification Register,Information Management/Project/Executive,"Governed specification register with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-004,Current Set Report,Information Management/Project/Executive,"Governed current set report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-005,Superseded Document Report,Information Management/Project/Executive,"Governed superseded document report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-006,Submittal Log,Information Management/Project/Executive,"Governed submittal log with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-007,RFI Log,Information Management/Project/Executive,"Governed rfi log with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-008,RFI Aging,Information Management/Project/Executive,"Governed rfi aging with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-009,Transmittal Log,Information Management/Project/Executive,"Governed transmittal log with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-010,Distribution & Acknowledgement,Information Management/Project/Executive,"Governed distribution & acknowledgement with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-011,Review/Approval Aging,Information Management/Project/Executive,"Governed review/approval aging with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-012,Markup Resolution,Information Management/Project/Executive,"Governed markup resolution with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-013,Document Revision History,Information Management/Project/Executive,"Governed document revision history with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-014,Drawing Revision History,Information Management/Project/Executive,"Governed drawing revision history with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-015,Specification Change Report,Information Management/Project/Executive,"Governed specification change report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-016,Document Access Audit,Information Management/Project/Executive,"Governed document access audit with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-017,External Share Audit,Information Management/Project/Executive,"Governed external share audit with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-018,Controlled Copy Report,Information Management/Project/Executive,"Governed controlled copy report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-019,Retention Schedule,Information Management/Project/Executive,"Governed retention schedule with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-020,Legal Hold Report,Information Management/Project/Executive,"Governed legal hold report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-021,OCR/Classification Quality,Information Management/Project/Executive,"Governed ocr/classification quality with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-022,Search & Retrieval Usage,Information Management/Project/Executive,"Governed search & retrieval usage with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-023,Plan/Spec Conflict Report,Information Management/Project/Executive,"Governed plan/spec conflict report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-024,Cross-Reference Findings,Information Management/Project/Executive,"Governed cross-reference findings with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-025,Closeout Completeness,Information Management/Project/Executive,"Governed closeout completeness with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-026,As-Built Status,Information Management/Project/Executive,"Governed as-built status with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-027,O&M Manual Status,Information Management/Project/Executive,"Governed o&m manual status with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-028,Turnover Package Status,Information Management/Project/Executive,"Governed turnover package status with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-029,Document KPI Scorecard,Information Management/Project/Executive,"Governed document kpi scorecard with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-030,Information Management Board Pack,Information Management/Project/Executive,"Governed information management board pack with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-031,AI Extraction Review,Information Management/Project/Executive,"Governed ai extraction review with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV
+P15-RPT-032,Revision Impact Report,Information Management/Project/Executive,"Governed revision impact report with filters, revision context, permissions and drill-through.",Dashboard/PDF/XLSX/CSV

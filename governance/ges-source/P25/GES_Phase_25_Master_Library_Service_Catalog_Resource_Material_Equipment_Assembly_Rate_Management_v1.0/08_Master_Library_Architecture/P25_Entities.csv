@@ -1,0 +1,35 @@
+entity,primary_key,purpose,scope
+LibraryType,library_type_id,Registry of supported library families,Platform
+LibraryRecord,library_record_id,Common versioned library record metadata,Tenant/Base
+LibraryVersion,library_version_id,Immutable record version/effective period,Tenant/Base
+Service,service_id,Estimating/service-catalog service,Tenant/Base
+ServiceCategory,service_category_id,Service taxonomy/category,Tenant/Base
+UnitOfMeasure,uom_id,Canonical unit definition,Platform
+UnitConversion,conversion_id,Approved conversion rule,Platform
+LaborResource,labor_resource_id,Labor/craft resource definition,Tenant/Base
+CrewTemplate,crew_template_id,Crew composition template,Tenant/Base
+CrewMemberRole,crew_member_role_id,Crew role/count component,Tenant/Base
+EquipmentResource,equipment_resource_id,Equipment class/model resource,Tenant/Base
+TruckResource,truck_resource_id,Truck/haul resource,Tenant/Base
+MaterialResource,material_resource_id,Material definition,Tenant/Base
+SubcontractResource,subcontract_resource_id,Subcontract category/resource,Tenant/Base
+DisposalResource,disposal_resource_id,Disposal type/facility reference,Tenant/Base
+Assembly,assembly_id,Reusable assembly definition,Tenant/Base
+AssemblyVersion,assembly_version_id,Immutable assembly revision,Tenant/Base
+AssemblyComponent,assembly_component_id,Labor/equipment/material/subcontract/assembly component,Tenant/Base
+ProductionRate,production_rate_id,Production assumption/rate,Tenant/Base
+ConditionModifier,condition_modifier_id,Access/weather/phasing/haul/difficulty modifier,Tenant/Base
+LaborRate,labor_rate_id,Labor pricing record,Tenant/Base
+EquipmentRate,equipment_rate_id,Equipment pricing record,Tenant/Base
+MaterialPrice,material_price_id,Material price record,Tenant/Base
+TruckRate,truck_rate_id,Truck pricing record,Tenant/Base
+SubcontractRate,subcontract_rate_id,Subcontract price record,Tenant/Base
+DisposalRate,disposal_rate_id,Disposal price record,Tenant/Base
+RegionalProfile,regional_profile_id,Regional/location pricing profile,Tenant/Base
+LocationFactor,location_factor_id,Geographic price factor,Tenant/Base
+VendorPriceSource,vendor_price_source_id,Vendor quote/source record,Tenant
+LibraryOverride,library_override_id,Tenant override against governed base record,Tenant
+LibraryPublication,publication_id,Publication/release state,Tenant/Base
+AIWritebackProposal,proposal_id,AI-proposed library change,Tenant
+LibrarySnapshot,snapshot_id,Frozen estimator-consumable library snapshot,Tenant
+LibraryDependency,dependency_id,Cross-library dependency edge,Tenant/Base

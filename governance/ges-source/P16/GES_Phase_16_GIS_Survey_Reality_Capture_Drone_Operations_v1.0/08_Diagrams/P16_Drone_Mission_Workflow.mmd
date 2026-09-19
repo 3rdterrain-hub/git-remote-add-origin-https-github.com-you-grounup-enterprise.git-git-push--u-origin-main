@@ -1,0 +1,16 @@
+stateDiagram-v2
+ [*] --> Requested
+ Requested --> Planned
+ Planned --> ComplianceReview
+ ComplianceReview --> Approved
+ ComplianceReview --> Rejected
+ Approved --> Preflight
+ Preflight --> Flying
+ Flying --> Postflight
+ Postflight --> Processing
+ Processing --> QA
+ QA --> Published
+ QA --> Reprocess
+ Reprocess --> Processing
+ Published --> [*]
+ Rejected --> [*]

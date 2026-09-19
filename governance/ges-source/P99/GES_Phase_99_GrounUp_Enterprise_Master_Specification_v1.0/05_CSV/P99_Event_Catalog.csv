@@ -1,0 +1,8 @@
+event_id,event_name,version,envelope,delivery,status
+P99-EVT-001,master.specification.released,v1,"event_id,master_version,source_manifest_hash,occurred_at,actor_id",Governance/audit,Proposed
+P99-EVT-002,master.change.requested,v1,"event_id,change_id,affected_phase_ids,occurred_at,actor_id",Governance/audit,Proposed
+P99-EVT-003,master.change.approved,v1,"event_id,change_id,new_version,occurred_at,approver_id",Governance/audit,Proposed
+P99-EVT-004,master.exception.approved,v1,"event_id,exception_id,scope,expiry,approver_id",Governance/audit,Proposed
+P99-EVT-005,master.release.gate.failed,v1,"event_id,release_id,gate_id,evidence_refs,occurred_at",Release/QA,Proposed
+P99-EVT-006,master.release.gate.passed,v1,"event_id,release_id,gate_id,evidence_refs,occurred_at",Release/QA,Proposed
+P99-EVT-007,master.certification.recorded,v1,"event_id,release_id,decision,scope,evidence_package_id,occurred_at",Certification/audit,Proposed

@@ -1,0 +1,4 @@
+﻿Item Code,Name,Category,Unit,Description,Status,Version
+SVC-EW-001,Mass Excavation,Earthwork,CY,Excavate common soil to design grade,Active,1.0.0
+SVC-DM-001,Concrete Slab Demolition,Demolition,SF,"Break, load and remove non-reinforced slab",Active,1.0.0
+SVC-UT-001,Storm Pipe Installation,Utilities,LF,Install storm pipe including bedding and backfill,Draft,0.1.0

@@ -1,0 +1,37 @@
+module_id,name,layer,purpose
+P27-MOD-001,Construction Copilot Gateway,AI,Single governed conversational entry point for construction questions and workflows
+P27-MOD-002,AI Context Builder,AI,Build tenant/project/user context from authorized systems and current work
+P27-MOD-003,Tool Registry,AI Platform,"Governed catalog of callable tools, schemas, permissions and risk classes"
+P27-MOD-004,Tool Policy Engine,AI Platform,Evaluates whether an agent may call a tool and whether approval is required
+P27-MOD-005,Agent Orchestrator,AI Platform,Plans/delegates multi-step work across specialized agents and deterministic tools
+P27-MOD-006,Task State Manager,AI Platform,"Tracks agent task states, retries, approvals, outputs and evidence"
+P27-MOD-007,Construction Retrieval Service,AI/RAG,Permission-aware retrieval across plans/specs/RFIs/submittals/libraries/project records
+P27-MOD-008,Source Evidence Service,AI Governance,Normalizes citations/page/sheet/record references and evidence confidence
+P27-MOD-009,Plan Sheet Agent,AI Agent,"Reads plan sheets, notes, callouts, dimensions and discipline context with evidence"
+P27-MOD-010,Specification Agent,AI Agent,"Reads specification sections, requirements, products and execution clauses"
+P27-MOD-011,Addenda Change Agent,AI Agent,Detects changed drawings/specs/addenda and impact candidates
+P27-MOD-012,Scope Extraction Agent,AI Agent,Extracts scope candidates and missing/ambiguous scope evidence
+P27-MOD-013,Quantity Evidence Agent,AI Agent,Produces quantity candidates tied to source evidence and review state
+P27-MOD-014,Service Mapping Agent,AI Agent,Maps extracted scope to Phase 25 services and proposes missing-service writeback
+P27-MOD-015,Assembly Mapping Agent,AI Agent,Maps scope to governed assemblies and flags invalid/missing dependencies
+P27-MOD-016,Estimate Input Agent,AI Agent,Suggests quantities/assumptions/input mappings without authoritatively calculating sell values
+P27-MOD-017,Production Review Agent,AI Agent,Reviews Phase 26 production assumptions against evidence and library context
+P27-MOD-018,Crew Equipment Agent,AI Agent,Suggests crew/equipment alternatives with rationale and Phase 26 tool calls
+P27-MOD-019,Truck Haul Agent,AI Agent,Suggests trucking/haul alternatives and delegates math to Phase 26 deterministic tools
+P27-MOD-020,Material Disposal Agent,AI Agent,"Reviews materials, waste, disposal and source assumptions"
+P27-MOD-021,Estimate Math Review Agent,AI Agent,Recomputes/checks estimate outputs only via Phase 26 deterministic calculation interfaces
+P27-MOD-022,Estimate Completeness Agent,AI Agent,"Flags missing lines, assemblies, quotes, assumptions, exclusions or evidence"
+P27-MOD-023,Pricing Source Agent,AI Agent,"Checks rate/price provenance, age, region and source hierarchy"
+P27-MOD-024,Markup Review Agent,AI Agent,Checks configured markup sequence/basis against governed profile
+P27-MOD-025,Risk Agent,AI Agent,"Detects scope, quantity, production, pricing, schedule, constructability and commercial risks"
+P27-MOD-026,Conflict Agent,AI Agent,Finds plan/spec/addenda/RFI/submittal conflicts without resolving them silently
+P27-MOD-027,Missing Information Agent,AI Agent,Identifies unresolved data needed before reliable estimate/operation decisions
+P27-MOD-028,Constructability Agent,AI Agent,"Surfaces access, sequence, temporary work, equipment, logistics and production concerns"
+P27-MOD-029,Safety Advisory Agent,AI Agent,Surfaces safety/compliance considerations but cannot replace competent-person/regulated decisions
+P27-MOD-030,Commercial Advisory Agent,AI Agent,Surfaces notice/change/contract evidence candidates but cannot make legal conclusions
+P27-MOD-031,Human Approval Service,Governance,Routes protected agent actions to authorized human review and records decision evidence
+P27-MOD-032,AI Evaluation Service,AI Governance,"Offline/online evaluations, golden datasets, drift and regression testing"
+P27-MOD-033,Model/Prompt Registry,AI Governance,Versions providers/models/prompts/tools/policies and approved deployment state
+P27-MOD-034,Feedback Calibration Service,AI Governance,Captures accepted/rejected suggestions and controlled calibration signals
+P27-MOD-035,AI Observability & Incident Service,Operations,Logs latency/cost/errors/safety events and supports rollback/fallback
+P27-MOD-036,AI Digital Twin Context Service,AI,Provides governed project/estimate/library/workflow state snapshot to agents

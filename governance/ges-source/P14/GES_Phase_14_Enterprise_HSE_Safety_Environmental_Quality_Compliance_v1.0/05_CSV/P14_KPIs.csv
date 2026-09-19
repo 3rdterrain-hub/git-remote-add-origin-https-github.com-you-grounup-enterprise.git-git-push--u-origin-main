@@ -1,0 +1,46 @@
+kpi_id,name,domain,definition,cadence,governance
+P14-KPI-001,TRIR,Safety Management,Governed formula/definition for TRIR.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-002,DART Rate,Incident & Near-Miss Management,Governed formula/definition for DART Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-003,Lost Time Incident Rate,JHA/JSA & Pre-Task Planning,Governed formula/definition for Lost Time Incident Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-004,Near Miss Reporting Rate,Permits to Work,Governed formula/definition for Near Miss Reporting Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-005,Safety Observation Rate,Training & Competency,Governed formula/definition for Safety Observation Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-006,Positive Observation %,Environmental Management,Governed formula/definition for Positive Observation %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-007,Hazard Closure Time,Quality Management,Governed formula/definition for Hazard Closure Time.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-008,Critical Hazard Open Count,Compliance & Regulatory,Governed formula/definition for Critical Hazard Open Count.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-009,Stop Work Events,Industrial Hygiene,Governed formula/definition for Stop Work Events.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-010,JHA Completion %,Emergency Management,Governed formula/definition for JHA Completion %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-011,Pre-Task Plan Compliance,Subcontractor HSEQ,Governed formula/definition for Pre-Task Plan Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-012,Toolbox Talk Completion,Equipment & Fleet Safety,Governed formula/definition for Toolbox Talk Completion.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-013,Training Compliance %,Public & Traffic Safety,Governed formula/definition for Training Compliance %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-014,Certification Compliance %,Corrective & Preventive Action,Governed formula/definition for Certification Compliance %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-015,Inspection Completion %,Audit & Assurance,Governed formula/definition for Inspection Completion %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-016,Inspection Finding Closure,HSEQ Analytics,Governed formula/definition for Inspection Finding Closure.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-017,Corrective Action On-Time %,AI HSEQ Intelligence,Governed formula/definition for Corrective Action On-Time %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-018,Corrective Action Effectiveness %,HSEQ Digital Twin,Governed formula/definition for Corrective Action Effectiveness %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-019,Incident Investigation Cycle Time,Safety Management,Governed formula/definition for Incident Investigation Cycle Time.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-020,Repeat Incident Rate,Incident & Near-Miss Management,Governed formula/definition for Repeat Incident Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-021,Environmental Inspection Compliance,JHA/JSA & Pre-Task Planning,Governed formula/definition for Environmental Inspection Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-022,SWPPP Compliance,Permits to Work,Governed formula/definition for SWPPP Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-023,Spill Count,Training & Competency,Governed formula/definition for Spill Count.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-024,Spill Volume,Environmental Management,Governed formula/definition for Spill Volume.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-025,Waste Manifest Compliance,Quality Management,Governed formula/definition for Waste Manifest Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-026,Quality First-Pass Yield,Compliance & Regulatory,Governed formula/definition for Quality First-Pass Yield.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-027,NCR Rate,Industrial Hygiene,Governed formula/definition for NCR Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-028,Rework Cost %,Emergency Management,Governed formula/definition for Rework Cost %.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-029,Hold Point Compliance,Subcontractor HSEQ,Governed formula/definition for Hold Point Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-030,Test Pass Rate,Equipment & Fleet Safety,Governed formula/definition for Test Pass Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-031,Punch Closure Time,Public & Traffic Safety,Governed formula/definition for Punch Closure Time.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-032,Audit Finding Closure,Corrective & Preventive Action,Governed formula/definition for Audit Finding Closure.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-033,Regulatory Obligation Compliance,Audit & Assurance,Governed formula/definition for Regulatory Obligation Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-034,Subcontractor HSEQ Score,HSEQ Analytics,Governed formula/definition for Subcontractor HSEQ Score.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-035,Fleet Safety Inspection Compliance,AI HSEQ Intelligence,Governed formula/definition for Fleet Safety Inspection Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-036,Operator Authorization Compliance,HSEQ Digital Twin,Governed formula/definition for Operator Authorization Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-037,Traffic Control Inspection Compliance,Safety Management,Governed formula/definition for Traffic Control Inspection Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-038,Emergency Drill Completion,Incident & Near-Miss Management,Governed formula/definition for Emergency Drill Completion.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-039,Industrial Hygiene Compliance,JHA/JSA & Pre-Task Planning,Governed formula/definition for Industrial Hygiene Compliance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-040,HSEQ Leading Indicator Index,Permits to Work,Governed formula/definition for HSEQ Leading Indicator Index.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-041,HSEQ Risk Index,Training & Competency,Governed formula/definition for HSEQ Risk Index.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-042,HSEQ Cost Rate,Environmental Management,Governed formula/definition for HSEQ Cost Rate.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-043,HSEQ AI Recommendation Acceptance,Quality Management,Governed formula/definition for HSEQ AI Recommendation Acceptance.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-044,HSEQ AI Recommendation Benefit,Compliance & Regulatory,Governed formula/definition for HSEQ AI Recommendation Benefit.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required
+P14-KPI-045,HSEQ Digital Twin Freshness,Industrial Hygiene,Governed formula/definition for HSEQ Digital Twin Freshness.,Daily/Weekly/Monthly,HSEQ owner and semantic definition required

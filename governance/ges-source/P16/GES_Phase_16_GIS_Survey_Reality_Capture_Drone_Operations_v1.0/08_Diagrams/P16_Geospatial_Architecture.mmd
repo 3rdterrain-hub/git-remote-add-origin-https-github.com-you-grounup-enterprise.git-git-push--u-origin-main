@@ -1,0 +1,15 @@
+flowchart LR
+ Survey[Survey Instruments/GNSS] --> Spatial[Geospatial Platform]
+ Drone[Drone & Payloads] --> RC[Reality Capture Processing]
+ RC --> Spatial
+ GIS[GIS Field Collection] --> Spatial
+ Spatial --> QA[Spatial QA/QC]
+ QA --> Maps[Maps/Layers/Surfaces]
+ QA --> Vol[Volumes & Progress]
+ QA --> AI[AI Geospatial Intelligence]
+ AI --> Human[Human Review]
+ Maps --> P07[Project Operations]
+ Maps --> P13[Enterprise Analytics]
+ Maps --> P15[Documents]
+ Maps --> Handoff[Phase 17 Machine Control Handoff]
+ Spatial --> Twin[Geospatial Digital Twin]

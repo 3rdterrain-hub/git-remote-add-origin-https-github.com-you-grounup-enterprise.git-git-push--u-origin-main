@@ -1,0 +1,84 @@
+{
+  "workflows": [
+    {
+      "workflow_id": "WF-P03-001",
+      "name": "Master Record Creation",
+      "actors": "Data Steward; Requester; Validator",
+      "states": "Draft; Validating; Duplicate Review; Approved; Active; Rejected",
+      "trigger": "Master record requested",
+      "core_steps": "Capture; validate; duplicate check; steward review; assign identifiers; activate; audit",
+      "output": "Approved canonical master record",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P03-002",
+      "name": "Master Record Merge",
+      "actors": "Data Steward; System",
+      "states": "Proposed; Impact Review; Approved; Merging; Completed; Reversed",
+      "trigger": "Duplicate confirmed",
+      "core_steps": "Select survivor; preserve aliases; move relationships; write lineage; audit; notify",
+      "output": "Merged master and merge history",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P03-003",
+      "name": "Schema Change",
+      "actors": "Data Owner; Architect; Engineering; QA",
+      "states": "Proposed; Impact Analysis; Approved; Implementing; Migrating; Validating; Released",
+      "trigger": "Model change requested",
+      "core_steps": "Assess compatibility; version schema; migrate; reconcile; certify; publish",
+      "output": "Versioned schema release",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P03-004",
+      "name": "Data Import",
+      "actors": "User; Import Engine; Data Steward",
+      "states": "Uploaded; Mapped; Validating; Exception Review; Approved; Committing; Completed; Failed",
+      "trigger": "Import submitted",
+      "core_steps": "Stage; map; validate; deduplicate; preview; approve; commit; reconcile; archive evidence",
+      "output": "Committed canonical records and reconciliation",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P03-005",
+      "name": "Data Quality Exception",
+      "actors": "Rule Engine; Data Steward; Owner",
+      "states": "Open; Assigned; Investigating; Correcting; Validating; Closed; Accepted Risk",
+      "trigger": "Quality rule failure",
+      "core_steps": "Create exception; assign; analyze lineage; correct or waive; revalidate; record outcome",
+      "output": "Resolved quality exception",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P03-006",
+      "name": "Record Archive and Restore",
+      "actors": "Record Owner; Records Admin",
+      "states": "Requested; Eligibility Review; Approved; Archived; Restored; Denied",
+      "trigger": "Archive or restore request",
+      "core_steps": "Check retention, hold, dependencies; approve; archive or restore; audit",
+      "output": "Lifecycle transition with evidence",
+      "priority": "High"
+    },
+    {
+      "workflow_id": "WF-P03-007",
+      "name": "AI Recommendation Writeback",
+      "actors": "AI Agent; User; Approver; Domain Service",
+      "states": "Generated; Reviewed; Approved; Rejected; Committing; Committed; Failed",
+      "trigger": "AI recommendation produced",
+      "core_steps": "Attach evidence; compare current version; authorize; approve; validate; commit; audit; feedback",
+      "output": "Authorized business record change",
+      "priority": "Critical"
+    },
+    {
+      "workflow_id": "WF-P03-008",
+      "name": "Data Export",
+      "actors": "Requester; Export Service; Security",
+      "states": "Requested; Authorizing; Extracting; Validating; Packaging; Available; Expired",
+      "trigger": "Export requested",
+      "core_steps": "Authorize scope; extract canonical data; include lineage; checksum; package; expire",
+      "output": "Portable governed export",
+      "priority": "High"
+    }
+  ]
+}

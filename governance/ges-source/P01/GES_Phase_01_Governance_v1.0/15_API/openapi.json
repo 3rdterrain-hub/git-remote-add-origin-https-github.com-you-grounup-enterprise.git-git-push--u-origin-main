@@ -1,0 +1,286 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrounUp Governance API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/v1"
+    }
+  ],
+  "paths": {
+    "/tenants/{tenantId}": {
+      "get": {
+        "operationId": "API-P01-001",
+        "summary": "Read tenant",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/tenants": {
+      "post": {
+        "operationId": "API-P01-002",
+        "summary": "Provision tenant",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/organization-units": {
+      "get": {
+        "operationId": "API-P01-003",
+        "summary": "List organization units",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/users/invitations": {
+      "post": {
+        "operationId": "API-P01-004",
+        "summary": "Invite user",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/role-assignments": {
+      "post": {
+        "operationId": "API-P01-005",
+        "summary": "Assign role",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/role-assignments/{id}": {
+      "delete": {
+        "operationId": "API-P01-006",
+        "summary": "Revoke assignment",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/effective-permissions": {
+      "get": {
+        "operationId": "API-P01-007",
+        "summary": "Resolve effective permissions",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/policies/{policyId}/versions": {
+      "post": {
+        "operationId": "API-P01-008",
+        "summary": "Create policy version",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/approval-requests": {
+      "post": {
+        "operationId": "API-P01-009",
+        "summary": "Create approval request",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/approval-requests/{id}/decisions": {
+      "post": {
+        "operationId": "API-P01-010",
+        "summary": "Record approval decision",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/delegations": {
+      "post": {
+        "operationId": "API-P01-011",
+        "summary": "Create delegation",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/audit-events": {
+      "get": {
+        "operationId": "API-P01-012",
+        "summary": "Search audit events",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/legal-holds": {
+      "post": {
+        "operationId": "API-P01-013",
+        "summary": "Create legal hold",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/change-requests": {
+      "post": {
+        "operationId": "API-P01-014",
+        "summary": "Submit change request",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/emergency-access": {
+      "post": {
+        "operationId": "API-P01-015",
+        "summary": "Request break-glass access",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    },
+    "/ai-governance/proposals": {
+      "post": {
+        "operationId": "API-P01-016",
+        "summary": "Submit AI proposal",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        }
+      }
+    }
+  }
+}

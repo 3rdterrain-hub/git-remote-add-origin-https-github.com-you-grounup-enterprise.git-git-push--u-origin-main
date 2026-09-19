@@ -1,0 +1,210 @@
+[
+  [
+    "P12-WF-01",
+    "Asset Acquisition to Commissioning",
+    "Fleet Registry",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-02",
+    "Asset Transfer",
+    "Asset Lifecycle",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-03",
+    "Daily Pre-Use Inspection",
+    "Preventive Maintenance",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-04",
+    "Defect to Corrective Work Order",
+    "Corrective Maintenance",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-05",
+    "Preventive Maintenance Planning",
+    "Inspections",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-06",
+    "Work Order Planning and Approval",
+    "Telematics & IoT",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-07",
+    "Shop Work Execution",
+    "Fuel & Energy",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-08",
+    "Field Service Dispatch",
+    "Parts & Components",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-09",
+    "Emergency Breakdown Response",
+    "Work Orders",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-10",
+    "Parts Issue and Return",
+    "Shop Operations",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-11",
+    "Warranty Claim Recovery",
+    "Field Service",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-12",
+    "Fuel Transaction Reconciliation",
+    "Rental & Leased Assets",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-13",
+    "Rental On-Rent to Off-Rent",
+    "Compliance",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-14",
+    "Telematics Event Processing",
+    "Safety & Risk",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-15",
+    "Compliance Renewal",
+    "Utilization & Dispatch",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-16",
+    "Operator Authorization",
+    "Equipment Costing",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-17",
+    "Asset Reservation and Dispatch",
+    "Warranty & Claims",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-18",
+    "Project Equipment Chargeback",
+    "Tires & Undercarriage",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-19",
+    "Tire Lifecycle",
+    "Attachments & Tools",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-20",
+    "Undercarriage Monitoring",
+    "Documents & Media",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-21",
+    "Attachment Custody",
+    "Mobile & Offline",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-22",
+    "Asset Replacement Planning",
+    "Fleet Intelligence",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-23",
+    "Asset Disposal",
+    "Fleet Digital Twin",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-24",
+    "Mobile Offline Sync",
+    "Administration & Integration",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-25",
+    "Recall Campaign",
+    "Fleet Registry",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ],
+  [
+    "P12-WF-26",
+    "Digital Twin State Refresh",
+    "Asset Lifecycle",
+    "Initiated > Validated > Approved/Assigned > Executed > Verified > Closed",
+    "Configurable approval, notifications, SLA clocks, exception queues, and audit trail",
+    "Mobile/API/Web/Event"
+  ]
+]

@@ -1,0 +1,11 @@
+flowchart TD
+  C[Change Request] --> I[Impact Analysis]
+  I --> B[Business Review]
+  I --> T[Technical/Data/Security/AI Review]
+  B --> D{Change Control Board}
+  T --> D
+  D -->|Reject| R[Rejected or Deferred]
+  D -->|Approve| M[Implement and Migrate]
+  M --> V[Verify and Test]
+  V --> L[Version, Approve, and Lock]
+  L --> A[Audit and Release Record]

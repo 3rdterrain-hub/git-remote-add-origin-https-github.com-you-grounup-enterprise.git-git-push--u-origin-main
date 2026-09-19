@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FinancialJournal",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "company_id",
+    "journal_date",
+    "currency",
+    "lines"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "company_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "journal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "submitted",
+        "approved",
+        "posted",
+        "reversed"
+      ]
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "account_id",
+          "debit",
+          "credit"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "debit": {
+            "type": "number",
+            "minimum": 0
+          },
+          "credit": {
+            "type": "number",
+            "minimum": 0
+          },
+          "project_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "cost_code_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      }
+    }
+  }
+}

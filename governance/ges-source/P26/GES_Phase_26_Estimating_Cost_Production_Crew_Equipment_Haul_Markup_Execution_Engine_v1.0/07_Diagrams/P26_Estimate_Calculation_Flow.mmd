@@ -1,0 +1,21 @@
+flowchart LR
+ Scope[Service / Quantity / Takeoff] --> Snap[Phase 25 Library Snapshot]
+ Snap --> Expand[Assembly Expansion]
+ Expand --> Prod[Production + Duration]
+ Prod --> Crew[Crew + Labor]
+ Prod --> Equip[Equipment + Fuel]
+ Prod --> Truck[Truck Cycle + Count]
+ Truck --> Haul[Haul + Disposal]
+ Expand --> Mat[Material + Subcontract]
+ Crew --> Direct[Direct Cost Rollup]
+ Equip --> Direct
+ Haul --> Direct
+ Mat --> Direct
+ Direct --> Indirect[Indirect / Mobilization / Contingency]
+ Indirect --> Markup[Markup / O&P / Tax / Bond]
+ Markup --> Sell[Sell Total + Unit Price]
+ Sell --> Confidence[Confidence / Risks]
+ Sell --> Trace[Calculation Trace]
+ Trace --> Review[Review / Approval / Freeze]
+ Review --> Export[Proposal + Job Baseline]
+ Review --> Writeback[Approved Service Catalog Writeback]

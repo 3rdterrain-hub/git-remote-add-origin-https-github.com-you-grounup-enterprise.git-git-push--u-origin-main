@@ -1,0 +1,49 @@
+module_id,name,layer,purpose
+P31-MOD-001,Platform Control Plane,Platform,"Environment, service, deployment and ownership registry"
+P31-MOD-002,Cloud Provider Adapter,Infrastructure,Provider-neutral interface for cloud-specific modules and services
+P31-MOD-003,Network Foundation,Infrastructure,"VPC/VNet, subnets, routing, NAT/egress and segmentation"
+P31-MOD-004,Edge & Ingress Service,Infrastructure,"DNS, CDN/WAF/ingress/load balancing and TLS termination boundary"
+P31-MOD-005,Runtime Platform,Infrastructure,Application/container/worker runtime and scheduling
+P31-MOD-006,Database Platform,Data Infrastructure,"Managed relational database topology, replicas, backups and maintenance"
+P31-MOD-007,Cache Platform,Data Infrastructure,"Distributed cache, locks and rate/ephemeral state"
+P31-MOD-008,Queue/Job Platform,Data Infrastructure,"Asynchronous queues, jobs, dead-letter and worker scaling"
+P31-MOD-009,Object Storage Platform,Data Infrastructure,"Documents, drawings, exports, backups and object lifecycle"
+P31-MOD-010,Search Platform,Data Infrastructure,Permission-aware search runtime and index operations
+P31-MOD-011,Analytics Platform Runtime,Data Infrastructure,Phase 29 warehouse/lakehouse execution infrastructure
+P31-MOD-012,AI Runtime Platform,AI Infrastructure,Phase 27 model/provider/tool worker runtime and scaling
+P31-MOD-013,Environment Registry,DevOps,Development/test/staging/production/preview environment definitions
+P31-MOD-014,Configuration Registry,DevOps,Versioned non-secret environment/application configuration
+P31-MOD-015,Secret Injection Service,Security/DevOps,"Managed secret delivery, rotation and workload identity integration"
+P31-MOD-016,Infrastructure-as-Code Service,DevOps,Versioned infrastructure modules and environment stacks
+P31-MOD-017,IaC State Service,DevOps,Protected state/locking/backup and change evidence
+P31-MOD-018,Policy-as-Code Service,DevSecOps,Infrastructure/security/release policy checks
+P31-MOD-019,Build Pipeline,CI,Compile/build/package/test workflow
+P31-MOD-020,Artifact Registry,CI,Immutable versioned application/container/package artifacts
+P31-MOD-021,SBOM/Provenance Service,DevSecOps,"Software bill of materials, signing and build provenance"
+P31-MOD-022,Test Pipeline,CI,Unit/integration/contract/security/performance test orchestration
+P31-MOD-023,Release Candidate Service,Release,"Release candidate assembly, versioning and evidence"
+P31-MOD-024,Deployment Pipeline,CD,Controlled environment promotion and deployment
+P31-MOD-025,Migration Orchestrator,CD/Data,"Schema/data migration ordering, validation and rollback/forward-fix controls"
+P31-MOD-026,Feature Flag Runtime,Release,Safe activation/deactivation independent from deployment
+P31-MOD-027,Blue/Green Deployment Controller,Release,Parallel production slot deployment and traffic switch
+P31-MOD-028,Canary Deployment Controller,Release,Progressive traffic rollout and automated stop conditions
+P31-MOD-029,Rollback Service,Release,Application/config/feature rollback and recovery coordination
+P31-MOD-030,Release Approval Service,Governance,Human/system release gate approvals and exceptions
+P31-MOD-031,Release Evidence Service,Governance,Build/test/security/migration/deployment evidence bundle
+P31-MOD-032,Observability Gateway,SRE,"Unified logs, metrics, traces and correlation"
+P31-MOD-033,Logging Platform,SRE,"Structured log ingestion, retention, search and redaction"
+P31-MOD-034,Metrics Platform,SRE,Service/business/platform metric collection and retention
+P31-MOD-035,Tracing Platform,SRE,Distributed trace collection and service dependency visibility
+P31-MOD-036,SLO/SLI Service,SRE,"Service-level objectives, indicators and error budgets"
+P31-MOD-037,Alerting Service,SRE,"Alert routing, deduplication, escalation and maintenance suppression"
+P31-MOD-038,On-Call Service,SRE,"Ownership, rotations, escalation and acknowledgment integration boundary"
+P31-MOD-039,Incident Operations Service,SRE,"Incident declaration, timeline, coordination, comms and closure"
+P31-MOD-040,Capacity & Autoscaling Service,SRE,"Capacity models, scaling policy and saturation signals"
+P31-MOD-041,Performance Engineering Service,SRE,Load/performance test baselines and regression detection
+P31-MOD-042,Resilience Policy Service,SRE,Timeout/retry/circuit-breaker/bulkhead/idempotency policy
+P31-MOD-043,Backup Service,DR,"Scheduled backup policy, encryption, retention and evidence"
+P31-MOD-044,Restore Validation Service,DR,Automated/manual restore verification and reconciliation
+P31-MOD-045,Disaster Recovery Orchestrator,DR,"Regional/service recovery plan, sequencing and failover evidence"
+P31-MOD-046,Business Continuity Service,Operations,Manual fallback/degraded operations and communication plans
+P31-MOD-047,Operational Runbook Registry,Operations,"Versioned service runbooks, owners and procedures"
+P31-MOD-048,FinOps Service,Operations/Finance,"Cloud cost allocation, budgets, anomaly detection and optimization"

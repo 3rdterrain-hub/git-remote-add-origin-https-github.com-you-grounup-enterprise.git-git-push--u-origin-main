@@ -1,0 +1,26 @@
+﻿Requirement_ID,Specification,Entity_or_Data,Rules,Workflow,AI,Interfaces,Test_Cases,Release,Status
+GOV-000001,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-001,Planned,Review
+GOV-000002,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000003,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-002,Planned,Review
+GOV-000004,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000005,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-003,Planned,Review
+GOV-000006,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-004,Planned,Review
+GOV-000007,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000008,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-005,Planned,Review
+GOV-000009,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-006,Planned,Review
+GOV-000010,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-007,Planned,Review
+GOV-000011,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000012,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-008,Planned,Review
+GOV-000013,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000014,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-009,Planned,Review
+GOV-000015,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000016,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-010,Planned,Review
+GOV-000017,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,AI governance,API/UI/Reports,TEST-P01-011,Planned,Review
+GOV-000018,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,AI governance,API/UI/Reports,TEST-P01-012,Planned,Review
+GOV-000019,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000020,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-013,Planned,Review
+GOV-000021,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000022,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-014,Planned,Review
+GOV-000023,GES-P01-001 Governance Specification,Entity definitions,Business/validation rules,Governance workflow,,API/UI/Reports,TEST-P01-015,Planned,Review
+GOV-000024,GES-P01-001 Governance Specification,,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review
+GOV-000025,GES-P01-001 Governance Specification,,Business/validation rules,Governance workflow,,API/UI/Reports,,Planned,Review

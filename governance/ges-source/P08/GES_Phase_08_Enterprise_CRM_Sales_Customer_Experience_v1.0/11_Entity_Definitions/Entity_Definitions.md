@@ -1,0 +1,76 @@
+# Canonical Entity Definitions
+
+| ID | Entity | Module | Definition |
+|---|---|---|---|
+| GES-P08-ENT-001 | Lead | CRM Foundation | Canonical lead record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-002 | Lead Source | Lead Capture & Attribution | Canonical lead source record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-003 | Lead Capture Event | Qualification & Scoring | Canonical lead capture event record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-004 | Marketing Campaign | Account & Contact 360 | Canonical marketing campaign record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-005 | Campaign Member | Opportunity & Pipeline | Canonical campaign member record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-006 | Attribution Touchpoint | Site Visit & Discovery | Canonical attribution touchpoint record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-007 | Consent Record | Estimate Integration | Canonical consent record record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-008 | Contact | Proposal & E-Signature | Canonical contact record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-009 | Account | Contract Handoff | Canonical account record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-010 | Account Relationship | Marketing Automation | Canonical account relationship record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-011 | Address | Communication Center | Canonical address record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-012 | Communication Preference | Customer Portal | Canonical communication preference record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-013 | Customer Segment | Customer Success | Canonical customer segment record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-014 | Customer Health Score | Warranty & Service | Canonical customer health score record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-015 | Opportunity | Reputation & Reviews | Canonical opportunity record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-016 | Opportunity Stage | Referral Management | Canonical opportunity stage record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-017 | Opportunity Stage History | Partner & Channel Management | Canonical opportunity stage history record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-018 | Sales Activity | AI Sales Intelligence | Canonical sales activity record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-019 | Task | Revenue Forecasting | Canonical task record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-020 | Appointment | Security & Governance | Canonical appointment record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-021 | Site Visit | CRM Foundation | Canonical site visit record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-022 | Discovery Questionnaire | Lead Capture & Attribution | Canonical discovery questionnaire record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-023 | Project Interest | Qualification & Scoring | Canonical project interest record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-024 | Service Interest | Account & Contact 360 | Canonical service interest record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-025 | Estimate Link | Opportunity & Pipeline | Canonical estimate link record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-026 | Estimate Scenario | Site Visit & Discovery | Canonical estimate scenario record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-027 | Proposal | Estimate Integration | Canonical proposal record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-028 | Proposal Version | Proposal & E-Signature | Canonical proposal version record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-029 | Proposal Option | Contract Handoff | Canonical proposal option record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-030 | Proposal Recipient | Marketing Automation | Canonical proposal recipient record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-031 | Proposal View Event | Communication Center | Canonical proposal view event record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-032 | Electronic Signature Request | Customer Portal | Canonical electronic signature request record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-033 | Electronic Signature Event | Customer Success | Canonical electronic signature event record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-034 | Contract Handoff | Warranty & Service | Canonical contract handoff record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-035 | Lost Reason | Reputation & Reviews | Canonical lost reason record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-036 | Competitor | Referral Management | Canonical competitor record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-037 | Competitor Insight | Partner & Channel Management | Canonical competitor insight record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-038 | Sales Territory | AI Sales Intelligence | Canonical sales territory record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-039 | Sales Team | Revenue Forecasting | Canonical sales team record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-040 | Sales Assignment | Security & Governance | Canonical sales assignment record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-041 | Lead Score | CRM Foundation | Canonical lead score record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-042 | Lead Score Factor | Lead Capture & Attribution | Canonical lead score factor record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-043 | Win Probability Snapshot | Qualification & Scoring | Canonical win probability snapshot record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-044 | Forecast Category | Account & Contact 360 | Canonical forecast category record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-045 | Revenue Forecast | Opportunity & Pipeline | Canonical revenue forecast record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-046 | Marketing Automation | Site Visit & Discovery | Canonical marketing automation record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-047 | Automation Step | Estimate Integration | Canonical automation step record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-048 | Automation Enrollment | Proposal & E-Signature | Canonical automation enrollment record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-049 | Email Template | Contract Handoff | Canonical email template record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-050 | SMS Template | Marketing Automation | Canonical sms template record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-051 | Communication Thread | Communication Center | Canonical communication thread record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-052 | Communication Message | Customer Portal | Canonical communication message record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-053 | Call Log | Customer Success | Canonical call log record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-054 | Portal User | Warranty & Service | Canonical portal user record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-055 | Portal Session | Reputation & Reviews | Canonical portal session record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-056 | Customer Portal Request | Referral Management | Canonical customer portal request record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-057 | Customer Success Plan | Partner & Channel Management | Canonical customer success plan record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-058 | Customer Interaction | AI Sales Intelligence | Canonical customer interaction record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-059 | Satisfaction Survey | Revenue Forecasting | Canonical satisfaction survey record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-060 | Survey Response | Security & Governance | Canonical survey response record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-061 | Review Request | CRM Foundation | Canonical review request record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-062 | Public Review | Lead Capture & Attribution | Canonical public review record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-063 | Testimonial | Qualification & Scoring | Canonical testimonial record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-064 | Referral Program | Account & Contact 360 | Canonical referral program record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-065 | Referral | Opportunity & Pipeline | Canonical referral record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-066 | Referral Reward | Site Visit & Discovery | Canonical referral reward record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-067 | Warranty Request | Estimate Integration | Canonical warranty request record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-068 | Service Request | Proposal & E-Signature | Canonical service request record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-069 | Partner Account | Contract Handoff | Canonical partner account record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-070 | Partner Lead | Marketing Automation | Canonical partner lead record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-071 | Channel Opportunity | Communication Center | Canonical channel opportunity record used by the Phase 08 customer lifecycle. |
+| GES-P08-ENT-072 | AI Recommendation | Customer Portal | Canonical ai recommendation record used by the Phase 08 customer lifecycle. |

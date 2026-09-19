@@ -1,0 +1,16 @@
+stateDiagram-v2
+[*] --> Lead
+Lead --> Qualified
+Lead --> Nurture
+Lead --> Disqualified
+Qualified --> Opportunity
+Opportunity --> Proposal
+Proposal --> Negotiation
+Proposal --> Expired
+Negotiation --> Won
+Negotiation --> Lost
+Won --> ProjectCustomer
+ProjectCustomer --> CustomerSuccess
+CustomerSuccess --> RepeatOpportunity
+CustomerSuccess --> Warranty
+CustomerSuccess --> Referral

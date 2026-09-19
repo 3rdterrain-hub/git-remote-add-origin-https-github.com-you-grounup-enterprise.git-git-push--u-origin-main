@@ -1,0 +1,11 @@
+{
+  "phase_id": "GES-P05",
+  "version": "1.0.0",
+  "status": "REVIEW-READY",
+  "approved": false,
+  "lock_tag": "GES-P05-v1.0.0",
+  "dependencies": [
+    "GES-P03",
+    "GES-P04"
+  ]
+}

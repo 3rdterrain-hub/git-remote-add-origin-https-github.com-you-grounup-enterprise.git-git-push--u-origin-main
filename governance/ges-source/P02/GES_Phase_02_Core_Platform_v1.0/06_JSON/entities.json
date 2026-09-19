@@ -1,0 +1,365 @@
+{
+  "version": "1.0.0-review",
+  "entities": [
+    {
+      "entity_id": "ENT-P02-001",
+      "name": "PlatformRequest",
+      "purpose": "Normalized inbound request context",
+      "key_attributes": "request_id; tenant_id; actor_id; channel; locale; timezone; correlation_id",
+      "relationships": "Session, AuthorizationDecision, AuditEvent",
+      "lifecycle": "received; processing; completed; failed",
+      "owner": "Platform Architecture",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-002",
+      "name": "Session",
+      "purpose": "Authenticated interactive or service session",
+      "key_attributes": "session_id; actor_id; issued_at; expires_at; risk; device_id; status",
+      "relationships": "UserIdentity, Device, Token",
+      "lifecycle": "active; challenged; revoked; expired",
+      "owner": "Identity Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-003",
+      "name": "Device",
+      "purpose": "Registered client device",
+      "key_attributes": "device_id; actor_id; platform; trust_state; last_seen; key_reference",
+      "relationships": "Session, OfflinePack",
+      "lifecycle": "new; trusted; restricted; revoked",
+      "owner": "Mobile Security",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-004",
+      "name": "AuthorizationDecision",
+      "purpose": "Explainable access decision",
+      "key_attributes": "decision_id; actor; action; resource; scope; result; policy_refs; decided_at",
+      "relationships": "PlatformRequest, AuditEvent",
+      "lifecycle": "recorded",
+      "owner": "Security Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-005",
+      "name": "ServiceIdentity",
+      "purpose": "Non-human platform identity",
+      "key_attributes": "service_identity_id; owner; type; scopes; credential_ref; status",
+      "relationships": "Connector, BackgroundJob, AIAgent",
+      "lifecycle": "draft; active; suspended; retired",
+      "owner": "Identity Platform",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-006",
+      "name": "MetadataDefinition",
+      "purpose": "Governed extension field definition",
+      "key_attributes": "metadata_definition_id; entity_type; key; data_type; rules; scope",
+      "relationships": "MetadataValue",
+      "lifecycle": "draft; active; deprecated",
+      "owner": "Data Architecture",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P02-007",
+      "name": "MetadataValue",
+      "purpose": "Value attached to governed object",
+      "key_attributes": "metadata_value_id; definition_id; object_ref; value; version",
+      "relationships": "MetadataDefinition",
+      "lifecycle": "active; superseded",
+      "owner": "Data Architecture",
+      "classification": "Varies"
+    },
+    {
+      "entity_id": "ENT-P02-008",
+      "name": "TagDefinition",
+      "purpose": "Governed tag definition",
+      "key_attributes": "tag_id; key; label; synonyms; owner; scope; status",
+      "relationships": "TagAssignment",
+      "lifecycle": "draft; active; retired",
+      "owner": "Information Architecture",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P02-009",
+      "name": "TagAssignment",
+      "purpose": "Tag applied to an object",
+      "key_attributes": "assignment_id; tag_id; object_ref; assigned_by; assigned_at",
+      "relationships": "TagDefinition",
+      "lifecycle": "active; removed",
+      "owner": "Information Architecture",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P02-010",
+      "name": "FileObject",
+      "purpose": "Logical file identity",
+      "key_attributes": "file_id; tenant_id; name; classification; owner; current_version_id",
+      "relationships": "FileVersion, FileShare",
+      "lifecycle": "active; archived; deleted",
+      "owner": "Records Platform",
+      "classification": "Varies"
+    },
+    {
+      "entity_id": "ENT-P02-011",
+      "name": "FileVersion",
+      "purpose": "Immutable content version",
+      "key_attributes": "file_version_id; file_id; version; checksum; size; mime; storage_ref; scan_status",
+      "relationships": "FileObject",
+      "lifecycle": "uploading; scanning; accepted; quarantined; rejected",
+      "owner": "Records Platform",
+      "classification": "Varies"
+    },
+    {
+      "entity_id": "ENT-P02-012",
+      "name": "SearchDocument",
+      "purpose": "Permission-aware indexed representation",
+      "key_attributes": "search_document_id; object_ref; index_version; fields; acl_tokens",
+      "relationships": "Source entity",
+      "lifecycle": "queued; indexed; stale; deleted",
+      "owner": "Search Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-013",
+      "name": "Notification",
+      "purpose": "Outbound communication instance",
+      "key_attributes": "notification_id; template_id; recipient; channel; payload_ref; status",
+      "relationships": "NotificationTemplate, DeliveryAttempt",
+      "lifecycle": "queued; sent; delivered; failed; cancelled",
+      "owner": "Notification Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-014",
+      "name": "NotificationTemplate",
+      "purpose": "Versioned message template",
+      "key_attributes": "template_id; key; locale; channel; content; version; status",
+      "relationships": "Notification",
+      "lifecycle": "draft; active; retired",
+      "owner": "Notification Platform",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P02-015",
+      "name": "Schedule",
+      "purpose": "One-time or recurring execution plan",
+      "key_attributes": "schedule_id; owner; expression; timezone; next_run; status",
+      "relationships": "BackgroundJob",
+      "lifecycle": "draft; active; paused; completed; cancelled",
+      "owner": "Scheduler Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-016",
+      "name": "BackgroundJob",
+      "purpose": "Durable asynchronous work item",
+      "key_attributes": "job_id; type; tenant_id; payload_ref; priority; attempts; status; progress",
+      "relationships": "Schedule, DeadLetterItem",
+      "lifecycle": "queued; running; retry; succeeded; failed; cancelled; dead-lettered",
+      "owner": "Job Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-017",
+      "name": "WorkflowInstance",
+      "purpose": "Durable workflow execution",
+      "key_attributes": "workflow_instance_id; definition_id; version; object_ref; state; variables; status",
+      "relationships": "WorkflowDefinition, WorkflowStep",
+      "lifecycle": "running; waiting; completed; failed; cancelled",
+      "owner": "Workflow Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-018",
+      "name": "WorkflowDefinition",
+      "purpose": "Versioned workflow graph",
+      "key_attributes": "workflow_definition_id; key; version; states; transitions; timers; status",
+      "relationships": "WorkflowInstance",
+      "lifecycle": "draft; approved; active; retired",
+      "owner": "Workflow Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-019",
+      "name": "RuleDefinition",
+      "purpose": "Versioned deterministic rule",
+      "key_attributes": "rule_definition_id; key; version; inputs; expression; output_schema; status",
+      "relationships": "RuleExecution",
+      "lifecycle": "draft; approved; active; retired",
+      "owner": "Rules Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-020",
+      "name": "RuleExecution",
+      "purpose": "Recorded rule evaluation",
+      "key_attributes": "rule_execution_id; rule_version; input_hash; output; result; executed_at",
+      "relationships": "RuleDefinition",
+      "lifecycle": "recorded",
+      "owner": "Rules Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-021",
+      "name": "DomainEvent",
+      "purpose": "Versioned event envelope",
+      "key_attributes": "event_id; tenant_id; type; schema_version; producer; occurred_at; correlation; causation; payload_ref",
+      "relationships": "EventDelivery",
+      "lifecycle": "published; archived",
+      "owner": "Integration Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-022",
+      "name": "EventDelivery",
+      "purpose": "Consumer delivery state",
+      "key_attributes": "delivery_id; event_id; consumer; attempt; status; error; next_attempt",
+      "relationships": "DomainEvent, DeadLetterItem",
+      "lifecycle": "pending; delivered; retry; dead-lettered",
+      "owner": "Integration Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-023",
+      "name": "WebhookSubscription",
+      "purpose": "Tenant outbound webhook configuration",
+      "key_attributes": "subscription_id; tenant_id; event_types; endpoint; secret_ref; status",
+      "relationships": "WebhookDelivery",
+      "lifecycle": "draft; active; paused; disabled",
+      "owner": "Integration Platform",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-024",
+      "name": "WebhookDelivery",
+      "purpose": "Signed delivery attempt",
+      "key_attributes": "delivery_id; subscription_id; event_id; attempt; status; response_code",
+      "relationships": "WebhookSubscription",
+      "lifecycle": "queued; delivered; retry; failed; dead-lettered",
+      "owner": "Integration Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-025",
+      "name": "ConnectorInstance",
+      "purpose": "Configured external system connector",
+      "key_attributes": "connector_id; tenant_id; type; credential_ref; scopes; mapping_version; status",
+      "relationships": "SyncRun",
+      "lifecycle": "draft; active; paused; error; retired",
+      "owner": "Integration Platform",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-026",
+      "name": "ImportBatch",
+      "purpose": "Governed import execution",
+      "key_attributes": "import_batch_id; tenant_id; source_file; mapping; counts; status",
+      "relationships": "ImportRowResult",
+      "lifecycle": "uploaded; validating; preview; importing; completed; failed",
+      "owner": "Data Exchange",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-027",
+      "name": "ExportPackage",
+      "purpose": "Governed export artifact",
+      "key_attributes": "export_id; requester; criteria; format; checksum; expires_at; status",
+      "relationships": "FileObject",
+      "lifecycle": "requested; generating; available; expired; failed",
+      "owner": "Data Exchange",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-028",
+      "name": "OfflinePack",
+      "purpose": "Encrypted field data package",
+      "key_attributes": "offline_pack_id; user; device; scope; version; expires_at; status",
+      "relationships": "SyncTransaction",
+      "lifecycle": "building; available; downloaded; expired; revoked",
+      "owner": "Mobile Platform",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-029",
+      "name": "SyncTransaction",
+      "purpose": "Offline-originating change",
+      "key_attributes": "sync_transaction_id; device; actor; object_ref; operation; base_version; payload_ref; status",
+      "relationships": "OfflinePack, ConflictCase",
+      "lifecycle": "queued; received; applied; rejected; conflict; review",
+      "owner": "Mobile Platform",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P02-030",
+      "name": "ConflictCase",
+      "purpose": "Manual or governed sync conflict",
+      "key_attributes": "conflict_case_id; object_ref; local_version; server_version; policy; resolution; status",
+      "relationships": "SyncTransaction",
+      "lifecycle": "open; resolved; rejected",
+      "owner": "Mobile Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-031",
+      "name": "FeatureFlag",
+      "purpose": "Versioned rollout control",
+      "key_attributes": "feature_flag_id; key; targeting; allocation; effective dates; status",
+      "relationships": "Tenant, User",
+      "lifecycle": "draft; active; paused; retired",
+      "owner": "Release Management",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-032",
+      "name": "SecretReference",
+      "purpose": "Reference to protected secret",
+      "key_attributes": "secret_ref_id; store; path_alias; owner; rotation_due; status",
+      "relationships": "ServiceIdentity, ConnectorInstance",
+      "lifecycle": "active; rotation_due; revoked",
+      "owner": "Security Engineering",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-033",
+      "name": "BackupSet",
+      "purpose": "Encrypted recovery point",
+      "key_attributes": "backup_set_id; scope; created_at; checksum; location; retention; restore_test_status",
+      "relationships": "RestoreTest",
+      "lifecycle": "creating; available; expired; failed",
+      "owner": "Resilience Engineering",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-034",
+      "name": "AIAgentDefinition",
+      "purpose": "Registered AI agent version",
+      "key_attributes": "agent_id; version; owner; purpose; permissions; tools; prompt_refs; eval_status; status",
+      "relationships": "AIExecution, ToolDefinition",
+      "lifecycle": "draft; review; approved; active; suspended; retired",
+      "owner": "AI Platform",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-035",
+      "name": "AIExecution",
+      "purpose": "Governed AI request execution",
+      "key_attributes": "ai_execution_id; tenant; actor; agent_version; model; prompt_version; evidence_refs; result; cost",
+      "relationships": "AIAgentDefinition, AIToolInvocation",
+      "lifecycle": "queued; running; completed; failed; blocked",
+      "owner": "AI Platform",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P02-036",
+      "name": "AIToolInvocation",
+      "purpose": "Permissioned AI tool call",
+      "key_attributes": "tool_invocation_id; execution_id; tool_version; permission_decision; input_ref; output_ref; status",
+      "relationships": "AIExecution, ToolDefinition",
+      "lifecycle": "requested; authorized; executed; denied; failed",
+      "owner": "AI Platform",
+      "classification": "Highly Confidential"
+    }
+  ]
+}

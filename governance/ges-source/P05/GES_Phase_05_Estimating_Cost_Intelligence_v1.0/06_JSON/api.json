@@ -1,0 +1,218 @@
+[
+  {
+    "api_id": "GES-P05-API-001",
+    "method": "POST",
+    "path": "/v1/estimates",
+    "summary": "Create estimate",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-002",
+    "method": "GET",
+    "path": "/v1/estimates/{id}",
+    "summary": "Read estimate",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-003",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/versions",
+    "summary": "Create immutable version",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-004",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/calculate",
+    "summary": "Calculate estimate",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-005",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/validate",
+    "summary": "Validate estimate",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-006",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/submit",
+    "summary": "Submit for approval",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-007",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/approve",
+    "summary": "Approve estimate",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-008",
+    "method": "POST",
+    "path": "/v1/estimates/{id}/scenarios",
+    "summary": "Create scenario",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-009",
+    "method": "POST",
+    "path": "/v1/takeoff/documents",
+    "summary": "Upload takeoff document",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-010",
+    "method": "POST",
+    "path": "/v1/takeoff/measurements",
+    "summary": "Create measurement",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-011",
+    "method": "POST",
+    "path": "/v1/takeoff/revision-comparisons",
+    "summary": "Compare revisions",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-012",
+    "method": "GET",
+    "path": "/v1/assemblies",
+    "summary": "List assemblies",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-013",
+    "method": "POST",
+    "path": "/v1/production/calculate",
+    "summary": "Calculate production",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-014",
+    "method": "POST",
+    "path": "/v1/haul/calculate",
+    "summary": "Calculate hauling",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-015",
+    "method": "POST",
+    "path": "/v1/risk/simulations",
+    "summary": "Run risk simulation",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-016",
+    "method": "GET",
+    "path": "/v1/calculations/{trace_id}",
+    "summary": "Read calculation trace",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-017",
+    "method": "POST",
+    "path": "/v1/ai/recommendations/{id}/disposition",
+    "summary": "Disposition AI recommendation",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-018",
+    "method": "GET",
+    "path": "/v1/configuration/tenant",
+    "summary": "Read tenant configuration",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-019",
+    "method": "PUT",
+    "path": "/v1/configuration/white-label",
+    "summary": "Update white-label configuration",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-020",
+    "method": "POST",
+    "path": "/v1/actuals",
+    "summary": "Post actual production",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-021",
+    "method": "POST",
+    "path": "/v1/calibration/proposals",
+    "summary": "Create calibration proposal",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-022",
+    "method": "GET",
+    "path": "/v1/reports/estimate-review/{id}",
+    "summary": "Generate review report",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-023",
+    "method": "POST",
+    "path": "/v1/exports/estimate/{id}",
+    "summary": "Create export package",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  },
+  {
+    "api_id": "GES-P05-API-024",
+    "method": "POST",
+    "path": "/v1/webhooks",
+    "summary": "Register webhook",
+    "auth": "OAuth2/JWT",
+    "tenant_scoped": "Yes",
+    "idempotency": "Required for POST where applicable"
+  }
+]

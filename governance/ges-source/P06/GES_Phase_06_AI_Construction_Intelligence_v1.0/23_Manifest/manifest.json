@@ -1,0 +1,203 @@
+{
+  "phase": "06",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "file_count": 39,
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "bytes": 866,
+      "sha256": "d5a385c16e4f6333b3b4d162f77bead0266b61e973cfb4e4bdbb838683718158"
+    },
+    {
+      "path": "02_Word/GES-P06-001-AI_Construction_Intelligence_Platform.docx",
+      "bytes": 43834,
+      "sha256": "fd8826b4b0f9d9b76d313c60e36b166a75a14d0867eab17c347abfbdeb56bf6e"
+    },
+    {
+      "path": "03_PDF/GES-P06-001-AI_Construction_Intelligence_Platform.pdf",
+      "bytes": 15732,
+      "sha256": "e2e949499d269768a7b3d54b44fe97aad8b24d0b897be82b62cf7d22ecc7ad36"
+    },
+    {
+      "path": "04_Excel/GES-P06-001-AI_Construction_Intelligence_Control_Workbook.xlsx",
+      "bytes": 27718,
+      "sha256": "1766f2e8af89fff5c9c96a4163470bca688d87a60fe39031b46242398ef810fd"
+    },
+    {
+      "path": "05_CSV/AI_API_Endpoints.csv",
+      "bytes": 1284,
+      "sha256": "9f0219f7fa8f0e415e891770c61cbb0da7e58845464552dc3a51db161e80bcf7"
+    },
+    {
+      "path": "05_CSV/AI_Agent_Registry.csv",
+      "bytes": 2368,
+      "sha256": "be727ad04c2a0910e8758e9437a91ee5e6654cc1c40669122a7ce02b765487a8"
+    },
+    {
+      "path": "05_CSV/AI_Business_Rules.csv",
+      "bytes": 2768,
+      "sha256": "02d0d73597a69cb6123c99e210096cbfe47fc17fc1eaa91c24cb6be5d2423498"
+    },
+    {
+      "path": "05_CSV/AI_Engine_Registry.csv",
+      "bytes": 869,
+      "sha256": "3f8664f22290444972e59c0355dd67bcc615f074dfd8a0940c966d18c3746e6e"
+    },
+    {
+      "path": "05_CSV/AI_Entities.csv",
+      "bytes": 1168,
+      "sha256": "20637e5e33df2b4cf0cd20fc0e261cdbfa55a00ab785680c1175ec054bb0ea80"
+    },
+    {
+      "path": "05_CSV/AI_Reports.csv",
+      "bytes": 455,
+      "sha256": "d486b0e5a1ebe518b66b9f30528a53b90738bdd6e0ef0fbbb8276f57516b7ada"
+    },
+    {
+      "path": "05_CSV/AI_Requirements.csv",
+      "bytes": 29185,
+      "sha256": "c4d9698e7b27f9b161c3c44617156709c53c03e1e213d4788bd8da80a3b72265"
+    },
+    {
+      "path": "05_CSV/AI_Test_Cases.csv",
+      "bytes": 35031,
+      "sha256": "8a3ad13a95b571e76df7fc2cf41fbae3d3db70d6eeaf659ea0485b1696ff7c55"
+    },
+    {
+      "path": "05_CSV/AI_Traceability.csv",
+      "bytes": 4967,
+      "sha256": "3a5a4fcf112bdedd919f57a115bcaabeee49009f488ddb33c12514c003f9f3fc"
+    },
+    {
+      "path": "05_CSV/AI_UI_Surfaces.csv",
+      "bytes": 359,
+      "sha256": "98102dd54ef94b51a25536e93ee592857002ecf50ed58b6d26da1da2e1ad06b5"
+    },
+    {
+      "path": "05_CSV/AI_Validation_Rules.csv",
+      "bytes": 1872,
+      "sha256": "d4f50636df1aed3d6e43eba61c35911f9b8a0af5c14cc9de146eff9e2d5e482f"
+    },
+    {
+      "path": "05_CSV/AI_Workflows.csv",
+      "bytes": 659,
+      "sha256": "23bbf58a77635b57823fa894a5f41489f4ced273d956939415f388e243c2b097"
+    },
+    {
+      "path": "06_JSON/agent_registry.json",
+      "bytes": 4423,
+      "sha256": "95fa96a7d821bf9fcba823def3a71e4ae1f16849dd0b73c028296ce80effa240"
+    },
+    {
+      "path": "06_JSON/ai_task_schema.json",
+      "bytes": 799,
+      "sha256": "33112284ba116aea4b4254b1f036cad938c70b5bd85ce9f89abf5f4858f198ca"
+    },
+    {
+      "path": "06_JSON/engine_registry.json",
+      "bytes": 1688,
+      "sha256": "c2c90950f5511a804caeff5485dc5091547af131efbf585ecb14e5a09bba19ff"
+    },
+    {
+      "path": "06_JSON/prompt_template_example.json",
+      "bytes": 377,
+      "sha256": "98b840980436cd09048439744e6e1cb8df943812fb9623d4c227f2a864b624ef"
+    },
+    {
+      "path": "07_Diagrams/AI_Platform_Architecture.mmd",
+      "bytes": 503,
+      "sha256": "62a78bef3e0508d1ae3cbad84a259135661a2ad8924b0ab453db7a49914fcacd"
+    },
+    {
+      "path": "07_Diagrams/AI_Task_Sequence.mmd",
+      "bytes": 474,
+      "sha256": "35216faa1f6128ed03de617990b6ec064525fc8032bc04ea05201925da2e6a06"
+    },
+    {
+      "path": "08_Business_Rules/Business_Rules.md",
+      "bytes": 2823,
+      "sha256": "7235a79e9e969f66515c6cc45caaec6f71f50ab342657961289aa3959726260a"
+    },
+    {
+      "path": "09_Validation_Rules/Validation_Rules.md",
+      "bytes": 1937,
+      "sha256": "15997d169564f36539dd116393f192448b486d5180ef1e9db5e252441c07da25"
+    },
+    {
+      "path": "10_Data_Dictionary/AI_Data_Dictionary.csv",
+      "bytes": 674,
+      "sha256": "2004a39163a3827c213c915521fefec4ab44df018e3f7e6ac98733a0597cb698"
+    },
+    {
+      "path": "11_Entity_Definitions/Entity_Definitions.md",
+      "bytes": 3984,
+      "sha256": "d64f4c11ddd6c8c14c51191d5d3f76bbe53abe20f50ec264f13eb299f8c49a86"
+    },
+    {
+      "path": "12_Workflows/Workflow_Specifications.md",
+      "bytes": 2686,
+      "sha256": "56676273f5ce35329c25df8cabf2f66487a1448362fdb2045af5c0586dc627cd"
+    },
+    {
+      "path": "13_Engines/Engine_Specifications.md",
+      "bytes": 2965,
+      "sha256": "cd593cbade2d0c89a00bfb182a629f51bad407ef0d42c5c7e956191f89d00e4e"
+    },
+    {
+      "path": "14_AI_Specifications/AI_Governance_and_Agent_Design.md",
+      "bytes": 928,
+      "sha256": "059c5068a9608884dc8bbdcb6e4d8f53896977146c6c87fb5d263167bdeb8407"
+    },
+    {
+      "path": "15_API_Specifications/API_Specification.md",
+      "bytes": 228,
+      "sha256": "6e88e753ed8ba61a6e7ec39a0fa936e02f5c7be88be5e29c570373a3aeb25543"
+    },
+    {
+      "path": "15_API_Specifications/openapi.json",
+      "bytes": 4752,
+      "sha256": "dbdc6c709de1ebe9096ceab50e84a1801d7493c6a8364cbcce0c7d64f5ba1d96"
+    },
+    {
+      "path": "16_UI_UX/UI_UX_Specification.md",
+      "bytes": 638,
+      "sha256": "56df4e674e7877e137aef1d56cd81e7d6328a3b9a46eebf2bf6e3149870c0fb1"
+    },
+    {
+      "path": "17_Reports/Report_Definitions.md",
+      "bytes": 477,
+      "sha256": "86ade7aef7425c36c6bb29f21c9ca28a11351d364be2cfa0214896d7123cce61"
+    },
+    {
+      "path": "18_Testing/Test_Strategy.md",
+      "bytes": 284,
+      "sha256": "dd20f1363bdff0c741f7306f96f185192c649661c809fc5cb8c627ddda905af8"
+    },
+    {
+      "path": "19_Traceability/Traceability_Readme.md",
+      "bytes": 123,
+      "sha256": "d485a53ffcdeab55897ea8557ceb9cc859fc93f3bbec220eaff2d7ffc2b74aa6"
+    },
+    {
+      "path": "20_Change_Log/CHANGELOG.md",
+      "bytes": 78,
+      "sha256": "1e0a37e542d0bd89a191b120e3190153d641b674330b28362be64479a7ffa7d5"
+    },
+    {
+      "path": "21_Version_History/Version_History.csv",
+      "bytes": 85,
+      "sha256": "edd9ff4ebc0e64a97597b8b3e0f97c7825f477fdbc0c38e8ece4c148592f3afe"
+    },
+    {
+      "path": "22_Approval_Record/Approval_Record.md",
+      "bytes": 231,
+      "sha256": "f8164aed44d0f2145ed8c192d3a91f757387f7a13660b2f9d2b61be536e50548"
+    },
+    {
+      "path": "24_Examples/Subdivision_Plan_AI_Workflow.md",
+      "bytes": 714,
+      "sha256": "f131e41f670c8424b922049d4af11702726acb73118227380322fdbe4c224e64"
+    }
+  ]
+}

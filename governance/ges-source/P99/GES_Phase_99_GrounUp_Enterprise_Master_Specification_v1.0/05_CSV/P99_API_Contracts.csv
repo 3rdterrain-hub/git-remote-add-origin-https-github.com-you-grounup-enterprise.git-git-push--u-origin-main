@@ -1,0 +1,9 @@
+api_id,method,path,purpose,security,control
+P99-API-001,GET,/api/v1/master-specification/phases,List incorporated phases,Restricted master-spec/read scope,Derived index only
+P99-API-002,GET,/api/v1/master-specification/requirements,Query incorporated requirements,Permission-aware documentation scope,Preserve original IDs/source refs
+P99-API-003,GET,/api/v1/master-specification/tests,Query incorporated tests,Permission-aware documentation scope,Preserve original IDs/source refs
+P99-API-004,GET,/api/v1/master-specification/dependencies,Query dependency graph,Authenticated,Derived architecture index
+P99-API-005,GET,/api/v1/master-specification/build-sequence,Read implementation sequence,Authenticated,Derived implementation index
+P99-API-006,GET,/api/v1/master-specification/release-gates,Read master release gates,Restricted release scope,Cannot mark pass without evidence
+P99-API-007,POST,/api/v1/master-specification/change-requests,Create governed spec change request,Restricted governance scope,Audited; does not directly mutate locked source
+P99-API-008,POST,/api/v1/master-specification/exceptions,Request governed exception/risk acceptance,Restricted approval scope,Time/review bounded as applicable

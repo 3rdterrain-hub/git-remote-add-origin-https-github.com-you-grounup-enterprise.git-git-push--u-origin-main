@@ -1,0 +1,12 @@
+stateDiagram-v2
+ [*] --> Signal
+ Signal --> ValidateData
+ ValidateData --> Analyze
+ Analyze --> Recommendation
+ Recommendation --> HumanReview
+ HumanReview --> Approved
+ HumanReview --> Rejected
+ Approved --> DecisionRecorded
+ DecisionRecorded --> OutcomeMeasured
+ OutcomeMeasured --> [*]
+ Rejected --> [*]

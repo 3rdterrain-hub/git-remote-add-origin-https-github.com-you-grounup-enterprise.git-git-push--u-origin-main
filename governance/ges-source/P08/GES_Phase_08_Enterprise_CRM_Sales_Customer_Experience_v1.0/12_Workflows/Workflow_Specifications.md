@@ -1,0 +1,19 @@
+# Workflow Specifications
+
+| ID | Workflow | Definition |
+|---|---|---|
+| GES-P08-WF-001 | Omnichannel Lead Intake | Capture -> normalize -> consent check -> deduplicate -> enrich -> score -> assign -> acknowledge. |
+| GES-P08-WF-002 | Lead Qualification | Review -> discovery -> fit assessment -> score -> qualify, nurture, disqualify, or refer. |
+| GES-P08-WF-003 | Site Visit | Schedule -> confirm -> mobile checklist -> photos/notes -> customer acknowledgment -> follow-up. |
+| GES-P08-WF-004 | Estimate-to-Opportunity | Create estimate request -> sync status -> receive approved scenario -> update value and scope. |
+| GES-P08-WF-005 | Proposal Lifecycle | Generate -> internal approval -> issue -> view tracking -> negotiation -> revise -> accept/expire/decline. |
+| GES-P08-WF-006 | Electronic Signature | Prepare -> authenticate -> sign -> evidence package -> immutable storage -> notify stakeholders. |
+| GES-P08-WF-007 | Award-to-Project Handoff | Validate commercial terms -> collect documents -> assign operations -> create project -> close sales loop. |
+| GES-P08-WF-008 | Marketing Nurture | Segment -> consent filter -> enroll -> send steps -> evaluate engagement -> exit/suppress/convert. |
+| GES-P08-WF-009 | Customer Communication | Receive/send -> classify -> associate -> assign -> respond -> archive with retention. |
+| GES-P08-WF-010 | Customer Portal Onboarding | Invite -> verify identity -> accept terms -> establish account access -> activate. |
+| GES-P08-WF-011 | Customer Success | Create success plan -> monitor health -> schedule touchpoints -> resolve risks -> identify expansion. |
+| GES-P08-WF-012 | Review Request | Confirm eligibility -> request review -> reminder -> ingest result -> respond/escalate. |
+| GES-P08-WF-013 | Referral Lifecycle | Issue referral link -> capture referred lead -> validate attribution -> award -> report. |
+| GES-P08-WF-014 | Warranty & Service | Submit -> eligibility check -> triage -> schedule -> complete -> customer acceptance -> close. |
+| GES-P08-WF-015 | AI Next Best Action | Assemble context -> evaluate policy -> generate ranked actions -> approve -> execute -> learn. |

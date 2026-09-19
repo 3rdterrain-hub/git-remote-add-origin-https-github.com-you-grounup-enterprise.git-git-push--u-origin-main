@@ -1,0 +1,11 @@
+flowchart LR
+ Req[GES Requirement IDs] --> Work[Work Item]
+ Work --> ADR[Architecture Decision if needed]
+ Work --> Code[Code + Migration + Docs]
+ Code --> Tests[Unit / Integration / Contract / E2E]
+ Tests --> Sec[Security / Tenant / AI / Performance Gates]
+ Sec --> Trace[Traceability + Evidence]
+ Trace --> Review[Human Review / Acceptance]
+ Review --> Package[Versioned Artifact]
+ Package --> Promote[Controlled Environment Promotion]
+ Promote --> Release[Release Evidence]

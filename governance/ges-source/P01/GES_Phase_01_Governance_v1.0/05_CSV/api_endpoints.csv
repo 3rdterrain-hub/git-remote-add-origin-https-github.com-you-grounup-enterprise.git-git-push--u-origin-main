@@ -1,0 +1,17 @@
+﻿API_ID,Method,Path,Purpose,Permission,Primary_Entity
+API-P01-001,GET,/v1/tenants/{tenantId},Read tenant,tenant.read,Tenant
+API-P01-002,POST,/v1/tenants,Provision tenant,platform.tenant.create,Tenant
+API-P01-003,GET,/v1/organization-units,List organization units,organization.read,OrganizationUnit
+API-P01-004,POST,/v1/users/invitations,Invite user,user.invite,UserIdentity
+API-P01-005,POST,/v1/role-assignments,Assign role,access.assign,RoleAssignment
+API-P01-006,DELETE,/v1/role-assignments/{id},Revoke assignment,access.revoke,RoleAssignment
+API-P01-007,GET,/v1/effective-permissions,Resolve effective permissions,access.inspect,Permission
+API-P01-008,POST,/v1/policies/{policyId}/versions,Create policy version,policy.manage,PolicyVersion
+API-P01-009,POST,/v1/approval-requests,Create approval request,approval.request,ApprovalRequest
+API-P01-010,POST,/v1/approval-requests/{id}/decisions,Record approval decision,approval.decide,ApprovalDecision
+API-P01-011,POST,/v1/delegations,Create delegation,delegation.manage,Delegation
+API-P01-012,GET,/v1/audit-events,Search audit events,audit.read,AuditEvent
+API-P01-013,POST,/v1/legal-holds,Create legal hold,legalhold.manage,LegalHold
+API-P01-014,POST,/v1/change-requests,Submit change request,change.request,ChangeRequest
+API-P01-015,POST,/v1/emergency-access,Request break-glass access,emergency.request,EmergencyAccessGrant
+API-P01-016,POST,/v1/ai-governance/proposals,Submit AI proposal,ai.proposal.submit,AIActionProposal

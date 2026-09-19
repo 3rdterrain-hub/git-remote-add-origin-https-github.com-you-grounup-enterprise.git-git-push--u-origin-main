@@ -1,0 +1,41 @@
+module_id,name,layer,purpose
+P28-MOD-001,Security Policy Registry,Security Platform,"Versioned security policies, owners, applicability, exceptions and approvals"
+P28-MOD-002,Identity Provider Adapter,Identity,Provider-neutral SSO/OIDC/SAML authentication integration boundary
+P28-MOD-003,MFA Policy Service,Identity,Risk/role/tenant-aware MFA requirements and enrollment state
+P28-MOD-004,Identity Lifecycle Service,Identity,Joiner/mover/leaver lifecycle and directory/SCIM synchronization
+P28-MOD-005,Role Service,Authorization,"Governed RBAC roles, permissions and assignment lifecycle"
+P28-MOD-006,Attribute Policy Service,Authorization,ABAC attributes and conditional access policies
+P28-MOD-007,Policy Decision Point,Authorization,Central default-deny policy evaluation
+P28-MOD-008,Policy Enforcement Middleware,Authorization,API/service/UI/tool enforcement hooks
+P28-MOD-009,Privileged Access Service,Identity,"Privileged role elevation, expiry, approval and evidence"
+P28-MOD-010,Service Identity Registry,Identity,"Service/machine identities, ownership, scope and credential rotation"
+P28-MOD-011,Session Security Service,Identity,"Session/device/risk context, expiration, revocation and reauthentication"
+P28-MOD-012,Tenant Isolation Guard,Zero Trust,Cross-tenant request/data/object/search/cache/event isolation controls
+P28-MOD-013,Data Classification Service,Privacy,"Classification labels, handling policy and inheritance"
+P28-MOD-014,Privacy Control Service,Privacy,"Purpose, minimization, retention, deletion and export controls"
+P28-MOD-015,Encryption Policy Service,Cryptography,Required encryption state by data/service classification
+P28-MOD-016,Key Management Adapter,Cryptography,Key creation/use/rotation/revocation integration boundary
+P28-MOD-017,Secrets Management Adapter,Cryptography,"Secrets retrieval, lease/rotation and no-secret-in-source enforcement"
+P28-MOD-018,Certificate Lifecycle Service,Cryptography,"Certificate inventory, expiry, rotation and ownership"
+P28-MOD-019,API Security Gateway,Application Security,"Rate limits, authn/z, validation, replay/idempotency and abuse controls"
+P28-MOD-020,Event Security Service,Application Security,"Publisher/consumer identity, tenant context, schema and replay controls"
+P28-MOD-021,File/Object Security Service,Application Security,"Upload scanning, classification, permission and signed-access controls"
+P28-MOD-022,Search Security Filter,Application Security,Permission-aware indexing and query result filtering
+P28-MOD-023,AI Security Policy Service,AI Security,Approved providers/models/data classes/tools/retention and prompt security policy
+P28-MOD-024,Prompt Injection Defense,AI Security,"Untrusted-content boundaries, tool policy and instruction isolation"
+P28-MOD-025,Secure SDLC Gate,DevSecOps,"SAST, dependency, secret, IaC, container and license/security gates"
+P28-MOD-026,Vulnerability Service,DevSecOps,"Finding intake, severity, ownership, SLA, exception and closure evidence"
+P28-MOD-027,Threat Model Registry,Security Engineering,"System/data-flow threats, mitigations, owners and review history"
+P28-MOD-028,Attack Surface Registry,Security Engineering,"External/internal assets, exposure, ownership and change monitoring"
+P28-MOD-029,Security Telemetry Pipeline,SecOps,Normalized security logs/events with correlation and retention
+P28-MOD-030,Threat Detection Engine,SecOps,"Rule/anomaly detections for identity, tenant, API, data and AI security events"
+P28-MOD-031,Security Alert Service,SecOps,"Alert severity, routing, deduplication, escalation and acknowledgment"
+P28-MOD-032,Security Incident Service,SecOps,"Triage, containment, evidence, communication, recovery and closure"
+P28-MOD-033,Forensic Evidence Service,SecOps,"Preserve security evidence chain, hashes and access history"
+P28-MOD-034,Access Review Service,Governance,Periodic role/privileged/service-account access certification
+P28-MOD-035,Segregation of Duties Engine,Governance,Detect/deny or review incompatible role/action combinations
+P28-MOD-036,Compliance Evidence Service,Governance,Control-to-evidence mappings and policy attestations
+P28-MOD-037,Security Exception Service,Governance,"Risk acceptance, compensating controls, expiry and renewal"
+P28-MOD-038,Security Metrics Service,Governance,"Control coverage, vulnerability, identity, incident and detection KPIs"
+P28-MOD-039,Security Admin Console,Operations,"Restricted administration, configuration and emergency controls"
+P28-MOD-040,Security Digital Twin,Operations,"Current identity, policy, exposure, findings, alerts, incidents and control state"

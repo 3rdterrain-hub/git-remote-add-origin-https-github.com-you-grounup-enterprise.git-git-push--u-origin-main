@@ -1,0 +1,458 @@
+openapi: 3.1.0
+info:
+  title: GrounUp Phase 12 Fleet and Asset API
+  version: 1.0.0
+  description: Governed multi-tenant APIs for fleet, equipment, maintenance, telematics, fuel, compliance, costing, and digital twins.
+servers:
+  - url: https://api.grounup.example/api/v1
+security:
+  - oauth2: []
+paths:
+  /fleet/assets:
+    get:
+      operationId: listAssets
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createAssets
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/asset-classes:
+    get:
+      operationId: listAssetClasses
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createAssetClasses
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/models:
+    get:
+      operationId: listModels
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createModels
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/locations:
+    get:
+      operationId: listLocations
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createLocations
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/meters:
+    get:
+      operationId: listMeters
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createMeters
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/telematics-events:
+    get:
+      operationId: listTelematicsEvents
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createTelematicsEvents
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/fuel-transactions:
+    get:
+      operationId: listFuelTransactions
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createFuelTransactions
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/work-orders:
+    get:
+      operationId: listWorkOrders
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createWorkOrders
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/maintenance-programs:
+    get:
+      operationId: listMaintenancePrograms
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createMaintenancePrograms
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/maintenance-schedules:
+    get:
+      operationId: listMaintenanceSchedules
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createMaintenanceSchedules
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/defects:
+    get:
+      operationId: listDefects
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createDefects
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/inspections:
+    get:
+      operationId: listInspections
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createInspections
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/findings:
+    get:
+      operationId: listFindings
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createFindings
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/technicians:
+    get:
+      operationId: listTechnicians
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createTechnicians
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/shops:
+    get:
+      operationId: listShops
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createShops
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/parts:
+    get:
+      operationId: listParts
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createParts
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/components:
+    get:
+      operationId: listComponents
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createComponents
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/warranties:
+    get:
+      operationId: listWarranties
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createWarranties
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/warranty-claims:
+    get:
+      operationId: listWarrantyClaims
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createWarrantyClaims
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/reservations:
+    get:
+      operationId: listReservations
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createReservations
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/dispatches:
+    get:
+      operationId: listDispatches
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createDispatches
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/utilization:
+    get:
+      operationId: listUtilization
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createUtilization
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/downtime:
+    get:
+      operationId: listDowntime
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createDowntime
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/rates:
+    get:
+      operationId: listRates
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createRates
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/cost-ledgers:
+    get:
+      operationId: listCostLedgers
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createCostLedgers
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/project-charges:
+    get:
+      operationId: listProjectCharges
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createProjectCharges
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/rentals:
+    get:
+      operationId: listRentals
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createRentals
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/compliance-records:
+    get:
+      operationId: listComplianceRecords
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createComplianceRecords
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/operator-authorizations:
+    get:
+      operationId: listOperatorAuthorizations
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createOperatorAuthorizations
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/tires:
+    get:
+      operationId: listTires
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createTires
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/undercarriage:
+    get:
+      operationId: listUndercarriage
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createUndercarriage
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/attachments:
+    get:
+      operationId: listAttachments
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createAttachments
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/calibrations:
+    get:
+      operationId: listCalibrations
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createCalibrations
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/documents:
+    get:
+      operationId: listDocuments
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createDocuments
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/alerts:
+    get:
+      operationId: listAlerts
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createAlerts
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/health-scores:
+    get:
+      operationId: listHealthScores
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createHealthScores
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/predictions:
+    get:
+      operationId: listPredictions
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createPredictions
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/replacement-plans:
+    get:
+      operationId: listReplacementPlans
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createReplacementPlans
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/digital-twins:
+    get:
+      operationId: listDigitalTwins
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createDigitalTwins
+      responses:
+        '201':
+          description: Created with audit correlation
+  /fleet/reports:
+    get:
+      operationId: listReports
+      responses:
+        '200':
+          description: Successful governed response
+    post:
+      operationId: createReports
+      responses:
+        '201':
+          description: Created with audit correlation
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://identity.grounup.example/oauth/token
+          scopes: {}

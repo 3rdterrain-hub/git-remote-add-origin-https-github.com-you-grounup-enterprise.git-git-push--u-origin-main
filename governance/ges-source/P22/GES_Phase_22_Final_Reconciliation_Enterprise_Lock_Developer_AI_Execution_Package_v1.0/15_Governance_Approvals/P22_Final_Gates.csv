@@ -1,0 +1,12 @@
+gate_id,gate,owner,status,evidence,lock_requirement
+P22-GATE-01,Scope & Phase Catalog,Product Owner,Pending,Phase 00-22 scope/version catalog,Required
+P22-GATE-02,Requirements Reconciliation,Product + Architecture,Pending,Final Requirements Register + dispositions,Required
+P22-GATE-03,Architecture/Data/API,Architecture + Data,Pending,Canonical contracts approved,Required
+P22-GATE-04,Security & Privacy,Security,Pending,Security/privacy acceptance evidence,Required
+P22-GATE-05,AI Governance,AI Governance,Pending,AI evaluations/guardrails/ownership,Required
+P22-GATE-06,Testing & Traceability,QA,Pending,Coverage + exception evidence,Required
+P22-GATE-07,Business/UAT,Business Owners,Pending,UAT acceptance,Required
+P22-GATE-08,Production Readiness,DevOps/SRE,Pending,Phase 20 readiness evidence,Required
+P22-GATE-09,Operations/Support,Service Management,Pending,"Runbooks, SLAs, support ownership",Required
+P22-GATE-10,Final Manifest,Configuration Manager,Pending,Hash manifest + approved baseline,Required
+P22-GATE-11,GES v1.0 Enterprise Lock,Configuration Manager,Proposed,All prior gates approved,Final

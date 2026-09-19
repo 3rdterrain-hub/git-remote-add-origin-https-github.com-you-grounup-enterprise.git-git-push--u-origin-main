@@ -1,0 +1,2 @@
+# Required Architecture Decision Families
+Before production vendor binding, approve ADRs for cloud/regions, runtime/orchestration, relational database/tenancy, cache/queue/object/search, identity/SSO/SCIM, secrets/KMS/certificates, CI/CD/artifacts, observability/SIEM/on-call, analytics stack, AI providers/routing, payment/tax/email/domain providers, and backup/DR/RTO/RPO. Each ADR records options, decision, rationale, constraints, consequences, security review and exit/rollback strategy.

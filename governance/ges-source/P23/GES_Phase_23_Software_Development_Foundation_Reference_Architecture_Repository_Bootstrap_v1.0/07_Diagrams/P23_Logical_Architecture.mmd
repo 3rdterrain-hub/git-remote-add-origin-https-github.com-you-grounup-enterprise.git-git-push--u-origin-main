@@ -1,0 +1,17 @@
+flowchart TB
+ Users[Web / Field Users] --> Edge[API Gateway / BFF]
+ Edge --> IAM[Identity + Authorization]
+ Edge --> Platform[Platform Services: Tenant / Config / Audit / Workflow / Files / Search]
+ Edge --> Domain[Domain Modules: Estimating / Project / CRM / Workforce / Fleet / Procurement / Schedule / Commercial / HSE / Docs / GIS]
+ Domain --> Engines[Construction Engines: Cost / Production / Haul / Regional / Pricing / Takeoff]
+ Domain --> AI[AI Orchestrator + Plan Intelligence + Evaluation]
+ Domain --> Int[Integration Hub + Event Bus]
+ Platform --> Data[(Canonical Transaction Data)]
+ Domain --> Data
+ AI --> Obj[(Object / Drawing Evidence)]
+ Int --> External[External Systems]
+ Data --> Analytics[Analytics Pipeline]
+ Edge --> Obs[Observability]
+ Platform --> Obs
+ Domain --> Obs
+ AI --> Obs

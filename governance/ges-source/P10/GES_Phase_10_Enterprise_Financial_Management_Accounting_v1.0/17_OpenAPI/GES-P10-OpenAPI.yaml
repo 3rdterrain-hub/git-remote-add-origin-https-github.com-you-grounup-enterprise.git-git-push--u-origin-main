@@ -1,0 +1,372 @@
+openapi: 3.1.0
+info:
+  title: GrounUp Phase 10 Financial API
+  version: 1.0.0
+servers:
+  - url: https://api.grounup.example/v1
+security:
+  - oauth2: [financial.read]
+paths:
+  /financial/journals:
+    post:
+      summary: Create journal
+      operationId: post_financial_journals
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/journals/{id}/approve:
+    post:
+      summary: Approve journal
+      operationId: post_financial_journals_id_approve
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/journals/{id}/post:
+    post:
+      summary: Post journal
+      operationId: post_financial_journals_id_post
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/journals/{id}/reverse:
+    post:
+      summary: Reverse journal
+      operationId: post_financial_journals_id_reverse
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ap/invoices:
+    post:
+      summary: Create vendor invoice
+      operationId: post_ap_invoices
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ap/invoices/{id}/match:
+    post:
+      summary: Run invoice match
+      operationId: post_ap_invoices_id_match
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ap/payments/batches:
+    post:
+      summary: Create payment batch
+      operationId: post_ap_payments_batches
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ap/payments/batches/{id}/release:
+    post:
+      summary: Release payment batch
+      operationId: post_ap_payments_batches_id_release
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ar/invoices:
+    post:
+      summary: Create customer invoice
+      operationId: post_ar_invoices
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ar/receipts:
+    post:
+      summary: Record cash receipt
+      operationId: post_ar_receipts
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ar/receipts/{id}/apply:
+    post:
+      summary: Apply receipt
+      operationId: post_ar_receipts_id_apply
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /ar/collections/cases:
+    post:
+      summary: Create collection case
+      operationId: post_ar_collections_cases
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /projects/{id}/job-cost:
+    get:
+      summary: Get project job cost
+      operationId: get_projects_id_job_cost
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /projects/{id}/budgets/revisions:
+    post:
+      summary: Create budget revision
+      operationId: post_projects_id_budgets_revisions
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /projects/{id}/forecasts:
+    post:
+      summary: Create forecast
+      operationId: post_projects_id_forecasts
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /projects/{id}/wip/run:
+    post:
+      summary: Run WIP
+      operationId: post_projects_id_wip_run
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /billing/applications:
+    post:
+      summary: Create billing application
+      operationId: post_billing_applications
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /billing/applications/{id}/approve:
+    post:
+      summary: Approve billing application
+      operationId: post_billing_applications_id_approve
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /payroll/posting-batches:
+    post:
+      summary: Import payroll posting batch
+      operationId: post_payroll_posting_batches
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /payroll/posting-batches/{id}/reconcile:
+    post:
+      summary: Reconcile payroll posting
+      operationId: post_payroll_posting_batches_id_reconcile
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /banking/statements:
+    post:
+      summary: Import bank statement
+      operationId: post_banking_statements
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /banking/reconciliations:
+    post:
+      summary: Create bank reconciliation
+      operationId: post_banking_reconciliations
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /cash/forecasts:
+    post:
+      summary: Create cash forecast
+      operationId: post_cash_forecasts
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /cash/position:
+    get:
+      summary: Get cash position
+      operationId: get_cash_position
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /assets:
+    post:
+      summary: Create fixed asset
+      operationId: post_assets
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /assets/depreciation/run:
+    post:
+      summary: Run depreciation
+      operationId: post_assets_depreciation_run
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /tax/transactions/calculate:
+    post:
+      summary: Calculate tax
+      operationId: post_tax_transactions_calculate
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /consolidations/run:
+    post:
+      summary: Run consolidation
+      operationId: post_consolidations_run
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/reports/{reportCode}:
+    get:
+      summary: Run financial report
+      operationId: get_financial_reports_reportCode
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/ai/recommendations:
+    post:
+      summary: Request AI recommendation
+      operationId: post_financial_ai_recommendations
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/ai/recommendations/{id}/decision:
+    post:
+      summary: Decide AI recommendation
+      operationId: post_financial_ai_recommendations_id_decision
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+  /financial/digital-twin:
+    get:
+      summary: Get Financial Digital Twin
+      operationId: get_financial_digital_twin
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Validation failure
+        "403":
+          description: Authorization failure
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.grounup.example/oauth/token
+          scopes:
+            financial.read: Read financial records
+            financial.write: Create and update financial records
+            financial.approve: Approve controlled financial actions

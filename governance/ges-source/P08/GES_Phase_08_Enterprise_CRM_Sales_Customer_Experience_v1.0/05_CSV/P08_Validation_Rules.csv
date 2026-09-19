@@ -1,0 +1,25 @@
+Validation ID,Validation,Definition
+GES-P08-VR-001,Email Format,Email fields must pass syntax validation and optional deliverability checks.
+GES-P08-VR-002,Phone Normalization,Phone numbers must normalize to E.164 when country context is known.
+GES-P08-VR-003,Required Identity,A lead requires at least one configured identity method.
+GES-P08-VR-004,Stage Date,Stage effective dates cannot precede opportunity creation.
+GES-P08-VR-005,Probability Range,Win probability must be between 0 and 100 percent.
+GES-P08-VR-006,Monetary Values,Opportunity and proposal monetary values must use tenant-supported currency and nonnegative amounts.
+GES-P08-VR-007,Proposal Expiration,Proposal expiration must be after issue date.
+GES-P08-VR-008,Signature Recipient,Signature recipients require validated identity and signing role.
+GES-P08-VR-009,Consent Date,Consent effective date cannot be after revocation date.
+GES-P08-VR-010,Quiet Hours,Automated outbound messages must pass recipient local-time quiet-hour checks.
+GES-P08-VR-011,Assignment User,Assigned owners must be active and authorized for the record scope.
+GES-P08-VR-012,Account Relationship,A contact-account relationship must not duplicate the same role and effective dates.
+GES-P08-VR-013,Referral Loop,A referral cannot refer itself or create a cyclic parent chain.
+GES-P08-VR-014,Review Rating,Review ratings must fall within the source system scale.
+GES-P08-VR-015,Warranty Eligibility,Warranty request date must be evaluated against coverage dates and exception policy.
+GES-P08-VR-016,Portal File,"Portal uploads must pass file type, size, malware, and retention validation."
+GES-P08-VR-017,Template Variables,All required template variables must resolve before send or generation.
+GES-P08-VR-018,Forecast Period,Forecast snapshots require a valid fiscal period.
+GES-P08-VR-019,Duplicate Signature,A completed signature event cannot be replayed.
+GES-P08-VR-020,API Idempotency,Create and send endpoints require supported idempotency keys.
+GES-P08-VR-021,Tenant Scope,Every persistent record requires a valid tenant identifier.
+GES-P08-VR-022,Status Enumeration,Controlled status values must exist in the active configuration version.
+GES-P08-VR-023,Currency Consistency,Proposal options in one proposal version must use the same currency.
+GES-P08-VR-024,Deletion Restriction,Records under legal hold or active contract linkage cannot be permanently deleted.

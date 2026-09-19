@@ -1,0 +1,181 @@
+{
+  "phase": "13",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "61cda0fec782110f4a01e045861d424760eeae2e4f2fd42fdc201d2d346a83af",
+      "bytes": 1148
+    },
+    {
+      "path": "02_Word/GES-P13-001-Enterprise_Business_Intelligence_Decision_Intelligence.docx",
+      "sha256": "2073e39d685b9ae88039d078e45eb73413e3beb79c47a911f9f92c82cc45a2e6",
+      "bytes": 41288
+    },
+    {
+      "path": "03_PDF/GES-P13-001-Enterprise_Business_Intelligence_Decision_Intelligence.pdf",
+      "sha256": "3040a86d75fff6aaa7dd95d939fb99e504aea575d93dcbca8075569954403050",
+      "bytes": 13119
+    },
+    {
+      "path": "04_Excel/GES-P13-001-Enterprise_Business_Intelligence_Decision_Intelligence_Control_Workbook.xlsx",
+      "sha256": "7d3383b8b82105733b8872fd6fcb3f13b81f0b865cc94c4eec509a7e7fc37cd1",
+      "bytes": 67009
+    },
+    {
+      "path": "05_CSV/P13_API_Endpoints.csv",
+      "sha256": "0a238a85835b7b1b9f88378b6b8491204c9ad8ee66e4a3b3d70bcba247138db2",
+      "bytes": 5116
+    },
+    {
+      "path": "05_CSV/P13_Business_Rules.csv",
+      "sha256": "d39ebd6702ac35653574875334398d54c00722554fbdbcc299bea64e40849eae",
+      "bytes": 11499
+    },
+    {
+      "path": "05_CSV/P13_Data_Dictionary.csv",
+      "sha256": "d6d96c9aa2e8e7f543325c1783f729fb0f523a6c85836470f573c28df724f894",
+      "bytes": 41083
+    },
+    {
+      "path": "05_CSV/P13_Engines.csv",
+      "sha256": "cb8176e3621b42f1c6522e17dcfacf6637ddc3299dfd9d0f41cbf22b9721668d",
+      "bytes": 7646
+    },
+    {
+      "path": "05_CSV/P13_Entities.csv",
+      "sha256": "7437851176805d38cd1246b954e4ef49689bca20930947e8695c1b5ada9c14cb",
+      "bytes": 21451
+    },
+    {
+      "path": "05_CSV/P13_KPIs.csv",
+      "sha256": "b8226942cfed88095346197456949bbd37d03b632718566db2bc84552835f212",
+      "bytes": 6866
+    },
+    {
+      "path": "05_CSV/P13_Reports.csv",
+      "sha256": "526eed4429b504f5fe323488f31c5b946e2c45563bc4e603c9f8e3769f22e671",
+      "bytes": 4296
+    },
+    {
+      "path": "05_CSV/P13_Requirements.csv",
+      "sha256": "cc8614d2ee612bc594a3e199655096c756c85156e386d75f058162395204ef75",
+      "bytes": 123025
+    },
+    {
+      "path": "05_CSV/P13_Test_Cases.csv",
+      "sha256": "dc737aeed6e19aeb16035c18f495fb187e75168793e3f8ad7bdd7088a87baded",
+      "bytes": 64143
+    },
+    {
+      "path": "05_CSV/P13_Traceability.csv",
+      "sha256": "bee344883e3f3cb2157d3211bf819a2717b8f8847c20d29d6074fba768ec57cc",
+      "bytes": 20154
+    },
+    {
+      "path": "05_CSV/P13_UI_Surfaces.csv",
+      "sha256": "36e469b2bce091629b182735b4cb4bc48e0a1b756a9ee45fcef8ef3646b8bcc1",
+      "bytes": 4633
+    },
+    {
+      "path": "05_CSV/P13_Validation_Rules.csv",
+      "sha256": "b382138b57235b7f700994f7bbc2df23d345451e448b88a398ed63564660f094",
+      "bytes": 11470
+    },
+    {
+      "path": "05_CSV/P13_Workflows.csv",
+      "sha256": "7cc61c9dbc0a7e386c2f752d020efef210a2d677eb2f24627f65ec50f7d6cd06",
+      "bytes": 4972
+    },
+    {
+      "path": "06_JSON/P13_Analytics_Record.schema.json",
+      "sha256": "0705d86d0ebc85d6268427d1fa4aa4b45e691c202c47a88608622b6381a110c4",
+      "bytes": 650
+    },
+    {
+      "path": "06_JSON/P13_Master_Specification.json",
+      "sha256": "c789072a0447a55d082135742cc04f1f59d10461f1e2671644569bc6df285d22",
+      "bytes": 3836
+    },
+    {
+      "path": "07_OpenAPI/P13_OpenAPI.json",
+      "sha256": "1eb3c8844eb2b90d4e7faa12bbb24fd5750bad976fad3a29720b127fca9016fa",
+      "bytes": 17286
+    },
+    {
+      "path": "08_Diagrams/P13_Decision_Intelligence_Workflow.mmd",
+      "sha256": "a9f952e5a1629868dac144a1c550cf3f75677081cb67879d1819636698196618",
+      "bytes": 307
+    },
+    {
+      "path": "08_Diagrams/P13_Enterprise_Intelligence_Architecture.mmd",
+      "sha256": "84ca10a18771af559a84870eecaad6023c0147b872261b06232b2474090ec9e6",
+      "bytes": 408
+    },
+    {
+      "path": "09_Business_Rules/P13_Business_Rules.csv",
+      "sha256": "d39ebd6702ac35653574875334398d54c00722554fbdbcc299bea64e40849eae",
+      "bytes": 11499
+    },
+    {
+      "path": "10_Validation_Rules/P13_Validation_Rules.csv",
+      "sha256": "b382138b57235b7f700994f7bbc2df23d345451e448b88a398ed63564660f094",
+      "bytes": 11470
+    },
+    {
+      "path": "11_Data_Dictionary/P13_Data_Dictionary.csv",
+      "sha256": "d6d96c9aa2e8e7f543325c1783f729fb0f523a6c85836470f573c28df724f894",
+      "bytes": 41083
+    },
+    {
+      "path": "12_Entities/P13_Entities.csv",
+      "sha256": "7437851176805d38cd1246b954e4ef49689bca20930947e8695c1b5ada9c14cb",
+      "bytes": 21451
+    },
+    {
+      "path": "13_Workflows/P13_Workflows.csv",
+      "sha256": "7cc61c9dbc0a7e386c2f752d020efef210a2d677eb2f24627f65ec50f7d6cd06",
+      "bytes": 4972
+    },
+    {
+      "path": "14_AI/P13_Engines.csv",
+      "sha256": "cb8176e3621b42f1c6522e17dcfacf6637ddc3299dfd9d0f41cbf22b9721668d",
+      "bytes": 7646
+    },
+    {
+      "path": "15_APIs/P13_API_Endpoints.csv",
+      "sha256": "0a238a85835b7b1b9f88378b6b8491204c9ad8ee66e4a3b3d70bcba247138db2",
+      "bytes": 5116
+    },
+    {
+      "path": "16_UI_UX/P13_UI_Surfaces.csv",
+      "sha256": "36e469b2bce091629b182735b4cb4bc48e0a1b756a9ee45fcef8ef3646b8bcc1",
+      "bytes": 4633
+    },
+    {
+      "path": "17_Reports/P13_Reports.csv",
+      "sha256": "526eed4429b504f5fe323488f31c5b946e2c45563bc4e603c9f8e3769f22e671",
+      "bytes": 4296
+    },
+    {
+      "path": "18_Testing/P13_Test_Cases.csv",
+      "sha256": "dc737aeed6e19aeb16035c18f495fb187e75168793e3f8ad7bdd7088a87baded",
+      "bytes": 64143
+    },
+    {
+      "path": "19_Traceability/P13_Traceability.csv",
+      "sha256": "bee344883e3f3cb2157d3211bf819a2717b8f8847c20d29d6074fba768ec57cc",
+      "bytes": 20154
+    },
+    {
+      "path": "20_Deployment/P13_Deployment_Guide.md",
+      "sha256": "200c6f71d3e431d2c24fd7cc7d5703b701eff5f430679a1fb7683eb8982b284c",
+      "bytes": 572
+    },
+    {
+      "path": "21_Approvals/P13_Approval_Record.md",
+      "sha256": "398b79fc2b8f6b84ea06b2b9d01beb6abe145c771dbf073c30aacae605b3de31",
+      "bytes": 299
+    }
+  ]
+}

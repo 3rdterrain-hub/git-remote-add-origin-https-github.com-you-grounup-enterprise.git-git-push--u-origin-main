@@ -1,0 +1,14 @@
+sequenceDiagram
+participant PM as Project Manager
+participant WO as Workforce Orchestrator
+participant EL as Eligibility Engine
+participant AI as Crew Optimizer
+participant HR as HR/Operations Approver
+PM->>WO: Submit labor/crew requirement
+WO->>EL: Validate candidates and credentials
+EL-->>WO: Eligible worker pool + exceptions
+WO->>AI: Request ranked crew alternatives
+AI-->>WO: Explainable recommendations
+WO->>HR: Route assignment for approval
+HR-->>WO: Approve/modify/reject
+WO-->>PM: Publish crew assignment and notifications

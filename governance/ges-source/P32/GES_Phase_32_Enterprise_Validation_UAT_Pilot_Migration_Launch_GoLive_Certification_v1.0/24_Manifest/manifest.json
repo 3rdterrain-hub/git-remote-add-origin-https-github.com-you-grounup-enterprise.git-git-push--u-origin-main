@@ -1,0 +1,153 @@
+{
+  "phase": "32",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "certification": "NOT CERTIFIED / NOT YET EXECUTED",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "ea7776982f492e9e6db5739fdcdab054b865e1454fc8bd5f1efddf55e61d142d",
+      "bytes": 800
+    },
+    {
+      "path": "02_Word/GES-P32-001-Enterprise_Validation_UAT_Pilot_Migration_GoLive_Certification.docx",
+      "sha256": "59f2d7cf69610b593c71d468f6b6129bc8a1614f42b7975a3b9190c52f2fd9f3",
+      "bytes": 39695
+    },
+    {
+      "path": "03_PDF/GES-P32-001-Enterprise_Validation_UAT_Pilot_Migration_GoLive_Certification.pdf",
+      "sha256": "db4fb76e383a759f09d0be93d4542dfa7682e8dd8257a77f19df6721730ab51f",
+      "bytes": 10051
+    },
+    {
+      "path": "04_Excel/GES-P32-001-Enterprise_Validation_GoLive_Certification_Workbook.xlsx",
+      "sha256": "3882c8dc1d51e87655d7d86da20a84bcdc46a66104ae10ed65043f414e4cf945",
+      "bytes": 93293
+    },
+    {
+      "path": "05_CSV/P32_API_Contracts.csv",
+      "sha256": "d92919ac4fb58090a2fbb21d8a5845f0f8d6942edfecd3053ad514d8aa7be6db",
+      "bytes": 5590
+    },
+    {
+      "path": "05_CSV/P32_Business_Rules.csv",
+      "sha256": "6fe4de3818c2204c81b51911ff711b18a1372274fb41baca619b15e5f6376da2",
+      "bytes": 5948
+    },
+    {
+      "path": "05_CSV/P32_Entities.csv",
+      "sha256": "494df01d81c141d7fa9dff125f1a4edb39e6ac3ee70ad8fc329975af3c3c210e",
+      "bytes": 4930
+    },
+    {
+      "path": "05_CSV/P32_Event_Catalog.csv",
+      "sha256": "3ca48c01ff6168b3d120ff9d75ed97e857a45009ec5a6aec0b097f2d9b384cbc",
+      "bytes": 6471
+    },
+    {
+      "path": "05_CSV/P32_Modules.csv",
+      "sha256": "f5376edceb4a4cef3e9082f5ed1bb1a8f6c6417cfadad9b17204e2a080759e4c",
+      "bytes": 4717
+    },
+    {
+      "path": "05_CSV/P32_Quality_Gates.csv",
+      "sha256": "7497d8fd3e1876c81a78475e7306b349af402f9237d84b688160804d3c70b4c9",
+      "bytes": 2573
+    },
+    {
+      "path": "05_CSV/P32_Requirements.csv",
+      "sha256": "305f324f997ab4afdf765b234edac0fa6c92cd242dc99260a238f4b37551f33b",
+      "bytes": 303903
+    },
+    {
+      "path": "05_CSV/P32_Security_Controls.csv",
+      "sha256": "0a3512d6e2fb6fccf6c8774e4e2fede4b353894cc3b9b2dbaf455d4898e0b629",
+      "bytes": 2603
+    },
+    {
+      "path": "05_CSV/P32_Test_Cases.csv",
+      "sha256": "47dd004449f2edff19e47121ad2660940d58831f99756b4724de9ea56c6a5d32",
+      "bytes": 224539
+    },
+    {
+      "path": "05_CSV/P32_Traceability.csv",
+      "sha256": "06beacf45248de79e560620e00c0ced07de1dbc311cb34b077692f8b0fc1313f",
+      "bytes": 32541
+    },
+    {
+      "path": "06_JSON/P32_Validation_Certification_Baseline.json",
+      "sha256": "f0673f7da771f6f303f2d5b35616eb1d84d987322c5f7ebe5df2bfb618e0dfb6",
+      "bytes": 1089
+    },
+    {
+      "path": "07_Diagrams/P32_Acceptance_Flow.mmd",
+      "sha256": "ad0e5971147872831c549ba87256d21ccf031f595ebb497db422058cc0dc30b5",
+      "bytes": 446
+    },
+    {
+      "path": "07_Diagrams/P32_Certification_Gates.mmd",
+      "sha256": "a5dbe4977b2c196c4e29173449be756641e06e9a9faca4afc1359a19b2821e4a",
+      "bytes": 453
+    },
+    {
+      "path": "17_Certification/P32_Signoff_Matrix.csv",
+      "sha256": "b1343308f0996976f34fc236e2ce8d070b1b0fe23b068d06d4a371287caacab4",
+      "bytes": 941
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/README.md",
+      "sha256": "8e445a999f0f6ff53d372bcfdde3471df9e9e6d1ccacda80a10fd517e258e9dc",
+      "bytes": 304
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/certification/FINAL_CERTIFICATION_TEMPLATE.md",
+      "sha256": "c7e518e5370e1dd371b7ebf4772a4c6a82965aad1caa4ef651297d93523e7aee",
+      "bytes": 345
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/checklists/GO_LIVE_CHECKLIST.md",
+      "sha256": "b74971ab286e10e825560579011cda19fa0a4cf7bf432f03e9b4f082de7e1db9",
+      "bytes": 473
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/cutover/CUTOVER_TEMPLATE.md",
+      "sha256": "14e6ee593fde7411303ea38ae601041281123d36d3dd8ccd3920a1754f0839bd",
+      "bytes": 275
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/migration/RECONCILIATION_TEMPLATE.md",
+      "sha256": "a17a079e0d13a36a186d587053d94901b238537dd4c7d86d103ca515990b8eb7",
+      "bytes": 239
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/schemas/certification.json",
+      "sha256": "52b430e0144aca9a9be50e6ceddc85c1ed0bd204d293f362f68f4f4774ab9382",
+      "bytes": 1582
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/tests/no-false-pass.spec.md",
+      "sha256": "2b395c2f24e5434faa51c36bfd0c4cd13418c3b928255599ed090f8de5f621b0",
+      "bytes": 196
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification/uat/UAT_SCENARIO_TEMPLATE.md",
+      "sha256": "488561a350b7770b4496ffa32d7763ea71536642f9f5dbd8a4a59d3fb0e67bc0",
+      "bytes": 179
+    },
+    {
+      "path": "21_Starter_Code/grounup-release-certification-bootstrap.zip",
+      "sha256": "bae9a4780902ace68005e76b027caca3e7b15417860461cef5c01e7015efbc19",
+      "bytes": 3321
+    },
+    {
+      "path": "22_Developer_AI_Handoff/P32_BUILD_PROTOCOL.md",
+      "sha256": "01a65f40028229d7fb52e9f5b1e2e3ffb14071a3308c8721d9126f377c20e06c",
+      "bytes": 1077
+    },
+    {
+      "path": "23_Release_Package/GES_v1.0_RELEASE_STATUS.md",
+      "sha256": "946d6d842a7121489a9efac4e396854a6c8507047f01a9679682dff1598de3b6",
+      "bytes": 416
+    }
+  ]
+}

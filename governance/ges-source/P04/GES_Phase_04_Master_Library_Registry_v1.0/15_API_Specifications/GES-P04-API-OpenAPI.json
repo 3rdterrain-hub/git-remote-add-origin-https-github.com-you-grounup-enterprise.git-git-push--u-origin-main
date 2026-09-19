@@ -1,0 +1,241 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrounUp Master Library Registry API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/libraries": {
+      "get": {
+        "summary": "List accessible libraries",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Register a library",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/libraries/{libraryId}": {
+      "get": {
+        "summary": "Get library definition",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update draft library definition",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/libraries/{libraryId}/items": {
+      "get": {
+        "summary": "Search library items",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create item draft",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}": {
+      "get": {
+        "summary": "Get item and resolved version",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit draft item",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/submit": {
+      "post": {
+        "summary": "Submit for review",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/approve": {
+      "post": {
+        "summary": "Approve item",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/reject": {
+      "post": {
+        "summary": "Reject item",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/publish": {
+      "post": {
+        "summary": "Publish approved item",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/supersede": {
+      "post": {
+        "summary": "Create successor version",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/deprecate": {
+      "post": {
+        "summary": "Deprecate item",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/rollback": {
+      "post": {
+        "summary": "Rollback publication",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-imports": {
+      "post": {
+        "summary": "Create staged import",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-imports/{importId}": {
+      "get": {
+        "summary": "Get import status",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-imports/{importId}/validate": {
+      "post": {
+        "summary": "Run validations",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-imports/{importId}/publish": {
+      "post": {
+        "summary": "Publish valid rows",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-search": {
+      "get": {
+        "summary": "Cross-library search",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-resolve": {
+      "post": {
+        "summary": "Resolve effective item by context",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/history": {
+      "get": {
+        "summary": "Get version and audit history",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/impact": {
+      "get": {
+        "summary": "Get dependency impact",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/v1/library-items/{itemId}/clone": {
+      "post": {
+        "summary": "Clone to tenant scope",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  }
+}

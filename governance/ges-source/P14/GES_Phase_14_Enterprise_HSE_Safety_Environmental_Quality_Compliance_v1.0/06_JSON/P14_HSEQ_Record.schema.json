@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp HSEQ Record",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "record_id",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string"
+    },
+    "risk_score": {
+      "type": "number"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_uri": {
+      "type": "string"
+    }
+  }
+}

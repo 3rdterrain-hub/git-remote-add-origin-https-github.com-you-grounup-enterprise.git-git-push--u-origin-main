@@ -1,0 +1,11 @@
+flowchart LR
+ Qty[Haul Quantity] --> Payload[Effective Truck Payload]
+ Payload --> Trips[Trips = ceil(Qty/Payload)]
+ Load[Load Time] --> Cycle[Cycle Minutes]
+ Out[Outbound Travel] --> Cycle
+ Dump[Dump/Queue] --> Cycle
+ Return[Return Travel] --> Cycle
+ Delay[Configured Delays] --> Cycle
+ Cycle --> Count[Truck Count to Balance Production]
+ Trips --> Cost[Trip/Hour Haul Cost]
+ Count --> Cost

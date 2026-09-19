@@ -1,0 +1,270 @@
+{
+  "phase": 12,
+  "title": "GES Phase 12 - Enterprise Fleet, Equipment, Asset, Maintenance & Telematics Management",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "proposed_lock_tag": "GES-P12-v1.0.0",
+  "counts": {
+    "requirements": 280,
+    "entities": 125,
+    "data_dictionary_fields": 180,
+    "business_rules": 50,
+    "validation_rules": 50,
+    "workflows": 26,
+    "engines": 32,
+    "api_resources": 40,
+    "ui_surfaces": 22,
+    "reports": 20,
+    "kpis": 36,
+    "test_cases": 280
+  },
+  "generated_on": "2026-07-27",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "271754cbc0d52808283698089270dba931684638f6f178cb722a6e8032a73905",
+      "bytes": 736
+    },
+    {
+      "path": "02_Word/GES-P12-001-Enterprise_Fleet_Asset_Maintenance_Telematics.docx",
+      "sha256": "b7967ad6f77e1100743cfd98d1ba9875a86230f7eb03ec5d8f837f0239c0601d",
+      "bytes": 49347
+    },
+    {
+      "path": "03_PDF/GES-P12-001-Enterprise_Fleet_Asset_Maintenance_Telematics.pdf",
+      "sha256": "50f8350dd7c42278baf7053fda66f2a0608b1742ebe9fcb1d80225134c4b33f9",
+      "bytes": 503791
+    },
+    {
+      "path": "04_Excel/GES-P12-001-Enterprise_Fleet_Asset_Maintenance_Telematics_Control_Workbook.xlsx",
+      "sha256": "98e5468ce6ab67f08d32256e22f61f2c06fc34552c30c3d9639d6439406a8e76",
+      "bytes": 84985
+    },
+    {
+      "path": "05_CSV/P12_API_Endpoints.csv",
+      "sha256": "a4e992a590479bf8183e129a0c5ac1f096dd0e4d9afe07ba70b9ebe37f978ddb",
+      "bytes": 6666
+    },
+    {
+      "path": "05_CSV/P12_Business_Rules.csv",
+      "sha256": "da6b6f16cce3fdaf4ad4b334afd6f8963535a7ac4afd3ae58d63cd855416d2ee",
+      "bytes": 14286
+    },
+    {
+      "path": "05_CSV/P12_Data_Dictionary.csv",
+      "sha256": "8294c920df371410593e3b5ef36bb98406c7f7863b5796055f3d6ea7ccd6a215",
+      "bytes": 35876
+    },
+    {
+      "path": "05_CSV/P12_Engines.csv",
+      "sha256": "cfe95c1e375f04d41c3ea02104de4553019fe05591af735098e7b2f128b5bd5e",
+      "bytes": 10228
+    },
+    {
+      "path": "05_CSV/P12_Entities.csv",
+      "sha256": "f1544cc44833974ae95e76be3dc944fe36f5d233abe70692da65834841bffdbb",
+      "bytes": 24605
+    },
+    {
+      "path": "05_CSV/P12_KPIs.csv",
+      "sha256": "ec8b555f5aee427ab1681dca42b287ab3c473df9e0f4d44df59c94b9f84ceb2f",
+      "bytes": 9118
+    },
+    {
+      "path": "05_CSV/P12_Reports.csv",
+      "sha256": "3733b620e487a61c839c7d3cb1fb15d2eb4a3e3c1180258f977d0107cb888dec",
+      "bytes": 4709
+    },
+    {
+      "path": "05_CSV/P12_Requirements.csv",
+      "sha256": "f6f39e72945e4d8c9d50d1193337ecc755b76261751425077eb38343373814b8",
+      "bytes": 194352
+    },
+    {
+      "path": "05_CSV/P12_Test_Cases.csv",
+      "sha256": "8fc1dc4bb64642a167ca5f77e6bdc33826540d01bb1be74ddd85338e7ffd323a",
+      "bytes": 82943
+    },
+    {
+      "path": "05_CSV/P12_Traceability.csv",
+      "sha256": "3a293681ad79b9a827df2da75497d31c9a7f6f6225d7dfc69c8e938e42bea535",
+      "bytes": 24446
+    },
+    {
+      "path": "05_CSV/P12_UI_Surfaces.csv",
+      "sha256": "795181a5e5b7aaaef9e5026780b4a6f72afd4817d629767cfc18e91d7d581445",
+      "bytes": 5822
+    },
+    {
+      "path": "05_CSV/P12_Validation_Rules.csv",
+      "sha256": "7ea2151132f94a8437c2a5e54b8a6e80e959a9f69589aa11dac2eb94c43e411e",
+      "bytes": 15046
+    },
+    {
+      "path": "05_CSV/P12_Workflows.csv",
+      "sha256": "7c69c43fc812446f876e1456b1bfc430e9ef9b8667e4911ac424c8457306fa28",
+      "bytes": 6142
+    },
+    {
+      "path": "06_JSON/P12_Fleet_Asset.schema.json",
+      "sha256": "539761065f811fc236b7c1a7c0d6b9139c5e0e0fc6172678c1717422699d9618",
+      "bytes": 1102
+    },
+    {
+      "path": "06_JSON/P12_api_endpoints.json",
+      "sha256": "6c1f9cf3a8014fb96fa7c2a0969904c86ce5fa898dbad39c5d86920559253eb4",
+      "bytes": 8414
+    },
+    {
+      "path": "06_JSON/P12_business_rules.json",
+      "sha256": "5401c9fdccd924d7149d712673bfe6c8fe31edbe121094cce1d8dc66f860dcbb",
+      "bytes": 16578
+    },
+    {
+      "path": "06_JSON/P12_data_dictionary.json",
+      "sha256": "457916b0030f22294206d9e8c0283e80c9ceaad7f6b17c9855bfbeafc78a0406",
+      "bytes": 48041
+    },
+    {
+      "path": "06_JSON/P12_engines.json",
+      "sha256": "06d31fca12727abb5140881639501ac830544f0fbd8f04c21a57637132d1b3b0",
+      "bytes": 11605
+    },
+    {
+      "path": "06_JSON/P12_entities.json",
+      "sha256": "9e61969574e6cb24d4d13d9ff505894a174cbf434efe3717cd830a2f17bd5144",
+      "bytes": 31522
+    },
+    {
+      "path": "06_JSON/P12_kpis.json",
+      "sha256": "9d161ecbee071d5ff7763145c217aa51d62a1684c08fbb43c07c9ec6cc52962d",
+      "bytes": 10688
+    },
+    {
+      "path": "06_JSON/P12_reports.json",
+      "sha256": "97f8b34f6f3357a742c70a223581045b4035d8fa0e162a39fcddb7bbaf2d001d",
+      "bytes": 5687
+    },
+    {
+      "path": "06_JSON/P12_requirements.json",
+      "sha256": "7a75a49c26fecd883306b28854cb9e9b32a5c40e2a7c5ad25a4738cbe9a2c44d",
+      "bytes": 216646
+    },
+    {
+      "path": "06_JSON/P12_test_cases.json",
+      "sha256": "3a923e5be4406ff97b73878aefcb8251ff81a9db18869e59601d22fd47fb6d4a",
+      "bytes": 97424
+    },
+    {
+      "path": "06_JSON/P12_traceability.json",
+      "sha256": "abeff3494dcf43a13dac73e652669ce98180076cb5cd53e84661b7dcb0221c11",
+      "bytes": 42002
+    },
+    {
+      "path": "06_JSON/P12_ui_surfaces.json",
+      "sha256": "2fcd0c87b16f7fecce6fa351c6b057bdee14315133ecd47f77a2226d10e0a47e",
+      "bytes": 6795
+    },
+    {
+      "path": "06_JSON/P12_validation_rules.json",
+      "sha256": "30df168bbd21e3969c00d7511d98deb18e0fc511838253d22198c5980b32a905",
+      "bytes": 17228
+    },
+    {
+      "path": "06_JSON/P12_workflows.json",
+      "sha256": "7f70daa19eada021613bcdb51f9eb684c38707aa3cb559114ed7d99d1f13a3f9",
+      "bytes": 7297
+    },
+    {
+      "path": "07_OpenAPI/GES-P12-OpenAPI.yaml",
+      "sha256": "b2fe5455d2b55abcdda38f57bf5c0c889afafb48a9e1d9fd3d5fbd87f033bfe5",
+      "bytes": 11802
+    },
+    {
+      "path": "08_Diagrams/P12_Asset_Lifecycle.mmd",
+      "sha256": "08770094a361c78645ac073502ca01ec01fb6dd20e12ad555e7549d39d741bc5",
+      "bytes": 347
+    },
+    {
+      "path": "08_Diagrams/P12_Digital_Twin.mmd",
+      "sha256": "6d79745a70863ec0c154ec440599e05f5f11fb7659233264d50630a3dc856d90",
+      "bytes": 377
+    },
+    {
+      "path": "08_Diagrams/P12_Maintenance_Flow.mmd",
+      "sha256": "85d687e83e1c936b9312dac2bfa09835c4a051026326697bb482d4658de261c5",
+      "bytes": 356
+    },
+    {
+      "path": "09_Business_Rules/Business_Rules.md",
+      "sha256": "e9c79e2b76a7e3da6a98105b546f987ab94ff52883d3b8314264f0e586d86436",
+      "bytes": 217
+    },
+    {
+      "path": "10_Validation_Rules/Validation_Rules.md",
+      "sha256": "c20226ab152ebfbaec3a2cf5defbcb930c82fa352bf764fef8204dc8a0ba7551",
+      "bytes": 221
+    },
+    {
+      "path": "11_Data_Dictionary/Data_Dictionary.md",
+      "sha256": "b1b43e7497e510369f54f8c272feb36ecc56c6803fa630945aa58d53f8466c46",
+      "bytes": 176
+    },
+    {
+      "path": "12_Entities/Entity_Model.md",
+      "sha256": "16cc0df4d2a7655308f34b6b5fa078ada5955ba20c648858d5a5d53d658723c8",
+      "bytes": 229
+    },
+    {
+      "path": "13_Workflows/Workflows.md",
+      "sha256": "2ab2a8f6b8d3ce0884cd6e4c26601d6d719be36d85f02f1dca975516257ccd21",
+      "bytes": 202
+    },
+    {
+      "path": "14_Engines_AI/AI_and_Engines.md",
+      "sha256": "ea902fb0c89b0003ef0fcd90e5f59b6e7524ead13bdc8cdbbfe1cc52b3c90ace",
+      "bytes": 254
+    },
+    {
+      "path": "15_APIs/API_Specification.md",
+      "sha256": "b91d7ba6390f27b559523f91037de01984eaf38795c6232a07e6519cd7b9b6ad",
+      "bytes": 219
+    },
+    {
+      "path": "16_UI_UX/UI_UX_Specification.md",
+      "sha256": "a4fcb5000e86d36158292e5e93cb35012f8dfda89a5d72edaad92d72b80bfb91",
+      "bytes": 234
+    },
+    {
+      "path": "17_Reports/Reporting_and_KPIs.md",
+      "sha256": "7dc2c2eac37703e5d9cac7aee4df63b2dc2bd4cb32f6539f2b68b641856b38ce",
+      "bytes": 188
+    },
+    {
+      "path": "18_Testing/Test_Strategy.md",
+      "sha256": "adb2a96a785390d8adf5b614a4e5066c0c5b4118f905f8dac6c3f28122e1385d",
+      "bytes": 229
+    },
+    {
+      "path": "19_Traceability/Traceability.md",
+      "sha256": "f7e975d08b52a1ad4967c0468f45ec1633cf8f635765fd23546a58d239abd7fa",
+      "bytes": 200
+    },
+    {
+      "path": "20_Deployment/Deployment_Guide.md",
+      "sha256": "1c4bd08ccb0db66f3a53c633768c17117725e528f4c1bd020f880777ededf1db",
+      "bytes": 264
+    },
+    {
+      "path": "21_Approvals/Approval_Record.md",
+      "sha256": "bdf89ee238426922096d5b3f9760e2eedd8c898951cc07a2b19edc31b026f9b7",
+      "bytes": 326
+    },
+    {
+      "path": "23_Examples/Example_Asset_Record.json",
+      "sha256": "3574cb209a8384c88f2e2172d92ce007c7e151516c93e51e758a3e63989f5522",
+      "bytes": 291
+    }
+  ],
+  "file_count": 49
+}

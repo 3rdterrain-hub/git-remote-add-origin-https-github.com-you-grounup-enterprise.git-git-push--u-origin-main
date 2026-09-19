@@ -1,0 +1,12 @@
+flowchart TB
+ U[Users and External Systems] --> GW[API and Experience Gateway]
+ GW --> ORCH[AI Orchestration Engine]
+ ORCH --> AG[Specialist Agent Registry]
+ ORCH --> CTX[Context Assembly and Memory]
+ ORCH --> RAG[Retrieval and Knowledge Graph]
+ ORCH --> TOOL[Governed Tool Execution]
+ ORCH --> HUMAN[Human Approval Engine]
+ AG --> MODELS[Model Routing Layer]
+ RAG --> LIB[Master Libraries and Project Knowledge]
+ TOOL --> CORE[GrounUp Canonical APIs]
+ ORCH --> OBS[Audit, Evaluation and Observability]

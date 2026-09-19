@@ -1,0 +1,21 @@
+control_id,name,verification,status
+P31-SEC-001,Environment credential isolation,Production identities/secrets cannot be reused by lower environments except explicitly approved non-secret references.,Required
+P31-SEC-002,Production access control,"Production admin/deployment access uses Phase 28 least privilege, MFA/JIT and audit controls.",Required
+P31-SEC-003,Signed/provenance artifacts,Production artifacts have approved integrity/provenance verification.,Required
+P31-SEC-004,IaC secret scanning,IaC/config commits are scanned for secrets and unsafe patterns.,Required
+P31-SEC-005,Policy-as-code,Network/storage/identity/encryption baseline policies are automatically checked where feasible.,Required
+P31-SEC-006,Artifact registry security,Artifact push/promotion/delete permissions are restricted and audited.,Required
+P31-SEC-007,CI runner isolation,Build/deploy runners have bounded credentials and environment access.,Required
+P31-SEC-008,Deployment impersonation prevention,Release/deployment actions identify approved actor/service identity and cannot be spoofed through untrusted inputs.,Required
+P31-SEC-009,Webhook/CI trigger validation,External CI/CD triggers use authenticated/validated sources and least privilege.,Required
+P31-SEC-010,Observability access,Production logs/traces/metrics obey data classification and role restrictions.,Required
+P31-SEC-011,Backup access,Backup stores/keys are isolated from ordinary application/admin deletion paths where feasible.,Required
+P31-SEC-012,Restore authorization,Production restore actions require explicit authorized operational/security workflow.,Required
+P31-SEC-013,DR credentials,DR environments and failover identities are maintained/tested without weakening credential controls.,Required
+P31-SEC-014,Runbook secrets,Runbooks do not embed live production secrets.,Required
+P31-SEC-015,Debug protection,Debug endpoints/profilers are disabled or strongly restricted in production.,Required
+P31-SEC-016,Non-production data,Lower environments use masked/synthetic data unless protected production-derived data is specifically approved.,Required
+P31-SEC-017,Supply-chain gate,Dependencies/base images/build actions satisfy Phase 28 supply-chain checks.,Required
+P31-SEC-018,Operational audit integrity,Release/deployment/access/restore/DR audit evidence is protected from ordinary mutation.,Required
+P31-SEC-019,Break-glass production access,"Emergency access is time-bound, monitored and retrospectively reviewed.",Required
+P31-SEC-020,Cost/FinOps data security,Cost allocation details and provider account metadata are restricted by role.,Required

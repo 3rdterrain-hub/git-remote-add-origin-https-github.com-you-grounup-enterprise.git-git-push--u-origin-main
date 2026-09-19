@@ -1,0 +1,21 @@
+Workflow ID,Workflow,Initial State,Definition,Roles,Terminal State,Controls
+GES-P09-WF-001,Requisition to Hire,Initiated,Configured multi-step workflow for requisition to hire.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-002,Candidate Screening and Interview,Initiated,Configured multi-step workflow for candidate screening and interview.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-003,Offer and Prehire Compliance,Initiated,Configured multi-step workflow for offer and prehire compliance.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-004,New Hire Onboarding,Initiated,Configured multi-step workflow for new hire onboarding.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-005,Employee Status Change,Initiated,Configured multi-step workflow for employee status change.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-006,Crew Request and Assignment,Initiated,Configured multi-step workflow for crew request and assignment.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-007,Daily Time Capture and Approval,Initiated,Configured multi-step workflow for daily time capture and approval.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-008,Payroll Preparation and Export,Initiated,Configured multi-step workflow for payroll preparation and export.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-009,Union Dispatch and Referral,Initiated,Configured multi-step workflow for union dispatch and referral.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-010,Prevailing Wage Determination,Initiated,Configured multi-step workflow for prevailing wage determination.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-011,Certified Payroll Generation,Initiated,Configured multi-step workflow for certified payroll generation.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-012,Training Assignment and Completion,Initiated,Configured multi-step workflow for training assignment and completion.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-013,Credential Renewal,Initiated,Configured multi-step workflow for credential renewal.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-014,Leave Request and Coverage,Initiated,Configured multi-step workflow for leave request and coverage.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-015,Performance Review Cycle,Initiated,Configured multi-step workflow for performance review cycle.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-016,Corrective Action and Appeal,Initiated,Configured multi-step workflow for corrective action and appeal.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-017,Return to Work,Initiated,Configured multi-step workflow for return to work.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-018,Career Development and Mentorship,Initiated,Configured multi-step workflow for career development and mentorship.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-019,Workforce Planning and Hiring Forecast,Initiated,Configured multi-step workflow for workforce planning and hiring forecast.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required
+GES-P09-WF-020,Offboarding and Access Revocation,Initiated,Configured multi-step workflow for offboarding and access revocation.,Requestor; Reviewer; Approver; System,Completed or Cancelled,Audit and notification required

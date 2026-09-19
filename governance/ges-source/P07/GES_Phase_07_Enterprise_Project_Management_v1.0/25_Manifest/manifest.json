@@ -1,0 +1,226 @@
+{
+  "phase": "07",
+  "title": "Enterprise Project Management & Operations Platform",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "proposed_lock_tag": "GES-P07-v1.0.0",
+  "generated_date": "2026-07-24",
+  "file_count": 44,
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "bytes": 1399,
+      "sha256": "bc1a659feec0b2902785768a7e92726625fdda95345e1250f1f15125f5124fae"
+    },
+    {
+      "path": "02_Word/GES-P07-001-Enterprise_Project_Management_Operations.docx",
+      "bytes": 44469,
+      "sha256": "6ce882173486891ca41ff58992d8dfde5e760002c341df978dab127d8e4b6d5b"
+    },
+    {
+      "path": "03_PDF/GES-P07-001-Enterprise_Project_Management_Operations.pdf",
+      "bytes": 17601,
+      "sha256": "c5fd3123db7adcc512b19e556d0eea4814565f8a04b49378ded5e64e94bd36e1"
+    },
+    {
+      "path": "04_Excel/GES-P07-001-Enterprise_Project_Management_Control_Workbook.xlsx",
+      "bytes": 45077,
+      "sha256": "fbb35c5f7cb09906c1aca47caed9080569752bab3e920b8d7e8c20cd3a99faac"
+    },
+    {
+      "path": "05_CSV/P07_API_Endpoints.csv",
+      "bytes": 2738,
+      "sha256": "34cbdf942cf8e96a6196a65ba90343e7e8e448bafadd488eff64aec2af16eaff"
+    },
+    {
+      "path": "05_CSV/P07_Business_Rules.csv",
+      "bytes": 2263,
+      "sha256": "583331096ad32eb4fd6068a1d8480b8041b1ce384a3ec175cb23cf87927d5a52"
+    },
+    {
+      "path": "05_CSV/P07_Data_Dictionary.csv",
+      "bytes": 1854,
+      "sha256": "ec6a98edde43dfec628569773bf7f69f45453e51dd17cc09143a4484b905d838"
+    },
+    {
+      "path": "05_CSV/P07_Engines.csv",
+      "bytes": 2493,
+      "sha256": "76a210d0357326b18dc8aac7d066ce311fa0de3ed77d75d55e9238abdf13ded2"
+    },
+    {
+      "path": "05_CSV/P07_Entities.csv",
+      "bytes": 4486,
+      "sha256": "659e5327de244eab07a90ba2a39d9f21e2559bf6a1e9264f3d7061b025f7597b"
+    },
+    {
+      "path": "05_CSV/P07_KPIs.csv",
+      "bytes": 1791,
+      "sha256": "39786bc3a721156c136c15293e7b1590c5044109307128f1af9c9f2bd77a0b5b"
+    },
+    {
+      "path": "05_CSV/P07_Reports.csv",
+      "bytes": 1431,
+      "sha256": "16b5b89f0caa1c6519ef8aa4d018b0a8d34529d7eeb5b14f6f8a668a30641ba8"
+    },
+    {
+      "path": "05_CSV/P07_Requirements.csv",
+      "bytes": 41056,
+      "sha256": "44a725d54c9dbfc6f3fbf775d54d16ddbd4bbb2dc6edd9e09d389d97ffd1c28e"
+    },
+    {
+      "path": "05_CSV/P07_Test_Cases.csv",
+      "bytes": 74821,
+      "sha256": "a75ff2a22210ef72bd3578539587bcbca88638ec5ceb0484cfc24c267d05ac0a"
+    },
+    {
+      "path": "05_CSV/P07_Traceability.csv",
+      "bytes": 6450,
+      "sha256": "20f75ebebf778927d88104e3a200b315df7914dc3b500a8e03922bf54b081d5a"
+    },
+    {
+      "path": "05_CSV/P07_UI_Surfaces.csv",
+      "bytes": 1806,
+      "sha256": "c87315ac5110c05162ab8421b47702b16910d06acababb69912da3a69faa493f"
+    },
+    {
+      "path": "05_CSV/P07_Validation_Rules.csv",
+      "bytes": 1864,
+      "sha256": "6d98e83d9358500decb8d2a042cfb1abb2fd9e066bf7b994653515ee3cdcb72e"
+    },
+    {
+      "path": "05_CSV/P07_Workflows.csv",
+      "bytes": 2168,
+      "sha256": "7ad95dab958b16d0f02634b5fbcba4d73f48482e5d4674dc6d10973ae0c47206"
+    },
+    {
+      "path": "06_JSON/daily_report_example.json",
+      "bytes": 557,
+      "sha256": "00955d059fa88b6cd7112333309ca04cfbbc26f70f1618e76f95691e2766c9dd"
+    },
+    {
+      "path": "06_JSON/digital_twin_snapshot_example.json",
+      "bytes": 625,
+      "sha256": "d10e7cf868ab57037af3c68ce9f414ee2cd2b71ff906282d0739a1bc9dadfb87"
+    },
+    {
+      "path": "06_JSON/project_schema.json",
+      "bytes": 789,
+      "sha256": "2d77b2f0e0efa3ea29d01dda1c66dae7d9e2250f8503131b6f592bc615373630"
+    },
+    {
+      "path": "07_Diagrams/Daily_Report_Sequence.mmd",
+      "bytes": 455,
+      "sha256": "5a824f023c906908236b452517c947ed2837364a59b3a3a0c6d4d1c9e27c2805"
+    },
+    {
+      "path": "07_Diagrams/Project_Lifecycle_State.mmd",
+      "bytes": 356,
+      "sha256": "82e81b2305ba21c48a03c0b65a56d05f8939ef01bebaa2bbddd88240629c13be"
+    },
+    {
+      "path": "07_Diagrams/Project_Operations_Architecture.mmd",
+      "bytes": 446,
+      "sha256": "b7e477e574168798b31fd90d9543c1812c81e266bf476d5041cf13024dacc1db"
+    },
+    {
+      "path": "08_Business_Rules/Business_Rules.md",
+      "bytes": 2396,
+      "sha256": "e9c277f9407a8cfe508af32057ca6fe42e25168e863f0bad0a649e10278448a1"
+    },
+    {
+      "path": "09_Validation_Rules/Validation_Rules.md",
+      "bytes": 2003,
+      "sha256": "136bf3c8f4608bd9c13e1a3dcee9274e629f42dc953299e4d3e00cbb989a19df"
+    },
+    {
+      "path": "10_Data_Dictionary/P07_Data_Dictionary.csv",
+      "bytes": 1854,
+      "sha256": "ec6a98edde43dfec628569773bf7f69f45453e51dd17cc09143a4484b905d838"
+    },
+    {
+      "path": "11_Entity_Definitions/Entity_Definitions.md",
+      "bytes": 4920,
+      "sha256": "e99002983c39d083a156f05885a140ceb7cd0d75ff7fd5f1fe174186d1efadbd"
+    },
+    {
+      "path": "12_Workflows/Workflow_Specifications.md",
+      "bytes": 2326,
+      "sha256": "f671a0f3ae0369ad75ffeedfb9e03568fd13d8fcb88f26eee079cca986ac704b"
+    },
+    {
+      "path": "13_Engines/Engine_Specifications.md",
+      "bytes": 2650,
+      "sha256": "6cc8360b14dc388a759a010151cf0f7d5dafd6372a5987d7d48116a9c30eeecb"
+    },
+    {
+      "path": "14_AI_Operations/AI_Operations_Specification.md",
+      "bytes": 1256,
+      "sha256": "ec4643ccf8dca85f7c2a2b921d82ba87ca2768a767fe44dd18d380e44334b18b"
+    },
+    {
+      "path": "15_API_Specifications/API_Specification.md",
+      "bytes": 3356,
+      "sha256": "e84c43b7fe2008db58202a3885b3eb96b32cae6dc867a8565cdab03986edaadf"
+    },
+    {
+      "path": "15_API_Specifications/openapi.json",
+      "bytes": 9200,
+      "sha256": "97cf8fe06a36bd50e486d55c9b11cc7b7b893bf8747c3a3386fe308e45d1b6c4"
+    },
+    {
+      "path": "16_UI_UX/UI_UX_Specification.md",
+      "bytes": 2358,
+      "sha256": "56c8126da1b9423ace5e4e3fd40367c70e8a4870a3385bfdb4d17c0bcbc68864"
+    },
+    {
+      "path": "17_Mobile/Mobile_Offline_Specification.md",
+      "bytes": 533,
+      "sha256": "b7adb90bb1e052923191f99e8805fd095585834049c2b256d5516bdb0d955e0a"
+    },
+    {
+      "path": "18_Reports/Report_Definitions.md",
+      "bytes": 1532,
+      "sha256": "5124e75b622c3d7de54f140c3aa633e465734a5d50a546b0afc3938f83c1727e"
+    },
+    {
+      "path": "19_KPIs/KPI_Library.md",
+      "bytes": 2018,
+      "sha256": "e01bcc48216f974a051cdf17386083fca04754fe6cd086cc399ec2e44cb06c2b"
+    },
+    {
+      "path": "20_Testing/Test_Strategy.md",
+      "bytes": 869,
+      "sha256": "6cc2dfdb35188ec9fec19913380c45a755864224d00dfc32c4b13e2b06e1bafb"
+    },
+    {
+      "path": "21_Traceability/Traceability_Readme.md",
+      "bytes": 272,
+      "sha256": "36de566608f6bd44ec981e70238c8c0aaed94893b60e976e1b5c662837e029ec"
+    },
+    {
+      "path": "22_Change_Log/CHANGELOG.md",
+      "bytes": 265,
+      "sha256": "fc374313e59802c49bac877a5b97a6328ec63195b0e86267589fa2a99cf02dcb"
+    },
+    {
+      "path": "23_Version_History/Version_History.csv",
+      "bytes": 176,
+      "sha256": "9b9d13b4e418c01b15bd78d2d03c26e5cad7bf7679bec3383a4ddcea9d4bca3a"
+    },
+    {
+      "path": "24_Approval_Record/Approval_Record.md",
+      "bytes": 710,
+      "sha256": "1d7d4f315712dd45bb6a287cc2218523c49c3302a6e7ddeebb2bf0bedadce8ea"
+    },
+    {
+      "path": "26_Examples/Example_Project_Operations.md",
+      "bytes": 707,
+      "sha256": "e688d4e33235f626f115a9b8733457dc627e169c7f2d71d614b05f5a492dcd73"
+    },
+    {
+      "path": "27_Deployment/Deployment_Guide.md",
+      "bytes": 569,
+      "sha256": "31d7a03f47dee7d8e869d0b69f3f6a226b07ddcf4df3dbe8a4e4e0b2eefde325"
+    }
+  ]
+}

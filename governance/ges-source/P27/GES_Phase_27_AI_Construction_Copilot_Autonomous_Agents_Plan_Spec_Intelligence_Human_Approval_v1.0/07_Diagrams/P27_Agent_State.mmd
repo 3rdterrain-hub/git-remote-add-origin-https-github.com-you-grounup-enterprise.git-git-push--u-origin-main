@@ -1,0 +1,15 @@
+stateDiagram-v2
+ [*] --> Requested
+ Requested --> ContextBuilding
+ ContextBuilding --> Planning
+ Planning --> Running
+ Running --> AwaitingApproval: protected action
+ AwaitingApproval --> Running: approved
+ AwaitingApproval --> Rejected
+ Running --> Completed
+ Running --> Degraded: provider/tool fallback
+ Degraded --> Running
+ Running --> Failed
+ Completed --> [*]
+ Rejected --> [*]
+ Failed --> [*]

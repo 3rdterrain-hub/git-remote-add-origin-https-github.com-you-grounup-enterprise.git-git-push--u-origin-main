@@ -1,0 +1,12 @@
+# Pseudocode CD policy - adapt to approved CD platform
+promotion:
+  - dev
+  - stage
+  - production
+production:
+  requires_release_approval: true
+  requires_migration_evidence: true
+  strategy: canary_or_blue_green
+  health_gate: required
+  rollback_plan: required
+  evidence_bundle: required

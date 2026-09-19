@@ -1,0 +1,11 @@
+flowchart TB
+ Business[Business / UAT] --> Final{Final Certification}
+ Product[Product / Requirements] --> Final
+ Security[Security] --> Final
+ Data[Data / Migration] --> Final
+ Ops[Operations / DR / Support] --> Final
+ Commercial[Commercial / Billing] --> Final
+ Pilot[Pilot Exit] --> Final
+ Evidence[Evidence Package] --> Final
+ Final -->|All required pass| Certified[Exact Release Certified]
+ Final -->|Any blocking fail| NotCertified[Not Certified]

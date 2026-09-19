@@ -1,0 +1,14 @@
+stateDiagram-v2
+ [*] --> Requested
+ Requested --> PolicyCheck
+ PolicyCheck --> Rejected: not eligible
+ PolicyCheck --> AwaitingApproval
+ AwaitingApproval --> Rejected
+ AwaitingApproval --> StepUpMFA: approved
+ StepUpMFA --> Elevated
+ Elevated --> Expired
+ Elevated --> Revoked
+ Expired --> Review
+ Revoked --> Review
+ Review --> [*]
+ Rejected --> [*]

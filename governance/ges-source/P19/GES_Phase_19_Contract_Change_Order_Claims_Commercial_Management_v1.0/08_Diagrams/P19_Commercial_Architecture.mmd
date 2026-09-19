@@ -1,0 +1,15 @@
+flowchart LR
+ Contract[Contract & Clauses] --> Obligations[Obligations / Notices]
+ P15[Phase 15 Documents] --> Change[Potential Change / Change Order]
+ P18[Phase 18 Schedule] --> Change
+ Cost[Cost / Finance] --> Pricing[Change & Claim Pricing]
+ Change --> Pricing
+ Pricing --> Approval[Authority / Approval]
+ Approval --> Value[Contract Value & Forecast]
+ Change --> Claims[Claims / Delay / DSC]
+ Claims --> Evidence[Evidence & Chronology]
+ Value --> P13[Enterprise Analytics]
+ Claims --> P13
+ AI[AI Commercial Intelligence] --> Human[Human Review]
+ Human --> Change
+ Value --> Twin[Commercial Digital Twin]

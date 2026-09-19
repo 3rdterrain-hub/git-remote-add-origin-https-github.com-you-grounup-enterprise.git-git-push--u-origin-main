@@ -1,0 +1,24 @@
+{
+  "project_id": "22222222-2222-2222-2222-222222222222",
+  "crew_template": "Earthwork - Mass Excavation",
+  "shift": "Day",
+  "members": [
+    {
+      "role": "Foreman",
+      "count": 1
+    },
+    {
+      "role": "Dozer Operator",
+      "count": 2
+    },
+    {
+      "role": "Excavator Operator",
+      "count": 1
+    },
+    {
+      "role": "Laborer",
+      "count": 2
+    }
+  ],
+  "eligibility_status": "eligible"
+}

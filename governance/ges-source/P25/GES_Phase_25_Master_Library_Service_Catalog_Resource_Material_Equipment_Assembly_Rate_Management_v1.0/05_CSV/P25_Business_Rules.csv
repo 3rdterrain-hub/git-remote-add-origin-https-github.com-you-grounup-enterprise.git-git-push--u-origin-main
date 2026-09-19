@@ -1,0 +1,19 @@
+rule_id,name,rule,severity
+P25-BR-001,Published immutability,Published versions are immutable; corrections create a new version.,Blocking
+P25-BR-002,Effective dating,Only one applicable published version may be selected for the same tenant/base scope and effective context unless policy explicitly permits layering.,Blocking
+P25-BR-003,Tenant override precedence,Tenant override may replace allowed fields while preserving base record provenance and identifier linkage.,Blocking
+P25-BR-004,Unit compatibility,Assembly/rate quantities require dimensionally compatible units or approved conversions.,Blocking
+P25-BR-005,Dependency integrity,Assemblies cannot publish with missing/superseded/unapproved required dependencies.,Blocking
+P25-BR-006,Rate provenance,"Rates/prices retain source, effective date, geography, currency/unit and approval evidence.",Blocking
+P25-BR-007,No silent AI writeback,AI proposals never publish directly; human approval creates governed draft/version state.,Blocking
+P25-BR-008,Estimator reproducibility,Estimates may reference a library snapshot/version so later library changes do not alter historical estimate math.,Blocking
+P25-BR-009,Editable service catalog,Authorized tenant users can add/edit services and categories under version/audit rules.,Blocking
+P25-BR-010,Service persistence from estimator,New approved estimator-created service definitions can be written to the service catalog through governed writeback.,Blocking
+P25-BR-011,Crew composition,Crew templates store member roles/counts and may reference required equipment/resources.,Blocking
+P25-BR-012,Equipment multi-period rate,Equipment rates can carry hourly/daily/weekly/monthly structures without assuming linear equivalence.,Blocking
+P25-BR-013,Truck pricing modes,Truck resources/rates support hourly and trip/load-based pricing modes.,Blocking
+P25-BR-014,Haul configuration,"Haul/disposal records preserve distance, cycle assumptions, capacity and fee basis when applicable.",Blocking
+P25-BR-015,Regionalization layering,Regional factors apply only according to configured profile/rule and do not silently double-adjust vendor/custom quotes.,Blocking
+P25-BR-016,Import preview,Bulk import validates and previews changes before governed commit.,Blocking
+P25-BR-017,Archive not delete,Referenced published records are archived/superseded rather than physically removed.,Blocking
+P25-BR-018,Audit,Create/version/approve/publish/override/import/AI writeback actions create audit evidence.,Blocking

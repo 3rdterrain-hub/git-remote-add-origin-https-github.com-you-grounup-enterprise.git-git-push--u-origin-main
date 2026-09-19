@@ -1,0 +1,16 @@
+UI ID,Surface,Channel,Purpose,Configuration,Accessibility
+GES-P09-UI-001,HR Command Center,Responsive Web / Mobile,Role-based workspace for hr command center.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-002,Workforce Planning Studio,Responsive Web / Mobile,Role-based workspace for workforce planning studio.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-003,Recruiting Pipeline,Responsive Web / Mobile,Role-based workspace for recruiting pipeline.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-004,Candidate Profile,Responsive Web / Mobile,Role-based workspace for candidate profile.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-005,Employee 360,Responsive Web / Mobile,Role-based workspace for employee 360.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-006,Crew Planner,Responsive Web / Mobile,Role-based workspace for crew planner.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-007,Timecard Review,Responsive Web / Mobile,Role-based workspace for timecard review.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-008,Union and Wage Compliance,Responsive Web / Mobile,Role-based workspace for union and wage compliance.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-009,Training and Credential Center,Responsive Web / Mobile,Role-based workspace for training and credential center.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-010,Performance and Career Center,Responsive Web / Mobile,Role-based workspace for performance and career center.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-011,Employee Self-Service,Responsive Web / Mobile,Role-based workspace for employee self-service.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-012,Manager Self-Service,Responsive Web / Mobile,Role-based workspace for manager self-service.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-013,Payroll Control Center,Responsive Web / Mobile,Role-based workspace for payroll control center.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-014,AI Workforce Center,Responsive Web / Mobile,Role-based workspace for ai workforce center.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready
+GES-P09-UI-015,Workforce Analytics,Responsive Web / Mobile,Role-based workspace for workforce analytics.,"Configurable fields, permissions, workflow actions and audit visibility",WCAG-oriented; localization-ready

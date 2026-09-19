@@ -1,0 +1,41 @@
+﻿entity,entity_type,description
+Estimate,Transactional,"A governed pricing package for one project, opportunity or scenario."
+EstimateVersion,Transactional,Immutable snapshot of an estimate at a point in time.
+EstimateSection,Transactional,Hierarchical grouping of estimate content.
+EstimateLine,Transactional,"Priced work item with quantity, unit, cost and sell calculations."
+EstimateAlternate,Transactional,Optional or comparative scope scenario.
+EstimateAssumption,Transactional,Explicit assumption linked to affected calculations.
+EstimateExclusion,Transactional,Explicitly excluded scope.
+QuantityRecord,Transactional,Measured or calculated quantity with source lineage.
+TakeoffDocument,Document,Plan/spec/source file used for takeoff.
+TakeoffMeasurement,Transactional,Geometry and calculated quantity from a takeoff source.
+TakeoffRevisionComparison,Analytical,Change comparison between document revisions.
+Assembly,Master,Reusable work package composed of resources and formulas.
+AssemblyComponent,Master,"Labor, equipment, material, subcontract or other component."
+ProductionRate,Master,Output per time with context and confidence.
+ProductionConditionFactor,Master,"Adjustment for weather, access, soil, phasing and other conditions."
+CrewTemplate,Master,Reusable labor/equipment crew configuration.
+LaborRate,Master,Base wage and burden components.
+EquipmentRate,Master,Owned or rental rate and operating cost components.
+MaterialPrice,Master,"Material unit cost, vendor, freight and effective period."
+VendorQuote,Document,Time-bound supplier or subcontractor quote.
+TruckCycle,Analytical,Haul cycle inputs and calculated cycle time.
+DisposalRate,Master,Facility fee and acceptance constraints.
+FuelPrice,Master,"Fuel price by type, location and effective period."
+MarkupProfile,Master,Ordered markup and margin rules.
+RegionalFactor,Master,Location adjustment by cost class and effective period.
+RiskItem,Transactional,"Estimate risk, probability, impact and mitigation."
+Scenario,Analytical,Alternative set of inputs and outcomes.
+SensitivityRun,Analytical,Impact of selected input changes.
+MonteCarloRun,Analytical,Probabilistic simulation configuration and outcomes.
+AIRecommendation,AI,"Explainable AI proposal with evidence, confidence and disposition."
+CalculationTrace,Audit,Input-to-output lineage for every computed value.
+ApprovalStep,Workflow,"Approval stage, assignee, decision and comments."
+TenantEstimateConfiguration,Configuration,"Tenant-specific settings, terminology and defaults."
+WhiteLabelConfiguration,Configuration,"Brand, domain, templates, sender identity and OEM settings."
+CustomFieldDefinition,Configuration,No-code custom field definition.
+CustomWorkflowDefinition,Configuration,No-code estimate workflow definition.
+ActualProductionRecord,Transactional,"Field-reported actual quantities, hours and resource usage."
+CalibrationRecord,Analytical,Approved adjustment from historical actuals.
+EstimateTemplate,Master,Reusable estimate structure and defaults.
+CostCodeMapping,Master,"Mapping to accounting, ERP, CSI, DOT or tenant codes."

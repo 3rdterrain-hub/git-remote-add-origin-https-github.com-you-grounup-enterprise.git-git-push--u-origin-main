@@ -1,0 +1,92 @@
+[
+  {
+    "report_id": "GES-P05-RPT-001",
+    "name": "Estimate Summary",
+    "purpose": "Scope, direct cost, sell, margin and alternates.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-002",
+    "name": "Detailed Cost Build-Up",
+    "purpose": "Resource-level cost and markup detail.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-003",
+    "name": "Estimate Review Book",
+    "purpose": "Assumptions, exclusions, risks, overrides and approvals.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-004",
+    "name": "Calculation Trace Report",
+    "purpose": "Every amount with source and formula lineage.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-005",
+    "name": "Production & Duration Report",
+    "purpose": "Crews, equipment, outputs, hours and schedule assumptions.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-006",
+    "name": "Haul Analysis",
+    "purpose": "Cycle time, truck count, payload, queues and cost.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-007",
+    "name": "Risk & Confidence Report",
+    "purpose": "Uncertainty, sensitivity and confidence drivers.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-008",
+    "name": "Scenario Comparison",
+    "purpose": "Baseline versus alternatives.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-009",
+    "name": "Vendor Quote Comparison",
+    "purpose": "Normalized quote comparison and exceptions.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-010",
+    "name": "Historical Estimate vs Actual",
+    "purpose": "Cost, quantity, hours and production variance.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-011",
+    "name": "Calibration Proposal Report",
+    "purpose": "Suggested rate updates with evidence.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-012",
+    "name": "Regional Price Variance",
+    "purpose": "Local versus baseline prices and factors.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-013",
+    "name": "Bid Margin Waterfall",
+    "purpose": "Direct cost through final sell price.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-014",
+    "name": "White-Label Configuration Audit",
+    "purpose": "Inherited and overridden branding/configuration.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  },
+  {
+    "report_id": "GES-P05-RPT-015",
+    "name": "Executive Estimating KPI",
+    "purpose": "Pipeline, win rate, cycle time, margin and accuracy.",
+    "formats": "Web, PDF, XLSX, CSV, JSON"
+  }
+]

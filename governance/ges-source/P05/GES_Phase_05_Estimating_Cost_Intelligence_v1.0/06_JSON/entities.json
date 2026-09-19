@@ -1,0 +1,202 @@
+[
+  {
+    "entity": "Estimate",
+    "type": "Transactional",
+    "description": "A governed pricing package for one project, opportunity or scenario."
+  },
+  {
+    "entity": "EstimateVersion",
+    "type": "Transactional",
+    "description": "Immutable snapshot of an estimate at a point in time."
+  },
+  {
+    "entity": "EstimateSection",
+    "type": "Transactional",
+    "description": "Hierarchical grouping of estimate content."
+  },
+  {
+    "entity": "EstimateLine",
+    "type": "Transactional",
+    "description": "Priced work item with quantity, unit, cost and sell calculations."
+  },
+  {
+    "entity": "EstimateAlternate",
+    "type": "Transactional",
+    "description": "Optional or comparative scope scenario."
+  },
+  {
+    "entity": "EstimateAssumption",
+    "type": "Transactional",
+    "description": "Explicit assumption linked to affected calculations."
+  },
+  {
+    "entity": "EstimateExclusion",
+    "type": "Transactional",
+    "description": "Explicitly excluded scope."
+  },
+  {
+    "entity": "QuantityRecord",
+    "type": "Transactional",
+    "description": "Measured or calculated quantity with source lineage."
+  },
+  {
+    "entity": "TakeoffDocument",
+    "type": "Document",
+    "description": "Plan/spec/source file used for takeoff."
+  },
+  {
+    "entity": "TakeoffMeasurement",
+    "type": "Transactional",
+    "description": "Geometry and calculated quantity from a takeoff source."
+  },
+  {
+    "entity": "TakeoffRevisionComparison",
+    "type": "Analytical",
+    "description": "Change comparison between document revisions."
+  },
+  {
+    "entity": "Assembly",
+    "type": "Master",
+    "description": "Reusable work package composed of resources and formulas."
+  },
+  {
+    "entity": "AssemblyComponent",
+    "type": "Master",
+    "description": "Labor, equipment, material, subcontract or other component."
+  },
+  {
+    "entity": "ProductionRate",
+    "type": "Master",
+    "description": "Output per time with context and confidence."
+  },
+  {
+    "entity": "ProductionConditionFactor",
+    "type": "Master",
+    "description": "Adjustment for weather, access, soil, phasing and other conditions."
+  },
+  {
+    "entity": "CrewTemplate",
+    "type": "Master",
+    "description": "Reusable labor/equipment crew configuration."
+  },
+  {
+    "entity": "LaborRate",
+    "type": "Master",
+    "description": "Base wage and burden components."
+  },
+  {
+    "entity": "EquipmentRate",
+    "type": "Master",
+    "description": "Owned or rental rate and operating cost components."
+  },
+  {
+    "entity": "MaterialPrice",
+    "type": "Master",
+    "description": "Material unit cost, vendor, freight and effective period."
+  },
+  {
+    "entity": "VendorQuote",
+    "type": "Document",
+    "description": "Time-bound supplier or subcontractor quote."
+  },
+  {
+    "entity": "TruckCycle",
+    "type": "Analytical",
+    "description": "Haul cycle inputs and calculated cycle time."
+  },
+  {
+    "entity": "DisposalRate",
+    "type": "Master",
+    "description": "Facility fee and acceptance constraints."
+  },
+  {
+    "entity": "FuelPrice",
+    "type": "Master",
+    "description": "Fuel price by type, location and effective period."
+  },
+  {
+    "entity": "MarkupProfile",
+    "type": "Master",
+    "description": "Ordered markup and margin rules."
+  },
+  {
+    "entity": "RegionalFactor",
+    "type": "Master",
+    "description": "Location adjustment by cost class and effective period."
+  },
+  {
+    "entity": "RiskItem",
+    "type": "Transactional",
+    "description": "Estimate risk, probability, impact and mitigation."
+  },
+  {
+    "entity": "Scenario",
+    "type": "Analytical",
+    "description": "Alternative set of inputs and outcomes."
+  },
+  {
+    "entity": "SensitivityRun",
+    "type": "Analytical",
+    "description": "Impact of selected input changes."
+  },
+  {
+    "entity": "MonteCarloRun",
+    "type": "Analytical",
+    "description": "Probabilistic simulation configuration and outcomes."
+  },
+  {
+    "entity": "AIRecommendation",
+    "type": "AI",
+    "description": "Explainable AI proposal with evidence, confidence and disposition."
+  },
+  {
+    "entity": "CalculationTrace",
+    "type": "Audit",
+    "description": "Input-to-output lineage for every computed value."
+  },
+  {
+    "entity": "ApprovalStep",
+    "type": "Workflow",
+    "description": "Approval stage, assignee, decision and comments."
+  },
+  {
+    "entity": "TenantEstimateConfiguration",
+    "type": "Configuration",
+    "description": "Tenant-specific settings, terminology and defaults."
+  },
+  {
+    "entity": "WhiteLabelConfiguration",
+    "type": "Configuration",
+    "description": "Brand, domain, templates, sender identity and OEM settings."
+  },
+  {
+    "entity": "CustomFieldDefinition",
+    "type": "Configuration",
+    "description": "No-code custom field definition."
+  },
+  {
+    "entity": "CustomWorkflowDefinition",
+    "type": "Configuration",
+    "description": "No-code estimate workflow definition."
+  },
+  {
+    "entity": "ActualProductionRecord",
+    "type": "Transactional",
+    "description": "Field-reported actual quantities, hours and resource usage."
+  },
+  {
+    "entity": "CalibrationRecord",
+    "type": "Analytical",
+    "description": "Approved adjustment from historical actuals."
+  },
+  {
+    "entity": "EstimateTemplate",
+    "type": "Master",
+    "description": "Reusable estimate structure and defaults."
+  },
+  {
+    "entity": "CostCodeMapping",
+    "type": "Master",
+    "description": "Mapping to accounting, ERP, CSI, DOT or tenant codes."
+  }
+]

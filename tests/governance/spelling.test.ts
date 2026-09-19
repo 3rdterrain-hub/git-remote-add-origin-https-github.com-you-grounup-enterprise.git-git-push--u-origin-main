@@ -39,6 +39,21 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
  */
 const SKIP_DIRS = new Set([
   'node_modules', '.git', 'dist', 'build', 'coverage', '.vite', '.test-results',
+  /*
+   * The governed GES source packages, which are input rather than prose.
+   *
+   * `governance/ges-source` holds the Phase 01-32 and Phase 99 originals as
+   * they were issued — specifications, control workbooks, requirement, test and
+   * traceability registries, JSON baselines and diagrams. They are the baseline
+   * this platform is built against and they are somebody else's document: the
+   * word `cancelled` appears in them thirty-nine times, and correcting it here
+   * would mean the file in the repository is no longer the file that was
+   * issued. A governed original that has been edited to pass our own house
+   * style is not a baseline any more, it is a copy.
+   *
+   * The rule itself is unchanged for everything this project writes.
+   */
+  'ges-source',
 ]);
 const SCANNED = /\.(ts|tsx|js|jsx|mjs|cjs|sql|json|md|css|html)$/;
 // This file is the one exemption, and it has to be: it names every British

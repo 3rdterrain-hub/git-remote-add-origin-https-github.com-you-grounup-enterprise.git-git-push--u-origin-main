@@ -1,0 +1,13 @@
+UI ID,Surface,Definition
+GES-P08-UI-001,CRM Command Center,"Executive customer, pipeline, forecast, task, and risk overview."
+GES-P08-UI-002,Lead Inbox,"Omnichannel intake, deduplication, scoring, routing, and SLA management."
+GES-P08-UI-003,Customer 360,"Account, contacts, communications, estimates, projects, financial, warranty, and sentiment timeline."
+GES-P08-UI-004,Opportunity Workspace,"Stage, activities, site visits, estimate links, competition, forecast, and approvals."
+GES-P08-UI-005,Pipeline Board,Configurable Kanban and list views with stage aging and drag controls.
+GES-P08-UI-006,Proposal Studio,"Brand templates, scope, options, terms, approvals, preview, issue, and signature."
+GES-P08-UI-007,Marketing Journey Builder,"No-code segments, triggers, steps, conditions, testing, and performance."
+GES-P08-UI-008,Communication Center,"Unified email, SMS, calls, portal messages, templates, and consent."
+GES-P08-UI-009,Customer Portal,"Proposal, signature, schedule, project updates, files, payments, warranty, and messages."
+GES-P08-UI-010,Customer Success Workspace,"Health, touchpoints, risks, renewals, expansion, and referrals."
+GES-P08-UI-011,Reputation Center,"Surveys, NPS, review requests, public reviews, responses, and testimonials."
+GES-P08-UI-012,CRM Administration,"Fields, stages, scoring, territories, automation, consent, branding, security, and integrations."

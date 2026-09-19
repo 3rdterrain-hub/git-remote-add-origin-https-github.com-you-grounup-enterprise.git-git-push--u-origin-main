@@ -1,0 +1,11 @@
+﻿Domain,Purpose
+Foundation,"Tenant, organization, legal entity, business unit, location, project, user, team, role, and reference data"
+Party & Relationship,"Customers, prospects, vendors, subcontractors, employees, contacts, addresses, and relationship roles"
+Work & Delivery,"Projects, opportunities, estimates, contracts, work orders, tasks, schedules, daily reports, and approvals"
+Resources,"Labor, crews, equipment, fleet, materials, services, vendors, rates, and capabilities"
+Financial,"Cost codes, budgets, commitments, invoices, payments, journal references, taxes, currencies, and cost transactions"
+Documents & Records,"Files, documents, versions, attachments, classifications, retention, signatures, and evidence"
+Location & Spatial,"Sites, parcels, coordinates, geometry references, stationing, surfaces, zones, and jurisdiction"
+Safety & Quality,"Incidents, inspections, observations, corrective actions, permits, qualifications, and quality records"
+AI & Automation,"Agents, prompts, models, evidence, recommendations, approvals, writebacks, and feedback"
+Integration & Audit,"External identifiers, source systems, mappings, imports, events, lineage, changes, and immutable audit"

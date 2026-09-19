@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grounup.example/schemas/p11/PurchaseOrder.json",
+  "title": "PurchaseOrder",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "company_id",
+    "purchase_order_id"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "purchase_order_id": {
+      "type": "string"
+    },
+    "supplier_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "total_amount": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false
+}

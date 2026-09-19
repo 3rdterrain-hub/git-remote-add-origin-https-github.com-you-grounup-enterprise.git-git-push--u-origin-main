@@ -1,0 +1,16 @@
+flowchart LR
+ Catalog[Product / Plan / Price Versions] --> Sub[Subscription]
+ Contract[Enterprise Contract / Overrides] --> Sub
+ Trial[Trial / Promotion] --> Sub
+ Sub --> Ent[Entitlement Engine]
+ Ent --> App[GrounUp Product Modules]
+ App --> Usage[Usage Events]
+ Usage --> Agg[Usage Aggregation / Quotas]
+ Agg --> Bill[Billing / Invoice]
+ Sub --> Bill
+ Bill --> Pay[Payment Adapter]
+ Bill --> Tax[Tax Adapter]
+ Sub --> Rev[Revenue Operations / Analytics]
+ Ent --> Audit[Commercial Audit]
+ Bill --> Audit
+ Brand[White Label / Custom Domain] --> App

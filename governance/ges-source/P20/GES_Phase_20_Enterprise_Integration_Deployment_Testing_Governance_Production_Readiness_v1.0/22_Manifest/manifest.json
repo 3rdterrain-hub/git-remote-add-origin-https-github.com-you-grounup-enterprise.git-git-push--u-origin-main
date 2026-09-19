@@ -1,0 +1,181 @@
+{
+  "phase": "20",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "0779c862cedbd20e7128ce7af6e2cca0cd45be040495bd171ed10e3975d43496",
+      "bytes": 1577
+    },
+    {
+      "path": "02_Word/GES-P20-001-Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness.docx",
+      "sha256": "1d9c3e29a3f57783f40d167021881ca4ae44e30e24e1ffbf590a98ee86a0889b",
+      "bytes": 43164
+    },
+    {
+      "path": "03_PDF/GES-P20-001-Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness.pdf",
+      "sha256": "6a36c136c35eb0e77a0c0c11759f927b91ef49099e3ae89e715a1ed7d65c0e6d",
+      "bytes": 150680
+    },
+    {
+      "path": "04_Excel/GES-P20-001-Enterprise_Integration_Deployment_Testing_Governance_Production_Readiness_Control_Workbook.xlsx",
+      "sha256": "913f6190d825a5a51297b41e6a18cb155f5ce755c2a4b8056587af8be89ebe75",
+      "bytes": 104346
+    },
+    {
+      "path": "05_CSV/P20_API_Endpoints.csv",
+      "sha256": "8cdc80b228bdf4c4bd8defa4cec7694c05e051298aa3c64acde858248159fe47",
+      "bytes": 14592
+    },
+    {
+      "path": "05_CSV/P20_Business_Rules.csv",
+      "sha256": "53483ae2b0685ebfd7ba77f9e1e571fde7ec77577fb3f9e2d1701dde567dc532",
+      "bytes": 28489
+    },
+    {
+      "path": "05_CSV/P20_Data_Dictionary.csv",
+      "sha256": "9cb7b31702be8a7a42a6a72772dfae948e3401b8cb2258d267e27c34fca5c471",
+      "bytes": 93342
+    },
+    {
+      "path": "05_CSV/P20_Engines.csv",
+      "sha256": "f359b2456f32f44bca24a66479d362b2727a784827a17bff06e0a5940c68a55f",
+      "bytes": 18736
+    },
+    {
+      "path": "05_CSV/P20_Entities.csv",
+      "sha256": "0985593b8c532da7947023a60d3401cee8e4de32bb1601aa7a5f2c5bb5f09d05",
+      "bytes": 45254
+    },
+    {
+      "path": "05_CSV/P20_KPIs.csv",
+      "sha256": "6f10c0697e7fdfdc9a9acce2fa7dfaa0e5930ddc4ba4108fd4bd290877a4cca2",
+      "bytes": 14199
+    },
+    {
+      "path": "05_CSV/P20_Reports.csv",
+      "sha256": "b090df3f9f1486574103317d9c83d1a936da6d4c888c94d68035094dbbd648ba",
+      "bytes": 10659
+    },
+    {
+      "path": "05_CSV/P20_Requirements.csv",
+      "sha256": "ca5e3238ce17661160c9e710add1610b6a89a6200fb960c75d98bf498b5120c6",
+      "bytes": 220906
+    },
+    {
+      "path": "05_CSV/P20_Test_Cases.csv",
+      "sha256": "eeb298dbabc5ab1161813c1a97a638c41b4c968e38374df2de0e4a51bb1c9edb",
+      "bytes": 168104
+    },
+    {
+      "path": "05_CSV/P20_Traceability.csv",
+      "sha256": "a7676da65fbc1a1877a445e8a2466fe0361fdcfad5ab951c18e525ac2405cc1f",
+      "bytes": 30204
+    },
+    {
+      "path": "05_CSV/P20_UI_Surfaces.csv",
+      "sha256": "ee90eb0e28362d049518cc67af7276b62d694c6a51ee73f22da95b7f511927a2",
+      "bytes": 10325
+    },
+    {
+      "path": "05_CSV/P20_Validation_Rules.csv",
+      "sha256": "e0216698f569b62cb0cd8b8c6c0b51305d0471cb0a7b4782e40c40ee3f26df05",
+      "bytes": 24503
+    },
+    {
+      "path": "05_CSV/P20_Workflows.csv",
+      "sha256": "5f46449777661007f70b670d2d2a3fa136d5e9a1499116cfee1184ec281a97e5",
+      "bytes": 14172
+    },
+    {
+      "path": "06_JSON/P20_Master_Specification.json",
+      "sha256": "d32ada4b5cddfe1f9284a452c0d655cb4244e880a113de02382ff0ab4b338a48",
+      "bytes": 6994
+    },
+    {
+      "path": "06_JSON/P20_Production_Readiness_Gate.schema.json",
+      "sha256": "99a88cbd35587bfbbcc6008e2f62e5a12710ae5d8543e8ebebec966a6a158059",
+      "bytes": 775
+    },
+    {
+      "path": "07_OpenAPI/P20_OpenAPI.json",
+      "sha256": "ae24166fd53d2dc8c4e49034e28e3f5c1bec215d49b3fccbaec4fe8d08026cf0",
+      "bytes": 31170
+    },
+    {
+      "path": "08_Diagrams/P20_GoLive_Workflow.mmd",
+      "sha256": "2e48304724125a66729ddb82a0fb9328ec412a86506788fdbfa0df3112bd0bb0",
+      "bytes": 428
+    },
+    {
+      "path": "08_Diagrams/P20_Production_Architecture.mmd",
+      "sha256": "191f57719b73d143bd29b6bd4423f39d7a35f652b61f467318b72e21d1cedf55",
+      "bytes": 604
+    },
+    {
+      "path": "09_Business_Rules/P20_Business_Rules.csv",
+      "sha256": "53483ae2b0685ebfd7ba77f9e1e571fde7ec77577fb3f9e2d1701dde567dc532",
+      "bytes": 28489
+    },
+    {
+      "path": "10_Validation_Rules/P20_Validation_Rules.csv",
+      "sha256": "e0216698f569b62cb0cd8b8c6c0b51305d0471cb0a7b4782e40c40ee3f26df05",
+      "bytes": 24503
+    },
+    {
+      "path": "11_Data_Dictionary/P20_Data_Dictionary.csv",
+      "sha256": "9cb7b31702be8a7a42a6a72772dfae948e3401b8cb2258d267e27c34fca5c471",
+      "bytes": 93342
+    },
+    {
+      "path": "12_Entities/P20_Entities.csv",
+      "sha256": "0985593b8c532da7947023a60d3401cee8e4de32bb1601aa7a5f2c5bb5f09d05",
+      "bytes": 45254
+    },
+    {
+      "path": "13_Workflows/P20_Workflows.csv",
+      "sha256": "5f46449777661007f70b670d2d2a3fa136d5e9a1499116cfee1184ec281a97e5",
+      "bytes": 14172
+    },
+    {
+      "path": "14_AI/P20_Engines.csv",
+      "sha256": "f359b2456f32f44bca24a66479d362b2727a784827a17bff06e0a5940c68a55f",
+      "bytes": 18736
+    },
+    {
+      "path": "15_APIs/P20_API_Endpoints.csv",
+      "sha256": "8cdc80b228bdf4c4bd8defa4cec7694c05e051298aa3c64acde858248159fe47",
+      "bytes": 14592
+    },
+    {
+      "path": "16_UI_UX/P20_UI_Surfaces.csv",
+      "sha256": "ee90eb0e28362d049518cc67af7276b62d694c6a51ee73f22da95b7f511927a2",
+      "bytes": 10325
+    },
+    {
+      "path": "17_Reports/P20_Reports.csv",
+      "sha256": "b090df3f9f1486574103317d9c83d1a936da6d4c888c94d68035094dbbd648ba",
+      "bytes": 10659
+    },
+    {
+      "path": "18_Testing/P20_Test_Cases.csv",
+      "sha256": "eeb298dbabc5ab1161813c1a97a638c41b4c968e38374df2de0e4a51bb1c9edb",
+      "bytes": 168104
+    },
+    {
+      "path": "19_Traceability/P20_Traceability.csv",
+      "sha256": "a7676da65fbc1a1877a445e8a2466fe0361fdcfad5ab951c18e525ac2405cc1f",
+      "bytes": 30204
+    },
+    {
+      "path": "20_Deployment/P20_Deployment_Guide.md",
+      "sha256": "e9b7393c80869b3f9c4807e71f7b42825e4d9e2105ad7dad1e3dbac30b50fcaf",
+      "bytes": 1593
+    },
+    {
+      "path": "21_Approvals/P20_Approval_Record.md",
+      "sha256": "48d0f33cc1a60c894f666bfb6d075476e701ff54408a99e57e4d703a9685c4fc",
+      "bytes": 481
+    }
+  ]
+}

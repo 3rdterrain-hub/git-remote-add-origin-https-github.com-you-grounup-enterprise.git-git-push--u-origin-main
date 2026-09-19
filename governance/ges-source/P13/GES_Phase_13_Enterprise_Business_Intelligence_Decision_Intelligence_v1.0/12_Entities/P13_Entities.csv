@@ -1,0 +1,124 @@
+entity_id,name,domain,definition,key,governance
+P13-ENT-001,MetricDefinition,Executive Command Center,Canonical entity for MetricDefinition in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-002,MetricVersion,Semantic Metrics Layer,Canonical entity for MetricVersion in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-003,Measure,Operational Intelligence,Canonical entity for Measure in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-004,Dimension,Financial Intelligence,Canonical entity for Dimension in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-005,DimensionMember,Project Intelligence,Canonical entity for DimensionMember in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-006,FactDataset,Estimating Intelligence,Canonical entity for FactDataset in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-007,SemanticModel,CRM & Market Intelligence,Canonical entity for SemanticModel in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-008,DataProduct,Workforce Intelligence,Canonical entity for DataProduct in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-009,DataSource,Procurement Intelligence,Canonical entity for DataSource in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-010,SourceSystem,Fleet Intelligence,Canonical entity for SourceSystem in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-011,IngestionJob,"Safety, Quality & Compliance Analytics",Canonical entity for IngestionJob in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-012,TransformationJob,Portfolio & Program Intelligence,Canonical entity for TransformationJob in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-013,DataQualityRule,Forecasting & Scenario Planning,Canonical entity for DataQualityRule in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-014,DataQualityResult,AI Decision Intelligence,Canonical entity for DataQualityResult in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-015,LineageEdge,Data Platform & Lineage,Canonical entity for LineageEdge in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-016,LineageNode,Reporting & Distribution,Canonical entity for LineageNode in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-017,FreshnessPolicy,Self-Service Analytics,Canonical entity for FreshnessPolicy in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-018,DatasetSnapshot,Enterprise Digital Twin,Canonical entity for DatasetSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-019,Dashboard,Executive Command Center,Canonical entity for Dashboard in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-020,DashboardPage,Semantic Metrics Layer,Canonical entity for DashboardPage in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-021,Widget,Operational Intelligence,Canonical entity for Widget in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-022,Visualization,Financial Intelligence,Canonical entity for Visualization in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-023,FilterDefinition,Project Intelligence,Canonical entity for FilterDefinition in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-024,SavedView,Estimating Intelligence,Canonical entity for SavedView in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-025,ReportDefinition,CRM & Market Intelligence,Canonical entity for ReportDefinition in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-026,ReportRun,Workforce Intelligence,Canonical entity for ReportRun in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-027,ReportSubscription,Procurement Intelligence,Canonical entity for ReportSubscription in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-028,AlertRule,Fleet Intelligence,Canonical entity for AlertRule in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-029,AlertEvent,"Safety, Quality & Compliance Analytics",Canonical entity for AlertEvent in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-030,Threshold,Portfolio & Program Intelligence,Canonical entity for Threshold in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-031,Scorecard,Forecasting & Scenario Planning,Canonical entity for Scorecard in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-032,Objective,AI Decision Intelligence,Canonical entity for Objective in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-033,KeyResult,Data Platform & Lineage,Canonical entity for KeyResult in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-034,Benchmark,Reporting & Distribution,Canonical entity for Benchmark in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-035,ForecastModel,Self-Service Analytics,Canonical entity for ForecastModel in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-036,ForecastRun,Enterprise Digital Twin,Canonical entity for ForecastRun in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-037,ForecastValue,Executive Command Center,Canonical entity for ForecastValue in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-038,Scenario,Semantic Metrics Layer,Canonical entity for Scenario in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-039,ScenarioAssumption,Operational Intelligence,Canonical entity for ScenarioAssumption in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-040,SensitivityCase,Financial Intelligence,Canonical entity for SensitivityCase in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-041,Anomaly,Project Intelligence,Canonical entity for Anomaly in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-042,Insight,Estimating Intelligence,Canonical entity for Insight in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-043,Recommendation,CRM & Market Intelligence,Canonical entity for Recommendation in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-044,DecisionRecord,Workforce Intelligence,Canonical entity for DecisionRecord in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-045,EvidenceReference,Procurement Intelligence,Canonical entity for EvidenceReference in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-046,ConfidenceScore,Fleet Intelligence,Canonical entity for ConfidenceScore in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-047,Narrative,"Safety, Quality & Compliance Analytics",Canonical entity for Narrative in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-048,RootCauseHypothesis,Portfolio & Program Intelligence,Canonical entity for RootCauseHypothesis in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-049,Portfolio,Forecasting & Scenario Planning,Canonical entity for Portfolio in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-050,Program,AI Decision Intelligence,Canonical entity for Program in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-051,ProjectHealthSnapshot,Data Platform & Lineage,Canonical entity for ProjectHealthSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-052,FinancialSnapshot,Reporting & Distribution,Canonical entity for FinancialSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-053,WorkforceSnapshot,Self-Service Analytics,Canonical entity for WorkforceSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-054,FleetSnapshot,Enterprise Digital Twin,Canonical entity for FleetSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-055,ProcurementSnapshot,Executive Command Center,Canonical entity for ProcurementSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-056,CRMForecastSnapshot,Semantic Metrics Layer,Canonical entity for CRMForecastSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-057,EstimateActualComparison,Operational Intelligence,Canonical entity for EstimateActualComparison in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-058,ScheduleSnapshot,Financial Intelligence,Canonical entity for ScheduleSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-059,RiskSnapshot,Project Intelligence,Canonical entity for RiskSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-060,SafetySnapshot,Estimating Intelligence,Canonical entity for SafetySnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-061,QualitySnapshot,CRM & Market Intelligence,Canonical entity for QualitySnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-062,BacklogSnapshot,Workforce Intelligence,Canonical entity for BacklogSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-063,CashForecastSnapshot,Procurement Intelligence,Canonical entity for CashForecastSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-064,MarginForecastSnapshot,Fleet Intelligence,Canonical entity for MarginForecastSnapshot in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-065,KPIObservation,"Safety, Quality & Compliance Analytics",Canonical entity for KPIObservation in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-066,KPIStatus,Portfolio & Program Intelligence,Canonical entity for KPIStatus in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-067,DrillPath,Forecasting & Scenario Planning,Canonical entity for DrillPath in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-068,ExportJob,AI Decision Intelligence,Canonical entity for ExportJob in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-069,BoardPack,Data Platform & Lineage,Canonical entity for BoardPack in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-070,AnalyticsRole,Reporting & Distribution,Canonical entity for AnalyticsRole in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-071,DataEntitlement,Self-Service Analytics,Canonical entity for DataEntitlement in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-072,RowSecurityPolicy,Enterprise Digital Twin,Canonical entity for RowSecurityPolicy in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-073,ColumnSecurityPolicy,Executive Command Center,Canonical entity for ColumnSecurityPolicy in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-074,MaskingPolicy,Semantic Metrics Layer,Canonical entity for MaskingPolicy in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-075,AuditEvent,Operational Intelligence,Canonical entity for AuditEvent in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-076,QueryLog,Financial Intelligence,Canonical entity for QueryLog in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-077,UsageMetric,Project Intelligence,Canonical entity for UsageMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-078,ModelEvaluation,Estimating Intelligence,Canonical entity for ModelEvaluation in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-079,PromptTemplate,CRM & Market Intelligence,Canonical entity for PromptTemplate in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-080,AIResponse,Workforce Intelligence,Canonical entity for AIResponse in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-081,HumanReview,Procurement Intelligence,Canonical entity for HumanReview in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-082,OverrideRecord,Fleet Intelligence,Canonical entity for OverrideRecord in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-083,DataContract,"Safety, Quality & Compliance Analytics",Canonical entity for DataContract in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-084,SchemaVersion,Portfolio & Program Intelligence,Canonical entity for SchemaVersion in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-085,Calendar,Forecasting & Scenario Planning,Canonical entity for Calendar in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-086,FiscalPeriod,AI Decision Intelligence,Canonical entity for FiscalPeriod in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-087,CurrencyRate,Data Platform & Lineage,Canonical entity for CurrencyRate in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-088,UnitConversion,Reporting & Distribution,Canonical entity for UnitConversion in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-089,GeoDimension,Self-Service Analytics,Canonical entity for GeoDimension in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-090,CustomerSegment,Enterprise Digital Twin,Canonical entity for CustomerSegment in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-091,VendorScore,Executive Command Center,Canonical entity for VendorScore in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-092,CrewProductivity,Semantic Metrics Layer,Canonical entity for CrewProductivity in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-093,EquipmentUtilization,Operational Intelligence,Canonical entity for EquipmentUtilization in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-094,InventoryTurnover,Financial Intelligence,Canonical entity for InventoryTurnover in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-095,BidWinMetric,Project Intelligence,Canonical entity for BidWinMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-096,RevenueMetric,Estimating Intelligence,Canonical entity for RevenueMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-097,EBITDAMetric,CRM & Market Intelligence,Canonical entity for EBITDAMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-098,CashMetric,Workforce Intelligence,Canonical entity for CashMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-099,WIPMetric,Procurement Intelligence,Canonical entity for WIPMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-100,MarginMetric,Fleet Intelligence,Canonical entity for MarginMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-101,CostVarianceMetric,"Safety, Quality & Compliance Analytics",Canonical entity for CostVarianceMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-102,ScheduleVarianceMetric,Portfolio & Program Intelligence,Canonical entity for ScheduleVarianceMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-103,SafetyMetric,Forecasting & Scenario Planning,Canonical entity for SafetyMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-104,QualityMetric,AI Decision Intelligence,Canonical entity for QualityMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-105,RetentionMetric,Data Platform & Lineage,Canonical entity for RetentionMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-106,OvertimeMetric,Reporting & Distribution,Canonical entity for OvertimeMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-107,FuelMetric,Self-Service Analytics,Canonical entity for FuelMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-108,DowntimeMetric,Enterprise Digital Twin,Canonical entity for DowntimeMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-109,ProcurementSavingsMetric,Executive Command Center,Canonical entity for ProcurementSavingsMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-110,LeadTimeMetric,Semantic Metrics Layer,Canonical entity for LeadTimeMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-111,CustomerProfitabilityMetric,Operational Intelligence,Canonical entity for CustomerProfitabilityMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-112,ForecastAccuracyMetric,Financial Intelligence,Canonical entity for ForecastAccuracyMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-113,DataFreshnessMetric,Project Intelligence,Canonical entity for DataFreshnessMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-114,DataQualityMetric,Estimating Intelligence,Canonical entity for DataQualityMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-115,AdoptionMetric,CRM & Market Intelligence,Canonical entity for AdoptionMetric in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-116,ExecutiveBrief,Workforce Intelligence,Canonical entity for ExecutiveBrief in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-117,BoardMeetingPack,Procurement Intelligence,Canonical entity for BoardMeetingPack in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-118,DigitalTwinState,Fleet Intelligence,Canonical entity for DigitalTwinState in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-119,DigitalTwinEvent,"Safety, Quality & Compliance Analytics",Canonical entity for DigitalTwinEvent in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-120,DigitalTwinScenario,Portfolio & Program Intelligence,Canonical entity for DigitalTwinScenario in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-121,DecisionOutcome,Forecasting & Scenario Planning,Canonical entity for DecisionOutcome in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-122,BenefitRealization,AI Decision Intelligence,Canonical entity for BenefitRealization in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable
+P13-ENT-123,StrategicInitiative,Data Platform & Lineage,Canonical entity for StrategicInitiative in the enterprise intelligence domain.,tenant_id,Audited; versioned where applicable

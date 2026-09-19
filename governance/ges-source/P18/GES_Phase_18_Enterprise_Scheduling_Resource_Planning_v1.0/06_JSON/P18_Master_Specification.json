@@ -1,0 +1,146 @@
+{
+  "phase": "18",
+  "name": "Enterprise Scheduling & Resource Planning",
+  "version": "1.0.0",
+  "status": "Review-ready",
+  "domains": [
+    {
+      "name": "Enterprise Scheduling Core",
+      "purpose": "Enterprise, portfolio, project and work-package schedules with baselines, calendars, revisions and audit."
+    },
+    {
+      "name": "CPM Scheduling",
+      "purpose": "Activities, relationships, constraints, float, critical path, longest path, lags and schedule calculation."
+    },
+    {
+      "name": "Work Breakdown Structure",
+      "purpose": "Program, project, phase, area, discipline, cost-code and work-package decomposition."
+    },
+    {
+      "name": "Calendars & Shifts",
+      "purpose": "Company, project, crew, equipment, holiday, weather and shift calendars."
+    },
+    {
+      "name": "Resource Planning",
+      "purpose": "Labor, crews, equipment, trucks, subcontractors, materials and capacity requirements."
+    },
+    {
+      "name": "Resource Loading",
+      "purpose": "Time-phased resource demand, histograms, utilization, overloads and allocation."
+    },
+    {
+      "name": "Resource Leveling",
+      "purpose": "Constraint-aware leveling, smoothing, priority rules, alternative scenarios and approvals."
+    },
+    {
+      "name": "Crew Planning",
+      "purpose": "Crew templates, crew-size recommendations, craft mix, shift plans, availability and handoff to operations."
+    },
+    {
+      "name": "Equipment Planning",
+      "purpose": "Equipment class/model demand, availability, rentals, utilization and fleet integration."
+    },
+    {
+      "name": "Truck & Haul Planning",
+      "purpose": "Truck demand, cycle assumptions, haul windows, dispatch capacity and schedule coupling."
+    },
+    {
+      "name": "Material Planning",
+      "purpose": "Required-on-site dates, lead times, procurement milestones, delivery windows and inventory availability."
+    },
+    {
+      "name": "Subcontractor Planning",
+      "purpose": "Trade capacity, commitments, mobilization, sequencing, access windows and coordination."
+    },
+    {
+      "name": "Look-Ahead Planning",
+      "purpose": "2/3/6-week look-aheads, constraints, commitments, readiness and weekly planning."
+    },
+    {
+      "name": "Last Planner & Commitments",
+      "purpose": "Weekly work planning, promises, percent plan complete, reasons for variance and learning."
+    },
+    {
+      "name": "Pull Planning",
+      "purpose": "Milestone-driven pull sessions, handoffs, buffers, promises, constraints and collaborative sequencing."
+    },
+    {
+      "name": "Milestones & Contract Dates",
+      "purpose": "Notice-to-proceed, interim milestones, substantial/final completion and contractual date control."
+    },
+    {
+      "name": "Baseline Management",
+      "purpose": "Original/current baselines, approved revisions, comparison, change reasons and governance."
+    },
+    {
+      "name": "Schedule Update Cycle",
+      "purpose": "Status date, actual starts/finishes, remaining duration, physical progress and update approvals."
+    },
+    {
+      "name": "Progress Measurement",
+      "purpose": "Quantity, duration, units-complete, weighted steps, earned value and production-based progress."
+    },
+    {
+      "name": "Cost & Schedule Integration",
+      "purpose": "Budget, cost codes, earned value, cash flow, commitments and forecast integration."
+    },
+    {
+      "name": "Constraint Management",
+      "purpose": "Design, permit, RFI, submittal, procurement, access, utility, environmental and resource constraints."
+    },
+    {
+      "name": "Weather & Calendar Impacts",
+      "purpose": "Observed/forecast weather references, non-work days, productivity impacts and schedule scenarios."
+    },
+    {
+      "name": "Schedule Risk Analysis",
+      "purpose": "Uncertainty ranges, risk events, sensitivity, confidence dates and schedule contingency."
+    },
+    {
+      "name": "Recovery & Acceleration",
+      "purpose": "Recovery plans, resequencing, added shifts/crews/equipment, crashing, fast-tracking and cost impacts."
+    },
+    {
+      "name": "Delay & Impact Analysis",
+      "purpose": "Change/delay events, impacted activities, fragnet references, contemporaneous records and claims support."
+    },
+    {
+      "name": "Portfolio Capacity Planning",
+      "purpose": "Cross-project labor/equipment capacity, backlog demand, bottlenecks and strategic resource forecasting."
+    },
+    {
+      "name": "What-If & Scenario Planning",
+      "purpose": "Alternative sequences, crew/equipment levels, calendars, procurement dates and completion outcomes."
+    },
+    {
+      "name": "AI Schedule Intelligence",
+      "purpose": "Evidence-grounded delay prediction, constraint detection, recovery recommendations and narrative."
+    },
+    {
+      "name": "Scheduling Digital Twin",
+      "purpose": "Current schedule, resources, constraints, production, costs, risks and decision state."
+    }
+  ],
+  "counts": {
+    "requirements": 400,
+    "entities": 185,
+    "fields": 300,
+    "business_rules": 80,
+    "validation_rules": 80,
+    "workflows": 52,
+    "engines": 59,
+    "api_resources": 64,
+    "ui_surfaces": 49,
+    "reports": 42,
+    "kpis": 52,
+    "tests": 400
+  },
+  "critical_governance": [
+    "Approved baselines are immutable and revisions require explicit reason and approval.",
+    "Schedule calculations are reproducible from logic, calendars, constraints and versioned inputs.",
+    "Resource plans integrate workforce, fleet, procurement and subcontractor availability rather than assuming unlimited capacity.",
+    "Contract milestones and externally committed dates require controlled change authority.",
+    "AI may recommend recovery, constraints and forecasts but may not silently alter approved baselines or contractual commitments.",
+    "Delay/impact-analysis records preserve contemporaneous evidence and are separate from legal conclusions."
+  ]
+}

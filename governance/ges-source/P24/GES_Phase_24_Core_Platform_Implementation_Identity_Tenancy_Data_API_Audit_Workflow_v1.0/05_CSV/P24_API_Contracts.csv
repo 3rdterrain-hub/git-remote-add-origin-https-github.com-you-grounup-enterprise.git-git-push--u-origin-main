@@ -1,0 +1,21 @@
+api_id,method,path,purpose,security,control
+P24-API-001,POST,/api/v1/tenants,Create/provision tenant,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-002,GET,/api/v1/tenants/{id},Read tenant,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-003,PATCH,/api/v1/tenants/{id},Update tenant state/config,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-004,POST,/api/v1/tenants/{id}/memberships,Add tenant membership,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-005,GET,/api/v1/me/context,Resolve current actor/tenant context,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-006,GET,/api/v1/me/entitlements,Resolve effective entitlements,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-007,GET,/api/v1/roles,List roles,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-008,POST,/api/v1/policies/evaluate,Evaluate authorization policy,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-009,GET,/api/v1/config,Read effective configuration,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-010,PATCH,/api/v1/config/{key},Update governed configuration,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-011,GET,/api/v1/feature-flags,List/evaluate feature flags,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-012,PATCH,/api/v1/feature-flags/{id},Change flag assignment,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-013,GET,/api/v1/audit-events,Query permitted audit events,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-014,POST,/api/v1/workflows,Create workflow instance,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-015,POST,/api/v1/workflows/{id}/transition,Request workflow transition,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-016,POST,/api/v1/workflows/{id}/approve,Record approval decision,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-017,POST,/api/v1/files/metadata,Register file metadata,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-018,GET,/api/v1/files/{id}/metadata,Read permitted file metadata,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-019,GET,/health/live,Liveness,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable
+P24-API-020,GET,/health/ready,Readiness,Authenticated except health as approved; tenant/policy checked,Writes support audit; idempotency where applicable

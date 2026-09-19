@@ -1,0 +1,126 @@
+from_phase,to_phase,dependency_type,reason
+P01,P02,hard,Governance/change-control baseline
+P01,P03,hard,Governance/change-control baseline
+P01,P04,hard,Governance/change-control baseline
+P01,P05,hard,Governance/change-control baseline
+P01,P06,hard,Governance/change-control baseline
+P01,P07,hard,Governance/change-control baseline
+P01,P08,hard,Governance/change-control baseline
+P01,P09,hard,Governance/change-control baseline
+P01,P10,hard,Governance/change-control baseline
+P01,P11,hard,Governance/change-control baseline
+P01,P12,hard,Governance/change-control baseline
+P01,P13,hard,Governance/change-control baseline
+P01,P14,hard,Governance/change-control baseline
+P01,P15,hard,Governance/change-control baseline
+P01,P16,hard,Governance/change-control baseline
+P01,P17,hard,Governance/change-control baseline
+P01,P18,hard,Governance/change-control baseline
+P01,P19,hard,Governance/change-control baseline
+P01,P20,hard,Governance/change-control baseline
+P02,P03,hard,Core platform/shared-service baseline
+P02,P04,hard,Core platform/shared-service baseline
+P02,P05,hard,Core platform/shared-service baseline
+P02,P06,hard,Core platform/shared-service baseline
+P02,P07,hard,Core platform/shared-service baseline
+P02,P08,hard,Core platform/shared-service baseline
+P02,P09,hard,Core platform/shared-service baseline
+P02,P10,hard,Core platform/shared-service baseline
+P02,P11,hard,Core platform/shared-service baseline
+P02,P12,hard,Core platform/shared-service baseline
+P02,P13,hard,Core platform/shared-service baseline
+P02,P14,hard,Core platform/shared-service baseline
+P02,P15,hard,Core platform/shared-service baseline
+P02,P16,hard,Core platform/shared-service baseline
+P02,P17,hard,Core platform/shared-service baseline
+P02,P18,hard,Core platform/shared-service baseline
+P02,P19,hard,Core platform/shared-service baseline
+P02,P20,hard,Core platform/shared-service baseline
+P03,P04,hard,Enterprise data model
+P03,P05,hard,Enterprise data model
+P03,P07,hard,Enterprise data model
+P03,P08,hard,Enterprise data model
+P03,P09,hard,Enterprise data model
+P03,P10,hard,Enterprise data model
+P03,P11,hard,Enterprise data model
+P03,P12,hard,Enterprise data model
+P03,P13,hard,Enterprise data model
+P03,P14,hard,Enterprise data model
+P03,P15,hard,Enterprise data model
+P03,P16,hard,Enterprise data model
+P03,P17,hard,Enterprise data model
+P03,P18,hard,Enterprise data model
+P03,P19,hard,Enterprise data model
+P03,P20,hard,Enterprise data model
+P04,P05,hard,Master library/service registry
+P04,P07,hard,Master library/service registry
+P04,P11,hard,Master library/service registry
+P04,P12,hard,Master library/service registry
+P04,P25,hard,Master library/service registry
+P05,P07,hard,Estimating/cost intelligence
+P05,P10,hard,Estimating/cost intelligence
+P05,P11,hard,Estimating/cost intelligence
+P05,P12,hard,Estimating/cost intelligence
+P05,P18,hard,Estimating/cost intelligence
+P05,P19,hard,Estimating/cost intelligence
+P05,P20,hard,Estimating/cost intelligence
+P05,P26,hard,Estimating/cost intelligence
+P06,P13,hard,AI construction intelligence specification
+P06,P15,hard,AI construction intelligence specification
+P06,P20,hard,AI construction intelligence specification
+P06,P27,hard,AI construction intelligence specification
+P07,P08,integration,Project-management integration
+P07,P09,integration,Project-management integration
+P07,P10,integration,Project-management integration
+P07,P11,integration,Project-management integration
+P07,P12,integration,Project-management integration
+P07,P14,integration,Project-management integration
+P07,P15,integration,Project-management integration
+P07,P16,integration,Project-management integration
+P07,P17,integration,Project-management integration
+P07,P18,integration,Project-management integration
+P07,P19,integration,Project-management integration
+P07,P20,integration,Project-management integration
+P08,P20,hard,CRM/customer integration
+P09,P20,hard,Workforce integration
+P10,P11,hard,Financial controls
+P10,P19,hard,Financial controls
+P10,P20,hard,Financial controls
+P11,P12,integration,Procurement/inventory integration
+P11,P20,integration,Procurement/inventory integration
+P12,P20,hard,Fleet integration
+P13,P20,hard,Decision intelligence/analytics
+P13,P29,hard,Decision intelligence/analytics
+P14,P20,hard,HSE/compliance integration
+P15,P16,hard,Document/drawing/spec information
+P15,P20,hard,Document/drawing/spec information
+P15,P27,hard,Document/drawing/spec information
+P16,P17,hard,GIS/survey/reality data
+P16,P20,hard,GIS/survey/reality data
+P17,P18,integration,Machine-control/field automation
+P17,P20,integration,Machine-control/field automation
+P18,P19,hard,Scheduling/resource planning
+P18,P20,hard,Scheduling/resource planning
+P19,P20,hard,Commercial management closes domain set
+P20,P21,hard,Readiness before consolidation
+P21,P22,hard,Consolidation before enterprise lock
+P22,P23,hard,Locked specification before development foundation
+P23,P24,hard,Architecture before core implementation
+P24,P25,hard,Core platform foundation
+P24,P28,hard,Core platform foundation
+P25,P26,hard,Governed master data
+P25,P29,hard,Governed master data
+P26,P27,hard,Deterministic estimating
+P26,P29,hard,Deterministic estimating
+P27,P28,hard,AI runtime/evidence controls
+P27,P29,hard,AI runtime/evidence controls
+P28,P29,hard,Enterprise security cross-cutting
+P28,P30,hard,Enterprise security cross-cutting
+P28,P31,hard,Enterprise security cross-cutting
+P28,P32,hard,Enterprise security cross-cutting
+P29,P30,integration,Analytics support
+P29,P31,integration,Analytics support
+P29,P32,integration,Analytics support
+P30,P31,hard,SaaS commercial control plane
+P30,P32,hard,SaaS commercial control plane
+P31,P32,hard,Production operations evidence

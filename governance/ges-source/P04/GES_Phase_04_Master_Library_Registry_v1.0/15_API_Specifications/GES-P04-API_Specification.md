@@ -1,0 +1,26 @@
+# API Specification
+
+- `GET /v1/libraries` - List accessible libraries
+- `POST /v1/libraries` - Register a library
+- `GET /v1/libraries/{libraryId}` - Get library definition
+- `PATCH /v1/libraries/{libraryId}` - Update draft library definition
+- `GET /v1/libraries/{libraryId}/items` - Search library items
+- `POST /v1/libraries/{libraryId}/items` - Create item draft
+- `GET /v1/library-items/{itemId}` - Get item and resolved version
+- `PATCH /v1/library-items/{itemId}` - Edit draft item
+- `POST /v1/library-items/{itemId}/submit` - Submit for review
+- `POST /v1/library-items/{itemId}/approve` - Approve item
+- `POST /v1/library-items/{itemId}/reject` - Reject item
+- `POST /v1/library-items/{itemId}/publish` - Publish approved item
+- `POST /v1/library-items/{itemId}/supersede` - Create successor version
+- `POST /v1/library-items/{itemId}/deprecate` - Deprecate item
+- `POST /v1/library-items/{itemId}/rollback` - Rollback publication
+- `POST /v1/library-imports` - Create staged import
+- `GET /v1/library-imports/{importId}` - Get import status
+- `POST /v1/library-imports/{importId}/validate` - Run validations
+- `POST /v1/library-imports/{importId}/publish` - Publish valid rows
+- `GET /v1/library-search` - Cross-library search
+- `POST /v1/library-resolve` - Resolve effective item by context
+- `GET /v1/library-items/{itemId}/history` - Get version and audit history
+- `GET /v1/library-items/{itemId}/impact` - Get dependency impact
+- `POST /v1/library-items/{itemId}/clone` - Clone to tenant scope

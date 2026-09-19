@@ -1,0 +1,65 @@
+api_id,method,path,resource,purpose,security,control
+P23-API-001,GET,/api/v1/tenants,tenants,List/query tenants,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-002,POST,/api/v1/tenants,tenants,Create tenants,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-003,GET,/api/v1/tenants/{id},tenants,Read one tenants,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-004,PATCH,/api/v1/tenants/{id},tenants,Update tenants,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-005,GET,/api/v1/users,users,List/query users,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-006,POST,/api/v1/users,users,Create users,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-007,GET,/api/v1/users/{id},users,Read one users,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-008,PATCH,/api/v1/users/{id},users,Update users,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-009,GET,/api/v1/roles,roles,List/query roles,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-010,POST,/api/v1/roles,roles,Create roles,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-011,GET,/api/v1/roles/{id},roles,Read one roles,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-012,PATCH,/api/v1/roles/{id},roles,Update roles,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-013,GET,/api/v1/projects,projects,List/query projects,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-014,POST,/api/v1/projects,projects,Create projects,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-015,GET,/api/v1/projects/{id},projects,Read one projects,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-016,PATCH,/api/v1/projects/{id},projects,Update projects,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-017,GET,/api/v1/libraries,libraries,List/query libraries,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-018,POST,/api/v1/libraries,libraries,Create libraries,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-019,GET,/api/v1/libraries/{id},libraries,Read one libraries,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-020,PATCH,/api/v1/libraries/{id},libraries,Update libraries,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-021,GET,/api/v1/estimates,estimates,List/query estimates,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-022,POST,/api/v1/estimates,estimates,Create estimates,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-023,GET,/api/v1/estimates/{id},estimates,Read one estimates,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-024,PATCH,/api/v1/estimates/{id},estimates,Update estimates,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-025,GET,/api/v1/takeoffs,takeoffs,List/query takeoffs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-026,POST,/api/v1/takeoffs,takeoffs,Create takeoffs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-027,GET,/api/v1/takeoffs/{id},takeoffs,Read one takeoffs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-028,PATCH,/api/v1/takeoffs/{id},takeoffs,Update takeoffs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-029,GET,/api/v1/crews,crews,List/query crews,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-030,POST,/api/v1/crews,crews,Create crews,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-031,GET,/api/v1/crews/{id},crews,Read one crews,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-032,PATCH,/api/v1/crews/{id},crews,Update crews,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-033,GET,/api/v1/equipment,equipment,List/query equipment,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-034,POST,/api/v1/equipment,equipment,Create equipment,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-035,GET,/api/v1/equipment/{id},equipment,Read one equipment,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-036,PATCH,/api/v1/equipment/{id},equipment,Update equipment,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-037,GET,/api/v1/vendors,vendors,List/query vendors,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-038,POST,/api/v1/vendors,vendors,Create vendors,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-039,GET,/api/v1/vendors/{id},vendors,Read one vendors,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-040,PATCH,/api/v1/vendors/{id},vendors,Update vendors,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-041,GET,/api/v1/documents,documents,List/query documents,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-042,POST,/api/v1/documents,documents,Create documents,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-043,GET,/api/v1/documents/{id},documents,Read one documents,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-044,PATCH,/api/v1/documents/{id},documents,Update documents,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-045,GET,/api/v1/workflows,workflows,List/query workflows,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-046,POST,/api/v1/workflows,workflows,Create workflows,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-047,GET,/api/v1/workflows/{id},workflows,Read one workflows,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-048,PATCH,/api/v1/workflows/{id},workflows,Update workflows,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-049,GET,/api/v1/schedules,schedules,List/query schedules,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-050,POST,/api/v1/schedules,schedules,Create schedules,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-051,GET,/api/v1/schedules/{id},schedules,Read one schedules,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-052,PATCH,/api/v1/schedules/{id},schedules,Update schedules,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-053,GET,/api/v1/contracts,contracts,List/query contracts,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-054,POST,/api/v1/contracts,contracts,Create contracts,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-055,GET,/api/v1/contracts/{id},contracts,Read one contracts,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-056,PATCH,/api/v1/contracts/{id},contracts,Update contracts,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-057,GET,/api/v1/ai-jobs,ai-jobs,List/query ai-jobs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-058,POST,/api/v1/ai-jobs,ai-jobs,Create ai-jobs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-059,GET,/api/v1/ai-jobs/{id},ai-jobs,Read one ai-jobs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-060,PATCH,/api/v1/ai-jobs/{id},ai-jobs,Update ai-jobs,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-061,GET,/api/v1/audit-events,audit-events,List/query audit-events,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-062,POST,/api/v1/audit-events,audit-events,Create audit-events,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-063,GET,/api/v1/audit-events/{id},audit-events,Read one audit-events,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed
+P23-API-064,PATCH,/api/v1/audit-events/{id},audit-events,Update audit-events,Authenticated; tenant scoped; policy checked,Idempotency for writes where applicable; audit governed

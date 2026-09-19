@@ -1,0 +1,12 @@
+# Pseudocode CI policy - adapt to approved CI platform
+stages:
+  - validate_source
+  - lint_and_unit
+  - contract_and_integration
+  - security_scans
+  - build_artifact
+  - sbom_and_provenance
+  - publish_immutable_artifact
+rules:
+  fail_on_blocking_quality_gate: true
+  artifact_rebuild_on_promotion: false

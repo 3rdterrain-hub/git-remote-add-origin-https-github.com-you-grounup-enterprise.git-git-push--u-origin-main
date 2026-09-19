@@ -1,0 +1,5 @@
+equipment_code,name,category,rate_unit,note
+EQ-EXC-30T,30 Ton Excavator,Excavator,HR,Operating resource; bucket/attachment configured separately
+EQ-DZR-D6,D6 Class Dozer,Dozer,HR,Operating resource
+EQ-SKID-CTL,Compact Track Loader,Skid Steer/CTL,HR,Operating resource
+EQ-COMP-84,84 in Smooth Drum Roller,Compactor,HR,Operating resource

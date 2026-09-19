@@ -1,0 +1,22 @@
+{
+  "proposal_number": "P-2026-0042",
+  "version": 2,
+  "status": "Issued",
+  "currency": "USD",
+  "base_option": {
+    "name": "Base Drainage Scope",
+    "amount": 18500
+  },
+  "alternates": [
+    {
+      "name": "Add rear-yard grading",
+      "amount": 4200
+    }
+  ],
+  "approval": {
+    "status": "Approved"
+  },
+  "signature": {
+    "status": "Pending"
+  }
+}

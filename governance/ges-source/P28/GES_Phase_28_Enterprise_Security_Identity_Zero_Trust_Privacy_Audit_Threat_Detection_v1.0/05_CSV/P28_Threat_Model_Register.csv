@@ -1,0 +1,17 @@
+threat_id,threat,scenario,severity,primary_controls
+TM-001,Cross-tenant data leakage,Tenant isolation failure in query/cache/search/object/event/AI context,Critical,Tenant context enforcement + negative tests + data partition/filter controls
+TM-002,Privilege escalation,User obtains unauthorized role/admin capability,Critical,Default deny + approval + MFA + SoD + audit
+TM-003,Stolen session/token,Attacker reuses session or token,High,Short-lived tokens + revocation + step-up + anomaly detection
+TM-004,Service credential compromise,Leaked machine secret enables broad service access,Critical,Managed secrets + scoped identity + rotation + kill/revoke
+TM-005,Prompt injection/tool abuse,Document content coerces AI into unauthorized action,High,Instruction isolation + tool policy + human approval + adversarial eval
+TM-006,API abuse/replay,Repeated or crafted API calls cause fraud/duplication/DoS,High,Validation + rate limit + idempotency + replay controls
+TM-007,Malicious file upload,Uploaded file exploits parser or distributes malware,High,Type validation + scanning + sandboxing + permission controls
+TM-008,Audit tampering,Attacker hides privileged/security actions,Critical,Append-oriented protected audit + restricted admin + external evidence/monitoring
+TM-009,Supply-chain compromise,Dependency/container/build artifact is compromised,Critical,Pin/scan/sign/provenance + controlled build/promotion
+TM-010,Secret leakage in logs,Credentials or protected data written to telemetry,High,Structured logging policy + redaction + scanning/tests
+TM-011,Search inference leakage,Unauthorized user infers hidden record existence/content,Medium,Permission-aware indexing/results/counts/snippets
+TM-012,Backup exposure,Backup copy bypasses production access/encryption controls,High,Encrypted backups + restricted restore + access audit
+TM-013,Insider privilege misuse,Authorized privileged actor misuses access,High,JIT elevation + MFA + monitoring + SoD + periodic review
+TM-014,Ransomware/destructive admin,Compromised admin deletes/encrypts systems/data,Critical,Least privilege + immutable backups + break-glass controls + alerting
+TM-015,AI provider data exposure,Sensitive tenant data sent to disallowed model/provider,High,Provider/data-classification policy + redaction + audit
+TM-016,Configuration drift,Security configuration weakens outside approved change path,High,IaC/config drift detection + policy-as-code + alerting

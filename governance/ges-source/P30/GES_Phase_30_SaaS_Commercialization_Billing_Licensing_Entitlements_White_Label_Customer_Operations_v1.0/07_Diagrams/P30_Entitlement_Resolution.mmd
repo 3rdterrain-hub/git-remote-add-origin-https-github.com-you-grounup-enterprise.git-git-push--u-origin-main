@@ -1,0 +1,9 @@
+flowchart LR
+ Plan[Plan Version] --> Resolve[Entitlement Resolver]
+ Addon[Add-ons] --> Resolve
+ Trial[Trial State] --> Resolve
+ Contract[Contract Overrides] --> Resolve
+ Flag[Safe Rollout Flags] --> Resolve
+ Resolve --> Security{Security Authorization Passes?}
+ Security -->|Yes| Access[Capability + Limits]
+ Security -->|No| Deny[Deny]

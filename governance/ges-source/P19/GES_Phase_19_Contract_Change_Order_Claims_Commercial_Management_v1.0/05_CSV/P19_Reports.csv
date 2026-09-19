@@ -1,0 +1,45 @@
+report_id,name,audience,purpose,formats
+P19-RPT-001,Contract Summary,Commercial/Project/Finance/Executive,"Governed contract summary with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-002,Contract Clause Register,Commercial/Project/Finance/Executive,"Governed contract clause register with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-003,Obligation Status,Commercial/Project/Finance/Executive,"Governed obligation status with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-004,Notice Deadline Report,Commercial/Project/Finance/Executive,"Governed notice deadline report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-005,Notice Delivery Audit,Commercial/Project/Finance/Executive,"Governed notice delivery audit with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-006,Potential Change Log,Commercial/Project/Finance/Executive,"Governed potential change log with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-007,Change Order Log,Commercial/Project/Finance/Executive,"Governed change order log with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-008,Change Pricing Detail,Commercial/Project/Finance/Executive,"Governed change pricing detail with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-009,T&M Ticket Register,Commercial/Project/Finance/Executive,"Governed t&m ticket register with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-010,Force Account Reconciliation,Commercial/Project/Finance/Executive,"Governed force account reconciliation with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-011,Change Schedule Impact,Commercial/Project/Finance/Executive,"Governed change schedule impact with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-012,Change Authorization Audit,Commercial/Project/Finance/Executive,"Governed change authorization audit with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-013,Contract Value Reconciliation,Commercial/Project/Finance/Executive,"Governed contract value reconciliation with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-014,Pending Change Exposure,Commercial/Project/Finance/Executive,"Governed pending change exposure with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-015,Claims Register,Commercial/Project/Finance/Executive,"Governed claims register with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-016,Claim Chronology,Commercial/Project/Finance/Executive,"Governed claim chronology with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-017,Claim Cost Summary,Commercial/Project/Finance/Executive,"Governed claim cost summary with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-018,Claim Time Summary,Commercial/Project/Finance/Executive,"Governed claim time summary with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-019,Claim Evidence Index,Commercial/Project/Finance/Executive,"Governed claim evidence index with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-020,Differing Site Condition Report,Commercial/Project/Finance/Executive,"Governed differing site condition report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-021,Delay/Disruption Record,Commercial/Project/Finance/Executive,"Governed delay/disruption record with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-022,Acceleration Cost Report,Commercial/Project/Finance/Executive,"Governed acceleration cost report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-023,Scope Change Trace,Commercial/Project/Finance/Executive,"Governed scope change trace with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-024,Payment Application Summary,Commercial/Project/Finance/Executive,"Governed payment application summary with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-025,Retainage Report,Commercial/Project/Finance/Executive,"Governed retainage report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-026,Backcharge Report,Commercial/Project/Finance/Executive,"Governed backcharge report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-027,Allowance/Contingency Report,Commercial/Project/Finance/Executive,"Governed allowance/contingency report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-028,Escalation/Price Adjustment,Commercial/Project/Finance/Executive,"Governed escalation/price adjustment with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-029,Insurance/Bond Compliance,Commercial/Project/Finance/Executive,"Governed insurance/bond compliance with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-030,Lien/Waiver Status,Commercial/Project/Finance/Executive,"Governed lien/waiver status with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-031,Commercial Forecast,Commercial/Project/Finance/Executive,"Governed commercial forecast with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-032,Margin at Completion,Commercial/Project/Finance/Executive,"Governed margin at completion with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-033,Dispute/Settlement Register,Commercial/Project/Finance/Executive,"Governed dispute/settlement register with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-034,Commercial Closeout,Commercial/Project/Finance/Executive,"Governed commercial closeout with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-035,Commercial Audit Trail,Commercial/Project/Finance/Executive,"Governed commercial audit trail with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-036,AI Commercial Review,Commercial/Project/Finance/Executive,"Governed ai commercial review with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-037,Commercial KPI Scorecard,Commercial/Project/Finance/Executive,"Governed commercial kpi scorecard with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-038,Commercial Digital Twin Status,Commercial/Project/Finance/Executive,"Governed commercial digital twin status with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-039,Executive Commercial Dashboard,Commercial/Project/Finance/Executive,"Governed executive commercial dashboard with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-040,Change Aging Report,Commercial/Project/Finance/Executive,"Governed change aging report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-041,Claim Aging Report,Commercial/Project/Finance/Executive,"Governed claim aging report with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-042,Notice Compliance Scorecard,Commercial/Project/Finance/Executive,"Governed notice compliance scorecard with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-043,Contract Exposure by Project,Commercial/Project/Finance/Executive,"Governed contract exposure by project with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV
+P19-RPT-044,Portfolio Commercial Risk,Commercial/Project/Finance/Executive,"Governed portfolio commercial risk with contract version, authority, cost/schedule and evidence context.",Dashboard/PDF/XLSX/CSV

@@ -1,0 +1,235 @@
+{
+  "version": "1.0.0-review",
+  "entities": [
+    {
+      "entity_id": "ENT-P01-001",
+      "name": "Tenant",
+      "purpose": "Top-level security and commercial boundary",
+      "key_attributes": "tenant_id; tenant_key; legal_name; status; region; default_currency; default_units",
+      "relationships": "OrganizationUnit, User, Role, Policy, Configuration",
+      "lifecycle": "provisioning; active; suspended; closed",
+      "owner": "Platform Administration",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-002",
+      "name": "OrganizationUnit",
+      "purpose": "Hierarchical company, office, department, or division",
+      "key_attributes": "organization_unit_id; tenant_id; type; name; parent_id; effective dates",
+      "relationships": "Tenant, Project Scope, User Assignment",
+      "lifecycle": "draft; active; inactive; superseded",
+      "owner": "Platform Administration",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-003",
+      "name": "UserIdentity",
+      "purpose": "Human or service identity",
+      "key_attributes": "user_id; tenant_id; identity_type; email; status; provider; last_login",
+      "relationships": "RoleAssignment, Session, Device, AuditEvent",
+      "lifecycle": "invited; active; suspended; terminated",
+      "owner": "Identity Administration",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-004",
+      "name": "Role",
+      "purpose": "Named collection of permission grants",
+      "key_attributes": "role_id; tenant_id; role_key; name; type; status",
+      "relationships": "PermissionGrant, RoleAssignment",
+      "lifecycle": "draft; active; deprecated",
+      "owner": "Security Governance",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-005",
+      "name": "Permission",
+      "purpose": "Atomic allowed action",
+      "key_attributes": "permission_id; resource; action; risk_level; system_owned",
+      "relationships": "PermissionGrant",
+      "lifecycle": "active; deprecated",
+      "owner": "Security Governance",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-006",
+      "name": "RoleAssignment",
+      "purpose": "Assignment of role to identity and scope",
+      "key_attributes": "assignment_id; user_id; role_id; scope_type; scope_id; effective dates",
+      "relationships": "UserIdentity, Role, OrganizationUnit",
+      "lifecycle": "pending; active; expired; revoked",
+      "owner": "Security Governance",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-007",
+      "name": "Policy",
+      "purpose": "Governed policy identity",
+      "key_attributes": "policy_id; policy_key; owner; category; scope_type",
+      "relationships": "PolicyVersion",
+      "lifecycle": "draft; active; retired",
+      "owner": "Compliance Governance",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-008",
+      "name": "PolicyVersion",
+      "purpose": "Versioned policy content and applicability",
+      "key_attributes": "policy_version_id; policy_id; version; effective dates; content_uri; acknowledgment_required",
+      "relationships": "Policy, PolicyAcknowledgment",
+      "lifecycle": "draft; review; approved; active; superseded",
+      "owner": "Compliance Governance",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-009",
+      "name": "PolicyAcknowledgment",
+      "purpose": "User acknowledgment evidence",
+      "key_attributes": "ack_id; policy_version_id; user_id; acknowledged_at; method",
+      "relationships": "PolicyVersion, UserIdentity",
+      "lifecycle": "recorded; revoked",
+      "owner": "Compliance Governance",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-010",
+      "name": "ConfigurationDefinition",
+      "purpose": "Definition of a configurable key",
+      "key_attributes": "config_definition_id; key; data_type; allowed_layers; default; validation",
+      "relationships": "ConfigurationValue",
+      "lifecycle": "draft; active; deprecated",
+      "owner": "Platform Administration",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-011",
+      "name": "ConfigurationValue",
+      "purpose": "Value at a particular scope and time",
+      "key_attributes": "config_value_id; definition_id; layer; scope_id; value; effective dates",
+      "relationships": "ConfigurationDefinition",
+      "lifecycle": "draft; active; superseded",
+      "owner": "Platform Administration",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-012",
+      "name": "ApprovalPolicy",
+      "purpose": "Rules for approval routing",
+      "key_attributes": "approval_policy_id; object_type; conditions; stages; required roles",
+      "relationships": "ApprovalRequest",
+      "lifecycle": "draft; active; retired",
+      "owner": "Workflow Governance",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-013",
+      "name": "ApprovalRequest",
+      "purpose": "Instance requiring governed decision",
+      "key_attributes": "approval_request_id; object_ref; requester; status; amount; risk",
+      "relationships": "ApprovalDecision, Delegation",
+      "lifecycle": "pending; approved; rejected; cancelled; expired",
+      "owner": "Workflow Governance",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-014",
+      "name": "ApprovalDecision",
+      "purpose": "Immutable approval action",
+      "key_attributes": "decision_id; request_id; approver; decision; comments; decided_at",
+      "relationships": "ApprovalRequest",
+      "lifecycle": "approved; rejected; abstained",
+      "owner": "Workflow Governance",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-015",
+      "name": "Delegation",
+      "purpose": "Temporary authority delegation",
+      "key_attributes": "delegation_id; delegator; delegate; scope; limits; effective dates",
+      "relationships": "UserIdentity, ApprovalRequest",
+      "lifecycle": "draft; active; expired; revoked",
+      "owner": "Workflow Governance",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-016",
+      "name": "AuditEvent",
+      "purpose": "Immutable governance event",
+      "key_attributes": "audit_event_id; tenant_id; actor; action; object; occurred_at; correlation_id; payload_hash",
+      "relationships": "All governed entities",
+      "lifecycle": "recorded; archived",
+      "owner": "Audit Governance",
+      "classification": "Restricted"
+    },
+    {
+      "entity_id": "ENT-P01-017",
+      "name": "DataClassification",
+      "purpose": "Governed classification and handling rules",
+      "key_attributes": "classification_id; name; rank; handling_policy",
+      "relationships": "Entity/Field metadata",
+      "lifecycle": "draft; active; retired",
+      "owner": "Data Governance",
+      "classification": "Internal"
+    },
+    {
+      "entity_id": "ENT-P01-018",
+      "name": "RetentionSchedule",
+      "purpose": "Retention trigger and duration by record class",
+      "key_attributes": "retention_schedule_id; record_class; trigger; duration; disposition",
+      "relationships": "LegalHold, governed record",
+      "lifecycle": "draft; active; retired",
+      "owner": "Records Governance",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-019",
+      "name": "LegalHold",
+      "purpose": "Matter-based preservation requirement",
+      "key_attributes": "legal_hold_id; matter_reference; scope; issued_at; released_at",
+      "relationships": "RetentionSchedule, governed record",
+      "lifecycle": "active; released",
+      "owner": "Records Governance",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-020",
+      "name": "ChangeRequest",
+      "purpose": "Controlled change to locked or governed artifacts",
+      "key_attributes": "change_request_id; object_ref; reason; impact; migration; rollback; status",
+      "relationships": "ApprovalRequest, AuditEvent",
+      "lifecycle": "draft; submitted; approved; rejected; implemented; closed",
+      "owner": "Change Control Board",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-021",
+      "name": "EmergencyAccessGrant",
+      "purpose": "Time-limited elevated access",
+      "key_attributes": "grant_id; user_id; reason; approved_by; effective dates; scope",
+      "relationships": "UserIdentity, AuditEvent",
+      "lifecycle": "requested; approved; active; expired; revoked; reviewed",
+      "owner": "Security Governance",
+      "classification": "Highly Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-022",
+      "name": "Entitlement",
+      "purpose": "Tenant capability entitlement",
+      "key_attributes": "entitlement_id; tenant_id; feature_key; limits; effective dates; status",
+      "relationships": "Tenant",
+      "lifecycle": "pending; active; suspended; expired",
+      "owner": "Commercial Operations",
+      "classification": "Confidential"
+    },
+    {
+      "entity_id": "ENT-P01-023",
+      "name": "AdministrativeCase",
+      "purpose": "Governance exception or review case",
+      "key_attributes": "case_id; type; severity; owner; related_refs; status",
+      "relationships": "AuditEvent, UserIdentity",
+      "lifecycle": "open; investigating; remediated; closed",
+      "owner": "Risk and Compliance",
+      "classification": "Confidential"
+    }
+  ]
+}

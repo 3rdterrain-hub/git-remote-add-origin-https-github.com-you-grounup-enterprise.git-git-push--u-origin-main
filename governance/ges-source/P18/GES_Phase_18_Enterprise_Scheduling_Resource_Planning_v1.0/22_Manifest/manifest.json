@@ -1,0 +1,181 @@
+{
+  "phase": "18",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "01_README/README.md",
+      "sha256": "c619fb18a4a6b01faf176a952820126195c27760c2a8368fb61911c644e0ea12",
+      "bytes": 1360
+    },
+    {
+      "path": "02_Word/GES-P18-001-Enterprise_Scheduling_Resource_Planning.docx",
+      "sha256": "4c8fc5a5fe6e4c22338dd040e2a9760f9bb86a3d867601f76f6938b2c1aa821b",
+      "bytes": 42260
+    },
+    {
+      "path": "03_PDF/GES-P18-001-Enterprise_Scheduling_Resource_Planning.pdf",
+      "sha256": "376806bb05cbed03bdb0612bcaa78d3b751ff60e8aeb590dc702ad66832a2e80",
+      "bytes": 138815
+    },
+    {
+      "path": "04_Excel/GES-P18-001-Enterprise_Scheduling_Resource_Planning_Control_Workbook.xlsx",
+      "sha256": "18004aa88c93eb5dec1aaff80790187d657df3d0dc02f9e3ff6f04ec67bcd057",
+      "bytes": 91182
+    },
+    {
+      "path": "05_CSV/P18_API_Endpoints.csv",
+      "sha256": "6b0f52285139984ab2dd63262751bec91b52f6b60567d1ca17136c4e7233b941",
+      "bytes": 10083
+    },
+    {
+      "path": "05_CSV/P18_Business_Rules.csv",
+      "sha256": "007b77287efe61239ceff00b81d52f911df2a99e33771e1f8c1e7ef50d9a3800",
+      "bytes": 19041
+    },
+    {
+      "path": "05_CSV/P18_Data_Dictionary.csv",
+      "sha256": "d7e79ddcf8a1adae7050bf9485c12fd9fb13dde46c756029852efa0bc11c88ed",
+      "bytes": 75158
+    },
+    {
+      "path": "05_CSV/P18_Engines.csv",
+      "sha256": "a9e306b9b685d491a7f8da4e06d489c6e0a87f9e9cfa4e904777736366b39afc",
+      "bytes": 17304
+    },
+    {
+      "path": "05_CSV/P18_Entities.csv",
+      "sha256": "ca79196a0712e49ac1fef0615954a6a8d4202c347756631a8327e7aa37a01b30",
+      "bytes": 40315
+    },
+    {
+      "path": "05_CSV/P18_KPIs.csv",
+      "sha256": "8dcff197680525fc5398e565c605417fa773999f91a67f48c66a753d40f125af",
+      "bytes": 11099
+    },
+    {
+      "path": "05_CSV/P18_Reports.csv",
+      "sha256": "acde842f2786fb9195c268965252922c498a0d135405acbf859636763c5dca3e",
+      "bytes": 8755
+    },
+    {
+      "path": "05_CSV/P18_Requirements.csv",
+      "sha256": "150d424cf9524c636952d480478410efd0b273a155029aa0a800ff9516f6946d",
+      "bytes": 178822
+    },
+    {
+      "path": "05_CSV/P18_Test_Cases.csv",
+      "sha256": "1a02eec4849a0db4c862d008fb159141bcd1dc27cd22af387388bd0367ef5a16",
+      "bytes": 123666
+    },
+    {
+      "path": "05_CSV/P18_Traceability.csv",
+      "sha256": "dc94bcd3f8f9c60ea6386c2ca2d81c6a87c9bc076e8001e2a6e1f31239f6c6ed",
+      "bytes": 26854
+    },
+    {
+      "path": "05_CSV/P18_UI_Surfaces.csv",
+      "sha256": "009e83c28bba3d12ff064ad6d8c14eb3cf0433b34a30ee0a0e3e7878f3424718",
+      "bytes": 10358
+    },
+    {
+      "path": "05_CSV/P18_Validation_Rules.csv",
+      "sha256": "d6b325f2488528ef89b8f1cf373121ca389efe526e9be4565d818e01a6f0f583",
+      "bytes": 20295
+    },
+    {
+      "path": "05_CSV/P18_Workflows.csv",
+      "sha256": "02b644bb4f754628d83e0c5c3d5828e94ada25bc4580b91ee164623880d6ffe4",
+      "bytes": 11156
+    },
+    {
+      "path": "06_JSON/P18_Master_Specification.json",
+      "sha256": "fc91e7f9d28be7a76c9bcb9b629ca1ccb5ac2c1e6f011c1b6e4b730d11b7614f",
+      "bytes": 5912
+    },
+    {
+      "path": "06_JSON/P18_Schedule_Activity.schema.json",
+      "sha256": "bc1cc460d32a2bdfccda21ae0f9683a079ca2d2208ccabd132d3bd2cdd2daaf6",
+      "bytes": 991
+    },
+    {
+      "path": "07_OpenAPI/P18_OpenAPI.json",
+      "sha256": "8d2a036da018c25aa3b2127a6e8030439eab98ea009df9982302df9d2b347bf3",
+      "bytes": 23910
+    },
+    {
+      "path": "08_Diagrams/P18_Baseline_Update_Workflow.mmd",
+      "sha256": "ff599f4244b56e30274ae9edee07e7624dff43a34ac5dbf25663e3c4327e7957",
+      "bytes": 479
+    },
+    {
+      "path": "08_Diagrams/P18_Scheduling_Architecture.mmd",
+      "sha256": "10ef3c4b3fabc0660c713eeb7a234051019a48bb15a9ee3ac7430982df0409e0",
+      "bytes": 660
+    },
+    {
+      "path": "09_Business_Rules/P18_Business_Rules.csv",
+      "sha256": "007b77287efe61239ceff00b81d52f911df2a99e33771e1f8c1e7ef50d9a3800",
+      "bytes": 19041
+    },
+    {
+      "path": "10_Validation_Rules/P18_Validation_Rules.csv",
+      "sha256": "d6b325f2488528ef89b8f1cf373121ca389efe526e9be4565d818e01a6f0f583",
+      "bytes": 20295
+    },
+    {
+      "path": "11_Data_Dictionary/P18_Data_Dictionary.csv",
+      "sha256": "d7e79ddcf8a1adae7050bf9485c12fd9fb13dde46c756029852efa0bc11c88ed",
+      "bytes": 75158
+    },
+    {
+      "path": "12_Entities/P18_Entities.csv",
+      "sha256": "ca79196a0712e49ac1fef0615954a6a8d4202c347756631a8327e7aa37a01b30",
+      "bytes": 40315
+    },
+    {
+      "path": "13_Workflows/P18_Workflows.csv",
+      "sha256": "02b644bb4f754628d83e0c5c3d5828e94ada25bc4580b91ee164623880d6ffe4",
+      "bytes": 11156
+    },
+    {
+      "path": "14_AI/P18_Engines.csv",
+      "sha256": "a9e306b9b685d491a7f8da4e06d489c6e0a87f9e9cfa4e904777736366b39afc",
+      "bytes": 17304
+    },
+    {
+      "path": "15_APIs/P18_API_Endpoints.csv",
+      "sha256": "6b0f52285139984ab2dd63262751bec91b52f6b60567d1ca17136c4e7233b941",
+      "bytes": 10083
+    },
+    {
+      "path": "16_UI_UX/P18_UI_Surfaces.csv",
+      "sha256": "009e83c28bba3d12ff064ad6d8c14eb3cf0433b34a30ee0a0e3e7878f3424718",
+      "bytes": 10358
+    },
+    {
+      "path": "17_Reports/P18_Reports.csv",
+      "sha256": "acde842f2786fb9195c268965252922c498a0d135405acbf859636763c5dca3e",
+      "bytes": 8755
+    },
+    {
+      "path": "18_Testing/P18_Test_Cases.csv",
+      "sha256": "1a02eec4849a0db4c862d008fb159141bcd1dc27cd22af387388bd0367ef5a16",
+      "bytes": 123666
+    },
+    {
+      "path": "19_Traceability/P18_Traceability.csv",
+      "sha256": "dc94bcd3f8f9c60ea6386c2ca2d81c6a87c9bc076e8001e2a6e1f31239f6c6ed",
+      "bytes": 26854
+    },
+    {
+      "path": "20_Deployment/P18_Deployment_Guide.md",
+      "sha256": "f3c18048fc77854caf6aa22ac9726359ccdf2519125f3cf13dc1892240c8dca0",
+      "bytes": 1266
+    },
+    {
+      "path": "21_Approvals/P18_Approval_Record.md",
+      "sha256": "17c72d19109f0defbe13f702777c7791fd317513b8f642c47030c06c9d2100bb",
+      "bytes": 340
+    }
+  ]
+}

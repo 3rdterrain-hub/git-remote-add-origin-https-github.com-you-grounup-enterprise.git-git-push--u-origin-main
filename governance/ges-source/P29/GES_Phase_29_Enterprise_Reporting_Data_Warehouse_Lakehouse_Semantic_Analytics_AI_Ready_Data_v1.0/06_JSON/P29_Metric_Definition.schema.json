@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrounUp Certified Metric Definition",
+  "type": "object",
+  "required": [
+    "metric_id",
+    "name",
+    "version",
+    "expression",
+    "grain",
+    "unit",
+    "owner_id",
+    "status",
+    "source_dataset_ids"
+  ],
+  "properties": {
+    "metric_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer"
+    },
+    "expression": {
+      "type": "string"
+    },
+    "grain": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "time_basis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "Draft",
+        "InReview",
+        "Certified",
+        "Superseded",
+        "Archived"
+      ]
+    },
+    "source_dataset_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lineage_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+API ID,Method,Path,Purpose,Security,Format,Version
+GES-P09-API-001,GET,/workers,Search workers,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-002,POST,/workers,Create worker,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-003,GET,/workers/{id},Read worker,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-004,PATCH,/workers/{id},Update worker,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-005,POST,/requisitions,Create requisition,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-006,POST,/candidates,Create candidate,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-007,POST,/applications,Submit application,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-008,POST,/offers,Create offer,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-009,POST,/onboarding-plans,Create onboarding plan,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-010,GET,/credentials/expiring,List expiring credentials,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-011,POST,/crew-assignments,Create crew assignment,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-012,POST,/eligibility/check,Check worker eligibility,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-013,POST,/time-entries,Create time entry,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-014,POST,/timecards/{id}/submit,Submit timecard,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-015,POST,/timecards/{id}/approve,Approve timecard,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-016,POST,/payroll-exports,Create payroll export,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-017,POST,/union-dispatch-requests,Create dispatch request,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-018,POST,/prevailing-wage/resolve,Resolve wage determination,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-019,POST,/certified-payroll/generate,Generate certified payroll,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-020,POST,/training-enrollments,Enroll worker,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-021,POST,/leave-requests,Create leave request,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-022,POST,/performance-reviews,Create performance review,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-023,POST,/workforce-forecasts,Generate workforce forecast,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-024,POST,/crew-optimizer/recommend,Recommend crew,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-025,GET,/workforce-digital-twins/{workerId},Read workforce digital twin,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-026,POST,/ai-workforce/recommendations,Create AI recommendation,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-027,POST,/ai-workforce/recommendations/{id}/review,Review AI recommendation,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1
+GES-P09-API-028,GET,/workforce-kpis,Read workforce KPIs,OAuth2/OIDC + tenant authorization,JSON,Versioned /v1

@@ -1,0 +1,38 @@
+{
+  "phase": "30",
+  "name": "SaaS Commercialization, Billing, Licensing, Entitlements, White Label & Customer Operations",
+  "version": "1.0.0",
+  "status": "Implementation-ready specification",
+  "source_phase29": {
+    "requirements": 520,
+    "modules": 42,
+    "entities": 46,
+    "apis": 26,
+    "events": 20,
+    "rules": 30,
+    "security": 16,
+    "quality": 18
+  },
+  "counts": {
+    "requirements": 540,
+    "tests": 540,
+    "modules": 44,
+    "entities": 48,
+    "apis": 28,
+    "events": 30,
+    "business_rules": 32,
+    "security_controls": 18,
+    "quality_gates": 20,
+    "example_plans": 5
+  },
+  "commercial_position": "Vendor-neutral. Specific payment, tax, email, domain, CRM/support and marketplace providers remain adapter decisions.",
+  "principles": [
+    "Commercial entitlement never overrides security authorization",
+    "Published plan/price versions are immutable",
+    "Usage is idempotent and invoice-traceable",
+    "Issued financial records are corrected through governed adjustments",
+    "White label is tenant/reseller scoped and security-safe",
+    "Enterprise overrides are explicit, effective-dated and auditable",
+    "Operational tenant data is not silently destroyed by billing lifecycle changes"
+  ]
+}

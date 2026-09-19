@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0-review",
+  "ui_surfaces": [
+    {
+      "ui_id": "UI-P02-001",
+      "name": "Platform Operations Dashboard",
+      "primary_users": "Platform Admin; SRE",
+      "purpose": "Service health, queue depth, failures, latency, capacity, and regional status"
+    },
+    {
+      "ui_id": "UI-P02-002",
+      "name": "Identity and Session Console",
+      "primary_users": "Identity Admin; Security",
+      "purpose": "Sessions, devices, service identities, risks, revocation, and credential status"
+    },
+    {
+      "ui_id": "UI-P02-003",
+      "name": "File and Document Center",
+      "primary_users": "All authorized users",
+      "purpose": "Upload, preview, version, classify, share, search, and inspect files"
+    },
+    {
+      "ui_id": "UI-P02-004",
+      "name": "Search Experience",
+      "primary_users": "All authorized users",
+      "purpose": "Universal permission-aware search with filters, saved searches, and recent items"
+    },
+    {
+      "ui_id": "UI-P02-005",
+      "name": "Workflow Monitor",
+      "primary_users": "Workflow Admin; Operations",
+      "purpose": "Inspect running, waiting, failed, compensated, and completed workflows"
+    },
+    {
+      "ui_id": "UI-P02-006",
+      "name": "Job and Scheduler Console",
+      "primary_users": "Platform Admin",
+      "purpose": "Schedules, background jobs, retries, progress, cancellation, and dead letters"
+    },
+    {
+      "ui_id": "UI-P02-007",
+      "name": "Integration Center",
+      "primary_users": "Integration Admin",
+      "purpose": "Connectors, credentials, mappings, webhooks, events, imports, exports, and health"
+    },
+    {
+      "ui_id": "UI-P02-008",
+      "name": "Mobile Sync Status",
+      "primary_users": "Field User; Mobile Admin",
+      "purpose": "Offline packs, queued actions, conflicts, sync receipts, and device status"
+    },
+    {
+      "ui_id": "UI-P02-009",
+      "name": "Feature Flag Console",
+      "primary_users": "Product Owner; Release Manager",
+      "purpose": "Targeting, rollout percentage, cohorts, metrics, pause, rollback, and history"
+    },
+    {
+      "ui_id": "UI-P02-010",
+      "name": "Configuration Explorer",
+      "primary_users": "Platform Admin",
+      "purpose": "Effective values, source layers, versions, validation, and change subscriptions"
+    },
+    {
+      "ui_id": "UI-P02-011",
+      "name": "Observability Explorer",
+      "primary_users": "SRE; Developer; Support",
+      "purpose": "Correlated logs, metrics, traces, alerts, and runbooks"
+    },
+    {
+      "ui_id": "UI-P02-012",
+      "name": "AI Platform Console",
+      "primary_users": "AI Admin; Product Owner",
+      "purpose": "Agents, prompts, models, tools, evaluations, usage, costs, and execution logs"
+    }
+  ]
+}

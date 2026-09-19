@@ -1,0 +1,24 @@
+# KPI Library
+
+| KPI ID | KPI | Definition | Unit |
+| --- | --- | --- | --- |
+| P07-KPI-001 | Project Health Score | Weighted score of cost, schedule, safety, quality, procurement, document, and risk indicators | 0-100 |
+| P07-KPI-002 | Cost Performance Index | Earned value divided by actual cost | Ratio |
+| P07-KPI-003 | Schedule Performance Index | Earned value divided by planned value | Ratio |
+| P07-KPI-004 | Forecast Variance | Approved budget minus forecast at completion | USD |
+| P07-KPI-005 | Committed Cost Coverage | Commitments divided by forecasted buyout scope | Percent |
+| P07-KPI-006 | Change Exposure | Pending and unapproved change value | USD |
+| P07-KPI-007 | Critical Activity Slippage | Critical-path delay versus approved baseline | Days |
+| P07-KPI-008 | Constraint Readiness | Ready look-ahead activities divided by planned activities | Percent |
+| P07-KPI-009 | Labor Productivity Variance | Actual production rate versus planned production rate | Percent |
+| P07-KPI-010 | Equipment Utilization | Productive equipment hours divided by available hours | Percent |
+| P07-KPI-011 | RFI Aging | Average open days for RFIs | Days |
+| P07-KPI-012 | Submittal On-Time Rate | Submittals completed on or before required date | Percent |
+| P07-KPI-013 | Procurement On-Time Rate | Items delivered by required-on-site date | Percent |
+| P07-KPI-014 | Rework Cost Rate | Rework cost divided by total installed cost | Percent |
+| P07-KPI-015 | Inspection Pass Rate | Passed inspections divided by completed inspections | Percent |
+| P07-KPI-016 | Punch Closure Velocity | Punch items closed per week | Count/week |
+| P07-KPI-017 | Recordable Incident Rate | Tenant-defined normalized recordable incident rate | Rate |
+| P07-KPI-018 | Daily Report Timeliness | Daily reports approved by cutoff | Percent |
+| P07-KPI-019 | Cash Conversion Forecast | Forecast time from earned revenue to collected cash | Days |
+| P07-KPI-020 | Closeout Readiness | Completed mandatory closeout requirements | Percent |

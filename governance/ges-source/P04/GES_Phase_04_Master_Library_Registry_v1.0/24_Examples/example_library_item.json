@@ -1,0 +1,18 @@
+{
+  "library_item_id": "gli_01",
+  "tenant_id": "tenant_3rdterrain",
+  "library_id": "LIB-001",
+  "item_code": "SVC-EW-001",
+  "name": "Mass Excavation",
+  "description": "Excavate common soil to design grade.",
+  "category_id": "earthwork",
+  "status": "Active",
+  "version": "1.0.0",
+  "effective_from": "2026-07-24",
+  "unit_id": "CY",
+  "source_type": "Internal",
+  "source_reference": "3rd Terrain estimating standard",
+  "confidence_score": 0.95,
+  "approval_status": "Approved",
+  "white_label_visibility": "tenant"
+}

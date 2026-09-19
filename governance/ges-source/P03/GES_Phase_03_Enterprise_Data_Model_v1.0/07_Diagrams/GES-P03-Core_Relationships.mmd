@@ -1,0 +1,17 @@
+erDiagram
+  TENANT ||--o{ ORGANIZATION : contains
+  ORGANIZATION ||--o{ BUSINESS_UNIT : contains
+  ORGANIZATION ||--o{ PROJECT : delivers
+  PARTY ||--o{ PARTY_RELATIONSHIP : participates
+  PROJECT ||--o{ ESTIMATE : has
+  ESTIMATE ||--o{ ESTIMATE_VERSION : versions
+  ESTIMATE_VERSION ||--o{ ESTIMATE_LINE : contains
+  PROJECT ||--o{ WORK_ORDER : authorizes
+  PROJECT ||--o{ DAILY_REPORT : records
+  PROJECT ||--o{ COST_TRANSACTION : incurs
+  DOCUMENT ||--o{ DOCUMENT_VERSION : versions
+  DOCUMENT ||--o{ ATTACHMENT_LINK : attaches
+  AIEXECUTION ||--o{ AIRECOMMENDATION : produces
+  AIRECOMMENDATION ||--o{ AIWRITEBACK : proposes
+  SOURCE_SYSTEM ||--o{ EXTERNAL_IDENTIFIER : owns
+  IMPORT_BATCH ||--o{ DATA_LINEAGE : creates

@@ -1,0 +1,12 @@
+flowchart LR
+ Upload[Upload / Author] --> Control[Document Control]
+ Control --> Rev[Revision & Version]
+ Rev --> Review[Review / Approval]
+ Review --> Current[Authoritative Current Set]
+ Current --> Field[Field / Offline]
+ Current --> Search[Search & Retrieval]
+ Current --> AI[Plan & Spec Intelligence]
+ AI --> Human[Human Review]
+ Control --> RFI[RFI / Submittal / Transmittal]
+ Control --> Closeout[Closeout & Turnover]
+ Control --> Twin[Document Intelligence Digital Twin]

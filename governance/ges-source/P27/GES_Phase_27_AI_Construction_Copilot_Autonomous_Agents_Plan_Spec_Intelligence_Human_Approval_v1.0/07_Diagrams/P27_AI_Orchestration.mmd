@@ -1,0 +1,18 @@
+flowchart LR
+ User[User / Authorized Background Task] --> Copilot[Construction Copilot]
+ Copilot --> Context[Authorized Context Builder]
+ Context --> Orchestrator[Agent Orchestrator]
+ Orchestrator --> Retrieve[Plan/Spec/Project Retrieval]
+ Orchestrator --> Agents[Specialized Construction Agents]
+ Agents --> P26[Phase 26 Deterministic Tools]
+ Agents --> P25[Phase 25 Library Query/Proposal]
+ Agents --> Evidence[Evidence + Citations]
+ Orchestrator --> Policy[Tool / Risk Policy]
+ Policy --> Approval{Human Approval Required?}
+ Approval -->|Yes| Human[Authorized Human Reviewer]
+ Approval -->|No| Output[Advisory/Task Output]
+ Human -->|Approved| Tools[Protected Tool Action]
+ Human -->|Rejected| Output
+ Tools --> Audit[AI Audit / Trace]
+ Output --> Audit
+ Audit --> Eval[Monitoring / Evaluation / Feedback]

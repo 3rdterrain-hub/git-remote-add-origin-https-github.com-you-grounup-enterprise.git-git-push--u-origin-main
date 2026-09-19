@@ -1,0 +1,11 @@
+wave,name,governing_phases,implementation_focus,exit_gate
+0,Governed baseline reconciliation,01-22,"Load governed specifications, final reconciliation and enterprise lock. No code decision may contradict them without formal change control.",Baseline imported; ADR/change backlog recorded
+1,Repository & architecture foundation,23,"Repository bootstrap, architecture boundaries, contracts, traceability and developer/AI execution foundation.",Repository/architecture baseline accepted
+2,Core platform + security foundation,24 + 28 baseline,"Tenant context, identity, authorization, audit, workflow, configuration, secrets and zero-trust security foundation.",Tenant isolation/default deny/security foundation passes
+3,Master data and deterministic estimating,25-26,"Service catalog, resources, assemblies, rates, snapshots, production/cost/haul/markup engine.",Golden calculations and snapshot reproducibility pass
+4,Operational domain applications,07-19 guided by 02-06,"Project, CRM, workforce, finance, procurement, fleet, HSE, documents, GIS/GPS, schedule and commercial workflows on common platform contracts.",Domain integration/regression passes
+5,AI construction intelligence,06 + 27,"Evidence-grounded copilot/agents over governed retrieval, Phase 25 data and Phase 26 deterministic tools.",Grounding/tool/approval/security evaluations pass
+6,Enterprise analytics,13 + 29,"Warehouse/lakehouse, quality, lineage, semantic metrics, reporting and point-in-time AI features.",Certified metrics/reconciliation/lineage/security pass
+7,SaaS commercialization & white label,30,"Plans, subscriptions, usage, billing, entitlements, onboarding, support, partners and white label.",Commercial reconciliation/entitlement gates pass
+8,Production infrastructure & SRE,20 + 28 + 31,"Approved provider binding, IaC, CI/CD, observability, backup/restore, DR, runbooks, on-call and FinOps.",Release/restore/DR/security gates pass
+9,"UAT, pilot, migration & certification",32,"Execute real acceptance, pilot, migration/cutover, production verification, hypercare and signoff.",Exact release certified only with executed evidence

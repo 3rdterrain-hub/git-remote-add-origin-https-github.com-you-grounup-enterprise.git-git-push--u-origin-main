@@ -1,0 +1,13 @@
+﻿UI_ID,Name,Primary_Users,Purpose
+UI-P02-001,Platform Operations Dashboard,Platform Admin; SRE,"Service health, queue depth, failures, latency, capacity, and regional status"
+UI-P02-002,Identity and Session Console,Identity Admin; Security,"Sessions, devices, service identities, risks, revocation, and credential status"
+UI-P02-003,File and Document Center,All authorized users,"Upload, preview, version, classify, share, search, and inspect files"
+UI-P02-004,Search Experience,All authorized users,"Universal permission-aware search with filters, saved searches, and recent items"
+UI-P02-005,Workflow Monitor,Workflow Admin; Operations,"Inspect running, waiting, failed, compensated, and completed workflows"
+UI-P02-006,Job and Scheduler Console,Platform Admin,"Schedules, background jobs, retries, progress, cancellation, and dead letters"
+UI-P02-007,Integration Center,Integration Admin,"Connectors, credentials, mappings, webhooks, events, imports, exports, and health"
+UI-P02-008,Mobile Sync Status,Field User; Mobile Admin,"Offline packs, queued actions, conflicts, sync receipts, and device status"
+UI-P02-009,Feature Flag Console,Product Owner; Release Manager,"Targeting, rollout percentage, cohorts, metrics, pause, rollback, and history"
+UI-P02-010,Configuration Explorer,Platform Admin,"Effective values, source layers, versions, validation, and change subscriptions"
+UI-P02-011,Observability Explorer,SRE; Developer; Support,"Correlated logs, metrics, traces, alerts, and runbooks"
+UI-P02-012,AI Platform Console,AI Admin; Product Owner,"Agents, prompts, models, tools, evaluations, usage, costs, and execution logs"

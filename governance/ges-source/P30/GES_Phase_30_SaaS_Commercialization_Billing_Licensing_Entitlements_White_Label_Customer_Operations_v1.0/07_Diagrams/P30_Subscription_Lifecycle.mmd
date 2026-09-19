@@ -1,0 +1,13 @@
+stateDiagram-v2
+ [*] --> Trial
+ [*] --> Active
+ Trial --> Active: convert
+ Trial --> Expired
+ Active --> PastDue: payment failure
+ PastDue --> Active: recover
+ PastDue --> Suspended: policy threshold
+ Suspended --> Active: recover/approved
+ Active --> Cancelling: end-of-term cancel
+ Cancelling --> Cancelled
+ Active --> Cancelled: immediate cancel policy
+ Cancelled --> [*]

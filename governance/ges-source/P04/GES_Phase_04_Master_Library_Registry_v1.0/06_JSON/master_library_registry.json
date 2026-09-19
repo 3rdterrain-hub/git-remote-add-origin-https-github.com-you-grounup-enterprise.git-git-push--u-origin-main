@@ -1,0 +1,357 @@
+{
+  "phase": "04",
+  "title": "Master Library Registry",
+  "version": "1.0.0",
+  "libraries": [
+    {
+      "library_id": "LIB-001",
+      "name": "Master Service Library",
+      "domain": "Estimating",
+      "purpose": "Services, scopes, inclusions, exclusions, units, assemblies",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-002",
+      "name": "Master Resource Library",
+      "domain": "Estimating",
+      "purpose": "Labor, equipment, material and subcontract resources",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-003",
+      "name": "Master Material Library",
+      "domain": "Cost",
+      "purpose": "Materials, grades, sizes, vendors, freight and waste",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-004",
+      "name": "Master Equipment Library",
+      "domain": "Fleet",
+      "purpose": "Equipment classes, capacities, rates and productivity",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-005",
+      "name": "Master Fleet Library",
+      "domain": "Fleet",
+      "purpose": "Owned, leased and rented asset registry",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-006",
+      "name": "Master Labor Library",
+      "domain": "HRM",
+      "purpose": "Trades, classifications, wages, burden and rules",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-007",
+      "name": "Master Crew Library",
+      "domain": "Operations",
+      "purpose": "Crew templates, roles and equipment combinations",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-008",
+      "name": "Master Vendor Library",
+      "domain": "Procurement",
+      "purpose": "Suppliers, contacts, terms and performance",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-009",
+      "name": "Master Customer Library",
+      "domain": "CRM",
+      "purpose": "Customer accounts, contacts and segmentation",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-010",
+      "name": "Master Subcontractor Library",
+      "domain": "Procurement",
+      "purpose": "Subcontractor capabilities, rates and compliance",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-011",
+      "name": "Master Production Rate Library",
+      "domain": "Estimating",
+      "purpose": "Baseline and conditional production rates",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-012",
+      "name": "Master Cost Code Library",
+      "domain": "Finance",
+      "purpose": "Cost codes, phase codes and accounting mappings",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-013",
+      "name": "Master Assembly Library",
+      "domain": "Estimating",
+      "purpose": "Reusable service assemblies and resource compositions",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-014",
+      "name": "Master CSI Library",
+      "domain": "Standards",
+      "purpose": "CSI divisions, sections and mappings",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-015",
+      "name": "Master DOT Bid Item Library",
+      "domain": "Infrastructure",
+      "purpose": "DOT pay items, units and regional mappings",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-016",
+      "name": "Master Municipal Bid Item Library",
+      "domain": "Infrastructure",
+      "purpose": "Municipal bid items and owner-specific mappings",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-017",
+      "name": "Master Unit Library",
+      "domain": "Reference",
+      "purpose": "Units, dimensions and conversion rules",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-018",
+      "name": "Master Currency Library",
+      "domain": "Reference",
+      "purpose": "Currencies, precision and exchange-rate controls",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-019",
+      "name": "Master Tax Library",
+      "domain": "Finance",
+      "purpose": "Tax jurisdictions, rules and exemptions",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-020",
+      "name": "Master Safety Library",
+      "domain": "Safety",
+      "purpose": "Hazards, controls, PPE and compliance references",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-021",
+      "name": "Master Specification Library",
+      "domain": "Documents",
+      "purpose": "Technical specifications and clause indexing",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-022",
+      "name": "Master Drawing Symbol Library",
+      "domain": "Takeoff",
+      "purpose": "Plan symbols, abbreviations and recognition metadata",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-023",
+      "name": "Master AI Knowledge Library",
+      "domain": "AI",
+      "purpose": "Approved knowledge chunks and source provenance",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-024",
+      "name": "Master Prompt Library",
+      "domain": "AI",
+      "purpose": "Versioned prompts, roles, guardrails and outputs",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-025",
+      "name": "Master Risk Library",
+      "domain": "Risk",
+      "purpose": "Risk categories, triggers, impacts and mitigations",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-026",
+      "name": "Master Quality Library",
+      "domain": "Quality",
+      "purpose": "Quality standards, acceptance criteria and NCR logic",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-027",
+      "name": "Master Inspection Library",
+      "domain": "Quality",
+      "purpose": "Inspection types, forms, checkpoints and evidence",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-028",
+      "name": "Master Checklist Library",
+      "domain": "Operations",
+      "purpose": "Reusable checklists by process and role",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-029",
+      "name": "Master Workflow Library",
+      "domain": "Platform",
+      "purpose": "Workflow definitions, states, transitions and SLAs",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-030",
+      "name": "Master Report Library",
+      "domain": "Analytics",
+      "purpose": "Governed report definitions and access rules",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-031",
+      "name": "Master Dashboard Library",
+      "domain": "Analytics",
+      "purpose": "Dashboard layouts, KPIs and role assignments",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-032",
+      "name": "Master Notification Library",
+      "domain": "Platform",
+      "purpose": "Events, channels, templates and escalation rules",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-033",
+      "name": "Master Template Library",
+      "domain": "Documents",
+      "purpose": "Document, estimate, proposal and form templates",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-034",
+      "name": "Master Document Library",
+      "domain": "Documents",
+      "purpose": "Controlled document categories and retention",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-035",
+      "name": "Master Formula Library",
+      "domain": "Calculation",
+      "purpose": "Versioned formulas, variables and test cases",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-036",
+      "name": "Master Location Factor Library",
+      "domain": "Cost",
+      "purpose": "Geographic cost and productivity factors",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-037",
+      "name": "Master Regional Pricing Library",
+      "domain": "Cost",
+      "purpose": "Regional labor, material and equipment price sets",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-038",
+      "name": "Master Equipment Productivity Library",
+      "domain": "Production",
+      "purpose": "Machine-specific production curves and modifiers",
+      "scope": "Global"
+    },
+    {
+      "library_id": "LIB-039",
+      "name": "Master Crew Productivity Library",
+      "domain": "Production",
+      "purpose": "Crew production curves and balancing logic",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-040",
+      "name": "Master Disposal Library",
+      "domain": "Hauling",
+      "purpose": "Facilities, materials accepted, fees and hours",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-041",
+      "name": "Master Trucking Library",
+      "domain": "Hauling",
+      "purpose": "Truck types, capacities, cycles and rates",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-042",
+      "name": "Master Rental Rate Library",
+      "domain": "Cost",
+      "purpose": "Rental sources, rate periods and terms",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-043",
+      "name": "Master Fuel Library",
+      "domain": "Cost",
+      "purpose": "Fuel types, prices, burn rates and emissions factors",
+      "scope": "Hybrid"
+    },
+    {
+      "library_id": "LIB-044",
+      "name": "Master Maintenance Library",
+      "domain": "Fleet",
+      "purpose": "Maintenance plans, intervals, parts and labor",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-045",
+      "name": "Master Asset Library",
+      "domain": "Fleet",
+      "purpose": "Assets, ownership, status and lifecycle",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-046",
+      "name": "Master Inventory Library",
+      "domain": "Inventory",
+      "purpose": "Stock items, locations, reorder and valuation",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-047",
+      "name": "Master Time Code Library",
+      "domain": "HRM",
+      "purpose": "Time categories, payroll mapping and permissions",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-048",
+      "name": "Master Payroll Code Library",
+      "domain": "HRM",
+      "purpose": "Earnings, deductions, benefits and tax mappings",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-049",
+      "name": "Master Accounting Mapping Library",
+      "domain": "Finance",
+      "purpose": "GL, job cost, tax and system integration mappings",
+      "scope": "Tenant"
+    },
+    {
+      "library_id": "LIB-050",
+      "name": "Master AI Training Library",
+      "domain": "AI",
+      "purpose": "Approved examples, feedback and evaluation datasets",
+      "scope": "Hybrid"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+gate,evidence,required,status
+Source/Artifact,commit + immutable artifact digest + provenance,Yes,Planned
+Tests,unit/integration/contract/E2E/security results,Yes,Planned
+IaC,reviewed plan + policy checks,Yes,Planned
+Migration,migration + validation + rollback/forward-fix plan,If applicable,Planned
+Observability,health/SLO/alert/runbook readiness,Yes,Planned
+Rollback,tested rollback reference,Yes for critical releases,Planned
+Approval,authorized production release approval,Yes,Planned
+Deployment,strategy + health result + final status,Yes,Planned
+Evidence Bundle,complete release record,Yes,Planned

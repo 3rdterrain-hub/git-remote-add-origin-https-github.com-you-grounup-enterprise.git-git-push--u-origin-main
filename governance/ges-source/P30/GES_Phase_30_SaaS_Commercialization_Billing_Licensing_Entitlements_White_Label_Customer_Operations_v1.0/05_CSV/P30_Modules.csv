@@ -1,0 +1,45 @@
+module_id,name,layer,purpose
+P30-MOD-001,SaaS Control Plane,Platform,Commercial tenant/product configuration and lifecycle control
+P30-MOD-002,Tenant Provisioning Service,Platform,"Create, configure, suspend, reactivate and terminate tenant environments"
+P30-MOD-003,Product Catalog Service,Commercial,"Products, modules, editions, add-ons and sellable SKUs"
+P30-MOD-004,Plan & Packaging Service,Commercial,"Versioned plans, bundles, limits and included capabilities"
+P30-MOD-005,Pricing Service,Commercial,"Flat, per-seat, tiered, usage, minimum, volume and contracted pricing"
+P30-MOD-006,Subscription Service,Billing,Subscription lifecycle and effective-dated changes
+P30-MOD-007,Billing Account Service,Billing,"Bill-to account, currency, terms and billing profile"
+P30-MOD-008,Invoice Service,Billing,"Invoice calculation, line generation, issuance and state"
+P30-MOD-009,Payment Orchestration,Billing,Payment-provider abstraction and payment state synchronization
+P30-MOD-010,Credit/Adjustment Service,Billing,"Credits, adjustments, write-offs and governed corrections"
+P30-MOD-011,Tax Determination Interface,Billing,Jurisdiction/tax-provider abstraction and evidence
+P30-MOD-012,Usage Event Collector,Metering,Receive idempotent billable/metered usage events
+P30-MOD-013,Usage Aggregation Service,Metering,"Aggregate usage by tenant, metric, period and pricing rule"
+P30-MOD-014,Quota & Limit Service,Entitlements,"Hard/soft quotas, thresholds and enforcement state"
+P30-MOD-015,License Service,Entitlements,"License grants, assignments, validity and environment scope"
+P30-MOD-016,Entitlement Engine,Entitlements,Resolve effective tenant/user capabilities and limits
+P30-MOD-017,Feature Flag Service,Entitlements,Controlled rollout flags independent from commercial entitlement
+P30-MOD-018,Seat Management Service,Entitlements,"Seat counts, assignments, invitations and overage policy"
+P30-MOD-019,Trial Service,Growth,"Trial eligibility, duration, conversion and expiration"
+P30-MOD-020,Promotion Service,Growth,"Promotions, coupons, credits and eligibility"
+P30-MOD-021,Renewal Service,Lifecycle,"Renewal dates, terms, notices and renewal execution"
+P30-MOD-022,Plan Change Service,Lifecycle,Upgrade/downgrade scheduling and effective dates
+P30-MOD-023,Proration Engine,Billing,Deterministic prorated charges/credits
+P30-MOD-024,Cancellation Service,Lifecycle,Immediate/end-of-term cancellation and access consequences
+P30-MOD-025,Dunning Service,Billing,"Failed-payment retry, grace, suspension and recovery"
+P30-MOD-026,Enterprise Contract Service,Commercial,"Negotiated plan, pricing, limits, terms and overrides"
+P30-MOD-027,Grandfathering/Migration Service,Commercial,Legacy plan preservation and governed migration
+P30-MOD-028,White Label Configuration,White Label,"Tenant/reseller brand, logo, colors, names and legal text"
+P30-MOD-029,Custom Domain Service,White Label,Verified custom domains and certificate lifecycle
+P30-MOD-030,Branded Communications,White Label,Email/template/sender branding within security controls
+P30-MOD-031,Branded Documents,White Label,Proposal/report/invoice/document branding profiles
+P30-MOD-032,Partner/Reseller Service,Channels,"Partner hierarchy, customer attribution and commercial terms"
+P30-MOD-033,Marketplace Catalog,Ecosystem,Approved integrations/add-ons and availability rules
+P30-MOD-034,Integration Entitlement Service,Ecosystem,Plan/contract-based connector and API access
+P30-MOD-035,API/Webhook Commercial Controls,Ecosystem,"API quotas, webhook availability and commercial policy"
+P30-MOD-036,Customer Onboarding Orchestrator,Customer Ops,"Provisioning checklist, data/configuration readiness and activation"
+P30-MOD-037,Customer Success Service,Customer Ops,"Health, adoption, milestones, risks and expansion signals"
+P30-MOD-038,Support Entitlement Service,Customer Ops,"Support tier, channel, hours, severity and SLA eligibility"
+P30-MOD-039,Service Level Service,Customer Ops,Commercial service-level commitments and measurement metadata
+P30-MOD-040,Revenue Operations Service,RevOps,"Bookings, MRR/ARR movements, renewals and commercial reconciliation"
+P30-MOD-041,Commercial Analytics Mart,Analytics,"Subscription, usage, retention, churn and expansion analytics"
+P30-MOD-042,Commercial Audit Service,Governance,Immutable commercial configuration/lifecycle evidence
+P30-MOD-043,Commercial Security Service,Security,"Commercial admin roles, separation of duties and sensitive-data policy"
+P30-MOD-044,Commercial Incident Service,Operations,Billing/entitlement/provisioning incident management and correction

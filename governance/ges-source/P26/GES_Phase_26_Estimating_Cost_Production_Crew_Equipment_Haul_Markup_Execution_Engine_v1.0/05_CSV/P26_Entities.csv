@@ -1,0 +1,41 @@
+entity,primary_key,purpose,scope
+Estimate,estimate_id,Estimate header/lifecycle,Tenant
+EstimateVersion,estimate_version_id,Immutable estimate revision,Tenant
+EstimateScenario,scenario_id,Base/low/high/alternate scenario,Tenant
+EstimateLine,estimate_line_id,Service/line item,Tenant
+EstimateLineSource,line_source_id,Plan/spec/manual/source evidence,Tenant
+EstimateQuantity,estimate_quantity_id,Quantity and unit,Tenant
+EstimateResourceComponent,component_id,Expanded labor/equipment/material/etc component,Tenant
+EstimateLibrarySnapshotRef,snapshot_ref_id,Phase 25 snapshot/version reference,Tenant
+ProductionAssumption,production_assumption_id,Production basis/conditions,Tenant
+ProductionModifier,production_modifier_id,Applied condition modifier,Tenant
+CrewPlan,crew_plan_id,Crew size/composition selection,Tenant
+LaborCostDetail,labor_cost_detail_id,Hours/rates/burden detail,Tenant
+EquipmentPlan,equipment_plan_id,Equipment selection/runtime/rate basis,Tenant
+EquipmentCostDetail,equipment_cost_detail_id,Equipment rate and duration calculation,Tenant
+FuelEstimate,fuel_estimate_id,Fuel consumption/cost calculation,Tenant
+TruckPlan,truck_plan_id,Truck count/capacity/cycle plan,Tenant
+TruckCycle,truck_cycle_id,Cycle time components,Tenant
+HaulCostDetail,haul_cost_detail_id,Hauling cost calculation,Tenant
+DisposalCostDetail,disposal_cost_detail_id,Disposal quantity/fee calculation,Tenant
+MaterialCostDetail,material_cost_detail_id,Material quantity/waste/price calculation,Tenant
+SubcontractCostDetail,subcontract_cost_detail_id,Subcontract quantity/rate calculation,Tenant
+DurationCalculation,duration_calculation_id,Hours/days/shifts calculation,Tenant
+MobilizationCost,mobilization_cost_id,Mobilization/demobilization detail,Tenant
+IndirectCost,indirect_cost_id,Indirect/general-condition cost,Tenant
+MarkupProfile,markup_profile_id,Applied estimate markup configuration,Tenant
+MarkupCalculation,markup_calculation_id,Markup step calculation,Tenant
+TaxCalculation,tax_calculation_id,Tax basis/result,Tenant
+BondCalculation,bond_calculation_id,Bond basis/result,Tenant
+EstimateTotal,estimate_total_id,Direct cost/sell/markup/summary,Tenant
+EstimateUnitPrice,unit_price_id,Sell price per unit,Tenant
+EstimateRange,estimate_range_id,Low/base/high range,Tenant
+EstimateConfidence,confidence_id,Confidence score/reasons,Tenant
+EstimateOverride,override_id,Authorized manual override,Tenant
+EstimateApproval,approval_id,Review/approval evidence,Tenant
+EstimateException,exception_id,Unresolved assumption/risk/exception,Tenant
+EstimateExport,export_id,Proposal/job baseline/export record,Tenant
+ServiceWritebackProposal,writeback_id,New service/assembly writeback request,Tenant
+CalculationTrace,calculation_trace_id,Formula/input/output lineage,Tenant
+EstimateAuditEvent,audit_event_id,Estimate-specific audit evidence,Tenant
+EstimateComparison,comparison_id,Scenario/version comparison,Tenant

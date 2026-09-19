@@ -1,0 +1,182 @@
+[
+  {
+    "engine_id": "GES-P05-ENG-001",
+    "name": "Quantity Engine",
+    "purpose": "Converts measured geometry and formulas into normalized quantities.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-002",
+    "name": "Takeoff Intelligence Engine",
+    "purpose": "Reads and compares plans/specifications with human review.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-003",
+    "name": "Production Engine",
+    "purpose": "Calculates duration and hours using rates, crews and conditions.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-004",
+    "name": "Crew Balancer",
+    "purpose": "Identifies bottlenecks and recommends balanced resource mixes.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-005",
+    "name": "Labor Cost Engine",
+    "purpose": "Builds fully burdened labor cost.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-006",
+    "name": "Equipment Cost Engine",
+    "purpose": "Builds ownership/rental and operating costs.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-007",
+    "name": "Material Cost Engine",
+    "purpose": "Selects and normalizes material pricing.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-008",
+    "name": "Haul & Disposal Engine",
+    "purpose": "Calculates truck cycles, counts, haul cost and disposal.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-009",
+    "name": "Markup & Margin Engine",
+    "purpose": "Applies overhead, contingency, tax, bonds, profit and margin rules.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-010",
+    "name": "Regional Pricing Engine",
+    "purpose": "Applies location and market factors.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-011",
+    "name": "Risk & Confidence Engine",
+    "purpose": "Scores uncertainty and confidence.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-012",
+    "name": "Scenario Engine",
+    "purpose": "Maintains isolated alternatives and comparisons.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-013",
+    "name": "Simulation Engine",
+    "purpose": "Runs probabilistic cost and duration simulations.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-014",
+    "name": "Explainability Engine",
+    "purpose": "Produces calculation lineage and plain-language explanations.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-015",
+    "name": "Calibration Engine",
+    "purpose": "Compares estimates with actuals and proposes governed updates.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-016",
+    "name": "Estimate Validation Engine",
+    "purpose": "Runs completeness, consistency and policy checks.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-017",
+    "name": "Document Classification Engine",
+    "purpose": "Classifies plans, specs, addenda, reports and quotes.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-018",
+    "name": "White-Label Configuration Engine",
+    "purpose": "Resolves inherited brand and tenant configuration.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-019",
+    "name": "Offline Sync Engine",
+    "purpose": "Synchronizes field records with conflict handling.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  },
+  {
+    "engine_id": "GES-P05-ENG-020",
+    "name": "Export Composition Engine",
+    "purpose": "Builds proposals, review books and machine-readable exports.",
+    "inputs": "Canonical entities and tenant configuration",
+    "outputs": "Versioned results, trace and validation messages",
+    "human_gate": "Required for material changes",
+    "status": "Proposed"
+  }
+]

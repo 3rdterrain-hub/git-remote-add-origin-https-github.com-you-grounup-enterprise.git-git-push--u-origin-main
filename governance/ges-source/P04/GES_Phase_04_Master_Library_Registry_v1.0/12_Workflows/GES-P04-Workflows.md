@@ -1,0 +1,31 @@
+# Workflows
+
+## WF-001 - Create Library Item
+`Draft -> Validate -> Review -> Approve -> Publish`
+
+## WF-002 - Revise Library Item
+`Clone Active -> Edit -> Compare -> Approve -> Supersede`
+
+## WF-003 - Bulk Import
+`Upload -> Stage -> Map -> Validate -> Resolve -> Approve -> Publish`
+
+## WF-004 - Tenant Override
+`Inherit -> Override Allowed Fields -> Validate -> Activate`
+
+## WF-005 - Deprecation
+`Impact Analysis -> Notice -> Replacement Mapping -> Deprecate`
+
+## WF-006 - Emergency Correction
+`Flag Critical -> Dual Approval -> Hotfix Version -> Notify`
+
+## WF-007 - Duplicate Resolution
+`Detect -> Compare -> Merge/Relate/Reject -> Audit`
+
+## WF-008 - White Label Publication
+`Brand Scope -> Preview -> Approve -> Publish`
+
+## WF-009 - AI Knowledge Intake
+`Ingest -> Chunk -> Tag -> Evaluate -> Approve -> Index`
+
+## WF-010 - Periodic Review
+`Schedule -> Owner Review -> Revalidate -> Renew/Revise/Archive`

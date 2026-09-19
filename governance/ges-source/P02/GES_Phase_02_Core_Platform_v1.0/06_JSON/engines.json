@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0-review",
+  "engines": [
+    {
+      "engine_id": "ENG-P02-001",
+      "name": "Authorization Decision Engine",
+      "inputs": "actor; tenant; action; resource; scope; policy; session risk",
+      "outputs": "allow/deny; reason; matched policy; effective scope; decision_id",
+      "core_rule": "Deterministic and side-effect free"
+    },
+    {
+      "engine_id": "ENG-P02-002",
+      "name": "Configuration Resolution Engine",
+      "inputs": "configuration key; environment; tenant; company; project; user; date",
+      "outputs": "effective value; source layer; version; validation",
+      "core_rule": "Highest authorized active override wins"
+    },
+    {
+      "engine_id": "ENG-P02-003",
+      "name": "Workflow Orchestration Engine",
+      "inputs": "workflow definition; object; variables; events; timers",
+      "outputs": "durable state; step history; outcome",
+      "core_rule": "Persist before external side effects"
+    },
+    {
+      "engine_id": "ENG-P02-004",
+      "name": "Rules Evaluation Engine",
+      "inputs": "rule version; typed inputs",
+      "outputs": "typed output; result; explanation; execution_id",
+      "core_rule": "Same inputs and version yield same result"
+    },
+    {
+      "engine_id": "ENG-P02-005",
+      "name": "Job Dispatch Engine",
+      "inputs": "job type; priority; tenant; capacity; retry policy",
+      "outputs": "worker lease; execution schedule; retry/dead-letter outcome",
+      "core_rule": "At-least-once processing"
+    },
+    {
+      "engine_id": "ENG-P02-006",
+      "name": "Search Indexing Engine",
+      "inputs": "source object; schema; ACL; analyzer configuration",
+      "outputs": "versioned search document",
+      "core_rule": "Authorization filtered at query time"
+    },
+    {
+      "engine_id": "ENG-P02-007",
+      "name": "Notification Routing Engine",
+      "inputs": "event; recipient; preference; template; urgency",
+      "outputs": "channel deliveries; deduplication key; escalation",
+      "core_rule": "Honor mandatory notifications over opt-out"
+    },
+    {
+      "engine_id": "ENG-P02-008",
+      "name": "Synchronization Engine",
+      "inputs": "offline transactions; server versions; conflict policies",
+      "outputs": "applied changes; conflicts; receipt; deltas",
+      "core_rule": "Deterministic conflict resolution"
+    },
+    {
+      "engine_id": "ENG-P02-009",
+      "name": "Unit Conversion Engine",
+      "inputs": "value; source unit; target unit; precision",
+      "outputs": "converted value; formula/version; rounding",
+      "core_rule": "Dimension compatibility required"
+    },
+    {
+      "engine_id": "ENG-P02-010",
+      "name": "Currency Conversion Engine",
+      "inputs": "amount; source currency; target currency; rate source/date",
+      "outputs": "converted amount; rate; provenance",
+      "core_rule": "No implicit conversion"
+    },
+    {
+      "engine_id": "ENG-P02-011",
+      "name": "AI Policy Engine",
+      "inputs": "actor; tenant; agent; model; prompt; data classes; tool request",
+      "outputs": "allow/block; restrictions; evidence requirements",
+      "core_rule": "Intersection of user, agent, tenant, and tool policy"
+    },
+    {
+      "engine_id": "ENG-P02-012",
+      "name": "AI Cost Metering Engine",
+      "inputs": "model usage; tokens; tools; tenant pricing profile",
+      "outputs": "usage record; estimated cost; allocation dimensions",
+      "core_rule": "Reconcile to gateway execution"
+    }
+  ]
+}

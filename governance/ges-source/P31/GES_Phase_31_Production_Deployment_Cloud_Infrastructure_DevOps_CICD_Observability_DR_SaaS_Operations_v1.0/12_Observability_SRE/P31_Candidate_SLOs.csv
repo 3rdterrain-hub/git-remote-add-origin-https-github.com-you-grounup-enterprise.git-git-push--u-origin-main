@@ -1,0 +1,8 @@
+slo_id,service,indicator,objective,window,status
+SLO-API-AVAIL,Core API Availability,Availability,99.9% candidate,Monthly,Draft - owner approval required
+SLO-API-LAT,Core API Latency,p95 request latency,<= approved target,Rolling window,Draft - workload targets required
+SLO-EST-CALC,Estimate Calculation Reliability,Successful deterministic calculations,>= approved target,Monthly,Draft
+SLO-DOC-UPLOAD,Document Upload Reliability,Successful accepted uploads,>= approved target,Monthly,Draft
+SLO-AI-COPILOT,AI Copilot Service Availability,Successful governed AI requests excluding policy denials,>= approved target,Monthly,Draft
+SLO-ANALYTICS,Certified Dashboard Freshness,Assets within freshness SLA,>= approved target,Daily/Monthly,Draft
+SLO-BILLING,Commercial Entitlement Availability,Successful entitlement resolutions,>= approved target,Monthly,Draft
